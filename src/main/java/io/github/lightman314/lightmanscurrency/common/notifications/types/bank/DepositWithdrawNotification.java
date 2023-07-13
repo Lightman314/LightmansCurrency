@@ -8,9 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.B
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class DepositWithdrawNotification extends Notification {
@@ -21,7 +19,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 
 	protected MutableComponent accountName;
 	protected boolean isDeposit;
-	protected CoinValue amount = new CoinValue();
+	protected CoinValue amount = CoinValue.EMPTY;
 
 	protected DepositWithdrawNotification(MutableComponent accountName, boolean isDeposit, CoinValue amount) { this.accountName = accountName; this.isDeposit = isDeposit; this.amount = amount; }
 	protected DepositWithdrawNotification() {}
@@ -31,23 +29,23 @@ public abstract class DepositWithdrawNotification extends Notification {
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-		compound.putString("Name", Component.Serializer.toJson(this.accountName));
+		compound.putString("Name", EasyText.Serializer.toJson(this.accountName));
 		compound.putBoolean("Deposit", this.isDeposit);
-		this.amount.save(compound, "Amount");
+		compound.put("Amount", this.amount.save());
 	}
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-		this.accountName = Component.Serializer.fromJson(compound.getString("Name"));
+		this.accountName = EasyText.Serializer.fromJson(compound.getString("Name"));
 		this.isDeposit = compound.getBoolean("Deposit");
-		this.amount.load(compound, "Amount");
+		this.amount = CoinValue.safeLoad(compound, "Amount");
 	}
 	
 	protected abstract MutableComponent getName();
 	
 	@Override
 	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.bank", this.getName(), new TranslatableComponent(this.isDeposit ? "log.bank.deposit" : "log.bank.withdraw"), this.amount.getComponent());
+		return EasyText.translatable("log.bank", this.getName(), EasyText.translatable(this.isDeposit ? "log.bank.deposit" : "log.bank.withdraw"), this.amount.getComponent());
 	}
 	
 	public static class Player extends DepositWithdrawNotification {
@@ -78,9 +76,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 		@Override
 		protected boolean canMerge(Notification other) {
 			if(other instanceof Player n)
-			{
 				return n.accountName.equals(this.accountName) && n.isDeposit == this.isDeposit && n.amount.equals(this.amount) && n.player.is(this.player);
-			}
 			return false;
 		}
 		
@@ -101,21 +97,19 @@ public abstract class DepositWithdrawNotification extends Notification {
 		@Override
 		protected void saveAdditional(CompoundTag compound) {
 			super.saveAdditional(compound);
-			compound.putString("Trader", Component.Serializer.toJson(this.traderName));
+			compound.putString("Trader", EasyText.Serializer.toJson(this.traderName));
 		}
 		
 		@Override
 		protected void loadAdditional(CompoundTag compound) {
 			super.loadAdditional(compound);
-			this.traderName = Component.Serializer.fromJson(compound.getString("Trader"));
+			this.traderName = EasyText.Serializer.fromJson(compound.getString("Trader"));
 		}
 		
 		@Override
 		protected boolean canMerge(Notification other) {
 			if(other instanceof Trader n)
-			{
 				return n.accountName.equals(this.accountName) && n.isDeposit == this.isDeposit && n.amount.equals(this.amount) && n.traderName.equals(this.traderName);
-			}
 			return false;
 		}
 		

@@ -11,12 +11,12 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class MessageOpenTrades {
 	
 	private final long traderID;
-	
+
 	public MessageOpenTrades(long traderID)
 	{
 		this.traderID = traderID;
 	}
-	
+
 	public static void encode(MessageOpenTrades message, FriendlyByteBuf buffer) {
 		buffer.writeLong(message.traderID);
 	}

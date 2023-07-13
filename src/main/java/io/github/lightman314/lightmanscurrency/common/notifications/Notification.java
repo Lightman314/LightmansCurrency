@@ -6,12 +6,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class Notification {
@@ -74,24 +75,24 @@ public abstract class Notification {
 	public int getCount() { return this.count; }
 
 	protected Notification() { this.timeStamp = TimeUtil.getCurrentTime(); }
-	
+
 	protected abstract ResourceLocation getType();
 	
 	public abstract NotificationCategory getCategory();
 	
 	public abstract MutableComponent getMessage();
-	
+
 	public MutableComponent getGeneralMessage() {
-		return new TranslatableComponent("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
+		return EasyText.translatable("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
 	}
 	
 	public MutableComponent getChatMessage() {
-		return new TranslatableComponent("notifications.chat.format",
-				new TranslatableComponent("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
+		return EasyText.translatable("notifications.chat.format",
+				EasyText.translatable("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
 				this.getMessage());
 	}
 
-	public MutableComponent getTimeStampMessage() { return new TranslatableComponent("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
+	public Component getTimeStampMessage() { return EasyText.translatable("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
 	
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();

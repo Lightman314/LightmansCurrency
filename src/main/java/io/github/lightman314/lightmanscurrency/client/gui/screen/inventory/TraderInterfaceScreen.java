@@ -1,41 +1,34 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
-
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+import javax.annotation.Nonnull;
+
 @IPNIgnore
-public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfaceMenu> implements IClientMessage {
+public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader_interface.png");
 	
@@ -47,9 +40,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	
 	Map<Integer,TabButton> tabButtons = new HashMap<>();
 	
-	List<AbstractWidget> tabRenderables = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
-	
 	IconButton modeToggle;
 	
 	IconButton onlineModeToggle;
@@ -57,30 +47,26 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	public TraderInterfaceScreen(TraderInterfaceMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		this.menu.getAllTabs().forEach((key,tab) -> this.availableTabs.put(key, tab.createClientTab(this)));
-		this.imageWidth = WIDTH;
-		this.imageHeight = HEIGHT;
+		this.resize(WIDTH, HEIGHT);
 	}
 	
 	@Override
-	public void init() {
-		
-		super.init();
-		
-		this.tabRenderables.clear();
-		this.tabListeners.clear();
+	public void initialize(ScreenArea screenArea) {
 		
 		//Create the tab buttons
 		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
-			TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
+			TabButton newButton = this.addChild(new TabButton(button -> this.changeTab(key), tab));
 			if(key == this.menu.getCurrentTabIndex())
 				newButton.active = false;
 			this.tabButtons.put(key, newButton);
 		});
 		
-		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
+		this.modeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()))
+				.withAddons(EasyAddonHelper.tooltip(() -> this.getMode().getDisplayText())));
 		
-		this.onlineModeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> new TranslatableComponent("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
+		this.onlineModeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE)
+				.withAddons(EasyAddonHelper.tooltip(() -> EasyText.translatable("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -90,52 +76,29 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
-		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		//Main BG
-		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-		
-		//Current tab
-		try {
-			this.currentTab().renderBG(pose, mouseX, mouseY, partialTicks);
-			this.tabRenderables.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
-		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab " + this.currentTab().getClass().getName(), e); }
-		
-		
-	}
-	
-	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
-		
-		this.font.draw(pose, this.playerInventoryTitle, TraderInterfaceMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
-		
-	}
-	
-	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.renderBackground(pose);
-		super.render(pose, mouseX, mouseY, partialTicks);
-		this.renderTooltip(pose, mouseX, mouseY);
-		
-		try {
-			this.currentTab().renderTooltips(pose, mouseX, mouseY);
-		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), e); }
+		gui.renderNormalBackground(GUI_TEXTURE, this);
 
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+		//Current tab
+		try { this.currentTab().renderBG(gui);
+		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader storage tab " + this.currentTab().getClass().getName(), t); }
+
+		//Labels
+		gui.drawString(this.playerInventoryTitle, TraderInterfaceMenu.SLOT_OFFSET + 8, this.getYSize() - 94, 0x404040);
 		
-		this.tabButtons.forEach((key, button) -> {
-			if(button.isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, button.tab.getTooltip(), mouseX, mouseY);
-		});
-		
+	}
+
+	@Override
+	protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+		//Current tab
+		try{ this.currentTab().renderAfterWidgets(gui);
+		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader storage tab " + this.currentTab().getClass().getName(), t); }
 	}
 	
 	@Override
-	public void containerTick()
+	public void screenTick()
 	{
 		
 		if(!this.currentTab().commonTab.canOpen(this.menu.player))
@@ -153,9 +116,9 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		return ActiveMode.DISABLED;
 	}
 	
-	private void ToggleMode(Button button) { this.menu.changeMode(this.getMode().getNext()); }
+	private void ToggleMode(EasyButton button) { this.menu.changeMode(this.getMode().getNext()); }
 	
-	private void ToggleOnlineMode(Button button) { this.menu.setOnlineMode(!this.menu.getBE().isOnlineMode()); }
+	private void ToggleOnlineMode(EasyButton button) { this.menu.setOnlineMode(!this.menu.getBE().isOnlineMode()); }
 	
 	private void updateTabs() {
 		//Position the tab buttons
@@ -172,19 +135,10 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 			}
 		});
 	}
-	
+
 	@Override
-	public boolean keyPressed(int key, int scanCode, int mods) {
-		if(this.currentTab().keyPressed(key, scanCode, mods))
-			return true;
-		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
-		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
-		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
-			return true;
-		}
-		return super.keyPressed(key, scanCode, mods);
-	}
-	
+	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }
+
 	private TabButton getTabButton(int key) {
 		if(this.tabButtons.containsKey(key))
 			return this.tabButtons.get(key);
@@ -207,10 +161,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		if(button != null)
 			button.active = true;
 		
-		//Clear the renderables & listeners
-		this.tabRenderables.clear();
-		this.tabListeners.clear();
-		
 		//Change the tab officially
 		this.menu.changeTab(newTab);
 		
@@ -228,73 +178,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		if(oldTab != this.menu.getCurrentTabIndex() && sendMessage)
 			this.menu.sendMessage(this.menu.createTabChangeMessage(newTab, null));
 		
-	}
-	
-	@Override
-	public void selfMessage(CompoundTag message) {
-		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
-		if(message.contains("ChangeTab",Tag.TAG_INT))
-			this.changeTab(message.getInt("ChangeTab"), false, message);
-		else
-			this.currentTab().receiveSelfMessage(message);
-	}
-	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {
-		this.tabRenderables.add(widget);
-		return widget;
-	}
-	
-	public <T extends Widget> void removeRenderableTabWidget(T widget) {
-		this.tabRenderables.remove(widget);
-	}
-	
-	public <T extends GuiEventListener> T addTabListener(T listener) {
-		this.tabListeners.add(listener);
-		return listener;
-	}
-	
-	public <T extends GuiEventListener> void removeTabListener(T listener) {
-		this.tabListeners.remove(listener);
-	}
-	
-	@Override
-	public List<? extends GuiEventListener> children()
-	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
-		listeners.addAll(this.tabRenderables);
-		listeners.addAll(this.tabListeners);
-		return listeners;
-	}
-	
-	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if(this.currentTab().mouseClicked(mouseX, mouseY, button))
-			return true;
-		return super.mouseClicked(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if(this.currentTab().mouseReleased(mouseX, mouseY, button))
-			return true;
-		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		if(this.currentTab().mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY))
-			return true;
-		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
-	}
-	
-	@Override
-	public boolean charTyped(char c, int code) {
-		if(this.currentTab().charTyped(c, code))
-			return true;
-		return super.charTyped(c, code);
 	}
 	
 }

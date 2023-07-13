@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class AddRemoveAllyNotification extends Notification {
@@ -33,7 +33,7 @@ public class AddRemoveAllyNotification extends Notification {
 
 	@Override
 	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.settings.addremoveally", this.player.getName(true), new TranslatableComponent(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.ally.getName(true), new TranslatableComponent(this.isAdd ? "log.settings.to" : "log.settings.from"));
+		return EasyText.translatable("log.settings.addremoveally", this.player.getName(true), EasyText.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.ally.getName(true), EasyText.translatable(this.isAdd ? "log.settings.to" : "log.settings.from"));
 	}
 
 	@Override
@@ -52,9 +52,8 @@ public class AddRemoveAllyNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof AddRemoveAllyNotification)
+		if(other instanceof AddRemoveAllyNotification n)
 		{
-			AddRemoveAllyNotification n = (AddRemoveAllyNotification)other;
 			return n.player.is(this.player) && n.isAdd == this.isAdd && n.ally.is(this.ally);
 		}
 		return false;

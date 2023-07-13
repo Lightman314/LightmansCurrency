@@ -5,16 +5,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 
 public abstract class NotificationCategory implements ITab
 {
@@ -58,10 +56,7 @@ public abstract class NotificationCategory implements ITab
 			return null;
 		}
 	}
-	
-	/* Obsolete as this is covered by ITab
-	public abstract IconData getIcon();
-	*/
+
 	public final MutableComponent getTooltip() { return this.getName(); }
 	public abstract MutableComponent getName();
 	public final int getColor() { return 0xFFFFFF; }
@@ -70,11 +65,10 @@ public abstract class NotificationCategory implements ITab
 	public abstract boolean matches(NotificationCategory other);
 	
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
-		@Nonnull
-        @Override
+		@Override
 		public @NotNull IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Override
-		public MutableComponent getName() { return new TranslatableComponent("notifications.source.general"); }
+		public MutableComponent getName() { return EasyText.translatable("notifications.source.general"); }
 		@Override
 		public boolean matches(NotificationCategory other) { return other == GENERAL; }
 		@Override

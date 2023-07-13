@@ -25,4 +25,5 @@ public class ItemTraderDataArmor extends ItemTraderData {
 		};
 	}
 	
+	
 }

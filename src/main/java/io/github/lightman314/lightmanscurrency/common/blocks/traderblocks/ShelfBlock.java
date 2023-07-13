@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -26,7 +26,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock{
+public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock {
 	
 	public static final int TRADECOUNT = 1;
 	
@@ -46,20 +46,20 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
+	@Override
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
-		List<Vector3f> posList = new ArrayList<Vector3f>(1);
+		List<Vector3f> posList = new ArrayList<>(1);
 		if(tradeSlot == 0)
 		{
 			Direction facing = this.getFacing(state);
 			//Define directions for easy positional handling
 			Vector3f forward = IRotatableBlock.getForwardVect(facing);
 			Vector3f right = IRotatableBlock.getRightVect(facing);
-			Vector3f up = Vector3f.YP;
+			Vector3f up = MathUtil.getYP();
 			Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 			//Only 1 position for shelves
 			posList.add(MathUtil.VectorAdd(offset, MathUtil.VectorMult(right, 0.5f), MathUtil.VectorMult(forward, 14.5f/16f), MathUtil.VectorMult(up, 9f/16f)));
@@ -76,7 +76,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 		//Return null for automatic rotation
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(),facing * -90f));
 		return rotation;
 	}
 

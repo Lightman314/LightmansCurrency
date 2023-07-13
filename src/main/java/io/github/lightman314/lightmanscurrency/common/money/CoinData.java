@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -99,7 +100,7 @@ public class CoinData
 		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
 	}
 	
-	public Component getPlural() {
+	public MutableComponent getPlural() {
 		//Get plural form
 		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
 			return new TranslatableComponent(this.pluralTranslation);

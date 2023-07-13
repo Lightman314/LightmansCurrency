@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class ChangeCreativeNotification extends Notification {
@@ -27,7 +27,7 @@ public class ChangeCreativeNotification extends Notification {
 	
 	@Override
 	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.settings.creativemode", this.player.getName(true), new TranslatableComponent(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
+		return EasyText.translatable("log.settings.creativemode", this.player.getName(true), EasyText.translatable(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
 	}
 	
 	@Override
@@ -44,9 +44,8 @@ public class ChangeCreativeNotification extends Notification {
 	
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof ChangeCreativeNotification)
+		if(other instanceof ChangeCreativeNotification n)
 		{
-			ChangeCreativeNotification n = (ChangeCreativeNotification)other;
 			return n.player.is(this.player) && n.creative == this.creative;
 		}
 		return false;

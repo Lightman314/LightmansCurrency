@@ -110,12 +110,12 @@ public final class LazyPacketData {
         return defaultValue;
     }
 
-    public CoinValue getCoinValue(String key) { return this.getCoinValue(key, new CoinValue()); }
+    public CoinValue getCoinValue(String key) { return this.getCoinValue(key, CoinValue.EMPTY); }
     public CoinValue getCoinValue(String key, CoinValue defaultValue)
     {
         Data d = this.getData(key);
         if(d.type == TYPE_NBT)
-            return CoinValue.from((CompoundTag)d.value, CoinValue.DEFAULT_KEY);
+            return CoinValue.load((CompoundTag)d.value);
         return defaultValue;
     }
 
@@ -179,7 +179,7 @@ public final class LazyPacketData {
         static Data ofString(String value) { return value == null ? NULL : new Data(TYPE_STRING, value); }
         static Data ofText(Component value) { return value == null ? NULL : new Data(TYPE_TEXT, value); }
         static Data ofNBT(CompoundTag value) { return value == null ? NULL : new Data(TYPE_NBT, value); }
-        static Data ofCoinValue(CoinValue value) { return value == null ? NULL : ofNBT(value.save(new CompoundTag(), CoinValue.DEFAULT_KEY)); }
+        static Data ofCoinValue(CoinValue value) { return value == null ? NULL : ofNBT(value.save()); }
 
         void encode(FriendlyByteBuf buffer)
         {

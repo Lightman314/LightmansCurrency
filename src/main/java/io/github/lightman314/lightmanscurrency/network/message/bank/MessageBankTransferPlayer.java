@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAcco
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,11 +25,11 @@ public class MessageBankTransferPlayer {
 	
 	public static void encode(MessageBankTransferPlayer message, FriendlyByteBuf buffer) {
 		buffer.writeUtf(message.playerName);
-		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		message.amount.encode(buffer);
 	}
 
 	public static MessageBankTransferPlayer decode(FriendlyByteBuf buffer) {
-		return new MessageBankTransferPlayer(buffer.readUtf(), new CoinValue(buffer.readAnySizeNbt()));
+		return new MessageBankTransferPlayer(buffer.readUtf(), CoinValue.decode(buffer));
 	}
 
 	public static void handle(MessageBankTransferPlayer message, Supplier<Context> supplier) {
@@ -39,9 +38,8 @@ public class MessageBankTransferPlayer {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
+				if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 				{
-					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu) player.containerMenu;
 					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(false, message.playerName));
 					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)

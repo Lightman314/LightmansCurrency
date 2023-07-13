@@ -52,10 +52,10 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	}
 	
 	private boolean autoConvert;
-	public boolean canConvert() { return WalletItem.CanConvert(this.walletItem); }
+	public boolean canExchange() { return WalletItem.CanConvert(this.walletItem); }
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
-	public boolean getAutoConvert() { return this.autoConvert; }
+	public boolean getAutoExchange() { return this.autoConvert; }
 	public void ToggleAutoConvert() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
 	
 	protected final Container coinInput;
@@ -137,7 +137,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		}
 		return false;
 	}
-	
+
 	public final void saveWalletContents()
 	{
 		if(this.validateHasWallet())
@@ -157,7 +157,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	
 	public final void ConvertCoins()
 	{
-		MoneyUtil.ConvertAllCoinsUp(this.coinInput);
+		MoneyUtil.ExchangeAllCoinsUp(this.coinInput);
 		MoneyUtil.SortCoins(this.coinInput);
 		this.saveWalletContents();
 	}
@@ -208,11 +208,11 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 			if(!WalletItem.isWallet(LightmansCurrency.getWalletStack(player)))
 			{
 				player.sendMessage(EasyText.translatable("message.lightmanscurrency.wallet.none_equipped"), new UUID(0,0));
-				return;
+                return;
 			}
 			NetworkHooks.openGui(player, menu, dataWriter);
 		}
-		else
+        else
 		{
 			Inventory inventory = player.getInventory();
 			if(walletIndex >= inventory.getContainerSize())
@@ -228,5 +228,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		@Override
 		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
 	}
+
+
 
 }

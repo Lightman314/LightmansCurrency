@@ -42,7 +42,7 @@ public class CoinValueConfig implements Supplier<CoinValue> {
         return this.cachedValue;
     }
 
-    public static CoinValueConfig define(ForgeConfigSpec.Builder builder, String path, String defaultInput, CoinValue defaultValue, Supplier<ForgeConfigSpec> specSupplier) { return define(builder, path, defaultInput, defaultValue::copy, specSupplier); }
+    public static CoinValueConfig define(ForgeConfigSpec.Builder builder, String path, String defaultInput, CoinValue defaultValue, Supplier<ForgeConfigSpec> specSupplier) { return define(builder, path, defaultInput, () -> defaultValue, specSupplier); }
 
     public static CoinValueConfig define(ForgeConfigSpec.Builder builder, String path, String defaultInput, Supplier<CoinValue> defaultValue, Supplier<ForgeConfigSpec> specSupplier)
     {

@@ -14,18 +14,19 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -50,18 +51,18 @@ public class MoneyUtil {
 	public static MoneyData getMoneyData() { return moneyData; }
 	public static void receiveMoneyData(MoneyData data) { moneyData = data; }
 	
-	public static Component getPluralName(Item coin) {
+	public static MutableComponent getPluralName(Item coin) {
 		if(moneyData != null)
 			return moneyData.getPluralName(coin);
 		return getDefaultPlural(coin);
 	}
 	
-	public static Component getDefaultPlural(Item coin) {
+	public static MutableComponent getDefaultPlural(Item coin) {
 		//If no plural form defined, attempt to find one.
 		String defaultPlural = coin.getDescriptionId() + ".plural";
-		if(new TranslatableComponent(defaultPlural).getString().equals(defaultPlural))
-			return new TranslatableComponent("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
-		return new TranslatableComponent(defaultPlural);
+		if(EasyText.translatable(defaultPlural).getString().equals(defaultPlural))
+			return EasyText.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
+		return EasyText.translatable(defaultPlural);
 	}
 
 	//Make high priority so that it runs before other "server start" events that may end up loading traders
@@ -115,7 +116,7 @@ public class MoneyUtil {
 	}
 	
 	/**
-     * Initializes the default master coin list from order of highest to lowest values.
+     * Initializes the default master coin list from order of highest to the lowest values.
      */
 	@SubscribeEvent
     public static void initializeDefaultCoins(GetDefaultMoneyDataEvent event)
@@ -298,7 +299,7 @@ public class MoneyUtil {
      * Gets the total value of the item stack.
      * @param coinStack The item stack to get the value of.
      */
-    public static CoinValue getCoinValue(ItemStack coinStack) { return new CoinValue(getValue(coinStack)); }
+    public static CoinValue getCoinValue(ItemStack coinStack) { return CoinValue.fromNumber(getValue(coinStack)); }
     
     /**
      * Gets the total value of the item stack.
@@ -313,7 +314,7 @@ public class MoneyUtil {
 	 * Gets the total value of the items in the given ItemStack list.
 	 * @param inventory The list full of coins from which to get the value of.
 	 */
-    public static CoinValue getCoinValue(List<ItemStack> inventory) { return new CoinValue(getValue(inventory)); }
+    public static CoinValue getCoinValue(List<ItemStack> inventory) { return CoinValue.fromNumber(getValue(inventory)); }
     
     /**
 	 * Gets the total value of the items in the given ItemStack list.
@@ -331,7 +332,7 @@ public class MoneyUtil {
 	 * Gets the total value of the items in the given inventory.
 	 * @param inventory The inventory full of coins with which to get the value of.
 	 */
-    public static CoinValue getCoinValue(Container inventory) { return new CoinValue(getValue(inventory)); }
+    public static CoinValue getCoinValue(Container inventory) { return CoinValue.fromInventory(inventory); }
     
     /**
 	 * Gets the total value of the items in the given inventory.
@@ -350,35 +351,35 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as large a coin as humanly possible
      */
-    public static void ConvertAllCoinsUp(Container inventory)
+    public static void ExchangeAllCoinsUp(Container inventory)
     {
     	if(moneyData == null)
     		return;
     	List<Item> coinList = getAllCoins(false);
     	for(int i = 1; i < coinList.size(); i++)
     	{
-    		ConvertCoinsUp(inventory, coinList.get(i));
+    		ExchangeCoinsUp(inventory, coinList.get(i));
     	}
     	for(int i = coinList.size() - 1; i > 0; i--)
     	{
-    		ConvertCoinsUp(inventory, coinList.get(i));
+    		ExchangeCoinsUp(inventory, coinList.get(i));
     	}
     }
     
     /**
      * Converts all coins in the inventory to as large a coin as humanly possible
      */
-    public static NonNullList<ItemStack> ConvertAllCoinsUp(NonNullList<ItemStack> inventoryList)
+    public static NonNullList<ItemStack> ExchangeAllCoinsUp(NonNullList<ItemStack> inventoryList)
     {
     	Container inventory = InventoryUtil.buildInventory(inventoryList);
-    	ConvertAllCoinsUp(inventory);
+    	ExchangeAllCoinsUp(inventory);
     	return InventoryUtil.buildList(inventory);
     }
     
     /**
      * Converts as many of the small coin that it can into its next largest coin
      */
-    public static void ConvertCoinsUp(Container inventory, Item smallCoin)
+    public static void ExchangeCoinsUp(Container inventory, Item smallCoin)
     {
     	//Get next-higher coin data
     	Pair<Item,Integer> upwardConversion = getUpwardConversion(smallCoin);
@@ -407,26 +408,17 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as small a coin as humanly possible
      */
-    public static void ConvertAllCoinsDown(Container inventory)
-    {
-    	ConvertAllCoinsDown(inventory, 2);
-    }
-    
-    /**
-     * Converts all coins in the inventory to as small a coin as humanly possible
-     * @param iterations The number of times to repeatedly convert to ensure that the available space is used. Default is 2.
-     */
-    private static void ConvertAllCoinsDown(Container inventory, int iterations)
+    public static void ExchangeAllCoinsDown(Container inventory)
     {
     	if(moneyData == null)
     		return;
     	List<CoinData> coinList = moneyData.getSortedCoinList();
-    	for(int x = 0; x < iterations; x++)
+    	for(int x = 0; x < 2; x++)
     	{
     		for(int i = 0; i < (coinList.size() - 1); i++)
     		{
     			if(!coinList.get(i).isHidden)
-    				ConvertCoinsDown(inventory, coinList.get(i).coinItem);
+    				ExchangeCoinsDown(inventory, coinList.get(i).coinItem);
     		}
     	}
     }
@@ -434,7 +426,7 @@ public class MoneyUtil {
     /**
      * Converts as many of the large coin that it can into its defined smaller coin
      */
-    public static void ConvertCoinsDown(Container inventory, Item largeCoin)
+    public static void ExchangeCoinsDown(Container inventory, Item largeCoin)
     {
     	CoinData coinData = getData(largeCoin);
     	Item smallCoin = coinData.worthOtherCoin;
@@ -538,7 +530,7 @@ public class MoneyUtil {
     	//Get the players wallet
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
     	
-    	long valueToTake = price.getRawValue();
+    	long valueToTake = price.getValueNumber();
     	//Get value from the wallet
     	long rawInventoryValue = 0;
     	if(inventory != null)
@@ -558,6 +550,7 @@ public class MoneyUtil {
     		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(wallet);
     		valueToTake = takeObjectsOfValue(valueToTake, walletInventory);
     		WalletItem.putWalletInventory(wallet, walletInventory);
+
     	}
     	
     	//Give change if necessary
@@ -624,6 +617,7 @@ public class MoneyUtil {
 				player.getInventory().placeItemBackInInventory(coinStack);
 			}
 		}
+
     	
     }
     
@@ -771,8 +765,9 @@ public class MoneyUtil {
 				}
 			}
 			
+			//Inform the user if we were exact, or if too many items were taken and a refund is required via the getObjectsOfValue function
+
 		}
-		//Inform the user if we were exact, or if too many items were taken and a refund is required via the getObjectsOfValue function
 		return value;
 	}
     
@@ -821,7 +816,7 @@ public class MoneyUtil {
     public static List<ItemStack> getCoinsOfValue(CoinValue value)
     {
     	List<ItemStack> items = new ArrayList<>();
-    	for(CoinValue.CoinValuePair pricePair : value.coinValues)
+    	for(CoinValuePair pricePair : value.coinValues)
     	{
     		int amount = pricePair.amount;
     		while(amount > 0)
@@ -843,7 +838,7 @@ public class MoneyUtil {
      */
     public static String getStringOfValue(long value)
     {
-    	return new CoinValue(value).getString();
+    	return CoinValue.fromNumber(value).getString();
     }
     
     /**
@@ -887,10 +882,7 @@ public class MoneyUtil {
      * By default, hidden coins will not be included in this list.
      * @param chain The coin chain to receive coins from
      */
-    public static List<Item> getAllCoins(String chain)
-    {
-    	return getAllCoins(chain, false);
-    }
+    public static List<Item> getAllCoins(String chain) { return getAllCoins(chain, false); }
     
     /**
      * Gets a list of all the registered coin items
@@ -914,10 +906,7 @@ public class MoneyUtil {
      * Gets a sorted list of all the coin data
      * By default CoinData for hidden coins will not be included in this list.
      */
-    public static List<CoinData> getAllData()
-    {
-    	return getAllData(false);
-    }
+    public static List<CoinData> getAllData() { return getAllData(false); }
     
     /**
      * Gets a sorted list of all the coin data
@@ -943,10 +932,7 @@ public class MoneyUtil {
      * By default CoinData for hidden coins will not be included in this list.
      * @param chain The coin chain to receive coins from
      */
-    public static List<CoinData> getAllData(String chain)
-    {
-    	return getAllData(chain, false);
-    }
+    public static List<CoinData> getAllData(String chain) { return getAllData(chain, false); }
     
     /**
      * Gets a sorted list of all the coin data
@@ -1014,7 +1000,7 @@ public class MoneyUtil {
     
     public static CoinValue displayValueToCoinValue(double displayValue)
     {
-    	return new CoinValue(displayValueToLong(displayValue));
+    	return CoinValue.fromNumber(displayValueToLong(displayValue));
     }
     
 }

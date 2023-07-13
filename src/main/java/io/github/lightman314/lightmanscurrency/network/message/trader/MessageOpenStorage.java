@@ -12,18 +12,11 @@ public class MessageOpenStorage {
 	
 	private final long traderID;
 	
-	public MessageOpenStorage(long traderID)
-	{
-		this.traderID = traderID;
-	}
+	public MessageOpenStorage(long traderID) { this.traderID = traderID; }
 	
-	public static void encode(MessageOpenStorage message, FriendlyByteBuf buffer) {
-		buffer.writeLong(message.traderID);
-	}
+	public static void encode(MessageOpenStorage message, FriendlyByteBuf buffer) { buffer.writeLong(message.traderID); }
 
-	public static MessageOpenStorage decode(FriendlyByteBuf buffer) {
-		return new MessageOpenStorage(buffer.readLong());
-	}
+	public static MessageOpenStorage decode(FriendlyByteBuf buffer) { return new MessageOpenStorage(buffer.readLong()); }
 
 	public static void handle(MessageOpenStorage message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->

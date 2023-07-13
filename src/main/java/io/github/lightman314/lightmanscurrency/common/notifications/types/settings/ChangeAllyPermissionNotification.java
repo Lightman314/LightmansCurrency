@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class ChangeAllyPermissionNotification extends Notification {
@@ -37,9 +37,9 @@ public class ChangeAllyPermissionNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(this.oldValue == 0)
-			return new TranslatableComponent("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
+			return EasyText.translatable("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
 		else
-			return new TranslatableComponent("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
+			return EasyText.translatable("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
 	}
 
 	@Override
@@ -60,12 +60,12 @@ public class ChangeAllyPermissionNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof ChangeAllyPermissionNotification)
+		if(other instanceof ChangeAllyPermissionNotification n)
 		{
-			ChangeAllyPermissionNotification n = (ChangeAllyPermissionNotification)other;
 			return n.player.is(this.player) && n.permission.equals(this.permission) && n.newValue == this.newValue && n.oldValue == this.oldValue;
 		}
 		return false;
 	}
+	
 	
 }

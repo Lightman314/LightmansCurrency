@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
@@ -22,7 +21,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemTraderBlock{
+public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
 	public static final int TRADECOUNT = 4;
 	

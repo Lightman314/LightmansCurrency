@@ -22,7 +22,7 @@ public class PersistentAuctionData {
 		return copy;
 	}
 	private final CoinValue startBid;
-	public final CoinValue getStartingBid() { return this.startBid.copy(); }
+	public final CoinValue getStartingBid() { return this.startBid; }
 	private final CoinValue minBid;
 	public final CoinValue getMinimumBidDifference() { return this.minBid; }
 	
@@ -52,10 +52,10 @@ public class PersistentAuctionData {
 		if(json.has("Item2"))
 			items.add(FileUtil.parseItemStack(json.getAsJsonObject("Item2")));
 		
-		if(items.size() <= 0)
+		if(items.size() == 0)
 			throw new Exception("Auction has no 'Item1' or 'Item2' entry!");
 		
-		long duration = 0;
+		long duration;
 		if(json.has("Duration"))
 			duration = Math.max(json.get("Duration").getAsLong(), AuctionTradeData.GetMinimumDuration());
 		else
@@ -67,7 +67,7 @@ public class PersistentAuctionData {
 		else
 			throw new Exception("Auction has no 'StartingBid' entry!");
 		
-		CoinValue minimumBid = new CoinValue(1);
+		CoinValue minimumBid = CoinValue.fromNumber(1);
 		if(json.has("MinimumBid"))
 			minimumBid = CoinValue.Parse(json.get("MinimumBid"));
 		

@@ -1,0 +1,8 @@
+{
+    "parent": "lightmanscurrency:block/card_display/base",
+	"textures": {
+		"log": "minecraft:block/bamboo_block",
+        "logtop": "minecraft:block/bamboo_block_top",
+		"plank": "minecraft:block/bamboo_planks"
+	}
+}

@@ -19,12 +19,12 @@
     "lightmanscurrency:vending_machine",
     "lightmanscurrency:vending_machine_orange",
     "lightmanscurrency:vending_machine_magenta",
-    "lightmanscurrency:vending_machine_lightblue",
+    "lightmanscurrency:vending_machine_light_blue",
     "lightmanscurrency:vending_machine_yellow",
     "lightmanscurrency:vending_machine_lime",
     "lightmanscurrency:vending_machine_pink",
     "lightmanscurrency:vending_machine_gray",
-    "lightmanscurrency:vending_machine_lightgray",
+    "lightmanscurrency:vending_machine_light_gray",
     "lightmanscurrency:vending_machine_cyan",
     "lightmanscurrency:vending_machine_purple",
     "lightmanscurrency:vending_machine_blue",
@@ -35,12 +35,12 @@
     "lightmanscurrency:vending_machine_large",
     "lightmanscurrency:vending_machine_large_orange",
     "lightmanscurrency:vending_machine_large_magenta",
-    "lightmanscurrency:vending_machine_large_lightblue",
+    "lightmanscurrency:vending_machine_large_light_blue",
     "lightmanscurrency:vending_machine_large_yellow",
     "lightmanscurrency:vending_machine_large_lime",
     "lightmanscurrency:vending_machine_large_pink",
     "lightmanscurrency:vending_machine_large_gray",
-    "lightmanscurrency:vending_machine_large_lightgray",
+    "lightmanscurrency:vending_machine_large_light_gray",
     "lightmanscurrency:vending_machine_large_cyan",
     "lightmanscurrency:vending_machine_large_purple",
     "lightmanscurrency:vending_machine_large_blue",
@@ -74,6 +74,7 @@
     "lightmanscurrency:gem_terminal",
     "lightmanscurrency:paygate",
     "lightmanscurrency:ticket_machine",
-    "lightmanscurrency:item_trader_interface"
+    "lightmanscurrency:item_trader_interface",
+	"lightmanscurrency:slot_machine"
   ]
 }

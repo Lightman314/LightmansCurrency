@@ -10,8 +10,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
@@ -32,12 +30,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 
 public class FreeSample extends PriceTweakingTradeRule {
-
+	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
-
+	
 	List<UUID> memory = new ArrayList<>();
 	public int getSampleCount() { return this.memory.size(); }
-
+	
 	public FreeSample() { super(TYPE); }
 
 	@Override
@@ -53,11 +51,11 @@ public class FreeSample extends PriceTweakingTradeRule {
 		if(this.giveDiscount(event))
 			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.free_sample.alert"));
 	}
-
+	
 	@Override
 	public void tradeCost(TradeCostEvent event) {
 		if(this.giveDiscount(event))
-			event.applyCostMultiplier(0d);
+			event.makeFree();
 	}
 
 	@Override
@@ -68,23 +66,23 @@ public class FreeSample extends PriceTweakingTradeRule {
 			event.markDirty();
 		}
 	}
-
+	
 	private boolean giveDiscount(TradeEvent event) {
 		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() == TradeDirection.SALE;
 	}
-
+	
 	private void addToMemory(UUID playerID) {
 		if(!this.memory.contains(playerID))
 			this.memory.add(playerID);
 	}
-
+	
 	public boolean giveDiscount(UUID playerID) { return !this.givenFreeSample(playerID); }
-
+	
 	private boolean givenFreeSample(UUID playerID) { return this.memory.contains(playerID); }
-
+	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-
+		
 		ListTag memoryList = new ListTag();
 		for(UUID entry : this.memory)
 		{
@@ -94,13 +92,13 @@ public class FreeSample extends PriceTweakingTradeRule {
 		}
 		compound.put("Memory", memoryList);
 	}
-
+	
 	@Override
 	public JsonObject saveToJson(JsonObject json) { return json; }
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-
+		
 		if(compound.contains("Memory", Tag.TAG_LIST))
 		{
 			this.memory.clear();
@@ -115,7 +113,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 			}
 		}
 	}
-
+	
 	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag data = new CompoundTag();
@@ -129,7 +127,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 		data.put("Memory", memoryList);
 		return data;
 	}
-
+	
 	@Override
 	public void loadPersistentData(CompoundTag data) {
 		if(data.contains("Memory", Tag.TAG_LIST))
@@ -146,22 +144,19 @@ public class FreeSample extends PriceTweakingTradeRule {
 			}
 		}
 	}
-
+	
 	@Override
 	public void loadFromJson(JsonObject json) { }
-
+	
 	@Override
 	protected void handleUpdateMessage(CompoundTag updateInfo) {
 		if(updateInfo.contains("ClearData"))
 			this.memory.clear();
 	}
 
-	@Override
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_FREE_SAMPLE; }
-
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new FreeSampleTab(parent); }
-
+	
 }

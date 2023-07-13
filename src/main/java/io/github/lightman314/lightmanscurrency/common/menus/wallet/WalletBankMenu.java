@@ -6,7 +6,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -34,14 +33,14 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(@NotNull Player player) {
+	public boolean stillValid(@Nonnull Player player) {
 		this.getBankAccountReference();
 		return super.stillValid(player) && this.hasBankAccess();
 	}
 	
 	@Override
 	public void onDepositOrWithdraw() {
-		if(this.getAutoConvert()) //Don't need to save if converting, as the ConvertCoins function auto-saves.
+		if(this.getAutoExchange()) //Don't need to save if converting, as the ExchangeCoins function auto-saves.
 			this.ConvertCoins();
 		else //Save the wallet contents on bank interaction.
 			this.saveWalletContents();

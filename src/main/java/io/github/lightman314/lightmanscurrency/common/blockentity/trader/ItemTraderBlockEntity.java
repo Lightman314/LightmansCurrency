@@ -6,12 +6,12 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
@@ -57,7 +57,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		if(block instanceof IItemTraderBlock traderBlock)
 			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isDoubleTrade);
 		else
-			return Lists.newArrayList(Vector3f.ZERO);
+			return Lists.newArrayList(new Vector3f(0.0f, 0.0f, 0.0f));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -78,7 +78,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		else
 		{
 			List<Quaternion> rotation = new ArrayList<>();
-			rotation.add(Vector3f.YP.rotationDegrees(0f));
+			rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), 0f));
 			return rotation;
 		}
 			
@@ -118,14 +118,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		super.load(compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
-	}
-
-	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
-		ItemTraderData newTrader = new ItemTraderData(1, this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
 	}
 	
 }

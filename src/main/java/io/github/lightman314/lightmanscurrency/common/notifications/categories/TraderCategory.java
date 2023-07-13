@@ -2,18 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderCategory extends NotificationCategory {
 
@@ -38,9 +36,9 @@ public class TraderCategory extends NotificationCategory {
 			this.trader = ModItems.TRADING_CORE.get();
 		
 		if(compound.contains("TraderName"))
-			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"));
+			this.traderName = EasyText.Serializer.fromJson(compound.getString("TraderName"));
 		else
-			this.traderName = new TranslatableComponent("gui.lightmanscurrency.universaltrader.default");
+			this.traderName = EasyText.translatable("gui.lightmanscurrency.universaltrader.default");
 		
 		if(compound.contains("TraderID"))
 			this.traderID = compound.getLong("TraderID");
@@ -49,9 +47,8 @@ public class TraderCategory extends NotificationCategory {
 		
 	}
 
-	@Nonnull
-    @Override
-	public IconData getIcon() { return IconData.of(this.trader); }
+	@Override
+	public @NotNull IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override
 	public MutableComponent getName() { return this.traderName; }
@@ -80,7 +77,7 @@ public class TraderCategory extends NotificationCategory {
 	
 	public void saveAdditional(CompoundTag compound) {
 		compound.putString("Icon", ForgeRegistries.ITEMS.getKey(this.trader).toString());
-		compound.putString("TraderName", Component.Serializer.toJson(this.traderName));
+		compound.putString("TraderName", EasyText.Serializer.toJson(this.traderName));
 		compound.putLong("TraderID", this.traderID);
 	}
 	

@@ -11,10 +11,7 @@ public class MessageUpdateClientTrader {
 	
 	CompoundTag traderData;
 	
-	public MessageUpdateClientTrader(CompoundTag traderData)
-	{
-		this.traderData = traderData;
-	}
+	public MessageUpdateClientTrader(CompoundTag traderData) { this.traderData = traderData; }
 	
 	public static void encode(MessageUpdateClientTrader message, FriendlyByteBuf buffer) {
 		buffer.writeNbt(message.traderData);

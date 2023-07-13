@@ -1,20 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,16 +28,16 @@ public class OwnershipTab extends SettingsSubTab {
     public OwnershipTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
 
     EditBox newOwnerInput;
-    Button buttonSetOwner;
+    EasyButton buttonSetOwner;
     TeamSelectWidget teamSelection;
-    Button buttonSetTeamOwner;
+    EasyButton buttonSetTeamOwner;
 
     long selectedTeam = -1;
     List<Team> teamList = Lists.newArrayList();
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
+    public IconData getIcon() { return IconAndButtonUtil.ICON_ALEX_HEAD; }
 
     @Override
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.owner"); }
@@ -45,24 +46,25 @@ public class OwnershipTab extends SettingsSubTab {
     public boolean canOpen() { return this.menu.hasPermission(Permissions.TRANSFER_OWNERSHIP); }
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.newOwnerInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 20, 160, 20, EasyText.empty()));
+        this.newOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 20, 160, 20, EasyText.empty()));
         this.newOwnerInput.setMaxLength(16);
 
-        this.buttonSetOwner = this.addWidget(EasyButton.builder(EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner).pos(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 41).size(160, 20).build());
+        this.buttonSetOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 41), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner)
+                .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
         this.buttonSetOwner.active = false;
 
-        this.teamSelection = this.addWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 65, 3, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
-        this.teamSelection.init(this::addWidget, this.font);
+        this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 65), 3, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
 
-        this.buttonSetTeamOwner = this.addWidget(EasyButton.builder(EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner).pos(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 130).size(160, 20).build());
+        this.buttonSetTeamOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 130), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner)
+                .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
         this.buttonSetTeamOwner.active = false;
 
     }
 
     @Override
-    public void onClose() {
+    protected void onSubtabClose() {
         //Reset the selected team & team list to save space
         this.selectedTeam = -1;
         this.teamList = Lists.newArrayList();
@@ -94,21 +96,11 @@ public class OwnershipTab extends SettingsSubTab {
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            this.font.draw(pose, EasyText.translatable("gui.button.lightmanscurrency.team.owner", trader.getOwner().getOwnerName(true)), this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 10, 0x404040);
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-        if(this.buttonSetOwner.isMouseOver(mouseX, mouseY) || this.buttonSetTeamOwner.isMouseOver(mouseX, mouseY))
-        {
-            screen.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
-        }
+            gui.drawString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", trader.getOwner().getOwnerName(true)), 20, 10, 0x404040);
 
     }
 
@@ -136,7 +128,7 @@ public class OwnershipTab extends SettingsSubTab {
         }
     }
 
-    private void setOwner(Button button)
+    private void setOwner(EasyButton button)
     {
         if(this.newOwnerInput.getValue().isBlank())
             return;
@@ -146,7 +138,7 @@ public class OwnershipTab extends SettingsSubTab {
         this.newOwnerInput.setValue("");
     }
 
-    private void setTeamOwner(Button button)
+    private void setTeamOwner(EasyButton button)
     {
         if(this.getSelectedTeam() == null)
             return;

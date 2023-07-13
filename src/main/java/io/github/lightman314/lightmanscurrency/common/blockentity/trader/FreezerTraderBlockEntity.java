@@ -29,9 +29,7 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements I
 	public float getDoorAngle(float partialTicks) {
 		return Mth.lerp(partialTicks, this.prevDoorAngle, this.doorAngle);
 	}
-	
-	private final float distancePerTick = 0.1f;
-	
+
 	@Override
 	public void clientTick()
 	{
@@ -48,11 +46,11 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements I
 			}
 			if(userCount > 0 && this.doorAngle < 1f)
 			{
-				this.doorAngle += distancePerTick;
+				this.doorAngle += 0.1f;
 			}
 			else if(userCount <= 0 && doorAngle > 0f)
 			{
-				this.doorAngle -= distancePerTick;
+				this.doorAngle -= 0.1f;
 				if (this.doorAngle < 0.5F && this.prevDoorAngle >= 0.5F) {
 					this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
 				}
@@ -61,7 +59,9 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements I
 				this.doorAngle = 1f;
 			else if(this.doorAngle < 0f)
 				this.doorAngle = 0f;
+			
 		}
+		
 	}
 
 }

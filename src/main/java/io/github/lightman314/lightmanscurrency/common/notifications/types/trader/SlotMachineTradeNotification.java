@@ -27,8 +27,8 @@ public class SlotMachineTradeNotification extends Notification {
     TraderCategory traderData;
 
     List<ItemWriteData> items;
-    CoinValue cost = new CoinValue();
-    CoinValue money = new CoinValue();
+    CoinValue cost = CoinValue.EMPTY;
+    CoinValue money = CoinValue.EMPTY;
 
     String customer;
 
@@ -38,7 +38,7 @@ public class SlotMachineTradeNotification extends Notification {
         this.cost = cost;
         this.items = new ArrayList<>();
         if(entry.isMoney())
-            this.money = entry.getMoneyValue().copy();
+            this.money = entry.getMoneyValue();
         else
         {
             for(ItemStack item : entry.items)
@@ -76,8 +76,8 @@ public class SlotMachineTradeNotification extends Notification {
         for(ItemWriteData item : this.items)
             itemList.add(item.save());
         compound.put("Items", itemList);
-        this.money.save(compound, "Money");
-        this.cost.save(compound, "Price");
+        compound.put("Money", this.money.save());
+        compound.put("Price", this.cost.save());
         compound.putString("Customer", this.customer);
 
     }
@@ -90,8 +90,8 @@ public class SlotMachineTradeNotification extends Notification {
         this.items = new ArrayList<>();
         for(int i = 0; i < itemList.size(); ++i)
             this.items.add(new ItemWriteData(itemList.getCompound(i)));
-        this.money.load(compound,"Money");
-        this.cost.load(compound, "Price");
+        this.money = CoinValue.safeLoad(compound,"Money");
+        this.cost = CoinValue.safeLoad(compound, "Price");
         this.customer = compound.getString("Customer");
 
     }
@@ -113,9 +113,9 @@ public class SlotMachineTradeNotification extends Notification {
                 if(i1.count != i2.count)
                     return false;
             }
-            if(smtn.money.getRawValue() != this.money.getRawValue())
+            if(smtn.money.getValueNumber() != this.money.getValueNumber())
                 return false;
-            if(smtn.cost.getRawValue() != this.cost.getRawValue())
+            if(smtn.cost.getValueNumber() != this.cost.getValueNumber())
                 return false;
             if(!smtn.customer.equals(this.customer))
                 return false;

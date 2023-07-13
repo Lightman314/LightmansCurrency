@@ -3,6 +3,7 @@
     "values": [
         "lightmanscurrency:armor_display",
         "lightmanscurrency:ticket_kiosk",
-		"#lightmanscurrency:bookshelf"
+		"#lightmanscurrency:bookshelf",
+		"lightmanscurrency:slot_machine"
     ]
 }

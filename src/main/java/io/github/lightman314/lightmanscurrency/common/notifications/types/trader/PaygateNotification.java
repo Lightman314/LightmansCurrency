@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class PaygateNotification extends Notification{
@@ -22,7 +21,7 @@ public class PaygateNotification extends Notification{
 	
 	long ticketID = Long.MIN_VALUE;
 	boolean usedPass = false;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	int duration = 0;
 	
@@ -70,7 +69,7 @@ public class PaygateNotification extends Notification{
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-		
+
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("Duration", this.duration);
 		if(this.ticketID >= -1)
@@ -79,7 +78,7 @@ public class PaygateNotification extends Notification{
 			compound.putBoolean("UsedPass", this.usedPass);
 		}
 		else
-			this.cost.save(compound, "Price");
+			compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -94,7 +93,7 @@ public class PaygateNotification extends Notification{
 		else if(compound.contains("Ticket"))
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else if(compound.contains("Price"))
-			this.cost.load(compound, "Price");
+			this.cost = CoinValue.safeLoad(compound, "Price");
 		if(compound.contains("UsedPass"))
 			this.usedPass = compound.getBoolean("UsedPass");
 		this.customer = compound.getString("Customer");
@@ -113,7 +112,7 @@ public class PaygateNotification extends Notification{
 				return false;
 			if(pn.duration != this.duration)
 				return false;
-			if(pn.cost.getRawValue() != this.cost.getRawValue())
+			if(pn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!pn.customer.equals(this.customer))
 				return false;

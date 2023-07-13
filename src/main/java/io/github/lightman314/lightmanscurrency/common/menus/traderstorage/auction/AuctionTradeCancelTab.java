@@ -2,14 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.aucti
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionTradeCancelClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -22,7 +20,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionTradeCancelClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new AuctionTradeCancelClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }

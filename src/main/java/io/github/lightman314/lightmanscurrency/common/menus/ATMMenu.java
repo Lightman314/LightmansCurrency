@@ -24,28 +24,28 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu{
-
+public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu {
+	
 	private final Player player;
 	public Player getPlayer() { return this.player; }
-
+	
 	private final Container coinInput = new SimpleContainer(9);
 	public Container getCoinInput() { return this.coinInput; }
-
+	
 	private MutableComponent transferMessage = null;
-
+	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
 		super(ModMenus.ATM.get(), windowId, inventory);
-
+		
 		this.player = inventory.player;
-
+		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false));
 		}
-
+		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -60,14 +60,14 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 219));
 		}
 	}
-
+	
 	@Override
 	public boolean stillValid(@Nonnull Player player) {
 		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
 		this.getBankAccountReference();
 		return true;
 	}
-
+	
 	@Override
 	public void removed(@Nonnull Player player)
 	{
@@ -86,16 +86,16 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			}
 		}
 	}
-
+	
 	@Nonnull
 	@Override
 	public ItemStack quickMoveStack(@Nonnull Player player, int index)
 	{
-
+		
 		ItemStack clickedStack = ItemStack.EMPTY;
-
+		
 		Slot slot = this.slots.get(index);
-
+		
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -113,7 +113,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			{
 				return ItemStack.EMPTY;
 			}
-
+			
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -123,23 +123,23 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 				slot.setChanged();
 			}
 		}
-
+		
 		return clickedStack;
-
+		
 	}
 
 	public void SendCoinExchangeMessage(String command) {
 		this.SendMessageToServer(LazyPacketData.builder().setString("ExchangeCoinCommand", command));
 	}
 
-	public void ConvertCoins(String command)
+	public void ExchangeCoins(String command)
 	{
 		ATMUtil.ExecuteATMExchangeCommand(this.coinInput, command);
 	}
 
-
+	
 	public MutableComponent SetPlayerAccount(String playerName) {
-
+		
 		if(CommandLCAdmin.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
@@ -152,16 +152,16 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 				return EasyText.translatable("gui.bank.transfer.error.null.to");
 		}
 		return EasyText.literal("ERROR");
-
+		
 	}
-
+	
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
-
+	
 	public MutableComponent getTransferMessage() { return this.transferMessage; }
-
+	
 	@Override
 	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
-
+	
 	public void clearMessage() { this.transferMessage = null; }
 
 	@Override
@@ -178,7 +178,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	@Override
 	public void HandleMessage(LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
-			this.ConvertCoins(message.getString("ExchangeCoinCommand"));
+			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
 		if(message.contains("NotificationValueChange"))
 		{
 			BankAccount ba = this.getBankAccount();
@@ -186,5 +186,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 				ba.setNotificationValue(message.getCoinValue("NotificationValueChange"));
 		}
 	}
+
+
 
 }

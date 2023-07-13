@@ -27,17 +27,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 
 public class PlayerBlacklist extends TradeRule {
-
+	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "blacklist");
-
+	
 	List<PlayerReference> bannedPlayers = new ArrayList<>();
 	public ImmutableList<PlayerReference> getBannedPlayers() { return ImmutableList.copyOf(this.bannedPlayers); }
-
+	
 	public PlayerBlacklist() { super(TYPE); }
-
+	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-
+		
 		if(this.isBlacklisted(event.getPlayerReference()))
 			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.blacklist.denial"));
 	}
@@ -50,7 +50,7 @@ public class PlayerBlacklist extends TradeRule {
 		}
 		return false;
 	}
-
+	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player
@@ -59,7 +59,7 @@ public class PlayerBlacklist extends TradeRule {
 			playerNameList.add(bannedPlayer.save());
 		compound.put("BannedPlayers", playerNameList);
 	}
-
+	
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		JsonArray blacklist = new JsonArray();
@@ -71,7 +71,7 @@ public class PlayerBlacklist extends TradeRule {
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-
+		
 		//Load blacklisted players
 		if(compound.contains("BannedPlayers", Tag.TAG_LIST))
 		{
@@ -84,9 +84,9 @@ public class PlayerBlacklist extends TradeRule {
 					this.bannedPlayers.add(reference);
 			}
 		}
-
+		
 	}
-
+	
 	@Override
 	public void handleUpdateMessage(CompoundTag updateInfo) {
 		boolean add = updateInfo.getBoolean("Add");
@@ -103,7 +103,7 @@ public class PlayerBlacklist extends TradeRule {
 			PlayerReference.removeFromList(this.bannedPlayers, player);
 		}
 	}
-
+	
 	@Override
 	public void loadFromJson(JsonObject json) {
 		if(json.has("BannedPlayers"))
@@ -117,12 +117,12 @@ public class PlayerBlacklist extends TradeRule {
 			}
 		}
 	}
-
+	
 	@Override
 	public CompoundTag savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundTag data) { }
-
+	
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_BLACKLIST; }
 
 	@Nonnull
@@ -130,5 +130,5 @@ public class PlayerBlacklist extends TradeRule {
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerBlacklistTab(parent); }
 
-
+	
 }

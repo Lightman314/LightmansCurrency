@@ -321,7 +321,7 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(BankAccount.AccountReference account : BankSaveData.GetPlayerBankAccounts())
 		{
-			BankAccount.GiftCoinsFromServer(account.get(), amount.copy());
+			BankAccount.GiftCoinsFromServer(account.get(), amount);
 			count++;
 		}
 		if(count < 1)
@@ -337,7 +337,7 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
 		{
-			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount.copy());
+			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount);
 			count++;
 		}
 
@@ -355,7 +355,7 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
 		{
-			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount.copy());
+			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount);
 			count++;
 		}
 		if(count < 1)

@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.traders.tradedata.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -81,13 +81,13 @@ public abstract class TradeRenderManager<T extends TradeData> {
     /**
      * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.
      * @param button The button that is rendering the trade
-     * @param pose The pose stack
+     * @param gui The gui render helper
      * @param mouseX The x position of the mouse.
      * @param mouseY The y position of the mouse.
      * @param context The context of the trade.
      */
     @OnlyIn(Dist.CLIENT)
-    public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) { }
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) { }
 
     /**
      * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.

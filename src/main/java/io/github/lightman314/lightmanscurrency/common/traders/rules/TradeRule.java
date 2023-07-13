@@ -13,7 +13,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
@@ -30,7 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class TradeRule {
-
+	
 	public final ResourceLocation type;
 	public static MutableComponent nameOfType(ResourceLocation ruleType) { return EasyText.translatable("traderule." + ruleType.getNamespace() + "." + ruleType.getPath());
 	}
@@ -59,7 +58,7 @@ public abstract class TradeRule {
 	public void beforeTrade(PreTradeEvent event) {}
 	public void tradeCost(TradeCostEvent event) {}
 	public void afterTrade(PostTradeEvent event) {}
-
+	
 	protected TradeRule(ResourceLocation type) { this.type = type; }
 
 	public CompoundTag save()
@@ -70,33 +69,31 @@ public abstract class TradeRule {
 		this.saveAdditional(compound);
 		return compound;
 	}
-
+	
 	protected abstract void saveAdditional(CompoundTag compound);
-
+	
 	public final void load(CompoundTag compound)
 	{
 		this.isActive = compound.getBoolean("Active");
 		this.loadAdditional(compound);
 	}
 	protected abstract void loadAdditional(CompoundTag compound);
-
+	
 	public abstract JsonObject saveToJson(JsonObject json);
 	public abstract void loadFromJson(JsonObject json);
-
+	
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
-
-	public abstract IconData getButtonIcon();
-
+	
 	public final void receiveUpdateMessage(CompoundTag updateInfo)
 	{
 		if(updateInfo.contains("SetActive"))
 			this.isActive = updateInfo.getBoolean("SetActive");
 		this.handleUpdateMessage(updateInfo);
 	}
-
+	
 	protected abstract void handleUpdateMessage(CompoundTag updateInfo);
-
+	
 	public static CompoundTag saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
 		ListTag ruleData = new ListTag();
@@ -104,7 +101,7 @@ public abstract class TradeRule {
 		compound.put(tag, ruleData);
 		return compound;
 	}
-
+	
 	public static boolean savePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
 		ListTag ruleData = new ListTag();
 		for (TradeRule rule : rules) {
@@ -119,7 +116,7 @@ public abstract class TradeRule {
 		compound.put(tag, ruleData);
 		return true;
 	}
-
+	
 	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
 		JsonArray ruleData = new JsonArray();
 		for (TradeRule rule : rules) {
@@ -157,7 +154,7 @@ public abstract class TradeRule {
 		}
 		return rules;
 	}
-
+	
 	public static void loadPersistentData(CompoundTag compound, List<TradeRule> tradeRules, String tag)
 	{
 		if(compound.contains(tag, Tag.TAG_LIST))
@@ -232,9 +229,9 @@ public abstract class TradeRule {
 		}
 		return changed;
 	}
-
+	
 	public static boolean HasTradeRule(List<TradeRule> rules, ResourceLocation type) { return GetTradeRule(rules, type) != null; }
-
+	
 	public static TradeRule GetTradeRule(List<TradeRule> rules, ResourceLocation type)
 	{
 		for(TradeRule rule : rules)
@@ -248,23 +245,23 @@ public abstract class TradeRule {
 	@OnlyIn(Dist.CLIENT)
 	@Nonnull
 	public abstract TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent);
-
+	
 	/**
 	 * Trade Rule Deserialization
 	 */
 	static final Map<String,Supplier<TradeRule>> registeredDeserializers = new HashMap<>();
-
+	
 	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer)
 	{
 		RegisterDeserializer(type, deserializer, false);
 	}
-
+	
 	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
 	{
 		RegisterDeserializer(type.toString(), deserializer, suppressDebugMessage);
-
+		
 	}
-
+	
 	private static void RegisterDeserializer(String type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
 	{
 		if(registeredDeserializers.containsKey(type))
@@ -276,7 +273,7 @@ public abstract class TradeRule {
 		if(!suppressDebugMessage)
 			LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
-
+	
 	public static TradeRule CreateRule(ResourceLocation ruleType)
 	{
 		String thisType = ruleType.toString();
@@ -286,14 +283,14 @@ public abstract class TradeRule {
 			{
 				TradeRule rule = deserializer.get();
 				data.set(rule);
-			}
+			}	
 		});
 		if(data.get() != null)
 			return data.get();
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
-
+	
 	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
@@ -308,7 +305,7 @@ public abstract class TradeRule {
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
-
+	
 	public static TradeRule Deserialize(JsonObject json) throws Exception{
 		String thisType = json.get("Type").getAsString();
 		if(registeredDeserializers.containsKey(thisType))
@@ -320,7 +317,7 @@ public abstract class TradeRule {
 		}
 		throw new Exception("Could not find a deserializer of type '" + thisType + "'.");
 	}
-
+	
 	public static TradeRule getRule(ResourceLocation type, List<TradeRule> rules) {
 		for(TradeRule rule : rules)
 		{
@@ -329,11 +326,11 @@ public abstract class TradeRule {
 		}
 		return null;
 	}
-
+	
 	public static CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
 	public static CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
-
+	
 	public static boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
 	public static boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
-
+	
 }

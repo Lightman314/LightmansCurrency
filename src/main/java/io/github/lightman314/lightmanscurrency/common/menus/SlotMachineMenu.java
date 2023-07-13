@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValueHolder;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -25,7 +26,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -197,7 +197,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
                 RewardCache holder = new RewardCache();
                 if(trader.ExecuteTrade(this.getContext(holder), 0).isSuccess())
                 {
-                    if(holder.itemHolder.isEmpty() && holder.moneyHolder.getRawValue() <= 0)
+                    if(holder.itemHolder.isEmpty() && !holder.moneyHolder.getValue().hasAny())
                         LightmansCurrency.LogError("Successful Slot Machine Trade executed, but no items or money were received!");
                     else
                         this.rewards.add(holder);
@@ -256,26 +256,26 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
         }
     }
 
-    public final RewardCache loadReward(CompoundTag tag) { return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), CoinValue.from(tag, "Money")); }
+    public final RewardCache loadReward(CompoundTag tag) { return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), CoinValue.load(tag.getCompound("Money"))); }
 
     public final class RewardCache
     {
         public final Container itemHolder;
-        public final CoinValue moneyHolder;
-        public RewardCache() { this.itemHolder = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT); this.moneyHolder = new CoinValue(); }
-        public RewardCache(Container itemHolder, CoinValue moneyHolder) { this.itemHolder = itemHolder; this.moneyHolder = moneyHolder; }
+        public final CoinValueHolder moneyHolder = new CoinValueHolder();
+        public RewardCache() { this.itemHolder = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT); }
+        public RewardCache(Container itemHolder, CoinValue startingValue) { this.itemHolder = itemHolder; this.moneyHolder.setValue(startingValue); }
         public void giveToPlayer()
         {
             SlotMachineMenu.this.clearContainer(this.itemHolder);
             this.itemHolder.clearContent();
-            MoneyUtil.ProcessChange(SlotMachineMenu.this.coins, SlotMachineMenu.this.player, this.moneyHolder);
-            this.moneyHolder.loadFromOldValue(0);
+            MoneyUtil.ProcessChange(SlotMachineMenu.this.coins, SlotMachineMenu.this.player, this.moneyHolder.getValue());
+            this.moneyHolder.setValue(CoinValue.EMPTY);
         }
 
         public List<ItemStack> getDisplayItems()
         {
-            if(this.moneyHolder.hasAny())
-                return MoneyUtil.getCoinsOfValue(this.moneyHolder);
+            if(this.moneyHolder.getValue().hasAny())
+                return MoneyUtil.getCoinsOfValue(this.moneyHolder.getValue());
             else
             {
                 List<ItemStack> items = new ArrayList<>();
@@ -293,7 +293,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
         {
             CompoundTag tag = new CompoundTag();
             InventoryUtil.saveAllItems("Items", tag, this.itemHolder);
-            this.moneyHolder.save(tag, "Money");
+            tag.put("Money", this.moneyHolder.getValue().save());
             return tag;
         }
 

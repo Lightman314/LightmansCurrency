@@ -2,18 +2,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -22,11 +26,9 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -34,12 +36,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ItemEditWidget extends AbstractWidget implements IScrollable{
+public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
@@ -106,8 +107,9 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	private final Font font;
 
+	public ItemEditWidget(ScreenPosition pos, int columns, int rows, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, listener); }
 	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
-		super(x, y, columns * 18, rows * 18, EasyText.empty());
+		super(x, y, columns * 18, rows * 18);
 		this.listener = listener;
 
 		this.columns = columns;
@@ -127,6 +129,9 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
+	@Override
+	public ItemEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
 	public static void initItemList() {
 
 		if(preFilteredItems != null)
@@ -137,13 +142,13 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
-		for(CreativeModeTab group : CreativeModeTab.TABS)
+		for(CreativeModeTab creativeTab : CreativeModeTab.TABS)
 		{
-			if(!ITEM_GROUP_BLACKLIST.contains(group))
+			if(!ITEM_GROUP_BLACKLIST.contains(creativeTab))
 			{
-				//Get all the items in this group
+				//Get all the items in this creative tab
 				NonNullList<ItemStack> items = NonNullList.create();
-				group.fillItemList(items);
+				creativeTab.fillItemList(items);
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
@@ -232,24 +237,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return getFilteredItems(ItemTradeRestriction.NONE);
 	}
 
-	private void validateItemList()
-	{
-		if(preFilteredItems == null)
-		{
-			LightmansCurrency.LogWarning("For some odd reason the item list hasn't been collected! Collecting manually.");
-			try{ initItemList();
-			} catch(Throwable ignored) {}
-			if(preFilteredItems == null)
-			{
-				preFilteredItems = new HashMap<>();
-				preFilteredItems.put(ItemTradeRestriction.NO_RESTRICTION_KEY, new ArrayList<>());
-			}
-		}
-	}
-
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
-		this.validateItemList();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
@@ -342,19 +331,20 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
-
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+	@Override
+	public void addChildren() {
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 
-		this.stackScrollListener = addListener.apply(new ScrollListener(this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 18, 18, this::stackCountScroll));
+		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
 	}
 
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
 
@@ -367,17 +357,16 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
 		{
-			int yPos = this.y + y * 18;
+			int yPos = y * 18;
 			for(int x = 0; x < this.columns && index < this.searchResultItems.size(); ++x)
 			{
 				//Get the slot position
-				int xPos = this.x + x * 18;
+				int xPos = x * 18;
 				//Render the slot background
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
+				gui.resetColor();
+				gui.blit(GUI_TEXTURE, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
-				ItemRenderUtil.drawItemStack(this, this.font, this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
+				gui.renderItem(this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
 				index++;
 			}
 		}
@@ -385,10 +374,10 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		//Render the search field
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
+		gui.blit(GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
-		this.blit(pose, this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 108, 0, 18, 18);
+		gui.blit(GUI_TEXTURE, this.stackSizeOffX, this.stackSizeOffY, 108, 0, 18, 18);
 
 	}
 
@@ -400,24 +389,24 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return copy;
 	}
 
-	public void renderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY) {
+	@Override
+	public List<Component> getTooltipText(int mouseX, int mouseY) {
 		if(!this.visible)
-			return;
+			return null;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
 		{
 			hoveredSlot += this.scroll * this.columns;
 			if(hoveredSlot < this.searchResultItems.size())
-			{
-				screen.renderComponentTooltip(pose, ItemRenderUtil.getTooltipFromItem(this.searchResultItems.get(hoveredSlot)), mouseX, mouseY);
-			}
+				return EasyScreenHelper.getTooltipFromItem(this.searchResultItems.get(hoveredSlot));
 		}
 		if(this.isMouseOverStackSizeScroll(mouseX,mouseY))
-			screen.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
+			return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"));
+		return null;
 	}
 
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {
-		return mouseX >= this.x + this.stackSizeOffX && mouseX < this.x + this.stackSizeOffX + 18 && mouseY >= this.y + this.stackSizeOffY && mouseY < this.y + this.stackSizeOffY + 18;
+		return mouseX >= this.getX() + this.stackSizeOffX && mouseX < this.getX() + this.stackSizeOffX + 18 && mouseY >= this.getY() + this.stackSizeOffY && mouseY < this.getY() + this.stackSizeOffY + 18;
 	}
 
 	private int isMouseOverSlot(double mouseX, double mouseY) {
@@ -427,12 +416,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
-			if(mouseX >= this.x + x * 18 && mouseX < this.x + (x * 18) + 18)
+			if(mouseX >= this.getX() + x * 18 && mouseX < this.getX() + (x * 18) + 18)
 				foundColumn = x;
 		}
 		for(int y = 0; y < this.rows && foundRow < 0; ++y)
 		{
-			if(mouseY >= this.y + y * 18 && mouseY < this.y + (y * 18) + 18)
+			if(mouseY >= this.getY() + y * 18 && mouseY < this.getY() + (y * 18) + 18)
 				foundRow = y;
 		}
 		if(foundColumn < 0 || foundRow < 0)
@@ -445,10 +434,6 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		boolean restrictItemEditItems();
 		void onItemClicked(ItemStack item);
 	}
-
-
-	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

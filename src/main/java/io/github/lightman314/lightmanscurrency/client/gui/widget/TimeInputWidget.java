@@ -4,54 +4,54 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class TimeInputWidget extends AbstractWidget {
+public class TimeInputWidget extends EasyWidgetWithChildren {
 
 	private final List<TimeUnit> relevantUnits;
 	private final int spacing;
 	public long maxDuration = Long.MAX_VALUE;
 	public long minDuration = 0;
 	private final Consumer<TimeData> timeConsumer;
-
+	
 	long days = 0;
 	long hours = 0;
 	long minutes = 0;
 	long seconds = 0;
-
+	
 	public TimeData getTime() { return new TimeData(this.days, this.hours, this.minutes, this.seconds); }
-
-	private final List<Button> buttons = new ArrayList<>();
-
-	public TimeInputWidget(int x, int y, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<AbstractWidget> widgetAdder, Consumer<TimeData> timeConsumer) {
-		super(x, y, 0, 0, EasyText.empty());
+	
+	private final List<EasyButton> buttons = new ArrayList<>();
+	
+	public TimeInputWidget(ScreenPosition pos, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<TimeData> timeConsumer) { this(pos.x, pos.y, spacing, largestUnit, smallestUnit, timeConsumer); }
+	public TimeInputWidget(int x, int y, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<TimeData> timeConsumer) {
+		super(x, y, 0, 0);
 		this.timeConsumer = timeConsumer;
 		this.relevantUnits = this.getRelevantUnits(largestUnit, smallestUnit);
 		this.spacing = spacing;
+	}
 
+	@Override
+	public TimeInputWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
+	@Override
+	public void addChildren() {
 		for(int i = 0; i < this.relevantUnits.size(); ++i)
 		{
 			final TimeUnit unit = this.relevantUnits.get(i);
-
-			int xPos = this.x + ((20 + this.spacing) * i);
-			PlainButton addButton = new PlainButton(xPos, this.y, 20, 10, b -> this.addTime(unit), CoinValueInput.GUI_TEXTURE, 0, CoinValueInput.HEIGHT);
-			PlainButton removeButton = new PlainButton(xPos, this.y + 23, 20, 10, b -> this.removeTime(unit), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT);
-			widgetAdder.accept(addButton);
-			widgetAdder.accept(removeButton);
-			this.buttons.add(addButton);
-			this.buttons.add(removeButton);
+			int xPos = this.getX() + ((20 + this.spacing) * i);
+			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY(), b -> this.addTime(unit), CoinValueInput.SPRITE_UP_ARROW)));
+			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY() + 23, b -> this.removeTime(unit), CoinValueInput.SPRITE_DOWN_ARROW)));
 		}
 	}
 
@@ -60,29 +60,29 @@ public class TimeInputWidget extends AbstractWidget {
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
 	}
-
+	
 	public void setTime(TimeData time) {
 		this.setTimeInternal(time);
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
 	}
-
-	public void setTime(long days, long hours, long minutes, long seconds) {
+	
+	public void setTime(long days, long hours, long minutes, long seconds) { 
 		this.setTimeInternal(days, hours, minutes, seconds);
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
 	}
-
+	
 	private void setTimeInternal(long milliseconds) { this.setTimeInternal(new TimeData(milliseconds)); }
-
+	
 	private void setTimeInternal(TimeData time) { this.setTimeInternal(time.days, time.hours, time.minutes, time.seconds); }
-
+	
 	private void setTimeInternal(long days, long hours, long minutes, long seconds) {
 		this.days = days;
 		this.hours = hours;
 		this.minutes = minutes;
 		this.seconds = seconds;
-
+		
 		if(!this.validUnit(TimeUnit.DAY))
 		{
 			this.hours += this.days * 24;
@@ -101,9 +101,9 @@ public class TimeInputWidget extends AbstractWidget {
 		if(!this.validUnit(TimeUnit.SECOND))
 			this.seconds = 0;
 	}
-
+	
 	private boolean validUnit(TimeUnit unit) { return this.relevantUnits.contains(unit); }
-
+	
 	private void addTime(TimeUnit unit) {
 		switch (unit) {
 			case DAY -> this.days++;
@@ -132,13 +132,13 @@ public class TimeInputWidget extends AbstractWidget {
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
 	}
-
+	
 	private void removeTime(TimeUnit unit) {
 		this.removeTimeInternal(unit);
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
 	}
-
+	
 	private void removeTimeInternal(TimeUnit unit) {
 		switch (unit) {
 			case DAY -> this.days = Math.max(0, this.days - 1);
@@ -180,7 +180,7 @@ public class TimeInputWidget extends AbstractWidget {
 			}
 		}
 	}
-
+	
 	private void validateTime() {
 		long duration = this.getTime().miliseconds;
 		if(duration > this.maxDuration)
@@ -188,7 +188,7 @@ public class TimeInputWidget extends AbstractWidget {
 		if(duration < this.minDuration)
 			this.setTimeInternal(this.minDuration);
 	}
-
+	
 	private List<TimeUnit> getRelevantUnits(TimeUnit largestUnit, TimeUnit smallestUnit) {
 		List<TimeUnit> results = new ArrayList<>();
 		List<TimeUnit> units = TimeUnit.UNITS_LARGE_TO_SMALL;
@@ -206,23 +206,18 @@ public class TimeInputWidget extends AbstractWidget {
 	}
 
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		for(Button b : this.buttons)
-		{
-			b.active = this.active;
-			b.visible = this.visible;
-		}
+	protected void renderTick() {
+		for(EasyButton b : this.buttons) { b.active = this.active; b.visible = this.visible; }
+	}
 
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+		
 		for(int i = 0; i < this.relevantUnits.size(); ++i)
 		{
-			TextRenderUtil.drawCenteredText(pose, this.getTime().getUnitString(this.relevantUnits.get(i), true), this.x + ((20 + this.spacing) * i) + 10, this.y + 12, 0xFFFFFF);
+			TextRenderUtil.drawCenteredText(gui, this.getTime().getUnitString(this.relevantUnits.get(i), true), ((20 + this.spacing) * i) + 10, 12, 0xFFFFFF);
 		}
 
 	}
-
-	public void removeChildren(Consumer<AbstractWidget> remover) { for(Button b : this.buttons) remover.accept(b); }
-
-	@Override
-	public void updateNarration(@Nonnull NarrationElementOutput narrator) { }
 
 }

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
@@ -18,11 +19,11 @@ import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,13 +48,13 @@ public class BankAccount {
 	
 	private final IMarkDirty markDirty;
 	
-	private CoinValue coinStorage = new CoinValue();
+	private CoinValue coinStorage = CoinValue.EMPTY;
 	public CoinValue getCoinStorage() { return this.coinStorage; }
 	
-	private CoinValue notificationLevel = new CoinValue();
+	private CoinValue notificationLevel = CoinValue.EMPTY;
 	public CoinValue getNotificationValue() { return this.notificationLevel; }
-	public long getNotificationLevel() { return this.notificationLevel.getRawValue(); }
-	public void setNotificationValue(CoinValue value) { this.notificationLevel = value.copy(); this.markDirty(); }
+	public long getNotificationLevel() { return this.notificationLevel.getValueNumber(); }
+	public void setNotificationValue(CoinValue value) { this.notificationLevel = value; this.markDirty(); }
 	
 	private Consumer<NonNullSupplier<Notification>> notificationSender;
 	public void setNotificationConsumer(Consumer<NonNullSupplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
@@ -77,25 +78,24 @@ public class BankAccount {
 	private String ownerName = "Unknown";
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
-	public MutableComponent getName() { return new TranslatableComponent("lightmanscurrency.bankaccount", this.ownerName); }
-
-
+	public MutableComponent getName() { return EasyText.translatable("lightmanscurrency.bankaccount", this.ownerName); }
+	
 	public void depositCoins(CoinValue depositAmount) {
-		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
+		this.coinStorage = this.coinStorage.plusValue(depositAmount);
 		this.markDirty();
 	}
 	
 	public CoinValue withdrawCoins(CoinValue withdrawAmount) {
-		long oldValue = this.coinStorage.getRawValue();
-		if(withdrawAmount.getRawValue() > this.coinStorage.getRawValue())
-			withdrawAmount = this.coinStorage.copy();
+		long oldValue = this.coinStorage.getValueNumber();
+		if(withdrawAmount.getValueNumber() > this.coinStorage.getValueNumber())
+			withdrawAmount = this.coinStorage;
 		//Cannot withdraw no money
-		if(withdrawAmount.getRawValue() <= 0)
+		if(withdrawAmount.getValueNumber() <= 0)
 			return CoinValue.EMPTY;
-		this.coinStorage.loadFromOldValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
+		this.coinStorage = this.coinStorage.minusValue(withdrawAmount);
 		this.markDirty();
 		//Check if we should push the notification
-		if(oldValue >= this.getNotificationLevel() && this.coinStorage.getRawValue() < this.getNotificationLevel())
+		if(oldValue >= this.getNotificationLevel() && this.coinStorage.getValueNumber() < this.getNotificationLevel())
 			this.pushNotification(() -> new LowBalanceNotification(this.getName(), this.notificationLevel));
 		return withdrawAmount;
 	}
@@ -129,7 +129,7 @@ public class BankAccount {
 		
 		CoinValue actualAmount = MoneyUtil.getCoinValue(coinInput);
 		//If amount is not defined, or the amount is more than the amount available, set the amount to deposit to the actual amount
-		if(amount.getRawValue() > actualAmount.getRawValue() || amount.getRawValue() <= 0)
+		if(amount.getValueNumber() > actualAmount.getValueNumber() || amount.getValueNumber() <= 0)
 			amount = actualAmount;
 		//Handle deposit removal the same as a payment
 		MoneyUtil.ProcessPayment(coinInput, player, amount, true);
@@ -145,7 +145,7 @@ public class BankAccount {
 			return;
 
 		account.depositCoins(amount);
-		account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount.copy()));
+		account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount));
 
 	}
 	
@@ -158,7 +158,7 @@ public class BankAccount {
 	
 	public static void WithdrawCoins(Player player, Container coinOutput, BankAccount account, CoinValue amount)
 	{
-		if(account == null || amount.getRawValue() <= 0)
+		if(account == null || amount.getValueNumber() <= 0)
 			return;
 		
 		CoinValue withdrawnAmount = account.withdrawCoins(amount);
@@ -186,23 +186,23 @@ public class BankAccount {
 	public static MutableComponent TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
 	{
 		if(fromAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.from");
+			return EasyText.translatable("gui.bank.transfer.error.null.from");
 		if(destinationAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.to");
-		if(amount.getRawValue() <= 0)
-			return new TranslatableComponent("gui.bank.transfer.error.amount", amount.getString("nothing"));
+			return EasyText.translatable("gui.bank.transfer.error.null.to");
+		if(amount.getValueNumber() <= 0)
+			return EasyText.translatable("gui.bank.transfer.error.amount", amount.getString("nothing"));
 		if(fromAccount == destinationAccount)
-			return new TranslatableComponent("gui.bank.transfer.error.same");
+			return EasyText.translatable("gui.bank.transfer.error.same");
 		
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
-		if(withdrawnAmount.getRawValue() <= 0)
-			return new TranslatableComponent("gui.bank.transfer.error.nobalance", amount.getString());
+		if(withdrawnAmount.getValueNumber() <= 0)
+			return EasyText.translatable("gui.bank.transfer.error.nobalance", amount.getString());
 		
 		destinationAccount.depositCoins(withdrawnAmount);
 		fromAccount.LogTransfer(player, withdrawnAmount, destinationAccount.getName(), false);
 		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccount.getName(), true);
 		
-		return new TranslatableComponent("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
+		return EasyText.translatable("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
 		
 	}
 	
@@ -212,10 +212,10 @@ public class BankAccount {
 	public BankAccount(CompoundTag compound) { this(null, compound); }
 	public BankAccount(IMarkDirty markDirty, CompoundTag compound) {
 		this.markDirty = markDirty;
-		this.coinStorage.load(compound, "CoinStorage");
+		this.coinStorage = CoinValue.safeLoad(compound, "CoinStorage");
 		this.logger.load(compound.getCompound("AccountLogs"));
 		this.ownerName = compound.getString("OwnerName");
-		this.notificationLevel.load(compound, "NotificationLevel");
+		this.notificationLevel = CoinValue.safeLoad(compound, "NotificationLevel");
 	}
 	
 	public void markDirty()
@@ -226,10 +226,10 @@ public class BankAccount {
 	
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
-		this.coinStorage.save(compound, "CoinStorage");
+		compound.put("CoinStorage", this.coinStorage.save());
 		compound.put("AccountLogs", this.logger.save());
 		compound.putString("OwnerName", this.ownerName);
-		this.notificationLevel.save(compound, "NotificationLevel");
+		compound.put("NotificationLevel", this.notificationLevel.save());
 		return compound;
 	}
 	
@@ -331,12 +331,11 @@ public class BankAccount {
 	
 	public interface IMarkDirty { void markDirty(); }
 	
-	public interface IBankAccountMenu
+	public interface IBankAccountMenu extends IClientTracker
 	{
 		Player getPlayer();
 		Container getCoinInput();
 		default void onDepositOrWithdraw() {}
-		boolean isClient();
 		default AccountReference getBankAccountReference() {
 			return this.isClient() ? ClientBankData.GetLastSelectedAccount() : BankSaveData.GetSelectedBankAccount(this.getPlayer());
 		}
@@ -349,11 +348,6 @@ public class BankAccount {
 	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
 		void setTransferMessage(MutableComponent component);
-		default void setNotificationLevel(CoinValue amount) {
-			BankAccount account = this.getBankAccount();
-			if(account != null)
-				account.setNotificationValue(amount);
-		}
 	}
 	
 }

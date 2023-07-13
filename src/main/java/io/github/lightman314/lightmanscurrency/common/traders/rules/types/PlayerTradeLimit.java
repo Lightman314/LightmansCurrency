@@ -12,8 +12,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerTradeLimitTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
@@ -29,27 +27,27 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 
 public class PlayerTradeLimit extends TradeRule{
-
+	
 	public static final ResourceLocation OLD_TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit");
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "player_trade_limit");
-
+	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
 	public void setLimit(int newLimit) { this.limit = newLimit; }
-
+	
 	private long timeLimit = 0;
 	private boolean enforceTimeLimit() { return this.timeLimit > 0; }
 	public long getTimeLimit() { return this.timeLimit; }
 	public void setTimeLimit(long timeLimit) { this.timeLimit = timeLimit; }
-
+	
 	Map<UUID,List<Long>> memory = new HashMap<>();
 	public void resetMemory() { this.memory.clear(); }
-
+	
 	public PlayerTradeLimit() { super(TYPE); }
-
+	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-
+		
 		int tradeCount = getTradeCount(event.getPlayerReference().id);
 		if(tradeCount >= this.limit)
 		{
@@ -70,15 +68,15 @@ public class PlayerTradeLimit extends TradeRule{
 
 	@Override
 	public void afterTrade(PostTradeEvent event) {
-
+		
 		this.addEvent(event.getPlayerReference().id, TimeUtil.getCurrentTime());
-
+		
 		this.clearExpiredData();
-
+		
 		event.markDirty();
-
+		
 	}
-
+	
 	private void addEvent(UUID player, Long time)
 	{
 		List<Long> eventTimes = new ArrayList<>();
@@ -87,7 +85,7 @@ public class PlayerTradeLimit extends TradeRule{
 		eventTimes.add(time);
 		this.memory.put(player, eventTimes);
 	}
-
+	
 	private void clearExpiredData()
 	{
 		if(!this.enforceTimeLimit())
@@ -107,7 +105,7 @@ public class PlayerTradeLimit extends TradeRule{
 		});
 		emptyEntries.forEach(id -> this.memory.remove(id));
 	}
-
+	
 	private int getTradeCount(UUID playerID)
 	{
 		int count = 0;
@@ -123,10 +121,10 @@ public class PlayerTradeLimit extends TradeRule{
 		}
 		return count;
 	}
-
+	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-
+		
 		compound.putInt("Limit", this.limit);
 		ListTag memoryList = new ListTag();
 		this.memory.forEach((id, eventTimes) ->{
@@ -138,7 +136,7 @@ public class PlayerTradeLimit extends TradeRule{
 		compound.put("Memory", memoryList);
 		compound.putLong("ForgetTime", this.timeLimit);
 	}
-
+	
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		json.addProperty("Limit", this.limit);
@@ -149,7 +147,7 @@ public class PlayerTradeLimit extends TradeRule{
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-
+		
 		if(compound.contains("Limit", Tag.TAG_INT))
 			this.limit = compound.getInt("Limit");
 		if(compound.contains("Memory", Tag.TAG_LIST))
@@ -184,7 +182,7 @@ public class PlayerTradeLimit extends TradeRule{
 		if(compound.contains("ForgetTime", Tag.TAG_LONG))
 			this.timeLimit = compound.getLong("ForgetTime");
 	}
-
+	
 	@Override
 	public void handleUpdateMessage(CompoundTag updateInfo)
 	{
@@ -201,7 +199,7 @@ public class PlayerTradeLimit extends TradeRule{
 			this.resetMemory();
 		}
 	}
-
+	
 	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag data = new CompoundTag();
@@ -215,7 +213,7 @@ public class PlayerTradeLimit extends TradeRule{
 		data.put("Memory", memoryList);
 		return data;
 	}
-
+	
 	@Override
 	public void loadPersistentData(CompoundTag data) {
 		if(data.contains("Memory", Tag.TAG_LIST))
@@ -248,7 +246,7 @@ public class PlayerTradeLimit extends TradeRule{
 			}
 		}
 	}
-
+	
 	@Override
 	public void loadFromJson(JsonObject json) {
 		if(json.has("Limit"))
@@ -257,12 +255,9 @@ public class PlayerTradeLimit extends TradeRule{
 			this.timeLimit = json.get("ForgetTime").getAsLong();
 	}
 
-	@Override
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT_PLAYER; }
-
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerTradeLimitTab(parent); }
-
+	
 }

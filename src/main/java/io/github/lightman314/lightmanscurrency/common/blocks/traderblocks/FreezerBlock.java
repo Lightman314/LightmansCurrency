@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
@@ -50,7 +49,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
-		return new ResourceLocation(namespace, "block/freezer/doors/" + color.getResourceSafeName());
+		return new ResourceLocation(namespace, "block/freezer/doors/" + color.toString().toLowerCase());
 	}
 	
 	@Override
@@ -66,7 +65,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		//Define directions for easy positional handling
 		Vector3f forward = IRotatableBlock.getForwardVect(facing);
 		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
+		Vector3f up = MathUtil.getYP();
 		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 		
 		Vector3f forwardOffset = MathUtil.VectorMult(forward, 6f/16f);
@@ -144,7 +143,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	{
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
 		return rotation;
 	}
 

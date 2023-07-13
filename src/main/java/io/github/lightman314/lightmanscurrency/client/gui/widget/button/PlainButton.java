@@ -1,55 +1,47 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
-
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
+
 @OnlyIn(Dist.CLIENT)
-public class PlainButton extends Button{
+public class PlainButton extends EasyButton {
+
+	private NonNullSupplier<Sprite> sprite;
 	
-	private ResourceLocation buttonResource;
-	private NonNullSupplier<Pair<Integer,Integer>> resourceSource;
-	
-	
-	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, int resourceX, int resourceY) {
-		this(x, y, sizeX, sizeY, pressable, buttonResource, () -> Pair.of(resourceX, resourceY));
-	}
-	
-	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, NonNullSupplier<Pair<Integer, Integer>> resourceSource)
+	public PlainButton(@Nonnull ScreenPosition pos, @Nonnull Consumer<EasyButton> pressable, @Nonnull Sprite sprite) { this(pos.x, pos.y, pressable, sprite); }
+	public PlainButton(int x, int y, @Nonnull Consumer<EasyButton> pressable, @Nonnull Sprite sprite) { this(x, y, pressable, () -> sprite); }
+
+	public PlainButton(@Nonnull ScreenPosition pos, @Nonnull Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<Sprite> sprite) { this(pos.x, pos.y, pressable, sprite); }
+	public PlainButton(int x, int y, @Nonnull Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<Sprite> sprite)
 	{
-		super(x, y, sizeX, sizeY, new TextComponent(""), pressable);
-		this.buttonResource = buttonResource;
-		this.resourceSource = resourceSource;
+		super(x, y, sprite.get().width, sprite.get().height, pressable);
+		this.sprite = sprite;
 	}
 	
-	public void setResource(ResourceLocation buttonResource, int resourceX, int resourceY) { this.setResource(buttonResource, () -> Pair.of(resourceX, resourceY)); }
+	public void setSprite(@Nonnull Sprite sprite) { this.setSprite(() -> sprite); }
 	
-	public void setResource(ResourceLocation buttonResource, NonNullSupplier<Pair<Integer, Integer>> resourceSource)
-	{
-		this.buttonResource = buttonResource;
-		this.resourceSource = resourceSource;
-	}
+	public void setSprite(@Nonnull NonNullSupplier<Sprite> sprite) { this.sprite = sprite; }
 	
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, this.buttonResource);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        int offset = this.isHovered ? this.height : 0;
+		gui.resetColor();
         if(!this.active)
-        	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        Pair<Integer,Integer> resource = this.resourceSource.get();
-        this.blit(poseStack, this.x, this.y, resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
-		
+			gui.setColor(0.5f,0.5f,0.5f);
+		gui.blitSprite(this.sprite.get(), 0, 0, this.isHovered);
+		gui.resetColor();
 	}
+
+	@Override
+	public PlainButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
 }

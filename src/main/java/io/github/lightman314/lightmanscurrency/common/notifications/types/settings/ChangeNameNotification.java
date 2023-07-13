@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class ChangeNameNotification extends Notification {
@@ -30,11 +30,11 @@ public class ChangeNameNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(oldName.isBlank())
-			return new TranslatableComponent("log.settings.changename.set", this.player.getName(true), this.newName);
+			return EasyText.translatable("log.settings.changename.set", this.player.getName(true), this.newName);
 		else if(newName.isBlank())
-			return new TranslatableComponent("log.settings.changename.reset", this.player.getName(true), this.oldName);
+			return EasyText.translatable("log.settings.changename.reset", this.player.getName(true), this.oldName);
 		else
-			return new TranslatableComponent("log.settings.changename", this.player.getName(true), this.oldName, this.newName);
+			return EasyText.translatable("log.settings.changename", this.player.getName(true), this.oldName, this.newName);
 	}
 
 	@Override
@@ -53,9 +53,8 @@ public class ChangeNameNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof ChangeNameNotification)
+		if(other instanceof ChangeNameNotification n)
 		{
-			ChangeNameNotification n = (ChangeNameNotification)other;
 			return n.player.is(this.player) && n.newName.equals(this.newName) && n.oldName.equals(this.oldName);
 		}
 		return false;

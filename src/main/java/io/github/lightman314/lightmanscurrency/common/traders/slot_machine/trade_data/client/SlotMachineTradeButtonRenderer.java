@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -63,7 +63,7 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
         if(stack.isEmpty())
             return null;
 
-        List<Component> tooltips = ItemRenderUtil.getTooltipFromItem(stack);
+        List<Component> tooltips = EasyScreenHelper.getTooltipFromItem(stack);
         tooltips.add(0, EasyText.translatable("tooltip.lightmanscurrency.slot_machine.weight", weight));
         tooltips.add(0, EasyText.translatable("tooltip.lightmanscurrency.slot_machine.odds", odds));
 

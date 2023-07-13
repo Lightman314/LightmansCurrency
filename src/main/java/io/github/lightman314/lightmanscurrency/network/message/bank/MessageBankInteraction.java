@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -22,11 +21,11 @@ public class MessageBankInteraction {
 	
 	public static void encode(MessageBankInteraction message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.isDeposit);
-		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		message.amount.encode(buffer);
 	}
 
 	public static MessageBankInteraction decode(FriendlyByteBuf buffer) {
-		return new MessageBankInteraction(buffer.readBoolean(), new CoinValue(buffer.readAnySizeNbt()));
+		return new MessageBankInteraction(buffer.readBoolean(), CoinValue.decode(buffer));
 	}
 
 	public static void handle(MessageBankInteraction message, Supplier<Context> supplier) {
@@ -35,9 +34,8 @@ public class MessageBankInteraction {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof IBankAccountMenu)
+				if(player.containerMenu instanceof IBankAccountMenu menu)
 				{
-					IBankAccountMenu menu = (IBankAccountMenu) player.containerMenu;
 					if(message.isDeposit)
 						BankAccount.DepositCoins(menu, message.amount);
 					else

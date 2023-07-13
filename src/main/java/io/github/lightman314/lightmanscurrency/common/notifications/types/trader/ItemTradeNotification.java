@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -17,7 +18,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,7 +29,7 @@ public class ItemTradeNotification extends Notification{
 	
 	ItemTradeType tradeType;
 	List<ItemWriteData> items;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	String customer;
 	
@@ -65,7 +65,7 @@ public class ItemTradeNotification extends Notification{
 	@Override
 	public MutableComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 		
 		Component itemText = ItemWriteData.getItemNames(this.items.get(0), this.items.get(1));
 		
@@ -80,7 +80,7 @@ public class ItemTradeNotification extends Notification{
 			cost = this.cost.getComponent("0");
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
+		return EasyText.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		
 	}
 
@@ -94,7 +94,7 @@ public class ItemTradeNotification extends Notification{
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		if(this.tradeType != ItemTradeType.BARTER)
-			this.cost.save(compound, "Price");
+			compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -109,7 +109,7 @@ public class ItemTradeNotification extends Notification{
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemWriteData(itemList.getCompound(i)));
 		if(this.tradeType != ItemTradeType.BARTER)
-			this.cost.load(compound, "Price");
+			this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}
@@ -133,7 +133,7 @@ public class ItemTradeNotification extends Notification{
 				if(i1.count != i2.count)
 					return false;
 			}
-			if(itn.cost.getRawValue() != this.cost.getRawValue())
+			if(itn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!itn.customer.equals(this.customer))
 				return false;

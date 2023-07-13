@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class ChangeSettingNotification extends Notification {
@@ -49,7 +49,7 @@ public abstract class ChangeSettingNotification extends Notification {
 		protected ResourceLocation getType() { return ADVANCED_TYPE; }
 
 		@Override
-		public MutableComponent getMessage() { return new TranslatableComponent("log.settings.change", this.player.getName(true), this.setting, this.oldValue, this.newValue); }
+		public MutableComponent getMessage() { return EasyText.translatable("log.settings.change", this.player.getName(true), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(CompoundTag compound) {
@@ -67,9 +67,8 @@ public abstract class ChangeSettingNotification extends Notification {
 		
 		@Override
 		protected boolean canMerge(Notification other) {
-			if(other instanceof Advanced)
+			if(other instanceof Advanced n)
 			{
-				Advanced n = (Advanced)other;
 				return n.player.is(this.player) && n.setting.equals(this.setting) && n.newValue.equals(this.newValue) && n.oldValue.equals(this.oldValue);
 			}
 			return false;
@@ -90,7 +89,7 @@ public abstract class ChangeSettingNotification extends Notification {
 
 		@Override
 		public MutableComponent getMessage() {
-			return new TranslatableComponent("log.settings.change.simple", this.player.getName(true), this.setting, this.newValue);
+			return EasyText.translatable("log.settings.change.simple", this.player.getName(true), this.setting, this.newValue);
 		}
 		
 		@Override
@@ -107,14 +106,14 @@ public abstract class ChangeSettingNotification extends Notification {
 
 		@Override
 		protected boolean canMerge(Notification other) {
-			if(other instanceof Simple)
+			if(other instanceof Simple n)
 			{
-				Simple n = (Simple)other;
 				return n.player.is(this.player) && n.setting.equals(this.setting) && n.newValue.equals(this.newValue);
 			}
 			return false;
 		}
 		
 	}
+	
 	
 }

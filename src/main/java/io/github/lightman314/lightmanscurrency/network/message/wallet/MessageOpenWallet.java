@@ -22,7 +22,7 @@ public class MessageOpenWallet {
 	public static void handle(MessageOpenWallet message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			//Don't need to check for valid wallet handlers as the wallet menu checks this before opening
+			//Don't need to check for valid wallet handlers as the wallet stack index might not be -1...
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 				WalletMenuBase.SafeOpenWalletMenu(player, message.walletStackIndex);

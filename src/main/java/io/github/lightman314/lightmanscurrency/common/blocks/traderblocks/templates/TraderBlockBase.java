@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -12,9 +13,11 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -23,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -42,7 +44,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockBase extends Block implements ITraderBlock, IEasyEntityBlock {
 
@@ -59,8 +60,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 		this.shape = shape != null ? shape : LazyShapes.BOX_T;
 	}
 	
+	@Nonnull
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) { return this.shape; }
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
@@ -72,15 +74,13 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return this.validTraderTypes(); }
 
 	@Override
-	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state)
-	{
+	public final BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
 		return this.makeDummy(pos, state);
 	}
-	
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -91,7 +91,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 				if(trader == null)
 				{
 					LightmansCurrency.LogWarning("Trader Data for block at " + pos.getX() + "," + pos.getY() + "," + pos.getZ() + " had to be re-initialized on interaction.");
-					player.sendMessage(new TranslatableComponent("trader.warning.reinitialized").withStyle(ChatFormatting.RED), new UUID(0,0));
+					player.sendMessage(EasyText.translatable("trader.warning.reinitialized").withStyle(ChatFormatting.RED), new UUID(0,0));
 					traderSource.initialize(player, ItemStack.EMPTY);
 					trader = traderSource.getTraderData();
 				}
@@ -109,9 +109,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity entity, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
-		this.setPlacedByBase(level, pos, state, entity, stack);
+		this.setPlacedByBase(level, pos, state, player, stack);
 	}
 	
 	public final void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack)
@@ -131,7 +131,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		this.playerWillDestroyBase(level, pos, state, player);
 	}
@@ -161,11 +161,14 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
 		    return;
+		if(state.getBlock() instanceof IDeprecatedBlock db && db.acceptableReplacementState(newState))
+			return;
+
 		
 		if(!level.isClientSide)
 		{
@@ -205,17 +208,17 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 	
 	@Override
-	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) {
-		return level == null ? null : level.getBlockEntity(pos);
-	}
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) { return level == null ? null : level.getBlockEntity(pos); }
 	
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
+
+	protected static void replaceTraderBlock(Level level, BlockPos pos, BlockState newState) { level.setBlock(pos, newState, 35); }
 	
 }

@@ -2,13 +2,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -18,33 +17,29 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExe
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.world.inventory.Slot;
 
+import javax.annotation.Nonnull;
+
 public class TraderInteractionTab extends TraderClientTab {
 
 	public TraderInteractionTab(TraderScreen screen) { super(screen); }
 
-	@Override
-	public boolean blockInventoryClosing() { return false; }
-
 	TradeButtonArea tradeDisplay;
-
+	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		//Trade Button Display
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
-		this.tradeDisplay.init();
+		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
+		this.tradeDisplay.withTitle(screenArea.pos.offset(8,6), screenArea.width - 16, true);
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, false);
-		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		TradeButton hoveredButton = this.tradeDisplay.getHoveredButton(mouseX, mouseY);
+		TradeButton hoveredButton = this.tradeDisplay.getHoveredButton(gui.mousePos);
 		if(hoveredButton != null)
 		{
 			//Reset texture/color
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			gui.resetColor();
 			//Get highlighted slot info from the trade
 			TradeData trade = hoveredButton.getTrade();
 			TradeContext context = hoveredButton.getContext();
@@ -55,40 +50,17 @@ public class TraderInteractionTab extends TraderClientTab {
 				{
 					Slot slot = this.menu.slots.get(s);
 					//Replace slot bg with the hightlighted version.
-					this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, this.screen.getXSize(), 24, 18, 18);
+					gui.blit(TraderScreen.GUI_TEXTURE,slot.x - 1, slot.y - 1, this.screen.getXSize(), 24, 18, 18);
 				}
 			}
 		}
 
 	}
 
-	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		if(this.menu.getCarried().isEmpty())
-			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, mouseX, mouseY);
-	}
-
-	@Override
-	public void tick() {
-		this.tradeDisplay.tick();
-	}
-
-	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
-		return false;
-	}
-
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
-
 	private static long lastPress = 0;
 
 	private void OnButtonPress(TraderData trader, TradeData trade) {
-
+		
 		if(trader == null || trade == null)
 			return;
 
@@ -103,22 +75,22 @@ public class TraderInteractionTab extends TraderClientTab {
 			this.menu.player.closeContainer();
 			return;
 		}
-
+		
 		List<TraderData> traders = ts.getTraders();
 		int ti = traders.indexOf(trader);
 		if(ti < 0)
 			return;
-
+		
 		TraderData t = traders.get(ti);
 		if(t == null)
 			return;
-
+		
 		int tradeIndex = t.getTradeData().indexOf(trade);
 		if(tradeIndex < 0)
 			return;
-
+		
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(ti, tradeIndex));
-
+		
 	}
-
+	
 }

@@ -3,15 +3,16 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
@@ -79,10 +80,10 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
+	public boolean stillValid(@Nonnull Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 	}
@@ -92,8 +93,9 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		return this.blockEntity.getTradeContext();
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -201,13 +203,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		if(message.contains("OnlineModeChange"))
 			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
 		try { this.getCurrentTab().receiveMessage(message); }
-		catch(Throwable t) { }
+		catch(Throwable ignored) { }
 	}
-	
-	public interface IClientMessage {
-		public void selfMessage(CompoundTag message);
-	}
-	
-	
 	
 }

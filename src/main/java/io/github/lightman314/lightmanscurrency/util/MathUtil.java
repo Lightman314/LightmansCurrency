@@ -1,8 +1,17 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 public class MathUtil {
+
+	public static Vector3f getXP() { return new Vector3f(1f, 0f, 0f); }
+	public static Vector3f getYP() { return new Vector3f(0f, 1f, 0f); }
+	public static Vector3f getZP() { return new Vector3f(0f, 0f, 1f); }
+
+
+	public static Quaternion fromAxisAngleDegree(Vector3f axis, float degree) { return axis.rotationDegrees(degree); }
+
 
 	/**
 	 * Multiplies all parts of a Vector3f by a float
@@ -13,7 +22,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Sum all the Vector3f's together
+	 * Sum all of the Vector3f's together
 	 */
 	public static Vector3f VectorAdd(Vector3f... vectors)
 	{
@@ -108,5 +117,13 @@ public class MathUtil {
 			return divideByZero;
 		return (a/b);
 	}
-	
+
+	public static int DivideByAndRoundUp(int a, int b)
+	{
+		int result = a/b;
+		if(((double)a/(double)b)%1d != 0d)
+			result++;
+		return result;
+	}
+
 }

@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
-import io.github.lightman314.lightmanscurrency.common.atm.ATMConversionButtonData;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.atm.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
@@ -11,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -22,25 +26,23 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     public ExchangeUpgradeTab(CoinChestUpgradeData data, Object screen) { super(data, screen); }
 
-    List<ATMConversionButton> buttons = new ArrayList<>();
+    List<ATMExchangeButton> buttons = new ArrayList<>();
 
-    private Button exchangeWhileOpenButton;
+    EasyButton exchangeWhileOpenButton;
 
     @Override
     public boolean coinSlotsVisible() { return false; }
 
     @Override
-    public void init() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         this.buttons = new ArrayList<>();
 
-        List<ATMConversionButtonData> buttonData = ATMData.get().getConversionButtons();
-        int left = this.screen.getGuiLeft();
-        int top = this.screen.getGuiTop();
-        for(ATMConversionButtonData data : buttonData)
-            this.buttons.add(this.screen.addRenderableTabWidget(new ATMConversionButton(left, top, data, this::SelectNewCommand)));
+        List<ATMExchangeButtonData> buttonData = ATMData.get().getConversionButtons();
+        for(ATMExchangeButtonData data : buttonData)
+            this.buttons.add(this.addChild(new ATMExchangeButton(screenArea.pos, data, this::SelectNewCommand)));
 
-        this.exchangeWhileOpenButton = this.screen.addRenderableTabWidget(EasyButton.builder(EasyText.empty(), this::ToggleExchangeWhileOpen).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 124).size(this.screen.getXSize() - 20, 20).build());
+        this.exchangeWhileOpenButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 124), screenArea.width - 20, 20, this::GetExchangeWhileOpenText, this::ToggleExchangeWhileOpen));
 
         this.tick();
 
@@ -50,7 +52,7 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
     {
         CoinChestUpgradeData data = this.getUpgradeData();
         String currentCommand = data == null ? "" : UpgradeType.COIN_CHEST_EXCHANGE.getExchangeCommand(data);
-        for(ATMConversionButton button : this.buttons)
+        for(ATMExchangeButton button : this.buttons)
             button.selected = Objects.equals(button.data.command, currentCommand);
     }
 
@@ -59,7 +61,7 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
         this.screen.getMenu().SendMessageToServer(LazyPacketData.builder().setString("SetExchangeCommand", command));
     }
 
-    private void ToggleExchangeWhileOpen(Button button)
+    private void ToggleExchangeWhileOpen(EasyButton button)
     {
         CoinChestUpgradeData data = this.getUpgradeData();
         boolean currentState = data != null && data.upgrade instanceof CoinChestExchangeUpgrade upgrade && upgrade.getExchangeWhileOpen(data);
@@ -67,28 +69,17 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
     }
 
     @Override
-    public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
+     public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
     @Override
-    public void postRender(PoseStack pose, int mouseX, int mouseY) { }
+    public void tick() { this.updateSelectedButton(); }
 
-    @Override
-    public void tick()
+    private Component GetExchangeWhileOpenText()
     {
-        this.updateSelectedButton();
         CoinChestUpgradeData data = this.getUpgradeData();
         if(data != null)
-            this.SetExchangeWhileOpenText(data);
+            return EasyText.translatable("button.lightmanscurrency.upgrade.coin_chest.exchange.while_open." + (UpgradeType.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? "y" : "n"));
+        return EasyText.empty();
     }
-
-    private void SetExchangeWhileOpenText(@Nonnull CoinChestUpgradeData data)
-    {
-        if(this.exchangeWhileOpenButton == null)
-            return;
-        this.exchangeWhileOpenButton.setMessage(EasyText.translatable("button.lightmanscurrency.upgrade.coin_chest.exchange.while_open." + (UpgradeType.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? "y" : "n")));
-    }
-
-    @Override
-    public void onClose() { }
 
 }

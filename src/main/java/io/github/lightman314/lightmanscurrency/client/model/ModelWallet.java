@@ -19,12 +19,14 @@ public class ModelWallet<T extends LivingEntity> extends HumanoidModel<T> {
 		this.wallet = part.getChild("wallet");
 	}
 	
+	@Nonnull
 	@Override
 	protected Iterable<ModelPart> headParts()
 	{
 		return ImmutableList.of();
 	}
 	
+	@Nonnull
 	@Override
 	protected Iterable<ModelPart> bodyParts()
 	{

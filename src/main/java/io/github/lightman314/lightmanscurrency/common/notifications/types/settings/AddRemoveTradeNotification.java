@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class AddRemoveTradeNotification extends Notification {
@@ -29,7 +29,7 @@ public class AddRemoveTradeNotification extends Notification {
 
 	@Override
 	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.settings.addremovetrade", this.player.getName(true), new TranslatableComponent(this.isAdd ? "log.settings.add" : "log.settings.remove"), newCount);
+		return EasyText.translatable("log.settings.addremovetrade", this.player.getName(true), EasyText.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.newCount);
 	}
 
 	@Override
@@ -48,9 +48,8 @@ public class AddRemoveTradeNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof AddRemoveTradeNotification)
+		if(other instanceof AddRemoveTradeNotification n)
 		{
-			AddRemoveTradeNotification n = (AddRemoveTradeNotification)other;
 			return n.player.is(this.player) && this.isAdd == n.isAdd && this.newCount == n.newCount;
 		}
 		return false;

@@ -1,10 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -27,7 +25,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new SlotMachineEntryClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new SlotMachineEntryClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }

@@ -41,9 +41,9 @@ public class SPacketSyncWallet {
 			if(minecraft != null)
 			{
 				Entity entity = minecraft.level.getEntity(message.entityID);
-				if(entity instanceof LivingEntity)
+				if(entity instanceof LivingEntity livingEntity)
 				{
-					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
 					if(walletHandler != null)
 					{
 						walletHandler.syncWallet(message.walletItem);

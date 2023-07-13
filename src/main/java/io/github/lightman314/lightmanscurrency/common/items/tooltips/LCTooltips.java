@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class LCTooltips {
@@ -19,13 +19,14 @@ public class LCTooltips {
 	public static final NonNullSupplier<List<Component>> COIN_MINT = () -> {
 		List<Component> result = new ArrayList<>();
 		if(Config.SERVER.allowCoinMinting.get())
-			result.add(new TranslatableComponent("tooltip.lightmanscurrency.coinmint.mintable").withStyle(TooltipItem.DEFAULT_STYLE));
+			result.add(EasyText.translatable("tooltip.lightmanscurrency.coinmint.mintable").withStyle(TooltipItem.DEFAULT_STYLE));
 		if(Config.SERVER.allowCoinMelting.get())
-			result.add(new TranslatableComponent("tooltip.lightmanscurrency.coinmint.meltable").withStyle(TooltipItem.DEFAULT_STYLE));
+			result.add(EasyText.translatable("tooltip.lightmanscurrency.coinmint.meltable").withStyle(TooltipItem.DEFAULT_STYLE));
 		return result;
 	};
 	
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item");
+	public static final NonNullSupplier<List<Component>> SLOT_MACHINE = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.slot_machine");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_ARMOR = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.armor");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_TICKET = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.ticket");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_BOOK = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.book");

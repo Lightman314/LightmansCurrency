@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
@@ -42,8 +41,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -89,7 +86,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		public final boolean drains;
 		public final boolean trades;
 		public final int index;
-		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return EasyText.translatable("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
 
 		InteractionType(boolean requiresPermissions, boolean restocks, boolean drains, boolean trades, int index) {
 			this.requiresPermissions =  requiresPermissions;
@@ -127,7 +124,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		ALWAYS_ON(3, be -> true);
 		
 		public final int index;
-		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return EasyText.translatable("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
 		private final Function<TraderInterfaceBlockEntity,Boolean> active;
@@ -369,12 +366,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			else
 				this.owner.load(ownerTag);
 		}
-		if(compound.contains("Team"))
-		{
-			Team team = TeamSaveData.GetTeam(false, DataConverter.getNewTeamID(compound.getUUID("Team")));
-			if(team != null)
-				this.owner.SetOwner(team);
-		}
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
@@ -403,11 +394,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		for (SidedHandler<?> sidedHandler : this.handlers) {
 			Object handler = sidedHandler.getHandler(relativeSide);
 			if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && handler instanceof IItemHandler)
-				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> (IItemHandler) handler));
+				return LazyOptional.of(() -> (IItemHandler) handler).cast();
 			if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && handler instanceof IFluidHandler)
-				return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> (IFluidHandler) handler));
+				return LazyOptional.of(() -> (IFluidHandler) handler).cast();
 			else if (cap == CapabilityEnergy.ENERGY && handler instanceof IEnergyStorage)
-				return CapabilityEnergy.ENERGY.orEmpty(cap, LazyOptional.of(() -> (IEnergyStorage) handler));
+				return LazyOptional.of(() -> (IEnergyStorage) handler).cast();
 		}
 		return super.getCapability(cap, side);
 	}
@@ -456,12 +447,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public boolean onlineCheck() {
 		//Always return false on the client
-		
 		if(this.isClient())
 			return false;
 		if(!this.onlineMode)
 			return true;
-			
+
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server == null)
 			return false;
@@ -566,7 +556,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
 		@Override
-		public @NotNull Component getDisplayName() { return new TextComponent(""); }
+		public @NotNull Component getDisplayName() { return EasyText.empty(); }
 	}
 	
 	protected int getInteractionDelay() {
@@ -624,5 +614,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	@Override
 	public OwnerData getOwner() { return this.owner; }
+	
 	
 }

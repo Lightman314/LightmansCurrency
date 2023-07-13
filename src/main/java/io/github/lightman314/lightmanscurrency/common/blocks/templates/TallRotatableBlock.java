@@ -52,7 +52,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
@@ -70,14 +70,15 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
+	@Nonnull
 	@Override
-	public PushReaction getPistonPushReaction(BlockState state)
+	public PushReaction getPistonPushReaction(@Nonnull BlockState state)
 	{
 		return PushReaction.BLOCK;
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -85,19 +86,20 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 		{
 			//Failed placing the top block. Abort placement
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player instanceof Player)
+			if(player instanceof Player p)
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				((Player)player).getInventory().add(giveStack);
+				p.getInventory().add(giveStack);
 			}
 		}
 		
 	}
 	
+	@Nonnull
 	@SuppressWarnings("deprecation")
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+	public BlockState updateShape(@Nonnull BlockState stateIn, @Nonnull Direction facing, @Nonnull BlockState facingState, @Nonnull LevelAccessor worldIn, @Nonnull BlockPos currentPos, @Nonnull BlockPos facingPos)
 	{
 		if((facing == Direction.UP && stateIn.getValue(ISBOTTOM)) || (facing == Direction.DOWN && !stateIn.getValue(ISBOTTOM)))
 		{

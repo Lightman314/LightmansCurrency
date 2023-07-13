@@ -25,6 +25,7 @@
     "lightmanscurrency:bookshelf_trader_dark_oak",
     "lightmanscurrency:bookshelf_trader_crimson",
     "lightmanscurrency:bookshelf_trader_warped",
+	"#lightmanscurrency:auction_stand",
     "lightmanscurrency:coin_chest"
   ]
 }

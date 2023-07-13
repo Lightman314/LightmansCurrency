@@ -25,4 +25,7 @@ public class EasyText {
 
     public static void sendMessage(Player player, Component message) { player.sendMessage(message, DUMMY_ID); }
 
+
+    public static class Serializer extends Component.Serializer {}
+
 }

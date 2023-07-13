@@ -2,14 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item;
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
@@ -25,14 +23,14 @@ public class ItemTradeEditTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemTradeEditClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new ItemTradeEditClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
-
+	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
-	public ItemTradeData getTrade() {
+	public ItemTradeData getTrade() { 
 		if(this.menu.getTrader() instanceof ItemTraderData trader)
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
@@ -45,7 +43,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		}
 		return null;
 	}
-
+	
 	@Override
 	public void onTabOpen() { }
 
@@ -54,9 +52,9 @@ public class ItemTradeEditTab extends TraderStorageTab{
 
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
-
+	
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
-
+	
 	public void setType(ItemTradeData.ItemTradeType type) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
@@ -71,7 +69,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			}
 		}
 	}
-
+	
 	public void setCustomName(int selectedSlot, String customName) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
@@ -87,7 +85,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			}
 		}
 	}
-
+	
 	public void setPrice(CoinValue price) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
@@ -97,12 +95,12 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.save(message, "NewPrice");
+				message.put("NewPrice", price.save());
 				this.menu.sendMessage(message);
 			}
 		}
 	}
-
+	
 	public void setSelectedItem(int selectedSlot, ItemStack stack) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
@@ -116,7 +114,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 				message.put("NewItem", stack.save(new CompoundTag()));
 				this.menu.sendMessage(message);
 			}
-		}
+		}	
 	}
 
 	public void setNBTEnforced(int selectedSlot, boolean newValue) {
@@ -134,7 +132,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			}
 		}
 	}
-
+	
 	public void defaultInteraction(int slotIndex, ItemStack heldStack, int mouseButton) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
@@ -175,9 +173,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		}
 		else if(message.contains("NewPrice"))
 		{
-			CoinValue price = new CoinValue();
-			price.load(message, "NewPrice");
-			this.setPrice(price);
+			this.setPrice(CoinValue.load(message.getCompound("NewPrice")));
 		}
 		else if(message.contains("NewType"))
 		{
@@ -190,5 +186,5 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.defaultInteraction(index, ItemStack.of(message.getCompound("Item")), button);
 		}
 	}
-
+	
 }

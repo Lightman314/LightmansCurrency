@@ -23,9 +23,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class TicketKioskRestriction extends ItemTradeRestriction{
 
 	public static TicketKioskRestriction INSTANCE = new TicketKioskRestriction();
-
+	
 	private TicketKioskRestriction() {}
-
+	
 	@Override
 	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)
 	{
@@ -33,7 +33,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			sellItem.setHoverName(EasyText.literal(customName));
 		return sellItem;
 	}
-
+	
 	@Override
 	public boolean allowSellItem(ItemStack itemStack)
 	{
@@ -41,7 +41,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			return true;
 		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get();
 	}
-
+	
 	@Override
 	public ItemStack filterSellItem(ItemStack itemStack)
 	{
@@ -52,14 +52,14 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		else
 			return ItemStack.EMPTY;
 	}
-
+	
 	@Override
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
 		Item item = itemStack.getItem();
 		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET.get() && item != ModItems.TICKET_MASTER.get();
 	}
-
+	
 	@Override
 	public boolean allowExtraItemInStorage(ItemStack itemStack) {
 		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG);
@@ -82,12 +82,12 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			minStock = Math.min(this.getTicketStock(ticketCount, traderStorage), minStock);
 		return minStock;
 	}
-
+	
 	protected final int getTicketStock(int ticketCount, TraderItemStorage traderStorage)
 	{
 		return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER.get()) / ticketCount;
 	}
-
+	
 	@Override
 	public void removeItemsFromStorage(TraderItemStorage traderStorage, List<ItemStack> soldItems)
 	{
@@ -127,5 +127,5 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		return Pair.of(InventoryMenu.BLOCK_ATLAS, TicketSlot.EMPTY_TICKET_SLOT);
 	}
-
+	
 }

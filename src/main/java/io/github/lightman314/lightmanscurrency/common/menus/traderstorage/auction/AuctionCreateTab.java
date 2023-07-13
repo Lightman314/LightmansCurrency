@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionCreateClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +25,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionCreateClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new AuctionCreateClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }

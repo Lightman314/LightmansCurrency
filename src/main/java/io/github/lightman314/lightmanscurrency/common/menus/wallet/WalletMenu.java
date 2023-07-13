@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class WalletMenu extends WalletMenuBase {
 	
@@ -40,8 +40,9 @@ public class WalletMenu extends WalletMenuBase {
 		
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		if(index + this.coinInput.getContainerSize() == this.walletStackIndex)

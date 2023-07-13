@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class SlotMachinePriceClientTab extends TraderStorageClientTab<SlotMachinePriceTab> {
 
-    public SlotMachinePriceClientTab(TraderStorageScreen screen, SlotMachinePriceTab commonTab) { super(screen, commonTab); }
+    public SlotMachinePriceClientTab(Object screen, SlotMachinePriceTab commonTab) { super(screen, commonTab); }
 
     @Nonnull
     @Override
@@ -31,20 +31,16 @@ public class SlotMachinePriceClientTab extends TraderStorageClientTab<SlotMachin
     private CoinValueInput priceInput;
 
     @Override
-    public void onOpen() {
-        CoinValue startingPrice = new CoinValue();
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
+        CoinValue startingPrice = CoinValue.EMPTY;
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader)
             startingPrice = trader.getPrice();
-        this.priceInput = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + (this.screen.getXSize() / 2) - (CoinValueInput.DISPLAY_WIDTH / 2), this.screen.getGuiTop() + 12, EasyText.empty(), startingPrice, this.font, this::ChangePrice, this.screen::addRenderableTabWidget));
-        this.priceInput.init();
+        this.priceInput = this.addChild(new CoinValueInput(screenArea.pos.offset((this.screen.getXSize() / 2) - (CoinValueInput.DISPLAY_WIDTH / 2), 12), EasyText.empty(), startingPrice, this.getFont(), this::ChangePrice));
         this.priceInput.drawBG = false;
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) { }
+    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
     @Override
     public void tick() { this.priceInput.tick(); }

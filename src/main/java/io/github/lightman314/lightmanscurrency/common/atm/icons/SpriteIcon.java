@@ -1,56 +1,51 @@
 package io.github.lightman314.lightmanscurrency.common.atm.icons;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class SpriteIcon extends ATMIconData {
 
 	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "sprite");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, SpriteIcon::new);
 	
-	private final ResourceLocation texture;
-	private final int u;
-	private final int v;
-	private final int width;
-	private final int height;
+	private final Sprite sprite;
 	
 	public SpriteIcon(JsonObject data) {
 		
 		super(data);
-		
-		this.texture = new ResourceLocation(data.get("texture").getAsString());
-		this.u = data.get("u").getAsInt();
-		this.v = data.get("v").getAsInt();
-		this.width = data.get("width").getAsInt();
-		this.height = data.get("height").getAsInt();
+
+		this.sprite = Sprite.SimpleSprite(
+				new ResourceLocation(data.get("texture").getAsString()),
+				data.get("u").getAsInt(),
+				data.get("v").getAsInt(),
+				data.get("width").getAsInt(),
+				data.get("height").getAsInt());
 		
 	}
 
-	public SpriteIcon(int xPos, int yPos, ResourceLocation texture, int u, int v, int width, int height) {
+	public SpriteIcon(int xPos, int yPos, Sprite sprite) {
 		super(xPos,yPos);
-		this.texture = texture;
-		this.u = u;
-		this.v = v;
-		this.width = width;
-		this.height = height;
+		this.sprite = sprite;
 	}
 	
 	@Override
 	protected void saveAdditional(JsonObject data) {
 		
-		data.addProperty("texture", this.texture.toString());
-		data.addProperty("u", this.u);
-		data.addProperty("v", this.v);
-		data.addProperty("width", this.width);
-		data.addProperty("height", this.height);
+		data.addProperty("texture", this.sprite.image.toString());
+		data.addProperty("u", this.sprite.u);
+		data.addProperty("v", this.sprite.v);
+		data.addProperty("width", this.sprite.width);
+		data.addProperty("height", this.sprite.height);
 		
 	}
 	
@@ -59,9 +54,6 @@ public class SpriteIcon extends ATMIconData {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
-		RenderSystem.setShaderTexture(0, this.texture);
-		button.blit(pose, button.x + this.xPos, button.y + this.yPos, this.u, this.v, this.width, this.height);
-	}
+	public void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered) { gui.blitSprite(this.sprite, this.xPos, this.yPos); }
 	
 }

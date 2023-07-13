@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator.Results;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import mezz.jei.api.IModPlugin;
@@ -19,9 +20,10 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 @JeiPlugin
 public class LCJeiPlugin implements IModPlugin{
@@ -29,6 +31,7 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final ResourceLocation COIN_MINT_UID = new ResourceLocation(LightmansCurrency.MODID, "coin_mint");
 	public static final RecipeType<CoinMintRecipe> COIN_MINT_TYPE = RecipeType.create(COIN_MINT_UID.getNamespace(), COIN_MINT_UID.getPath(), CoinMintRecipe.class);
 	
+	@Nonnull
 	@Override
 	public ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
 
@@ -40,24 +43,29 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 	
 	@Override
-	@SuppressWarnings("resource")
 	public void registerRecipes(IRecipeRegistration registration)
 	{
 		Results recipes = RecipeValidator.getValidRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(COIN_MINT_TYPE, recipes.getCoinMintRecipes());
-		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_master"));
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket"));
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_stub"));
-		
+
+		ItemStack masterTicket = TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
+		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket_master"));
+		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+
+		ItemStack ticket = TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
+		registration.addIngredientInfo(ticket, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket"));
+		registration.addIngredientInfo(ticket, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+
+		ItemStack pass = TicketItem.CreatePass(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
+		registration.addIngredientInfo(pass, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket.pass"));
+		registration.addIngredientInfo(pass, VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM, EasyText.translatable("lightmanscurrency.jei.info.ticket_stub"));
+
 	}
 	
 	@Override
-	public void registerGuiHandlers(IGuiHandlerRegistration registration)
+	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration registration)
 	{
 		
 	}

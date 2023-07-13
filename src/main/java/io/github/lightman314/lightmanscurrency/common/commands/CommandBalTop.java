@@ -101,8 +101,8 @@ public class CommandBalTop {
 				return 1;
 			if(o2 == null)
 				return -1;
-			long bal1 = a1.getCoinStorage().getRawValue();
-			long bal2 = a2.getCoinStorage().getRawValue();
+			long bal1 = a1.getCoinStorage().getValueNumber();
+			long bal2 = a2.getCoinStorage().getValueNumber();
 			
 			if(bal1 > bal2)
 				return -1;

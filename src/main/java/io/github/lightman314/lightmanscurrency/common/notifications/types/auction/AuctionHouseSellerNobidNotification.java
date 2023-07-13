@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
@@ -11,7 +12,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class AuctionHouseSellerNobidNotification extends AuctionHouseNotification{
@@ -39,7 +39,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 		Component itemText = getItemNames(this.items);
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.auction.seller.nobid", itemText);
+		return EasyText.translatable("notifications.message.auction.seller.nobid", itemText);
 		
 	}
 

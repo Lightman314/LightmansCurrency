@@ -25,6 +25,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nonnull;
+
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class NotificationSaveData extends SavedData {
 
@@ -46,6 +48,7 @@ public class NotificationSaveData extends SavedData {
 	
 	private final Map<UUID,NotificationData> playerNotifications = new HashMap<>();
 	
+	@Nonnull
 	@Override
 	public CompoundTag save(CompoundTag compound) {
 		
@@ -69,16 +72,6 @@ public class NotificationSaveData extends SavedData {
 				return level.getDataStorage().computeIfAbsent(NotificationSaveData::new, NotificationSaveData::new, "lightmanscurrency_notification_data");
 		}
 		return null;
-	}
-	
-	@Deprecated /** @deprecated Use only to transfer notification data from the old Trading Office. */
-	public static void GiveOldNotificationData(UUID player, NotificationData notifications) {
-		NotificationSaveData nsd = get();
-		if(nsd != null)
-		{
-			nsd.playerNotifications.put(player, notifications);
-			nsd.setDirty();
-		}
 	}
 	
 	public static NotificationData GetNotifications(Player player) { return player == null ? new NotificationData() : GetNotifications(player.getUUID()); }

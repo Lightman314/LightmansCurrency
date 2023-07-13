@@ -4,19 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallWideRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +31,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable implements IItemTraderBlock{
+public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable implements IItemTraderBlock {
 	
 	public static final int TRADECOUNT = 12;
 	
@@ -39,8 +46,8 @@ public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable imple
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
+	@Override
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
@@ -49,7 +56,7 @@ public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable imple
 		//Define directions for easy positional handling
 		Vector3f forward = IRotatableBlock.getForwardVect(facing);
 		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
+		Vector3f up = MathUtil.getYP();
 		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 		
 		Vector3f forwardOffset = MathUtil.VectorMult(forward, 6f/16f);
@@ -148,7 +155,7 @@ public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable imple
 	{
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
 		return rotation;
 	}
 
@@ -162,5 +169,25 @@ public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable imple
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
-	
+
+	public static class ReplaceMe extends VendingMachineLargeBlock implements IDeprecatedBlock
+	{
+		private final Color color;
+		public ReplaceMe(Properties properties, Color color) { super(properties); this.color = color; }
+
+		@Override
+		public Block replacementBlock() { return ModBlocks.VENDING_MACHINE_LARGE.get(this.color); }
+
+		@Override
+		public void replaceBlock(Level level, BlockPos pos, BlockState oldState) {
+			Block newBlock = this.replacementBlock();
+			if(newBlock != null)
+			{
+				BlockState newState = newBlock.defaultBlockState().setValue(RotatableBlock.FACING, oldState.getValue(RotatableBlock.FACING)).setValue(TallRotatableBlock.ISBOTTOM, oldState.getValue(TallRotatableBlock.ISBOTTOM)).setValue(TraderBlockTallWideRotatable.ISLEFT, oldState.getValue(TraderBlockTallWideRotatable.ISLEFT));
+				replaceTraderBlock(level, pos, newState);
+			}
+		}
+
+	}
+
 }

@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -12,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -66,7 +66,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         List<TradeButton.DisplayEntry> entries = new ArrayList<>();
         for (ItemStack item : this.trade.getAuctionItems()) {
             if (!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
+                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), EasyScreenHelper.getTooltipFromItem(item)));
         }
         return entries;
     }
@@ -75,10 +75,10 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { alerts.clear(); }
 
     @Override
-    public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) {
         //Draw remaining time
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        TextRenderUtil.drawCenteredText(pose, time.getShortString(1), button.x + button.getWidth() / 2, button.y + button.getHeight() - 9, this.getTextColor(time));
+        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() - 9, this.getTextColor(time));
     }
 
     @Override

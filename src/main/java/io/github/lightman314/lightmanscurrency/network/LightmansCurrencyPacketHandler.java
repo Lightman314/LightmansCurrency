@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.CMessageCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
@@ -136,6 +136,10 @@ public class LightmansCurrencyPacketHandler {
 		register(SMessageMenuInteraction.class, SMessageMenuInteraction::encode, SMessageMenuInteraction::decode, SMessageMenuInteraction::handle);
 		register(CMessageMenuInteraction.class, CMessageMenuInteraction::encode, CMessageMenuInteraction::decode, CMessageMenuInteraction::handle);
 
+		//Logger
+		//register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
+		//register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
+		
 		//Notifications
 		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
 		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
@@ -171,6 +175,7 @@ public class LightmansCurrencyPacketHandler {
 		//Player Trading
 		register(SMessageUpdatePlayerTrade.class, SMessageUpdatePlayerTrade::encode, SMessageUpdatePlayerTrade::decode, SMessageUpdatePlayerTrade::handle);
 		register(CMessagePlayerTradeInteraction.class, CMessagePlayerTradeInteraction::encode, CMessagePlayerTradeInteraction::decode, CMessagePlayerTradeInteraction::handle);
+
 
 	}
 	

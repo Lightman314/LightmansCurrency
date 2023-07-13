@@ -5,15 +5,19 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMac
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class SlotMachineBlock extends TraderBlockTallRotatable {
 
@@ -35,5 +39,8 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
 
     @Nullable
     public ResourceLocation getLightModel() { return LIGHT_MODEL_LOCATION; }
+
+    @Override
+    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.SLOT_MACHINE; }
 
 }

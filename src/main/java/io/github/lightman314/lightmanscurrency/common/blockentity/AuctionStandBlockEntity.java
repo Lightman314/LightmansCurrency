@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.auction.SMessageSyncAuctionStandDisplay;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,7 +36,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     @SubscribeEvent(priority = EventPriority.LOWEST) //Set to low priority so that it doesn't run before the coin list is loaded and makes the persistent traders fail to load properly.
     public static void serverStart(ServerStartedEvent event) {
         if(AuctionHouseTrader.isEnabled())
-            RandomizeDisplayItems();
+            AuctionStandBlockEntity.RandomizeDisplayItems();
     }
 
     @SubscribeEvent
@@ -46,12 +45,23 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
             LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sp), new SMessageSyncAuctionStandDisplay(displayItems));
     }
 
+    private static boolean randomizeNextOpportunity = false;
+
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event)
     {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if(AuctionHouseTrader.isEnabled() && event.haveTime() && server != null && server.getTickCount() % 1200 == 0)
+        if(AuctionHouseTrader.isEnabled() && ServerLifecycleHooks.getCurrentServer().getTickCount() % 1200 == 0)
+        {
+            if(event.haveTime())
+                RandomizeDisplayItems();
+            else
+                randomizeNextOpportunity = true;
+        }
+        else if(event.haveTime() && randomizeNextOpportunity)
+        {
+            randomizeNextOpportunity = false;
             RandomizeDisplayItems();
+        }
     }
 
     private static void RandomizeDisplayItems()
@@ -80,9 +90,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
         LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SMessageSyncAuctionStandDisplay(displayItems));
     }
 
-    public static void syncItemsFromServer(List<ItemStack> items) {
-        displayItems = ImmutableList.copyOf(items);
-    }
+    public static void syncItemsFromServer(List<ItemStack> items) { displayItems = ImmutableList.copyOf(items); }
 
 
 }

@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +13,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +24,7 @@ import javax.annotation.Nonnull;
 public class EjectionData implements Container, IClientTracker {
 
 	private final OwnerData owner = new OwnerData(this, o -> {});
-	MutableComponent traderName = new TextComponent("");
+	MutableComponent traderName = EasyText.empty();
 	public MutableComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();
 	
@@ -70,19 +66,7 @@ public class EjectionData implements Container, IClientTracker {
 	
 	public void load(CompoundTag compound) {
 		
-		//Load old owner data
-		if(compound.contains("PlayerOwned"))
-		{
-			if(compound.getBoolean("PlayerOwned"))
-				this.owner.SetOwner(PlayerReference.of(compound.getUUID("Owner"), "UNKNOWN"));
-			else
-			{
-				Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Owner")));
-				if(team != null)
-					this.owner.SetOwner(team);
-			}
-		}
-		else if(compound.contains("Owner"))
+		if(compound.contains("Owner"))
 			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
@@ -183,6 +167,8 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public boolean stillValid(@Nonnull Player player) { return this.canAccess(player); }
+	public boolean stillValid(@Nonnull Player player) {
+		return this.canAccess(player);
+	}
 	
 }

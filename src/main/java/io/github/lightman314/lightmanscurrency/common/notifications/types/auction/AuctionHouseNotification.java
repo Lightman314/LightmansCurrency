@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public abstract class AuctionHouseNotification extends Notification {
 
@@ -25,7 +25,7 @@ public abstract class AuctionHouseNotification extends Notification {
 			else
 				result = item.format();
 		}
-		return result == null ? new TextComponent("ERROR") : result;
+		return result == null ? EasyText.literal("ERROR") : result;
 	}
 	
 }

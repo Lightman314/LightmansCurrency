@@ -12,7 +12,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageATMPlayerAccountResponse {
 	
-	private MutableComponent message;
+	final MutableComponent message;
 	
 	public MessageATMPlayerAccountResponse(MutableComponent message)
 	{

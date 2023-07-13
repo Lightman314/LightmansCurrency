@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import org.jetbrains.annotations.NotNull;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
+
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
 	
@@ -176,10 +177,11 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		super.saveAdditional(compound);
 	}
 	
-	protected void writeArmorStandData(CompoundTag compound)
+	protected CompoundTag writeArmorStandData(CompoundTag compound)
 	{
 		if(this.armorStandID != null)
 			compound.putUUID("ArmorStand", this.armorStandID);
+		return compound;
 	}
 	
 	@Override
@@ -224,14 +226,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		else if(facing == Direction.EAST)
 			return 90f;
 		return 0f;
-	}
-	
-	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
-		ItemTraderDataArmor newTrader = new ItemTraderDataArmor(this.level, this.worldPosition);
-		newTrader.loadOldUniversalTraderData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
 	}
 	
 }

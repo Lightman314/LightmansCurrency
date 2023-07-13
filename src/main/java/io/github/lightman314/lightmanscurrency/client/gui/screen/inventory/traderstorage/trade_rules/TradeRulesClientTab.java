@@ -1,19 +1,16 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.RuleToggleTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -35,9 +32,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         return null;
     }
 
-    private final List<Object> subtabWidgets = new ArrayList<>();
-
-    protected TradeRulesClientTab(TraderStorageScreen screen, T commonTab) { super(screen, commonTab); }
+    protected TradeRulesClientTab(Object screen, T commonTab) { super(screen, commonTab); }
 
 
     @Nonnull
@@ -48,9 +43,8 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     public boolean blockInventoryClosing() { return true; }
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.subtabWidgets.clear();
         this.tabButtons.clear();
         this.refreshTabs();
 
@@ -65,7 +59,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     }
 
     @Override
-    public void onClose() {
+    public void closeAction() {
         //Show Coin Slots
         this.menu.SetCoinSlotsActive(true);
     }
@@ -92,14 +86,14 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
         //Remove Existing Tab Buttons
         for(TabButton b : this.tabButtons)
-            this.screen.removeRenderableTabWidget(b);
+            this.removeChild(b);
         this.tabButtons.clear();
 
         //Create Tab buttons
         for(int i = 0; i < this.tabs.size(); ++i)
         {
             final int tabIndex = i;
-            this.tabButtons.add(this.screen.addRenderableTabWidget(new TabButton(b -> this.openTab(tabIndex), this.font, this.tabs.get(tabIndex))));
+            this.tabButtons.add(this.addChild(new TabButton(b -> this.openTab(tabIndex), this.tabs.get(tabIndex))));
         }
 
     }
@@ -109,29 +103,8 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         if(index == this.selectedTab || index < 0 || index >= this.tabs.size())
             return;
         this.getCurrentTab().onClose();
-        while(this.subtabWidgets.size() > 0)
-            this.removeWidget(this.subtabWidgets.get(0));
         this.selectedTab = index;
         this.getCurrentTab().onOpen();
-    }
-
-    public final <W> W addWidget(W widget)
-    {
-        this.subtabWidgets.add(widget);
-        if(widget instanceof AbstractWidget aw)
-            this.screen.addRenderableTabWidget(aw);
-        else if(widget instanceof GuiEventListener gl)
-            this.screen.addTabListener(gl);
-        return widget;
-    }
-
-    public final void removeWidget(Object widget)
-    {
-        this.subtabWidgets.remove(widget);
-        if(widget instanceof AbstractWidget aw)
-            this.screen.removeRenderableTabWidget(aw);
-        else if(widget instanceof GuiEventListener gl)
-            this.screen.removeTabListener(gl);
     }
 
     @Override
@@ -144,14 +117,14 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
             this.tabButtons.get(i).active = this.selectedTab != i;
         }
 
-
         //Reposition buttons
-        int yPos = this.screen.getGuiTop();
+        ScreenArea screenArea = this.screen.getArea();
+        int yPos = 0;
         for(TabButton button : this.tabButtons)
         {
             if(button.visible)
             {
-                button.reposition(this.screen.getGuiLeft() + this.screen.getXSize(), yPos, 1);
+                button.reposition(screenArea.pos.offset(screenArea.width, yPos), 1);
                 yPos += TabButton.SIZE;
             }
         }
@@ -161,41 +134,24 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        this.getCurrentTab().renderBG(pose, mouseX, mouseY, partialTicks);
-    }
+    public void renderBG(@Nonnull EasyGuiGraphics gui) { this.getCurrentTab().renderBG(gui); }
 
     @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-        this.getCurrentTab().renderTooltips(pose, mouseX, mouseY);
-
-        for(TabButton button : this.tabButtons)
-            button.renderTooltip(pose, mouseX, mouseY, this.screen);
-
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) { return this.getCurrentTab().mouseClicked(mouseX, mouseY, button); }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) { return this.getCurrentTab().mouseReleased(mouseX, mouseY, button); }
+    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) { this.getCurrentTab().renderAfterWidgets(gui); }
 
     public static class Trader extends TradeRulesClientTab<TradeRulesTab.Trader>
     {
 
-        public Trader(TraderStorageScreen screen, TradeRulesTab.Trader commonTab) { super(screen, commonTab); }
+        public Trader(Object screen, TradeRulesTab.Trader commonTab) { super(screen, commonTab); }
 
         @Override
         public MutableComponent getTooltip() { return IconAndButtonUtil.TOOLTIP_TRADE_RULES_TRADER; }
-
-        @Override
-        public boolean tabButtonVisible() { return this.menu.hasPermission(Permissions.EDIT_TRADE_RULES); }
 
     }
 
     public static class Trade extends TradeRulesClientTab<TradeRulesTab.Trade>
     {
-        public Trade(TraderStorageScreen screen, TradeRulesTab.Trade commonTab) { super(screen, commonTab); }
+        public Trade(Object screen, TradeRulesTab.Trade commonTab) { super(screen, commonTab); }
 
         @Override
         public boolean tabButtonVisible() { return false; }

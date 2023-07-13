@@ -13,19 +13,9 @@ public class MessageRequestNBT {
 
 	private final BlockPos pos;
 	
-	public MessageRequestNBT(BlockEntity tileEntity)
-	{
-		this.pos = tileEntity.getBlockPos();
-	}
+	public MessageRequestNBT(BlockPos pos) { this.pos = pos; }
 	
-	public MessageRequestNBT(BlockPos pos)
-	{
-		this.pos = pos;
-	}
-	
-	public static void encode(MessageRequestNBT message, FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(message.pos);
-	}
+	public static void encode(MessageRequestNBT message, FriendlyByteBuf buffer) { buffer.writeBlockPos(message.pos); }
 
 	public static MessageRequestNBT decode(FriendlyByteBuf buffer) {
 		return new MessageRequestNBT(buffer.readBlockPos());

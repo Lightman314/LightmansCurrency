@@ -6,7 +6,7 @@
       "item": "lightmanscurrency:wallet_iron"
     },
     {
-      "item": "lightmanscurrency:coin_gold"
+      "tag": "forge:ingots/gold"
     }
   ],
   "result": {

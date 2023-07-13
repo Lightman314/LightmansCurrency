@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<AuctionStandBlockEntity> {
 
 
@@ -20,7 +22,7 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
     public AuctionStandBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { this.itemRenderer = Minecraft.getInstance().getItemRenderer(); }
 
     @Override
-    public void render(@NotNull AuctionStandBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id) {
+    public void render(@Nonnull AuctionStandBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
 
         ImmutableList<ItemStack> displayItems = AuctionStandBlockEntity.getDisplayItems();
         if(displayItems.size() < 1)

@@ -11,8 +11,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerDiscountTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
@@ -31,17 +29,15 @@ import javax.annotation.Nonnull;
 public class PlayerDiscounts extends PriceTweakingTradeRule {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "discount_list");
-
+	
 	List<PlayerReference> playerList = new ArrayList<>();
 	public ImmutableList<PlayerReference> getPlayerList() { return ImmutableList.copyOf(this.playerList); }
 	int discount = 10;
 	public int getDiscount() { return this.discount; }
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 0, 100); }
-	private double getDiscountMult() { return 1d - ((double)discount/100d); }
-	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
-
+	
 	public PlayerDiscounts() { super(TYPE); }
-
+	
 	@Override
 	public void beforeTrade(PreTradeEvent event)
 	{
@@ -57,20 +53,20 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 			}
 		}
 	}
-
+	
 	@Override
 	public void tradeCost(TradeCostEvent event)
 	{
 		if(this.isOnList(event.getPlayerReference()))
 		{
 			switch (event.getTrade().getTradeDirection()) {
-				case SALE -> event.applyCostMultiplier(this.getDiscountMult());
-				case PURCHASE -> event.applyCostMultiplier(this.getIncreaseMult());
+				case SALE -> event.giveDiscount(this.discount);
+				case PURCHASE -> event.hikePrice(this.discount);
 				default -> {} //Nothing by default
 			}
 		}
 	}
-
+	
 	public boolean isOnList(PlayerReference player)
 	{
 		for (PlayerReference playerReference : this.playerList) {
@@ -79,7 +75,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		}
 		return false;
 	}
-
+	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player names
@@ -100,7 +96,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		json.addProperty("discounrd", this.discount);
 		return json;
 	}
-
+	
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
 		//Load player names
@@ -114,7 +110,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 				PlayerReference reference = PlayerReference.load(thisCompound);
 				if(reference != null)
 					this.playerList.add(reference);
-					//Load old method
+				//Load old method
 				else if(thisCompound.contains("name", Tag.TAG_STRING))
 				{
 					reference = PlayerReference.of(false, thisCompound.getString("name"));
@@ -126,9 +122,9 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		//Load discount
 		if(compound.contains("discount", Tag.TAG_INT))
 			this.discount = compound.getInt("discount");
-
+		
 	}
-
+	
 	@Override
 	public void loadFromJson(JsonObject json) {
 		if(json.has("Players"))
@@ -144,7 +140,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		if(json.has("discount"))
 			this.discount = json.get("discount").getAsInt();
 	}
-
+	
 	@Override
 	protected void handleUpdateMessage(CompoundTag updateInfo)
 	{
@@ -167,17 +163,15 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 			}
 		}
 	}
-
+	
 	@Override
 	public CompoundTag savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundTag data) { }
 
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_DISCOUNT_LIST; }
-
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerDiscountTab(parent); }
-
+	
 }

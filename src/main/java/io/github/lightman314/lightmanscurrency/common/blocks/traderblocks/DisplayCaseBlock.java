@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockBase;
@@ -38,9 +38,9 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
-	
+	@Override
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {

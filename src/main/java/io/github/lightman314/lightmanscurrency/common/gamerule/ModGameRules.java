@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -49,9 +50,8 @@ public class ModGameRules {
 	private static GameRules.Type<GameRules.IntegerValue> createInteger(int defaultVal, BiConsumer<MinecraftServer, GameRules.IntegerValue> callback)
 	{
 		try {
-			//1.16 obfuscated 'func_??????_a'
-			//1.17-1.19 obfuscated 'm_10863_'
-			Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "m_10863_", int.class, BiConsumer.class);
+			//1.18 obfuscated 'm_10863_'
+			Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "m_46294_", int.class, BiConsumer.class);
 			m.setAccessible(true);
 			return (GameRules.Type<GameRules.IntegerValue>) m.invoke(null, defaultVal, callback);
 		} catch(Throwable e) {
@@ -61,7 +61,24 @@ public class ModGameRules {
 				return (GameRules.Type<GameRules.IntegerValue>) m2.invoke(null, defaultVal, callback);
 			} catch(Throwable e2) {
 				LightmansCurrency.LogError("Create gamerule error", e);
+				return null;
 			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static GameRules.Type<GameRules.IntegerValue> searchForMethod(int defaultVal, BiConsumer<MinecraftServer, GameRules.IntegerValue> callback)
+	{
+		for(int i = 0; i < 100000; ++i)
+		{
+			try{
+				String method = "m_" + NumberUtil.getAsStringOfLength(i, 5) + "_";
+				Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, method, int.class, BiConsumer.class);
+				m.setAccessible(true);
+				GameRules.Type<GameRules.IntegerValue> value = (GameRules.Type<GameRules.IntegerValue>) m.invoke(null, defaultVal, callback);
+				if(value != null)
+					LightmansCurrency.LogDebug("Found Create Method: '" + method + "'!");
+			} catch(Throwable ignored) {}
 		}
 		return null;
 	}

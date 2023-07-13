@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.network.message.persistentdata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.google.gson.JsonArray;
@@ -10,10 +9,10 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
@@ -68,7 +67,7 @@ public class MessageAddPersistentTrader {
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.overwrite", message.id), new UUID(0,0));
+									EasyText.sendMessage(player, EasyText.translatable("lightmanscurrency.message.persistent.trader.overwrite", message.id));
 									return;
 								}
 							}
@@ -76,7 +75,7 @@ public class MessageAddPersistentTrader {
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-							player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", message.id), new UUID(0,0));
+							EasyText.sendMessage(player, EasyText.translatable("lightmanscurrency.message.persistent.trader.add", message.id));
 							return;
 						} catch (Throwable t) { t.printStackTrace(); }
 					}
@@ -103,7 +102,7 @@ public class MessageAddPersistentTrader {
 								{
 									persistentTraders.add(trader.saveToJson(genID, message.owner));
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
+									EasyText.sendMessage(player, EasyText.translatable("lightmanscurrency.message.persistent.trader.add", genID));
 									return;
 								}
 							}
@@ -112,7 +111,7 @@ public class MessageAddPersistentTrader {
 					}
 				}
 			}
-			player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.fail"), new UUID(0,0));
+			EasyText.sendMessage(player, EasyText.translatable("lightmanscurrency.message.persistent.trader.fail"));
 		});
 		supplier.get().setPacketHandled(true);
 	}

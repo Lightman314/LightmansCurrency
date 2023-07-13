@@ -32,13 +32,14 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
     @Override
     protected BlockEntityType<?> traderType() { return ModBlockEntities.BOOK_TRADER.get(); }
 
+
     @Override
     public Vector3f GetBookRenderPos(int tradeSlot, BlockState state) {
         //Get facing
         Direction facing = this.getFacing(state);
         //Define directions for easy positional handling
         Vector3f right = IRotatableBlock.getRightVect(facing);
-        Vector3f up = Vector3f.YP;
+        Vector3f up = MathUtil.getYP();
         Vector3f forward = IRotatableBlock.getForwardVect(facing);
         Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 
@@ -52,7 +53,7 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
     public List<Quaternion> GetBookRenderRot(int tradeSlot, BlockState state) {
         List<Quaternion> rotation = new ArrayList<>();
         int facing = this.getFacing(state).get2DDataValue();
-        rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
+        rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
         return rotation;
     }
 

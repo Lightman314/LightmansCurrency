@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacke
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
 import java.util.Collection;
@@ -290,7 +289,7 @@ public class EventHandler {
 		
 		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
 		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
-		long walletContents = new CoinValue(walletList).getRawValue();
+		long walletContents = MoneyUtil.getValue(walletList);
 		
 		long droppedAmount = (long)((double)walletContents * coinPercentage);
 		if(droppedAmount < 1)

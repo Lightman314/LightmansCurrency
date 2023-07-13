@@ -38,7 +38,7 @@ public class ItemWriteData
             this.count = 0;
             return;
         }
-        this.itemName = Component.Serializer.fromJson(compound.getString("Name"));
+        this.itemName = EasyText.Serializer.fromJson(compound.getString("Name"));
         this.count = compound.getInt("Count");
     }
 
@@ -49,7 +49,7 @@ public class ItemWriteData
             compound.putBoolean("Empty", true);
             return compound;
         }
-        compound.putString("Name", Component.Serializer.toJson(this.itemName));
+        compound.putString("Name", EasyText.Serializer.toJson(this.itemName));
         compound.putInt("Count", this.count);
         return compound;
     }

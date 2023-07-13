@@ -79,14 +79,14 @@ public class CoinChestBankUpgrade extends CoinChestUpgrade {
     {
         CompoundTag compound = data.getItemTag();
         if(compound.contains("TargetAmount"))
-            return CoinValue.from(compound, "TargetAmount");
-        return new CoinValue();
+            return CoinValue.safeLoad(compound, "TargetAmount");
+        return CoinValue.EMPTY;
     }
 
     public void setTargetAmount(CoinChestUpgradeData data, CoinValue newValue)
     {
         CompoundTag compound = data.getItemTag();
-        newValue.save(compound, "TargetAmount");
+        compound.put("TargetAmount", newValue.save());
         data.setItemTag(compound);
     }
 

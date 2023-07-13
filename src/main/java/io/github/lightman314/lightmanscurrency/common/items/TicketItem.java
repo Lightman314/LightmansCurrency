@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -11,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -19,7 +17,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,22 +33,8 @@ public class TicketItem extends Item{
 	public static final long CREATIVE_TICKET_ID = -1;
 	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
 
-	public TicketItem(Properties properties)
-	{
-		super(properties);
-	}
-
-	@Override
-	public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> itemList) {
-		if(this.allowdedIn(tab))
-		{
-			if(this == ModItems.TICKET_MASTER.get())
-				itemList.add(TicketItem.CreateMasterTicket(CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR));
-			else
-				itemList.add(TicketItem.CreateTicket(CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR));
-		}
-	}
-
+	public TicketItem(Properties properties) { super(properties); }
+	
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
@@ -64,13 +47,6 @@ public class TicketItem extends Item{
 
 	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
 		GetTicketID(stack);
-	}
-
-	public static boolean isMasterTicket(ItemStack ticket)
-	{
-		if(ticket.isEmpty() || !ticket.hasTag())
-			return false;
-		return ticket.getItem() == ModItems.TICKET_MASTER.get();
 	}
 
 	public static boolean isTicket(ItemStack ticket)
@@ -93,6 +69,15 @@ public class TicketItem extends Item{
 			return false;
 		return ticket.getItem() == ModItems.TICKET.get() || ticket.getItem() == ModItems.TICKET_PASS.get();
 	}
+
+	public static boolean isMasterTicket(ItemStack ticket)
+	{
+		if(ticket.isEmpty() || !ticket.hasTag())
+			return false;
+		return ticket.getItem() == ModItems.TICKET_MASTER.get();
+	}
+
+
 
 	public static long GetTicketID(ItemStack ticket)
 	{
@@ -124,13 +109,13 @@ public class TicketItem extends Item{
 	}
 
 	public static int GetDefaultTicketColor(long ticketID) {
-		if(ticketID == CREATIVE_TICKET_ID)
+		if (ticketID == CREATIVE_TICKET_ID)
 			return Color.YELLOW.hexColor;
 		return Color.getFromIndex(ticketID).hexColor;
 	}
 
 	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }
-
+	
 	public static ItemStack CreateMasterTicket(long ticketID, int color) { return CreateTicketInternal(ModItems.TICKET_MASTER.get(), ticketID, color, 1); }
 
 	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
@@ -143,14 +128,12 @@ public class TicketItem extends Item{
 		return ItemStack.EMPTY;
 	}
 
-	public static ItemStack CreateTicket(long ticketID, int color)
-	{
-		return CreateTicket(ticketID, color,1);
-	}
-
+	public static ItemStack CreateTicket(long ticketID, int color) { return CreateTicket(ticketID, color,1); }
+	
 	public static ItemStack CreateTicket(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
 
-	private static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count) {
+	private static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
+	{
 		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
@@ -167,15 +150,15 @@ public class TicketItem extends Item{
 
 	public static MutableComponent getTicketMaterialsList() {
 		MutableComponent list = EasyText.empty();
-
+		
 		try {
 			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().toList())
 			{
 				list.append(EasyText.literal("\n")).append(new ItemStack(item).getHoverName());
 			}
 		} catch(Throwable t) { t.printStackTrace(); }
-
+		
 		return list;
 	}
-
+	
 }

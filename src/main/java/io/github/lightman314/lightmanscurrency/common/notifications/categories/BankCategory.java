@@ -8,8 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class BankCategory extends NotificationCategory {
 
@@ -23,9 +22,8 @@ public class BankCategory extends NotificationCategory {
 		this.name = Component.Serializer.fromJson(compound.getString("Name"));
 	}
 
-	@Nonnull
-    @Override
-	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	@Override
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override
 	public MutableComponent getName() { return this.name; }

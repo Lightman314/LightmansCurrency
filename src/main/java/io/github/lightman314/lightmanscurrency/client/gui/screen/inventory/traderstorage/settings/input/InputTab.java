@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -81,53 +82,38 @@ public class InputTab extends SettingsSubTab {
     public boolean canOpen() { return this.menu.hasPermission(Permissions.InputTrader.EXTERNAL_INPUTS); }
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.inputWidget = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 25, this::getInputSideValue, this.getIgnoreList(), this::ToggleInputSide, this::addWidget);
-        this.outputWidget = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 110, this.screen.getGuiTop() + 25, this::getOutputSideValue, this.getIgnoreList(), this::ToggleOutputSide, this::addWidget);
+        this.inputWidget = new DirectionalSettingsWidget(screenArea.pos.offset(20, 25), this::getInputSideValue, this.getIgnoreList(), this::ToggleInputSide, this::addChild);
+        this.outputWidget = new DirectionalSettingsWidget(screenArea.pos.offset(110, 25), this::getOutputSideValue, this.getIgnoreList(), this::ToggleOutputSide, this::addChild);
 
-        this.getAddons().forEach(a -> a.onInit(this));
-
-    }
-
-    @Override
-    public void onClose() {
-
-        this.getAddons().forEach(a -> a.onClose(this));
+        this.getAddons().forEach(a -> a.onOpen(this, screenArea, firstOpen));
 
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    protected void onSubtabClose() { this.getAddons().forEach(a -> a.onClose(this)); }
+
+    @Override
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         //Side Widget Labels
-        this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 7, 0x404040);
-        this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 110, this.screen.getGuiTop() + 7, 0x404040);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), 20, 7, 0x404040);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), 110, 7, 0x404040);
 
-        this.getAddons().forEach(a -> a.renderBG(this, pose, mouseX, mouseY, partialTicks));
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-        //Render side tooltips
-        this.inputWidget.renderTooltips(pose, mouseX, mouseY, this.screen);
-        this.outputWidget.renderTooltips(pose, mouseX, mouseY, this.screen);
-
-        this.getAddons().forEach(a -> a.renderTooltips(this, pose, mouseX, mouseY));
+        this.getAddons().forEach(a -> a.renderBG(this, gui));
 
     }
 
     @Override
-    public void tick() {
+    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 
-        this.inputWidget.tick();
-        this.outputWidget.tick();
-
-        this.getAddons().forEach(a -> a.tick(this));
+        this.getAddons().forEach(a -> a.renderBG(this, gui));
 
     }
+
+    @Override
+    public void tick() { this.getAddons().forEach(a -> a.tick(this)); }
 
     private void ToggleInputSide(Direction side)
     {

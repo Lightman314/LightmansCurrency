@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -138,7 +138,7 @@ public class MoneyData {
     	}
     }
 	
-	public Component getPluralName(Item coinItem) {
+	public MutableComponent getPluralName(Item coinItem) {
 		CoinData data = this.getData(coinItem);
 		if(data != null)
 			return data.getPlural();

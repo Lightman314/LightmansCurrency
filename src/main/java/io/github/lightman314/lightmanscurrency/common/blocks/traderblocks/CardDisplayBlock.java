@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -39,8 +39,8 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
+	@Override
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
@@ -49,7 +49,7 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 		//Define directions for easy positional handling
 		Vector3f forward = IRotatableBlock.getForwardVect(facing);
 		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
+		Vector3f up = MathUtil.getYP();
 		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 		
 		Vector3f firstPosition = null;
@@ -103,8 +103,8 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	{
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
-		rotation.add(Vector3f.XP.rotationDegrees(90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getXP(), 90f));
 		return rotation;
 	}
 
@@ -121,5 +121,5 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
-	
+
 }

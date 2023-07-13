@@ -5,12 +5,11 @@ import java.util.List;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -42,8 +41,8 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	@Override
 	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity trader)
-			trader.destroyArmorStand();
+		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
+			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 	

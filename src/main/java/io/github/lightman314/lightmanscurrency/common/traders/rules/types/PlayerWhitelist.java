@@ -27,24 +27,24 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 
 public class PlayerWhitelist extends TradeRule{
-
+	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
-
+	
 	List<PlayerReference> whitelistedPlayers = new ArrayList<>();
 	public ImmutableList<PlayerReference> getWhitelistedPlayers() { return ImmutableList.copyOf(this.whitelistedPlayers); }
-
+	
 	public PlayerWhitelist() { super(TYPE); }
-
+	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-
+		
 		if(!this.isWhitelisted(event.getPlayerReference()))
 			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.whitelist.denial"));
 		else
 			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.whitelist.allowed"));
-
+		
 	}
-
+	
 	public boolean isWhitelisted(PlayerReference player)
 	{
 		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers) {
@@ -53,7 +53,7 @@ public class PlayerWhitelist extends TradeRule{
 		}
 		return false;
 	}
-
+	
 	public boolean addToWhitelist(Player player)
 	{
 		PlayerReference pr = PlayerReference.of(player);
@@ -73,13 +73,13 @@ public class PlayerWhitelist extends TradeRule{
 			playerNameList.add(whitelistedPlayer.save());
 		compound.put("WhitelistedPlayers", playerNameList);
 	}
-
+	
 	@Override
 	public JsonObject saveToJson(JsonObject json) { return json; }
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-
+		
 		//Load whitelisted players
 		if(compound.contains("WhitelistedPlayers", Tag.TAG_LIST))
 		{
@@ -92,12 +92,12 @@ public class PlayerWhitelist extends TradeRule{
 					this.whitelistedPlayers.add(reference);
 			}
 		}
-
+		
 	}
-
+	
 	@Override
 	public void loadFromJson(JsonObject json) {}
-
+	
 	@Override
 	public void handleUpdateMessage(CompoundTag updateInfo)
 	{
@@ -115,7 +115,7 @@ public class PlayerWhitelist extends TradeRule{
 			PlayerReference.removeFromList(this.whitelistedPlayers, player);
 		}
 	}
-
+	
 	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag compound = new CompoundTag();
@@ -125,11 +125,9 @@ public class PlayerWhitelist extends TradeRule{
 	@Override
 	public void loadPersistentData(CompoundTag data) { this.loadAdditional(data); }
 
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_WHITELIST; }
-
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerWhitelistTab(parent); }
-
+	
 }

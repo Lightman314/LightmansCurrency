@@ -13,7 +13,9 @@ public class MessageCollectCoins {
 	
 	public static void encode(MessageCollectCoins message, FriendlyByteBuf buffer) { }
 
-	public static MessageCollectCoins decode(FriendlyByteBuf buffer) { return new MessageCollectCoins(); }
+	public static MessageCollectCoins decode(FriendlyByteBuf buffer) {
+		return new MessageCollectCoins();
+	}
 
 	public static void handle(MessageCollectCoins message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
