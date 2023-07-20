@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -146,14 +146,13 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	 * Returns the amount of the given items containing the given item tag within the storage.
 	 * Ignores any items listed on the given blacklist.
 	 */
-	public int getItemTagCount(ResourceLocation itemTag, Item... blacklistItems) {
-		
+	public int getItemTagCount(TagKey<Item> itemTag, Item... blacklistItems) {
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
 		int count = 0;
 		for(ItemStack stack : this.storage)
 		{
 			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
-    			count += stack.getCount();
+				count += stack.getCount();
 		}
 		return count;
 	}
@@ -263,41 +262,40 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	 * Removes the requested amount of items with the given item tag from storage.
 	 * Ignores items within the given blacklist.
 	 */
-	public void removeItemTagCount(ResourceLocation itemTag, int count, List<ItemStack> ignoreIfPossible, Item... blacklistItems) {
+	public void removeItemTagCount(TagKey<Item> itemTag, int count, List<ItemStack> ignoreIfPossible, Item... blacklistItems) {
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
 		//First pass, honoring the "ignoreIfPossible" list
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
-    		{
-    			int amountToTake = Math.min(count, stack.getCount());
-    			count-= amountToTake;
-    			stack.shrink(amountToTake);
-    			if(stack.isEmpty())
-    			{
-    				this.storage.remove(i);
-    				i--; 
-    			}
-    		}
+			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
+			{
+				int amountToTake = Math.min(count, stack.getCount());
+				count-= amountToTake;
+				stack.shrink(amountToTake);
+				if(stack.isEmpty())
+				{
+					this.storage.remove(i);
+					i--;
+				}
+			}
 		}
 		//Second pass, ignoring the "ignoreIfPossible" list
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
-    		{
-    			int amountToTake = Math.min(count, stack.getCount());
-    			count-= amountToTake;
-    			stack.shrink(amountToTake);
-    			if(stack.isEmpty())
-    			{
-    				this.storage.remove(i);
-    				i--;
-    			}
-    		}
+			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
+			{
+				int amountToTake = Math.min(count, stack.getCount());
+				count-= amountToTake;
+				stack.shrink(amountToTake);
+				if(stack.isEmpty())
+				{
+					this.storage.remove(i);
+					i--;
+				}
+			}
 		}
-		
 	}
 	
 	private static boolean ListContains(List<ItemStack> list, ItemStack stack) {

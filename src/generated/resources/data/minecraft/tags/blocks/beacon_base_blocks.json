@@ -1,0 +1,10 @@
+{
+  "values": [
+    "lightmanscurrency:coinblock_copper",
+    "lightmanscurrency:coinblock_iron",
+    "lightmanscurrency:coinblock_gold",
+    "lightmanscurrency:coinblock_emerald",
+    "lightmanscurrency:coinblock_diamond",
+    "lightmanscurrency:coinblock_netherite"
+  ]
+}

@@ -4,7 +4,6 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -30,7 +29,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollListener, IScrollable, IMouseListener {
+public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollable, IMouseListener {
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
@@ -69,8 +68,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-
-		this.addChild(this);
 
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset( X_OFFSET + (18 * COLUMNS), Y_OFFSET), ROWS * 18, this));
 		
@@ -213,25 +210,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	private boolean canScrollDown() {
 		return this.totalStorageSlots() - this.scroll * COLUMNS > ROWS * COLUMNS;
-	}
-	
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.canScrollDown())
-				this.scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				scroll--;
-			else
-				return false;
-		}
-		return true;
 	}
 	
 	@Override

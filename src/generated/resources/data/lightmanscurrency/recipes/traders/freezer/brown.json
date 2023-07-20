@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "freezer_crafting",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "i": {
+      "item": "minecraft:brown_concrete_powder"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "igi",
+    "igi",
+    "cxc"
+  ],
+  "result": {
+    "item": "lightmanscurrency:freezer_brown"
+  },
+  "show_notification": true
+}

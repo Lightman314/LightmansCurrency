@@ -387,14 +387,12 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         }
 
         //Confirm that the customer can hold the rewards
-        //TODO let loot entry confirm this
         if(!loot.CanGiveToCustomer(context))
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
 
         //Accept the payment
         if(context.getPayment(price))
         {
-            //TODO let the loot entry do this
             if(!loot.GiveToCustomer(this, context))
             {
                 //Refund the money taken

@@ -1,0 +1,10 @@
+{
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "tag": "forge:ingots/netherite"
+  },
+  "mintType": "MINT",
+  "result": {
+    "item": "lightmanscurrency:coin_netherite"
+  }
+}

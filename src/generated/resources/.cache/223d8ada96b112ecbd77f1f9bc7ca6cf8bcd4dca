@@ -1,0 +1,12 @@
+// 1.20.1	2023-07-19T00:47:29.5587383	Tags for minecraft:block mod id lightmanscurrency
+dbc7beda60456f2bfbee437569585fa4cb5a1529 data/create/tags/blocks/non_movable.json
+dbc7beda60456f2bfbee437569585fa4cb5a1529 data/forge/tags/blocks/immovable.json
+840f39b9c6aaaf386396d261655775d912c2ba57 data/ftbchunks/tags/blocks/interact_whitelist.json
+97d0aa68f665596cf89c9b1fb469c72b0167dfdf data/lightmanscurrency/tags/blocks/multi_block.json
+a72aebf4bf5b9dc7bc26101e99ca2b45b1abcda4 data/lightmanscurrency/tags/blocks/owner_protected.json
+fe7be1e3bf0bf31a1d622f86853cbff3bfc164f1 data/lightmanscurrency/tags/blocks/safe_interactable.json
+585eb66cbd9c4d90c14b32c20441f99f0add11d9 data/minecraft/tags/blocks/beacon_base_blocks.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/minecraft/tags/blocks/dragon_immune.json
+c3c2e58da0400fa1faeb5361d08c725361a6124d data/minecraft/tags/blocks/mineable/axe.json
+bd616a43ca4cbb10311d536e17408de9e839e4dd data/minecraft/tags/blocks/mineable/pickaxe.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/minecraft/tags/blocks/wither_immune.json

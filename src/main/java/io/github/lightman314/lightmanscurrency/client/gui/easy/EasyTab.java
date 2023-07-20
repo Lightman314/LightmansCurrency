@@ -40,6 +40,7 @@ public abstract class EasyTab implements ITab, IEasyTickable {
     public final void onOpen()
     {
         this.children.clear();
+        this.addChild(this);
         this.initialize(this.screen.getArea(), !this.wasOpen);
         this.wasOpen = true;
     }

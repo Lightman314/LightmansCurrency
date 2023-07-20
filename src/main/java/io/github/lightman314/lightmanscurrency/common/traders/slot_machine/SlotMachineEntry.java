@@ -33,6 +33,15 @@ public final class SlotMachineEntry {
     public boolean isMoney() { return this.items.size() > 0 && this.items.stream().allMatch(i -> MoneyUtil.isCoin(i, false)); }
     public CoinValue getMoneyValue() { return this.isMoney() ? MoneyUtil.getCoinValue(this.items) : CoinValue.EMPTY; }
 
+    public void validateItems()
+    {
+        for(int i = 0; i < this.items.size(); ++i)
+        {
+            if(this.items.get(i).isEmpty())
+                this.items.remove(i--);
+        }
+    }
+
     public List<ItemStack> getDisplayItems()
     {
         if(this.isMoney())
@@ -140,7 +149,11 @@ public final class SlotMachineEntry {
         {
             ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
-                items.add(ItemStack.of(itemList.getCompound(i)));
+            {
+                ItemStack stack = ItemStack.of(itemList.getCompound(i));
+                if(!stack.isEmpty())
+                    items.add(stack);
+            }
         }
         if(compound.contains("Weight"))
             return new SlotMachineEntry(items, compound.getInt("Weight"));
@@ -156,7 +169,11 @@ public final class SlotMachineEntry {
             JsonArray itemList = json.getAsJsonArray("Items");
             for(int i = 0; i < itemList.size(); ++i)
             {
-                try{ items.add(FileUtil.parseItemStack(itemList.get(i).getAsJsonObject()));
+                try{
+                    ItemStack stack = FileUtil.parseItemStack(itemList.get(i).getAsJsonObject());
+                    if(stack.isEmpty())
+                        throw new RuntimeException("Cannot add an empty item to a Slot Machine Entry!");
+                    items.add(stack);
                 } catch (Throwable t) { LightmansCurrency.LogError("Error parsing Slot Machine Entry item #" + (i + 1), t); }
             }
             if(items.size() == 0)

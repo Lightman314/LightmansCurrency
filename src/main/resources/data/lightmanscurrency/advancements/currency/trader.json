@@ -17,7 +17,7 @@
             "conditions": {
                 "items": [
                     {
-                        "tag": "lightmanscurrency:trader_normal"
+                        "tag": "lightmanscurrency:trader"
                     }
                 ]
             }

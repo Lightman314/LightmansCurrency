@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": {
+      "item": "minecraft:dropper"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "iii",
+    "ede",
+    "iii"
+  ],
+  "result": {
+    "item": "lightmanscurrency:cash_register"
+  },
+  "show_notification": true
+}

@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blocks.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.*;

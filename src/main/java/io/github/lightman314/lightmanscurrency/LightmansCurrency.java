@@ -137,14 +137,7 @@ public class LightmansCurrency {
 		LightmansCurrencyPacketHandler.init();
 
 		//Register Crafting Conditions
-		CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.AuctionStand.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.CoinChest.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeExchange.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeBank.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeMagnet.SERIALIZER);
-		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeSecurity.SERIALIZER);
+		LCCraftingConditions.register();
 
 		//Initialize the TraderData deserializers
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);

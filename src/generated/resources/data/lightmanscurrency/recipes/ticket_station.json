@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "minecraft:ink_sac"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "r": {
+      "tag": "forge:dusts/redstone"
+    }
+  },
+  "pattern": [
+    "igi",
+    "igi",
+    "rrr"
+  ],
+  "result": {
+    "item": "lightmanscurrency:ticket_machine"
+  },
+  "show_notification": true
+}

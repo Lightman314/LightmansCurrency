@@ -1,0 +1,10 @@
+{
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "item": "lightmanscurrency:coin_emerald"
+  },
+  "mintType": "MELT",
+  "result": {
+    "item": "minecraft:emerald"
+  }
+}

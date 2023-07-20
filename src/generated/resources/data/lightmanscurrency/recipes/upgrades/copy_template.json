@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "n": {
+      "tag": "forge:nuggets/iron"
+    },
+    "t": {
+      "item": "lightmanscurrency:upgrade_smithing_template"
+    }
+  },
+  "pattern": [
+    "nnn",
+    "ntn",
+    "nnn"
+  ],
+  "result": {
+    "count": 2,
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  },
+  "show_notification": true
+}

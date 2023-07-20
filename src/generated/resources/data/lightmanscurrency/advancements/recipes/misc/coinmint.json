@@ -1,0 +1,44 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:coinmint"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "material": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coin_minting_material"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "material",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coinmint"
+    ]
+  },
+  "sends_telemetry_event": false
+}

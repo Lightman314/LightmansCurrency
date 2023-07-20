@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -120,7 +121,6 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	public @Nonnull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
 
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
-	    
 		
 		@Override
 		public @Nonnull WalletUpgradeRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
@@ -174,4 +174,5 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	    	buffer.writeItemStack(recipe.recipeOutput, false);
 	    }
 	}
+
 }

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "vending_machine_large_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:vending_machine_large"
+    },
+    {
+      "tag": "forge:dyes/blue"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:vending_machine_large_blue"
+  }
+}
