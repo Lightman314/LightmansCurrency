@@ -4,9 +4,21 @@
       "advancement": {
         "parent": "minecraft:recipes/root",
         "criteria": {
+          "coin_chest": {
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "lightmanscurrency:coin_chest"
+                  ]
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
           "has_the_recipe": {
             "conditions": {
-              "recipe": "lightmanscurrency:traders/auction_stand/cherry"
+              "recipe": "null:null"
             },
             "trigger": "minecraft:recipe_unlocked"
           },
@@ -20,21 +32,13 @@
             },
             "trigger": "minecraft:inventory_changed"
           },
-          "terminal": {
+          "previous": {
             "conditions": {
               "items": [
                 {
-                  "tag": "lightmanscurrency:network_terminal"
-                }
-              ]
-            },
-            "trigger": "minecraft:inventory_changed"
-          },
-          "trader": {
-            "conditions": {
-              "items": [
-                {
-                  "tag": "lightmanscurrency:trader"
+                  "items": [
+                    "lightmanscurrency:coin_chest_magnet_upgrade_2"
+                  ]
                 }
               ]
             },
@@ -44,21 +48,21 @@
         "requirements": [
           [
             "money",
-            "trader",
-            "terminal",
+            "coin_chest",
+            "previous",
             "has_the_recipe"
           ]
         ],
         "rewards": {
           "recipes": [
-            "lightmanscurrency:traders/auction_stand/cherry"
+            "null:null"
           ]
         },
         "sends_telemetry_event": false
       },
       "conditions": [
         {
-          "type": "lightmanscurrency:auction_stand_craftable"
+          "type": "lightmanscurrency:coin_chest_magnet_craftable"
         }
       ]
     }

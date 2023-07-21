@@ -462,8 +462,9 @@ public class LCRecipeProvider extends RecipeProvider {
         //Auction Stands
         for(WoodType woodType : WoodType.validValues())
         {
-            conditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
-            Consumer<FinishedRecipe> c = conditional == null ? consumer : conditional::addRecipe;
+            conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.AuctionStand.INSTANCE);
+            if(woodType.isModded())
+                conditional.addCondition(new ModLoadedCondition(woodType.getModID()));
             WoodData data = woodType.getData();
             ItemLike log = data == null ? null : data.logBlock.get();
             if(log == null)
@@ -483,9 +484,8 @@ public class LCRecipeProvider extends RecipeProvider {
                     .define('x', ModItems.TRADING_CORE.get())
                     .define('g', Tags.Items.GLASS_COLORLESS)
                     .define('l', log)
-                    .save(c, id);
-            if(conditional != null)
-                conditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                    .save(conditional::addRecipe, id);
+            conditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
         }
 
         //Coin Jars
@@ -690,7 +690,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .save(conditional::addRecipe, "null:null");
-        conditional.addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1));
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
                 Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_1.get()),
@@ -701,7 +702,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_1))
                 .save(conditional::addRecipe, "null:null");
-        conditional.addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2));
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
                         Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_2.get()),
@@ -712,7 +714,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_2))
                 .save(conditional::addRecipe, "null:null");
-        conditional.addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3));
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
                         Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_3.get()),
@@ -723,7 +726,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_3))
                 .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ID("upgrades/coin_chest_magnet_upgrade").withPrefix(ADV_PREFIX)).build(consumer, ID("upgrades/coin_chest_magnet_upgrade"));
+        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4));
 
         //Security Upgrade
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeSecurity.INSTANCE);
