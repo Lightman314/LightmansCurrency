@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "tag": "forge:gems/amethyst"
+    },
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "s": {
+      "tag": "forge:stone"
+    }
+  },
+  "pattern": [
+    "aaa",
+    "aea",
+    "asa"
+  ],
+  "result": {
+    "item": "lightmanscurrency:gem_terminal"
+  },
+  "show_notification": true
+}

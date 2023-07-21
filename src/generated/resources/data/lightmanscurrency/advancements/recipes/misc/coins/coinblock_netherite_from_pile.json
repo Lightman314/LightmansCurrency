@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:coins/coinblock_netherite_from_pile"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "pile": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:coinpile_netherite"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "pile",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coins/coinblock_netherite_from_pile"
+    ]
+  }
+}

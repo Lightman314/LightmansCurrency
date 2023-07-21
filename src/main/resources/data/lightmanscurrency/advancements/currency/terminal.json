@@ -17,7 +17,7 @@
             "conditions": {
                 "items": [
                     {
-                        "tag": "lightmanscurrency:trading_terminal"
+                        "tag": "lightmanscurrency:network_terminal"
                     }
                 ]
             }

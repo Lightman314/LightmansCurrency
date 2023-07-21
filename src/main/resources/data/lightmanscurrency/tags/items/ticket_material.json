@@ -1,8 +1,0 @@
-{
-    "replace": false,
-    "values": [
-        "#lightmanscurrency:ticket",
-        "minecraft:paper",
-        "lightmanscurrency:ticket_stub"
-    ]
-}

@@ -25,6 +25,5 @@
                 ]
             }
         }
-    },
-    "rewards": { "function": "lightmanscurrency:give_currency_recipes" }
+    }
 }

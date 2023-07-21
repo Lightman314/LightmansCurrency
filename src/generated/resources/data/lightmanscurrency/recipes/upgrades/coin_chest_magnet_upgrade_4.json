@@ -1,0 +1,24 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:coin_chest_magnet_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing",
+        "addition": {
+          "tag": "forge:gems/emerald"
+        },
+        "base": {
+          "item": "lightmanscurrency:coin_chest_magnet_upgrade_3"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_magnet_upgrade_4"
+        }
+      }
+    }
+  ]
+}

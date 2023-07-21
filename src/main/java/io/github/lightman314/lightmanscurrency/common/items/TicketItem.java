@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -14,8 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,10 +23,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public class TicketItem extends Item{
-
-	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
-	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
-	public static final TagKey<Item> TICKET_MATERIAL_KEY = TagKey.create(ForgeRegistries.Keys.ITEMS, TICKET_MATERIAL_TAG);
 
 	public static final long CREATIVE_TICKET_ID = -1;
 	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
@@ -152,7 +146,7 @@ public class TicketItem extends Item{
 		MutableComponent list = EasyText.empty();
 		
 		try {
-			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().toList())
+			for(Item item : ForgeRegistries.ITEMS.tags().getTag(LCTags.Items.TICKET_MATERIAL).stream().toList())
 			{
 				list.append(EasyText.literal("\n")).append(new ItemStack(item).getHoverName());
 			}

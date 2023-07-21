@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "addition": {
+    "tag": "forge:ingots/gold"
+  },
+  "base": {
+    "item": "minecraft:hopper"
+  },
+  "result": {
+    "item": "lightmanscurrency:hopper_upgrade"
+  }
+}

@@ -2,6 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nonnull;
 
@@ -55,10 +59,19 @@ public final class SlotMachineLine {
                 this.rotateBlocks(this.resultBlock);
                 return;
             }
+            if(this.lockDelay == 0)
+                this.playDing();
         }
         else if(this.lockDelay == 0)
             return;
         this.rotateBlocks();
+    }
+
+    private void playDing()
+    {
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        if(soundManager != null)
+            soundManager.play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f));
     }
 
     private void rotateBlocks() { this.rotateBlocks(this.parent.getRandomBlock()); }

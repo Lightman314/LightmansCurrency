@@ -1,0 +1,10 @@
+{
+  "values": [
+    "#forge:ingots/copper",
+    "#forge:ingots/iron",
+    "#forge:ingots/gold",
+    "#forge:gems/emerald",
+    "#forge:gems/diamond",
+    "#forge:ingots/netherite"
+  ]
+}

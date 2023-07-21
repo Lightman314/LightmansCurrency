@@ -1,0 +1,10 @@
+{
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "tag": "forge:gems/diamond"
+  },
+  "mintType": "MINT",
+  "result": {
+    "item": "lightmanscurrency:coin_diamond"
+  }
+}

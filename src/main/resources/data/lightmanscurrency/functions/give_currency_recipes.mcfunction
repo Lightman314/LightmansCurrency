@@ -1,1 +1,0 @@
-award_recipes @s lightmanscurrency

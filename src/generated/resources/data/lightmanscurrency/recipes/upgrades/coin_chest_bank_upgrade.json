@@ -1,0 +1,24 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:coin_chest_bank_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing",
+        "addition": {
+          "item": "minecraft:ender_pearl"
+        },
+        "base": {
+          "item": "lightmanscurrency:atm"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_bank_upgrade"
+        }
+      }
+    }
+  ]
+}

@@ -102,6 +102,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             //Use TryAddItem to enforce item limit
             entry.TryAddItem(item);
+            entry.validateItems();
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
@@ -131,6 +132,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             if(itemIndex < 0 || itemIndex >= entry.items.size())
                 return;
             entry.items.set(itemIndex, item);
+            entry.validateItems();
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
@@ -156,6 +158,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             if(itemIndex < 0 || itemIndex >= entry.items.size())
                 return;
             entry.items.remove(itemIndex);
+            entry.validateItems();
             this.markEntriesDirty();
             if(this.menu.isClient())
             {

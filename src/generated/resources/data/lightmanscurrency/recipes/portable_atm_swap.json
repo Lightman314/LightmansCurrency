@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "portable_atm_swap",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:portable_atm"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:atm"
+  }
+}

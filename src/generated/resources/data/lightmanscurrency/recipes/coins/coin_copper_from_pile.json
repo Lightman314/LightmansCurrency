@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_from_pile",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:coinpile_copper"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "lightmanscurrency:coin_copper"
+  }
+}

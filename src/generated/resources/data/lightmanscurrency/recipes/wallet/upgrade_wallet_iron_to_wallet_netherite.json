@@ -1,0 +1,25 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_iron"
+    },
+    {
+      "tag": "forge:ingots/gold"
+    },
+    {
+      "tag": "forge:gems/emerald"
+    },
+    {
+      "tag": "forge:gems/diamond"
+    },
+    {
+      "tag": "forge:ingots/netherite"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:wallet_netherite"
+  }
+}

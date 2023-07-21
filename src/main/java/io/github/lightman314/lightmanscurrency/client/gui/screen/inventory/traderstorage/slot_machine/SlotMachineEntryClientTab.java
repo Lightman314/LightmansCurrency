@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
@@ -21,11 +20,10 @@ import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachineEntryTab> implements IScrollable, IScrollListener {
+public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachineEntryTab> implements IScrollable {
 
     public static final int ENTRY_ROWS = 3;
     public static final int ENTRY_COLUMNS = 2;
@@ -34,7 +32,6 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
 
 
     private int scroll = 0;
-    private final List<SlotMachineEntryEditWidget> entryEditWidgets = new ArrayList<>();
     private EasyButton buttonAddEntry;
 
     public SlotMachineEntryClientTab(Object screen, SlotMachineEntryTab commonTab) { super(screen, commonTab); }
@@ -50,15 +47,13 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public void initialize(ScreenArea screenArea, boolean firstOpen)
     {
 
-        this.entryEditWidgets.clear();
-
         this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 145, this));
 
         for(int y = 0; y < ENTRY_ROWS; ++y)
         {
             for(int x = 0; x < 2; x++)
             {
-                this.entryEditWidgets.add(this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * 2) + x))));
+                this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * 2) + x)));
             }
         }
 
@@ -118,8 +113,5 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
 
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(ENTRIES_PER_PAGE, ENTRY_COLUMNS, this.getEntryCount()); }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) { return this.handleScrollWheel(delta); }
 
 }

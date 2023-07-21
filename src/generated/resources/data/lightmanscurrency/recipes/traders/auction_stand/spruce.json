@@ -1,0 +1,37 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:auction_stand_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "auction_stand",
+        "key": {
+          "g": {
+            "tag": "forge:glass/colorless"
+          },
+          "l": {
+            "item": "minecraft:spruce_log"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "g",
+          "x",
+          "l"
+        ],
+        "result": {
+          "item": "lightmanscurrency:auction_stand_spruce"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

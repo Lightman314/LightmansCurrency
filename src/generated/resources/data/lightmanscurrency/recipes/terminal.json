@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "s": {
+      "tag": "forge:stone"
+    }
+  },
+  "pattern": [
+    "sgs",
+    "sgs",
+    "iei"
+  ],
+  "result": {
+    "item": "lightmanscurrency:terminal"
+  },
+  "show_notification": true
+}
