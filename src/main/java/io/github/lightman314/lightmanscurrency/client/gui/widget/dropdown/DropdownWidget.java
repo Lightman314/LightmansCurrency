@@ -143,9 +143,6 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		return false;
 	}
 
-	@Override
-	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
-
 	private void OnSelect(EasyButton button) {
 		int index = this.optionButtons.indexOf(button);
 		if(index < 0)

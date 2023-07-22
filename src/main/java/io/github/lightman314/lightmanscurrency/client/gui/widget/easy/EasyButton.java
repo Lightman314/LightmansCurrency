@@ -12,7 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
-public abstract class EasyButton extends EasyWidget implements IMouseListener {
+public abstract class EasyButton extends EasyWidget {
 
     public static final Consumer<EasyButton> NULL_PRESS = button -> {};
 
@@ -30,18 +30,15 @@ public abstract class EasyButton extends EasyWidget implements IMouseListener {
     protected EasyButton(ScreenArea area, Component title, Consumer<EasyButton> press) { super(area, title); this.press = press; }
 
     @Override
+    protected boolean isValidClickButton(int button) { return button == 0; }
+
+    @Override
     public void playDownSound(@Nonnull SoundManager manager) { playClick(manager); }
 
     public static void playClick(@Nonnull SoundManager manager) { manager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
 
     @Override
     public void onClick(double mouseX, double mouseY) { this.onPress(); }
-
-    @Override
-    public boolean onMouseClicked(double mouseX, double mouseY, int button) { return this.mouseClicked(mouseX, mouseY, button); }
-
-    @Override
-    public boolean onMouseReleased(double mouseX, double mouseY, int button) { return this.mouseReleased(mouseX, mouseY, button); }
 
     @Override
     public boolean keyPressed(int p_93374_, int p_93375_, int p_93376_) {
