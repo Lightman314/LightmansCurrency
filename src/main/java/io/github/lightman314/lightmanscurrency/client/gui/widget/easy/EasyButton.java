@@ -30,6 +30,9 @@ public abstract class EasyButton extends EasyWidget {
     protected EasyButton(ScreenArea area, Component title, Consumer<EasyButton> press) { super(area, title); this.press = press; }
 
     @Override
+    protected boolean isValidClickButton(int button) { return button == 0; }
+
+    @Override
     public void playDownSound(@Nonnull SoundManager manager) { playClick(manager); }
 
     public static void playClick(@Nonnull SoundManager manager) { manager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }

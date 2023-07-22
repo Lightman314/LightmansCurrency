@@ -135,9 +135,6 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 
 	}
 	
-	@Override
-	public void screenTick() { this.currentTab.tick(); }
-	
 	private void OpenStorage(EasyButton button) {
 		if(this.menu.isSingleTrader())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.menu.getSingleTrader().getID()));

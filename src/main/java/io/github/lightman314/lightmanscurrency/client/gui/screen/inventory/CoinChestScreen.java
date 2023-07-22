@@ -190,9 +190,6 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
         this.changeTab(tabIndex);
     }
 
-    @Override
-    public void screenTick() { this.currentTab().tick(); }
-
     private void ClientMessageHandler(LazyPacketData message)
     {
         if(message.contains("RefreshTabs"))

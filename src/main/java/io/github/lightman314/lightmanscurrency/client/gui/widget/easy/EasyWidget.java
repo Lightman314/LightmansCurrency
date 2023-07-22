@@ -126,6 +126,9 @@ public abstract class EasyWidget extends AbstractWidget {
     protected abstract void renderWidget(@Nonnull EasyGuiGraphics gui);
 
     @Override
+    protected boolean isValidClickButton(int button) { return false; }
+
+    @Override
     public void playDownSound(@Nonnull SoundManager manager) { }
 
     @Override

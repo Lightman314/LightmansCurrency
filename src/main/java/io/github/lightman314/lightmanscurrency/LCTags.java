@@ -35,6 +35,8 @@ public class LCTags {
         public static final TagKey<Item> TRADER_INTERFACE = tag("trader_interface");
 
         public static final TagKey<Item> NETWORK_TERMINAL = tag("network_terminal");
+        @Deprecated
+        public static final TagKey<Item> TRADING_TERMINAL = tag("trading_terminal");
         public static final TagKey<Item> ATM = tag("atm");
 
         //Ticket Tags

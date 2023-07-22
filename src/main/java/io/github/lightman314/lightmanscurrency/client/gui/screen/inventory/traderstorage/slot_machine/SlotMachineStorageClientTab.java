@@ -214,9 +214,6 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
     }
 
     @Override
-    public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
-
-    @Override
     public int currentScroll() { return this.scroll; }
 
     @Override
