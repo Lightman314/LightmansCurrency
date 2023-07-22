@@ -130,9 +130,6 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 
 	@Override
-	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
-
-	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) { }
 
 	@Override

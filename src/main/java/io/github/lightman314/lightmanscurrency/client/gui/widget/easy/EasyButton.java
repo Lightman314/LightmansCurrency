@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
@@ -27,6 +28,9 @@ public abstract class EasyButton extends EasyWidget {
     protected EasyButton(ScreenArea area, Consumer<EasyButton> press) { super(area); this.press = press; }
     protected EasyButton(ScreenArea area, Component title, Runnable press) { this(area, title, b -> press.run()); }
     protected EasyButton(ScreenArea area, Component title, Consumer<EasyButton> press) { super(area, title); this.press = press; }
+
+    @Override
+    protected boolean isValidClickButton(int button) { return button == 0; }
 
     @Override
     public void playDownSound(@Nonnull SoundManager manager) { playClick(manager); }

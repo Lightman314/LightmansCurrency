@@ -259,9 +259,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
 		return false;
 	}
-	
-	@Override
-	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
 	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
 
