@@ -97,8 +97,6 @@ public class ATMScreen extends EasyMenuScreen<ATMMenu> {
 			return;
 		this.changeTab(tabIndex);
 	}
-	
-	public void screenTick() { this.currentTab().tick(); }
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }

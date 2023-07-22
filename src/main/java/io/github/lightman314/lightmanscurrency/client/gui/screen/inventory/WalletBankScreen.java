@@ -54,7 +54,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 	protected void initialize(ScreenArea screenArea)
 	{
 
-		this.resize(176, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18 + 7);
+		screenArea = this.resize(176, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18 + 7);
 		
 		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
@@ -137,12 +137,6 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 				return;
 			this.changeTab(tabIndex);
 		}
-	}
-
-	@Override
-	protected void screenTick()
-	{
-		this.currentTab().tick();
 	}
 	
 	public Font getFont() { return this.font; }

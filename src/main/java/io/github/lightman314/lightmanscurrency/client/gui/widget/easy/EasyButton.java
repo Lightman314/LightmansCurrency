@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
@@ -11,7 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
-public abstract class EasyButton extends EasyWidget {
+public abstract class EasyButton extends EasyWidget implements IMouseListener {
 
     public static final Consumer<EasyButton> NULL_PRESS = button -> {};
 
@@ -35,6 +36,12 @@ public abstract class EasyButton extends EasyWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) { this.onPress(); }
+
+    @Override
+    public boolean onMouseClicked(double mouseX, double mouseY, int button) { return this.mouseClicked(mouseX, mouseY, button); }
+
+    @Override
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) { return this.mouseReleased(mouseX, mouseY, button); }
 
     @Override
     public boolean keyPressed(int p_93374_, int p_93375_, int p_93376_) {

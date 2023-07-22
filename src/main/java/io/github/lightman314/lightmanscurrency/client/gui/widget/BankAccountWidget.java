@@ -64,10 +64,11 @@ public class BankAccountWidget implements IEasyTickable {
 	{
 
 		int screenMiddle = this.parent.getScreen().width / 2;
-		Component balanceComponent = this.parent.getBankAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.parent.getBankAccount().getCoinStorage().getString("0"));
+		Component balanceComponent = this.parent.getBankAccount() == null ? EasyText.translatable("gui.lightmanscurrency.bank.null") : EasyText.translatable("gui.lightmanscurrency.bank.balance", this.parent.getBankAccount().getCoinStorage().getString("0"));
 		int offset = gui.font.width(balanceComponent.getString()) / 2;
-		gui.drawString(balanceComponent, screenMiddle - offset, this.y + CoinValueInput.HEIGHT + 30 + spacing + yOffset, 0x404040);
-		
+		gui.pushOffsetZero().drawString(balanceComponent, screenMiddle - offset, this.y + CoinValueInput.HEIGHT + 30 + spacing + yOffset, 0x404040);
+		gui.popOffset();
+
 	}
 
 	@Override
