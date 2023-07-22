@@ -142,9 +142,6 @@ public class TeamManagerScreen extends EasyScreen {
 		
 		if(!this.currentTab().allowViewing(this.getPlayer(), this.getActiveTeam()) && this.currentTabIndex != 0)
 			this.changeTab(0);
-		
-		//Tick the current tab
-		this.currentTab().tick();
 	}
 	
 	public void changeTab(int tabIndex)

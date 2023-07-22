@@ -113,7 +113,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 
 	/**
 	 * Used to determine if this recipe can fit in a grid of the given width/height
-	 */
+a	 */
 	@Override
 	public boolean canCraftInDimensions(int width, int height) {
 		return width * height >= this.ingredients.size();

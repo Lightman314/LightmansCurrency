@@ -1,8 +1,0 @@
-{
-  "type": "lightmanscurrency:coin_mint",
-  "mintType": "MELT",
-  "ingredient": {
-    "item": "lightmanscurrency:coin_copper"
-  },
-  "result": { "item": "minecraft:copper_ingot" }
-}

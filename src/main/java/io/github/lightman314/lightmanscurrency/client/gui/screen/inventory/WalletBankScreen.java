@@ -138,12 +138,6 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 			this.changeTab(tabIndex);
 		}
 	}
-
-	@Override
-	protected void screenTick()
-	{
-		this.currentTab().tick();
-	}
 	
 	public Font getFont() { return this.font; }
 

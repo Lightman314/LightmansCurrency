@@ -192,8 +192,6 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		//Reset to the default tab if the currently selected tab doesn't have access permissions
 		if(!this.currentTab().commonTab.canOpen(this.menu.player))
 			this.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-
-		this.currentTab().tick();
 		
 	}
 

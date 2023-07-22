@@ -30,7 +30,7 @@ public class ModItems {
 		
 		//Ticket
 		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).rarity(Rarity.UNCOMMON)));
 		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).rarity(Rarity.RARE).stacksTo(1)));
 		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		

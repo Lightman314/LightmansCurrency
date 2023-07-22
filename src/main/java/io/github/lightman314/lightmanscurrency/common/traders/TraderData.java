@@ -303,7 +303,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			ba.LogInteraction(this, amount, false);
 			return;
 		}
-		this.storedMoney.minusValue(amount);
+		this.storedMoney = this.storedMoney.minusValue(amount);
 		this.markDirty(this::saveStoredMoney);
 	}
 	public void clearStoredMoney() {

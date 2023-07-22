@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.world.item.ItemStack;
 
@@ -73,7 +72,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
             //Render Items
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
-                if(i < entry.items.size())
+                if(i < entry.items.size() && !entry.items.get(i).isEmpty())
                     gui.renderItem(entry.items.get(i), 18 * i, ITEM_POSY);
                 else
                     gui.renderSlotBackground(EasySlot.BACKGROUND, 18 * i, ITEM_POSY);

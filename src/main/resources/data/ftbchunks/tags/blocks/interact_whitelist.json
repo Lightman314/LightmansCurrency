@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    "#lightmanscurrency:protected",
-	"#lightmanscurrency:auction_stand",
-	"lightmanscurrency:atm"
-  ]
-}

@@ -106,8 +106,6 @@ public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 		
 		this.updateTabs();
 		
-		this.currentTab().tick();
-		
 	}
 	
 	private ActiveMode getMode() {

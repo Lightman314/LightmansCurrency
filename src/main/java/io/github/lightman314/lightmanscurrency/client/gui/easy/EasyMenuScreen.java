@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
@@ -83,7 +84,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         this.renderTick();
         EasyGuiGraphics gui = EasyGuiGraphics.create(pose, this.font, mouseX, mouseY, partialTicks).pushOffset(this.getCorner());
         //Trigger Pre-Render ticks
-        for(IPreRender r : this.preRenders)
+        for(IPreRender r : ImmutableList.copyOf(this.preRenders))
             r.preRender(gui);
         //Render background tint
         this.renderBackground(pose);
@@ -95,7 +96,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         this.renderAfterWidgets(gui);
         //Render Tooltips
         this.renderTooltip(pose, mouseX, mouseY);
-        EasyScreenHelper.RenderTooltips(gui, this.tooltipSources);
+        EasyScreenHelper.RenderTooltips(gui, ImmutableList.copyOf(this.tooltipSources));
         //Render After Tooltips
         this.renderAfterTooltips(gui);
     }
@@ -168,7 +169,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     @Override
     protected final void containerTick() {
-        for(IEasyTickable t : this.guiTickers)
+        for(IEasyTickable t : ImmutableList.copyOf(this.guiTickers))
             t.tick();
         this.screenTick();
     }
@@ -196,7 +197,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-        for(IScrollListener l : this.scrollListeners)
+        for(IScrollListener l : ImmutableList.copyOf(this.scrollListeners))
         {
             if(l.mouseScrolled(mouseX, mouseY, scroll))
                 return true;
@@ -206,7 +207,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for(IMouseListener l : this.mouseListeners)
+        for(IMouseListener l : ImmutableList.copyOf(this.mouseListeners))
         {
             if(l.onMouseClicked(mouseX, mouseY, button))
                 return true;
@@ -216,7 +217,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        for(IMouseListener l : this.mouseListeners)
+        for(IMouseListener l : ImmutableList.copyOf(this.mouseListeners))
         {
             if(l.onMouseReleased(mouseX, mouseY, button))
                 return true;

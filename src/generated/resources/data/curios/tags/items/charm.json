@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:portable_terminal",
+    "lightmanscurrency:portable_gem_terminal",
+    "lightmanscurrency:portable_atm"
+  ]
+}

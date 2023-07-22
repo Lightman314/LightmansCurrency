@@ -3,20 +3,21 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -26,15 +27,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class TicketItem extends Item{
 
-	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
-	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
-	public static final TagKey<Item> TICKET_MATERIAL_KEY = TagKey.create(ForgeRegistries.Keys.ITEMS, TICKET_MATERIAL_TAG);
-
 	public static final long CREATIVE_TICKET_ID = -1;
 	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
 
 	public TicketItem(Properties properties) { super(properties); }
-	
+
+	@Override
+	public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> itemList) {
+		if(this.allowdedIn(tab))
+			itemList.add(TicketItem.CreateTicketInternal(this, CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR, 1));
+	}
+
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
@@ -152,7 +155,7 @@ public class TicketItem extends Item{
 		MutableComponent list = EasyText.empty();
 		
 		try {
-			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().toList())
+			for(Item item : ForgeRegistries.ITEMS.tags().getTag(LCTags.Items.TICKET_MATERIAL).stream().toList())
 			{
 				list.append(EasyText.literal("\n")).append(new ItemStack(item).getHoverName());
 			}

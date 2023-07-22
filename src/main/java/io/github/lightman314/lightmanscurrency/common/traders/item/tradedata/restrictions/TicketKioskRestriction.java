@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -39,7 +40,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return true;
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get();
+		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && itemStack.getItem() != ModItems.TICKET.get();
 	}
 	
 	@Override
@@ -47,7 +48,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return TicketItem.CreateTicket(itemStack);
-		else if(InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get())
+		else if(InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && itemStack.getItem() != ModItems.TICKET.get())
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
@@ -57,12 +58,12 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
 		Item item = itemStack.getItem();
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET.get() && item != ModItems.TICKET_MASTER.get();
+		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && item != ModItems.TICKET.get() && item != ModItems.TICKET_MASTER.get();
 	}
 	
 	@Override
 	public boolean allowExtraItemInStorage(ItemStack itemStack) {
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG);
+		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL);
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	
 	protected final int getTicketStock(int ticketCount, TraderItemStorage traderStorage)
 	{
-		return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER.get()) / ticketCount;
+		return traderStorage.getItemTagCount(LCTags.Items.TICKET_MATERIAL, ModItems.TICKET_MASTER.get()) / ticketCount;
 	}
 	
 	@Override
@@ -114,7 +115,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		//Remove the printing materials for tickets that needed to be printed
 		if(printCount > 0)
 		{
-			traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, printCount, ignoreIfPossible, ModItems.TICKET_MASTER.get());
+			traderStorage.removeItemTagCount(LCTags.Items.TICKET_MATERIAL, printCount, ignoreIfPossible, ModItems.TICKET_MASTER.get());
 		}
 	}
 

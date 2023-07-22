@@ -11,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -250,7 +249,7 @@ public class InventoryUtil {
 		return count;
 	}
 
-	public static int GetItemTagCount(Container inventory, ResourceLocation itemTag, Item... blacklistItems)
+	public static int GetItemTagCount(Container inventory, TagKey<Item> itemTag, Item... blacklistItems)
 	{
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
 		int count = 0;
@@ -263,7 +262,7 @@ public class InventoryUtil {
 		return count;
 	}
 
-	public static boolean RemoveItemTagCount(Container inventory, ResourceLocation itemTag, int count, Item... blacklistItems)
+	public static boolean RemoveItemTagCount(Container inventory, TagKey<Item> itemTag, int count, Item... blacklistItems)
 	{
 		if(GetItemTagCount(inventory, itemTag, blacklistItems) < count)
 			return false;
@@ -601,14 +600,7 @@ public class InventoryUtil {
 		return false;
 	}
 
-	public static boolean ItemHasTag(ItemStack item, ResourceLocation tag) {
-		for(TagKey<Item> itemTag : item.getTags().toList())
-		{
-			if(itemTag.location().equals(tag))
-				return true;
-		}
-		return false;
-	}
+	public static boolean ItemHasTag(ItemStack item, TagKey<Item> tag) { return item.getTags().anyMatch(t -> t.equals(tag)); }
 
 	public static int safeGiveToPlayer(Inventory inv, ItemStack stack) {
 

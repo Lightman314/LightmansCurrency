@@ -1,0 +1,56 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:traders/large_vending_machine/dye_cyan"
+    ]
+  },
+  "criteria": {
+    "cleanitem": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:vending_machine_large"
+            ]
+          }
+        ]
+      }
+    },
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "trader": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:traders/large_vending_machine/dye_cyan"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "cleanitem",
+      "money",
+      "trader",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:network_trader_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "item_network_trader",
+        "pattern": [
+          "ici",
+          "ixi",
+          "iei"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "e": {
+            "item": "minecraft:ender_eye"
+          },
+          "i": {
+            "tag": "forge:ingots/iron"
+          },
+          "c": {
+            "tag": "forge:chests/wooden"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:item_trader_server_sml"
+        }
+      }
+    }
+  ]
+}
