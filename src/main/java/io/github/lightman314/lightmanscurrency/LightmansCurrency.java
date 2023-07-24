@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -111,7 +112,10 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(PROXY);
         
         if(ModList.get().isLoaded("lightmansdiscord"))
-        	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+		{
+			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+		}
 
 		if(ModList.get().isLoaded("immersiveengineering"))
 			LCImmersive.registerRotationBlacklists();
