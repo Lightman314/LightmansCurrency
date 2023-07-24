@@ -3,12 +3,10 @@ package io.github.lightman314.lightmanscurrency.discord;
 import io.github.lightman314.lightmansdiscord.events.LoadMessageEntriesEvent;
 import io.github.lightman314.lightmansdiscord.message.MessageEntry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CurrencyMessages {
 
 	private static final List<MessageEntry> ENTRIES = new ArrayList<>();
