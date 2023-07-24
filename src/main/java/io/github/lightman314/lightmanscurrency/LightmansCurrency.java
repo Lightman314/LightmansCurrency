@@ -117,7 +117,6 @@ public class LightmansCurrency {
         if(ModList.get().isLoaded("lightmansdiscord"))
         {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-        	CurrencyMessages.init();
         }
 
 		if(ModList.get().isLoaded("immersiveengineering"))
