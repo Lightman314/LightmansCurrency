@@ -98,8 +98,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModBlocks.GEM_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL);
         //Deprecated Trading Terminal Tag
-        this.cTag(LCTags.Items.TRADING_TERMINAL)
-                .addTag(LCTags.Items.NETWORK_TERMINAL);
+        this.cTag(LCTags.Items.TRADING_TERMINAL).addTag(LCTags.Items.NETWORK_TERMINAL);
 
         //ATM
         this.cTag(LCTags.Items.ATM)

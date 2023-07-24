@@ -32,7 +32,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
-import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -112,10 +111,7 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(PROXY);
         
         if(ModList.get().isLoaded("lightmansdiscord"))
-        {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-        	CurrencyMessages.init();
-        }
 
 		if(ModList.get().isLoaded("immersiveengineering"))
 			LCImmersive.registerRotationBlacklists();

@@ -158,8 +158,8 @@ dependencies {
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
 
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:4591814')
-    //TODO update to 1.20 build once released
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4111018')
+
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
 }
 
