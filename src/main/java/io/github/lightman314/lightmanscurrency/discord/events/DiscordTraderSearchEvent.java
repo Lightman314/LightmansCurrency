@@ -31,9 +31,6 @@ public class DiscordTraderSearchEvent extends Event{
 		this.output = outputList;
 	}
 	
-	public void addToOutput(String line)
-	{
-		this.output.add(line);
-	}
+	public void addToOutput(String line) { this.output.add(line); }
 	
 }

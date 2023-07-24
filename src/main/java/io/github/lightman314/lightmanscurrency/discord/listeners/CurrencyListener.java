@@ -13,12 +13,6 @@ import java.util.function.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmansconsole.LightmansDiscordIntegration;
-import io.github.lightman314.lightmansconsole.discord.links.AccountManager;
-import io.github.lightman314.lightmansconsole.discord.links.LinkedAccount;
-import io.github.lightman314.lightmansconsole.discord.listeners.types.SingleChannelListener;
-import io.github.lightman314.lightmansconsole.message.MessageManager;
-import io.github.lightman314.lightmansconsole.util.MessageUtil;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -37,11 +31,17 @@ import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.A
 import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TraderEvent.CreateNetworkTraderEvent;
-import net.dv8tion.jda.api.entities.Message;
+import io.github.lightman314.lightmansdiscord.LightmansDiscordIntegration;
+import io.github.lightman314.lightmansdiscord.api.jda.data.SafeMemberReference;
+import io.github.lightman314.lightmansdiscord.api.jda.data.SafeUserReference;
+import io.github.lightman314.lightmansdiscord.api.jda.data.channels.SafeMessageChannelReference;
+import io.github.lightman314.lightmansdiscord.api.jda.data.channels.SafePrivateChannelReference;
+import io.github.lightman314.lightmansdiscord.api.jda.data.messages.SafeMessageReference;
+import io.github.lightman314.lightmansdiscord.api.jda.listeners.SafeSingleChannelListener;
+import io.github.lightman314.lightmansdiscord.discord.links.AccountManager;
+import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
+import io.github.lightman314.lightmansdiscord.message.MessageManager;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -49,7 +49,7 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class CurrencyListener extends SingleChannelListener{
+public class CurrencyListener extends SafeSingleChannelListener {
 	
 	private final Timer timer;
 	
@@ -57,34 +57,34 @@ public class CurrencyListener extends SingleChannelListener{
 	private static final long ANNOUCEMENT_DELAY = 60000; //60s delay before announcing to give the owner time to set a name, etc.
 	
 	Map<String,List<String>> pendingMessages = new HashMap<>();
-	
+
+	@Override
+	protected boolean listenToPrivateMessages() { return true; }
+
 	public CurrencyListener(Supplier<String> consoleChannel)
 	{
-		super(consoleChannel, LightmansDiscordIntegration.PROXY::getJDA);
+		super(consoleChannel);
 		this.timer = new Timer();
 		this.timer.scheduleAtFixedRate(new NotifyTraderOwnerTask(this), 0, PENDING_MESSAGE_TIMER);
 	}
 
 	@Override
-	protected void onChannelMessageReceived(MessageReceivedEvent event) {
-		
-		handleMessage(event.getChannel(), event.getMessage(), event.getAuthor());
+	protected void OnPrivateMessage(SafePrivateChannelReference channel, SafeUserReference user, SafeMessageReference message) {
+		this.handleMessage(channel, message, user);
+	}
+
+	@Override
+	public void OnTextChannelMessage(SafeMemberReference member, SafeMessageReference message) {
+		this.handleMessage(this.getChannel(), message, member);
 	}
 	
-	public void onMessageReceived(MessageReceivedEvent event) {
-		if(event.getChannelType() == ChannelType.PRIVATE)
-			this.handleMessage(event.getChannel(), event.getMessage(), event.getAuthor());
-		else
-			super.onMessageReceived(event);
-	}
-	
-	private void handleMessage(MessageChannel channel, Message message, User author)
+	private void handleMessage(SafeMessageChannelReference channel, SafeMessageReference message, SafeUserReference user)
 	{
-		if(author.isBot())
+		if(user.isBot())
 			return;
 		
 		//Run command
-		String input = message.getContentDisplay();
+		String input = message.getDisplay();
 		String prefix = Config.SERVER.currencyCommandPrefix.get();
 		if(input.startsWith(prefix))
 		{
@@ -96,7 +96,7 @@ public class CurrencyListener extends SingleChannelListener{
 				output.add(prefix + "search <sales|purchases|barters|trades> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH1.get());
 				output.add(prefix + "search <players|shops> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH2.get());
 				output.add(prefix + "search all - " + CurrencyMessages.M_HELP_LC_SEARCH3.get());
-				MessageUtil.sendTextMessage(channel, output);
+				channel.sendMessage(output);
 			}
 			else if(command.startsWith("notifications "))
 			{
@@ -104,33 +104,33 @@ public class CurrencyListener extends SingleChannelListener{
 				if(subcommand.startsWith("help"))
 				{
 					List<String> output = new ArrayList<>();
-					if(AccountManager.getLinkedAccountFromUser(author) == null)
+					if(AccountManager.getLinkedAccountFromUser(user) == null)
 						output.add(CurrencyMessages.M_NOTIFICATIONS_NOTLINKED.get());
-					else if(AccountManager.currencyNotificationsEnabled(author))
+					else if(AccountManager.currencyNotificationsEnabled(user.getUser()))
 						output.add(CurrencyMessages.M_NOTIFICATIONS_ENABLED.get());
 					else
 						output.add(CurrencyMessages.M_NOTIFICATIONS_DISABLED.get());
 					output.addAll(Lists.newArrayList(CurrencyMessages.M_NOTIFICATIONS_HELP.get().split("\n")));
-					
-					MessageUtil.sendTextMessage(channel, output);
+
+					channel.sendMessage(output);
 				}
 				else if(subcommand.startsWith("enable"))
 				{
-					if(AccountManager.getLinkedAccountFromUser(author) == null)
-						MessageUtil.sendTextMessage(channel, MessageManager.M_ERROR_NOTLINKEDSELF.get());
-					else if(AccountManager.enableCurrencyNotifications(author))
-						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_SUCCESS.get());
+					if(AccountManager.getLinkedAccountFromUser(user) == null)
+						channel.sendMessage(MessageManager.M_ERROR_NOTLINKEDSELF.get());
+					else if(AccountManager.enableCurrencyNotifications(user.getUser()))
+						channel.sendMessage(CurrencyMessages.M_NOTIFICATIONS_ENABLE_SUCCESS.get());
 					else
-						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_FAIL.get());
+						channel.sendMessage(CurrencyMessages.M_NOTIFICATIONS_ENABLE_FAIL.get());
 				}
 				else if(subcommand.startsWith("disable"))
 				{
-					if(AccountManager.getLinkedAccountFromUser(author) == null)
-						MessageUtil.sendTextMessage(channel, MessageManager.M_ERROR_NOTLINKEDSELF.get());
-					else if(AccountManager.disableCurrencyNotifications(author))
-						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_SUCCESS.get());
+					if(AccountManager.getLinkedAccountFromUser(user) == null)
+						channel.sendMessage(MessageManager.M_ERROR_NOTLINKEDSELF.get());
+					else if(AccountManager.disableCurrencyNotifications(user.getUser()))
+						channel.sendMessage(CurrencyMessages.M_NOTIFICATIONS_DISABLE_SUCCESS.get());
 					else
-						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_FAIL.get());
+						channel.sendMessage(CurrencyMessages.M_NOTIFICATIONS_DISABLE_FAIL.get());
 				}
 			}
 			else if(command.startsWith("search "))
@@ -181,7 +181,7 @@ public class CurrencyListener extends SingleChannelListener{
 				}
 				if(type == null)
 				{
-					MessageUtil.sendTextMessage(channel, CurrencyMessages.M_SEARCH_BAD_INPUT.get());
+					channel.sendMessage(CurrencyMessages.M_SEARCH_BAD_INPUT.get());
 					return;
 				}
 				
@@ -262,14 +262,14 @@ public class CurrencyListener extends SingleChannelListener{
 								}
 							}
 						}
-						else //If not an item trader, post the trader search eventm
+						//else //If not an item trader, post the trader search eventm
 							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
 					} catch(Exception e) { e.printStackTrace(); }
 				});
 				if(output.size() > 0)
-					MessageUtil.sendTextMessage(channel, output);
+					channel.sendMessage(output);
 				else
-					MessageUtil.sendTextMessage(channel, CurrencyMessages.M_SEARCH_NORESULTS.get());
+					channel.sendMessage(CurrencyMessages.M_SEARCH_NORESULTS.get());
 			}
 		}
 	}
@@ -316,7 +316,7 @@ public class CurrencyListener extends SingleChannelListener{
 			}
 			else
 			{
-				StringBuilder buffer = new StringBuilder("");
+				StringBuilder buffer = new StringBuilder();
 				for(int i = 0; i < itemEntries.size(); ++i)
 				{
 					if(i != 0)
@@ -332,7 +332,7 @@ public class CurrencyListener extends SingleChannelListener{
 			return "NULL";
 	}
 	
-	private static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
+	public static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
 	{
 		if(item1.isEmpty() && !item2.isEmpty())
 			return item2.getCount() + "x " + getItemName(item2, customName2);
@@ -347,10 +347,10 @@ public class CurrencyListener extends SingleChannelListener{
 			LinkedAccount account = AccountManager.getLinkedAccountFromPlayerID(event.getPlayerID());
 			if(account != null)
 			{
-				User user = account.getUser();
-				if(AccountManager.currencyNotificationsEnabled(user))
+				SafeUserReference user = account.getUser();
+				if(AccountManager.currencyNotificationsEnabled(user.getUser()))
 				{
-					this.addPendingMessage(user, event.getNotification().getGeneralMessage().getString());
+					this.addPendingMessage(user.getUser(), event.getNotification().getGeneralMessage().getString());
 				}
 			}
 		} catch(Exception e) { LightmansCurrency.LogError("Error processing notification to bot:", e); }
@@ -371,13 +371,13 @@ public class CurrencyListener extends SingleChannelListener{
 		
 		if(event.isPersistent())
 		{
-			this.sendTextMessage(CurrencyMessages.M_NEWAUCTION_PERSISTENT.format(itemText, startingBid, minBid));
+			this.sendMessage(CurrencyMessages.M_NEWAUCTION_PERSISTENT.format(itemText, startingBid, minBid));
 		}
 		else
 		{
 			PlayerReference owner = auction.getOwner();
 			String ownerName = owner != null ? owner.getName(false) : "NULL";
-			this.sendTextMessage(CurrencyMessages.M_NEWAUCTION.format(ownerName, itemText, startingBid, minBid));
+			this.sendMessage(CurrencyMessages.M_NEWAUCTION.format(ownerName, itemText, startingBid, minBid));
 		}
 		
 	}
@@ -388,7 +388,7 @@ public class CurrencyListener extends SingleChannelListener{
 		if(!Config.SERVER.auctionHouseCancelNotifications.get())
 			return;
 		
-		this.sendTextMessage(CurrencyMessages.M_CANCELAUCTION.format(event.getPlayer().getDisplayName().getString(), getItemNamesAndCounts(event.getAuction().getAuctionItems())));
+		this.sendMessage(CurrencyMessages.M_CANCELAUCTION.format(event.getPlayer().getDisplayName().getString(), getItemNamesAndCounts(event.getAuction().getAuctionItems())));
 		
 	}
 	
@@ -406,7 +406,7 @@ public class CurrencyListener extends SingleChannelListener{
 		String itemText = getItemNamesAndCounts(auction.getAuctionItems());
 		String price = auction.getLastBidAmount().getString();
 		
-		this.sendTextMessage(CurrencyMessages.M_WINAUCTION.format(winner, itemText, price));
+		this.sendMessage(CurrencyMessages.M_WINAUCTION.format(winner, itemText, price));
 		
 	}
 	
@@ -428,11 +428,9 @@ public class CurrencyListener extends SingleChannelListener{
 		//LightmansConsole.LOGGER.info("Sending Pending Messages");
 		this.pendingMessages.forEach((userId, messages)->{
 			try {
-				User user = this.getJDA().getUserById(userId);
+				User user = LightmansDiscordIntegration.PROXY.getJDA().getUserById(userId);
 				if(user != null)
-				{
-					MessageUtil.sendPrivateMessage(user, messages);
-				}	
+					SafeUserReference.of(user).sendPrivateMessage(messages);
 			} catch(Exception e) { e.printStackTrace(); }
 		});
 		this.pendingMessages.clear();
@@ -477,12 +475,13 @@ public class CurrencyListener extends SingleChannelListener{
 		@Override
 		public void run() {
 			try {
-				if(this.event.getTrader() == null) //Abort if the trader was removed.
+				TraderData trader = this.event.getTrader();
+				if(trader == null) //Abort if the trader was removed.
 					return;
-				if(event.getTrader().hasCustomName())
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(this.event.getOwner().getOwnerName(false), event.getTrader().getCustomName()));
+				if(trader.hasCustomName())
+					cl.sendMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getOwnerName(false), trader.getCustomName()));
 				else
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(this.event.getOwner().getOwnerName(false)));
+					cl.sendMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getOwnerName(false)));
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 		
