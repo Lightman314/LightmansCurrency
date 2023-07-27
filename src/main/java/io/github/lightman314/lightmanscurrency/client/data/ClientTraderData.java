@@ -45,10 +45,7 @@ public class ClientTraderData {
 		}
 	}
 	
-	public static void RemoveTrader(long traderID)
-	{
-		loadedTraders.remove(traderID);
-	}
+	public static void RemoveTrader(long traderID) { loadedTraders.remove(traderID); }
 	
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {

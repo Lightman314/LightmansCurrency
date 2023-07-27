@@ -13,6 +13,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class TraderCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"trader");
@@ -47,8 +49,9 @@ public class TraderCategory extends NotificationCategory {
 		
 	}
 
+	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(this.trader); }
+	public IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override
 	public MutableComponent getName() { return this.traderName; }
@@ -58,9 +61,8 @@ public class TraderCategory extends NotificationCategory {
 	
 	@Override
 	public boolean matches(NotificationCategory other) {
-		if(other instanceof TraderCategory)
+		if(other instanceof TraderCategory otherTrader)
 		{
-			TraderCategory otherTrader = (TraderCategory)other;
 			if(this.traderID >= 0)
 			{
 				//Check if the trader id matches

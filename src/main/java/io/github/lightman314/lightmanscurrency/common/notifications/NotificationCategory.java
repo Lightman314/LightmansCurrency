@@ -21,6 +21,7 @@ public abstract class NotificationCategory implements ITab
 	
 	private static final Map<String,Function<CompoundTag,NotificationCategory>> DESERIALIZERS = new HashMap<>();
 	
+	public static void registerInstance(ResourceLocation type, NotificationCategory instance) { register(type, c -> instance); }
 	public static void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
@@ -47,13 +48,13 @@ public abstract class NotificationCategory implements ITab
 			else
 			{
 				LightmansCurrency.LogError("Cannot deserialize notification type " + type + " as no deserializer has been registered.");
-				return null;
+				return NotificationCategory.GENERAL;
 			}
 		}
 		else
 		{
 			LightmansCurrency.LogError("Cannot deserialize notification as tag is missing the 'type' tag.");
-			return null;
+			return NotificationCategory.GENERAL;
 		}
 	}
 

@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class SlotMachineTradeNotification extends Notification {
 
     String customer;
 
-    public SlotMachineTradeNotification(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData)
+    protected SlotMachineTradeNotification(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData)
     {
         this.traderData = traderData;
         this.cost = cost;
@@ -47,6 +48,8 @@ public class SlotMachineTradeNotification extends Notification {
 
         this.customer = customer.getName(false);
     }
+
+    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData); }
 
     public SlotMachineTradeNotification(CompoundTag compound) { this.load(compound); }
 

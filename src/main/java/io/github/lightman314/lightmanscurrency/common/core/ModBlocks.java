@@ -125,6 +125,9 @@ public class ModBlocks {
 	//Coin Chest
 	public static final RegistryObject<Block> COIN_CHEST;
 
+	//Tax Block
+	public static final RegistryObject<TaxBlock> TAX_BLOCK;
+
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
@@ -439,6 +442,15 @@ public class ModBlocks {
 					.mapColor(MapColor.WOOD)
 					.strength(2.5f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.WOOD)
+				)
+		);
+
+		//Tax Block
+		TAX_BLOCK = register("tax_block", () -> new TaxBlock(
+				BlockBehaviour.Properties.of()
+						.mapColor(MapColor.METAL)
+						.strength(3f, Float.POSITIVE_INFINITY)
+						.sound(SoundType.METAL)
 				)
 		);
 

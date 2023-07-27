@@ -340,7 +340,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 		if(trader.hasPermission(this.player, Permissions.STORE_COINS))
 		{
 			CoinValue addAmount = CoinValue.fromInventory(this.coinSlotContainer);
-			trader.addStoredMoney(addAmount);
+			trader.addStoredMoney(addAmount, false);
 			this.coinSlotContainer.clearContent();
 		}
 		else

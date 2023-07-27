@@ -1,5 +1,9 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
@@ -186,17 +190,24 @@ public class LightmansCurrency {
 		Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
 		Notification.register(DepositWithdrawNotification.SERVER_TYPE, DepositWithdrawNotification.Server::new);
 		Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
+		Notification.register(TaxesCollectedNotification.TYPE, TaxesCollectedNotification::new);
+		Notification.register(TaxesPaidNotification.TYPE, TaxesPaidNotification::new);
 
 		//Initialize the Notification Category deserializers
-		NotificationCategory.register(NotificationCategory.GENERAL_TYPE, c -> NotificationCategory.GENERAL);
-		NotificationCategory.register(NullCategory.TYPE, c -> NullCategory.INSTANCE);
+		NotificationCategory.registerInstance(NotificationCategory.GENERAL_TYPE, NotificationCategory.GENERAL);
+		NotificationCategory.registerInstance(NullCategory.TYPE, NullCategory.INSTANCE);
 		NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
 		NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
-		NotificationCategory.register(AuctionHouseCategory.TYPE, c -> AuctionHouseCategory.INSTANCE);
+		NotificationCategory.registerInstance(AuctionHouseCategory.TYPE, AuctionHouseCategory.INSTANCE);
+		NotificationCategory.register(TaxEntryCategory.TYPE, TaxEntryCategory::new);
 
 		//Register Trader Search Filters
 		TraderSearchFilter.addFilter(new BasicSearchFilter());
 		TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
+
+		//Register Tax Reference Types (in case I add more taxable blocks in the future)
+		TaxReferenceType.register(TaxableTraderReference.TYPE);
+
 
 		//Register Upgrade Types
 		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());

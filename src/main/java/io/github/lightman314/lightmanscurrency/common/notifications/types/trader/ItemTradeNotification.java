@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class ItemTradeNotification extends Notification{
 
@@ -52,6 +53,8 @@ public class ItemTradeNotification extends Notification{
 		this.customer = customer.getName(false);
 		
 	}
+
+	public static NonNullSupplier<Notification> create(ItemTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory trader) { return () -> new ItemTradeNotification(trade, cost, customer, trader); }
 	
 	public ItemTradeNotification(CompoundTag compound) { this.load(compound); }
 	
@@ -65,9 +68,9 @@ public class ItemTradeNotification extends Notification{
 	public MutableComponent getMessage() {
 		
 		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
-		
+
 		Component itemText = ItemWriteData.getItemNames(this.items.get(0), this.items.get(1));
-		
+
 		Component cost;
 		if(this.tradeType == ItemTradeType.BARTER)
 		{
@@ -77,7 +80,7 @@ public class ItemTradeNotification extends Notification{
 		}
 		else
 			cost = this.cost.getComponent("0");
-		
+
 		//Create log from stored data
 		return Component.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		

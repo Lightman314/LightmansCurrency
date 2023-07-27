@@ -286,7 +286,7 @@ public class PaygateTraderData extends TraderData {
 			this.activate(trade.getDuration());
 			
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(PaygateNotification.create(trade, price, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
 
 		}
 		//Process a coin trade
@@ -303,13 +303,13 @@ public class PaygateTraderData extends TraderData {
 			this.activate(trade.getDuration());
 			
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, false, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(PaygateNotification.create(trade, price, false, context.getPlayerReference(), this.getNotificationCategory()));
 			
 			//Don't store money if the trader is creative
 			if(!this.isCreative())
 			{
 				//Give the paid cost to storage
-				this.addStoredMoney(price);
+				this.addStoredMoney(price, true);
 			}
 
 		}

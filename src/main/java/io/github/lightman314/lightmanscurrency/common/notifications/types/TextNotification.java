@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
@@ -9,19 +10,25 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
+
+import java.util.function.Supplier;
 
 public class TextNotification extends Notification {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "text");
 	
-	private MutableComponent text = Component.literal("");
+	private MutableComponent text = EasyText.literal("");
 	private NotificationCategory category = NullCategory.INSTANCE;
 	
 	public TextNotification(MutableComponent text){ this(text, NullCategory.INSTANCE); }
 	public TextNotification(MutableComponent text, NotificationCategory category) { this.text = text; this.category = category; }
-	
+
+	public static NonNullSupplier<Notification> create(MutableComponent text) { return () -> new TextNotification(text); }
+	public static NonNullSupplier<Notification> create(MutableComponent text, NotificationCategory category) { return () -> new TextNotification(text, category); }
+
 	public TextNotification(CompoundTag compound) { this.load(compound); }
-	
+
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
 
@@ -47,12 +54,8 @@ public class TextNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof TextNotification)
-		{
-			TextNotification otherText = (TextNotification)other;
-			if(otherText.text.getString() == this.text.getString())
-				return true;
-		}
+		if(other instanceof TextNotification otherText)
+			return otherText.text.getString().equals(this.text.getString()) && otherText.category.matches(this.category);
 		return false;
 	}
 	

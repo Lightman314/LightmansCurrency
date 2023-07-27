@@ -37,8 +37,12 @@ public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe
 		MintType type = MintType.OTHER;
 		if(json.has("mintType"))
 			type = CoinMintRecipe.readType(json.get("mintType"));
+
+		int duration = CoinMintRecipe.DEFAULT_DURATION;
+		if(json.has("duration"))
+			duration = json.get("duration").getAsInt();
 		
-		return new CoinMintRecipe(recipeId, type, ingredient, ingredientCount, result);
+		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
 	}
 
 	@Override
@@ -47,7 +51,8 @@ public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe
 		Ingredient ingredient = Ingredient.fromNetwork(buffer);
 		int ingredientCount = buffer.readInt();
 		ItemStack result = buffer.readItem();
-		return new CoinMintRecipe(recipeId, type, ingredient, ingredientCount, result);
+		int duration = buffer.readInt();
+		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
 	}
 
 	@Override
@@ -56,6 +61,7 @@ public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe
 		recipe.getIngredient().toNetwork(buffer);
 		buffer.writeInt(recipe.ingredientCount);
 		buffer.writeItemStack(recipe.getOutputItem(), false);
+		buffer.writeInt(recipe.getDuration());
 	}
 
 	

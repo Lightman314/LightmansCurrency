@@ -209,6 +209,7 @@
     "block.lightmanscurrency.auction_stand_warped": "Warped Auction Stand",
 	
     "block.lightmanscurrency.coin_chest": "Money Chest",
+	"block.lightmanscurrency.tax_block": "Tax Block",
 
     
     "enchantment.lightmanscurrency.money_mending": "Money Mending",
@@ -517,6 +518,7 @@
     "notifications.message.out_of_stock" : "Trade #%2$s is out of stock.",
     "notifications.message.out_of_stock.indexless" : "Trader is out of stock.",
     "notifications.message.item_trade": "%1$s %2$s %3$s for %4$s",
+    
     "notifications.message.slot_machine_trade": "%1$s paid %2$s and won %3$s",
     "notifications.message.auction.seller": "%1$s won your auction for %2$s with a bid of %3$s",
     "notifications.message.auction.seller.nobid": "Your auction for %s was not bid on within the time limit",
@@ -527,6 +529,9 @@
     "notifications.message.paygate_trade.pass": "%1$s activated the paygate for %3$s using Pass ID: %2$s",
     "notifications.message.paygate_trade.coin": "%1$s activated the paygate for %3$s for %2$s",
     "notifications.message.bank_low_balance": "Bank Account is below %s.",
+	"notifications.message.taxes.paid": "%s was paid in taxes",
+	"notifications.message.taxes.paid.null": "No taxes were paid???",
+	"notifications.message.taxes.collected": "Collected %1$s in taxes from %2$s",
     
     "tooltip.lightmanscurrency.trader.creative.enable": "Enable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.disable": "Disable Creative Trader",
@@ -749,6 +754,10 @@
     "gui.lightmanscurrency.interface.onlinemode.false": "Always On",
     
     "gui.lightmanscurrency.trader_recovery.nodata": "No Recovery Data available.",
+	"gui.lightmanscurrency.tax_entry.default_name": "%s's Taxes",
+	
+	"lightmanscurrency.tax_entry.placement_notification.trader.1": "Traders in this area are susceptible to taxes!",
+	"lightmanscurrency.tax_entry.placement_notification.trader.2": "Check your traders Taxes tab for more information.",
     
     "traderule.list.blurb": "Trade Rules:",
     "traderule.lightmanscurrency.whitelist": "Whitelist",
@@ -815,10 +824,19 @@
     "command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success": "Added %1$s players to %2$s's whitelist.",
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
     "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
-    "command.lightmanscurrency.lcadmin.giftBankAccounts.success": "Gave %1$s to %2$s bank accounts!",
-    "command.lightmanscurrency.lcadmin.giftBankAccounts.fail": "No bank accounts received your gift!",
-    "command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
-    
+	"command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
+	"command.lightmanscurrency.lcadmin.createServerTax.success": "Created new Server Tax Entry with id %s!",
+	"command.lightmanscurrency.lcadmin.createServerTax.fail": "And unknown error occurred creating the new Server Tax Entry!",
+
+    "command.lightmanscurrency.lcbank.give.success": "Gave %1$s to %2$s bank accounts!",
+    "command.lightmanscurrency.lcbank.give.success.single": "Gave %1$s to %2$s!",
+    "command.lightmanscurrency.lcbank.give.fail": "No bank accounts received your gift!",
+	"command.lightmanscurrency.lcbank.take.success": "Took up to %1$s from %2$s bank accounts!",
+    "command.lightmanscurrency.lcbank.take.success.single": "Took %1$s from %2$s!",
+    "command.lightmanscurrency.lcbank.take.fail": "No bank accounts has money taken!",
+    "command.lightmanscurrency.lcbank.team.noteam": "No team found with id %s!",
+    "command.lightmanscurrency.lcbank.team.nobank": "Team with id %s does not have a bank account!",
+	
     
     "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",
     "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",

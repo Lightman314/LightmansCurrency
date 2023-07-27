@@ -32,7 +32,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     public static CoinValueArgument argument(CommandBuildContext context) { return new CoinValueArgument(context.holderLookup(ForgeRegistries.ITEMS.getRegistryKey())); }
     public static CoinValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
-    public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) {
+    public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException{
         return commandContext.getArgument(name, CoinValue.class);
     }
 

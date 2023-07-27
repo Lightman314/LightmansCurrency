@@ -92,6 +92,8 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.PORTABLE_GEM_TERMINAL);
                     //Trader Interface
                     ezPop(p, ModBlocks.ITEM_TRADER_INTERFACE);
+                    //Tax Block
+                    ezPop(p, ModBlocks.TAX_BLOCK);
                     //Auction Stands
                     ezPop(p, ModBlocks.AUCTION_STAND);
                     //Ticket Machine

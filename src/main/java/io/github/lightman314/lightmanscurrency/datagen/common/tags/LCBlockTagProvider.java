@@ -58,7 +58,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.TICKET_KIOSK)
                 .add(ModBlocks.BOOKSHELF_TRADER)
                 .add(ModBlocks.SLOT_MACHINE)
-                .add(ModBlocks.COIN_CHEST);
+                .add(ModBlocks.COIN_CHEST)
+                .add(ModBlocks.TAX_BLOCK);
 
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
@@ -101,7 +102,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.SLOT_MACHINE)
                 .add(ModBlocks.TICKET_STATION)
                 .add(ModBlocks.PIGGY_BANK)
-                .add(ModBlocks.COINJAR_BLUE);
+                .add(ModBlocks.COINJAR_BLUE)
+                .add(ModBlocks.TAX_BLOCK);
 
         this.cTag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.SHELF)

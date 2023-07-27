@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyS
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -62,8 +63,16 @@ public final class EasyGuiGraphics {
     public void blit(@Nonnull ResourceLocation image, @Nonnull ScreenPosition pos, int u, int v, int width, int height) { this.blit(image, pos.x, pos.y, u, v, width, height); }
     public void blitSprite(@Nonnull Sprite sprite, int x, int y) { this.blitSprite(sprite, x, y, false); }
     public void blitSprite(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos) { this.blitSprite(sprite, pos.x, pos.y); }
-    public void blitSprite(@Nonnull Sprite sprite, int x, int y, boolean hovered) { this.gui.blit(sprite.image, this.offset.x + x, this.offset.y + y, sprite.getU(hovered), sprite.getV(hovered), sprite.width, sprite.height); }
+    public void blitSprite(@Nonnull Sprite sprite, int x, int y, boolean hovered) { this.blit(sprite.image, x, y, sprite.getU(hovered), sprite.getV(hovered), sprite.width, sprite.height); }
     public void blitSprite(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, boolean hovered) { this.blitSprite(sprite, pos.x, pos.y, hovered); }
+
+    public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, int x, int y, float percent) { this.blitSpriteFadeHoriz(sprite, x, y, percent, false); }
+    public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, float percent) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent); }
+    public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, int x, int y, float percent, boolean hovered) {
+        int blitWidth = MathUtil.clamp((int)(sprite.width * percent), 0, sprite.width);
+        this.blit(sprite.image, x, y, sprite.getU(hovered), sprite.getV(hovered), blitWidth, sprite.height);
+    }
+    public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, float percent, boolean hovered) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent, hovered); }
 
     public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY)
     {

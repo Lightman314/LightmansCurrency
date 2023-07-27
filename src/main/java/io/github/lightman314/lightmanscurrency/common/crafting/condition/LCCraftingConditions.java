@@ -131,6 +131,21 @@ public class LCCraftingConditions {
 		}
 	}
 
+	public static class TaxBlock extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tax_block_craftable");
+		public static final TaxBlock INSTANCE = new TaxBlock();
+		public static final IConditionSerializer<TaxBlock> SERIALIZER = new Serializer();
+		private TaxBlock() { super(TYPE, Config.COMMON.canCraftTaxBlock); }
+		private static class Serializer implements IConditionSerializer<TaxBlock> {
+			@Override
+			public void write(JsonObject json, TaxBlock value) { }
+			@Override
+			public TaxBlock read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
 	public static void register()
 	{
 		try{
@@ -143,6 +158,7 @@ public class LCCraftingConditions {
 			CraftingHelper.register(CoinChestUpgradeBank.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeMagnet.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeSecurity.SERIALIZER);
+			CraftingHelper.register(TaxBlock.SERIALIZER);
 		} catch(IllegalStateException ignored) { }
 	}
 	

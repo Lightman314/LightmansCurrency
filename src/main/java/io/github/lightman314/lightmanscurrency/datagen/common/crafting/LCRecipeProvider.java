@@ -741,6 +741,24 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(conditional::addRecipe, "null:null");
         conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
+        //2.1.2.2
+        //Tax Block
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxBlock.INSTANCE);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TAX_BLOCK.get())
+                .unlockedBy("money", MoneyKnowledge())
+                .unlockedBy("trader", TraderKnowledge())
+                .pattern("ghg")
+                .pattern("nxn")
+                .pattern("geg")
+                .define('g', Tags.Items.INGOTS_GOLD)
+                .define('n', Tags.Items.INGOTS_NETHERITE)
+                .define('x', ModItems.TRADING_CORE.get())
+                .define('h', Items.HOPPER)
+                .define('e', Items.ENDER_PEARL)
+                .save(conditional::addRecipe);
+        conditional.generateAdvancement(ItemID(ModBlocks.TAX_BLOCK).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_BLOCK));
+
+
 
     }
 
@@ -890,8 +908,6 @@ public class LCRecipeProvider extends RecipeProvider {
 
     private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }
     private static String ItemPath(RegistryObject<? extends ItemLike> item) { return ItemPath(item.get()); }
-
-    private static ResourceLocation ItemID(ItemLike item) { return ID(ItemPath(item)); }
     private static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
     private static ResourceLocation ItemID(RegistryObject<? extends ItemLike> item) { return ID(ItemPath(item)); }
     private static ResourceLocation ItemID(String prefix, RegistryObject<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }

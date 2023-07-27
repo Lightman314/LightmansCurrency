@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.datagen.client.LCBlockStateProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.LCRecipeProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCBlockTagProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCItemTagProvider;
@@ -34,6 +35,9 @@ public class LCDataEventListener {
         generator.addProvider(event.includeServer(), blockTagProvider);
         generator.addProvider(event.includeServer(), new LCItemTagProvider(output, lookupHolder, blockTagProvider.contentsGetter(), existingFileHelper));
         generator.addProvider(event.includeServer(), new LCPoiTagProvider(output, lookupHolder, existingFileHelper));
+
+        //Block States
+        generator.addProvider(event.includeClient(), new LCBlockStateProvider(output, existingFileHelper));
 
     }
 

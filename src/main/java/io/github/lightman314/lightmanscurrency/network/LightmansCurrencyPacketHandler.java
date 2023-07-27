@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.CMessageCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
+import io.github.lightman314.lightmanscurrency.network.message.tax.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
@@ -144,7 +145,11 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
 		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
 		register(MessageClientNotification.class, MessageClientNotification::encode, MessageClientNotification::decode, MessageClientNotification::handle);
-		
+
+		//Taxes
+		register(MessageUpdateClientTax.class, MessageUpdateClientTax::encode, MessageUpdateClientTax::decode, MessageUpdateClientTax::handle);
+		register(MessageRemoveClientTax.class, MessageRemoveClientTax::encode, MessageRemoveClientTax::decode, MessageRemoveClientTax::handle);
+
 		//Core
 		register(MessageRequestNBT.class, MessageRequestNBT::encode, MessageRequestNBT::decode, MessageRequestNBT::handle);
 		register(MessageSyncClientTime.class, MessageSyncClientTime::encode, MessageSyncClientTime::decode, MessageSyncClientTime::handle);

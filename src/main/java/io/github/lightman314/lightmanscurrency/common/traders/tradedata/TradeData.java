@@ -7,7 +7,10 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
@@ -17,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTrade
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -66,9 +70,62 @@ public abstract class TradeData implements ITradeRuleHost {
 			return context.getTrader().runTradeCostEvent(context.getPlayerReference(), this).getCostResult();
 		return this.getCost();
 	}
+
+	/**
+	 * Gets the cost after all taxes are applied.
+	 * Assumes that this is a purchase trade.
+	 */
+	public CoinValue getCostWithTaxes(TraderData trader)
+	{
+		CoinValue cost = this.cost;
+		long taxAmount = 0;
+		for(TaxEntry entry : trader.getApplicableTaxes())
+			taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+		return cost.plusValue(CoinValue.fromNumber(taxAmount));
+	}
+	public CoinValue getCostWithTaxes(TradeContext context)
+	{
+		CoinValue cost = this.getCost(context);
+		if(context.hasTrader())
+		{
+			TraderData trader = context.getTrader();
+			long taxAmount = 0;
+			for(TaxEntry entry : trader.getApplicableTaxes())
+				taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+			return cost.plusValue(CoinValue.fromNumber(taxAmount));
+		}
+		return cost;
+	}
 	
 	public void setCost(CoinValue value) { this.cost = value; }
-	
+
+	public final int stockCountOfCost(TraderData trader)
+	{
+		if(this.cost.isFree())
+			return 1;
+		if(this.cost.getValueNumber() == 0)
+			return 0;
+		long coinValue = trader.getStoredMoney().getValueNumber();
+		long price = this.getCostWithTaxes(trader).getValueNumber();
+		return (int)(coinValue / price);
+	}
+
+	public final int stockCountOfCost(TradeContext context)
+	{
+		if(!context.hasTrader())
+			return 0;
+
+		TraderData trader = context.getTrader();
+
+		if(this.cost.isFree())
+			return 1;
+		if(this.cost.getValueNumber() == 0)
+			return 0;
+		long coinValue = trader.getStoredMoney().getValueNumber();
+		long price = this.getCostWithTaxes(context).getValueNumber();
+		return (int) MathUtil.SafeDivide(coinValue, price, 1);
+	}
+
 	private final boolean validateRules;
 	
 	protected TradeData(boolean validateRules) {

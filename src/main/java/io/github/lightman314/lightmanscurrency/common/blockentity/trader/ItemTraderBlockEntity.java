@@ -20,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
+
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
 	protected int tradeCount;
@@ -42,7 +44,8 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.networkTrader = networkTrader;
 	}
 	
-	public ItemTraderData buildNewTrader() {
+	@Nonnull
+    public ItemTraderData buildNewTrader() {
 		ItemTraderData trader = new ItemTraderData(this.tradeCount, this.level, this.worldPosition);
 		if(this.networkTrader)
 			trader.setAlwaysShowOnTerminal();

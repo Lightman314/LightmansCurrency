@@ -14,7 +14,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
+import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxManager;
+import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import net.minecraft.core.registries.Registries;
 
@@ -71,7 +79,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -101,7 +108,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost {
+public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
 	
 	public static final int GLOBAL_TRADE_LIMIT = 100;
 	
@@ -239,7 +246,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final List<Notification> getNotifications() { return this.logger.getNotifications(); }
 	
 	private String customName = "";
-	public boolean hasCustomName() { return this.customName.length() > 0; }
+	public boolean hasCustomName() { return !this.customName.isBlank(); }
 	public String getCustomName() { return this.customName; }
 	public void setCustomName(Player player, String name) {
 		if(this.hasPermission(player, Permissions.CHANGE_NAME) && !this.customName.equals(name))
@@ -259,21 +266,21 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	public MutableComponent getName() {
 		if(this.hasCustomName())
-			return Component.literal(this.customName);
+			return EasyText.literal(this.customName);
 		return this.getDefaultName();
 	}
 	
 	public final MutableComponent getTitle() {
 		if(this.creative)
 			return this.getName();
-		return Component.translatable("gui.lightmanscurrency.trading.title", this.getName(), this.owner.getOwnerName(this.isClient));
+		return EasyText.translatable("gui.lightmanscurrency.trading.title", this.getName(), this.owner.getOwnerName(this.isClient));
 	}
 	
 	private Item traderBlock;
 	protected MutableComponent getDefaultName() {
 		if(this.traderBlock != null)
-			return Component.literal(new ItemStack(this.traderBlock).getHoverName().getString());
-		return Component.translatable("gui.lightmanscurrency.universaltrader.default");
+			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
+		return EasyText.translatable("gui.lightmanscurrency.universaltrader.default");
 	}
 	
 	private CoinValue storedMoney = CoinValue.EMPTY;
@@ -285,26 +292,92 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return this.storedMoney;
 	}
 	public CoinValue getInternalStoredMoney() { return this.storedMoney; }
-	public void addStoredMoney(CoinValue amount) {
+
+	/**
+	 * @deprecated Should use tax sensitive version, as this will tax by default
+	 */
+	@Deprecated(since = "2.1.2.2")
+	public void addStoredMoney(CoinValue amount) { this.addStoredMoney(amount, true); }
+	public CoinValue addStoredMoney(CoinValue amount, boolean shouldTax) {
+		CoinValue taxesPaid = CoinValue.EMPTY;
+		if(shouldTax)
+		{
+			long paidCache = 0;
+			for(TaxEntry tax : this.getApplicableTaxes())
+			{
+				CoinValue payAmount = amount.percentageOfValue(tax.getTaxPercentage());
+				if(payAmount.hasAny())
+				{
+					tax.PayTaxes(this, payAmount);
+					paidCache += payAmount.getValueNumber();
+				}
+			}
+			taxesPaid = CoinValue.fromNumber(paidCache);
+			if(taxesPaid.hasAny())
+				this.pushNotification(TaxesPaidNotification.create(taxesPaid, this.getNotificationCategory()));
+			if(amount.getValueNumber() < taxesPaid.getValueNumber())
+			{
+				//Remove excess money
+				//Will add warning for owner if tax percent is somehow greater than 100%
+				//May also lock the trader from interactions until they can report the issue to the relevant parties
+				this.removeStoredMoney(taxesPaid.minusValue(amount), false);
+				return taxesPaid;
+			}
+			else
+			{
+				amount = amount.minusValue(taxesPaid);
+				if(!amount.hasAny())
+					return taxesPaid;
+			}
+		}
 		BankAccount ba = this.getBankAccount();
 		if(ba != null)
 		{
 			ba.depositCoins(amount);
 			ba.LogInteraction(this, amount, true);
-			return;
+			return taxesPaid;
 		}
 		this.storedMoney = this.storedMoney.plusValue(amount);
 		this.markDirty(this::saveStoredMoney);
+		return taxesPaid;
 	}
-	public void removeStoredMoney(CoinValue amount) {
+
+	/**
+	 * @deprecated Should use tax sensitive version, as this will tax by default
+	 */
+	@Deprecated(since = "2.1.2.2")
+	public void removeStoredMoney(CoinValue amount) { this.removeStoredMoney(amount, true); }
+	public CoinValue removeStoredMoney(CoinValue amount, boolean shouldTax) {
+		CoinValue taxesPaid = CoinValue.EMPTY;
+		if(shouldTax)
+		{
+			long paidCache = 0;
+			for(TaxEntry tax : this.getApplicableTaxes())
+			{
+				CoinValue payAmount = amount.percentageOfValue(tax.getTaxPercentage());
+				if(payAmount.hasAny())
+				{
+					tax.PayTaxes(this, payAmount);
+					paidCache += payAmount.getValueNumber();
+				}
+			}
+			taxesPaid = CoinValue.fromNumber(paidCache);
+			if(taxesPaid.hasAny())
+			{
+				this.pushNotification(TaxesPaidNotification.create(taxesPaid, this.getNotificationCategory()));
+				amount = amount.plusValue(taxesPaid);
+			}
+
+		}
 		BankAccount ba = this.getBankAccount();
 		if(ba != null) {
 			ba.withdrawCoins(amount);
 			ba.LogInteraction(this, amount, false);
-			return;
+			return taxesPaid;
 		}
 		this.storedMoney = this.storedMoney.minusValue(amount);
 		this.markDirty(this::saveStoredMoney);
+		return taxesPaid;
 	}
 	public void clearStoredMoney() {
 		this.storedMoney = CoinValue.EMPTY;
@@ -400,19 +473,32 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public int getMaxTradeCount() { return 1; }
 	public abstract int getTradeStock(int tradeIndex);
 	public abstract boolean hasValidTrade();
-	
-	
-	private ResourceKey<Level> level = Level.OVERWORLD;
-	public ResourceKey<Level> getLevel() { return this.level; }
-	private BlockPos pos = new BlockPos(0,0,0);
-	public BlockPos getPos() { return this.pos; }
-	
+
+	private WorldPosition worldPosition = WorldPosition.VOID;
+	public ResourceKey<Level> getLevel() { return this.worldPosition.getDimension(); }
+	public BlockPos getPos() { return this.worldPosition.getPos(); }
+
+
+	@Override
+	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
+
+	@Override
+	public WorldPosition getWorldPosition() { return this.worldPosition; }
+
+	public final List<TaxEntry> getApplicableTaxes() { return TaxManager.GetTaxesForTrader(this); }
+	public final int getTotalTaxPercentage()
+	{
+		List<TaxEntry> entries = this.getApplicableTaxes();
+		int taxPercentage = 0;
+		for(TaxEntry entry : entries)
+			taxPercentage += entry.getTaxPercentage();
+		return taxPercentage;
+	}
+
+	//Updates the world position of the trader.
 	public void move(Level level, BlockPos pos)
 	{
-		if(level != null)
-			this.level = level.dimension();
-		if(pos != null)
-			this.pos = pos;
+		this.worldPosition = WorldPosition.ofLevel(level, pos);
 		if(this.id >= 0)
 			this.markDirty(this::saveLevelData);
 	}
@@ -425,9 +511,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected TraderData(ResourceLocation type, Level level, BlockPos pos) {
 		this(type);
-		this.level = level == null ? Level.OVERWORLD : level.dimension();
-		this.pos = pos == null ? new BlockPos(0,0,0) : pos;
-		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(this.pos).getBlock().asItem();
+		this.worldPosition = WorldPosition.ofLevel(level, pos);
+		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(this.worldPosition.getPos()).getBlock().asItem();
 	}
 	
 	private String persistentID = "";
@@ -490,16 +575,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	public final void saveLevelData(CompoundTag compound) {
-		if(this.pos != null)
-		{
-			CompoundTag posTag = new CompoundTag();
-			posTag.putInt("x", this.pos.getX());
-			posTag.putInt("y", this.pos.getY());
-			posTag.putInt("z", this.pos.getZ());
-			compound.put("WorldPos", posTag);
-		}
-		if(this.level != null)
-			compound.putString("Level", this.level.location().toString());
+		compound.put("Location", this.worldPosition.save());
 	}
 	
 	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
@@ -588,14 +664,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("PersistentTraderID"))
 			this.persistentID = compound.getString("PersistentTraderID");
 		
-		//Position
-		if(compound.contains("WorldPos"))
+		//Position (Old Style)
+		if(compound.contains("WorldPos") && compound.contains("Level"))
 		{
 			CompoundTag posTag = compound.getCompound("WorldPos");
-			this.pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
+			BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
+			ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("Level")));
+			this.worldPosition = WorldPosition.of(dimension, pos);
 		}
-		if(compound.contains("Level"))
-			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("Level")));
+		else if(compound.contains("Location"))
+			this.worldPosition = WorldPosition.load(compound.getCompound("Location"));
 		
 		if(compound.contains("TraderBlock"))
 		{
@@ -800,10 +878,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		return event;
 	}
-	
-	public void runPostTradeEvent(PlayerReference player, TradeData trade, CoinValue cost)
+
+	/**
+	 * @deprecated Use tax sensitive version
+	 */
+	@Deprecated(since = "2.1.2.2")
+	public void runPostTradeEvent(PlayerReference player, TradeData trade, CoinValue cost) { this.runPostTradeEvent(player, trade, cost, CoinValue.EMPTY); }
+	public void runPostTradeEvent(PlayerReference player, TradeData trade, CoinValue cost, CoinValue taxesPaid)
 	{
-		PostTradeEvent event = new PostTradeEvent(player, trade, this, cost);
+		PostTradeEvent event = new PostTradeEvent(player, trade, this, cost, taxesPaid);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)
@@ -925,12 +1008,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	//Network stuff
 	public boolean shouldRemove(MinecraftServer server) {
-		if(this.level == null || this.pos == null)
+		if(this.worldPosition.isVoid())
 			return false;
-		ServerLevel level = server.getLevel(this.level);
-		if(level != null && level.isLoaded(this.pos))
+		ServerLevel level = server.getLevel(this.getLevel());
+		if(level != null && level.isLoaded(this.getPos()))
 		{
-			BlockEntity be = level.getBlockEntity(this.pos);
+			BlockEntity be = level.getBlockEntity(this.getPos());
 			if(be instanceof TraderBlockEntity<?> tbe)
 				return tbe.getTraderID() != this.id;
 			return true;

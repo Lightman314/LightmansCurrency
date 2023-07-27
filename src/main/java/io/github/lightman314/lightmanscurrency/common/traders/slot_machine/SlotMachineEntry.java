@@ -71,7 +71,7 @@ public final class SlotMachineEntry {
                 if(!context.givePayment(reward))
                     return false;
                 if(!trader.isCreative())
-                    trader.removeStoredMoney(reward);
+                    trader.removeStoredMoney(reward, false);
             }
             else
             {

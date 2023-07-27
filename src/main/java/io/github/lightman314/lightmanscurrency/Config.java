@@ -310,6 +310,7 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeBank;
 		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeMagnet;
 		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeSecurity;
+		public final ForgeConfigSpec.BooleanValue canCraftTaxBlock;
 
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
@@ -380,6 +381,11 @@ public class Config {
 							"Disabling will not remove any existing Auction Stands from the world, nor prevent their use.",
 							"/reload required for changes to take effect.")
 					.define("allowAuctionStandCrafting", true);
+
+			this.canCraftTaxBlock = builder.comment("Whether Tax Blocks can be crafted.",
+							"Disabling will not remove any existing Tax Blocks from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowTaxBlockCrafting", true);
 
 			builder.comment("Coin Chest Related Crafting Settings").push("coin_chest");
 
@@ -593,6 +599,7 @@ public class Config {
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
 		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
+		public final ForgeConfigSpec.IntValue defaultMintDuration;
 
 		//Specific Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue mintCopper;
@@ -651,6 +658,8 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
 		public final ForgeConfigSpec.BooleanValue limitSearchToNetworkTraders;
 
+		//Player Tax Options
+
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
 		public final ForgeConfigSpec.BooleanValue auctionHouseCreateNotifications;
@@ -687,6 +696,9 @@ public class Config {
 					.comment("Determines whether or not coins can be melted back into their source material in the Coin Minting Machine.")
 					.translation("lightmanscurrency.configgui.canMeltCoins")
 					.define("canMeltCoins", false);
+			this.defaultMintDuration = builder
+					.comment("Default number of ticks it takes to mint a coin via the Coin Minting Machine.")
+					.defineInRange("defaultMintDuration", 100, 1, 72000);
 
 			builder.comment("Specific Coin Minting Settings.").push("coin_minting");
 			this.mintCopper = builder.comment("Whether copper coins can be minted.")

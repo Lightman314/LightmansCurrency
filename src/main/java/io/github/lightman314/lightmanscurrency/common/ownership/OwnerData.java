@@ -102,6 +102,7 @@ public class OwnerData {
 		return player.is(this.playerOwner);
 	}
 	
+	public String getOwnerName() { return this.getOwnerName(this.parent.isClient()); }
 	public String getOwnerName(boolean isClient)
 	{
 		if(this.customOwner != null)
@@ -122,6 +123,8 @@ public class OwnerData {
 		this.teamOwner = -1;
 		this.onChanged.accept(this); 
 	}
+
+	public void SetOwner(Player player) { this.SetOwner(PlayerReference.of(player)); }
 	
 	public void SetOwner(Team team) {
 		if(team == null)

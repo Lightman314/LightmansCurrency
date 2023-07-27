@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	private int timer = 0;
@@ -102,7 +104,8 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		return -1;
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	protected PaygateTraderData buildNewTrader() { return new PaygateTraderData(this.level, this.worldPosition); }
 	
 }

@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -237,13 +236,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		
 		if(this.tradeType == ItemTradeType.PURCHASE)
 		{
-			if(this.cost.isFree())
-				return 1;
-			if(this.cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			long price = this.cost.getValueNumber();
-			return (int)(coinValue / price);
+			return this.stockCountOfCost(trader);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
@@ -266,13 +259,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		
 		if(this.tradeType == ItemTradeType.PURCHASE)
 		{
-			if(this.cost.isFree())
-				return 1;
-			if(this.cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			long price = this.getCost(context).getValueNumber();
-			return (int)MathUtil.SafeDivide(coinValue, price, 1);
+			return this.stockCountOfCost(context);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
