@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferen
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
+import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPWoodTypes;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -108,6 +109,10 @@ public class LightmansCurrency {
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+		//Setup Wood Compatibilities before registering blocks/items
+		if(ModList.get().isLoaded("biomesoplenty"))
+			BOPWoodTypes.setupWoodTypes();
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -295,6 +300,14 @@ public class LightmansCurrency {
     	else
     		LOGGER.info(message);
     }
+
+	public static void LogInfo(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
+			LOGGER.debug("INFO: " + message, objects);
+		else
+			LOGGER.info(message, objects);
+	}
     
     public static void LogWarning(String message)
     {
@@ -303,15 +316,15 @@ public class LightmansCurrency {
     	else
     		LOGGER.warn(message);
     }
-    
-    public static void LogError(String message, Object... objects)
-    {
-    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
-    		LOGGER.debug("ERROR: " + message, objects);
-    	else
-    		LOGGER.error(message, objects);
-    }
-    
+
+	public static void LogWarning(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 1)
+			LOGGER.debug("WARN: " + message, objects);
+		else
+			LOGGER.warn(message, objects);
+	}
+
     public static void LogError(String message)
     {
     	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
@@ -319,6 +332,14 @@ public class LightmansCurrency {
     	else
     		LOGGER.error(message);
     }
+
+	public static void LogError(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
+			LOGGER.debug("ERROR: " + message, objects);
+		else
+			LOGGER.error(message, objects);
+	}
 
 	public static void safeEnqueueWork(ParallelDispatchEvent event, String errorMessage, Runnable work) {
 		event.enqueueWork(() -> {

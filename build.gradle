@@ -58,6 +58,10 @@ minecraft {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
 
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -74,24 +78,9 @@ minecraft {
 
             property 'forge.enabledGameTestNamespaces', mod_id
 
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', mod_id
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 "${mod_id}" {
@@ -108,7 +97,12 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
+                    '--existing', file('optional_assets/biomesoplenty')
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 "${mod_id}" {
@@ -145,13 +139,10 @@ dependencies {
     //compileOnly fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
     //compileOnly fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:4595492")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4595492")
+    implementation fg.deobf("curse.maven:jei-238222:4595492")
 
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:4583413")
-    //Curios Runtime
-    //runtimeOnly fg.deobf("curse.maven:curios-309927:4583413")
 
     //Immersive Engineering API
     //TODO update to 1.20 build once released
@@ -160,6 +151,12 @@ dependencies {
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:4591814')
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
+
+    //Wood Compatibility
+    //Biomes O' Plenty
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
+    //BOP Requirement
+    implementation fg.deobf("curse.maven:terrablender-563928:4647094")
 
 }
 

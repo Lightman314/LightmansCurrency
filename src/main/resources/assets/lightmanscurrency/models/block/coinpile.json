@@ -1,6 +1,7 @@
 {
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
+	"textures": { "particle": "#coin" },
 	"elements": [
 		{
 			"name": "Pile1",

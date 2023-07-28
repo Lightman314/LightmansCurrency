@@ -40,7 +40,7 @@ public class ExchangeTab extends ATMTab{
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	public IconData getIcon() { return IconData.of(ModBlocks.ATM); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.conversion"); }

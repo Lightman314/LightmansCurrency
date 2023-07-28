@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -83,5 +85,8 @@ public class RegistryObjectBundle<T,L> {
 			result.add(() -> this.get(key));
 		return result;
 	}
+
+	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) { this.values.forEach(consumer); }
+	public void forEachValue(BiConsumer<L,T> consumer) { this.values.forEach((t,l) -> consumer.accept(t,l.get())); }
 	
 }

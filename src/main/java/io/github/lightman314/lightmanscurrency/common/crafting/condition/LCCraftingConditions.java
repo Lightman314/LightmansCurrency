@@ -135,7 +135,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tax_block_craftable");
 		public static final TaxBlock INSTANCE = new TaxBlock();
 		public static final IConditionSerializer<TaxBlock> SERIALIZER = new Serializer();
-		private TaxBlock() { super(TYPE, Config.COMMON.canCraftTaxBlock); }
+		private TaxBlock() { super(TYPE, () -> false); }
 		private static class Serializer implements IConditionSerializer<TaxBlock> {
 			@Override
 			public void write(JsonObject json, TaxBlock value) { }

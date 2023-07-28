@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodData;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodDataHelper;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.fml.ModList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class WoodType {
 
@@ -32,18 +32,31 @@ public class WoodType {
 
     public final String name;
     public final MapColor mapColor;
-    private final Supplier<WoodData> dataSource;
-    private WoodData data = null;
-    public WoodData getData() { if(this.data == null && this.dataSource != null) this.data = this.dataSource.get(); return this.data; }
+    @Nullable
+    public WoodData getData() { return WoodDataHelper.get(this); }
 
-    //Vanilla Only Constructor
-    private WoodType(String name) { this(name, MapColor.WOOD, () -> WoodDataHelper.forVanillaType(name)); }
-    protected WoodType(String name, Supplier<WoodData> dataSource) { this(name, MapColor.WOOD, dataSource); }
-    protected WoodType(String name, MapColor mapColor, Supplier<WoodData> dataSource) { this.name = name; this.mapColor = mapColor; this.dataSource = dataSource; ALL_TYPES.add(this); }
+    protected WoodType(String name) { this(name, MapColor.WOOD); }
+    protected WoodType(String name, MapColor mapColor) { this.name = name; this.mapColor = mapColor; ALL_TYPES.add(this); }
 
+    public final String generateID(String prefix) {
+        if(!prefix.endsWith("_"))
+            prefix += "_";
+        if(this.isModded())
+            prefix += this.getModID() + "_";
+        return prefix + this.name;
+    }
 
-    public boolean isVanilla() { return true; }
+    public final String generateResourceLocation(String prefix) { return this.generateResourceLocation(prefix,""); }
+    public final String generateResourceLocation(String prefix, String postFix) {
+        if(this.isModded())
+            prefix += this.getModID() + "/";
+        return prefix + this.name + postFix;
+    }
+
+    public final boolean isVanilla() { return this.getModID().equals("minecraft"); }
+    @Nonnull
     public String getModID() { return "minecraft"; }
+    public final boolean isMod(String modid) { return this.getModID().equalsIgnoreCase(modid); }
     public boolean isValid() { return true; }
     public final boolean isModded() { return !this.isVanilla(); }
     @Override
@@ -61,21 +74,9 @@ public class WoodType {
         return VALID_TYPES;
     }
 
-    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t instanceof ModdedWoodType mt && mt.mod.equals(modid)).toList()); }
+    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t.getModID().equals(modid)).toList()); }
 
     public static int sortByWood(WoodType w1, WoodType w2) { return Integer.compare(ALL_TYPES.indexOf(w1), ALL_TYPES.indexOf(w2)); }
-    public static class ModdedWoodType extends WoodType
-    {
-        private final String mod;
-        public ModdedWoodType(String name, String mod, @Nullable Supplier<WoodData> dataSource) { super(name, dataSource); this.mod = mod; }
-        public ModdedWoodType(String name, MapColor mapColor, String mod, @Nullable Supplier<WoodData> dataSource) { super(name, mapColor, dataSource); this.mod = mod; }
-        @Override
-        public boolean isVanilla() { return false; }
-        @Override
-        public String getModID() { return this.mod; }
-        @Override
-        public boolean isValid() { return ModList.get().isLoaded(this.mod); }
-    }
 
     @Nullable
     public static WoodType fromTypeName(String name)

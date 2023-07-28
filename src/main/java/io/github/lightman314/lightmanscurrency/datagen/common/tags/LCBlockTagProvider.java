@@ -32,7 +32,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         ///LIGHTMANS CURRENCY TAGS
         //Multi-block tag for easy adding to move prevention tags from other mods
         this.cTag(LCTags.Blocks.MULTI_BLOCK)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModBlocks.VENDING_MACHINE)
                 .add(ModBlocks.VENDING_MACHINE_LARGE)
                 .add(ModBlocks.ARMOR_DISPLAY)
@@ -64,7 +64,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
                 .addTag(LCTags.Blocks.OWNER_PROTECTED)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModBlocks.AUCTION_STAND);
 
         ///VANILLA TAGS
@@ -82,8 +82,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.COINBLOCK_EMERALD)
                 .add(ModBlocks.COINBLOCK_DIAMOND)
                 .add(ModBlocks.COINBLOCK_NETHERITE)
-                .add(ModBlocks.MACHINE_ATM)
-                .add(ModBlocks.MACHINE_MINT)
+                .add(ModBlocks.ATM)
+                .add(ModBlocks.COIN_MINT)
                 .add(ModBlocks.DISPLAY_CASE)
                 .add(ModBlocks.VENDING_MACHINE)
                 .add(ModBlocks.VENDING_MACHINE_LARGE)

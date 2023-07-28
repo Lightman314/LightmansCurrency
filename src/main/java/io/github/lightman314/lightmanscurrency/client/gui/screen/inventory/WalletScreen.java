@@ -80,7 +80,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 		if(this.menu.hasBankAccess())
 		{
-			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.get().asItem()))
+			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.ATM.get().asItem()))
 					.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.wallet.openbank"))));
 			this.positioner.addWidget(this.buttonOpenBank);
 		}

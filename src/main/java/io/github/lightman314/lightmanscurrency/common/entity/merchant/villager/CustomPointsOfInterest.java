@@ -26,7 +26,7 @@ public class CustomPointsOfInterest {
 	
 	static {
 
-		BANKER = ModRegistries.POI_TYPES.register("banker", () -> new PoiType(getBlockStates(ModBlocks.MACHINE_ATM.get()), 1, 1));
+		BANKER = ModRegistries.POI_TYPES.register("banker", () -> new PoiType(getBlockStates(ModBlocks.ATM.get()), 1, 1));
 
 		CASHIER = ModRegistries.POI_TYPES.register("cashier", () -> new PoiType(getBlockStates(ModBlocks.CASH_REGISTER.get()), 1, 1));
 		

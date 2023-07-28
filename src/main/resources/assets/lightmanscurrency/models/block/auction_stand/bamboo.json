@@ -1,8 +1,0 @@
-{
-	"parent": "lightmanscurrency:block/auction_stand/base",
-	"textures": {
-		"log": "block/bamboo_block",
-		"log_top": "block/bamboo_block_top",
-		"glass": "block/glass"
-	}
-}

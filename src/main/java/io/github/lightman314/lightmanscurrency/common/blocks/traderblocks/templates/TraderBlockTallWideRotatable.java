@@ -30,13 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
-	protected static final BooleanProperty ISLEFT = BlockStateProperties.ATTACHED;
 	private final TriFunction<Direction,Boolean,Boolean,VoxelShape> shape;
 	
-	protected TraderBlockTallWideRotatable(Properties properties)
-	{
-		this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T);
-	}
+	protected TraderBlockTallWideRotatable(Properties properties) { this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T); }
 	
 	protected TraderBlockTallWideRotatable(Properties properties, VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west)
 	{

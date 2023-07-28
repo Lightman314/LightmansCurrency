@@ -48,36 +48,36 @@ public class ModBlocks {
 	}
 
 	//Coin piles
-	public static final RegistryObject<Block> COINPILE_COPPER;
-	public static final RegistryObject<Block> COINPILE_IRON;
-	public static final RegistryObject<Block> COINPILE_GOLD;
-	public static final RegistryObject<Block> COINPILE_DIAMOND;
-	public static final RegistryObject<Block> COINPILE_EMERALD;
-	public static final RegistryObject<Block> COINPILE_NETHERITE;
+	public static final RegistryObject<CoinpileBlock> COINPILE_COPPER;
+	public static final RegistryObject<CoinpileBlock> COINPILE_IRON;
+	public static final RegistryObject<CoinpileBlock> COINPILE_GOLD;
+	public static final RegistryObject<CoinpileBlock> COINPILE_DIAMOND;
+	public static final RegistryObject<CoinpileBlock> COINPILE_EMERALD;
+	public static final RegistryObject<CoinpileBlock> COINPILE_NETHERITE;
 
 	//Coin blocks
-	public static final RegistryObject<Block> COINBLOCK_COPPER;
-	public static final RegistryObject<Block> COINBLOCK_IRON;
-	public static final RegistryObject<Block> COINBLOCK_GOLD;
-	public static final RegistryObject<Block> COINBLOCK_EMERALD;
-	public static final RegistryObject<Block> COINBLOCK_DIAMOND;
-	public static final RegistryObject<Block> COINBLOCK_NETHERITE;
+	public static final RegistryObject<CoinBlock> COINBLOCK_COPPER;
+	public static final RegistryObject<CoinBlock> COINBLOCK_IRON;
+	public static final RegistryObject<CoinBlock> COINBLOCK_GOLD;
+	public static final RegistryObject<CoinBlock> COINBLOCK_EMERALD;
+	public static final RegistryObject<CoinBlock> COINBLOCK_DIAMOND;
+	public static final RegistryObject<CoinBlock> COINBLOCK_NETHERITE;
 
 	//Machines
 	//Misc Machines
-	public static final RegistryObject<Block> MACHINE_ATM;
-	public static final RegistryObject<Block> MACHINE_MINT;
+	public static final RegistryObject<ATMBlock> ATM;
+	public static final RegistryObject<CoinMintBlock> COIN_MINT;
 
 	//Display Case
 	public static final RegistryObject<Block> DISPLAY_CASE;
 
 	//Vending Machines
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE;
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_OLDCOLORS;
+	public static final RegistryObjectBundle<VendingMachineBlock, Color> VENDING_MACHINE;
+	public static final RegistryObjectBundle<VendingMachineBlock, Color> VENDING_MACHINE_OLDCOLORS;
 
 	//Large Vending Machines
-	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
-	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
+	public static final RegistryObjectBundle<VendingMachineLargeBlock,Color> VENDING_MACHINE_LARGE;
+	public static final RegistryObjectBundle<VendingMachineLargeBlock,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
 
 	//Wooden Shelves
 	public static final RegistryObjectBundle<Block, WoodType> SHELF;
@@ -240,14 +240,14 @@ public class ModBlocks {
 		);
 		
 		//Machines
-		MACHINE_ATM = register("atm", () -> new ATMBlock(
+		ATM = register("atm", () -> new ATMBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.COLOR_GRAY)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL)
 				)
 		);
-		MACHINE_MINT = register("coinmint", () -> new CoinMintBlock(
+		COIN_MINT = register("coinmint", () -> new CoinMintBlock(
 			Block.Properties.of()
 					.mapColor(MapColor.COLOR_LIGHT_BLUE)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -556,7 +556,7 @@ public class ModBlocks {
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
-			String thisName = name + "_" + woodType.name;
+			String thisName = woodType.generateID(name);
 			//Register the block normally
 			bundle.put(woodType, register(thisName, itemGenerator, () -> block.apply(woodType)));
 		}

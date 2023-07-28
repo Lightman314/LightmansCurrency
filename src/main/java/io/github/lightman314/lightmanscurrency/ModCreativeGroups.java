@@ -76,12 +76,12 @@ public class ModCreativeGroups {
         MACHINE_GROUP = ModRegistries.CREATIVE_TABS.register("machines", () -> CreativeModeTab.builder()
                 .withTabsBefore(COIN_GROUP_ID)
                 .title(EasyText.translatable("itemGroup.lightmanscurrency.machines"))
-                .icon(ezIcon(ModBlocks.MACHINE_MINT))
+                .icon(ezIcon(ModBlocks.COIN_MINT))
                 .displayItems((parameters, p) -> {
                     //Coin Mint
-                    ezPop(p, ModBlocks.MACHINE_MINT);
+                    ezPop(p, ModBlocks.COIN_MINT);
                     //ATM
-                    ezPop(p, ModBlocks.MACHINE_ATM);
+                    ezPop(p, ModBlocks.ATM);
                     ezPop(p, ModItems.PORTABLE_ATM);
                     //Cash Register
                     ezPop(p, ModBlocks.CASH_REGISTER);
@@ -93,7 +93,8 @@ public class ModCreativeGroups {
                     //Trader Interface
                     ezPop(p, ModBlocks.ITEM_TRADER_INTERFACE);
                     //Tax Block
-                    ezPop(p, ModBlocks.TAX_BLOCK);
+                    //TODO add tax block to creative tab when ready
+                    //ezPop(p, ModBlocks.TAX_BLOCK);
                     //Auction Stands
                     ezPop(p, ModBlocks.AUCTION_STAND);
                     //Ticket Machine

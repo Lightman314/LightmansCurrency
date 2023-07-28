@@ -1,8 +1,0 @@
-{
-    "parent": "lightmanscurrency:block/card_display/base",
-	"textures": {
-		"log": "minecraft:block/warped_stem",
-        "logtop": "minecraft:block/warped_stem_top",
-		"plank": "minecraft:block/warped_planks"
-	}
-}

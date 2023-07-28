@@ -14,6 +14,8 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -113,6 +115,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			{
 				this.mintTime = 0;
 				this.mintCoin();
+				this.level.playSound(null, this.worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.5f, 1f);
 			}
 			this.markMintTimeDirty();
 		}

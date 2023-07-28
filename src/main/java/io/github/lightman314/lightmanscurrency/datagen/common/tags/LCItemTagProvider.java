@@ -102,7 +102,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         //ATM
         this.cTag(LCTags.Items.ATM)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModItems.PORTABLE_ATM);
 
         //Trader Interface
@@ -114,6 +114,14 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(Items.ENCHANTED_BOOK)
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.WRITTEN_BOOK);
+
+        //Ticket Material Tag
+        this.cTag(LCTags.Items.TICKET_MATERIAL)
+                .add(Items.PAPER)
+                .add(ModItems.TICKET)
+                .add(ModItems.TICKET_MASTER)
+                .add(ModItems.TICKET_PASS)
+                .add(ModItems.TICKET_STUB);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items

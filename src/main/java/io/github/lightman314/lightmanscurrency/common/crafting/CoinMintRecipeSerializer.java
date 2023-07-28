@@ -38,7 +38,7 @@ public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe
 		if(json.has("mintType"))
 			type = CoinMintRecipe.readType(json.get("mintType"));
 
-		int duration = CoinMintRecipe.DEFAULT_DURATION;
+		int duration = 0;
 		if(json.has("duration"))
 			duration = json.get("duration").getAsInt();
 		

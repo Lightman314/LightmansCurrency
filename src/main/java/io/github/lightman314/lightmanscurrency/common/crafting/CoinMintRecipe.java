@@ -20,8 +20,6 @@ import javax.annotation.Nonnull;
 public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
-
-	public static final int DEFAULT_DURATION = 100;
 	
 	
 	public static MintType readType(JsonElement json)

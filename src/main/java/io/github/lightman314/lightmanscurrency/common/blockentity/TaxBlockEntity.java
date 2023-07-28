@@ -35,10 +35,11 @@ public class TaxBlockEntity extends EasyBlockEntity {
         this.setChanged();
     }
 
-    public void spawnDrops()
+    public void onValidBreak()
     {
         this.validBreak = true;
         InventoryUtil.dumpContents(this.level, this.worldPosition, this.collectDrops());
+        TaxSaveData.RemoveEntry(this.taxEntryID);
     }
 
     private List<ItemStack> collectDrops()
@@ -58,8 +59,8 @@ public class TaxBlockEntity extends EasyBlockEntity {
             {
                 EjectionSaveData.HandleEjectionData(this.level, this.worldPosition, EjectionData.create(this.level, this.worldPosition, this.getBlockState(), IDumpable.preCollected(this.collectDrops(), entry.getName(), entry.getOwner())));
                 this.validBreak = true;
+                TaxSaveData.RemoveEntry(this.taxEntryID);
             }
-            TaxSaveData.RemoveEntry(this.taxEntryID);
         }
     }
 

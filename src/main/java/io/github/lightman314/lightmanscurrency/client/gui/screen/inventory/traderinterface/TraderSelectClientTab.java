@@ -109,7 +109,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.updateTraderButtons();
 		}
 		
-		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this::onMouseScrolled));
+		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this));
 			
 		
 	}

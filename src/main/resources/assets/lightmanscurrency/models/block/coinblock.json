@@ -1,6 +1,7 @@
 {
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/block",
+	"textures": { "particle": "#top" },
 	"elements": [
 		{
 			"from": [0, 0, 0],
