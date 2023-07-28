@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core.variants;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.fml.ModList;
 
@@ -17,26 +18,26 @@ public class WoodType {
     private static ImmutableList<WoodType> VALID_TYPES = null;
     private static ImmutableList<WoodType> VANILLA_TYPES = null;
 
-    public static final WoodType OAK = new WoodType("oak");
-    public static final WoodType SPRUCE = new WoodType("spruce");
-    public static final WoodType BIRCH = new WoodType("birch");
-    public static final WoodType JUNGLE = new WoodType("jungle");
-    public static final WoodType ACACIA = new WoodType("acacia");
+    public static final WoodType OAK = new WoodType("oak", MapColor.WOOD);
+    public static final WoodType SPRUCE = new WoodType("spruce", MapColor.PODZOL);
+    public static final WoodType BIRCH = new WoodType("birch", MapColor.SAND);
+    public static final WoodType JUNGLE = new WoodType("jungle", MapColor.DIRT);
+    public static final WoodType ACACIA = new WoodType("acacia", MapColor.COLOR_ORANGE);
 
-    public static final WoodType DARK_OAK = new WoodType("dark_oak");
-    public static final WoodType MANGROVE = new WoodType("mangrove");
-    public static final WoodType CHERRY = new WoodType("cherry");
-    public static final WoodType BAMBOO = new WoodType("bamboo");
-    public static final WoodType CRIMSON = new WoodType("crimson");
-    public static final WoodType WARPED = new WoodType("warped");
+    public static final WoodType DARK_OAK = new WoodType("dark_oak", MapColor.COLOR_BROWN);
+    public static final WoodType MANGROVE = new WoodType("mangrove", MapColor.COLOR_RED);
+    public static final WoodType CHERRY = new WoodType("cherry", MapColor.TERRACOTTA_WHITE);
+    public static final WoodType BAMBOO = new WoodType("bamboo", MapColor.COLOR_YELLOW);
+    public static final WoodType CRIMSON = new WoodType("crimson", MapColor.CRIMSON_STEM);
+    public static final WoodType WARPED = new WoodType("warped", MapColor.WARPED_STEM);
 
     public final String name;
     public final MapColor mapColor;
     @Nullable
     public WoodData getData() { return WoodDataHelper.get(this); }
 
-    protected WoodType(String name) { this(name, MapColor.WOOD); }
-    protected WoodType(String name, MapColor mapColor) { this.name = name; this.mapColor = mapColor; ALL_TYPES.add(this); }
+    protected WoodType(@Nonnull String name, @Nonnull MapColor mapColor) { this.name = name; this.mapColor = mapColor; ALL_TYPES.add(this); }
+    protected WoodType(@Nonnull String name, @Nonnull MapColor mapColor, @Nonnull WoodData data) { this(name, mapColor); WoodDataHelper.register(this, data); }
 
     public final String generateID(String prefix) {
         if(!prefix.endsWith("_"))
