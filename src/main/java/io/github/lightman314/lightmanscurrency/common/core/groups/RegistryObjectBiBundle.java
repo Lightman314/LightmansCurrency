@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.TriConsumer;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
@@ -92,5 +93,7 @@ public class RegistryObjectBiBundle<T,L,M> {
         }
         return result;
     }
+
+    public void forEach(TriConsumer<L,M,RegistryObject<T>> consumer) { this.values.forEach((l, map) -> map.forEach((m, value) -> consumer.accept(l,m,value))); }
 
 }

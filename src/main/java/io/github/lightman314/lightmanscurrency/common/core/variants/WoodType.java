@@ -3,16 +3,14 @@ package io.github.lightman314.lightmanscurrency.common.core.variants;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.fml.ModList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WoodType {
+public class WoodType implements IOptionalKey {
 
     private static final List<WoodType> ALL_TYPES = new ArrayList<>();
     private static ImmutableList<WoodType> VALID_TYPES = null;
@@ -59,6 +57,7 @@ public class WoodType {
     public String getModID() { return "minecraft"; }
     public final boolean isMod(String modid) { return this.getModID().equalsIgnoreCase(modid); }
     public boolean isValid() { return true; }
+    @Override
     public final boolean isModded() { return !this.isVanilla(); }
     @Override
     public String toString() { return this.name; }

@@ -87,6 +87,5 @@ public class RegistryObjectBundle<T,L> {
 	}
 
 	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) { this.values.forEach(consumer); }
-	public void forEachValue(BiConsumer<L,T> consumer) { this.values.forEach((t,l) -> consumer.accept(t,l.get())); }
 	
 }

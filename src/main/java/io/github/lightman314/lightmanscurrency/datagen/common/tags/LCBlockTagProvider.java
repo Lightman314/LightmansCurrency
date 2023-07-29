@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -144,8 +145,47 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         public CustomTagAppender add(Block block) { this.appender.add(block); return this; }
         public CustomTagAppender add(RegistryObject<? extends Block> block) { this.appender.add(block.get()); return this; }
-        public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
-        public CustomTagAppender add(RegistryObjectBiBundle<? extends Block,?,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
+        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) { this.appender.addOptional(block.getId()); return this; }
+        public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) {
+            bundle.forEach((key,block) -> {
+                if(key instanceof IOptionalKey ok)
+                {
+                    if(ok.isModded())
+                        this.addOptional(block);
+                    else
+                        this.add(block);
+                }
+                else
+                    this.add(block);
+            });
+            return this;
+        }
+        public CustomTagAppender add(RegistryObjectBiBundle<? extends Block,?,?> bundle) {
+            bundle.forEach((key1,key2,block) -> {
+                if(key1 instanceof IOptionalKey ok1)
+                {
+                    if(ok1.isModded())
+                        this.addOptional(block);
+                    else if(key2 instanceof IOptionalKey ok2)
+                    {
+                        if(ok2.isModded())
+                            this.addOptional(block);
+                        else
+                            this.add(block);
+                    }
+                }
+                else if(key2 instanceof IOptionalKey ok2)
+                {
+                    if(ok2.isModded())
+                        this.addOptional(block);
+                    else
+                        this.add(block);
+                }
+                else
+                    this.add(block);
+            });
+            return this;
+        }
         public CustomTagAppender addTag(TagKey<Block> tag) { this.appender.addTag(tag); return this; }
 
     }

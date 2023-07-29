@@ -590,7 +590,6 @@ public class Config {
 		private static final Supplier<ForgeConfigSpec> SPEC_SUPPLIER = () -> Config.serverSpec;
 
 		//Log Limit Option
-		public final ForgeConfigSpec.IntValue logLimit;
 		public final ForgeConfigSpec.IntValue notificationLimit;
 
 		//Ejection Options
@@ -672,11 +671,6 @@ public class Config {
 		{
 
 			builder.comment("Server Config Settings").push("server");
-
-			this.logLimit = builder
-					.comment("The maximum number of text log entries allowed before old entries are deleted.",
-							"Lower if you encounter packet size problems.")
-					.defineInRange("logLimit", 100, 0, Integer.MAX_VALUE);
 
 			this.notificationLimit = builder
 					.comment("The maximum number of notifications each player can have before old entries are deleted.",
