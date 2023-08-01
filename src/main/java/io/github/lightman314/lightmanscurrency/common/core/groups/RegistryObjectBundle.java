@@ -65,12 +65,18 @@ public class RegistryObjectBundle<T,L> {
 		return values;
 	}
 
+	private final List<L> getKeysSorted() { return this.getKeysSorted(this.sorter); }
+	private final List<L> getKeysSorted(Comparator<L> sorter) {
+		List<L> keys = new ArrayList<>(this.values.keySet());
+		keys.sort(sorter);
+		return keys;
+	}
+
 	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
 
 	public List<T> getAllSorted(Comparator<L> sorter)
 	{
-		List<L> keys = new ArrayList<>(this.values.keySet().stream().toList());
-		keys.sort(sorter);
+		List<L> keys = this.getKeysSorted(sorter);
 		List<T> result = new ArrayList<>();
 		for(L key : keys)
 		{
@@ -86,6 +92,10 @@ public class RegistryObjectBundle<T,L> {
 		return result;
 	}
 
-	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) { this.values.forEach(consumer); }
+	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) {
+		List<L> keys = this.getKeysSorted(this.sorter);
+		for(L key : keys)
+			consumer.accept(key, this.values.get(key));
+	}
 	
 }

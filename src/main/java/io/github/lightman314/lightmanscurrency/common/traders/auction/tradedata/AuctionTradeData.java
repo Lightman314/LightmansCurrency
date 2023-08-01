@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
@@ -367,26 +368,19 @@ public class AuctionTradeData extends TradeData {
 	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 	
 	private void openCancelAuctionTab(BasicTradeEditTab tab) {
-		
-		TraderData t = tab.menu.getTrader();
-		if(t instanceof AuctionHouseTrader trader)
+		if(tab.menu.getTrader() instanceof AuctionHouseTrader ah)
 		{
-			int tradeIndex = trader.getTradeIndex(this);
+			int tradeIndex = ah.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
-			
 			CompoundTag extraData = new CompoundTag();
 			extraData.putInt("TradeIndex", tradeIndex);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
-			
 		}
-		
 	}
 
 	@Override
-	public TradeDirection getTradeDirection() {
-		return TradeDirection.NONE;
-	}
+	public TradeDirection getTradeDirection() { return TradeDirection.NONE; }
 
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) { return new TradeComparisonResult(); }

@@ -65,18 +65,30 @@ public class RegistryObjectBiBundle<T,L,M> {
         return values;
     }
 
+    private List<L> getKey1Sorted() { return this.getKey1Sorted(this.sorter1); }
+    private List<L> getKey1Sorted(Comparator<L> sorter) {
+        List<L> keys = new ArrayList<>(this.values.keySet());
+        keys.sort(sorter);
+        return keys;
+    }
+
+    private List<M> getKey2Sorted(Map<M,RegistryObject<T>> map) { return this.getKey2Sorted(map, this.sorter2); }
+    private List<M> getKey2Sorted(Map<M,RegistryObject<T>> map, Comparator<M> sorter) {
+        List<M> keys = new ArrayList<>(map.keySet());
+        keys.sort(sorter);
+        return keys;
+    }
+
     public List<T> getAllSorted() { return this.getAllSorted(this.sorter1, this.sorter2); }
 
     public List<T> getAllSorted(Comparator<L> sorter1, Comparator<M> sorter2)
     {
-        List<L> keys1 = this.values.keySet().stream().toList();
-        keys1.sort(sorter1);
+        List<L> keys1 = this.getKey1Sorted();
 
         List<T> result = new ArrayList<>();
         for(L key1 : keys1)
         {
-            List<M> keys2 = this.values.get(key1).keySet().stream().toList();
-            keys2.sort(sorter2);
+            List<M> keys2 = this.getKey2Sorted(this.values.get(key1));
             for(M key2 : keys2)
                 result.add(this.get(key1, key2));
         }
@@ -94,6 +106,15 @@ public class RegistryObjectBiBundle<T,L,M> {
         return result;
     }
 
-    public void forEach(TriConsumer<L,M,RegistryObject<T>> consumer) { this.values.forEach((l, map) -> map.forEach((m, value) -> consumer.accept(l,m,value))); }
+    public void forEach(TriConsumer<L,M,RegistryObject<T>> consumer) {
+        List<L> key1 = this.getKey1Sorted();
+        for(L k1 : key1)
+        {
+            Map<M,RegistryObject<T>> map = this.values.get(k1);
+            List<M> key2 = this.getKey2Sorted(map);
+            for(M k2 : key2)
+                consumer.accept(k1,k2,map.get(k2));
+        }
+    }
 
 }
