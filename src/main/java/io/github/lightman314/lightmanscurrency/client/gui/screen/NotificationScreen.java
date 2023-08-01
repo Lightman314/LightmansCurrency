@@ -77,9 +77,9 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 			this.tabButtons.add(this.addChild(new NotificationTabButton(this::SelectTab, this::getNotifications, cat)));
 		this.positionTabButtons();
 		
-		this.notificationScroller = this.addChild(new ScrollBarWidget(screenArea.pos.offset(TabButton.SIZE + screenArea.width - 15, 15), this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
+		this.notificationScroller = this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 15, 15), this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
-		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + TabButton.SIZE + screenArea.width - 15, screenArea.y + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead)
+		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + screenArea.width - 15, screenArea.y + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead)
 				.withAddons(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory))));
 		
 		this.tick();
@@ -129,7 +129,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		//Render the background
 		int screenLeft = TabButton.SIZE;
 		gui.resetColor();
-		gui.blit(GUI_TEXTURE, screenLeft, 0, 0, 0, this.getXSize(), this.getYSize());
+		gui.blit(GUI_TEXTURE, screenLeft, 0, 0, 0, SCREEN_WIDTH, this.getYSize());
 
 		//Render the current notifications
 		this.notificationScroll = Math.min(this.notificationScroll, this.getMaxNotificationScroll());
@@ -171,12 +171,12 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 				for(int l = 0; l < lines.size() && l < 2; ++l)
 					gui.drawString(lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
 				//Set the message as a tooltip if it's too large to fit and the mouse is hovering over the notification
-				if(this.cachedTooltip == null && ScreenPosition.of(screenLeft + 15, yPos).isMouseInArea(gui.mousePos, 170, NOTIFICATION_HEIGHT))
+				if(this.cachedTooltip == null && this.getCorner().offset(screenLeft + 15, yPos).isMouseInArea(gui.mousePos, 170, NOTIFICATION_HEIGHT))
 				{
 					if(lines.size() > 2)
 					{
 						if(not.hasTimeStamp())
-							this.cachedTooltip = Component.empty().append(not.getTimeStampMessage()).append(Component.literal("\n")).append(message);
+							this.cachedTooltip = EasyText.empty().append(not.getTimeStampMessage()).append(EasyText.literal("\n")).append(message);
 						else
 							this.cachedTooltip = message;
 					}
