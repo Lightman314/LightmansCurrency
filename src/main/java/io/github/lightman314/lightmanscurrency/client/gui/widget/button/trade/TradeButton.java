@@ -30,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
 
 public class TradeButton extends EasyButton implements ITooltipSource {
 
@@ -71,7 +70,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		if(tr != null)
 		{
 			TradeContext context = this.getContext();
-			this.width = tr.tradeButtonWidth(context);
+			this.setWidth(tr.tradeButtonWidth(context));
 		}
 	}
 
@@ -99,7 +98,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 
 		//Render custom display stuff in front of the arrow, not behind it.
-		try { tr.renderAdditional(this, gui, gui.mousePos.x, gui.mousePos.y, context);
+		try { tr.renderAdditional(this, gui, context);
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 
 		this.renderAlert(gui, tr.alertPosition(context), tr.getAlertData(context));

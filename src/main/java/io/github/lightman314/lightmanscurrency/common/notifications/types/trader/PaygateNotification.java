@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class PaygateNotification extends Notification{
 
@@ -27,7 +28,7 @@ public class PaygateNotification extends Notification{
 	
 	String customer;
 	
-	public PaygateNotification(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) {
+	protected PaygateNotification(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) {
 		
 		this.traderData = traderData;
 		this.usedPass = usedPass;
@@ -43,6 +44,8 @@ public class PaygateNotification extends Notification{
 		this.customer = customer.getName(false);
 		
 	}
+
+	public static NonNullSupplier<Notification> create(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, cost, usedPass, customer, traderData); }
 	
 	public PaygateNotification(CompoundTag compound) { this.load(compound); }
 	

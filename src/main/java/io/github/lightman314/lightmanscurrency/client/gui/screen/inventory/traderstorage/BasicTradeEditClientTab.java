@@ -78,18 +78,24 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
 			trade.onInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		else
+			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
 			trade.onOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		else
+			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 	
 	@Override
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
 			trade.onInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+		else
+			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 	
 	private void AddTrade(EasyButton button) { this.commonTab.addTrade(); }

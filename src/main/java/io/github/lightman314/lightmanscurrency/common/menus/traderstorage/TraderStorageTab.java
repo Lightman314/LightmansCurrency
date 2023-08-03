@@ -13,6 +13,7 @@ public abstract class TraderStorageTab {
 	public static final int TAB_TRADE_BASIC = 0;
 	public static final int TAB_TRADE_STORAGE = 1;
 	public static final int TAB_TRADE_ADVANCED = 2;
+	public static final int TAB_TRADE_MISC = 3;
 
 	public static final int TAB_TRADER_LOGS = 10;
 	public static final int TAB_TRADER_SETTINGS = 11;

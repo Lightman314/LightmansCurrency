@@ -3,8 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.permissions;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.function.BiFunction;
-
 public class Permissions {
 
 	public static final String OPEN_STORAGE = "openStorage";

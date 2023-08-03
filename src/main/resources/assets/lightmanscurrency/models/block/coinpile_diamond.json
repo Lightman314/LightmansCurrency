@@ -2,7 +2,6 @@
 	"parent": "lightmanscurrency:block/coinpile",
 	"textures": {
 		"side": "lightmanscurrency:block/coins_diamond_block",
-		"coin": "lightmanscurrency:item/coins_diamond",
-		"particle": "lightmanscurrency:item/coins_diamond"
+		"coin": "lightmanscurrency:item/coin_diamond"
 	}
 }

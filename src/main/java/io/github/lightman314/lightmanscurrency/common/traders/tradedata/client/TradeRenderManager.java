@@ -79,15 +79,18 @@ public abstract class TradeRenderManager<T extends TradeData> {
     protected abstract void getAdditionalAlertData(TradeContext context, List<AlertData> alerts);
 
     /**
+     * @deprecated Use version with no mouse position inputs, as those are provided by the EasyGuiGraphics
+     */
+    @Deprecated(since = "2.1.2.2")
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) { }
+
+    /**
      * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.
      * @param button The button that is rendering the trade
      * @param gui The gui render helper
-     * @param mouseX The x position of the mouse.
-     * @param mouseY The y position of the mouse.
      * @param context The context of the trade.
      */
-    @OnlyIn(Dist.CLIENT)
-    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) { }
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) { this.renderAdditional(button, gui, gui.mousePos.x, gui.mousePos.y, context);}
 
     /**
      * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.

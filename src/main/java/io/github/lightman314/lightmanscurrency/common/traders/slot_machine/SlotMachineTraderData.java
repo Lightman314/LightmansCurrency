@@ -404,21 +404,23 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.markLastRewardDirty();
 
             //Push Notification
-            this.pushNotification(() -> new SlotMachineTradeNotification(loot, price, context.getPlayerReference(), this.getNotificationCategory()));
+            this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory()));
+
+            CoinValue taxesPaid = CoinValue.EMPTY;
 
             //Ignore editing internal storage if this is flagged as creative.
             if(!this.isCreative())
             {
                 //Give the paid cost to storage
-                this.addStoredMoney(price);
+                taxesPaid = this.addStoredMoney(price, true);
 
                 //Push out of stock notification
                 if(!this.hasStock())
-                    this.pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), -1));
+                    this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), -1));
             }
 
             //Push the post-trade event
-            this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+            this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
             return TradeResult.SUCCESS;
 

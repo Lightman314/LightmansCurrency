@@ -23,7 +23,7 @@ public class BankCategory extends NotificationCategory {
 	}
 
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.ATM); }
 
 	@Override
 	public MutableComponent getName() { return this.name; }

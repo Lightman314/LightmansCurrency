@@ -2,7 +2,6 @@
 	"parent": "lightmanscurrency:block/coinblock",
 	"textures": {
 		"side": "lightmanscurrency:block/coins_gold_block",
-		"top": "lightmanscurrency:block/coins_gold_blocktop",
-		"particle": "lightmanscurrency:item/coins_gold"
+		"top": "lightmanscurrency:block/coins_gold_blocktop"
 	}
 }

@@ -120,11 +120,14 @@ public abstract class TradeEvent extends Event{
 		private boolean isDirty = false;
 		private final CoinValue pricePaid;
 		public CoinValue getPricePaid() { return this.pricePaid; }
+		private final CoinValue taxesPaid;
+		public CoinValue getTaxesPaid() { return this.taxesPaid; }
 		
-		public PostTradeEvent(PlayerReference player, TradeData trade, TraderData trader, CoinValue pricePaid)
+		public PostTradeEvent(PlayerReference player, TradeData trade, TraderData trader, CoinValue pricePaid, CoinValue taxesPaid)
 		{
 			super(player, trade, trader);
 			this.pricePaid = pricePaid;
+			this.taxesPaid = taxesPaid;
 		}
 		
 		public boolean isDirty() { return this.isDirty; }

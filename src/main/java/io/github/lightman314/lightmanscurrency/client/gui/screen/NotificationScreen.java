@@ -34,58 +34,56 @@ import javax.annotation.Nonnull;
 public class NotificationScreen extends EasyScreen implements IScrollable {
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
-	
+
 	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
 
 	private static final int SCREEN_WIDTH = 200;
 	private static final int SCREEN_HEIGHT = 200;
-	
+
 	public final int TABS_PER_PAGE = 8;
-	
+
 	public final int NOTIFICATIONS_PER_PAGE = 8;
 	public final int NOTIFICATION_HEIGHT = 22;
-	
+
 	List<NotificationTabButton> tabButtons;
 	int tabScroll = 0;
 	NotificationCategory selectedCategory = NotificationCategory.GENERAL;
-	
+
 	ScrollBarWidget notificationScroller = null;
-	
+
 	EasyButton buttonMarkAsSeen;
-	
+
 	int notificationScroll = 0;
-	
+
 	public NotificationScreen() { super(); this.resize(SCREEN_WIDTH + TabButton.SIZE, SCREEN_HEIGHT); }
-	
+
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
 		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).toList());
 		return categories;
 	}
-	
+
 	public void reinit() {
 		this.clearWidgets();
 		this.validateSelectedCategory();
 		this.init();
 	}
-	
+
 	@Override
 	protected void initialize(ScreenArea screenArea) {
-		
+
 		this.tabButtons = new ArrayList<>();
 		for(NotificationCategory cat : this.getCategories())
 			this.tabButtons.add(this.addChild(new NotificationTabButton(this::SelectTab, this::getNotifications, cat)));
 		this.positionTabButtons();
-		
+
 		this.notificationScroller = this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 15, 15), this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
-		
+
 		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + screenArea.width - 15, screenArea.y + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead)
 				.withAddons(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory))));
-		
-		this.tick();
-		
+
 	}
-	
+
 	private void validateSelectedCategory() {
 		List<NotificationCategory> categories = this.getCategories();
 		boolean categoryFound = false;
@@ -97,7 +95,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		if(!categoryFound || this.selectedCategory == null)
 			this.selectedCategory = NotificationCategory.GENERAL;
 	}
-	
+
 	private void positionTabButtons() {
 		this.tabScroll = Math.min(this.tabScroll, this.getMaxTabScroll());
 		int startIndex = this.tabScroll;
@@ -193,7 +191,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		if(this.cachedTooltip != null)
 			gui.renderTooltip(gui.font.split(this.cachedTooltip, 170));
 	}
-	
+
 	private void SelectTab(EasyButton button) {
 		int tabIndex = -1;
 		if(button instanceof NotificationTabButton)
@@ -218,10 +216,10 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 	public int getMaxTabScroll() {
 		return Math.max(0, this.tabButtons.size() - TABS_PER_PAGE);
 	}
-	
+
 	public boolean tabScrolled(double delta) {
 		if(delta < 0)
-		{			
+		{
 			if(this.tabScroll < this.getMaxTabScroll())
 			{
 				this.tabScroll++;
@@ -242,14 +240,14 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		}
 		return true;
 	}
-	
+
 	public int getMaxNotificationScroll() {
 		return Math.max(0, this.getNotifications().getNotifications(this.selectedCategory).size() - NOTIFICATIONS_PER_PAGE);
 	}
-	
+
 	public boolean notificationScrolled(double delta) {
 		if(delta < 0)
-		{			
+		{
 			if(this.notificationScroll < this.getMaxNotificationScroll())
 				this.notificationScroll++;
 			else
@@ -268,14 +266,14 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 	public void markAsRead(EasyButton button) {
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageFlagNotificationsSeen(this.selectedCategory));
 	}
-	
+
 	@Override
 	public int currentScroll() { return this.notificationScroll; }
 	@Override
 	public void setScroll(int newScroll) { this.notificationScroll = newScroll; }
 	@Override
 	public int getMaxScroll() { return this.getMaxNotificationScroll(); }
-	
+
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		//If mouse is over the screen, scroll the notifications
@@ -290,7 +288,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 			return true;
 		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
-	
+
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods) {
 		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
@@ -301,5 +299,5 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		}
 		return super.keyPressed(key, scanCode, mods);
 	}
-	
+
 }

@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class ItemTradeNotification extends Notification{
 
@@ -52,7 +53,9 @@ public class ItemTradeNotification extends Notification{
 		this.customer = customer.getName(false);
 		
 	}
-	
+
+	public static NonNullSupplier<Notification> create(ItemTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory trader) { return () -> new ItemTradeNotification(trade, cost, customer, trader); }
+
 	public ItemTradeNotification(CompoundTag compound) { this.load(compound); }
 	
 	@Override

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
@@ -43,16 +44,16 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         if(this.trade.getLastBidPlayer() == null)
         {
             //First bid info
-            bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.nobidder"));
-            bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getLastBidAmount().getString()));
+            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.nobidder"));
+            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getLastBidAmount().getString()));
         }
         else
         {
             //Last bid info
-            bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.trade.getLastBidPlayer().getName(true)));
-            bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.currentbid", this.trade.getLastBidAmount().getString()));
+            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.trade.getLastBidPlayer().getName(true)));
+            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.currentbid", this.trade.getLastBidAmount().getString()));
             //Next bid info
-            bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getMinNextBid().getString()));
+            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getMinNextBid().getString()));
         }
         return bidInfo;
     }
@@ -74,16 +75,16 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { alerts.clear(); }
 
     @Override
-    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) {
         //Draw remaining time
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() - 9, this.getTextColor(time));
+        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getWidth() / 2, button.getHeight() - 9, this.getTextColor(time));
     }
 
     @Override
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        return Lists.newArrayList(Component.translatable("gui.lightmanscurrency.auction.time_remaining", Component.literal(time.getString()).withStyle(s -> s.withColor(this.getTextColor(time)))));
+        return Lists.newArrayList(EasyText.translatable("gui.lightmanscurrency.auction.time_remaining", EasyText.literal(time.getString()).withStyle(s -> s.withColor(this.getTextColor(time)))));
     }
 
     private int getTextColor(TimeUtil.TimeData remainingTime) {

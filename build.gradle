@@ -26,7 +26,11 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             
             property 'forge.enabledGameTestNamespaces', 'lightmanscurrency'
-			
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             mods {
                 lightmanscurrency {
                     source sourceSets.main
@@ -38,7 +42,12 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
+                    '--existing', file('optional_assets/1.19.4/biomesoplenty')
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 lightmanscurrency {
@@ -75,8 +84,7 @@ dependencies {
     //compileOnly fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
     //compileOnly fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:4473386")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4473386")
+    implementation fg.deobf("curse.maven:jei-238222:4473386")
     
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:4478589")
@@ -88,6 +96,12 @@ dependencies {
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660939')
+
+    //Wood Compatibility
+    //Biomes O' Plenty
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4573240")
+    //BOP Requirement
+    implementation fg.deobf("curse.maven:terrablender-563928:4629898")
     
 }
 

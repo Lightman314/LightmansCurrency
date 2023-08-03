@@ -73,12 +73,12 @@ public class ModCreativeGroups {
         //Misc Machine Creative Tab
         MACHINE_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "machines"), List.of(), List.of(COIN_GROUP), builder ->
             builder.title(Component.translatable("itemGroup.lightmanscurrency.machines"))
-                .icon(() -> new ItemStack(ModBlocks.MACHINE_MINT.get()))
+                .icon(() -> new ItemStack(ModBlocks.COIN_MINT.get()))
                 .displayItems((parameters, p) -> {
                     //Coin Mint
-                    ezPop(p, ModBlocks.MACHINE_MINT);
+                    ezPop(p, ModBlocks.COIN_MINT);
                     //ATM
-                    ezPop(p, ModBlocks.MACHINE_ATM);
+                    ezPop(p, ModBlocks.ATM);
                     ezPop(p, ModItems.PORTABLE_ATM);
                     //Cash Register
                     ezPop(p, ModBlocks.CASH_REGISTER);

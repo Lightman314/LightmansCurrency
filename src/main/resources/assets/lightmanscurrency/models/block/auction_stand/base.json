@@ -2,7 +2,10 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"render_type": "cutout",
-	"textures": { "particle": "#log" },
+	"textures": {
+		"glass": "block/glass",
+		"particle": "#log"
+	},
 	"elements": [
 		{
 			"name": "Base",

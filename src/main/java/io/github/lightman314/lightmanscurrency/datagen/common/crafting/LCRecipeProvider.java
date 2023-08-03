@@ -12,8 +12,8 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MintRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.ColorHelper;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodData;
+import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.data.PackOutput;
@@ -63,7 +63,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID(ModItems.TRADING_CORE));
 
         //ATM
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.MACHINE_ATM.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ATM.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .pattern("igi")
                 .pattern("igi")
@@ -71,9 +71,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('g', Tags.Items.GLASS_PANES_COLORLESS)
                 .define('r', Tags.Items.DUSTS_REDSTONE)
-                .save(consumer, ItemID(ModBlocks.MACHINE_ATM));
+                .save(consumer, ItemID(ModBlocks.ATM));
         //ATM <-> Portable ATM
-        GenerateSwapRecipes(consumer, ModBlocks.MACHINE_ATM.get(), ModItems.PORTABLE_ATM.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge())));
+        GenerateSwapRecipes(consumer, ModBlocks.ATM.get(), ModItems.PORTABLE_ATM.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge())));
 
         //Trading Terminal
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TERMINAL.get())
@@ -124,7 +124,7 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Utility Blocks
         //Coin Mint
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.MACHINE_MINT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.COIN_MINT.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("material", LazyTrigger(LCTags.Items.COIN_MINTING_MATERIAL))
                 .pattern("ipi")
@@ -133,7 +133,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('p', Items.PISTON)
                 .define('s', Items.SMOOTH_STONE)
-                .save(consumer, ItemID(ModBlocks.MACHINE_MINT));
+                .save(consumer, ItemID(ModBlocks.COIN_MINT));
 
         //Ticket Station
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TICKET_STATION.get())
@@ -578,7 +578,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_1.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_1));
         LegacyUpgradeRecipeBuilder.smithing(
                         Ingredient.of(ModItems.SPEED_UPGRADE_1.get()),
@@ -587,7 +587,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_2.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_1))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_2));
         LegacyUpgradeRecipeBuilder.smithing(
@@ -597,7 +597,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_3.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_2))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_3));
         LegacyUpgradeRecipeBuilder.smithing(
@@ -607,7 +607,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_4.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_3))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_4));
         LegacyUpgradeRecipeBuilder.smithing(
@@ -617,7 +617,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_5.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_4))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_5));
 
@@ -625,7 +625,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Exchange Upgrade
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeExchange.INSTANCE);
         LegacyUpgradeRecipeBuilder.smithing(
-                        Ingredient.of(ModBlocks.MACHINE_ATM.get()),
+                        Ingredient.of(ModBlocks.ATM.get()),
                         Ingredient.of(Tags.Items.DUSTS_REDSTONE),
                         RecipeCategory.MISC,
                         ModItems.COIN_CHEST_EXCHANGE_UPGRADE.get())
@@ -637,7 +637,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Bank Upgrade (WIP)
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeBank.INSTANCE);
         LegacyUpgradeRecipeBuilder.smithing(
-                        Ingredient.of(ModBlocks.MACHINE_ATM.get()),
+                        Ingredient.of(ModBlocks.ATM.get()),
                         Ingredient.of(Items.ENDER_PEARL),
                         RecipeCategory.MISC,
                         ModItems.COIN_CHEST_BANK_UPGRADE.get())
@@ -703,6 +703,23 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(conditional::addRecipe, "null:null");
         conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
+
+        //2.1.2.2
+        //Tax Block
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxBlock.INSTANCE);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TAX_BLOCK.get())
+                .unlockedBy("money", MoneyKnowledge())
+                .unlockedBy("trader", TraderKnowledge())
+                .pattern("ghg")
+                .pattern("nxn")
+                .pattern("geg")
+                .define('g', Tags.Items.INGOTS_GOLD)
+                .define('n', Tags.Items.INGOTS_NETHERITE)
+                .define('x', ModItems.TRADING_CORE.get())
+                .define('h', Items.HOPPER)
+                .define('e', Items.ENDER_PEARL)
+                .save(conditional::addRecipe);
+        conditional.generateAdvancement(ItemID(ModBlocks.TAX_BLOCK).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_BLOCK));
 
     }
 
@@ -825,12 +842,12 @@ public class LCRecipeProvider extends RecipeProvider {
     {
         MintRecipeBuilder.mint(coin.get())
                 .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .accepts(materialTag)
                 .save(consumer, ItemID("coin_mint/mint_", coin));
         MintRecipeBuilder.melt(materialItem)
                 .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .accepts(coin.get())
                 .save(consumer, ItemID("coin_mint/melt_", coin));
     }
@@ -853,11 +870,10 @@ public class LCRecipeProvider extends RecipeProvider {
     private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }
     private static String ItemPath(RegistryObject<? extends ItemLike> item) { return ItemPath(item.get()); }
 
-    private static ResourceLocation ItemID(ItemLike item) { return ID(ItemPath(item)); }
     private static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
     private static ResourceLocation ItemID(RegistryObject<? extends ItemLike> item) { return ID(ItemPath(item)); }
     private static ResourceLocation ItemID(String prefix, RegistryObject<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
-    private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(prefix + (woodType.isModded() ? woodType.getModID() + "/" : "") + woodType.name); }
+    private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
     private static ResourceLocation ID(String path) { return new ResourceLocation(LightmansCurrency.MODID, path); }
 
 

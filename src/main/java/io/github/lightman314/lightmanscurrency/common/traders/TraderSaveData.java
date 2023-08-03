@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
@@ -518,6 +519,9 @@ public class TraderSaveData extends SavedData {
 			if(tsd.traderData.containsKey(traderID))
 			{
 				TraderData trader = tsd.traderData.get(traderID);
+				//Delete from appropriate tax entries
+				TaxSaveData.GetAllTaxEntries(false).forEach(e -> e.taxableBlockRemoved(trader));
+				//Remove from the Trader List
 				tsd.traderData.remove(traderID);
 				if(trader instanceof IEasyTickable t)
 					tsd.tickers.remove(t);

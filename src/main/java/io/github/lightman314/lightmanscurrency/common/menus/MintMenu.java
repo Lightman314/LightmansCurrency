@@ -4,8 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockE
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.mint.MintSlot;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -13,13 +11,15 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class MintMenu extends LazyMessageMenu{
+import javax.annotation.Nonnull;
+
+public class MintMenu extends AbstractContainerMenu{
 
 	public final CoinMintBlockEntity blockEntity;
 	
 	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity blockEntity)
 	{
-		super(ModMenus.MINT.get(), windowId, inventory);
+		super(ModMenus.MINT.get(), windowId);
 		this.blockEntity = blockEntity;
 		
 		//Slots
@@ -42,19 +42,13 @@ public class MintMenu extends LazyMessageMenu{
 	}
 	
 	@Override
-	public boolean stillValid(@NotNull Player playerIn)
-	{
-		return true;
-	}
-	
+	public boolean stillValid(@Nonnull Player playerIn) { return true; }
 	@Override
-	public void removed(@NotNull Player playerIn)
-	{
-		super.removed(playerIn);
-	}
+	public void removed(@Nonnull Player playerIn) { super.removed(playerIn); }
 	
+	@Nonnull
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -89,21 +83,5 @@ public class MintMenu extends LazyMessageMenu{
 		
 		return clickedStack;
 		
-	}
-	
-	public boolean isMeltInput()
-	{
-		return MoneyUtil.isCoin(this.blockEntity.getStorage().getItem(0));
-	}
-
-	public void SendMintCoinsMessage(boolean fullStack)
-	{
-		this.SendMessageToServer(LazyPacketData.builder().setBoolean("MintCoins", fullStack));
-	}
-
-	@Override
-	public void HandleMessage(LazyPacketData message) {
-		if(message.contains("MintCoins"))
-			this.blockEntity.mintCoins(message.getBoolean("MintCoins") ? 64 : 1);
 	}
 }

@@ -40,13 +40,12 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 	
 	protected boolean transparent(BlockState state) { return true; }
 	
-	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-	
 	@Override
 	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) { return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection()); }
 	
 	@Nonnull
 	@Override
+	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 	
 	@Override
@@ -64,9 +63,6 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 	}
 	
 	@Override
-	public Direction getFacing(BlockState state)
-	{
-		return state.getValue(FACING);
-	}
+	public Direction getFacing(BlockState state) { return state.getValue(FACING); }
 	
 }

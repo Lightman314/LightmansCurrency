@@ -535,8 +535,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			}
 			
 			//Push Notification
-			this.pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-			
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+
+			CoinValue taxesPaid = CoinValue.EMPTY;
+
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
 			{
@@ -544,16 +546,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
 				this.markStorageDirty();
 				//Give the paid cost to storage
-				this.addStoredMoney(price);
+				taxesPaid = this.addStoredMoney(price, true);
 				
 				//Push out of stock notification
 				if(!trade.hasStock(this))
-					this.pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
+					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -587,8 +589,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			context.givePayment(price);
 			
 			//Push Notification
-			this.pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-			
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			CoinValue taxesPaid = CoinValue.EMPTY;
+
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
 			{
@@ -597,16 +600,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.getStorage().forceAddItem(item);
 				this.markStorageDirty();
 				//Remove the coins from storage
-				this.removeStoredMoney(price);
+				taxesPaid = this.removeStoredMoney(price, true);
 				
 				//Push out of stock notification
 				if(!trade.hasStock(this))
-					this.pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
+					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -664,7 +667,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			}
 			
 			//Push Notification
-			this.pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
@@ -678,12 +681,12 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				
 				//Push out of stock notification
 				if(!trade.hasStock(this))
-					this.pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
+					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, CoinValue.EMPTY);
 			
 			return TradeResult.SUCCESS;
 			

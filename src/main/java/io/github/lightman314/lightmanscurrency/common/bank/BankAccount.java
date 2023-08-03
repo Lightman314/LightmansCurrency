@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
@@ -139,14 +140,24 @@ public class BankAccount {
 		
 	}
 
-	public static void GiftCoinsFromServer(BankAccount account, CoinValue amount)
+	public static boolean ServerGiveCoins(BankAccount account, CoinValue amount)
 	{
 		if(account == null || !amount.hasAny())
-			return;
+			return false;
 
 		account.depositCoins(amount);
 		account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount));
+		return true;
+	}
 
+	public static Pair<Boolean,CoinValue> ServerTakeCoins(BankAccount account, CoinValue amount)
+	{
+		if(account == null || !amount.hasAny())
+			return Pair.of(false, CoinValue.EMPTY);
+
+		CoinValue taken = account.withdrawCoins(amount);
+		account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), false, taken));
+		return Pair.of(true, taken);
 	}
 	
 	public static void WithdrawCoins(IBankAccountMenu menu, CoinValue amount)

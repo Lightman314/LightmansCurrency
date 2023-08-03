@@ -66,8 +66,8 @@ public class ModBlocks {
 
 	//Machines
 	//Misc Machines
-	public static final RegistryObject<Block> MACHINE_ATM;
-	public static final RegistryObject<Block> MACHINE_MINT;
+	public static final RegistryObject<Block> ATM;
+	public static final RegistryObject<Block> COIN_MINT;
 
 	//Display Case
 	public static final RegistryObject<Block> DISPLAY_CASE;
@@ -125,6 +125,9 @@ public class ModBlocks {
 
 	//Coin Chest
 	public static final RegistryObject<Block> COIN_CHEST;
+
+	//Tax Block
+	public static final RegistryObject<TaxBlock> TAX_BLOCK;
 
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
@@ -235,14 +238,14 @@ public class ModBlocks {
 		);
 
 		//Machines
-		MACHINE_ATM = register("atm", () -> new ATMBlock(
+		ATM = register("atm", () -> new ATMBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_GRAY)
 						.strength(3.0f, 6.0f)
 						.sound(SoundType.METAL)
 				)
 		);
-		MACHINE_MINT = register("coinmint", () -> new CoinMintBlock(
+		COIN_MINT = register("coinmint", () -> new CoinMintBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_LIGHT_BLUE)
 						.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -449,6 +452,15 @@ public class ModBlocks {
 				)
 		);
 
+		//Tax Block
+		TAX_BLOCK = register("tax_block", () -> new TaxBlock(
+						BlockBehaviour.Properties.of(Material.METAL)
+								.color(MaterialColor.METAL)
+								.strength(3f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.METAL)
+				)
+		);
+
 		//Coin Jars
 		PIGGY_BANK = register("piggy_bank", getCoinJarGenerator(), () -> new CoinJarBlock(
 				Block.Properties.of(Material.STONE)
@@ -544,7 +556,7 @@ public class ModBlocks {
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
-			String thisName = name + "_" + woodType.name;
+			String thisName = woodType.generateID(name);
 			//Register the block normally
 			bundle.put(woodType, register(thisName, itemGenerator, () -> block.apply(woodType)));
 		}

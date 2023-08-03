@@ -19,6 +19,6 @@ public class EasyText {
 
     public static void sendMessage(ServerPlayer player, Component message) { player.sendSystemMessage(message); }
 
-
+    public static class Serializer extends Component.Serializer {}
 
 }

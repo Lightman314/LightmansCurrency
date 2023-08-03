@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class BookTraderBlockEntity extends ItemTraderBlockEntity {
     public BookTraderBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.BOOK_TRADER.get(), pos, state); }
     public BookTraderBlockEntity(BlockPos pos, BlockState state, int count) { super(ModBlockEntities.BOOK_TRADER.get(), pos, state, count); }
 
+    @Nonnull
     @Override
     public ItemTraderData buildNewTrader() { return new ItemTraderDataBook(this.tradeCount, this.level, this.worldPosition); }
 
