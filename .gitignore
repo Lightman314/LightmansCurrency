@@ -28,3 +28,6 @@ forge*changelog.txt
 secrets
 Build Backups
 generated
+*.pxf
+*.zip
+optional_assets
