@@ -117,12 +117,14 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.WRITTEN_BOOK);
 
-        //Ticket Material Tag
+        //Ticket Tags
+        this.cTag(LCTags.Items.TICKET)
+                .add(ModItems.TICKET)
+                .add(ModItems.TICKET_PASS)
+                .add(ModItems.TICKET_MASTER);
         this.cTag(LCTags.Items.TICKET_MATERIAL)
                 .add(Items.PAPER)
-                .add(ModItems.TICKET)
-                .add(ModItems.TICKET_MASTER)
-                .add(ModItems.TICKET_PASS)
+                .addTag(LCTags.Items.TICKET)
                 .add(ModItems.TICKET_STUB);
 
         ///VANILLA TAGS
