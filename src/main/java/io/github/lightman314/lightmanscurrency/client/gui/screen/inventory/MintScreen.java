@@ -20,7 +20,7 @@ public class MintScreen extends EasyMenuScreen<MintMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");
 
-	public static final Sprite ARROW_SPRITE = Sprite.SimpleSprite(GUI_TEXTURE, 176, 0, 22, 16);
+	public static final Sprite ARROW_SPRITE = Sprite.LockedSprite(GUI_TEXTURE, 176, 0, 22, 16);
 	
 	public MintScreen(MintMenu container, Inventory inventory, Component title)
 	{

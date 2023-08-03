@@ -140,6 +140,7 @@
 	
 	"block.lightmanscurrency.shelf_biomesoplenty_fir": "Fir Shelf",
 	"block.lightmanscurrency.shelf_biomesoplenty_redwood": "Redwood Shelf",
+	"block.lightmanscurrency.shelf_biomesoplenty_cherry": "Cherry Shelf",
 	"block.lightmanscurrency.shelf_biomesoplenty_mahogany": "Mahogany Shelf",
 	"block.lightmanscurrency.shelf_biomesoplenty_jacaranda": "Jacaranda Shelf",
 	"block.lightmanscurrency.shelf_biomesoplenty_palm": "Palm Shelf",
@@ -163,6 +164,7 @@
 	
 	"block.lightmanscurrency.card_display_biomesoplenty_fir": "Fir Card Display",
 	"block.lightmanscurrency.card_display_biomesoplenty_redwood": "Redwood Card Display",
+	"block.lightmanscurrency.card_display_biomesoplenty_cherry": "Cherry Card Display",
 	"block.lightmanscurrency.card_display_biomesoplenty_mahogany": "Mahogany Card Display",
 	"block.lightmanscurrency.card_display_biomesoplenty_jacaranda": "Jacaranda Card Display",
 	"block.lightmanscurrency.card_display_biomesoplenty_palm": "Palm Card Display",
@@ -207,6 +209,7 @@
 	
 	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_fir": "Fir Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_redwood": "Redwood Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_cherry": "Cherry Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_mahogany": "Mahogany Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_jacaranda": "Jacaranda Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_biomesoplenty_palm": "Palm Bookshelf Trader",
@@ -243,6 +246,7 @@
 	
 	"block.lightmanscurrency.auction_stand_biomesoplenty_fir": "Fir Auction Stand",
 	"block.lightmanscurrency.auction_stand_biomesoplenty_redwood": "Redwood Auction Stand",
+	"block.lightmanscurrency.auction_stand_biomesoplenty_cherry": "Cherry Auction Stand",
 	"block.lightmanscurrency.auction_stand_biomesoplenty_mahogany": "Mahogany Auction Stand",
 	"block.lightmanscurrency.auction_stand_biomesoplenty_jacaranda": "Jacaranda Auction Stand",
 	"block.lightmanscurrency.auction_stand_biomesoplenty_palm": "Palm Auction Stand",

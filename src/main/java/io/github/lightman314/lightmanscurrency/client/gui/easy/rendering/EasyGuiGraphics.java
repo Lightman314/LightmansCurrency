@@ -69,7 +69,7 @@ public final class EasyGuiGraphics {
     public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, int x, int y, float percent) { this.blitSpriteFadeHoriz(sprite, x, y, percent, false); }
     public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, float percent) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent); }
     public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, int x, int y, float percent, boolean hovered) {
-        int blitWidth = MathUtil.clamp((int)(sprite.width * percent), 0, sprite.width);
+        int blitWidth = MathUtil.clamp((int)((sprite.width + 1) * percent), 0, sprite.width);
         this.blit(sprite.image, x, y, sprite.getU(hovered), sprite.getV(hovered), blitWidth, sprite.height);
     }
     public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, float percent, boolean hovered) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent, hovered); }
