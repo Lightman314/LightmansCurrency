@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import net.minecraft.util.math.BlockPos;
+
 public class NumberUtil {
 
     public static boolean IsInteger(String text)
@@ -24,5 +26,7 @@ public class NumberUtil {
             return Integer.parseInt(text);
         return defaultValue;
     }
+
+    public static String toShortString(BlockPos pos) { return "" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ(); }
 
 }

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -167,7 +168,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				}
 				else
 				{
-					LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
+					LightmansCurrency.LogError("Failed to load trader from old data at " + NumberUtil.toShortString(this.worldPosition));
 				}
 			}
 		}
@@ -177,8 +178,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			D customTrader = this.initCustomTrader();
 			if(customTrader == null)
 			{
-				LightmansCurrency.LogWarning("The trader block at " + this.worldPosition.toShortString() + " could not properly load it's custom trader.");
+				LightmansCurrency.LogWarning("The trader block at " + NumberUtil.toShortString(this.worldPosition) + " could not properly load it's custom trader.");
 				this.customTrader = null;
+				return;
 			}
 			//Check if the custom trader is this position & dimension
 			if(customTrader.getLevel() == this.level.dimension() && this.worldPosition.equals(customTrader.getPos()))
@@ -191,7 +193,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
-				LightmansCurrency.LogInfo("Successfully loaded custom trader at " + this.worldPosition.toShortString());
+				LightmansCurrency.LogInfo("Successfully loaded custom trader at " + NumberUtil.toShortString(this.worldPosition));
 			}
 		}
 	}

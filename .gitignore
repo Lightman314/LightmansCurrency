@@ -27,3 +27,7 @@ forge*changelog.txt
 #Custom
 secrets
 Build Backups
+generated
+*.pxf
+*.zip
+optional_assets
