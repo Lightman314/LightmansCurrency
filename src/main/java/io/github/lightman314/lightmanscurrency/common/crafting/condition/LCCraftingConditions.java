@@ -104,7 +104,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_magnet_craftable");
 		public static final CoinChestUpgradeMagnet INSTANCE = new CoinChestUpgradeMagnet();
 		public static final IConditionSerializer<CoinChestUpgradeMagnet> SERIALIZER = new Serializer();
-		private CoinChestUpgradeMagnet() { super(TYPE, () -> false); }
+		private CoinChestUpgradeMagnet() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeMagnet); }
 		private static class Serializer implements IConditionSerializer<CoinChestUpgradeMagnet> {
 			@Override
 			public void write(JsonObject json, CoinChestUpgradeMagnet value) {}
