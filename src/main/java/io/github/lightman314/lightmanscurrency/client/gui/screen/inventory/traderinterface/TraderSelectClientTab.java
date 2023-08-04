@@ -109,7 +109,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.updateTraderButtons();
 		}
 		
-		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this::onMouseScrolled));
+		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this));
 			
 		
 	}
@@ -213,20 +213,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public void setScroll(int newScroll) {
 		this.scroll = Math.min(newScroll, this.getMaxScroll());
 		this.updateTraderButtons();
-	}
-	
-	private boolean onMouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.scroll < this.getMaxScroll())
-				this.setScroll(this.scroll + 1);
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				this.setScroll(this.scroll - 1);
-		}
-		return false;
 	}
 	
 }

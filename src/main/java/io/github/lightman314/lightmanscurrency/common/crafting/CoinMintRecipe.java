@@ -39,14 +39,16 @@ public class CoinMintRecipe implements Recipe<Container>{
 
 	private final ResourceLocation id;
 	private final MintType type;
+	private final int duration;
 	private final Ingredient ingredient;
 	public final int ingredientCount;
 	private final ItemStack result;
 
-	public CoinMintRecipe(ResourceLocation id, MintType type, Ingredient ingredient, int ingredientCount, ItemStack result)
+	public CoinMintRecipe(ResourceLocation id, MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
 		this.id = id;
 		this.type = type;
+		this.duration = duration;
 		this.ingredient = ingredient;
 		this.ingredientCount = Math.max(ingredientCount,1); //Force count to be > 0
 		this.result = result;
@@ -63,17 +65,13 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		else if(this.type == MintType.MELT)
 		{
-			try {
-				return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getItems()[0].getItem());
+			try { return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getItems()[0].getItem());
 			} catch(Exception e) { return false; }
 		}
 		return true;
 	}
 
-	public boolean isValid()
-	{
-		return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed();
-	}
+	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
 
 	@Override
 	public boolean matches(@NotNull Container inventory, @NotNull Level level) {
@@ -93,6 +91,9 @@ public class CoinMintRecipe implements Recipe<Container>{
 
 	@Override
 	public @NotNull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+
+	public int getInternalDuration() { return this.duration; }
+	public int getDuration() { return this.duration > 0 ? this.duration : Config.SERVER.defaultMintDuration.get(); }
 
 	@Override
 	public @NotNull ResourceLocation getId() { return this.id; }

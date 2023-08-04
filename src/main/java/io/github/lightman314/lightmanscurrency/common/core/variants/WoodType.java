@@ -1,49 +1,66 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodData;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodDataHelper;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.fml.ModList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class WoodType {
+public class WoodType implements IOptionalKey {
 
     private static final List<WoodType> ALL_TYPES = new ArrayList<>();
     private static ImmutableList<WoodType> VALID_TYPES = null;
     private static ImmutableList<WoodType> VANILLA_TYPES = null;
 
-    public static final WoodType OAK = new WoodType("oak");
-    public static final WoodType SPRUCE = new WoodType("spruce");
-    public static final WoodType BIRCH = new WoodType("birch");
-    public static final WoodType JUNGLE = new WoodType("jungle");
-    public static final WoodType ACACIA = new WoodType("acacia");
-    public static final WoodType DARK_OAK = new WoodType("dark_oak");
-    public static final WoodType CRIMSON = new WoodType("crimson");
-    public static final WoodType WARPED = new WoodType("warped");
+    public static final WoodType OAK = new WoodType("oak", MaterialColor.WOOD);
+    public static final WoodType SPRUCE = new WoodType("spruce", MaterialColor.PODZOL);
+    public static final WoodType BIRCH = new WoodType("birch", MaterialColor.SAND);
+    public static final WoodType JUNGLE = new WoodType("jungle", MaterialColor.DIRT);
+    public static final WoodType ACACIA = new WoodType("acacia", MaterialColor.COLOR_ORANGE);
+
+    public static final WoodType DARK_OAK = new WoodType("dark_oak", MaterialColor.COLOR_BROWN);
+    public static final WoodType CRIMSON = new WoodType("crimson", MaterialColor.CRIMSON_STEM);
+    public static final WoodType WARPED = new WoodType("warped", MaterialColor.WARPED_STEM);
 
     public final String name;
     public final MaterialColor mapColor;
-    private final Supplier<WoodData> dataSource;
-    private WoodData data = null;
-    public WoodData getData() { if(this.data == null && this.dataSource != null) this.data = this.dataSource.get(); return this.data; }
+    @Nullable
+    public WoodData getData() { return WoodDataHelper.get(this); }
 
-    //Vanilla Only Constructor
-    private WoodType(String name) { this(name, MaterialColor.WOOD, () -> WoodDataHelper.forVanillaType(name)); }
-    protected WoodType(String name, Supplier<WoodData> dataSource) { this(name, MaterialColor.WOOD, dataSource); }
-    protected WoodType(String name, MaterialColor mapColor, Supplier<WoodData> dataSource) { this.name = name; this.mapColor = mapColor; this.dataSource = dataSource; ALL_TYPES.add(this); }
+    protected WoodType(@Nonnull String name, @Nonnull MaterialColor mapColor) { this.name = name; this.mapColor = mapColor; ALL_TYPES.add(this); }
+    protected WoodType(@Nonnull String name, @Nonnull MaterialColor mapColor, @Nonnull WoodData data) { this(name, mapColor); WoodDataHelper.register(this, data); }
 
+    public final String generateID(String prefix) {
+        if(!prefix.endsWith("_"))
+            prefix += "_";
+        if(this.isModded())
+            prefix += this.getModID() + "_";
+        return prefix + this.name;
+    }
 
-    public boolean isVanilla() { return true; }
+    public final String generateResourceLocation(String prefix) { return this.generateResourceLocation(prefix,""); }
+    public final String generateResourceLocation(String prefix, String postFix) {
+        if(this.isModded())
+            prefix += this.getModID() + "/";
+        return prefix + this.name + postFix;
+    }
+
+    public final boolean isVanilla() { return this.getModID().equals("minecraft"); }
+    @Nonnull
     public String getModID() { return "minecraft"; }
+    public final boolean isMod(String modid) { return this.getModID().equalsIgnoreCase(modid); }
     public boolean isValid() { return true; }
+    @Override
     public final boolean isModded() { return !this.isVanilla(); }
     @Override
     public String toString() { return this.name; }
+
+    public static ImmutableList<WoodType> allValues() { return ImmutableList.copyOf(ALL_TYPES); }
 
     public static ImmutableList<WoodType> vanillaValues() {
         if(VANILLA_TYPES == null)
@@ -57,21 +74,9 @@ public class WoodType {
         return VALID_TYPES;
     }
 
-    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t instanceof ModdedWoodType mt && mt.mod.equals(modid)).toList()); }
+    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t.isMod(modid)).toList()); }
 
     public static int sortByWood(WoodType w1, WoodType w2) { return Integer.compare(ALL_TYPES.indexOf(w1), ALL_TYPES.indexOf(w2)); }
-    public static class ModdedWoodType extends WoodType
-    {
-        private final String mod;
-        public ModdedWoodType(String name, String mod, @Nullable Supplier<WoodData> dataSource) { super(name, dataSource); this.mod = mod; }
-        public ModdedWoodType(String name, MaterialColor mapColor, String mod, @Nullable Supplier<WoodData> dataSource) { super(name, mapColor, dataSource); this.mod = mod; }
-        @Override
-        public boolean isVanilla() { return false; }
-        @Override
-        public String getModID() { return this.mod; }
-        @Override
-        public boolean isValid() { return ModList.get().isLoaded(this.mod); }
-    }
 
     @Nullable
     public static WoodType fromTypeName(String name)
@@ -83,6 +88,5 @@ public class WoodType {
         }
         return null;
     }
-
 
 }

@@ -22,21 +22,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
-	protected static final BooleanProperty ISLEFT = BlockStateProperties.ATTACHED;
 	private final TriFunction<Direction,Boolean,Boolean,VoxelShape> shape;
 	
-	protected TraderBlockTallWideRotatable(Properties properties)
-	{
-		this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T);
-	}
+	protected TraderBlockTallWideRotatable(Properties properties) { this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T); }
 	
 	protected TraderBlockTallWideRotatable(Properties properties, VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west)
 	{

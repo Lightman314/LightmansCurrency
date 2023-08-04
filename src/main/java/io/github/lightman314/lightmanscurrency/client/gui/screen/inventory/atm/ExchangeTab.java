@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.common.atm.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -41,7 +40,7 @@ public class ExchangeTab extends ATMTab{
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	public IconData getIcon() { return IconData.of(ModBlocks.ATM); }
 
 	@Override
 	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.conversion"); }

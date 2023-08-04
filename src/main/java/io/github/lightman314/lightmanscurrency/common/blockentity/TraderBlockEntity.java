@@ -2,6 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,24 +28,27 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker {
 
 	private long traderID = -1;
 	public long getTraderID() { return this.traderID; }
 	@Deprecated
 	public void setTraderID(long traderID) { this.traderID = traderID; }
-	
+
 	private CompoundTag customTrader = null;
 	private boolean ignoreCustomTrader = false;
-	
+
 	private boolean legitimateBreak = false;
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
 	public boolean legitimateBreak() { return this.legitimateBreak; }
-	
+
 	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
-	
+
 	private D buildTrader(Player owner, ItemStack placementStack)
 	{
 		if(this.customTrader != null)
@@ -57,7 +63,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			newTrader.setCustomName(null, placementStack.getHoverName().getString());
 		return newTrader;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected final D initCustomTrader()
 	{
@@ -66,8 +72,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
 		return null;
 	}
-	
-	
+
+
 	protected final D fullyBuildCustomTrader()
 	{
 		try {
@@ -77,15 +83,16 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
 		return null;
 	}
-	
+
 	protected final void moveCustomTrader(D customTrader)
 	{
 		if(customTrader != null)
 			customTrader.move(this.level, this.worldPosition);
 	}
-	
+
+	@Nonnull
 	protected abstract D buildNewTrader();
-	
+
 	public final void saveCurrentTraderAsCustomTrader() {
 		TraderData trader = this.getTraderData();
 		if(trader != null)
@@ -103,21 +110,28 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return trader.save();
 		return null;
 	}
-	
-	public void initialize(Player owner, ItemStack placementStack)
+
+	public void initialize(@Nonnull Player owner, @Nonnull ItemStack placementStack)
 	{
 		if(this.getTraderData() != null)
 			return;
-		
+
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
 		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
+		List<TaxEntry> taxes = TaxManager.GetTaxesForTrader(newTrader);
+		taxes.forEach(e -> e.acceptTaxes(newTrader));
+		if(taxes.size() > 0)
+		{
+			EasyText.sendMessage(owner, EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.1"));
+			EasyText.sendMessage(owner, EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.2"));
+		}
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
 	}
-	
+
 	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
-	
+
 	@SuppressWarnings("unchecked")
 	public D getTraderData()
 	{
@@ -127,7 +141,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return (D)rawData;
 		} catch(Throwable t) { t.printStackTrace(); return null; }
 	}
-	
+
 	@Override
 	public void saveAdditional(@NotNull CompoundTag compound) {
 		super.saveAdditional(compound);
@@ -135,7 +149,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
 	}
-	
+
 	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
@@ -143,9 +157,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			this.traderID = compound.getLong("TraderID");
 		if(compound.contains("CustomTrader"))
 			this.customTrader = compound.getCompound("CustomTrader");
-		
+
 	}
-	
+
 	@Override
 	public void serverTick() {
 		if(this.level == null)
@@ -174,13 +188,13 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			}
 		}
 	}
-	
+
 	public final void markDirty() {
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this);
 	}
-	
+
 	@Override
 	public void onLoad()
 	{
@@ -192,14 +206,15 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			BlockState bs = this.level.getBlockState(this.worldPosition);
 			if(bs.getBlock() instanceof IDeprecatedBlock block)
 				block.replaceBlock(this.level, this.worldPosition, bs);
+			//Update the traders block position to this position just in case we got moved by another block
+			this.moveCustomTrader(this.getTraderData());
 		}
 	}
-	
+
 	@Override
 	@NotNull
 	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
-    {
-		
+	{
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
@@ -210,9 +225,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			}
 			return trader.getCapability(cap, relativeSide);
 		}
-		
+
 		return super.getCapability(cap, side);
-    }
+	}
 
 	public boolean canBreak(Player player)
 	{
@@ -221,9 +236,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return trader.hasPermission(player, Permissions.BREAK_TRADER);
 		return true;
 	}
-	
+
 	public void onBreak() { TraderSaveData.DeleteTrader(this.traderID); }
-	
+
 	@Override
 	public AABB getRenderBoundingBox()
 	{

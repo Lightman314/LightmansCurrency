@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class OutOfStockNotification extends Notification {
 
@@ -17,11 +18,17 @@ public class OutOfStockNotification extends Notification {
 	TraderCategory traderData;
 	
 	int tradeSlot;
-	
+
+	/**
+	 * @deprecated Use OutOfStockNotification#create instead for easy supplier handling
+	 */
+	@Deprecated(since = "2.1.2.2")
 	public OutOfStockNotification(TraderCategory traderData, int tradeIndex) {
 		this.traderData = traderData;
 		this.tradeSlot = tradeIndex + 1;
 	}
+
+	public static NonNullSupplier<Notification> create(TraderCategory trader, int tradeIndex) { return () -> new OutOfStockNotification(trader, tradeIndex); }
 	
 	public OutOfStockNotification(CompoundTag compound) { this.load(compound); }
 	

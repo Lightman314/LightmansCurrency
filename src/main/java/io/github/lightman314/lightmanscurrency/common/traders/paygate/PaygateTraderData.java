@@ -52,7 +52,7 @@ import javax.annotation.Nonnull;
 public class PaygateTraderData extends TraderData {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "paygate");
-	
+
 	public static final int DURATION_MIN = 1;
 	public static final int DURATION_MAX = 1200;
 
@@ -91,14 +91,14 @@ public class PaygateTraderData extends TraderData {
 
 	@Override
 	public boolean canShowOnTerminal() { return false; }
-	
+
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
-	
+
 	public PaygateTraderData() { super(TYPE); }
 	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
 
 	public int getTradeCount() { return this.trades.size(); }
-	
+
 	@Override
 	public IconData getIcon() { return IconData.of(Items.REDSTONE_BLOCK); }
 
@@ -107,10 +107,10 @@ public class PaygateTraderData extends TraderData {
 
 	@Override
 	public boolean canEditTradeCount() { return true; }
-	
+
 	@Override
 	public int getMaxTradeCount() { return 8; }
-	
+
 	@Override
 	public void addTrade(Player requestor)
 	{
@@ -118,7 +118,7 @@ public class PaygateTraderData extends TraderData {
 			return;
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
-		
+
 		if(this.getTradeCount() >= this.getMaxTradeCount() && !CommandLCAdmin.isAdminPlayer(requestor))
 		{
 			Permissions.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
@@ -131,7 +131,7 @@ public class PaygateTraderData extends TraderData {
 		}
 		this.overrideTradeCount(this.getTradeCount() + 1);
 	}
-	
+
 	@Override
 	public void removeTrade(Player requestor)
 	{
@@ -139,7 +139,7 @@ public class PaygateTraderData extends TraderData {
 			return;
 		if(this.getTradeCount() <= 1)
 			return;
-		
+
 		if(!this.hasPermission(requestor, Permissions.EDIT_TRADES))
 		{
 			Permissions.PermissionWarning(requestor, "remove trade slot", Permissions.EDIT_TRADES);
@@ -147,12 +147,12 @@ public class PaygateTraderData extends TraderData {
 		}
 		this.overrideTradeCount(this.getTradeCount() - 1);
 	}
-	
+
 	public void overrideTradeCount(int newTradeCount)
 	{
 		if(this.getTradeCount() == newTradeCount)
 			return;
-		
+
 		int tradeCount = MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT);
 		List<PaygateTradeData> oldTrades = this.trades;
 		this.trades = PaygateTradeData.listOfSize(tradeCount);
@@ -161,12 +161,12 @@ public class PaygateTraderData extends TraderData {
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
-		
+
 		//Mark trades dirty
 		this.markTradesDirty();
-		
+
 	}
-	
+
 	public PaygateTradeData getTrade(int tradeSlot) {
 		if(tradeSlot < 0 || tradeSlot >= this.trades.size())
 		{
@@ -175,13 +175,13 @@ public class PaygateTraderData extends TraderData {
 		}
 		return this.trades.get(tradeSlot);
 	}
-	
+
 	@Nonnull
 	@Override
 	public List<PaygateTradeData> getTradeData() { return this.trades; }
-	
+
 	public int getTradeStock(int tradeIndex) { return 1; }
-	
+
 	private PaygateBlockEntity getBlockEntity() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -196,14 +196,14 @@ public class PaygateTraderData extends TraderData {
 		}
 		return null;
 	}
-	
+
 	public boolean isActive() {
 		PaygateBlockEntity be = this.getBlockEntity();
 		if(be != null)
 			return be.isActive();
 		return false;
 	}
-	
+
 	private void activate(int duration) {
 		PaygateBlockEntity be = this.getBlockEntity();
 		if(be != null)
@@ -212,7 +212,7 @@ public class PaygateTraderData extends TraderData {
 
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
-		
+
 		PaygateTradeData trade = this.getTrade(tradeIndex);
 		//Abort if the trade is null
 		if(trade == null)
@@ -220,32 +220,34 @@ public class PaygateTraderData extends TraderData {
 			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
-		
+
 		//Abort if the trade is not valid
 		if(!trade.isValid())
 		{
 			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
-		
+
 		//Abort if the paygate is already activated
 		if(this.isActive())
 		{
 			LightmansCurrency.LogWarning("Paygate is already activated. It cannot be activated until the previous timer is completed.");
 			return TradeResult.FAIL_OUT_OF_STOCK;
 		}
-		
+
 		//Abort if no player context is given
 		if(!context.hasPlayerReference())
 			return TradeResult.FAIL_NULL;
-		
+
 		//Check if the player is allowed to do the trade
 		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
-		
+
 		//Get the cost of the trade
 		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
-		
+
+		CoinValue taxesPaid = CoinValue.EMPTY;
+
 		//Process a ticket trade
 		if(trade.isTicketTrade())
 		{
@@ -281,12 +283,12 @@ public class PaygateTraderData extends TraderData {
 					context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
 
 			}
-			
+
 			//Activate the paygate
 			this.activate(trade.getDuration());
-			
+
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(PaygateNotification.create(trade, price, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
 
 		}
 		//Process a coin trade
@@ -298,26 +300,26 @@ public class PaygateTraderData extends TraderData {
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
-			
+
 			//We have collected the payment, activate the paygate
 			this.activate(trade.getDuration());
-			
+
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, false, context.getPlayerReference(), this.getNotificationCategory()));
-			
+			this.pushNotification(PaygateNotification.create(trade, price, false, context.getPlayerReference(), this.getNotificationCategory()));
+
 			//Don't store money if the trader is creative
 			if(!this.isCreative())
 			{
 				//Give the paid cost to storage
-				this.addStoredMoney(price);
+				taxesPaid = this.addStoredMoney(price, true);
 			}
 
 		}
 		//Push the post-trade event
-		this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+		this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 		return TradeResult.SUCCESS;
 	}
-	
+
 	@Override
 	public boolean hasValidTrade() {
 		for(PaygateTradeData trade : this.trades)
@@ -405,8 +407,8 @@ public class PaygateTraderData extends TraderData {
 	{
 		return new IconButton(0,0, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new CMessageCollectTicketStubs(this.getID())), IconData.of(ModItems.TICKET_STUB))
 				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.storedTicketStubs > 0, () -> EasyText.translatable("tooltip.lightmanscurrency.trader.collect_ticket_stubs", this.storedTicketStubs), EasyText::empty),
-				EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)),
-				EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0));
+						EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)),
+						EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0));
 	}
 
 	private boolean areTicketStubsRelevant() {

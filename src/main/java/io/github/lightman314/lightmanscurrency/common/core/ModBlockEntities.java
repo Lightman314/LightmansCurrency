@@ -35,12 +35,14 @@ public class ModBlockEntities {
 		
 		CASH_REGISTER = ModRegistries.BLOCK_ENTITIES.register("cash_register", () -> BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER.get()).build(null));
 		
-		COIN_MINT = ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.MACHINE_MINT.get()).build(null));
+		COIN_MINT = ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.COIN_MINT.get()).build(null));
 		
 		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_STATION.get()).build(null));
 		
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
-		
+
+		TAX_BLOCK = ModRegistries.BLOCK_ENTITIES.register("tax_block", () -> BlockEntityType.Builder.of(TaxBlockEntity::new, ModBlocks.TAX_BLOCK.get()).build(null));
+
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
 
 		AUCTION_STAND = ModRegistries.BLOCK_ENTITIES.register("auction_stand", () -> BlockEntityType.Builder.of(AuctionStandBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.AUCTION_STAND_TYPE)).build(null));
@@ -78,6 +80,9 @@ public class ModBlockEntities {
 	
 	//Paygate
 	public static final RegistryObject<BlockEntityType<PaygateBlockEntity>> PAYGATE;
+
+	//Tax Block
+	public static final RegistryObject<BlockEntityType<TaxBlockEntity>> TAX_BLOCK;
 	
 	//Coin Jars
 	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;

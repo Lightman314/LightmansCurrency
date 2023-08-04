@@ -89,18 +89,22 @@ dependencies {
    	//JEI when actually working on plugin
     //compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.5.5.174:api")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:3723913")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
+    implementation fg.deobf("curse.maven:jei-238222:3723913")
     
     //Curios API
-    compileOnly fg.deobf("curse.maven:curios-309927:3841948")
-    runtimeOnly fg.deobf("curse.maven:curios-309927:3841948")
+    implementation fg.deobf("curse.maven:curios-309927:3841948")
 
     //Immersive Engineering
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3964014")
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660934')
+
+    //Wood Compatibility
+    //Biomes O' Plenty
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:3827434")
+    //BOP Requirement
+    implementation fg.deobf("curse.maven:terrablender-563928:3957976")
     
 }
 

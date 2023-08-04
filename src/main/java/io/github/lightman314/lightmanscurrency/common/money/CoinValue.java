@@ -543,7 +543,7 @@ public class CoinValue
 		if(this == other)
 			return true;
 		if(other instanceof CoinValue coinValue)
-			return coinValue.getValueNumber() == this.getValueNumber();
+			return coinValue.getValueNumber() == this.getValueNumber() && coinValue.isFree() == this.isFree();
 		return false;
 	}
 	

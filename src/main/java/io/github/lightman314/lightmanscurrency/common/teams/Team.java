@@ -78,6 +78,7 @@ public class Team {
 			return this.isOwner(player);
 	}
 	public BankAccount getBankAccount() { return this.bankAccount; }
+	public BankAccount.AccountReference getReference() { if(this.hasBankAccount()) return BankAccount.GenerateReference(this.isClient, this.id); return null; }
 	
 	/**
 	 * Determines if the given player is the owner of this team.

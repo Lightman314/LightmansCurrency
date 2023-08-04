@@ -103,15 +103,13 @@ public class TextRenderUtil {
 	
 	public static void drawCenteredText(EasyGuiGraphics gui, String string, int centerX, int yPos, int color) { drawCenteredText(gui, EasyText.literal(string), centerX, yPos, color); }
 	public static void drawCenteredText(EasyGuiGraphics gui, Component component, int centerX, int yPos, int color) {
-		Font font = getFont();
-		int width = font.width(component);
+		int width = gui.font.width(component);
 		gui.drawString(component, centerX - (width/2), yPos, color);
 	}
 	
 	public static void drawRightEdgeText(EasyGuiGraphics gui, String string, int rightPos, int yPos, int color) { drawRightEdgeText(gui, EasyText.literal(string), rightPos, yPos, color); }
 	public static void drawRightEdgeText(EasyGuiGraphics gui, Component component, int rightPos, int yPos, int color) {
-		Font font = getFont();
-		int width = font.width(component);
+		int width = gui.font.width(component);
 		gui.drawString(component, rightPos - width, yPos, color);
 	}
 	

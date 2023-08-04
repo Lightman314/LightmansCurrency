@@ -17,23 +17,23 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
 
 public class CustomCreativeTab extends CreativeModeTab {
 
-	private final ItemSorter itemSorter;
+	private final ItemSorter itemSorter = new ItemSorter();
 	
 	Supplier<ItemLike> iconItem;
-	
-	public CustomCreativeTab(String label, Supplier<ItemLike> iconItem)
+
+	private CustomCreativeTab(String label, Supplier<ItemLike> iconItem)
 	{
 		super(label);
 		this.iconItem = iconItem;
-		this.itemSorter = new ItemSorter();
 	}
+
+	public static CustomCreativeTab build(String label, Supplier<RegistryObject<? extends ItemLike>> iconItem) { return new CustomCreativeTab(label, () -> iconItem.get().get()); }
 	
 	@Override
-	public @NotNull ItemStack makeIcon()
+	public ItemStack makeIcon()
 	{
 		if(this.iconItem != null)
 			return new ItemStack(this.iconItem.get());
@@ -42,7 +42,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void fillItemList(@NotNull NonNullList<ItemStack> items) {
+	public void fillItemList(NonNullList<ItemStack> items) {
 		
 		super.fillItemList(items);
 
@@ -129,8 +129,6 @@ public class CustomCreativeTab extends CreativeModeTab {
 		public void build() { this.sorter.initSortingList(this); }
 
 	}
-
-
 	
 	private static class ItemSorter implements Comparator<ItemStack>
 	{

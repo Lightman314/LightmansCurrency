@@ -151,14 +151,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE) || Objects.equals(permission, Permissions.EDIT_TRADES))
 			return 1;
 		return 0;
 	}
 	
 	@Override
 	public int getPermissionLevel(Player player, String permission) {
-		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE) || Objects.equals(permission, Permissions.EDIT_TRADES))
 			return 1;
 		return 0;
 	}
@@ -316,7 +316,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		//Cancel Trade tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new AuctionTradeCancelTab(menu));
 		//Create Trade tab
-		menu.setTab(10, new AuctionCreateTab(menu));
+		menu.setTab(TraderStorageTab.TAB_TRADE_MISC, new AuctionCreateTab(menu));
 	}
 	
 	@Override

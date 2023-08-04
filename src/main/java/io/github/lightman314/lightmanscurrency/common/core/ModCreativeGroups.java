@@ -2,8 +2,17 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.enchantments.LCEnchantmentCategories;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraftforge.common.util.NonNullSupplier;
+
+import java.util.function.Supplier;
 
 public class ModCreativeGroups {
+
+    public static final NonNullSupplier<CreativeModeTab> COIN_GROUP = () -> LightmansCurrency.COIN_GROUP;
+    public static final NonNullSupplier<CreativeModeTab> MACHINE_GROUP = () -> LightmansCurrency.MACHINE_GROUP;
+    public static final NonNullSupplier<CreativeModeTab> TRADING_GROUP = () -> LightmansCurrency.TRADING_GROUP;
+    public static final NonNullSupplier<CreativeModeTab> UPGRADE_GROUP = () -> LightmansCurrency.UPGRADE_GROUP;
 
     public static void setupCreativeTabs() {
         LightmansCurrency.COIN_GROUP.setEnchantmentCategories(LCEnchantmentCategories.WALLET_CATEGORY, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY);
@@ -24,9 +33,9 @@ public class ModCreativeGroups {
 
         LightmansCurrency.MACHINE_GROUP.startInit().add(
                 //Coin Mint
-                ModBlocks.MACHINE_MINT,
+                ModBlocks.COIN_MINT,
                 //ATM
-                ModBlocks.MACHINE_ATM, ModItems.PORTABLE_ATM,
+                ModBlocks.ATM, ModItems.PORTABLE_ATM,
                 //Cash Register
                 ModBlocks.CASH_REGISTER,
                 //Terminal

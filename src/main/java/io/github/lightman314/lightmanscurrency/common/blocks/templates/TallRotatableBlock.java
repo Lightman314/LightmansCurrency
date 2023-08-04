@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 
 public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 
-	public static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
 	protected TallRotatableBlock(Properties properties)

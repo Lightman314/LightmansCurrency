@@ -6,12 +6,15 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nonnull;
+
 public class SlotMachineTraderBlockEntity extends TraderBlockEntity<SlotMachineTraderData> {
 
     public SlotMachineTraderBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.SLOT_MACHINE_TRADER.get(), pos, state);
     }
 
+    @Nonnull
     @Override
     protected SlotMachineTraderData buildNewTrader() { return new SlotMachineTraderData(this.level, this.worldPosition); }
 

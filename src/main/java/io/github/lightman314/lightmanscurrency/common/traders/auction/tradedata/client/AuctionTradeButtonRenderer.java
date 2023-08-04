@@ -75,10 +75,10 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { alerts.clear(); }
 
     @Override
-    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) {
         //Draw remaining time
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() - 9, this.getTextColor(time));
+        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getWidth() / 2, button.getHeight() - 9, this.getTextColor(time));
     }
 
     @Override

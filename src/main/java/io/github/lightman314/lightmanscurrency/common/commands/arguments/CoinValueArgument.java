@@ -28,7 +28,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     public static CoinValueArgument argument() { return new CoinValueArgument(); }
     public static CoinValueArgument safeArgument(RegisterCommandsEvent event) { return argument(); }
 
-    public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) {
+    public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
         return commandContext.getArgument(name, CoinValue.class);
     }
 

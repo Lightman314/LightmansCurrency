@@ -47,7 +47,7 @@ public class VillagerTradeManager {
 	public static List<ItemListing> getGenericWandererTrades() {
 		return ImmutableList.of(
 				//Machines
-				new SimpleTrade(ModItems.COIN_GOLD.get(), 1, ModBlocks.MACHINE_ATM.get()),
+				new SimpleTrade(ModItems.COIN_GOLD.get(), 1, ModBlocks.ATM.get()),
 				new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.CASH_REGISTER.get()),
 				new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.TERMINAL.get())
 				);
@@ -67,9 +67,9 @@ public class VillagerTradeManager {
 				1,
 				ImmutableList.of(
 						//Sell Coin Mint
-						new SimpleTrade(2, ModItems.COIN_IRON.get(), 5, ModBlocks.MACHINE_MINT.get()),
+						new SimpleTrade(2, ModItems.COIN_IRON.get(), 5, ModBlocks.COIN_MINT.get()),
 						//Sell ATM
-						new SimpleTrade(2, ModItems.COIN_GOLD.get(), 1, ModBlocks.MACHINE_ATM.get()),
+						new SimpleTrade(2, ModItems.COIN_GOLD.get(), 1, ModBlocks.ATM.get()),
 						//Sell Cash Register
 						new SimpleTrade(1, ModItems.COIN_IRON.get(), 5, ModBlocks.CASH_REGISTER.get()),
 						//Sell Trading Core

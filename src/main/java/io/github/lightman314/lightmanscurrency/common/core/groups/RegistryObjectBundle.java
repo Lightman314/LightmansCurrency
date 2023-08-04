@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -10,6 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class RegistryObjectBundle<T,L> {
 
 	private final Comparator<L> sorter;
+
 	private boolean locked = false;
 	public RegistryObjectBundle<T,L> lock() { this.locked = true; return this; }
 
@@ -62,12 +64,18 @@ public class RegistryObjectBundle<T,L> {
 		return values;
 	}
 
+	private List<L> getKeysSorted() { return this.getKeysSorted(this.sorter); }
+	private List<L> getKeysSorted(Comparator<L> sorter) {
+		List<L> keys = new ArrayList<>(this.values.keySet());
+		keys.sort(sorter);
+		return keys;
+	}
+
 	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
 
 	public List<T> getAllSorted(Comparator<L> sorter)
 	{
-		List<L> keys = new ArrayList<>(this.values.keySet().stream().toList());
-		keys.sort(sorter);
+		List<L> keys = this.getKeysSorted(sorter);
 		List<T> result = new ArrayList<>();
 		for(L key : keys)
 		{
@@ -81,6 +89,12 @@ public class RegistryObjectBundle<T,L> {
 		for(L key : this.values.keySet())
 			result.add(() -> this.get(key));
 		return result;
+	}
+
+	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) {
+		List<L> keys = this.getKeysSorted(this.sorter);
+		for(L key : keys)
+			consumer.accept(key, this.values.get(key));
 	}
 
 }

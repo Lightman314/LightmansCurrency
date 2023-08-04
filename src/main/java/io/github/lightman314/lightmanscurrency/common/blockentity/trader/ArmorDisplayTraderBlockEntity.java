@@ -21,6 +21,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 
 	public static final int TRADE_COUNT = 4;
@@ -38,6 +40,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		super(ModBlockEntities.ARMOR_TRADER.get(), pos, state, TRADE_COUNT);
 	}
 	
+	@Nonnull
 	@Override
 	public ItemTraderData buildNewTrader() { return new ItemTraderDataArmor(this.level, this.worldPosition); }
 	

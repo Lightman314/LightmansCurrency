@@ -42,6 +42,10 @@ public class CommonProxy {
 	public void receiveNotification(Notification notification) {}
 	
 	public void receiveSelectedBankAccount(AccountReference selectedAccount) {}
+
+	public void updateTaxEntries(CompoundTag compound) {}
+
+	public void removeTaxEntry(long id) {}
 	
 	public void openTerminalScreen() {}
 	

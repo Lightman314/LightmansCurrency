@@ -12,8 +12,8 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MintRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.ColorHelper;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.util.WoodData;
+import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.data.DataGenerator;
@@ -63,7 +63,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID(ModItems.TRADING_CORE));
 
         //ATM
-        ShapedRecipeBuilder.shaped(ModBlocks.MACHINE_ATM.get())
+        ShapedRecipeBuilder.shaped(ModBlocks.ATM.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .pattern("igi")
                 .pattern("igi")
@@ -71,9 +71,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('g', Tags.Items.GLASS_PANES_COLORLESS)
                 .define('r', Tags.Items.DUSTS_REDSTONE)
-                .save(consumer, ItemID(ModBlocks.MACHINE_ATM));
+                .save(consumer, ItemID(ModBlocks.ATM));
         //ATM <-> Portable ATM
-        GenerateSwapRecipes(consumer, ModBlocks.MACHINE_ATM.get(), ModItems.PORTABLE_ATM.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge())));
+        GenerateSwapRecipes(consumer, ModBlocks.ATM.get(), ModItems.PORTABLE_ATM.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge())));
 
         //Trading Terminal
         ShapedRecipeBuilder.shaped(ModBlocks.TERMINAL.get())
@@ -124,7 +124,7 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Utility Blocks
         //Coin Mint
-        ShapedRecipeBuilder.shaped(ModBlocks.MACHINE_MINT.get())
+        ShapedRecipeBuilder.shaped(ModBlocks.COIN_MINT.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("material", LazyTrigger(LCTags.Items.COIN_MINTING_MATERIAL))
                 .pattern("ipi")
@@ -133,7 +133,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('p', Items.PISTON)
                 .define('s', Items.SMOOTH_STONE)
-                .save(consumer, ItemID(ModBlocks.MACHINE_MINT));
+                .save(consumer, ItemID(ModBlocks.COIN_MINT));
 
         //Ticket Station
         ShapedRecipeBuilder.shaped(ModBlocks.TICKET_STATION.get())
@@ -572,7 +572,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_1.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_1));
         UpgradeRecipeBuilder.smithing(
                         Ingredient.of(ModItems.SPEED_UPGRADE_1.get()),
@@ -580,7 +580,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_2.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_1))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_2));
         UpgradeRecipeBuilder.smithing(
@@ -589,7 +589,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_3.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_2))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_3));
         UpgradeRecipeBuilder.smithing(
@@ -598,7 +598,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_4.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_3))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_4));
         UpgradeRecipeBuilder.smithing(
@@ -607,7 +607,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         ModItems.SPEED_UPGRADE_5.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("trader_interface", LazyTrigger(LCTags.Items.TRADER_INTERFACE))
-                .unlocks("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlocks("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .unlocks("previous", LazyTrigger(ModItems.SPEED_UPGRADE_4))
                 .save(consumer, ItemID("upgrades/", ModItems.SPEED_UPGRADE_5));
 
@@ -615,7 +615,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Exchange Upgrade
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeExchange.INSTANCE);
         UpgradeRecipeBuilder.smithing(
-                        Ingredient.of(ModBlocks.MACHINE_ATM.get()),
+                        Ingredient.of(ModBlocks.ATM.get()),
                         Ingredient.of(Tags.Items.DUSTS_REDSTONE),
                         ModItems.COIN_CHEST_EXCHANGE_UPGRADE.get())
                 .unlocks("money", MoneyKnowledge())
@@ -695,6 +695,26 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(conditional::addRecipe, "null:null");
         conditional.generateAdvancement(AddPrefix(ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE),ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
+
+        //2.1.2.2
+        //Tax Block
+        //Do not generate as 1.18 has issues generating recipes for items with no creative tab because reasons...
+        /*
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxBlock.INSTANCE);
+        ShapedRecipeBuilder.shaped(ModBlocks.TAX_BLOCK.get())
+                .unlockedBy("money", MoneyKnowledge())
+                .unlockedBy("trader", TraderKnowledge())
+                .pattern("ghg")
+                .pattern("nxn")
+                .pattern("geg")
+                .define('g', Tags.Items.INGOTS_GOLD)
+                .define('n', Tags.Items.INGOTS_NETHERITE)
+                .define('x', ModItems.TRADING_CORE.get())
+                .define('h', Items.HOPPER)
+                .define('e', Items.ENDER_PEARL)
+                .save(conditional::addRecipe);
+        conditional.generateAdvancement(AddPrefix(ItemID(ModBlocks.TAX_BLOCK),ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_BLOCK));
+        */
 
     }
 
@@ -817,12 +837,12 @@ public class LCRecipeProvider extends RecipeProvider {
     {
         MintRecipeBuilder.mint(coin.get())
                 .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .accepts(materialTag)
                 .save(consumer, ItemID("coin_mint/mint_", coin));
         MintRecipeBuilder.melt(materialItem)
                 .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.MACHINE_MINT))
+                .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
                 .accepts(coin.get())
                 .save(consumer, ItemID("coin_mint/melt_", coin));
     }

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
@@ -28,7 +29,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         ///LIGHTMANS CURRENCY TAGS
         //Multi-block tag for easy adding to move prevention tags from other mods
         this.cTag(LCTags.Blocks.MULTI_BLOCK)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModBlocks.VENDING_MACHINE)
                 .add(ModBlocks.VENDING_MACHINE_LARGE)
                 .add(ModBlocks.ARMOR_DISPLAY)
@@ -54,12 +55,13 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.TICKET_KIOSK)
                 .add(ModBlocks.BOOKSHELF_TRADER)
                 .add(ModBlocks.SLOT_MACHINE)
-                .add(ModBlocks.COIN_CHEST);
+                .add(ModBlocks.COIN_CHEST)
+                .add(ModBlocks.TAX_BLOCK);
 
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
                 .addTag(LCTags.Blocks.OWNER_PROTECTED)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModBlocks.AUCTION_STAND);
 
         ///VANILLA TAGS
@@ -77,8 +79,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.COINBLOCK_EMERALD)
                 .add(ModBlocks.COINBLOCK_DIAMOND)
                 .add(ModBlocks.COINBLOCK_NETHERITE)
-                .add(ModBlocks.MACHINE_ATM)
-                .add(ModBlocks.MACHINE_MINT)
+                .add(ModBlocks.ATM)
+                .add(ModBlocks.COIN_MINT)
                 .add(ModBlocks.DISPLAY_CASE)
                 .add(ModBlocks.VENDING_MACHINE)
                 .add(ModBlocks.VENDING_MACHINE_LARGE)
@@ -97,7 +99,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.SLOT_MACHINE)
                 .add(ModBlocks.TICKET_STATION)
                 .add(ModBlocks.PIGGY_BANK)
-                .add(ModBlocks.COINJAR_BLUE);
+                .add(ModBlocks.COINJAR_BLUE)
+                .add(ModBlocks.TAX_BLOCK);
 
         this.cTag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.SHELF)
@@ -138,8 +141,47 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         public CustomTagAppender add(Block block) { this.appender.add(block); return this; }
         public CustomTagAppender add(RegistryObject<? extends Block> block) { this.appender.add(block.get()); return this; }
-        public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
-        public CustomTagAppender add(RegistryObjectBiBundle<? extends Block,?,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
+        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) { this.appender.addOptional(block.getId()); return this; }
+        public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) {
+            bundle.forEach((key,block) -> {
+                if(key instanceof IOptionalKey ok)
+                {
+                    if(ok.isModded())
+                        this.addOptional(block);
+                    else
+                        this.add(block);
+                }
+                else
+                    this.add(block);
+            });
+            return this;
+        }
+        public CustomTagAppender add(RegistryObjectBiBundle<? extends Block,?,?> bundle) {
+            bundle.forEach((key1,key2,block) -> {
+                if(key1 instanceof IOptionalKey ok1)
+                {
+                    if(ok1.isModded())
+                        this.addOptional(block);
+                    else if(key2 instanceof IOptionalKey ok2)
+                    {
+                        if(ok2.isModded())
+                            this.addOptional(block);
+                        else
+                            this.add(block);
+                    }
+                }
+                else if(key2 instanceof IOptionalKey ok2)
+                {
+                    if(ok2.isModded())
+                        this.addOptional(block);
+                    else
+                        this.add(block);
+                }
+                else
+                    this.add(block);
+            });
+            return this;
+        }
         public CustomTagAppender addTag(TagKey<Block> tag) { this.appender.addTag(tag); return this; }
 
     }

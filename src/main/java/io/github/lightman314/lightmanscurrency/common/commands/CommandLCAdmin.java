@@ -18,21 +18,16 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEnt
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.common.commands.arguments.CoinValueArgument;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
@@ -69,7 +64,7 @@ public class CommandLCAdmin {
 	{
 		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 				= Commands.literal("lcadmin")
-				.requires((commandSource) -> commandSource.hasPermission(2) || Secret.hasSecretAccess(commandSource))
+				.requires((stack) -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
 				.then(Commands.literal("toggleadmin")
 						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
@@ -92,23 +87,15 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
-				.then(Commands.literal("giveMoneyToBankAccounts")
-						.then(Commands.literal("allPlayers")
-								.then(Commands.argument("amount", CoinValueArgument.argument())
-										.executes(CommandLCAdmin::giveBankAccountsMoneyAllPlayers)))
-						.then(Commands.literal("allTeams")
-								.then(Commands.argument("amount", CoinValueArgument.argument())
-										.executes(CommandLCAdmin::giveBankAccountsMoneyAllTeams)))
-						.then(Commands.literal("players")
-								.then(Commands.argument("players", EntityArgument.players())
-										.then(Commands.argument("amount", CoinValueArgument.argument())
-												.executes(CommandLCAdmin::giveBankAccountsMoneyPlayers)))))
 				.then(Commands.literal("replaceWallet").requires((c) -> !LightmansCurrency.isCuriosLoaded())
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item())
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
-												.executes(CommandLCAdmin::replaceWalletSlot)))));
+												.executes(CommandLCAdmin::replaceWalletSlot)))))
+				.then(Commands.literal("taxes")
+						.then(Commands.literal("createServerTax")
+								.executes(CommandLCAdmin::createServerTax)));
 
 		dispatcher.register(lcAdminCommand);
 
@@ -154,7 +141,7 @@ public class CommandLCAdmin {
 
 	}
 
-	static int listTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int listTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 
 		CommandSourceStack source = commandContext.getSource();
 		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
@@ -315,56 +302,6 @@ public class CommandLCAdmin {
 
 	}
 
-	static int giveBankAccountsMoneyAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(BankAccount.AccountReference account : BankSaveData.GetPlayerBankAccounts())
-		{
-			BankAccount.GiftCoinsFromServer(account.get(), amount);
-			count++;
-		}
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-		return count;
-	}
-
-	static int giveBankAccountsMoneyAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
-		{
-			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount);
-			count++;
-		}
-
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-
-		return count;
-	}
-
-	static int giveBankAccountsMoneyPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
-		{
-			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount);
-			count++;
-		}
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-		return count;
-	}
-
 	static int replaceWalletSlotWithDefault(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
 	{
 		return replaceWalletSlotInternal(commandContext, true);
@@ -399,7 +336,20 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && (player.hasPermissions(2) || Secret.hasSecretAccess(player)); }
+	static int createServerTax(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		long newID = TaxSaveData.CreateAndRegister(null, commandContext.getSource().getPlayerOrException());
+		if(newID >= 0)
+		{
+			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.createServerTax.success", newID), true);
+			return 1;
+		}
+		commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.createServerTax.fail"));
+		return 0;
+	}
+
+
+	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }
 
 
 	private static void ToggleAdminPlayer(ServerPlayer player) {

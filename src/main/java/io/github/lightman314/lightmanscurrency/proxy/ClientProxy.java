@@ -12,11 +12,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
-import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
-import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
-import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
-import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
-import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
+import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
@@ -240,7 +236,13 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
-	
+
+	@Override
+	public void updateTaxEntries(CompoundTag compound) { ClientTaxData.UpdateEntry(compound); }
+
+	@Override
+	public void removeTaxEntry(long id) { ClientTaxData.RemoveEntry(id); }
+
 	@Override
 	public void openTerminalScreen() { this.openTerminal = true; }
 	

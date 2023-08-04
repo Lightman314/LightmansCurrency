@@ -62,6 +62,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	
 	@Nonnull
 	@Override
+	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
@@ -80,7 +81,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 		return this.makeDummy(pos, state);
 	}
 	@Override
-	public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	@Nonnull
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{

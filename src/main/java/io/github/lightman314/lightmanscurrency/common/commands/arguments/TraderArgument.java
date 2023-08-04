@@ -30,7 +30,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	public static TraderArgument trader() { return new TraderArgument(false); }
 	public static TraderArgument traderWithPersistent() { return new TraderArgument(true); }
 	
-	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) {
+	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
 		return commandContext.getArgument(name, TraderData.class);
 	}
 	

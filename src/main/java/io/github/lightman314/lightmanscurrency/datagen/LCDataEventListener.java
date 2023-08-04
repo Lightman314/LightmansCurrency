@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.datagen.client.LCBlockStateProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.LCRecipeProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCBlockTagProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCItemTagProvider;
@@ -29,6 +30,11 @@ public class LCDataEventListener {
             generator.addProvider(blockTagProvider);
             generator.addProvider(new LCItemTagProvider(generator, blockTagProvider, existingFileHelper));
             //1.18 does not have POI Type Tags for Profession Purposes.
+        }
+        if(event.includeClient())
+        {
+            //Block States
+            generator.addProvider(new LCBlockStateProvider(generator, existingFileHelper));
         }
     }
 

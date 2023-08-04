@@ -13,8 +13,11 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<CoinMintRecipe>{
 
+	@Nonnull
 	@Override
 	public CoinMintRecipe fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
 		if(!json.has("ingredient"))
@@ -38,7 +41,11 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 		if(json.has("mintType"))
 			type = CoinMintRecipe.readType(json.get("mintType"));
 
-		return new CoinMintRecipe(recipeId, type, ingredient, ingredientCount, result);
+		int duration = 0;
+		if(json.has("duration"))
+			duration = json.get("duration").getAsInt();
+
+		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
 	}
 
 	@Override
@@ -47,7 +54,8 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 		Ingredient ingredient = Ingredient.fromNetwork(buffer);
 		int ingredientCount = buffer.readInt();
 		ItemStack result = buffer.readItem();
-		return new CoinMintRecipe(recipeId, type, ingredient, ingredientCount, result);
+		int duration = buffer.readInt();
+		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
 	}
 
 	@Override
@@ -56,6 +64,7 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 		recipe.getIngredient().toNetwork(buffer);
 		buffer.writeInt(recipe.ingredientCount);
 		buffer.writeItemStack(recipe.getResultItem(), false);
+		buffer.writeInt(recipe.getInternalDuration());
 	}
 
 

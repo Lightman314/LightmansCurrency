@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
 
 public class MathUtil {
 
@@ -22,7 +23,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Sum all of the Vector3f's together
+	 * Sum all the Vector3f's together
 	 */
 	public static Vector3f VectorAdd(Vector3f... vectors)
 	{
@@ -124,6 +125,29 @@ public class MathUtil {
 		if(((double)a/(double)b)%1d != 0d)
 			result++;
 		return result;
+	}
+
+	public static boolean WithinBounds(BlockPos queryPos, BlockPos corner1, BlockPos corner2)
+	{
+		return WithinBounds(queryPos.getX(), corner1.getX(), corner2.getX())
+				&& WithinBounds(queryPos.getY(), corner1.getY(), corner2.getY())
+				&& WithinBounds(queryPos.getZ(), corner1.getZ(), corner2.getZ());
+	}
+
+	public static boolean WithinBounds(int query, int val1, int val2)
+	{
+		int min,max;
+		if(val1 > val2)
+		{
+			max = val1;
+			min = val2;
+		}
+		else
+		{
+			min = val1;
+			max = val2;
+		}
+		return query <= max && query >= min;
 	}
 
 }

@@ -7,8 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public interface IRotatableBlock {
+
+	DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	/**
 	 * Gets the BlockPos of the block to the given blocks right.

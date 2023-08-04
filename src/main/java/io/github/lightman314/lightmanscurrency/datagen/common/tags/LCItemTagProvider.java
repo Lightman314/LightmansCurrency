@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -99,7 +100,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         //ATM
         this.cTag(LCTags.Items.ATM)
-                .add(ModBlocks.MACHINE_ATM)
+                .add(ModBlocks.ATM)
                 .add(ModItems.PORTABLE_ATM);
 
         //Trader Interface
@@ -111,6 +112,16 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(Items.ENCHANTED_BOOK)
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.WRITTEN_BOOK);
+
+        //Ticket Tags
+        this.cTag(LCTags.Items.TICKET)
+                .add(ModItems.TICKET)
+                .add(ModItems.TICKET_PASS)
+                .add(ModItems.TICKET_MASTER);
+        this.cTag(LCTags.Items.TICKET_MATERIAL)
+                .add(Items.PAPER)
+                .addTag(LCTags.Items.TICKET)
+                .add(ModItems.TICKET_STUB);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items
@@ -144,8 +155,47 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         public CustomTagAppender add(ItemLike item) { this.appender.add(item.asItem()); return this; }
         public CustomTagAppender add(RegistryObject<? extends ItemLike> item) { this.add(item.get()); return this; }
-        public CustomTagAppender add(RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
-        public CustomTagAppender add(RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(this::add); return this; }
+        public CustomTagAppender addOptional(RegistryObject<? extends ItemLike> item) { this.appender.addOptional(item.getId()); return this; }
+        public CustomTagAppender add(RegistryObjectBundle<? extends ItemLike,?> bundle) {
+            bundle.forEach((key,item) -> {
+                if(key instanceof IOptionalKey ok)
+                {
+                    if(ok.isModded())
+                        this.addOptional(item);
+                    else
+                        this.add(item);
+                }
+                else
+                    this.add(item);
+            });
+            return this;
+        }
+        public CustomTagAppender add(RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) {
+            bundle.forEach((key1,key2,item) -> {
+                if(key1 instanceof IOptionalKey ok1)
+                {
+                    if(ok1.isModded())
+                        this.addOptional(item);
+                    else if(key2 instanceof IOptionalKey ok2)
+                    {
+                        if(ok2.isModded())
+                            this.addOptional(item);
+                        else
+                            this.add(item);
+                    }
+                }
+                else if(key2 instanceof IOptionalKey ok2)
+                {
+                    if(ok2.isModded())
+                        this.addOptional(item);
+                    else
+                        this.add(item);
+                }
+                else
+                    this.add(item);
+            });
+            return this;
+        }
         public CustomTagAppender addTag(TagKey<Item> tag) { this.appender.addTag(tag); return this; }
 
     }

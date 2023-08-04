@@ -18,8 +18,8 @@ public class ClientNotificationData {
 	public static void UpdateNotifications(NotificationData data) {
 		myNotifications = data;
 		Minecraft mc = Minecraft.getInstance();
-		if(mc.screen instanceof NotificationScreen)
-			((NotificationScreen)mc.screen).reinit();
+		if(mc.screen instanceof NotificationScreen screen)
+			screen.reinit();
 	}
 	
 	@SubscribeEvent

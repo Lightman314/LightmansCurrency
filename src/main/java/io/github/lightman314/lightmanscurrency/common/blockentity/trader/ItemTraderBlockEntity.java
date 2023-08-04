@@ -21,6 +21,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
 	protected int tradeCount;
@@ -43,6 +45,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.networkTrader = networkTrader;
 	}
 	
+	@Nonnull
 	public ItemTraderData buildNewTrader() {
 		ItemTraderData trader = new ItemTraderData(this.tradeCount, this.level, this.worldPosition);
 		if(this.networkTrader)

@@ -1,12 +1,17 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
+import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataBook;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.core.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
@@ -19,29 +24,11 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveAllyNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeAllyPermissionNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeCreativeNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeNameNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeOwnerNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -106,11 +93,12 @@ public class LightmansCurrency {
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	
     private static final Logger LOGGER = LogManager.getLogger();
-    
-    public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", ModBlocks.COINPILE_GOLD::get);
-    public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", ModBlocks.MACHINE_MINT::get);
-	public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", ModBlocks.DISPLAY_CASE::get);
-	public static final CustomCreativeTab UPGRADE_GROUP = new CustomCreativeTab(MODID + ".upgrades", ModItems.ITEM_CAPACITY_UPGRADE_1::get);
+
+
+    public static final CustomCreativeTab COIN_GROUP = CustomCreativeTab.build(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
+    public static final CustomCreativeTab MACHINE_GROUP = CustomCreativeTab.build(MODID + ".machines", () -> ModBlocks.COIN_MINT);
+	public static final CustomCreativeTab TRADING_GROUP = CustomCreativeTab.build(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
+	public static final CustomCreativeTab UPGRADE_GROUP = CustomCreativeTab.build(MODID + ".upgrades", () -> ModItems.ITEM_CAPACITY_UPGRADE_1);
 
 	/**
 	 * Whether the Curios API mod is installed
@@ -130,6 +118,8 @@ public class LightmansCurrency {
     
 	public LightmansCurrency() {
 
+		LightmansCurrency.LogDebug("Initializing LightmansCurrency!");
+
 		LootManager.registerDroplistListeners();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
@@ -145,6 +135,10 @@ public class LightmansCurrency {
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+		//Setup Wood Compatibilities before registering blocks/items
+		if(ModList.get().isLoaded("biomesoplenty"))
+			BOPWoodTypes.setupWoodTypes();
         
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -233,24 +227,29 @@ public class LightmansCurrency {
 		Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
 		Notification.register(DepositWithdrawNotification.SERVER_TYPE, DepositWithdrawNotification.Server::new);
 		Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
+		Notification.register(TaxesCollectedNotification.TYPE, TaxesCollectedNotification::new);
+		Notification.register(TaxesPaidNotification.TYPE, TaxesPaidNotification::new);
 
 		//Initialize the Notification Category deserializers
-		NotificationCategory.register(NotificationCategory.GENERAL_TYPE, c -> NotificationCategory.GENERAL);
-		NotificationCategory.register(NullCategory.TYPE, c -> NullCategory.INSTANCE);
+		NotificationCategory.registerInstance(NotificationCategory.GENERAL_TYPE, NotificationCategory.GENERAL);
+		NotificationCategory.registerInstance(NullCategory.TYPE, NullCategory.INSTANCE);
 		NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
 		NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
-		NotificationCategory.register(AuctionHouseCategory.TYPE, c -> AuctionHouseCategory.INSTANCE);
+		NotificationCategory.registerInstance(AuctionHouseCategory.TYPE, AuctionHouseCategory.INSTANCE);
+		NotificationCategory.register(TaxEntryCategory.TYPE, TaxEntryCategory::new);
 
 		//Register Trader Search Filters
 		TraderSearchFilter.addFilter(new BasicSearchFilter());
 		TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
+
+		//Register Tax Reference Types (in case I add more taxable blocks in the future)
+		TaxReferenceType.register(TaxableTraderReference.TYPE);
 
 		//Register Upgrade Types
 		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());
 
 		//Initialized the sorting lists
 		ModCreativeGroups.setupCreativeTabs();
-
 
 		ATMIconData.init();
 
@@ -334,6 +333,14 @@ public class LightmansCurrency {
     	else
     		LOGGER.info(message);
     }
+
+	public static void LogInfo(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
+			LOGGER.debug("INFO: " + message, objects);
+		else
+			LOGGER.info(message, objects);
+	}
     
     public static void LogWarning(String message)
     {
@@ -342,14 +349,14 @@ public class LightmansCurrency {
     	else
     		LOGGER.warn(message);
     }
-    
-    public static void LogError(String message, Object... objects)
-    {
-    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
-    		LOGGER.debug("ERROR: " + message, objects);
-    	else
-    		LOGGER.error(message, objects);
-    }
+
+	public static void LogWarning(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 1)
+			LOGGER.debug("WARN: " + message, objects);
+		else
+			LOGGER.warn(message, objects);
+	}
     
     public static void LogError(String message)
     {
@@ -358,6 +365,14 @@ public class LightmansCurrency {
     	else
     		LOGGER.error(message);
     }
+
+	public static void LogError(String message, Object... objects)
+	{
+		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
+			LOGGER.debug("ERROR: " + message, objects);
+		else
+			LOGGER.error(message, objects);
+	}
 
 	public static void safeEnqueueWork(ParallelDispatchEvent event, String errorMessage, Runnable work) {
 		event.enqueueWork(() -> {

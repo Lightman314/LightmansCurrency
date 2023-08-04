@@ -6,7 +6,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public abstract class EasyBlockEntity extends BlockEntity implements IClientTracker {
 
@@ -15,7 +16,8 @@ public abstract class EasyBlockEntity extends BlockEntity implements IClientTrac
     @Override
     public boolean isClient() { return this.level == null || this.level.isClientSide; }
 
+    @Nonnull
     @Override
-    public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
+    public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 
 }

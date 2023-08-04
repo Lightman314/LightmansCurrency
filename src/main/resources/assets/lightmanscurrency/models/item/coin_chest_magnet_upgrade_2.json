@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "lightmanscurrency:item/coin_chest_magnet_upgrade_2"
-  }
-}

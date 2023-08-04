@@ -20,9 +20,8 @@ public class RecipeValidator {
 		RecipeManager recipeManager = level.getRecipeManager();
 		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT))
 		{
-			if(recipe instanceof CoinMintRecipe)
+			if(recipe instanceof CoinMintRecipe mintRecipe)
 			{
-				CoinMintRecipe mintRecipe = (CoinMintRecipe)recipe;
 				if(mintRecipe.isValid())
 				{
 					results.coinMintRecipes.add(mintRecipe);

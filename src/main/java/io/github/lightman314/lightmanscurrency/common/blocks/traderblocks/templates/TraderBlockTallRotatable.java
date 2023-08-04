@@ -21,8 +21,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,7 +32,6 @@ import javax.annotation.Nonnull;
 
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
-	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
 	protected TraderBlockTallRotatable(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE_T); }

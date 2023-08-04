@@ -27,6 +27,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     private final MintType type;
     private final Item result;
     private final int count;
+    private int duration = 0;
     private Ingredient ingredient = null;
     private int ingredientCount = 1;
 
@@ -61,6 +62,9 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient, int count) { this.ingredient = ingredient; this.ingredientCount = 1; return this; }
 
     @Nonnull
+    public MintRecipeBuilder ofDuration(int duration) { this.duration = duration; return this; }
+
+    @Nonnull
     @Override
     public MintRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull CriterionTriggerInstance criteria) { this.advancement.addCriterion(name, criteria); return this; }
 
@@ -76,7 +80,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
         this.advancement.parent(new ResourceLocation("recipes/root")).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.type, this.result, this.count, this.ingredient, this.ingredientCount, this.advancement, AddPrefix(id)));
+        consumer.accept(new Result(id, this.type, this.result, this.count, this.duration, this.ingredient, this.ingredientCount, this.advancement, AddPrefix(id)));
     }
 
     private static ResourceLocation AddPrefix(ResourceLocation id) { return new ResourceLocation(id.getNamespace(), "recipes/coin_mint/" + id.getPath()); }
@@ -96,17 +100,19 @@ public class MintRecipeBuilder  implements RecipeBuilder {
         private final MintType type;
         private final Item result;
         private final int count;
+        private final int duration;
         private final Ingredient ingredient;
         private final int ingredientCount;
         private final Advancement.Builder advancement;
         private final ResourceLocation advancementId;
 
-        public Result(ResourceLocation id, MintType type, Item result, int count, Ingredient ingredient, int ingredientCount, Advancement.Builder advancement, ResourceLocation advancementId)
+        public Result(ResourceLocation id, MintType type, Item result, int count, int duration, Ingredient ingredient, int ingredientCount, Advancement.Builder advancement, ResourceLocation advancementId)
         {
             this.id = id;
             this.type = type;
             this.result = result;
             this.count = count;
+            this.duration = duration;
             this.ingredient = ingredient;
             this.ingredientCount = ingredientCount;
             this.advancement = advancement;
@@ -124,6 +130,8 @@ public class MintRecipeBuilder  implements RecipeBuilder {
             resultObject.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
             if(this.count > 1)
                 resultObject.addProperty("count", this.count);
+            if(this.duration > 0)
+                resultObject.addProperty("duration", this.duration);
             json.add("result", resultObject);
         }
 
