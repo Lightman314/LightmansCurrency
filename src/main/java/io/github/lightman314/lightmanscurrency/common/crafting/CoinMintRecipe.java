@@ -96,6 +96,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	@Override
 	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
+	public int getInternalDuration() { return this.duration; }
 	public int getDuration() { return this.duration > 0 ? this.duration : Config.SERVER.defaultMintDuration.get(); }
 
 	@Override

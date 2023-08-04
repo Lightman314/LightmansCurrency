@@ -61,7 +61,7 @@ public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe
 		recipe.getIngredient().toNetwork(buffer);
 		buffer.writeInt(recipe.ingredientCount);
 		buffer.writeItemStack(recipe.getOutputItem(), false);
-		buffer.writeInt(recipe.getDuration());
+		buffer.writeInt(recipe.getInternalDuration());
 	}
 
 	
