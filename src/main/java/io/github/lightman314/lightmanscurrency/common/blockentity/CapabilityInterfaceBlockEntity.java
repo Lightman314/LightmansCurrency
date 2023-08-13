@@ -24,7 +24,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity{
 		if(block instanceof ICapabilityBlock handlerBlock)
 		{
 			BlockEntity blockEntity = handlerBlock.getCapabilityBlockEntity(this.getBlockState(), this.level, this.worldPosition);
-			if(blockEntity != null)
+			if(blockEntity != null && !(blockEntity instanceof CapabilityInterfaceBlockEntity))
 				return blockEntity.getCapability(cap, side);
 		}
 		return super.getCapability(cap, side);

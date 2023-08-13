@@ -84,7 +84,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	public int stackSizeOffX;
 	public int stackSizeOffY;
 
-	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems;
+	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
 
 	private List<ItemStack> searchResultItems;
 
@@ -119,7 +119,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public static void initItemList() {
 
-		if(preFilteredItems != null)
+		if(preFilteredItems.size() > 0)
 			return;
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
