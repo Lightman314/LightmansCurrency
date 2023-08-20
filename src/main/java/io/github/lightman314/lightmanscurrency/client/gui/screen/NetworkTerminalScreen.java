@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkT
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
@@ -21,13 +22,15 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-public class TradingTerminalScreen extends EasyScreen implements IScrollable {
+public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
@@ -48,8 +51,12 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 		return traderList;
 	}
 	private List<TraderData> filteredTraderList = new ArrayList<>();
-	
-	public TradingTerminalScreen() { super(EasyText.translatable("block.lightmanscurrency.terminal")); this.resize(176,187); }
+
+	public NetworkTerminalScreen(TerminalMenu menu, Inventory inventory, Component ignored)
+	{
+		super(menu, inventory, EasyText.translatable("block.lightmanscurrency.terminal"));
+		this.resize(176,187);
+	}
 	
 	@Override
 	protected void initialize(ScreenArea screenArea)
@@ -135,9 +142,7 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 	{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
-		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.filteredTraderList.get(index).getID()));
-		}
 	}
 	
 	private int getTraderIndex(EasyButton button)
@@ -211,8 +216,6 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 			} catch (Throwable t) { return 0; }
 		}
 	}
-
-	private void validateScroll() { scroll = Math.min(scroll, this.getMaxScroll()); }
 	
 	@Override
 	public int currentScroll() { return scroll; }

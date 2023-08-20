@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientBankData {
 
 	private static final Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
-	private static AccountReference lastSelectedAccount = null;
+	private static BankReference lastSelectedAccount = null;
 	
 	public static BankAccount GetPlayerBankAccount(UUID playerID)
 	{
@@ -31,7 +31,7 @@ public class ClientBankData {
 	public static void InitBankAccounts(Map<UUID,BankAccount> bankAccounts)
 	{
 		loadedBankAccounts.clear();
-		bankAccounts.forEach((id,account) -> loadedBankAccounts.put(id, account));
+		loadedBankAccounts.putAll(bankAccounts);
 	}
 	
 	public static void UpdateBankAccount(CompoundTag compound)
@@ -44,11 +44,11 @@ public class ClientBankData {
 		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
-	public static void UpdateLastSelectedAccount(AccountReference reference) {
+	public static void UpdateLastSelectedAccount(BankReference reference) {
 		lastSelectedAccount = reference;
 	}
 	
-	public static AccountReference GetLastSelectedAccount() {
+	public static BankReference GetLastSelectedAccount() {
 		return lastSelectedAccount;
 	}
 	

@@ -1,0 +1,28 @@
+{
+    "parent": "lightmanscurrency:currency/myfirstpenny",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:sus_jar"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.jar_of_sus.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.jar_of_sus.description",
+			"bold": true
+        },
+		"hidden": true
+    },
+    "criteria": {
+        "jar_of_sus": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "item": "lightmanscurrency:sus_jar"
+                    }
+                ]
+            }
+        }
+    }
+}

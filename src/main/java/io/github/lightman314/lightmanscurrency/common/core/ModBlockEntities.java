@@ -41,7 +41,7 @@ public class ModBlockEntities {
 		
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 
-		TAX_BLOCK = ModRegistries.BLOCK_ENTITIES.register("tax_block", () -> BlockEntityType.Builder.of(TaxBlockEntity::new, ModBlocks.TAX_BLOCK.get()).build(null));
+		TAX_BLOCK = ModRegistries.BLOCK_ENTITIES.register("tax_block", () -> BlockEntityType.Builder.of(TaxBlockEntity::new, ModBlocks.TAX_COLLECTOR.get()).build(null));
 
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
 

@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -21,17 +24,16 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
-public class TraderMenu extends AbstractContainerMenu {
+import javax.annotation.Nonnull;
+
+public class TraderMenu extends EasyMenu implements IValidatedMenu {
 
 	public final Supplier<ITraderSource> traderSource;
-	public final Player player;
 	
 	public static final int SLOT_OFFSET = 15;
 	
@@ -42,15 +44,24 @@ public class TraderMenu extends AbstractContainerMenu {
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
-	
-	public TraderMenu(int windowID, Inventory inventory, long traderID) {
-		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID));
+
+	private final MenuValidator validator;
+	@Nonnull
+	@Override
+	public MenuValidator getValidator() { return this.validator; }
+
+	public TraderMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID), validator);
 	}
 	
-	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource) {
-		super(type, windowID);
-		this.player = inventory.player;
+	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource, MenuValidator validator) {
+		super(type, windowID, inventory);
+		this.validator = validator;
 		this.traderSource = traderSource;
+
+		this.addValidator(this::traderSourceValid);
+		this.addValidator(this.validator);
+
 		this.init(inventory);
 		for(TraderData trader : this.traderSource.get().getTraders()) {
 			if(trader != null) trader.userOpen(this.player);
@@ -92,9 +103,8 @@ public class TraderMenu extends AbstractContainerMenu {
 		
 	}
 
-	@Override
-	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
-	
+	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
+
 	@Override
 	public void removed(@NotNull Player player) {
 		super.removed(player);
@@ -126,7 +136,7 @@ public class TraderMenu extends AbstractContainerMenu {
 				LightmansCurrency.LogWarning("Trader at index " + traderIndex + " is null.");
 				return;
 			}
-			TradeResult result = trader.ExecuteTrade(this.getContext(trader), tradeIndex);
+			TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
 			if(result.hasMessage())
 				LightmansCurrency.LogInfo(result.failMessage.getString());
 		}
@@ -211,20 +221,19 @@ public class TraderMenu extends AbstractContainerMenu {
 	
 	public static class TraderMenuBlockSource extends TraderMenu
 	{
-		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos blockPosition) {
+		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos pos, MenuValidator validator) {
 			super(ModMenus.TRADER_BLOCK.get(), windowID, inventory, () -> {
-				BlockEntity be = inventory.player.level().getBlockEntity(blockPosition);
-				if(be instanceof ITraderSource source)
+				if(inventory.player.level().getBlockEntity(pos) instanceof ITraderSource source)
 					return source;
 				return null;
-			});
+			}, validator);
 		}
 	}
 
 	public static class TraderMenuAllNetwork extends TraderMenu
 	{
-		public TraderMenuAllNetwork(int windowID, Inventory inventory) {
-			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level().isClientSide));
+		public TraderMenuAllNetwork(int windowID, Inventory inventory, MenuValidator validator) {
+			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level().isClientSide), validator);
 		}
 	}
 	

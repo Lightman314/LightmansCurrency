@@ -60,7 +60,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.BOOKSHELF_TRADER)
                 .add(ModBlocks.SLOT_MACHINE)
                 .add(ModBlocks.COIN_CHEST)
-                .add(ModBlocks.TAX_BLOCK);
+                .add(ModBlocks.TAX_COLLECTOR);
 
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
@@ -104,7 +104,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.TICKET_STATION)
                 .add(ModBlocks.PIGGY_BANK)
                 .add(ModBlocks.COINJAR_BLUE)
-                .add(ModBlocks.TAX_BLOCK);
+                .add(ModBlocks.SUS_JAR)
+                .add(ModBlocks.TAX_COLLECTOR);
 
         this.cTag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.SHELF)
@@ -133,7 +134,6 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         //Add Safe-Interactable to ftb chunks interact whitelist
         this.cTag(new ResourceLocation("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
-
 
     }
 

@@ -3,6 +3,7 @@
     "itemGroup.lightmanscurrency.machines" : "Misc Machines",
     "itemGroup.lightmanscurrency.trading" : "Trading Machines",
     "itemGroup.lightmanscurrency.upgrades" : "Machine Upgrades",
+    "itemGroup.lightmanscurrency.extra" : "Extra Machines",
     
     "item.lightmanscurrency.coin_copper" : "Copper Coin",
     "item.lightmanscurrency.coin_copper.plural": "Copper Coins",
@@ -229,6 +230,7 @@
     "block.lightmanscurrency.item_trader_server_xlrg": "Item Network Trader T4",
     "block.lightmanscurrency.piggy_bank": "Piggy Bank",
     "block.lightmanscurrency.coinjar_blue": "Coin Jar",
+    "block.lightmanscurrency.sus_jar": "Jar of Sus",
     "block.lightmanscurrency.ticket_kiosk": "Ticket Kiosk",
     "block.lightmanscurrency.item_trader_interface": "Item Trader Interface Terminal",
 	
@@ -257,7 +259,7 @@
 	"block.lightmanscurrency.auction_stand_biomesoplenty_hellbark": "Hellbark Auction Stand",
 	
     "block.lightmanscurrency.coin_chest": "Money Chest",
-	"block.lightmanscurrency.tax_block": "Tax Block",
+	"block.lightmanscurrency.tax_block": "Tax Collector",
 
     
     "enchantment.lightmanscurrency.money_mending": "Money Mending",
@@ -306,6 +308,10 @@
     "tooltip.lightmanscurrency.ticketmachine.1": "Can be used to print unique Master and Slave tickets.",
     "tooltip.lightmanscurrency.ticketmachine.2": "Tickets can be used with the Paygate, or used as coupons for barter trades.",
     "tooltip.lightmanscurrency.cashregister.1": "Can be used to link and interact with multiple local traders at the same time.",
+    "tooltip.lightmanscurrency.tax_collector.1": "Tax Collector:",
+    "tooltip.lightmanscurrency.tax_collector.2": "Can be placed and used to collect taxes from Trader sales within an area.",
+    "tooltip.lightmanscurrency.tax_collector.admin_only": "Can only be activated by an admin!",
+	
     
     "tooltip.lightmanscurrency.auction.nobidder": "Nobody has bid yet.",
     "tooltip.lightmanscurrency.auction.lastbidder": "%s currently has the highest bid.",
@@ -406,10 +412,12 @@
     "tooltip.lightmanscurrency.upgrade.coin_chest.protection.1":"Allows the Money Chest to be protected from destruction by other players, and blocks access from other players as well.",
     "tooltip.lightmanscurrency.upgrade.coin_chest.protection.2":"Requires set-up, will not function automatically.",
     "tooltip.lightmanscurrency.upgrade.coin_chest.protection.warning":"You do not have permission to access the chest.",
+    "tooltip.lightmanscurrency.colored_item":"Color: %s",
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",
     "tooltip.lightmanscurrency.cannotafford": "Cannot Afford",
+    "tooltip.lightmanscurrency.tax_limit": "Tax Rate too High",
     "tooltip.lightmanscurrency.denied": "DENIED",
     "tooltip.lightmanscurrency.paygate.active": "Already Active",
     "tooltip.lightmanscurrency.paygate.duration.ticks.short": "%st",
@@ -453,10 +461,14 @@
     "tooltip.lightmanscurrency.trader.traderules.trader": "Trader Rules",
     "tooltip.lightmanscurrency.trader.traderules.trade": "Edit Trade-Specific Rules",
     "tooltip.lightmanscurrency.trader.edit_trades": "Edit Trades",
+    "tooltip.lightmanscurrency.trader.tax_info": "Tax Information",
+    "tooltip.lightmanscurrency.trader.tax_info.total_rate": "Total Tax Rate: %s%%",
+    "tooltip.lightmanscurrency.trader.tax_info.no_tax_collectors": "No active Tax Collectors in range",
     "tooltip.lightmanscurrency.trader.slot_machine.edit_entries": "Edit Entries",
     "tooltip.lightmanscurrency.trader.slot_machine.edit_price": "Edit Price",
     "gui.lightmanscurrency.trader.slot_machine.entry_label": "Entry #%s",
     "gui.lightmanscurrency.trader.slot_machine.weight_label": "Weight: ",
+    "gui.lightmanscurrency.trader.slot_machine.odds_label": "Chance: %s%%",
     "tooltip.lightmanscurrency.trader.storage": "Trader Storage",
     "tooltip.lightmanscurrency.trader.paygate.store_stubs": "Store Ticket Stubs",
     "tooltip.lightmanscurrency.trader.storage.dont_store_stubs": "Give Ticket Stubs to the Customer",
@@ -475,6 +487,8 @@
     "tooltip.lightmanscurrency.slot_machine.money": "Pays %s",
     "tooltip.lightmanscurrency.slot_machine.weight": "Weight: %s",
     "tooltip.lightmanscurrency.slot_machine.odds": "%s%% chance of receiving.",
+    "tooltip.lightmanscurrency.slot_machine.to_info": "Click to view possible results",
+    "tooltip.lightmanscurrency.slot_machine.to_interact": "Click to return to slots",
     "gui.button.lightmanscurrency.mint": "Mint Coin",
     "gui.button.lightmanscurrency.melt": "Melt Coin",
     "gui.button.lightmanscurrency.craft_ticket": "Craft Ticket",
@@ -543,6 +557,8 @@
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
     
     "trader.warning.reinitialized": "Trader Data was missing for this block. Re-initializing the trader with you as the owner!",
+    "tax_block.warning.reinitialized": "Tax Entry was missing for this block. Re-initializing with you as the owner!",
+    "tax_block.warning.no_access": "You do not have access to this Tax Collector",
     
     "log.shoplog.item.format": "%1$s%2$s %3$s %4$s for %5$s",
     "log.shoplog.item.itemformat": "%1$sx %2$s",
@@ -595,6 +611,7 @@
     "tooltip.lightmanscurrency.settings.owner.team": "Transfer To Team",
     "tooltip.lightmanscurrency.settings.owner.self": "Set as Self",
     "tooltip.lightmanscurrency.settings.notifications": "Trader Notifications",
+    "tooltip.lightmanscurrency.settings.taxes": "Tax Options",
     "tooltip.lightmanscurrency.warning": "WARNING: Cannot be undone.",
     
     "gui.lightmanscurrency.changename": "Change Name",
@@ -618,6 +635,35 @@
     
     "gui.lightmanscurrency.settings.persistent.owner": "PT Owner: ",
     "gui.lightmanscurrency.settings.persistent.id": "ID: ",
+	
+	"gui.lightmanscurrency.tax_collector.basic": "Basic Settings",
+	"gui.lightmanscurrency.tax_collector.logs": "Logs",
+	"gui.lightmanscurrency.tax_collector.info": "Collection Statistics",
+	"gui.lightmanscurrency.tax_collector.owner": "Ownership",
+	"gui.lightmanscurrency.tax_collector.admin": "Admin Settings",
+	
+	"gui.lightmanscurrency.tax_collector.active": "Active",
+	"gui.lightmanscurrency.tax_collector.tax_rate": "Tax Rate: %s%%",
+	"gui.lightmanscurrency.tax_collector.render_mode.label": "Area Visible To:",
+	"gui.lightmanscurrency.tax_collector.render_mode.0": "None",
+	"gui.lightmanscurrency.tax_collector.render_mode.1": "Members",
+	"gui.lightmanscurrency.tax_collector.render_mode.2": "All",
+	"gui.lightmanscurrency.tax_collector.force_acceptance": "Force Acceptance",
+	"gui.lightmanscurrency.tax_collector.infinite_range": "Infinite Range",
+	"gui.lightmanscurrency.tax_collector.area.radius": "Radius",
+	"gui.lightmanscurrency.tax_collector.area.height": "Height",
+	"gui.lightmanscurrency.tax_collector.area.vertOffset": "Y-Offset",
+	"gui.lightmanscurrency.tax_collector.area.infinite.label": "Area:",
+	"gui.lightmanscurrency.tax_collector.area.infinite.dimension": "All of '%s'",
+	"gui.lightmanscurrency.tax_collector.area.infinite.void": "All Dimensions",
+	"gui.lightmanscurrency.tax_collector.stats.clear": "Clear Stats",
+	"gui.lightmanscurrency.tax_collector.stats.total_collected": "Total Taxes Collected:",
+	"gui.lightmanscurrency.tax_collector.stats.unique_taxables": "Unique Machines Taxed: %s",
+	"gui.lightmanscurrency.tax_collector.stats.most_taxed.label": "Most Taxed Machine:",
+	"gui.lightmanscurrency.tax_collector.stats.most_taxed.format": "%s interactions taxed",
+	"gui.lightmanscurrency.tax_collector.taxable.accept_collector": "Accept",
+	"tooltip.lightmanscurrency.tax_collector.taxable.force_ignore_collector": "Ignore this Tax Collector!",
+	"tooltip.lightmanscurrency.tax_collector.taxable.pardon_ignored_collector": "Stop ignoring this Tax Collector!",
     
     "lightmanscurrency.message.persistent.trader.overwrite": "Overwrote Persistent Trader with id %s.",
     "lightmanscurrency.message.persistent.trader.add": "Added Persistent Trader with id %s.",
@@ -631,6 +677,8 @@
     "tooltip.lightmanscurrency.persistent.add.auction": "Create a Persistent Auction with the given data.",
     
     "gui.lightmanscurrency.settings.banklink": "Link to Bank Account",
+    "gui.lightmanscurrency.settings.acceptabletaxrate": "Acceptable Tax Rate: %s%%",
+    "gui.lightmanscurrency.settings.ingoretaxes": "Ignore All Taxes",
     
     "gui.button.lightmanscurrency.set_owner": "Transfer Ownership",
 
@@ -784,6 +832,7 @@
     "lightmanscurrency.remotetrade.fail.nospace.output": "Interface has no space to accept the purchased product.",
     "lightmanscurrency.remotetrade.fail.nospace.input": "Trader has no space to accept the collected product.",
     "lightmanscurrency.remotetrade.fail.traderule": "A Trade Rule has denied your ability to interact with the trade.",
+    "lightmanscurrency.remotetrade.fail.tax_limit": "This Trader's Tax Collection exceeds the defined limits, and has locked the trader until it can be resolved.",
     "lightmanscurrency.remotetrade.fail.invalid": "The trade is no longer a valid trade.",
     "lightmanscurrency.remotetrade.fail.notsupported": "This trader does not support trader interfaces.",
     "lightmanscurrency.remotetrade.fail.null": "The trade or trader no longer exists.",
@@ -803,9 +852,11 @@
     
     "gui.lightmanscurrency.trader_recovery.nodata": "No Recovery Data available.",
 	"gui.lightmanscurrency.tax_entry.default_name": "%s's Taxes",
+	"gui.lightmanscurrency.tax_entry.default_name.server": "Server",
 	
+	"lightmanscurrency.tax_entry.placement_notification.trader.server_only": "All Traders on this server are susceptible to a server tax!",
 	"lightmanscurrency.tax_entry.placement_notification.trader.1": "Traders in this area are susceptible to taxes!",
-	"lightmanscurrency.tax_entry.placement_notification.trader.2": "Check your traders Taxes tab for more information.",
+	"lightmanscurrency.tax_entry.placement_notification.trader.2": "Check your traders Tax Info tab for more information.",
     
     "traderule.list.blurb": "Trade Rules:",
     "traderule.lightmanscurrency.whitelist": "Whitelist",
@@ -873,8 +924,9 @@
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
     "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
 	"command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
-	"command.lightmanscurrency.lcadmin.createServerTax.success": "Created new Server Tax Entry with id %s!",
-	"command.lightmanscurrency.lcadmin.createServerTax.fail": "And unknown error occurred creating the new Server Tax Entry!",
+	"command.lightmanscurrency.lcadmin.openServerTax.error": "An error occurred accessing the server tax entry!",
+	"command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.success": "Disabled %s active Tax Collectors",
+	"command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.fail": "No Tax Collectors are currently active",
 
     "command.lightmanscurrency.lcbank.give.success": "Gave %1$s to %2$s bank accounts!",
     "command.lightmanscurrency.lcbank.give.success.single": "Gave %1$s to %2$s!",
@@ -933,8 +985,10 @@
     "advancements.lightmanscurrency.specialty_trader.title": "Specialty Trading",
     "advancements.lightmanscurrency.specialty_trader.description": "Craft a specialty item trader. Be careful, as they have special rules limiting how their trades are defined.",
     "advancements.lightmanscurrency.network_trader.title": "Welcome to Amazon!",
-    "advancements.lightmanscurrency.network_trader.description": "Craft a network trader, so that you can sell your items to anyone, anywhere!",
+    "advancements.lightmanscurrency.network_trader.description": "Craft a network trader so that you can sell your items to anyone, anywhere!",
     "advancements.lightmanscurrency.trader_interface.title": "Patching in",
-    "advancements.lightmanscurrency.trader_interface.description": "Craft a trader interface, so that you can automate trading or restocking with a network trader!"
+    "advancements.lightmanscurrency.trader_interface.description": "Craft a trader interface, so that you can automate trading or restocking with a network trader!",
+    "advancements.lightmanscurrency.jar_of_sus.title": "Sus Bank Check",
+    "advancements.lightmanscurrency.jar_of_sus.description": "WHY DID IT HAVE TO BE SOUP!?"
     
 }

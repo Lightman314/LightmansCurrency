@@ -57,6 +57,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	private int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
+	@Deprecated
 	public ScrollBarWidget getScrollBar() { return this.scrollBar; }
 
 	private boolean hasTitlePosition = false;
@@ -213,15 +214,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			this.resetButtons();
 		}
 		else
-			this.repositionButtons();
-	}
-
-	private void validateScroll() {
-		if(this.canScrollDown())
-			return;
-		int oldScroll = this.scroll;
-		this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
-		if(this.scroll != oldScroll)
 			this.repositionButtons();
 	}
 	

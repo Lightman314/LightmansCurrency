@@ -38,6 +38,8 @@ import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyData;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 
+import javax.annotation.Nonnull;
+
 public class LightmansCurrencyPacketHandler {
 	
 	public static final String PROTOCOL_VERSION = "1";
@@ -79,6 +81,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageStoreCoins.class, MessageStoreCoins::encode, MessageStoreCoins::decode, MessageStoreCoins::handle);
 		register(MessageOpenStorage.class, MessageOpenStorage::encode, MessageOpenStorage::decode, MessageOpenStorage::handle);
 		register(MessageOpenTrades.class, MessageOpenTrades::encode, MessageOpenTrades::decode, MessageOpenTrades::handle);
+		register(MessageOpenNetworkTerminal.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(MessageOpenNetworkTerminal::new), MessageOpenNetworkTerminal::handle);
 		register(MessageSyncUsers.class, MessageSyncUsers::encode, MessageSyncUsers::decode, MessageSyncUsers::handle);
 		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
 		register(MessageTraderMessage.class, MessageTraderMessage::encode, MessageTraderMessage::decode, MessageTraderMessage::handle);
@@ -206,6 +209,7 @@ public class LightmansCurrencyPacketHandler {
 
 		public static <T> void emptyEncode(T message, FriendlyByteBuf buffer) {}
 		public static <T> Function<FriendlyByteBuf,T> emptyDecode(NonNullSupplier<T> get) { return (buffer) -> get.get(); }
+		public static <T> Function<FriendlyByteBuf,T> emptyDecode(@Nonnull T instance) { return (buffer) -> instance; }
 
 	}
 	

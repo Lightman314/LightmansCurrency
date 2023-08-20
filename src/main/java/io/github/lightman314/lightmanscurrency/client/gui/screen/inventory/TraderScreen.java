@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenNetworkTerminal;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -147,10 +148,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 	
 	private void OpenTerminal(EasyButton button) {
 		if(this.showTerminalButton())
-		{
-			this.menu.player.closeContainer();
-			LightmansCurrency.PROXY.openTerminalScreen();
-		}
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal());
 	}
 
 	@Override

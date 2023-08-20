@@ -5,7 +5,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -72,11 +71,13 @@ public class RegistryObjectBundle<T,L> {
 		return keys;
 	}
 
-	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
+	public List<T> getAllSorted() { return this.getAllSorted(BundleRequestFiler.ALL); }
+	public List<T> getAllSorted(BundleRequestFiler filter) { return this.getAllSorted(filter, this.sorter); }
 
-	public List<T> getAllSorted(Comparator<L> sorter)
+	public List<T> getAllSorted(Comparator<L> sorter) { return this.getAllSorted(BundleRequestFiler.ALL, sorter); }
+	public List<T> getAllSorted(BundleRequestFiler filter, Comparator<L> sorter)
 	{
-		List<L> keys = this.getKeysSorted(sorter);
+		List<L> keys = this.getKeysSorted(sorter).stream().filter(filter::filterKey).toList();
 		List<T> result = new ArrayList<>();
 		for(L key : keys)
 		{

@@ -28,7 +28,8 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -120,7 +121,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	public int stackSizeOffX;
 	public int stackSizeOffY;
 
-	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems;
+	private static final List<ItemStack> allItems = new ArrayList<>();
+	private static final Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
 
 	private List<ItemStack> searchResultItems;
 
@@ -149,6 +151,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 
+		//Attempt to reload the item list, but using a different thread now :)
+		//Will hopefully not encounter any errors that normally happen during the PlayerLoginEvent call
+		ConfirmItemListLoaded();
+
 		//Set the search to the default value to initialize the inventory
 		this.modifySearch("");
 
@@ -157,46 +163,80 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	@Override
 	public ItemEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
-	public static void initItemList(FeatureFlagSet flagSet, boolean hasPermissions, HolderLookup.Provider lookup) {
+	/**
+	 * Re-initializes the item edit list on a different thread.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void ConfirmItemListLoaded() { new Thread(ItemEditWidget::safeInitItemList).start(); }
+
+	/**
+	 * Re-initializes the item edit list. Runs on the same thread, so may cause lag if called at an inappropriate time.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void safeInitItemList()
+	{
+		try { initItemList(); }
+		catch (Throwable t) { LightmansCurrency.LogError("Error occurred while attempting to set up the Item List!\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t); }
+	}
+
+	private static void initItemList() {
+
+		Minecraft mc = Minecraft.getInstance();
+		if(mc == null)
+			return;
+
+		LocalPlayer player = mc.player;
+		if(player == null)
+			return;
+
+		FeatureFlagSet flagSet = player.connection.enabledFeatures();
+		boolean hasPermissions  = mc.options.operatorItemsTab().get() && player.canUseGameMasterBlocks();
+		RegistryAccess lookup = mc.player.level().registryAccess();
+
+		//Force Creative Tab content rebuild
+		try{
+			if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && allItems.size() > 0)
+			{
+				//Ignore if we have existing results, and the tab contents have not been changed.
+				LightmansCurrency.LogDebug("Creative Tab Contents have not changed. Used existing filtered results.");
+				return;
+			}
+		} catch (Throwable t) { throw new RuntimeException("Error building the Creative Tab Contents during Player Log-In event!", t); }
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 
-		//Force Creative Tab content rebuild
-		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup);
-
-		List<ItemStack> allItems = new ArrayList<>();
+		allItems.clear();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
 		for(CreativeModeTab creativeTab : CreativeModeTabs.allTabs())
 		{
 			if(IsCreativeTabAllowed(creativeTab))
 			{
-				//Get all the items in this creative tab
-				Collection<ItemStack> items = creativeTab.getDisplayItems();
-				//Add them to the list after confirming we don't already have it in the list
-				for(ItemStack stack : items)
-				{
-					if(isItemAllowed(stack))
+				//Add all items in this creative tab to the list
+				//while also confirming we don't already have it in the list
+				try{
+					for(ItemStack stack : creativeTab.getDisplayItems())
 					{
-						addToList(allItems, stack);
-
-						if(stack.getItem() == Items.ENCHANTED_BOOK)
+						if(isItemAllowed(stack))
 						{
-							//LightmansCurrency.LogInfo("Attempting to add lower levels of an enchanted book.");
-							Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-							enchantments.forEach((enchantment, level) ->{
-								for(int newLevel = level - 1; newLevel > 0; newLevel--)
-								{
-									ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
-									EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-									if(isItemAllowed(newBook))
-										addToList(allItems, newBook);
-								}
-							});
+							addToList(stack);
+							if(stack.getItem() == Items.ENCHANTED_BOOK)
+							{
+								//LightmansCurrency.LogInfo("Attempting to add lower levels of an enchanted book.");
+								Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+								enchantments.forEach((enchantment, level) ->{
+									for(int newLevel = level - 1; newLevel > 0; newLevel--)
+									{
+										ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
+										EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
+										if(isItemAllowed(newBook))
+											addToList(newBook);
+									}
+								});
+							}
 						}
 					}
-
-				}
+				} catch (Throwable t) { LightmansCurrency.LogError("Error getting display items from the '" + creativeTab.getDisplayName().getString() + "' tab!\nThis tab will be ignored!", t); }
 			}
 		}
 
@@ -206,21 +246,21 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			if(extraItemRule.shouldInsertAtEnd())
 			{
 				ItemStack extraItem = extraItemRule.insertStack.copy();
-				if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+				if(isItemAllowed(extraItem) && notYetInList(extraItem))
 					allItems.add(extraItem.copy());
 			}
 		}
 
-		preFilteredItems = new HashMap<>();
+		preFilteredItems.clear();
 
 		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
 
 	}
 
-	private static void addToList(List<ItemStack> allItems, ItemStack stack)
+	private static void addToList(ItemStack stack)
 	{
 		stack = stack.copy();
-		if(notYetInList(allItems, stack))
+		if(notYetInList(stack))
 		{
 			//Add any before rules
 			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
@@ -228,7 +268,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				if(insertRule.shouldInsertBefore(stack))
 				{
 					ItemStack extraItem = insertRule.insertStack.copy();
-					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
 						allItems.add(extraItem);
 				}
 			}
@@ -241,14 +281,14 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				if(insertRule.shouldInsertAfter(stack))
 				{
 					ItemStack extraItem = insertRule.insertStack.copy();
-					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
 						allItems.add(extraItem);
 				}
 			}
 		}
 	}
 
-	private static boolean notYetInList(List<ItemStack> allItems, ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
+	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
 
 	private List<ItemStack> getFilteredItems()
 	{
@@ -258,7 +298,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : trade.getRestriction();
 			return getFilteredItems(restriction);
 		}
-		return getFilteredItems(ItemTradeRestriction.NONE);
+		return allItems;
 	}
 
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
@@ -267,14 +307,14 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
-			return getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
+			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
 		if(preFilteredItems.containsKey(type))
 			return preFilteredItems.get(type);
 		else
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
-			return preFilteredItems.put(type, getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+			return preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
 		}
 	}
 
@@ -286,10 +326,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	public void refreshPage()
 	{
 
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
+		this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
 
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 
@@ -367,10 +404,13 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-
+	protected void renderTick() {
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
+	}
+
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
 		if(!this.visible)
 			return;
@@ -475,7 +515,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		return false;
 	}
 
-	public boolean stackCountScroll(double mouseX, double mouseY, double delta) {
+	public boolean stackCountScroll(double delta) {
 		if(delta > 0)
 		{
 			if(this.stackCount < 64)

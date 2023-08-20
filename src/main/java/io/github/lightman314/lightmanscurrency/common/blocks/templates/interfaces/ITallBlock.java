@@ -15,7 +15,7 @@ public interface ITallBlock {
 		return pos.below();
 	}
 	
-	boolean getIsBottom(BlockState state);
+	default boolean getIsBottom(BlockState state) { return state.getValue(ISBOTTOM); }
 	
 	default boolean getIsTop(BlockState state) { return !this.getIsBottom(state); }
 	

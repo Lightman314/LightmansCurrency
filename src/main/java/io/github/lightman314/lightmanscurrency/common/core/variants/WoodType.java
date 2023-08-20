@@ -15,6 +15,7 @@ public class WoodType implements IOptionalKey {
     private static final List<WoodType> ALL_TYPES = new ArrayList<>();
     private static ImmutableList<WoodType> VALID_TYPES = null;
     private static ImmutableList<WoodType> VANILLA_TYPES = null;
+    private static ImmutableList<WoodType> MODDED_TYPES = null;
 
     public static final WoodType OAK = new WoodType("oak", MapColor.WOOD);
     public static final WoodType SPRUCE = new WoodType("spruce", MapColor.PODZOL);
@@ -59,6 +60,7 @@ public class WoodType implements IOptionalKey {
     public boolean isValid() { return true; }
     @Override
     public final boolean isModded() { return !this.isVanilla(); }
+
     @Override
     public String toString() { return this.name; }
 
@@ -74,7 +76,15 @@ public class WoodType implements IOptionalKey {
         return VALID_TYPES;
     }
 
-    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t.getModID().equals(modid)).toList()); }
+    public static List<WoodType> moddedValues()
+    {
+        if(MODDED_TYPES == null)
+            MODDED_TYPES = ImmutableList.copyOf(validValues().stream().filter(WoodType::isModded).toList());
+        return MODDED_TYPES;
+    }
+    public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(ALL_TYPES.stream().filter(t -> t.isMod(modid)).toList()); }
+
+    public static boolean hasModdedValues() { return moddedValues().size() > 0; }
 
     public static int sortByWood(WoodType w1, WoodType w2) { return Integer.compare(ALL_TYPES.indexOf(w1), ALL_TYPES.indexOf(w2)); }
 

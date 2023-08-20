@@ -25,12 +25,12 @@ public class CommandReloadData {
 		
 	}
 	
-	static int execute(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int execute(CommandContext<CommandSourceStack> commandContext) {
 		
 		TraderSaveData.ReloadPersistentTraders();
 		MoneyUtil.reloadMoneyData();
 		ATMData.reloadATMData();
-		commandContext.getSource().sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcreload"), true);
+		EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcreload"), true);
 		return 1;
 		
 	}

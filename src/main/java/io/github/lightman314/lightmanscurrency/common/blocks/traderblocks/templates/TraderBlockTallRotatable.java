@@ -153,7 +153,4 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		return level.getBlockEntity(pos);
 	}
 	
-	@Override
-	public boolean getIsBottom(BlockState state) { return state.getValue(ISBOTTOM); }
-	
 }

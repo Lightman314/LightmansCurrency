@@ -742,9 +742,17 @@ public class LCRecipeProvider extends RecipeProvider {
         conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
         //2.1.2.2
+        //The Jar of Sus
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, ModBlocks.SUS_JAR.get())
+                .requires(LCTags.Items.COIN_JAR_NORMAL)
+                .requires(Items.SUSPICIOUS_STEW)
+                .unlockedBy("money", MoneyKnowledge())
+                .unlockedBy("jar", LazyTrigger(LCTags.Items.COIN_JAR_ALL))
+                .save(consumer, ItemID("coin_jar/", ModBlocks.SUS_JAR));
+
         //Tax Block
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxBlock.INSTANCE);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TAX_BLOCK.get())
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxCollector.INSTANCE);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TAX_COLLECTOR.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("trader", TraderKnowledge())
                 .pattern("ghg")
@@ -756,7 +764,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('h', Items.HOPPER)
                 .define('e', Items.ENDER_PEARL)
                 .save(conditional::addRecipe);
-        conditional.generateAdvancement(ItemID(ModBlocks.TAX_BLOCK).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_BLOCK));
+        conditional.generateAdvancement(ItemID(ModBlocks.TAX_COLLECTOR).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_COLLECTOR));
 
 
 

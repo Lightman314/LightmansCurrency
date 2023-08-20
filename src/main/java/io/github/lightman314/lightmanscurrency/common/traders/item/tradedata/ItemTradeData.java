@@ -186,7 +186,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public boolean isBarter() { return this.tradeType == ItemTradeType.BARTER; }
 	
 	public void setTradeType(ItemTradeType tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
-	
+
+	@Nonnull
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
 	
 	public void setRestriction(ItemTradeRestriction restriction) { this.restriction = restriction; }

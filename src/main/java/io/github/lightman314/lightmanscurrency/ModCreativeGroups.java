@@ -4,20 +4,23 @@ import com.google.common.base.Suppliers;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
+import io.github.lightman314.lightmanscurrency.common.core.groups.BundleRequestFiler;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +33,8 @@ public class ModCreativeGroups {
     public static final ResourceLocation MACHINE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"machines");
     public static final ResourceLocation TRADER_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"traders");
     public static final ResourceLocation UPGRADE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"upgrades");
+
+    public static final ResourceLocation EXTRA_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID, "extra");
 
     /**
      * Placeholder function to force the static class loading
@@ -93,10 +98,9 @@ public class ModCreativeGroups {
                     //Trader Interface
                     ezPop(p, ModBlocks.ITEM_TRADER_INTERFACE);
                     //Tax Block
-                    //TODO add tax block to creative tab when ready
-                    //ezPop(p, ModBlocks.TAX_BLOCK);
+                    ezPop(p, ModBlocks.TAX_COLLECTOR);
                     //Auction Stands
-                    ezPop(p, ModBlocks.AUCTION_STAND);
+                    ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFiler.VANILLA);
                     //Ticket Machine
                     ezPop(p, ModBlocks.TICKET_STATION);
                     //Tickets (with a creative default UUID)
@@ -119,16 +123,16 @@ public class ModCreativeGroups {
                 .icon(ezIcon(ModBlocks.DISPLAY_CASE))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
-                    ezPop(p, ModBlocks.SHELF);
+                    ezPop(p, ModBlocks.SHELF, BundleRequestFiler.VANILLA);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
-                    ezPop(p, ModBlocks.CARD_DISPLAY);
+                    ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFiler.VANILLA);
                     ezPop(p, ModBlocks.VENDING_MACHINE);
                     ezPop(p, ModBlocks.FREEZER);
                     ezPop(p, ModBlocks.VENDING_MACHINE_LARGE);
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
-                    ezPop(p, ModBlocks.BOOKSHELF_TRADER);
+                    ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFiler.VANILLA);
                     //Slot Machine Trader
                     ezPop(p, ModBlocks.SLOT_MACHINE);
                     //Item Traders (network)
@@ -167,7 +171,27 @@ public class ModCreativeGroups {
                 }).build()
         );
 
+        if(WoodType.hasModdedValues())
+        {
+            EXTRA_GROUP = ModRegistries.CREATIVE_TABS.register("extra", () -> CreativeModeTab.builder()
+                    .withTabsBefore(TRADER_GROUP_ID)
+                    .withTabsAfter(UPGRADE_GROUP_ID)
+                    .title(EasyText.translatable("itemGroup.lightmanscurrency.extra"))
+                    .icon(ezRandomIcon(ModCreativeGroups::getExtraGroup))
+                    .displayItems((parameters,p) -> {
+                        ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFiler.MODDED);
+                        ezPop(p, ModBlocks.SHELF, BundleRequestFiler.MODDED);
+                        ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFiler.MODDED);
+                        ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFiler.MODDED);
+                    }).build()
+            );
+        }
+        else
+            EXTRA_GROUP = null;
+
     }
+
+    private static CreativeModeTab getExtraGroup() { return EXTRA_GROUP.get(); }
 
     @SubscribeEvent
     public static void buildVanillaTabContents(BuildCreativeModeTabContentsEvent event) {
@@ -185,14 +209,34 @@ public class ModCreativeGroups {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
+            if(ModBlocks.SUS_JAR.get().asItem() instanceof DyeableLeatherItem susItem)
+            {
+                for(Color c : Color.values())
+                {
+                    ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
+                    if(c != Color.WHITE)
+                        susItem.setColor(stack, c.hexColor);
+                    event.accept(stack);
+                }
+            }
+
         }
     }
 
     private static Supplier<ItemStack> ezIcon(RegistryObject<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
+    private static Supplier<ItemStack> ezRandomIcon(Supplier<CreativeModeTab> tabSource) {
+        return () -> {
+            CreativeModeTab tab = tabSource.get();
+            List<ItemStack> items = tab.getDisplayItems().stream().toList();
+            return items.get((int)((TimeUtil.getCurrentTime() / 1000) % items.size()));
+        };
+    }
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFiler filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle, BundleRequestFiler filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();
@@ -205,5 +249,7 @@ public class ModCreativeGroups {
     public static final RegistryObject<CreativeModeTab> MACHINE_GROUP;
     public static final RegistryObject<CreativeModeTab> TRADER_GROUP;
     public static final RegistryObject<CreativeModeTab> UPGRADE_GROUP;
+    @Nullable
+    public static RegistryObject<CreativeModeTab> EXTRA_GROUP;
 
 }

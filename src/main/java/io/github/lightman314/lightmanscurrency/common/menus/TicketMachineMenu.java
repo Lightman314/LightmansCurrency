@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -30,6 +31,7 @@ public class TicketMachineMenu extends LazyMessageMenu{
 	{
 		super(ModMenus.TICKET_MACHINE.get(), windowId, inventory);
 		this.blockEntity = blockEntity;
+		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		
 		//Slots
 		this.addSlot(new TicketModifierSlot(this.blockEntity.getStorage(), 0, 20, 21));
@@ -50,12 +52,6 @@ public class TicketMachineMenu extends LazyMessageMenu{
 		{
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 114));
 		}
-	}
-	
-	@Override
-	public boolean stillValid(@NotNull Player playerIn)
-	{
-		return true;
 	}
 	
 	@Override

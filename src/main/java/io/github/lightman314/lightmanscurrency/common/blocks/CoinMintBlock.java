@@ -55,7 +55,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 		if(!level.isClientSide)
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CoinMintBlockEntity mint && CoinMintBlockEntity.getCoinMintRecipes(level).size() > 0)
+			if(tileEntity instanceof CoinMintBlockEntity mint)
 			{
 				NetworkHooks.openScreen((ServerPlayer)player, new CoinMintMenuProvider(mint), pos);
 				return InteractionResult.SUCCESS;
@@ -82,15 +82,12 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 
-	private static class CoinMintMenuProvider implements MenuProvider
-	{
-		private final CoinMintBlockEntity tileEntity;
-		public CoinMintMenuProvider(CoinMintBlockEntity tileEntity) { this.tileEntity = tileEntity; }
+	private record CoinMintMenuProvider(CoinMintBlockEntity blockEntity) implements MenuProvider {
 		@Override
-		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new MintMenu(id, inventory, this.tileEntity); }
+		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new MintMenu(id, inventory, this.blockEntity); }
 		@Nonnull
 		@Override
 		public Component getDisplayName() { return TITLE; }
 	}
-	
+
 }

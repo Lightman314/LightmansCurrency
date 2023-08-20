@@ -3,8 +3,9 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
@@ -39,7 +40,7 @@ public class MessageBankTransferTeam {
 			{
 				if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 				{
-					AccountReference destination = BankAccount.GenerateReference(false, message.teamID);
+					BankReference destination = TeamBankReference.of(message.teamID);
 					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageBankTransferResponse(response));

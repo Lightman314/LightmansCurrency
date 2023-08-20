@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouse
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -39,18 +40,30 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	
 	List<EasyButton> optionButtons = new ArrayList<>();
 	
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Component... options) {
+		this(pos.x, pos.y, width, selected, onSelect, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Component... options) {
 		this(x, y, width, selected, onSelect, (index) -> true, options);
 	}
 	
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
+		this(pos.x, pos.y, width, selected, onSelect, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
 		this(x, y, width, selected, onSelect, (index) -> true, options);
 	}
 	
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
+		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
 		this(x, y, width, selected, onSelect, optionActive, Lists.newArrayList(options));
 	}
 	
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
+		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
 		super(x, y, width, HEIGHT);
 		this.options = options;
@@ -162,6 +175,9 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 			text = text.substring(0, text.length() - 1);
 		return text + "...";
 	}
+
+	@Override
+	protected boolean isValidClickButton(int button) { return button == 0; }
 
 	@Override
 	public void playDownSound(@Nonnull SoundManager manager) { EasyButton.playClick(manager); }

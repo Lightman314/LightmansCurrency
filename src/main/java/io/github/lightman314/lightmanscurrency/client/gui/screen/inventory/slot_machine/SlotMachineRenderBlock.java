@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public abstract class SlotMachineRenderBlock {
+
+    public static final Sprite EMPTY_SPRITE = Sprite.LockedSprite(IconAndButtonUtil.ICON_TEXTURE, 16, 32, 16, 16);
 
     public abstract void render(@Nonnull EasyGuiGraphics gui, int x, int y);
     public final int weight;
@@ -28,7 +31,7 @@ public abstract class SlotMachineRenderBlock {
         protected static final SlotMachineRenderBlock INSTANCE = new Empty();
         private Empty() { super(0); }
         @Override
-        public void render(@Nonnull EasyGuiGraphics gui, int x, int y) { gui.blit(IconAndButtonUtil.ICON_TEXTURE, x, y, 16, 32, 16, 16); }
+        public void render(@Nonnull EasyGuiGraphics gui, int x, int y) { gui.blitSprite(EMPTY_SPRITE, x, y); }
     }
 
 }

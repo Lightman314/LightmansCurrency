@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
-import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -109,6 +108,14 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         //Trader Interface
         this.cTag(LCTags.Items.TRADER_INTERFACE).add(ModBlocks.ITEM_TRADER_INTERFACE);
+
+        //Coin Jars
+        this.cTag(LCTags.Items.COIN_JAR_NORMAL)
+                .add(ModBlocks.PIGGY_BANK)
+                .add(ModBlocks.COINJAR_BLUE);
+        this.cTag(LCTags.Items.COIN_JAR_ALL)
+                .addTag(LCTags.Items.COIN_JAR_NORMAL)
+                .add(ModBlocks.SUS_JAR);
 
         //Book Tag for Bookshelf Trader
         this.cTag(LCTags.Items.TRADABLE_BOOK)

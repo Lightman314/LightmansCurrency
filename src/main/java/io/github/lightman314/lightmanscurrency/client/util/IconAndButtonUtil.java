@@ -112,6 +112,8 @@ public class IconAndButtonUtil {
 
 	public static final IconData ICON_ALEX_HEAD;
 
+	public static final IconData ICON_TAXES = IconData.of(ICON_TEXTURE, 96, 0);
+
 	public static final Sprite SPRITE_PLUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20, 10, 10);
 	public static final Sprite SPRITE_MINUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20, 10, 10);
 
@@ -175,6 +177,7 @@ public class IconAndButtonUtil {
 				}));
 	}
 	public static IconButton collectCoinButtonAlt(int x, int y, Consumer<EasyButton> pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS).withAddons(EasyAddonHelper.additiveTooltip2(TOOLTIP_COLLECT_COINS, storedCoinTextSource)); }
+	public static IconButton collectCoinButtonAlt(ScreenPosition pos, Consumer<EasyButton> pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(pos.x, pos.y, pressable, ICON_COLLECT_COINS).withAddons(EasyAddonHelper.additiveTooltip2(TOOLTIP_COLLECT_COINS, storedCoinTextSource)); }
 	public static IconButton storeCoinButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORE_COINS)); }
 	
 	public static IconButton leftButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }

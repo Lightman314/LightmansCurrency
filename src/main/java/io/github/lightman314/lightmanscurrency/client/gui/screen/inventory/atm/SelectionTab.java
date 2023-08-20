@@ -14,9 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -80,12 +81,10 @@ public class SelectionTab extends ATMTab {
 
 	}
 
-	private boolean isTeamSelected() {
-		return this.screen.getMenu().getBankAccountReference().accountType == BankAccount.AccountType.Team;
-	}
+	private BankReference getBankReference() { return this.screen.getMenu().getBankAccountReference(); }
 
 	private boolean isSelfSelected() {
-		return this.screen.getMenu().getBankAccount() == BankAccount.GenerateReference(this.screen.getMenu().getPlayer()).get();
+		return this.screen.getMenu().getBankAccount() == PlayerBankReference.of(this.screen.getMenu().getPlayer()).get();
 	}
 	
 	private List<Team> getTeamList()
@@ -101,8 +100,8 @@ public class SelectionTab extends ATMTab {
 	
 	public Team selectedTeam()
 	{
-		if(this.isTeamSelected())
-			return TeamSaveData.GetTeam(true, this.screen.getMenu().getBankAccountReference().teamID);
+		if(this.getBankReference() instanceof TeamBankReference teamBankReference)
+			return TeamSaveData.GetTeam(true, teamBankReference.teamID);
 		return null;	
 	}
 	
@@ -113,14 +112,14 @@ public class SelectionTab extends ATMTab {
 			Team selectedTeam = this.selectedTeam();
 			if(selectedTeam != null && team.getID() == selectedTeam.getID())
 				return;
-			AccountReference account = BankAccount.GenerateReference(true, team);
+			BankReference account = TeamBankReference.of(team).flagAsClient();
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
 		} catch(Throwable ignored) { }
 	}
 	
 	private void PressPersonalAccount(EasyButton button)
 	{
-		AccountReference account = BankAccount.GenerateReference(this.screen.getMenu().getPlayer());
+		BankReference account = PlayerBankReference.of(this.screen.getMenu().getPlayer());
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
 	}
 	

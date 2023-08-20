@@ -1,5 +1,9 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferenceType;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
@@ -122,8 +126,10 @@ public class LightmansCurrency {
         
         if(ModList.get().isLoaded("lightmansdiscord"))
 		{
-			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+			try {
+				MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+				FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+			} catch (Throwable ignored) { }
 		}
 
 		if(ModList.get().isLoaded("immersiveengineering"))
@@ -213,6 +219,14 @@ public class LightmansCurrency {
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxReferenceType.register(TaxableTraderReference.TYPE);
 
+		//Register Bank Account Reference Types
+		BankReferenceType.register(PlayerBankReference.TYPE);
+		BankReferenceType.register(TeamBankReference.TYPE);
+
+		//Register Menu Validator Types
+		MenuValidatorType.register(SimpleValidator.TYPE);
+		MenuValidatorType.register(BlockEntityValidator.TYPE);
+		MenuValidatorType.register(BlockValidator.TYPE);
 
 		//Register Upgrade Types
 		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());

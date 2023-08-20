@@ -7,6 +7,13 @@ public interface IScrollable {
     void setScroll(int newScroll);
     default int getMinScroll() { return 0; }
     int getMaxScroll();
+    default void validateScroll()
+    {
+        if(this.currentScroll() < this.getMinScroll())
+            this.setScroll(this.getMinScroll());
+        if(this.currentScroll() > this.getMaxScroll())
+            this.setScroll(this.getMaxScroll());
+    }
     default boolean handleScrollWheel(double delta) {
         int scroll = this.currentScroll();
         if(delta < 0)

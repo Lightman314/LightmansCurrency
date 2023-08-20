@@ -33,7 +33,7 @@ public class TaxesCollectedNotification extends Notification {
     public NotificationCategory getCategory() { return this.category; }
 
     @Override
-    public MutableComponent getMessage() { return EasyText.translatable("notifications.message.taxes.collected", this.amount.getComponent("NULL"), this.category.getName()); }
+    public MutableComponent getMessage() { return EasyText.translatable("notifications.message.taxes.collected", this.amount.getComponent("NULL"), this.taxedName); }
 
     @Override
     protected void saveAdditional(CompoundTag compound) {
@@ -52,7 +52,7 @@ public class TaxesCollectedNotification extends Notification {
     @Override
     protected boolean canMerge(Notification other) {
         if(other instanceof TaxesCollectedNotification tcn)
-            return tcn.amount.equals(this.amount) && tcn.category.matches(this.category);
+            return tcn.taxedName.getString().equals(this.taxedName.getString()) && tcn.amount.equals(this.amount) && tcn.category.matches(this.category);
         return false;
     }
 

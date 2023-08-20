@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -67,6 +67,10 @@ public class TradeContext {
 		 */
 		FAIL_TRADE_RULE_DENIAL("lightmanscurrency.remotetrade.fail.traderule"),
 		/**
+		 * Trade failed as the trader is locked due to the total tax rate exceeding the traders accepted limits
+		 */
+		FAIL_TAX_EXCEEDED_LIMIT("lightmanscurrency.remotetrade.fail.tax_limit"),
+		/**
 		 * Trade failed as the trade is no longer valid
 		 */
 		FAIL_INVALID_TRADE("lightmanscurrency.remotetrade.fail.invalid"),
@@ -102,7 +106,7 @@ public class TradeContext {
 	public final PlayerReference getPlayerReference() { return this.playerReference; }
 	
 	//Money/Payment related data
-	private final AccountReference bankAccount;
+	private final BankReference bankAccount;
 	private boolean hasBankAccount() { return this.bankAccount != null && this.bankAccount.get() != null; }
 	
 	private final Container coinSlots;
@@ -822,7 +826,7 @@ public class TradeContext {
 		private final PlayerReference playerReference;
 		
 		//Money
-		private AccountReference bankAccount;
+		private BankReference bankAccount;
 		private Container coinSlots;
 		private CoinValueHolder storedCoins;
 		
@@ -840,7 +844,7 @@ public class TradeContext {
 		private Builder(TraderData trader, Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; }
 		private Builder(TraderData trader, PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 		
-		public Builder withBankAccount(AccountReference bankAccount) { this.bankAccount = bankAccount; return this; }
+		public Builder withBankAccount(BankReference bankAccount) { this.bankAccount = bankAccount; return this; }
 		public Builder withCoinSlots(Container coinSlots) { this.coinSlots = coinSlots; return this; }
 		public Builder withStoredCoins(CoinValueHolder storedCoins) { this.storedCoins = storedCoins; return this; }
 

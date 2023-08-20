@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import net.minecraft.client.gui.Font;
 import net.minecraft.nbt.CompoundTag;

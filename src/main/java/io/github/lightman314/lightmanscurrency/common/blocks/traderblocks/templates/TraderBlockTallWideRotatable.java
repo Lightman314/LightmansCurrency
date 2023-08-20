@@ -22,8 +22,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
@@ -155,8 +153,5 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			return level.getBlockEntity(getPos.below());
 		return level.getBlockEntity(getPos);
 	}
-	
-	@Override
-	public boolean getIsLeft(BlockState state) { return state.getValue(ISLEFT); }
 	
 }

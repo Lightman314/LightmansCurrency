@@ -14,9 +14,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
+import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxManager;
@@ -24,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.registries.Registries;
 
 import com.google.common.collect.Lists;
@@ -302,19 +306,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		CoinValue taxesPaid = CoinValue.EMPTY;
 		if(shouldTax)
 		{
-			long paidCache = 0;
-			for(TaxEntry tax : this.getApplicableTaxes())
-			{
-				CoinValue payAmount = amount.percentageOfValue(tax.getTaxPercentage());
-				if(payAmount.hasAny())
-				{
-					tax.PayTaxes(this, payAmount);
-					paidCache += payAmount.getValueNumber();
-				}
-			}
-			taxesPaid = CoinValue.fromNumber(paidCache);
-			if(taxesPaid.hasAny())
-				this.pushNotification(TaxesPaidNotification.create(taxesPaid, this.getNotificationCategory()));
+			taxesPaid = this.payTaxesOn(amount);
 			if(amount.getValueNumber() < taxesPaid.getValueNumber())
 			{
 				//Remove excess money
@@ -351,23 +343,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		CoinValue taxesPaid = CoinValue.EMPTY;
 		if(shouldTax)
 		{
-			long paidCache = 0;
-			for(TaxEntry tax : this.getApplicableTaxes())
-			{
-				CoinValue payAmount = amount.percentageOfValue(tax.getTaxPercentage());
-				if(payAmount.hasAny())
-				{
-					tax.PayTaxes(this, payAmount);
-					paidCache += payAmount.getValueNumber();
-				}
-			}
-			taxesPaid = CoinValue.fromNumber(paidCache);
+			taxesPaid = this.payTaxesOn(amount);
 			if(taxesPaid.hasAny())
-			{
-				this.pushNotification(TaxesPaidNotification.create(taxesPaid, this.getNotificationCategory()));
 				amount = amount.plusValue(taxesPaid);
-			}
-
 		}
 		BankAccount ba = this.getBankAccount();
 		if(ba != null) {
@@ -382,6 +360,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public void clearStoredMoney() {
 		this.storedMoney = CoinValue.EMPTY;
 		this.markDirty(this::saveStoredMoney);
+	}
+
+	public final CoinValue payTaxesOn(CoinValue amount)
+	{
+		long paidCache = 0;
+		for(TaxEntry tax : this.getApplicableTaxes())
+		{
+			//Obey ignored tax settings
+			if(!this.ShouldIgnoreTaxEntry(tax))
+				paidCache += tax.CalculateAndPayTaxes(this, amount).getValueNumber();
+		}
+		return CoinValue.fromNumber(paidCache);
 	}
 	
 	private boolean linkedToBank = false;
@@ -474,10 +464,37 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public abstract int getTradeStock(int tradeIndex);
 	public abstract boolean hasValidTrade();
 
+	private int acceptableTaxRate = 99;
+	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
+	private final List<Long> ignoredTaxCollectors = new ArrayList<>();
+	private boolean ignoreAllTaxes = false;
+	public boolean ShouldIgnoreAllTaxes() { return this.ignoreAllTaxes; }
+	public boolean ShouldIgnoreTaxEntryOnly(@Nonnull TaxEntry entry) { return this.ignoredTaxCollectors.contains(entry.getID()); }
+	public void FlagTaxEntryToIgnore(@Nonnull TaxEntry entry, @Nonnull Player player) {
+		if(this.ignoredTaxCollectors.contains(entry.getID()))
+			return;
+		if(!CommandLCAdmin.isAdminPlayer(player))
+		{
+			Permissions.PermissionWarning(player, "ignore tax collector", Permissions.ADMIN_MODE);
+			return;
+		}
+		this.ignoredTaxCollectors.add(entry.getID());
+		this.markDirty(this::saveTaxSettings);
+	}
+	public void PardonTaxEntry(@Nonnull TaxEntry entry)
+	{
+		if(this.ignoredTaxCollectors.contains(entry.getID()))
+		{
+			this.ignoredTaxCollectors.remove(entry.getID());
+			this.markDirty(this::saveTaxSettings);
+		}
+	}
+	private boolean AllowTaxEntry(@Nonnull TaxEntry entry) { return !this.ShouldIgnoreTaxEntry(entry); }
+	public boolean ShouldIgnoreTaxEntry(@Nonnull TaxEntry entry) { return this.ShouldIgnoreAllTaxes() || this.ShouldIgnoreTaxEntryOnly(entry); }
+
 	private WorldPosition worldPosition = WorldPosition.VOID;
 	public ResourceKey<Level> getLevel() { return this.worldPosition.getDimension(); }
 	public BlockPos getPos() { return this.worldPosition.getPos(); }
-
 
 	@Override
 	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
@@ -485,15 +502,17 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
 
-	public final List<TaxEntry> getApplicableTaxes() { return TaxManager.GetTaxesForTrader(this); }
+	public final List<TaxEntry> getApplicableTaxes() { return TaxManager.GetTaxesForTrader(this).stream().filter(this::AllowTaxEntry).toList(); }
+	public final List<TaxEntry> getPossibleTaxes() { return TaxManager.GetPossibleTaxesForTrader(this); }
 	public final int getTotalTaxPercentage()
 	{
 		List<TaxEntry> entries = this.getApplicableTaxes();
 		int taxPercentage = 0;
 		for(TaxEntry entry : entries)
-			taxPercentage += entry.getTaxPercentage();
+			taxPercentage += entry.getTaxRate();
 		return taxPercentage;
 	}
+	public final boolean exceedsAcceptableTaxRate() { return this.getTotalTaxPercentage() > this.acceptableTaxRate; }
 
 	//Updates the world position of the trader.
 	public void move(Level level, BlockPos pos)
@@ -562,6 +581,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.saveLinkedBankAccount(compound);
 		this.saveLogger(compound);
 		this.saveNotificationData(compound);
+		this.saveTaxSettings(compound);
 		
 		//Save persistent trader id
 		if(this.persistentID.length() > 0)
@@ -623,6 +643,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		compound.putBoolean("NotificationsEnabled", this.notificationsEnabled);
 		compound.putBoolean("ChatNotifications", this.notificationsToChat);
 		compound.putInt("TeamNotifications", this.teamNotificationLevel);
+	}
+
+	protected final void saveTaxSettings(CompoundTag compound) {
+		compound.putInt("AcceptableTaxRate", this.acceptableTaxRate);
+		compound.putBoolean("IgnoreAllTaxCollectors", this.ignoreAllTaxes);
+		compound.putLongArray("IgnoreTaxCollectors", this.ignoredTaxCollectors);
 	}
 	
 	protected abstract void saveTrades(CompoundTag compound);
@@ -750,7 +776,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.notificationsToChat = compound.getBoolean("ChatNotifications");
 		if(compound.contains("TeamNotifications"))
 			this.teamNotificationLevel = compound.getInt("TeamNotifications");
-		
+
+		if(compound.contains("AcceptableTaxRate"))
+			this.acceptableTaxRate = compound.getInt("AcceptableTaxRate");
+		if(compound.contains("IgnoreAllTaxCollectors"))
+			this.ignoreAllTaxes = compound.getBoolean("IgnoreAllTaxCollectors");
+		if(compound.contains("IgnoreTaxCollectors"))
+		{
+			this.ignoredTaxCollectors.clear();
+			for(long val : compound.getLongArray("IgnoreTaxCollectors"))
+				this.ignoredTaxCollectors.add(val);
+		}
+
 		//Load trader-specific data
 		this.loadAdditional(compound);
 		
@@ -807,33 +844,37 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected abstract void loadAdditionalPersistentData(CompoundTag compound);
 
-	public void openTraderMenu(Player player) {
+	@Deprecated(since = "2.1.2.3")
+	public void openTraderMenu(Player player) { this.openTraderMenu(player, SimpleValidator.NULL); }
+	public void openTraderMenu(Player player, @Nonnull MenuValidator validator) {
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderMenuProvider(), this.getMenuDataWriter());
+			NetworkHooks.openScreen(sp, this.getTraderMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
-	protected MenuProvider getTraderMenuProvider() { return new TraderMenuProvider(this.id); }
+	protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new TraderMenuProvider(this.id, validator); }
 
-	private record TraderMenuProvider(long traderID) implements EasyMenuProvider {
+	private record TraderMenuProvider(long traderID, @Nonnull MenuValidator validator) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderMenu(windowID, inventory, this.traderID, validator); }
 
 	}
 
-	public void openStorageMenu(Player player) {
+	@Deprecated(since = "2.1.2.3")
+	public void openStorageMenu(@Nonnull Player player) { this.openStorageMenu(player, SimpleValidator.NULL); }
+	public void openStorageMenu(@Nonnull Player player, @Nonnull MenuValidator validator) {
 		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
 			return;
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderStorageMenuProvider(), this.getMenuDataWriter());
+			NetworkHooks.openScreen(sp, this.getTraderStorageMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
-	protected MenuProvider getTraderStorageMenuProvider()  { return new TraderStorageMenuProvider(this.id); }
+	protected MenuProvider getTraderStorageMenuProvider(@Nonnull MenuValidator validator)  { return new TraderStorageMenuProvider(this.id, validator); }
 
-	private record TraderStorageMenuProvider(long traderID) implements EasyMenuProvider {
+	private record TraderStorageMenuProvider(long traderID, @Nonnull MenuValidator validator) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID, this.validator); }
 
 	}
 
@@ -1078,7 +1119,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	@Override
 	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
-	
+
+	public final TradeResult TryExecuteTrade(TradeContext context, int tradeIndex)
+	{
+		if(this.exceedsAcceptableTaxRate())
+			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
+		return this.ExecuteTrade(context, tradeIndex);
+	}
+
+	/**
+	 * Should not be called directly. Call TryExecuteTrade when possible!
+	 */
+	@Deprecated
 	public abstract TradeResult ExecuteTrade(TradeContext context, int tradeIndex);
 	
 	public abstract void addInteractionSlots(List<InteractionSlotData> interactionSlots);
@@ -1281,12 +1333,36 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				}
 			}
 		}
+		if(message.contains("AcceptableTaxRate"))
+		{
+			if(this.hasPermission(player, Permissions.EDIT_SETTINGS))
+			{
+				int newRate = MathUtil.clamp(message.getInt("AcceptableTaxRate"), 0, 99);
+				if(newRate == this.acceptableTaxRate)
+					return;
+
+				this.pushLocalNotification(new ChangeSettingNotification.Advanced(PlayerReference.of(player), "AcceptableTaxRate", String.valueOf(newRate), String.valueOf(this.acceptableTaxRate)));
+				this.acceptableTaxRate = newRate;
+
+				this.markDirty(this::saveTaxSettings);
+			}
+		}
+		if(message.contains("ForceIgnoreAllTaxCollectors"))
+		{
+			boolean newState = message.getBoolean("ForceIgnoreAllTaxCollectors");
+			if((!newState || CommandLCAdmin.isAdminPlayer(player)) && newState != this.ignoreAllTaxes)
+			{
+				this.ignoreAllTaxes = newState;
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "IgnoreAllTaxes", String.valueOf(this.ignoreAllTaxes)));
+				this.markDirty(this::saveTaxSettings);
+			}
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public final List<SettingsSubTab> getSettingsTabs(TraderSettingsClientTab tab) {
 		//Set up defailt tabs
-		List<SettingsSubTab> tabs = Lists.newArrayList(new MainTab(tab), new AllyTab(tab), new PermissionsTab(tab), new NotificationTab(tab));
+		List<SettingsSubTab> tabs = Lists.newArrayList(new MainTab(tab), new AllyTab(tab), new PermissionsTab(tab), new NotificationTab(tab), new TaxSettingsTab(tab));
 		//Add Trader-Defined tabs
 		this.addSettingsTabs(tab, tabs);
 		//Add Ownership Tab last
@@ -1400,12 +1476,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final List<TraderData> getTraders() { return Lists.newArrayList(this); }
 	public final boolean isSingleTrader() { return true; }
 	
-	public static MenuProvider getTraderMenuProvider(BlockPos traderSourcePosition) { return new TraderMenuProviderBlock(traderSourcePosition); }
+	public static MenuProvider getTraderMenuProvider(@Nonnull BlockPos traderSourcePosition, @Nonnull MenuValidator validator) { return new TraderMenuProviderBlock(traderSourcePosition, validator); }
 
-	private record TraderMenuProviderBlock(BlockPos traderSourcePosition) implements EasyMenuProvider {
+	private record TraderMenuProviderBlock(@Nonnull BlockPos traderSourcePosition, @Nonnull MenuValidator validator) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull  Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull  Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition, this.validator); }
 
 	}
 	

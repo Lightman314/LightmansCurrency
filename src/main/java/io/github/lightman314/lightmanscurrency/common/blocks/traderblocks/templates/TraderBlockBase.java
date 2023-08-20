@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interf
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -99,9 +100,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 				if(trader != null) //Open the trader menu
 				{
 					if(trader.shouldAlwaysShowOnTerminal())
-						trader.openStorageMenu(player);
+						trader.openStorageMenu(player, BlockEntityValidator.of(traderSource));
 					else
-						trader.openTraderMenu(player);
+						trader.openTraderMenu(player, BlockEntityValidator.of(traderSource));
 				}
 
 			}
@@ -165,11 +166,14 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
-		if(state.getBlock() == newState.getBlock())
-		    return;
+		if(state.is(newState.getBlock()))
+		{
+			super.onRemove(state, level, pos, newState, flag);
+			return;
+		}
+
 		if(state.getBlock() instanceof IDeprecatedBlock db && db.acceptableReplacementState(newState))
 			return;
-
 		
 		if(!level.isClientSide)
 		{

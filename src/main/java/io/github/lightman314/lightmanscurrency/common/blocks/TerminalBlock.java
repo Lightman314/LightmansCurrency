@@ -2,14 +2,17 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,26 +23,25 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 public class TerminalBlock extends RotatableBlock {
 
 	public TerminalBlock(Properties properties) { super(properties); }
 	
-	public TerminalBlock(Properties properties, VoxelShape shape)
-	{
-		super(properties, shape);
-	}
+	public TerminalBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 	
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	@Nonnull
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
-		LightmansCurrency.PROXY.openTerminalScreen();
+		if(player instanceof ServerPlayer sp)
+			TerminalMenuProvider.OpenMenu(sp, BlockValidator.of(pos, this));
 		return InteractionResult.SUCCESS;
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.TERMINAL);
 		super.appendHoverText(stack, level, tooltip, flagIn);

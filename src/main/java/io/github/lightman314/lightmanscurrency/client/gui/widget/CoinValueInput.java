@@ -12,7 +12,6 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -28,7 +27,6 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue.ValueType;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -112,7 +110,7 @@ public class CoinValueInput extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public void addChildren() {
-		this.addChild(new ScrollListener(this.getArea(), this::onMouseScrolled));
+		this.addChild(new ScrollListener(this.getArea(), this));
 		this.toggleFree = this.addChild(new PlainButton(this.getX() + this.width - 14, this.getY() + 4, this::ToggleFree, SPRITE_FREE_TOGGLE));
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
@@ -437,10 +435,6 @@ public class CoinValueInput extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(MAX_BUTTON_COUNT, this.coinData.size()); }
-	
-	private void validateScroll() { this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll()); }
-
-	private boolean onMouseScrolled(double mouseX, double mouseY, double scroll) { return this.handleScrollWheel(scroll); }
 
 
 }

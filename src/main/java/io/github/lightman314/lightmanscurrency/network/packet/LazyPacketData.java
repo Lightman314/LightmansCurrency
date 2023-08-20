@@ -144,6 +144,16 @@ public final class LazyPacketData {
     }
 
     public static Builder builder() { return new Builder(); }
+    public static Builder simpleFlag(String key) { return simpleBoolean(key, true); }
+    public static Builder simpleBoolean(String key, boolean value) { return builder().setBoolean(key, value); }
+    public static Builder simpleInt(String key, int value) { return builder().setInt(key, value); }
+    public static Builder simpleLong(String key, long value) { return builder().setLong(key, value); }
+    public static Builder simpleFloat(String key, float value) { return builder().setFloat(key, value); }
+    public static Builder simpleDouble(String key, double value) { return builder().setDouble(key, value); }
+    public static Builder simpleString(String key, String value) { return builder().setString(key, value); }
+    public static Builder simpleText(String key, Component value) { return builder().setText(key, value); }
+    public static Builder simpleTag(String key, CompoundTag value) { return builder().setCompound(key, value); }
+    public static Builder simpleCoinValue(String key, CoinValue value) { return builder().setCoinValue(key, value); }
 
     public static final class Builder
     {

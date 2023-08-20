@@ -40,44 +40,41 @@ public class ModBlocks {
 			return new CoinBlockItem(block, properties);
 		};
 	}
-	private static Function<Block,Item> getCoinJarGenerator() {
-		return block ->  new CoinJarItem(block, new Item.Properties());
-	}
-	private static Function<Block,Item> getCustomRendererGenerator() {
-		return block -> new CustomBlockModelItem(block, new Item.Properties());
-	}
+	private static Function<Block,Item> getCoinJarGenerator() { return block ->  new CoinJarItem(block, new Item.Properties()); }
+	private static Function<Block,Item> getColoredCoinJarGenerator() { return block ->  new CoinJarItem.Colored(block, new Item.Properties()); }
+	private static Function<Block,Item> getCustomRendererGenerator() { return block -> new CustomBlockModelItem(block, new Item.Properties()); }
 
 	//Coin piles
-	public static final RegistryObject<CoinpileBlock> COINPILE_COPPER;
-	public static final RegistryObject<CoinpileBlock> COINPILE_IRON;
-	public static final RegistryObject<CoinpileBlock> COINPILE_GOLD;
-	public static final RegistryObject<CoinpileBlock> COINPILE_DIAMOND;
-	public static final RegistryObject<CoinpileBlock> COINPILE_EMERALD;
-	public static final RegistryObject<CoinpileBlock> COINPILE_NETHERITE;
+	public static final RegistryObject<Block> COINPILE_COPPER;
+	public static final RegistryObject<Block> COINPILE_IRON;
+	public static final RegistryObject<Block> COINPILE_GOLD;
+	public static final RegistryObject<Block> COINPILE_DIAMOND;
+	public static final RegistryObject<Block> COINPILE_EMERALD;
+	public static final RegistryObject<Block> COINPILE_NETHERITE;
 
 	//Coin blocks
-	public static final RegistryObject<CoinBlock> COINBLOCK_COPPER;
-	public static final RegistryObject<CoinBlock> COINBLOCK_IRON;
-	public static final RegistryObject<CoinBlock> COINBLOCK_GOLD;
-	public static final RegistryObject<CoinBlock> COINBLOCK_EMERALD;
-	public static final RegistryObject<CoinBlock> COINBLOCK_DIAMOND;
-	public static final RegistryObject<CoinBlock> COINBLOCK_NETHERITE;
+	public static final RegistryObject<Block> COINBLOCK_COPPER;
+	public static final RegistryObject<Block> COINBLOCK_IRON;
+	public static final RegistryObject<Block> COINBLOCK_GOLD;
+	public static final RegistryObject<Block> COINBLOCK_EMERALD;
+	public static final RegistryObject<Block> COINBLOCK_DIAMOND;
+	public static final RegistryObject<Block> COINBLOCK_NETHERITE;
 
 	//Machines
 	//Misc Machines
-	public static final RegistryObject<ATMBlock> ATM;
-	public static final RegistryObject<CoinMintBlock> COIN_MINT;
+	public static final RegistryObject<Block> ATM;
+	public static final RegistryObject<Block> COIN_MINT;
 
 	//Display Case
 	public static final RegistryObject<Block> DISPLAY_CASE;
 
 	//Vending Machines
-	public static final RegistryObjectBundle<VendingMachineBlock, Color> VENDING_MACHINE;
-	public static final RegistryObjectBundle<VendingMachineBlock, Color> VENDING_MACHINE_OLDCOLORS;
+	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE;
+	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_OLDCOLORS;
 
 	//Large Vending Machines
-	public static final RegistryObjectBundle<VendingMachineLargeBlock,Color> VENDING_MACHINE_LARGE;
-	public static final RegistryObjectBundle<VendingMachineLargeBlock,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
 
 	//Wooden Shelves
 	public static final RegistryObjectBundle<Block, WoodType> SHELF;
@@ -126,11 +123,12 @@ public class ModBlocks {
 	public static final RegistryObject<Block> COIN_CHEST;
 
 	//Tax Block
-	public static final RegistryObject<TaxBlock> TAX_BLOCK;
+	public static final RegistryObject<Block> TAX_COLLECTOR;
 
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
+	public static final RegistryObject<Block> SUS_JAR;
 
 	//Auciton Stands
 	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
@@ -446,7 +444,7 @@ public class ModBlocks {
 		);
 
 		//Tax Block
-		TAX_BLOCK = register("tax_block", () -> new TaxBlock(
+		TAX_COLLECTOR = register("tax_block", () -> new TaxCollectorBlock(
 				BlockBehaviour.Properties.of()
 						.mapColor(MapColor.METAL)
 						.strength(3f, Float.POSITIVE_INFINITY)
@@ -469,6 +467,14 @@ public class ModBlocks {
 					.strength(0.1f, 2.0f)
 					.sound(SoundType.STONE),
 					Block.box(4d, 0d, 4d, 12d, 8d, 12d)
+				)
+		);
+		SUS_JAR = register("sus_jar", getColoredCoinJarGenerator(), () -> new CoinJarBlock(
+				BlockBehaviour.Properties.of()
+					.mapColor(MapColor.SNOW)
+					.strength(0.1f, 2.0f)
+					.sound(SoundType.STONE),
+					Block.box(4, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
 

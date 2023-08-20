@@ -36,8 +36,6 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 		this.shape = shape;
 	}
 	
-	protected boolean transparent(BlockState state) { return true; }
-	
 	@Override
 	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) { return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection()); }
 	
@@ -56,12 +54,6 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
-	{
-		return shape.apply(this.getFacing(state));
-	}
-	
-	@Override
-	public Direction getFacing(BlockState state) { return state.getValue(FACING); }
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return shape.apply(this.getFacing(state)); }
 	
 }

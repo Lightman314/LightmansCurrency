@@ -7,8 +7,10 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -18,10 +20,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.NonNullSupplier;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotMachineTradeNotification extends Notification {
+public class SlotMachineTradeNotification extends TaxableNotification {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trade");
 
@@ -33,8 +36,9 @@ public class SlotMachineTradeNotification extends Notification {
 
     String customer;
 
-    protected SlotMachineTradeNotification(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData)
+    protected SlotMachineTradeNotification(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid)
     {
+        super(taxesPaid);
         this.traderData = traderData;
         this.cost = cost;
         this.items = new ArrayList<>();
@@ -42,16 +46,16 @@ public class SlotMachineTradeNotification extends Notification {
             this.money = entry.getMoneyValue();
         else
         {
-            for(ItemStack item : entry.items)
+            for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
                 this.items.add(new ItemWriteData(item));
         }
 
         this.customer = customer.getName(false);
     }
 
-    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData); }
+    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
 
-    public SlotMachineTradeNotification(CompoundTag compound) { this.load(compound); }
+    public SlotMachineTradeNotification(CompoundTag compound) { super(); this.load(compound); }
 
 
     @Override
@@ -60,11 +64,12 @@ public class SlotMachineTradeNotification extends Notification {
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
 
+    @Nonnull
     @Override
-    public MutableComponent getMessage() {
+    public MutableComponent getNormalMessage() {
         Component rewardText;
-        if(this.cost.hasAny())
-            rewardText = this.cost.getComponent("0");
+        if(this.money.hasAny())
+            rewardText = this.money.getComponent("0");
         else
             rewardText = ItemWriteData.getItemNames(this.items);
 
@@ -72,7 +77,7 @@ public class SlotMachineTradeNotification extends Notification {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound) {
+    protected void saveNormal(CompoundTag compound) {
 
         compound.put("TraderInfo", this.traderData.save());
         ListTag itemList = new ListTag();
@@ -86,7 +91,7 @@ public class SlotMachineTradeNotification extends Notification {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag compound) {
+    protected void loadNormal(CompoundTag compound) {
 
         this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
         ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
@@ -123,7 +128,7 @@ public class SlotMachineTradeNotification extends Notification {
             if(!smtn.customer.equals(this.customer))
                 return false;
             //Passed all checks. Allow merging.
-            return true;
+            return this.TaxesMatch(smtn);
         }
         return false;
     }

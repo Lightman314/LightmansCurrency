@@ -64,16 +64,14 @@ public class NotificationData {
 	{
 		int limit = Config.SERVER.notificationLimit.get();
 		while(this.notifications.size() > limit)
-			this.notifications.remove(this.notifications.get(this.notifications.size() - 1));
+			this.notifications.remove(this.notifications.size() - 1);
 	}
 	
 	public CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
 		ListTag notificationList = new ListTag();
-		for(int i = 0; i < notifications.size(); ++i)
-		{
-			notificationList.add(notifications.get(i).save());
-		}
+		for (Notification notification : notifications)
+			notificationList.add(notification.save());
 		compound.put("Notifications", notificationList);
 		return compound;
 	}

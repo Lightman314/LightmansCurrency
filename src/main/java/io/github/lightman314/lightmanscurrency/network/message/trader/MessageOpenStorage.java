@@ -2,6 +2,9 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,9 +27,12 @@ public class MessageOpenStorage {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
+				MenuValidator validator = SimpleValidator.NULL;
+				if(player.containerMenu instanceof IValidatedMenu tm)
+					validator = tm.getValidator();
 				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
 				if(trader != null)
-					trader.openStorageMenu(player);
+					trader.openStorageMenu(player, validator);
 			}
 		});
 		supplier.get().setPacketHandled(true);

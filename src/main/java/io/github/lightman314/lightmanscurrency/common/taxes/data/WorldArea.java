@@ -38,10 +38,10 @@ public class WorldArea {
 
     //Infinite range constructor
     private WorldArea(@Nullable ResourceKey<Level> dimension) { this.center = WorldPosition.of(dimension, null); this.corner1 = BlockPos.ZERO; this.corner2 = BlockPos.ZERO; this.infiniteRange = true; }
-    private WorldArea(@Nullable ResourceKey<Level> dimension, @Nullable BlockPos center,  int horizRadius, int vertSize, int vertOffset) {
+    private WorldArea(@Nullable ResourceKey<Level> dimension, @Nullable BlockPos center,  int radius, int height, int vertOffset) {
         this.center = WorldPosition.of(dimension, center);
-        this.corner1 = this.center.getPos().west(horizRadius).south(horizRadius).above(vertOffset);
-        this.corner2 = this.center.getPos().east(horizRadius).north(horizRadius).above(vertSize).above(vertOffset);
+        this.corner1 = this.center.getPos().west(radius).south(radius).above(vertOffset);
+        this.corner2 = this.center.getPos().east(radius).north(radius).above(height - 1).above(vertOffset);
     }
 
     public static WorldArea ofInfiniteRange(@Nonnull WorldPosition center) { if(center.isVoid()) return INFINITE_VOID; return new WorldArea(center.getDimension()); }

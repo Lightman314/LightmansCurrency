@@ -42,13 +42,8 @@ public class ClientTeamData {
 		loadedTeams.put(updatedTeam.getID(), updatedTeam);
 	}
 	
-	public static void RemoveTeam(long teamID)
-	{
-		loadedTeams.remove(teamID);
-	}
+	public static void RemoveTeam(long teamID) { loadedTeams.remove(teamID); }
 	
 	@SubscribeEvent
-	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-		loadedTeams.clear();
-	}
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) { loadedTeams.clear(); }
 }

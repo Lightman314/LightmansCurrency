@@ -301,7 +301,11 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
         //2.1.2.2
         //Tax Block
-        this.registerRotatable(ModBlocks.TAX_BLOCK);
+        this.registerRotatable(ModBlocks.TAX_COLLECTOR);
+
+        //2.1.2.3
+        this.registerRotatableInv(ModBlocks.SUS_JAR, "jars/sus_jar", true);
+
 
     }
 
@@ -344,6 +348,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         ModelFile model = this.lazyBlockModel(modelID, check);
         this.getVariantBuilder(block.get())
                 .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
+        this.registerBlockItemModel(block, model);
+    }
+    private void registerRotatableInv(RegistryObject<? extends Block> block, String modelID, boolean check)
+    {
+        ModelFile model = this.lazyBlockModel(modelID, check);
+        this.getVariantBuilder(block.get())
+                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationYInv(state)).build());
         this.registerBlockItemModel(block, model);
     }
 

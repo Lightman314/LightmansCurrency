@@ -158,13 +158,6 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
         }
     }
 
-    private void validateScroll() {
-        if(this.scroll < 0)
-            this.scroll = 0;
-        if(this.scroll > this.getMaxScroll())
-            this.scroll = this.getMaxScroll();
-    }
-
     private int isMouseOverSlot(ScreenPosition mousePos) {
 
         int foundColumn = -1;
@@ -191,10 +184,6 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader)
             return trader.getStorage().getContents().size();
         return 0;
-    }
-
-    private boolean canScrollDown() {
-        return this.totalStorageSlots() - this.scroll * this.columns > ROWS * this.columns;
     }
 
     @Override

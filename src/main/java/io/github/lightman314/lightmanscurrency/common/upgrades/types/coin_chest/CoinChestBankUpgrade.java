@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
@@ -22,7 +22,7 @@ public class CoinChestBankUpgrade extends CoinChestUpgrade {
     {
         if(message.contains("SetBankAccount"))
         {
-            BankAccount.AccountReference account = BankAccount.LoadReference(menu.be.isClient(), message.getNBT("SetBankAccount"));
+            BankReference account = BankReference.load(message.getNBT("SetBankAccount")).flagAsClient(menu.be.isClient());
             this.setBankAccount(data, account);
         }
         if(message.contains("ClearBankAccount"))
@@ -57,15 +57,15 @@ public class CoinChestBankUpgrade extends CoinChestUpgrade {
     }
 
     @Nullable
-    public BankAccount.AccountReference getBankAccount(boolean isClient, CoinChestUpgradeData data)
+    public BankReference getBankAccount(boolean isClient, CoinChestUpgradeData data)
     {
         CompoundTag compound = data.getItemTag();
         if(compound.contains("BankAccount"))
-            return BankAccount.LoadReference(isClient, compound.getCompound("BankAccount"));
+            return BankReference.load(compound.getCompound("BankAccount")).flagAsClient(isClient);
         return null;
     }
 
-    public void setBankAccount(CoinChestUpgradeData data, BankAccount.AccountReference newValue)
+    public void setBankAccount(CoinChestUpgradeData data, BankReference newValue)
     {
         CompoundTag compound = data.getItemTag();
         if(newValue == null)

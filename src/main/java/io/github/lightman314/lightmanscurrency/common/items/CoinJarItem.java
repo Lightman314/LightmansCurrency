@@ -3,29 +3,26 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 public class CoinJarItem extends BlockItem {
 	
-	public CoinJarItem(Block block, Properties properties)
-	{
-		super(block, properties);
-	}
+	public CoinJarItem(Block block, Properties properties) { super(block, properties); }
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<ItemStack> jarStorage = readJarData(stack);
@@ -34,18 +31,16 @@ public class CoinJarItem extends BlockItem {
 		{
 			if(Screen.hasShiftDown())
 			{
-				for(int i = 0; i < jarStorage.size(); i++)
-				{
-					ItemStack coin = jarStorage.get(i);
-					if(coin.getCount() > 1)
-						tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
+				for (ItemStack coin : jarStorage) {
+					if (coin.getCount() > 1)
+						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
 					else
-						tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
+						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
 				}
 			}
 			else
 			{
-				tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 
@@ -72,6 +67,19 @@ public class CoinJarItem extends BlockItem {
 			}
 		}
 		return storage;
+	}
+
+	public static class Colored extends CoinJarItem implements DyeableLeatherItem
+	{
+
+		public Colored(Block block, Properties properties) { super(block, properties); }
+
+		//Copied from DyeableLeatherItem, except default color is now white instead of leather brown.
+		@Override
+		public int getColor(ItemStack stack) {
+			CompoundTag compoundtag = stack.getTagElement("display");
+			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
+		}
 	}
 
 }

@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -34,9 +35,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	
 	private MutableComponent transferMessage = null;
 	
-	public ATMMenu(int windowId, Inventory inventory)
+	public ATMMenu(int windowId, Inventory inventory, MenuValidator validator)
 	{
-		super(ModMenus.ATM.get(), windowId, inventory);
+		super(ModMenus.ATM.get(), windowId, inventory, validator);
 		
 		this.player = inventory.player;
 		
@@ -60,14 +61,13 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 219));
 		}
 	}
-	
+
 	@Override
-	public boolean stillValid(@Nonnull Player player) {
+	protected void onValidationTick(@Nonnull Player player) {
 		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
 		this.getBankAccountReference();
-		return true;
 	}
-	
+
 	@Override
 	public void removed(@Nonnull Player player)
 	{
@@ -75,14 +75,11 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		this.clearContainer(player,  this.coinInput);
 		if(!this.isClient())
 		{
-			AccountReference account = this.getBankAccountReference();
-			if(account.accountType == AccountType.Player)
+			BankReference account = this.getBankAccountReference();
+			if(!account.canPersist(player))
 			{
-				if(!account.playerID.equals(this.player.getUUID()))
-				{
-					//Switch back to their personal bank account when closing the ATM if they're accessing another players bank account.
-					BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(this.player));
-				}
+				//Switch back to their personal bank account when closing the ATM if they're accessing another players bank account.
+				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(this.player));
 			}
 		}
 	}
@@ -145,7 +142,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
-				BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
+				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(accountPlayer));
 				return Component.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else

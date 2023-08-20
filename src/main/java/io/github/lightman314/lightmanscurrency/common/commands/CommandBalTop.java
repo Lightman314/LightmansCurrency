@@ -11,7 +11,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -42,18 +42,18 @@ public class CommandBalTop {
 		
 	}
 	
-	static int execute(CommandContext<CommandSourceStack> commandContext, int page) throws CommandSyntaxException {
+	static int execute(CommandContext<CommandSourceStack> commandContext, int page) {
 		
 		CommandSourceStack source = commandContext.getSource();
 		
 		//Get and sort all the bank accounts
 		//Get player bank accounts
-		List<AccountReference> allAccounts = BankSaveData.GetPlayerBankAccounts();
+		List<BankReference> allAccounts = BankSaveData.GetPlayerBankAccounts();
 		//Get team bank accounts
 		List<Team> allTeams = TeamSaveData.GetAllTeams(false);
 		for(Team team : allTeams) {
 			if(team.hasBankAccount())
-				allAccounts.add(BankAccount.GenerateReference(false, team));
+				allAccounts.add(team.getBankReference());
 		}
 		//Remove any accidental null entries from the list
 		while(allAccounts.remove(null));
@@ -65,21 +65,20 @@ public class CommandBalTop {
 		
 		if(startIndex >= allAccounts.size())
 		{
-			source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcbaltop.error.page"));
+			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.error.page"));
 			return 0;
 		}
-			
-		
-		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
-		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+
+
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
-				final int index = i;
 				BankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
 				String amount = account.getCoinStorage().getString("0");
-				source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", index + 1, name, amount), false);
+				EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
 			} catch(Exception ignored) { }
 		}
 		
@@ -90,10 +89,10 @@ public class CommandBalTop {
 		return ((listSize - 1) / ENTRIES_PER_PAGE) + 1;
 	}
 	
-	private static class AccountSorter implements Comparator<AccountReference> {
+	private static class AccountSorter implements Comparator<BankReference> {
 
 		@Override
-		public int compare(AccountReference o1, AccountReference o2) {
+		public int compare(BankReference o1, BankReference o2) {
 			BankAccount a1 = o1 == null ? null : o1.get();
 			BankAccount a2 = o2 == null ? null : o2.get();
 			if(o1 == o2)

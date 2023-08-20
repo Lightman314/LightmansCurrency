@@ -473,20 +473,20 @@ public class Config {
 					.defineInRange("debugLevel", 0, 0, 3);
 
 			builder.comment("Loot item customization. Accepts item ids (i.e. lightmanscurrency:coin_copper).",
-					"Input 'minecraft:air' to not spawn loot of that tier (so that you can use higher-tier spawn rates without the presence of lower-tier loot).").push("loot_customization");
+					"Leave blank (lootItemT? = \"\") to not spawn loot of that tier (so that you can use higher-tier spawn rates without the presence of lower-tier loot).").push("loot_customization");
 
 			this.lootItem1 = ItemValueConfig.define(builder.comment("T1 loot item. Used for T1-T6 entity & chest loot drops."),
-					"lootItemT1", new ResourceLocation("lightmanscurrency","coin_copper"),SPEC_SUPPLIER);
+					"lootItemT1", "lightmanscurrency:coin_copper",SPEC_SUPPLIER);
 			this.lootItem2 = ItemValueConfig.define(builder.comment("T2 loot item. Used for T2-T6 entity & chest loot drops."),
-					"lootItemT2", new ResourceLocation("lightmanscurrency","coin_iron"),SPEC_SUPPLIER);
+					"lootItemT2", "lightmanscurrency:coin_iron",SPEC_SUPPLIER);
 			this.lootItem3 = ItemValueConfig.define(builder.comment("T3 loot item. Used for T3-T6 entity & chest loot drops."),
-					"lootItemT3", new ResourceLocation("lightmanscurrency","coin_gold"),SPEC_SUPPLIER);
+					"lootItemT3", "lightmanscurrency:coin_gold",SPEC_SUPPLIER);
 			this.lootItem4 = ItemValueConfig.define(builder.comment("T4 loot item. Used for T4-T6 entity & chest loot drops."),
-					"lootItemT4", new ResourceLocation("lightmanscurrency","coin_emerald"),SPEC_SUPPLIER);
+					"lootItemT4", "lightmanscurrency:coin_emerald",SPEC_SUPPLIER);
 			this.lootItem5 = ItemValueConfig.define(builder.comment("T5 loot item. Used for T5-T6 entity & chest loot drops."),
-					"lootItemT5", new ResourceLocation("lightmanscurrency","coin_diamond"),SPEC_SUPPLIER);
+					"lootItemT5", "lightmanscurrency:coin_diamond",SPEC_SUPPLIER);
 			this.lootItem6 = ItemValueConfig.define(builder.comment("T6 loot item. Used for T6 entity & chest loot drops."),
-					"lootItemT6", new ResourceLocation("lightmanscurrency","coin_netherite"),SPEC_SUPPLIER);
+					"lootItemT6", "lightmanscurrency:coin_netherite",SPEC_SUPPLIER);
 
 			builder.pop();
 
@@ -658,6 +658,11 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue limitSearchToNetworkTraders;
 
 		//Player Tax Options
+		public final ForgeConfigSpec.BooleanValue taxMachinesAdminOnly;
+		public final ForgeConfigSpec.IntValue taxMachineMaxRate;
+		public final ForgeConfigSpec.IntValue taxMachineMaxRadius;
+		public final ForgeConfigSpec.IntValue taxMachineMaxHeight;
+		public final ForgeConfigSpec.IntValue taxMachineMaxVertOffset;
 
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
@@ -762,9 +767,8 @@ public class Config {
 					.defineEnum("coinValueInputType", CoinValue.ValueType.DEFAULT);
 
 			this.valueBaseCoin = ItemValueConfig.define(builder
-							.comment("Coin item defined as 1 value unit for display purposes. Any coins worth less than the base coin will have a decimal value.")
-					,"baseValueCoin", new ResourceLocation("lightmanscurrency","coin_copper"), MoneyUtil::isVisibleCoin,
-					SPEC_SUPPLIER);
+							.comment("Coin item defined as $1.00 for display purposes. Any coins worth less than this base coin will have a decimal value.")
+					,"baseValueCoin", "lightmanscurrency:coin_copper", SPEC_SUPPLIER).withCheck(MoneyUtil::isVisibleCoin);
 
 			this.valueFormat = builder
 					.comment("Value display format. Used to add currency signs to coin value displays.",
@@ -836,6 +840,25 @@ public class Config {
 							"-1 will always allow trading regardless of dimension.",
 							"0 will allow infinite distance but require that both players be in the same dimension.")
 					.defineInRange("maxPlayerDistance", -1d, -1d, Double.MAX_VALUE);
+
+			builder.pop();
+
+			builder.comment("Tax Block").push("taxes");
+
+			this.taxMachinesAdminOnly = builder.comment("Whether Tax Blocks can only be activated by an Admin in LC Admin Mode.",
+							"Will not prevent players from crafting or placing/configuring Tax Blocks.")
+					.define("adminOnlyActivation", false);
+
+			this.taxMachineMaxRate = builder.comment("The maximum tax rate (in %) a Tax Block is allowed to enforce.")
+					.defineInRange("maxTaxRate", 25, 1, 99);
+
+			this.taxMachineMaxRadius = builder.comment("The maximum radius of a Tax Block's area in meters.")
+					.defineInRange("maxRadius", 256, 16, Integer.MAX_VALUE);
+			this.taxMachineMaxHeight = builder.comment("The maximum height of a Tax Block's area in meters.")
+					.defineInRange("maxHeight", 64, 8, Integer.MAX_VALUE);
+			this.taxMachineMaxVertOffset = builder.comment("The maximum vertical offset of a Tax Block's vertical offset in meters.",
+							"Note: Vertical offset can be negative, so this will also enforce the lowest value.")
+					.defineInRange("maxVertOffset", 32, 4, Integer.MAX_VALUE);
 
 			builder.pop();
 

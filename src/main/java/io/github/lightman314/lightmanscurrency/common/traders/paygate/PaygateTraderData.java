@@ -245,7 +245,9 @@ public class PaygateTraderData extends TraderData {
 		
 		//Get the cost of the trade
 		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
-		
+
+		CoinValue taxesPaid = CoinValue.EMPTY;
+
 		//Process a ticket trade
 		if(trade.isTicketTrade())
 		{
@@ -309,12 +311,12 @@ public class PaygateTraderData extends TraderData {
 			if(!this.isCreative())
 			{
 				//Give the paid cost to storage
-				this.addStoredMoney(price, true);
+				taxesPaid = this.addStoredMoney(price, true);
 			}
 
 		}
 		//Push the post-trade event
-		this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+		this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 		return TradeResult.SUCCESS;
 	}
 	

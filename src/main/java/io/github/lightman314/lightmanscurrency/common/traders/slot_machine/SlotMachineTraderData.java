@@ -11,10 +11,12 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineEntryTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachinePriceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
@@ -28,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -112,6 +113,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         return null;
     }
 
+    @Nonnull
     public final List<Component> getSlotMachineInfo()
     {
         List<Component> tooltips = new ArrayList<>();
@@ -124,24 +126,6 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
         if(!this.hasStock())
             tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.outofstock").withStyle(ChatFormatting.RED));
-
-        int entryIndex = 1;
-        for(SlotMachineEntry entry : this.getValidEntries())
-        {
-            //Append Info for each entry
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.entry", entryIndex++));
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.weight_and_odds", entry.getWeight(), this.getOdds(entry.getWeight())));
-
-            if(entry.isMoney())
-                tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.money", entry.getMoneyValue().getString("0")));
-            else
-            {
-                //Combine matching items for tooltip purposes (say 128x cobble instead of 64x cobble twice)
-                for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
-                    tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.item", item.getCount(), item.getHoverName()));
-            }
-
-        }
 
         return tooltips;
     }
@@ -196,19 +180,12 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     protected void saveTrades(CompoundTag compound) { }
 
     @Override
-    protected MenuProvider getTraderMenuProvider() {
-        return new SlotMachineMenuProvider(this.getID());
-        //For now just use the default menu
-        //return super.getTraderMenuProvider();
-    }
+    protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
 
-    private record SlotMachineMenuProvider(long traderID) implements MenuProvider {
+    private record SlotMachineMenuProvider(long traderID, @Nonnull MenuValidator validator) implements EasyMenuProvider {
 
         @Override
-        public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID); }
-
-        @Override
-        public @Nonnull Component getDisplayName() { return EasyText.empty(); }
+        public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID, this.validator); }
 
     }
 
@@ -403,22 +380,24 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.lastReward = loot.getDisplayItems();
             this.markLastRewardDirty();
 
-            //Push Notification
-            this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory()));
+            CoinValue taxesPaid = CoinValue.EMPTY;
 
             //Ignore editing internal storage if this is flagged as creative.
             if(!this.isCreative())
             {
                 //Give the paid cost to storage
-                this.addStoredMoney(price, true);
+                taxesPaid = this.addStoredMoney(price, true);
 
                 //Push out of stock notification
                 if(!this.hasStock())
                     this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), -1));
             }
 
+            //Push Notification
+            this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+
             //Push the post-trade event
-            this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+            this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
             return TradeResult.SUCCESS;
 

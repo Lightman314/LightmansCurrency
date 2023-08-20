@@ -131,16 +131,16 @@ public class LCCraftingConditions {
 		}
 	}
 
-	public static class TaxBlock extends SimpleCraftingCondition {
-		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tax_block_craftable");
-		public static final TaxBlock INSTANCE = new TaxBlock();
-		public static final IConditionSerializer<TaxBlock> SERIALIZER = new Serializer();
-		private TaxBlock() { super(TYPE, () -> false); }
-		private static class Serializer implements IConditionSerializer<TaxBlock> {
+	public static class TaxCollector extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tax_collector_craftable");
+		public static final TaxCollector INSTANCE = new TaxCollector();
+		public static final IConditionSerializer<TaxCollector> SERIALIZER = new Serializer();
+		private TaxCollector() { super(TYPE, Config.COMMON.canCraftTaxBlock); }
+		private static class Serializer implements IConditionSerializer<TaxCollector> {
 			@Override
-			public void write(JsonObject json, TaxBlock value) { }
+			public void write(JsonObject json, TaxCollector value) { }
 			@Override
-			public TaxBlock read(JsonObject json) { return INSTANCE; }
+			public TaxCollector read(JsonObject json) { return INSTANCE; }
 			@Override
 			public ResourceLocation getID() { return TYPE; }
 		}
@@ -158,7 +158,7 @@ public class LCCraftingConditions {
 			CraftingHelper.register(CoinChestUpgradeBank.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeMagnet.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeSecurity.SERIALIZER);
-			CraftingHelper.register(TaxBlock.SERIALIZER);
+			CraftingHelper.register(TaxCollector.SERIALIZER);
 		} catch(IllegalStateException ignored) { }
 	}
 	

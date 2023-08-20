@@ -102,7 +102,4 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 		return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
 	}
 	
-	@Override
-	public boolean getIsBottom(BlockState state) { return state.getValue(ISBOTTOM); }
-	
 }

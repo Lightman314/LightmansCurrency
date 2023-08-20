@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
@@ -78,7 +80,7 @@ public class Team {
 			return this.isOwner(player);
 	}
 	public BankAccount getBankAccount() { return this.bankAccount; }
-	public BankAccount.AccountReference getReference() { if(this.hasBankAccount()) return BankAccount.GenerateReference(this.isClient, this.id); return null; }
+	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
 	
 	/**
 	 * Determines if the given player is the owner of this team.
@@ -350,35 +352,29 @@ public class Team {
 		return new Team(id, owner, name);
 	}
 	
-	public static Comparator<Team> sorterFor(Player player)
-	{
-		return new TeamSorter(player);
-	}
-	
-	private static class TeamSorter implements Comparator<Team>
+	public static Comparator<Team> sorterFor(Player player) { return new TeamSorter(player); }
+
+	private record TeamSorter(Player player) implements Comparator<Team>
 	{
 
-		private final Player player;
-		
-		private TeamSorter(Player player) { this.player = player; }
-		
 		@Override
-		public int compare(Team o1, Team o2) {
-			
-			if(o1.isOwner(player) && !o2.isOwner(player))
+		public int compare(Team o1, Team o2)
+		{
+
+			if (o1.isOwner(player) && !o2.isOwner(player))
 				return -1;
-			if(!o1.isOwner(player) && o2.isOwner(player))
+			if (!o1.isOwner(player) && o2.isOwner(player))
 				return 1;
-			
-			if(o1.isAdmin(player) && !o2.isAdmin(player))
+
+			if (o1.isAdmin(player) && !o2.isAdmin(player))
 				return -1;
-			if(!o1.isAdmin(player) && o2.isAdmin(player))
+			if (!o1.isAdmin(player) && o2.isAdmin(player))
 				return 1;
-			
+
 			return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-			
+
 		}
-		
+
 	}
 	
 }

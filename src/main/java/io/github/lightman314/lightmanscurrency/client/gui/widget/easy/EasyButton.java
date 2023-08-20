@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
@@ -55,6 +56,6 @@ public abstract class EasyButton extends EasyWidget {
         }
     }
 
-    protected void onPress() { this.press.accept(this); }
+    protected void onPress() { this.press.accept(this); this.setFocused(false); }
 
 }
