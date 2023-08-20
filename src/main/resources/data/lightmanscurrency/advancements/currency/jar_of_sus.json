@@ -19,7 +19,7 @@
             "conditions": {
                 "items": [
                     {
-                        "item": "lightmanscurrency:sus_jar"
+                        "items": ["lightmanscurrency:sus_jar"]
                     }
                 ]
             }
