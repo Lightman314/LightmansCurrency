@@ -83,10 +83,7 @@ public class PlayerReference {
 		return entity.getUUID().equals(this.id);
 	}
 	
-	public boolean isOnline()
-	{
-		return this.getPlayer() != null;
-	}
+	public boolean isOnline() { return this.getPlayer() != null; }
 	
 	public Player getPlayer() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -257,11 +254,10 @@ public class PlayerReference {
 	 */
 	public static UUID getPlayerID(String playerName)
 	{
-		playerName = playerName.toLowerCase();
 		try {
 			for(Entry<UUID,String> entry : UsernameCache.getMap().entrySet())
 			{
-				if(entry.getValue().toLowerCase().equals(playerName))
+				if(entry.getValue().equalsIgnoreCase(playerName))
 					return entry.getKey();
 			}
 			

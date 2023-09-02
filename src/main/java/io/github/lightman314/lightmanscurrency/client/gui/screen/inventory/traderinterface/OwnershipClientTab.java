@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -46,7 +45,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	EasyButton buttonSetTeamOwner;
 	
 	long selectedTeam = -1;
-	List<Team> teamList = Lists.newArrayList();
+	List<Team> teamList = new ArrayList<>();
 	
 	IconButton buttonToggleMode;
 	
@@ -93,7 +92,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	
 	private void refreshTeamList()
 	{
-		this.teamList = Lists.newArrayList();
+		this.teamList = new ArrayList<>();
 		List<Team> allTeams = TeamSaveData.GetAllTeams(true);
 		allTeams.forEach(team ->{
 			if(team.isMember(this.menu.player))
@@ -158,7 +157,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	public void closeAction() {
 		//Reset the selected team & team list to save space
 		this.selectedTeam = -1;
-		this.teamList = Lists.newArrayList();
+		this.teamList = new ArrayList<>();
 	}
 
 }

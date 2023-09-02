@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -48,8 +47,6 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 
 	@Override
 	public NotificationDisplayWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
-
 
 	@Override
 	public void renderWidget(@NotNull EasyGuiGraphics gui) {
@@ -144,8 +141,6 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 		this.scroll = newScroll;
 		this.validateScroll();
 	}
-	
-	private void validateScroll() { this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll()); }
 
 	@Override
 	public int getMaxScroll() { return Math.max(0, this.getNotifications().size() - this.rowCount); }

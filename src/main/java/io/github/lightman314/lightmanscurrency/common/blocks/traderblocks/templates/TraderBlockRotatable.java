@@ -18,56 +18,50 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderBlockRotatable extends TraderBlockBase implements IRotatableBlock{
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	private final Function<Direction,VoxelShape> shape;
-	
+
 	protected TraderBlockRotatable(Properties properties) { this(properties, LazyShapes.BOX_T); }
-	
+
 	protected TraderBlockRotatable(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazySingleShape(shape)); }
-	
+
 	protected TraderBlockRotatable(Properties properties, Function<Direction,VoxelShape> shape)
 	{
 		super(properties);
 		this.shape = shape;
 	}
-	
+
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
 	}
 
-	@Override @NotNull
-	public BlockState rotate(BlockState state, Rotation rotation)
-	{
-		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
-	}
-	
 	@Override
-	protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+	@Nonnull
+	@SuppressWarnings("deprecation")
+	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
+
+	@Override
+	protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
 	{
 		super.createBlockStateDefinition(builder);
 		builder.add(FACING);
 	}
-	
+
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state));
 	}
-	
-	@Override
-	public Direction getFacing(BlockState state)
-	{
-		return state.getValue(FACING);
-	}
-	
+
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }
-	
-	
+
+
 }

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoi
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenNetworkTerminal;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -87,7 +88,7 @@ public class ClientEvents {
 		//Open portable terminal from curios slot
 		if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS && event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
 		{
-			LightmansCurrency.PROXY.openTerminalScreen();
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal(true));
 		}
 		
 	}

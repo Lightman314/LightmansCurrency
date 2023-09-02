@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouse
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -24,33 +25,45 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public class DropdownWidget extends EasyWidgetWithChildren implements IMouseListener {
-	
+
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/dropdown.png");
-	
+
 	public static final int HEIGHT = 12;
-	
+
 	boolean open = false;
-	
+
 	int currentlySelected;
 
 	private final List<Component> options;
 	private final Consumer<Integer> onSelect;
 	private final Function<Integer,Boolean> optionActive;
-	
+
 	List<EasyButton> optionButtons = new ArrayList<>();
-	
+
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Component... options) {
+		this(pos.x, pos.y, width, selected, onSelect, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Component... options) {
 		this(x, y, width, selected, onSelect, (index) -> true, options);
 	}
-	
+
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
+		this(pos.x, pos.y, width, selected, onSelect, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
 		this(x, y, width, selected, onSelect, (index) -> true, options);
 	}
-	
+
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
+		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
 		this(x, y, width, selected, onSelect, optionActive, Lists.newArrayList(options));
 	}
-	
+
+	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
+		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
+	}
 	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
 		super(x, y, width, HEIGHT);
 		this.options = options;
@@ -87,48 +100,47 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 				this.optionButtons.get(i).active = this.optionActive.apply(i) && i != this.currentlySelected;
 		}
 	}
-	
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-		
+
 		//Draw the background
-        int offset = this.isHovered ? this.height : 0;
-        if(!this.active)
+		int offset = this.isHovered ? this.height : 0;
+		if(!this.active)
 			gui.setColor(0.5f, 0.5f, 0.5f);
 		else
 			gui.resetColor();
 		gui.blit(GUI_TEXTURE, 0, 0, 0, offset, 2, DropdownWidget.HEIGHT);
-        int xOffset = 0;
-        while(xOffset < this.width - 14)
-        {
-        	int xPart = Math.min(this.width - 14 - xOffset, 244);
+		int xOffset = 0;
+		while(xOffset < this.width - 14)
+		{
+			int xPart = Math.min(this.width - 14 - xOffset, 244);
 			gui.blit(GUI_TEXTURE, 2 + xOffset, 0, 2, offset, xPart, DropdownWidget.HEIGHT);
-        	xOffset += xPart;
-        }
+			xOffset += xPart;
+		}
 		gui.blit(GUI_TEXTURE, this.width - 12, 0, 244, offset, 12, DropdownWidget.HEIGHT);
-		
-        //Draw the option text
+
+		//Draw the option text
 		gui.drawString(this.fitString(gui, this.options.get(this.currentlySelected).getString()), 2, 2, 0x404040);
 
 		gui.resetColor();
-		
+
 	}
-	
+
 	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int click) {
 		if (this.active && this.visible) {
-            if (this.clicked(mouseX, mouseY) && this.isValidClickButton(click)) {
-            	this.playDownSound(Minecraft.getInstance().getSoundManager());
-            	this.open = !this.open;
-            	this.optionButtons.forEach(button -> button.visible = this.open);
-				this.renderTick();
-            	return true;
-            }
-            else if(this.open && !this.isOverChild(mouseX, mouseY))
-            {
-            	this.open = false;
-            	this.optionButtons.forEach(button -> button.visible = false);
-            }
+			if (this.clicked(mouseX, mouseY) && this.isValidClickButton(click)) {
+				this.playDownSound(Minecraft.getInstance().getSoundManager());
+				this.open = !this.open;
+				this.optionButtons.forEach(button -> button.visible = this.open);
+				return true;
+			}
+			else if(this.open && !this.isOverChild(mouseX, mouseY))
+			{
+				this.open = false;
+				this.optionButtons.forEach(button -> button.visible = false);
+			}
 		}
 		return false;
 	}
@@ -163,6 +175,9 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 			text = text.substring(0, text.length() - 1);
 		return text + "...";
 	}
+
+	@Override
+	protected boolean isValidClickButton(int button) { return button == 0; }
 
 	@Override
 	public void playDownSound(@Nonnull SoundManager manager) { EasyButton.playClick(manager); }

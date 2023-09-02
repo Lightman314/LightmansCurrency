@@ -1,39 +1,56 @@
 package io.github.lightman314.lightmanscurrency.common.taxes;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldArea;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class TaxEntry implements IClientTracker {
 
-    public static final int MIN_RADIUS = 5;
-    public static final int MIN_VERT_SIZE = 2;
-    public static final int MAX_VERT_OFFSET = 64;
+    public static int minRadius() { return 5; }
+    public static int maxRadius() { return Config.SERVER.taxMachineMaxRadius.get(); }
+    public static int minHeight() { return 2; }
+    public static int maxHeight() { return Config.SERVER.taxMachineMaxHeight.get(); }
+    public static int minVertOffset() { return -maxVertOffset(); }
+    public static int maxVertOffset() { return Config.SERVER.taxMachineMaxVertOffset.get(); }
+
+    public static int maxTaxRate() { return Config.SERVER.taxMachineMaxRate.get(); }
+
+    public final TaxStats stats = new TaxStats(this);
 
     private boolean locked = true;
     public final TaxEntry unlock() { this.locked = false; return this; }
@@ -42,54 +59,138 @@ public class TaxEntry implements IClientTracker {
     public final boolean isClient() { return this.isClient; }
     public final TaxEntry flagAsClient() { this.isClient = true; return this.unlock(); }
 
+    public final boolean isServerEntry() { return this.id == TaxSaveData.SERVER_TAX_ID; }
+
     private WorldPosition center = WorldPosition.VOID;
     public WorldPosition getCenter() { return this.center; }
     public void moveCenter(@Nonnull WorldPosition newPosition) { if(this.center.equals(newPosition)) return; this.center = newPosition; this.markCenterDirty(); }
-    public WorldArea getArea() { return this.infiniteRange ? WorldArea.ofInfiniteRange(this.center) : this.center.getArea(this.horizRadius, this.vertSize, this.vertOffset); }
+    public WorldArea getArea() { return this.isInfiniteRange() ? WorldArea.ofInfiniteRange(this.center) : this.center.getArea(this.getRadius(), this.getHeight(), this.getVertOffset()); }
 
-    private int horizRadius = 10;
-    public int getHorizRadius() { return this.horizRadius; }
-    public void setHorizRadius(int newHorizRadius) { this.horizRadius = Math.max(MIN_RADIUS, newHorizRadius); this.markAreaDirty(); }
-    private int vertSize = 10;
-    public int getVertSize() { return this.vertSize; }
-    public void setVertSize(int newVertSize) { this.vertSize = Math.max(MIN_VERT_SIZE, newVertSize); this.markAreaDirty(); }
+    private int radius = 10;
+    public int getRadius() { return MathUtil.clamp(this.radius, minRadius(), maxRadius()); }
+    public void setRadius(int newRadius) { if(this.isInfiniteRange()) return; this.radius = MathUtil.clamp(newRadius, minRadius(), maxRadius()); this.markAreaDirty(); }
+    private int height = 10;
+    public int getHeight() { return MathUtil.clamp(this.height, minHeight(), maxHeight()); }
+    public void setHeight(int newHeight) { if(this.isInfiniteRange()) return; this.height = MathUtil.clamp(newHeight, minHeight(), maxHeight()); this.markAreaDirty(); }
     private int vertOffset = 0;
-    public int getVertOffset() { return this.vertOffset; }
-    public void setVertOffset(int newVertOffset) { this.vertOffset = MathUtil.clamp(newVertOffset, -MAX_VERT_OFFSET, MAX_VERT_OFFSET); this.markAreaDirty(); }
+    public int getVertOffset() { return MathUtil.clamp(this.vertOffset, minVertOffset(), maxVertOffset()); }
+    public void setVertOffset(int newVertOffset) { if(this.isInfiniteRange()) return; this.vertOffset = MathUtil.clamp(newVertOffset, minVertOffset(), maxVertOffset()); this.markAreaDirty(); }
 
-    private int taxPercentage = 0;
-    public int getTaxPercentage() { return this.taxPercentage; }
-    public void setTaxPercentage(int newPercentage) { this.taxPercentage = MathUtil.clamp(newPercentage, 1, 50); this.markTaxPercentageDirty(); }
+    /**
+     * Render Modes:
+     * 0- Don't draw anything
+     * 1- Draw area to members only
+     * 2- Draw area to all players
+     */
+    private int renderMode = 1;
+    public int getRenderMode() { if(this.isInfiniteRange()) return 0; return this.renderMode; }
+    public void setRenderMode(int newRenderMode) { this.renderMode = newRenderMode % 3; this.markRenderModeDirty(); }
+    public boolean shouldRender(Player player)
+    {
+        //Don't render the area if there is no area to draw (because infinite range)
+        if(player == null || this.isInfiniteRange())
+            return false;
+        if(CommandLCAdmin.isAdminPlayer(player))
+            return true;
+        if(this.getRenderMode() == 1)
+            return this.canAccess(player);
+        //Don't render for non-members if not active
+        return this.getRenderMode() == 2 && this.isActive();
+    }
+    public int getRenderColor(Player player)
+    {
+        if(this.canAccess(player))
+        {
+            //Render green or red for members based on active state
+            if(this.active)
+                return 0x00C800;
+            else
+                return 0xC80000;
+        }
+        else if(this.renderMode != 2)
+        {
+            //Render off green/red for admins
+            if(this.active)
+                return 0x007700;
+            else
+                return 0x770000;
+        }
+        //Render yellow for non-members
+        return 0xC8C800;
+    }
+
+
+    private int taxRate = 1;
+    public int getTaxRate() { return MathUtil.clamp(this.taxRate, 0, Config.SERVER.taxMachineMaxRate.get()); }
+    public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, maxTaxRate()); this.markTaxPercentageDirty(); }
 
     private String name = "";
+    public String getCustomName() { return this.name; }
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
     public void setName(String name) { this.name = name; this.markNameDirty(); }
-    protected MutableComponent getDefaultName() { return EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name", this.owner.getOwnerName()); }
+    protected MutableComponent getDefaultName() { return EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name", this.isServerEntry() ? EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name.server") : this.owner.getOwnerName()); }
 
     private final OwnerData owner = new OwnerData(this, o -> this.markOwnerDirty());
     public OwnerData getOwner() { return this.owner; }
+    public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return true; return this.owner.isMember(player); }
 
     //Stored Money
     private CoinValue storedMoney = CoinValue.EMPTY;
     public CoinValue getStoredMoney() { return this.storedMoney; }
-    public void depositMoney(CoinValue amount) { this.storedMoney = this.storedMoney.plusValue(amount); }
+    public void depositMoney(CoinValue amount) {
+        BankAccount account = this.getBankAccount();
+        if(account != null)
+        {
+            account.depositCoins(amount);
+            account.LogInteraction(this, amount);
+            return;
+        }
+        this.storedMoney = this.storedMoney.plusValue(amount);
+        this.markStoredMoneyDirty();
+    }
     public void clearStoredMoney() { this.storedMoney = CoinValue.EMPTY; }
 
-    public final void PayTaxes(ITaxable taxable, CoinValue amount)
+    @Nonnull
+    public final CoinValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull CoinValue taxableAmount)
     {
-        this.depositMoney(amount);
-        this.PushNotification(TaxesCollectedNotification.create(taxable.getName(), amount, new TaxEntryCategory(this.getName(), this.id)));
+        CoinValue amountToPay = taxableAmount.percentageOfValue(this.getTaxRate());
+        if(amountToPay.hasAny())
+        {
+            this.depositMoney(amountToPay);
+            this.PushNotification(TaxesCollectedNotification.create(taxable.getName(), amountToPay, new TaxEntryCategory(this.getName(), this.id)));
+            this.stats.OnTaxesCollected(taxable, amountToPay);
+        }
+        return amountToPay;
     }
 
     //Linked Bank Account?
+    private boolean linkToBank = false;
+    public void setLinkedToBank(boolean newState) { this.linkToBank = newState; this.markBankStateDirty(); }
+    public boolean isLinkedToBank() { return this.linkToBank && !this.isServerEntry(); }
+    public final BankAccount getBankAccount()
+    {
+        if(!this.linkToBank)
+            return null;
+        if(this.owner.hasTeam())
+        {
+            Team team = this.owner.getTeam();
+            if(team.hasBankAccount())
+                return team.getBankAccount();
+        }
+        else if(this.owner.hasPlayer())
+            return BankSaveData.GetBankAccount(this.isClient, this.owner.getPlayer().id);
+        return null;
+    }
 
-
-    //Collection Logs?
     private final NotificationData logger = new NotificationData();
     public final List<Notification> getNotifications() { return this.logger.getNotifications(); }
+
     public final void PushNotification(NonNullSupplier<Notification> notification) {
+        if(this.isClient)
+            return;
+
         this.logger.addNotification(notification.get());
-        //TODO push to members/admins/owner
+        this.markNotificationsDirty();
     }
 
     //Accepted Entries
@@ -99,7 +200,7 @@ public class TaxEntry implements IClientTracker {
     public final List<TaxableReference> getAcceptedEntries() { return ImmutableList.copyOf(this.acceptedEntries); }
     public final void acceptTaxes(@Nonnull ITaxable entry) {
         TaxableReference reference = entry.getReference();
-        if(!this.acceptedEntries.contains(reference))
+        if(!this.acceptedEntries.contains(reference) && reference != null)
         {
             this.acceptedEntries.add(reference);
             this.markAcceptedEntriesDirty();
@@ -116,55 +217,90 @@ public class TaxEntry implements IClientTracker {
     }
 
     //Whether this Tax Entry applies to a trader at the given position
-    public boolean ShouldTax(@Nonnull ITaxable taxable) { return this.IsInArea(taxable) && this.admin || this.acceptedEntries.contains(taxable.getReference()); }
+    public boolean ShouldTax(@Nonnull ITaxable taxable) { return this.IsInArea(taxable) && (this.forcesAcceptance() || this.acceptedEntries.contains(taxable.getReference())); }
 
-    public boolean IsInArea(@Nonnull ITaxable taxable) { return this.getArea().isInArea(taxable.getWorldPosition()); }
+    public boolean IsInArea(@Nonnull ITaxable taxable) { return this.isActive() && this.getArea().isInArea(taxable.getWorldPosition()); }
 
     private long id = -1;
     public long getID() { return this.id; }
-    private boolean admin = false;
-    public boolean isAdmin() { return this.admin; }
-    public TaxEntry setAdmin(boolean isAdmin) { this.admin = isAdmin; this.markAdminStateDirty(); return this; }
+    private boolean active = false;
+    public boolean isActive() { return this.active; }
+    public void setActive(boolean newState, @Nullable Player player) {
+        if(this.active == newState)
+            return;
+        if(Config.SERVER.taxMachinesAdminOnly.get() && !CommandLCAdmin.isAdminPlayer(player) && !this.active)
+        {
+            Permissions.PermissionWarning(player, "activate a tax entry", Permissions.ADMIN_MODE);
+            return;
+        }
+        this.active = newState;
+        this.markActiveStateDirty();
+    }
+    private boolean forceAcceptance = false;
+    public boolean forcesAcceptance() { return this.forceAcceptance || this.isServerEntry(); }
+    public void setForceAcceptance(boolean isAdmin) { if(this.isServerEntry()) return; this.forceAcceptance = isAdmin; this.markAdminStateDirty(); }
     private boolean infiniteRange = false;
-    public boolean isInfiniteRange() { return true; }
-    public TaxEntry setInfiniteRange(boolean infiniteRange) { this.infiniteRange = infiniteRange; this.markAdminStateDirty(); return this; }
+    public boolean isInfiniteRange() { return this.infiniteRange || this.isServerEntry(); }
+    public void setInfiniteRange(boolean infiniteRange) { if(this.isServerEntry()) return; this.infiniteRange = infiniteRange; this.markAdminStateDirty(); }
 
     protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxSaveData.MarkTaxEntryDirty(this.id, packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
 
     public TaxEntry() { }
-    public TaxEntry(long id, @Nullable BlockEntity core, @Nonnull Player owner)
+    public TaxEntry(long id, @Nullable BlockEntity core, @Nullable Player owner)
     {
         this.id = id;
         if(core != null)
             this.center = WorldPosition.ofBE(core);
-        else
-        {
-            this.admin = true;
-            this.infiniteRange = true;
-        }
         this.owner.SetOwner(owner);
+    }
+
+    public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
+    {
+        if(player instanceof ServerPlayer sp && this.canAccess(player))
+            NetworkHooks.openScreen(sp, new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
     public CompoundTag save()
     {
         CompoundTag tag = new CompoundTag();
         tag.putLong("ID", this.id);
-        this.saveCenter(tag);
-        this.saveArea(tag);
+
         this.saveTaxRate(tag);
-        this.saveOwner(tag);
-        this.saveAdminState(tag);
-        this.saveAcceptedEntries(tag);
+        this.saveStoredMoney(tag);
+        this.saveActiveState(tag);
+        this.saveName(tag);
+        this.saveNotifications(tag);
+        this.saveStats(tag);
+
+        if(!this.isServerEntry())
+        {
+            //This data is not needed for a Server Entry.
+            this.saveCenter(tag);
+            this.saveArea(tag);
+            this.saveRenderMode(tag);
+            this.saveOwner(tag);
+            this.saveAdminState(tag);
+            this.saveAcceptedEntries(tag);
+            this.saveBankState(tag);
+        }
+
         return tag;
     }
 
     public final void markAreaDirty() { this.markDirty(this::saveArea);}
 
     protected final CompoundTag saveArea(CompoundTag tag) {
-        tag.putInt("HorizRadius", this.horizRadius);
-        tag.putInt("VertSize", this.vertSize);
+        tag.putInt("HorizRadius", this.radius);
+        tag.putInt("VertSize", this.height);
         tag.putInt("VertOffset", this.vertOffset);
+        return tag;
+    }
+
+    public final void markRenderModeDirty() { this.markDirty(this::saveRenderMode); }
+
+    protected final CompoundTag saveRenderMode(CompoundTag tag) {
+        tag.putInt("RenderMode", this.renderMode);
         return tag;
     }
 
@@ -177,7 +313,7 @@ public class TaxEntry implements IClientTracker {
 
     public final void markTaxPercentageDirty() { this.markDirty(this::saveTaxRate); }
     protected final CompoundTag saveTaxRate(CompoundTag tag) {
-        tag.putInt("TaxRate", this.taxPercentage);
+        tag.putInt("TaxRate", this.taxRate);
         return tag;
     }
 
@@ -194,11 +330,23 @@ public class TaxEntry implements IClientTracker {
         return tag;
     }
 
+    public final void markStoredMoneyDirty() { this.markDirty(this::saveStoredMoney); }
+    protected final CompoundTag saveStoredMoney(CompoundTag tag) {
+        tag.put("StoredMoney", this.storedMoney.save());
+        return tag;
+    }
+
     public final void markAdminStateDirty() { this.markDirty(this::saveAdminState); }
 
     protected final CompoundTag saveAdminState(CompoundTag tag) {
-        tag.putBoolean("IsAdmin", this.admin);
+        tag.putBoolean("ForceAcceptance", this.forceAcceptance);
         tag.putBoolean("IsInfiniteRange", this.infiniteRange);
+        return tag;
+    }
+
+    public final void markActiveStateDirty() { this.markDirty(this::saveActiveState); }
+    protected final CompoundTag saveActiveState(CompoundTag tag) {
+        tag.putBoolean("IsActivated", this.active);
         return tag;
     }
 
@@ -213,6 +361,27 @@ public class TaxEntry implements IClientTracker {
         return tag;
     }
 
+    public final void markNotificationsDirty() { this.markDirty(this::saveNotifications); }
+    protected final CompoundTag saveNotifications(CompoundTag tag)
+    {
+        tag.put("Notifications", this.logger.save());
+        return tag;
+    }
+
+    public final void markStatsDirty() { this.markDirty(this::saveStats); }
+    protected final CompoundTag saveStats(CompoundTag tag)
+    {
+        tag.put("Statistics", this.stats.save());
+        return tag;
+    }
+
+    public final void markBankStateDirty() { this.markDirty(this::saveBankState); }
+    protected final CompoundTag saveBankState(CompoundTag tag)
+    {
+        tag.putBoolean("LinkedToBank", this.linkToBank);
+        return tag;
+    }
+
     public void load(CompoundTag tag)
     {
         if(tag.contains("ID"))
@@ -220,21 +389,27 @@ public class TaxEntry implements IClientTracker {
         if(tag.contains("Center"))
             this.center = WorldPosition.load(tag.getCompound("Center"));
         if(tag.contains("HorizRadius"))
-            this.horizRadius = tag.getInt("HorizRadius");
+            this.radius = tag.getInt("HorizRadius");
         if(tag.contains("VertSize"))
-            this.vertSize = tag.getInt("VertSize");
+            this.height = tag.getInt("VertSize");
         if(tag.contains("VertOffset"))
             this.vertOffset = tag.getInt("VertOffset");
+        if(tag.contains("RenderMode"))
+            this.renderMode = tag.getInt("RenderMode");
         if(tag.contains("TaxRate"))
-            this.taxPercentage = tag.getInt("TaxRate");
+            this.taxRate = tag.getInt("TaxRate");
         if(tag.contains("CustomName"))
             this.name = tag.getString("CustomName");
         if(tag.contains("Owner"))
             this.owner.load(tag.getCompound("Owner"));
-        if(tag.contains("IsAdmin"))
-            this.admin = tag.getBoolean("IsAdmin");
+        if(tag.contains("StoredMoney"))
+            this.storedMoney = CoinValue.load(tag.getCompound("StoredMoney"));
+        if(tag.contains("ForceAcceptance"))
+            this.forceAcceptance = tag.getBoolean("ForceAcceptance");
         if(tag.contains("IsInfiniteRange"))
             this.infiniteRange = tag.getBoolean("IsInfiniteRange");
+        if(tag.contains("IsActivated"))
+            this.active = tag.getBoolean("IsActivated");
         if(tag.contains("AcceptedEntries"))
         {
             ListTag acceptedEntriesList = tag.getList("AcceptedEntries", Tag.TAG_COMPOUND);
@@ -246,7 +421,10 @@ public class TaxEntry implements IClientTracker {
                     this.acceptedEntries.add(r);
             }
         }
+        if(tag.contains("Notifications"))
+            this.logger.load(tag.getCompound("Notifications"));
+        if(tag.contains("Statistics"))
+            this.stats.load(tag.getCompound("Statistics"));
     }
-
 
 }

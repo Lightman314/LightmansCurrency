@@ -533,9 +533,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					return TradeResult.FAIL_NO_OUTPUT_SPACE;
 				}
 			}
-			
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
 
 			CoinValue taxesPaid = CoinValue.EMPTY;
 
@@ -553,6 +550,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
@@ -587,9 +587,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			context.collectItems(collectableItems);
 			//Put the payment in the purchasers' wallet, coin slot, etc.
 			context.givePayment(price);
-			
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+
 			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore editing internal storage if this is flagged as creative.
@@ -607,6 +605,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
@@ -665,9 +666,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					return TradeResult.FAIL_NO_OUTPUT_SPACE;
 				}
 			}
-			
+
 			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), CoinValue.EMPTY));
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())

@@ -39,12 +39,11 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	
 	private boolean equippable(ItemStack item) {
 		try { return item.canEquip(this.equipmentType, safeGetDummyArmorStand()) || this.vanillaEquippable(item); }
-		catch(Exception e) { return this.vanillaEquippable(item); }
+		catch(Throwable e) { return this.vanillaEquippable(item); }
 	}
 
 	private boolean vanillaEquippable(ItemStack item) {
-		try {
-			return Mob.getEquipmentSlotForItem(item) == this.equipmentType;
+		try { return Mob.getEquipmentSlotForItem(item) == this.equipmentType;
 		} catch(Throwable t) { t.printStackTrace(); return false; }
 	}
 	

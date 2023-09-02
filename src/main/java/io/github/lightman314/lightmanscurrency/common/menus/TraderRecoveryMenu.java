@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketChangeSelectedData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -23,13 +24,12 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class TraderRecoveryMenu extends AbstractContainerMenu {
+public class TraderRecoveryMenu extends EasyMenu {
 
 	public static final MenuProvider PROVIDER = new Provider();
 	
 	public TraderRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.TRADER_RECOVERY.get(), menuID, inventory); }
-	
-	private final Player player;
+
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
@@ -45,8 +45,7 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 			return data.get(this.selectedIndex);
 		return null;
 	}
-	
-	private final SuppliedContainer ejectionContainer;
+
 	private final Container dummyContainer = new SimpleContainer(54);
 	
 	private Container getSelectedContainer() { 
@@ -60,17 +59,16 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	}
 	
 	protected TraderRecoveryMenu(MenuType<?> type, int menuID, Inventory inventory) {
-		super(type, menuID);
-		this.player = inventory.player;
+		super(type, menuID, inventory);
 		
-		this.ejectionContainer = new SuppliedContainer(this::getSelectedContainer);
+		Container ejectionContainer = new SuppliedContainer(this::getSelectedContainer);
 		
 		//Menu slots
 		for(int y = 0; y < 6; ++y)
 		{
 			for(int x = 0; x < 9; ++x)
 			{
-				 this.addSlot(new OutputSlot(this.ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18));
+				 this.addSlot(new OutputSlot(ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18));
 			}
 		}
 		
@@ -111,10 +109,7 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	      }
 
 	      return itemstack;
-	   }
-
-	@Override
-	public boolean stillValid(@Nonnull Player player) { return true; }
+   }
 	
 	@Override
 	public void removed(@Nonnull Player player) {

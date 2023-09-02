@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -9,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +26,13 @@ public class ClientModEvents {
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
+	}
+
+	@SubscribeEvent
+	public static void registerBlockColors(RegisterColorHandlersEvent.Block event)
+	{
+		event.register(new SusBlockColor(), ModBlocks.SUS_JAR.get());
 	}
 
 	@SubscribeEvent

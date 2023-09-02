@@ -10,7 +10,8 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 public class BankSaveData extends SavedData {
 
 	
-	private final Map<UUID, Pair<BankAccount,AccountReference>> playerBankData = new HashMap<>();
+	private final Map<UUID, Pair<BankAccount,BankReference>> playerBankData = new HashMap<>();
 	
 	private BankSaveData() {}
 	private BankSaveData(CompoundTag compound) {
@@ -48,7 +49,7 @@ public class BankSaveData extends SavedData {
 			CompoundTag tag = bankData.getCompound(i);
 			UUID player = tag.getUUID("Player");
 			BankAccount bankAccount = loadBankAccount(player, tag.getCompound("BankAccount"));
-			AccountReference lastSelected = BankAccount.LoadReference(false, tag.getCompound("LastSelected"));
+			BankReference lastSelected = BankReference.load(tag.getCompound("LastSelected"));
 			playerBankData.put(player, Pair.of(bankAccount, lastSelected));
 		}
 	}
@@ -97,11 +98,11 @@ public class BankSaveData extends SavedData {
 		return null;
 	}
 	
-	public static List<AccountReference> GetPlayerBankAccounts() {
-		List<AccountReference> results = new ArrayList<>();
+	public static List<BankReference> GetPlayerBankAccounts() {
+		List<BankReference> results = new ArrayList<>();
 		BankSaveData bsd = get();
 		if(bsd != null)
-			bsd.playerBankData.forEach((player,data) -> results.add(BankAccount.GenerateReference(false, player)));
+			bsd.playerBankData.forEach((player,data) -> results.add(PlayerBankReference.of(player)));
 		return results;
 	}
 	
@@ -121,25 +122,11 @@ public class BankSaveData extends SavedData {
 					return bsd.playerBankData.get(player).getFirst();
 				//Create a new bank account for the player
 				BankAccount newAccount = generateBankAccount(player);
-				bsd.playerBankData.put(player, Pair.of(newAccount, BankAccount.GenerateReference(false, player)));
+				bsd.playerBankData.put(player, Pair.of(newAccount, PlayerBankReference.of(player)));
 				MarkBankAccountDirty(player);
 				return newAccount;
 			}
 			return null;
-		}
-	}
-
-	/** @deprecated Only use to transfer bank account data from the old Trading Office. */
-	@Deprecated
-	public static void GiveOldBankAccount(UUID player, BankAccount account) {
-		BankSaveData bsd = get();
-		if(bsd != null)
-		{
-			if(bsd.playerBankData.containsKey(player))
-				bsd.playerBankData.put(player, Pair.of(account, bsd.playerBankData.get(player).getSecond()));
-			else
-				bsd.playerBankData.put(player, Pair.of(account, BankAccount.GenerateReference(false, player)));
-			MarkBankAccountDirty(player);
 		}
 	}
 	
@@ -157,7 +144,7 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public static AccountReference GetSelectedBankAccount(Player player) {
+	public static BankReference GetSelectedBankAccount(Player player) {
 		if(player.level.isClientSide)
 		{
 			ClientBankData.GetLastSelectedAccount();
@@ -169,43 +156,25 @@ public class BankSaveData extends SavedData {
 			{
 				if(bsd.playerBankData.containsKey(player.getUUID()))
 				{
-					AccountReference account = bsd.playerBankData.get(player.getUUID()).getSecond();
+					BankReference account = bsd.playerBankData.get(player.getUUID()).getSecond();
 					if(!account.allowedAccess(player))
 					{
 						LightmansCurrency.LogInfo(player.getName().getString() + " is no longer allowed to access their selected bank account. Switching back to their personal account.");
-						account = BankAccount.GenerateReference(player);
+						account = PlayerBankReference.of(player);
 						SetSelectedBankAccount(player, account);
 					}
 					return account;
 				}
 				//Generate default bank account for the player
-				AccountReference account = BankAccount.GenerateReference(player);
+				BankReference account = PlayerBankReference.of(player);
 				SetSelectedBankAccount(player,account);
 				return account;
 			}
 		}
-		return BankAccount.GenerateReference(player);
-	}
-
-	/** @deprecated Use only to transfer selected bank account from old Trading Office. */
-	@Deprecated
-	public static void GiveOldSelectedBankAccount(UUID player, AccountReference account) {
-		BankSaveData bsd = get();
-		if(bsd != null)
-		{
-			if(bsd.playerBankData.containsKey(player))
-				bsd.playerBankData.put(player, Pair.of(bsd.playerBankData.get(player).getFirst(), account));
-			else
-			{
-				bsd.playerBankData.put(player, Pair.of(generateBankAccount(player), account));
-				MarkBankAccountDirty(player);
-			}
-			
-			bsd.setDirty();
-		}
+		return PlayerBankReference.of(player);
 	}
 	
-	public static void SetSelectedBankAccount(Player player, AccountReference account) {
+	public static void SetSelectedBankAccount(Player player, BankReference account) {
 		//Ignore if the account is null or the player isn't allowed to access it.
 		if(account == null)
 			return;
@@ -263,7 +232,7 @@ public class BankSaveData extends SavedData {
 		LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound));
 		
 		//Update to let them know their selected bank account
-		AccountReference selectedAccount = GetSelectedBankAccount(event.getEntity());
+		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());
 		LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncSelectedBankAccount(selectedAccount));
 		
 	}

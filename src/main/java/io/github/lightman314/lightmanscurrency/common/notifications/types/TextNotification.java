@@ -47,11 +47,9 @@ public class TextNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof TextNotification)
+		if(other instanceof TextNotification otherText)
 		{
-			TextNotification otherText = (TextNotification)other;
-			if(otherText.text.getString() == this.text.getString())
-				return true;
+			return otherText.text.getString().equals(this.text.getString());
 		}
 		return false;
 	}

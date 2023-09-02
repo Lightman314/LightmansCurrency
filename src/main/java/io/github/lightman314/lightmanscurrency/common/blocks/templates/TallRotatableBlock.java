@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -72,10 +70,8 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	
 	@Nonnull
 	@Override
-	public PushReaction getPistonPushReaction(@Nonnull BlockState state)
-	{
-		return PushReaction.BLOCK;
-	}
+	@SuppressWarnings("deprecation")
+	public PushReaction getPistonPushReaction(@Nonnull BlockState state) { return PushReaction.BLOCK; }
 	
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
@@ -114,8 +110,5 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 		}
 		return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
 	}
-	
-	@Override
-	public boolean getIsBottom(BlockState state) { return state.getValue(ISBOTTOM); }
 	
 }

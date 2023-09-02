@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CapabilityInterfaceBlockEntity extends BlockEntity {
 	
@@ -19,13 +20,13 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity {
 	}
 	
 	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side)
+	public <T> @Nonnull LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof ICapabilityBlock handlerBlock)
 		{
 			BlockEntity blockEntity = handlerBlock.getCapabilityBlockEntity(this.getBlockState(), this.level, this.worldPosition);
-			if(blockEntity != null)
+			if(blockEntity != null && !(blockEntity instanceof CapabilityInterfaceBlockEntity))
 				return blockEntity.getCapability(cap, side);
 		}
 		return super.getCapability(cap, side);

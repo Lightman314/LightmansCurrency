@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValueHolder;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
@@ -32,14 +34,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
+public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
 
     private final long traderID;
-
-    public final Player player;
-
-    @Override
-    public boolean isClient() { return this.player.level.isClientSide; }
 
     @Nullable
     public final SlotMachineTraderData getTrader() { if(TraderSaveData.GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
@@ -59,10 +56,19 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
         return this.rewards.remove(0);
     }
 
-    public SlotMachineMenu(int windowID, Inventory inventory, long traderID) {
+    private final MenuValidator validator;
+
+    @Nonnull
+    @Override
+    public MenuValidator getValidator() { return this.validator; }
+
+    public SlotMachineMenu(int windowID, Inventory inventory, long traderID, @Nonnull MenuValidator validator) {
         super(ModMenus.SLOT_MACHINE.get(), windowID, inventory);
-        this.player = inventory.player;
+        this.validator = validator;
         this.traderID = traderID;
+
+        this.addValidator(this.validator);
+        this.addValidator(() -> this.getTrader() != null);
 
         //Player inventory
         for(int y = 0; y < 3; y++)
@@ -135,9 +141,6 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) { return this.getTrader() != null; }
-
-    @Override
     public void removed(@Nonnull Player player) {
         super.removed(player);
         MinecraftForge.EVENT_BUS.unregister(this);
@@ -195,7 +198,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
             for(int i = 0; flag && i < count; ++i)
             {
                 RewardCache holder = new RewardCache();
-                if(trader.ExecuteTrade(this.getContext(holder), 0).isSuccess())
+                if(trader.TryExecuteTrade(this.getContext(holder), 0).isSuccess())
                 {
                     if(holder.itemHolder.isEmpty() && holder.moneyHolder.getValue().getValueNumber() <= 0)
                         LightmansCurrency.LogError("Successful Slot Machine Trade executed, but no items or money were received!");

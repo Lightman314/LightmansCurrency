@@ -10,7 +10,6 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
@@ -80,7 +79,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		CoinValue cost = this.cost;
 		long taxAmount = 0;
 		for(TaxEntry entry : trader.getApplicableTaxes())
-			taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+			taxAmount += cost.percentageOfValue(entry.getTaxRate()).getValueNumber();
 		return cost.plusValue(CoinValue.fromNumber(taxAmount));
 	}
 	public CoinValue getCostWithTaxes(TradeContext context)
@@ -91,7 +90,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			TraderData trader = context.getTrader();
 			long taxAmount = 0;
 			for(TaxEntry entry : trader.getApplicableTaxes())
-				taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+				taxAmount += cost.percentageOfValue(entry.getTaxRate()).getValueNumber();
 			return cost.plusValue(CoinValue.fromNumber(taxAmount));
 		}
 		return cost;

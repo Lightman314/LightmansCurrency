@@ -67,7 +67,6 @@ public class CoinValue
 		return compound;
 	}
 
-	//Flag as deprecated on 1.18.2 and force them to use safeLoad where applicable
 	@Nonnull
 	public static CoinValue load(CompoundTag compound)
 	{

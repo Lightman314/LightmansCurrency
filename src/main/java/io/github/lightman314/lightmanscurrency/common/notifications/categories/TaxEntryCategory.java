@@ -26,7 +26,7 @@ public class TaxEntryCategory extends NotificationCategory {
         if(tag.contains("EntryName"))
             this.entryName = Component.Serializer.fromJson(tag.getString("EntryName"));
         else
-            this.entryName = ModBlocks.TAX_BLOCK.get().getName();
+            this.entryName = ModBlocks.TAX_COLLECTOR.get().getName();
         if(tag.contains("TraderID"))
             this.entryID = tag.getLong("TraderID");
         else
@@ -35,7 +35,7 @@ public class TaxEntryCategory extends NotificationCategory {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(ModBlocks.TAX_BLOCK); }
+    public IconData getIcon() { return IconData.of(ModBlocks.TAX_COLLECTOR); }
 
     @Override
     public MutableComponent getName() { return this.getEntryName(); }

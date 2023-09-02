@@ -12,8 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -38,8 +36,6 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 		this.shape = shape;
 	}
 	
-	protected boolean transparent(BlockState state) { return true; }
-	
 	@Override
 	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) { return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection()); }
 	
@@ -57,12 +53,7 @@ public class RotatableBlock extends Block implements IRotatableBlock {
 	
 	@Nonnull
 	@Override
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
-	{
-		return shape.apply(this.getFacing(state));
-	}
-	
-	@Override
-	public Direction getFacing(BlockState state) { return state.getValue(FACING); }
+	@SuppressWarnings("deprecation")
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return shape.apply(this.getFacing(state)); }
 	
 }

@@ -135,7 +135,7 @@ public interface IRotatableBlock {
 	/**
 	 * Gets the rotational direction of the given rotatable block state.
 	 */
-	Direction getFacing(BlockState state);
+	default Direction getFacing(BlockState state) { return state.getValue(FACING); }
 	
 	static Direction getRelativeSide(Direction facing, Direction side)
 	{

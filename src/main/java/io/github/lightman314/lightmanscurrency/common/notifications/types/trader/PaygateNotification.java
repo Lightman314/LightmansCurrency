@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
@@ -14,7 +15,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-public class PaygateNotification extends Notification{
+import javax.annotation.Nonnull;
+
+public class PaygateNotification extends TaxableNotification {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "paygate_trade");
 	
@@ -28,8 +31,9 @@ public class PaygateNotification extends Notification{
 	
 	String customer;
 	
-	protected PaygateNotification(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) {
-		
+	protected PaygateNotification(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) {
+		super(trade.isTicketTrade() ? CoinValue.EMPTY : taxesPaid);
+
 		this.traderData = traderData;
 		this.usedPass = usedPass;
 		this.ticketID = trade.getTicketID();
@@ -45,8 +49,9 @@ public class PaygateNotification extends Notification{
 		
 	}
 
-	public static NonNullSupplier<Notification> create(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, cost, usedPass, customer, traderData); }
-	
+	public static NonNullSupplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, CoinValue.EMPTY, usedPass, customer, traderData, CoinValue.EMPTY); }
+	public static NonNullSupplier<Notification> createMoney(PaygateTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
+
 	public PaygateNotification(CompoundTag compound) { this.load(compound); }
 	
 	@Override
@@ -55,8 +60,9 @@ public class PaygateNotification extends Notification{
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
+	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public MutableComponent getNormalMessage() {
 		
 		if(this.ticketID >= -1)
 		{
@@ -66,12 +72,12 @@ public class PaygateNotification extends Notification{
 				return EasyText.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 		}
 		else
-			return EasyText.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
+			return EasyText.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getComponent(), PaygateTradeData.formatDurationShort(this.duration));
 		
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveNormal(CompoundTag compound) {
 
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("Duration", this.duration);
@@ -87,7 +93,7 @@ public class PaygateNotification extends Notification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadNormal(CompoundTag compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.duration = compound.getInt("Duration");
@@ -120,7 +126,7 @@ public class PaygateNotification extends Notification{
 			if(!pn.customer.equals(this.customer))
 				return false;
 			//Passed all checks. Allow merging.
-			return true;
+			return this.TaxesMatch(pn);
 		}
 		return false;
 	}

@@ -15,8 +15,8 @@ public interface IWideBlock {
 			return IRotatableBlock.getRightPos(pos, facing);
 		return IRotatableBlock.getLeftPos(pos, facing);
 	}
-	
-	boolean getIsLeft(BlockState state);
+
+	default boolean getIsLeft(BlockState state) { return state.getValue(ISLEFT); }
 	
 	default boolean getIsRight(BlockState state) { return !getIsLeft(state); }
 	

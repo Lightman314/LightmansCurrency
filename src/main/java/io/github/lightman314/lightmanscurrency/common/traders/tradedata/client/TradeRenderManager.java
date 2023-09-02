@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Al
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
@@ -64,6 +65,8 @@ public abstract class TradeRenderManager<T extends TradeData> {
             return null;
         List<AlertData> alerts = new ArrayList<>();
         this.addTradeRuleAlertData(alerts, context);
+        if(context.getTrader().exceedsAcceptableTaxRate())
+            alerts.add(AlertData.error(EasyText.translatable("tooltip.lightmanscurrency.tax_limit")));
         this.getAdditionalAlertData(context, alerts);
         return alerts;
     }

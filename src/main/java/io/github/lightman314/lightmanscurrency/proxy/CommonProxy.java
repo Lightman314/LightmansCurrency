@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.proxy;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
@@ -41,13 +41,11 @@ public class CommonProxy {
 	
 	public void receiveNotification(Notification notification) {}
 	
-	public void receiveSelectedBankAccount(AccountReference selectedAccount) {}
+	public void receiveSelectedBankAccount(BankReference selectedAccount) {}
 
 	public void updateTaxEntries(CompoundTag compound) {}
 
 	public void removeTaxEntry(long id) {}
-
-	public void openTerminalScreen() {}
 	
 	public void openNotificationScreen() {}
 	
