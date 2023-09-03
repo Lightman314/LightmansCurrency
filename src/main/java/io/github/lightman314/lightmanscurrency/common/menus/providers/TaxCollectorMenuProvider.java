@@ -9,11 +9,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class TaxCollecterMenuProvider implements EasyMenuProvider {
+public class TaxCollectorMenuProvider implements EasyMenuProvider {
 
     private final long entryID;
     private final MenuValidator validator;
-    public TaxCollecterMenuProvider(long entryID, MenuValidator validator) { this.entryID = entryID; this.validator = validator; }
+    public TaxCollectorMenuProvider(long entryID, MenuValidator validator) { this.entryID = entryID; this.validator = validator; }
 
     @Nullable
     @Override

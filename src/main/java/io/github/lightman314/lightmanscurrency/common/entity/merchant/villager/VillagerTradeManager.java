@@ -46,22 +46,6 @@ public class VillagerTradeManager {
 	public static final ResourceLocation BANKER_ID = new ResourceLocation(LightmansCurrency.MODID, "banker");
 	public static final ResourceLocation CASHIER_ID = new ResourceLocation(LightmansCurrency.MODID, "cashier");
 
-	public static List<ItemListing> getGenericWandererTrades() {
-		return ImmutableList.of(
-				//Machines
-				new SimpleTrade(ModItems.COIN_GOLD.get(), 1, ModBlocks.ATM.get()),
-				new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.CASH_REGISTER.get()),
-				new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.TERMINAL.get())
-				);
-	}
-	public static List<ItemListing> getRareWandererTrades() {
-		return ImmutableList.of(
-				//Traders
-				new SimpleTrade(ModItems.COIN_GOLD.get(), 2, ModItems.COIN_IRON.get(), 4, ModBlocks.DISPLAY_CASE.get()),
-				new SimpleTrade(ModItems.COIN_GOLD.get(), 4, ModBlocks.ARMOR_DISPLAY.get())
-				);
-	}
-
 	public static void registerDefaultTrades() {
 		CustomVillagerTradeData.registerDefaultFile(BANKER_ID, ImmutableMap.of(
 				1,
@@ -289,6 +273,22 @@ public class VillagerTradeManager {
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON.get(), 2), new ItemStack(Blocks.QUARTZ_BLOCK), 12, 30, 0.05f)
 				)
 		));
+
+		//Wandering Trader Trades
+		CustomVillagerTradeData.registerDefaultWanderingTrades(
+				//Generic Trades
+				ImmutableList.of(
+						//Machines
+						new SimpleTrade(ModItems.COIN_GOLD.get(), 1, ModBlocks.ATM.get()),
+						new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.CASH_REGISTER.get()),
+						new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.TERMINAL.get())
+				),
+				//Rare Trades
+				ImmutableList.of(
+						//Traders
+						new SimpleTrade(ModItems.COIN_GOLD.get(), 2, ModItems.COIN_IRON.get(), 4, ModBlocks.DISPLAY_CASE.get()),
+						new SimpleTrade(ModItems.COIN_GOLD.get(), 4, ModBlocks.ARMOR_DISPLAY.get())
+				));
 	}
 
 	private static final float ENCHANTMENT_PRICE_MODIFIER = 0.25f;
@@ -398,8 +398,9 @@ public class VillagerTradeManager {
 		//Add my own custom trades
 		if(Config.COMMON.addCustomWanderingTrades.get())
 		{
-			event.getGenericTrades().addAll(getGenericWandererTrades());
-			event.getRareTrades().addAll(getRareWandererTrades());
+			var pair = CustomVillagerTradeData.getWanderingTraderData();
+			event.getGenericTrades().addAll(pair.getFirst());
+			event.getRareTrades().addAll(pair.getSecond());
 		}
 		
 	}

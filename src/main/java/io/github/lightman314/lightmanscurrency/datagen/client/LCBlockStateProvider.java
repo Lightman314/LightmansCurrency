@@ -156,7 +156,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                         .texture("main", data.plankTexture);
             }
             else
-                LightmansCurrency.LogWarning("Could not generate models for wood type '" + type.name + "' as it has no wood data!");
+                LightmansCurrency.LogWarning("Could not generate models for wood type '" + type.id + "' as it has no wood data!");
             //Generate the block state
             this.registerRotatable(block, modelID, false);
         });

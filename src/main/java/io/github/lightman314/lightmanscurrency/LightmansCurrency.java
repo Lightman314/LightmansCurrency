@@ -10,7 +10,8 @@ import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferen
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
-import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
+import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -115,25 +116,20 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(this);
 
 		//Setup Wood Compatibilities before registering blocks/items
-		if(ModList.get().isLoaded("biomesoplenty"))
-			BOPWoodTypes.setupWoodTypes();
+		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
-        
-        if(ModList.get().isLoaded("lightmansdiscord"))
-		{
-			try {
-				MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-				FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
-			} catch (Throwable ignored) { }
-		}
 
-		if(ModList.get().isLoaded("immersiveengineering"))
-			LCImmersive.registerRotationBlacklists();
+		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", () -> {
+			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+		}, null);
+
+		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
         
     }
 	

@@ -26,8 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 
 public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu {
-	
-	private final Player player;
+
 	public Player getPlayer() { return this.player; }
 	
 	private final Container coinInput = new SimpleContainer(9);
@@ -38,8 +37,6 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public ATMMenu(int windowId, Inventory inventory, MenuValidator validator)
 	{
 		super(ModMenus.ATM.get(), windowId, inventory, validator);
-		
-		this.player = inventory.player;
 		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
@@ -160,9 +157,6 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
 	
 	public void clearMessage() { this.transferMessage = null; }
-
-	@Override
-	public boolean isClient() { return this.player.level().isClientSide; }
 
 	public void SetNotificationValueAndUpdate(CoinValue newValue)
 	{

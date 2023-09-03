@@ -19,8 +19,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -195,12 +193,6 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
 
         TextInputUtil.whitelistInteger(this.weightEdit, 1, 1000);
     }
-
-    @Override
-    protected void updateWidgetNarration(@Nonnull NarrationElementOutput narrator) { }
-
-    @Override
-    public void playDownSound(@Nonnull SoundManager soundManager) { }
 
     @Override
     public List<Component> getTooltipText(int mouseX, int mouseY) {

@@ -36,7 +36,7 @@ public class WoodDataHelper {
     public static void register(@Nonnull WoodType type, @Nonnull WoodData data) {
         if(registeredData.containsKey(type))
         {
-            LightmansCurrency.LogError("Attempted to register a duplicate WoodData for type '" + type.name + "'!");
+            LightmansCurrency.LogError("Attempted to register a duplicate WoodData for type '" + type.id + "'!");
             return;
         }
         registeredData.put(type, Objects.requireNonNull(data));

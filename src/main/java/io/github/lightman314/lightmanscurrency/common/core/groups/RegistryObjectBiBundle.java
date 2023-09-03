@@ -79,11 +79,11 @@ public class RegistryObjectBiBundle<T,L,M> {
         return keys;
     }
 
-    public List<T> getAllSorted() { return this.getAllSorted(BundleRequestFiler.ALL); }
-    public List<T> getAllSorted(BundleRequestFiler filter) { return this.getAllSorted(this.sorter1, this.sorter2); }
+    public List<T> getAllSorted() { return this.getAllSorted(BundleRequestFilter.ALL); }
+    public List<T> getAllSorted(BundleRequestFilter filter) { return this.getAllSorted(this.sorter1, this.sorter2); }
 
-    public List<T> getAllSorted(Comparator<L> sorter1, Comparator<M> sorter2) { return this.getAllSorted(BundleRequestFiler.ALL, sorter1, sorter2); }
-    public List<T> getAllSorted(BundleRequestFiler filter, Comparator<L> sorter1, Comparator<M> sorter2)
+    public List<T> getAllSorted(Comparator<L> sorter1, Comparator<M> sorter2) { return this.getAllSorted(BundleRequestFilter.ALL, sorter1, sorter2); }
+    public List<T> getAllSorted(BundleRequestFilter filter, Comparator<L> sorter1, Comparator<M> sorter2)
     {
         List<L> keys1 = this.getKey1Sorted(sorter1).stream().filter(filter::filterKey).toList();
         List<T> result = new ArrayList<>();

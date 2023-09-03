@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -289,7 +290,7 @@ public class ModBlocks {
 		);
 		
 		//Shelves
-		SHELF = registerWooden("shelf", w -> new ShelfBlock(
+		SHELF = registerWooden("shelf", WoodType.Attributes.needsSlab, w -> new ShelfBlock(
 				Block.Properties.of()
 					.mapColor(w.mapColor)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -297,7 +298,7 @@ public class ModBlocks {
 		);
 		
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", w -> new CardDisplayBlock(
+		CARD_DISPLAY = registerWooden("card_display", WoodType.Attributes.needsLog, w -> new CardDisplayBlock(
 				Block.Properties.of()
 					.mapColor(w.mapColor)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -335,7 +336,7 @@ public class ModBlocks {
 		);
 
 		//Bookshelf Traders
-		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", w -> new BookTraderBlock(
+		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", WoodType.Attributes.needsPlanksAndSlab, w -> new BookTraderBlock(
 				Block.Properties.of()
 					.mapColor(w.mapColor)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -479,7 +480,7 @@ public class ModBlocks {
 		);
 
 		//Auction Stand
-		AUCTION_STAND = registerWooden("auction_stand", w ->
+		AUCTION_STAND = registerWooden("auction_stand", WoodType.Attributes.needsLog, w ->
 			new AuctionStandBlock(BlockBehaviour.Properties.of().mapColor(w.mapColor).strength(2.0f))
 		);
 
@@ -552,16 +553,18 @@ public class ModBlocks {
 	/**
 	 * Wooden block registration code
 	 */
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Function<WoodType,T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Predicate<WoodType.Attributes> check, Function<WoodType,T> block)
 	{
-		return registerWooden(name, getDefaultGenerator(), block);
+		return registerWooden(name,check, getDefaultGenerator(), block);
 	}
 	
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Function<Block,Item> itemGenerator, Function<WoodType,T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Predicate<WoodType.Attributes> check, Function<Block,Item> itemGenerator, Function<WoodType,T> block)
 	{
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
+			if(!check.test(woodType.attributes))
+				continue;
 			String thisName = woodType.generateID(name);
 			//Register the block normally
 			bundle.put(woodType, register(thisName, itemGenerator, () -> block.apply(woodType)));
@@ -584,7 +587,7 @@ public class ModBlocks {
 		{
 			for(Color color : Color.values())
 			{
-				String thisName = name + "_" + woodType.name + "_" + color.getResourceSafeName();
+				String thisName = name + "_" + woodType.id + "_" + color.getResourceSafeName();
 				//Register the block normally
 				bundle.put(woodType, color, register(thisName, itemGenerator, () -> block.apply(color, woodType)));
 			}

@@ -7,18 +7,12 @@ import io.github.lightman314.lightmanscurrency.network.message.menu.CMessageMenu
 import io.github.lightman314.lightmanscurrency.network.message.menu.SMessageMenuInteraction;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 
 public abstract class LazyMessageMenu extends EasyMenu {
 
-    public final Player player;
-
-    @Override
-    public boolean isClient() { return this.player.level().isClientSide; }
-
-    protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id, inventory); this.player = inventory.player; }
-    protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory, MenuValidator validator) { super(type, id, inventory, validator); this.player = inventory.player; }
+    protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id, inventory); }
+    protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory, MenuValidator validator) { super(type, id, inventory, validator); }
 
     public void SendMessage(LazyPacketData.Builder message)
     {

@@ -4,7 +4,7 @@ import com.google.common.base.Suppliers;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
-import io.github.lightman314.lightmanscurrency.common.core.groups.BundleRequestFiler;
+import io.github.lightman314.lightmanscurrency.common.core.groups.BundleRequestFilter;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
@@ -100,7 +100,7 @@ public class ModCreativeGroups {
                     //Tax Block
                     ezPop(p, ModBlocks.TAX_COLLECTOR);
                     //Auction Stands
-                    ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFiler.VANILLA);
+                    ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFilter.VANILLA);
                     //Ticket Machine
                     ezPop(p, ModBlocks.TICKET_STATION);
                     //Tickets (with a creative default UUID)
@@ -123,16 +123,16 @@ public class ModCreativeGroups {
                 .icon(ezIcon(ModBlocks.DISPLAY_CASE))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
-                    ezPop(p, ModBlocks.SHELF, BundleRequestFiler.VANILLA);
+                    ezPop(p, ModBlocks.SHELF, BundleRequestFilter.VANILLA);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
-                    ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFiler.VANILLA);
+                    ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFilter.VANILLA);
                     ezPop(p, ModBlocks.VENDING_MACHINE);
                     ezPop(p, ModBlocks.FREEZER);
                     ezPop(p, ModBlocks.VENDING_MACHINE_LARGE);
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
-                    ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFiler.VANILLA);
+                    ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFilter.VANILLA);
                     //Slot Machine Trader
                     ezPop(p, ModBlocks.SLOT_MACHINE);
                     //Item Traders (network)
@@ -179,10 +179,10 @@ public class ModCreativeGroups {
                     .title(EasyText.translatable("itemGroup.lightmanscurrency.extra"))
                     .icon(ezRandomIcon(ModCreativeGroups::getExtraGroup))
                     .displayItems((parameters,p) -> {
-                        ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFiler.MODDED);
-                        ezPop(p, ModBlocks.SHELF, BundleRequestFiler.MODDED);
-                        ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFiler.MODDED);
-                        ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFiler.MODDED);
+                        ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFilter.MODDED);
+                        ezPop(p, ModBlocks.SHELF, BundleRequestFilter.MODDED);
+                        ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFilter.MODDED);
+                        ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFilter.MODDED);
                     }).build()
             );
         }
@@ -234,9 +234,9 @@ public class ModCreativeGroups {
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFiler filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle, BundleRequestFiler filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();

@@ -74,7 +74,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         TaxEntry entry = this.getEntry();
         if(entry != null && this.hasAccess())
         {
-            entry.setTaxRage(newRate);
+            entry.setTaxRate(newRate);
             if(this.isClient())
                 this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeTaxRate", newRate));
         }

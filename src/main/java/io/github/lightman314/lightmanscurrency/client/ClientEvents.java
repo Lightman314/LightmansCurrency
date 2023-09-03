@@ -88,7 +88,7 @@ public class ClientEvents {
 		//Open portable terminal from curios slot
 		if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS && event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal());
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal(true));
 		}
 		
 	}

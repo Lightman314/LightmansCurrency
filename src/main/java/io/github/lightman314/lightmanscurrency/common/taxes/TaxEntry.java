@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollecterMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -122,7 +122,7 @@ public class TaxEntry implements IClientTracker {
 
     private int taxRate = 1;
     public int getTaxRate() { return MathUtil.clamp(this.taxRate, 0, Config.SERVER.taxMachineMaxRate.get()); }
-    public void setTaxRage(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, Config.SERVER.taxMachineMaxRate.get()); this.markTaxPercentageDirty(); }
+    public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, Config.SERVER.taxMachineMaxRate.get()); this.markTaxPercentageDirty(); }
 
     private String name = "";
     public String getCustomName() { return this.name; }
@@ -258,7 +258,7 @@ public class TaxEntry implements IClientTracker {
     public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
     {
         if(player instanceof ServerPlayer sp && this.canAccess(player))
-            NetworkHooks.openScreen(sp, new TaxCollecterMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
+            NetworkHooks.openScreen(sp, new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
     public CompoundTag save()

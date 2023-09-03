@@ -37,9 +37,6 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
 
     private final long traderID;
 
-    @Override
-    public boolean isClient() { return this.player.level().isClientSide; }
-
     @Nullable
     public final SlotMachineTraderData getTrader() { if(TraderSaveData.GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
 
