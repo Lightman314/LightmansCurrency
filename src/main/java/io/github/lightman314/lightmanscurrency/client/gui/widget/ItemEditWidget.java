@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
@@ -45,6 +44,9 @@ import javax.annotation.Nullable;
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
+
+	private static ItemEditWidget latestInstance = null;
+	private static boolean rebuilding = false;
 
 	private static final List<CreativeModeTab> ITEM_GROUP_BLACKLIST = new ArrayList<>();
 
@@ -102,7 +104,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	private static final List<ItemStack> allItems = new ArrayList<>();
 	private static final Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
 
-	private List<ItemStack> searchResultItems;
+	private List<ItemStack> searchResultItems = new ArrayList<>();
 
 	private String searchString;
 
@@ -112,10 +114,17 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private final Font font;
 
-	public ItemEditWidget(ScreenPosition pos, int columns, int rows, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, listener); }
-	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
+	private final ItemEditWidget oldItemEdit;
+	@Nullable
+	private EditBox getOldSearchInput() { return this.oldItemEdit != null ? this.oldItemEdit.searchInput : null; }
+	private String getOldSearchString() { return this.oldItemEdit != null ? this.oldItemEdit.searchString : ""; }
+
+	public ItemEditWidget(ScreenPosition pos, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, oldItemEdit, listener); }
+	public ItemEditWidget(int x, int y, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) {
 		super(x, y, columns * 18, rows * 18);
+		latestInstance = this;
 		this.listener = listener;
+		this.oldItemEdit = oldItemEdit;
 
 		this.columns = columns;
 		this.rows = rows;
@@ -134,7 +143,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		ConfirmItemListLoaded();
 
 		//Set the search to the default value to initialize the inventory
-		this.modifySearch("");
+		this.modifySearch(this.getOldSearchString());
 
 	}
 
@@ -145,7 +154,12 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	 * Re-initializes the item edit list on a different thread.
 	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
 	 */
-	public static void ConfirmItemListLoaded() { new Thread(ItemEditWidget::safeInitItemList).start(); }
+	public static void ConfirmItemListLoaded()
+	{
+		if(allItems.size() == 0) //Flag as rebuilding asap if the list is empty
+			rebuilding = true;
+		new Thread(ItemEditWidget::safeInitItemList).start();
+	}
 
 	/**
 	 * Re-initializes the item edit list. Runs on the same thread, so may cause lag if called at an inappropriate time.
@@ -155,6 +169,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	{
 		try { initItemList(); }
 		catch (Throwable t) { LightmansCurrency.LogError("Error occurred while attempting to set up the Item List!\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t); }
+		rebuilding = false;
 	}
 
 	private static void initItemList() {
@@ -182,6 +197,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		} catch (Throwable t) { throw new RuntimeException("Error building the Creative Tab Contents during Player Log-In event!", t); }
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
+		//Flag as rebuilding
+		rebuilding = true;
 
 		allItems.clear();
 
@@ -233,6 +250,9 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
 
+		if(latestInstance != null)
+			latestInstance.refreshSearch();
+
 	}
 
 	private static void addToList(ItemStack stack)
@@ -268,6 +288,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
 
+	@Nonnull
 	private List<ItemStack> getFilteredItems()
 	{
 		if(this.listener.restrictItemEditItems())
@@ -279,32 +300,33 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		return allItems;
 	}
 
+	@Nonnull
+
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
+		//If the items are still being collected, don't try to access the lists
+		if(rebuilding)
+			return new ArrayList<>();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
 			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
-		if(preFilteredItems.containsKey(type))
-			return preFilteredItems.get(type);
-		else
+		if(!preFilteredItems.containsKey(type))
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
-			return preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+			preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
 		}
+		return preFilteredItems.get(type);
 	}
 
-	public int getMaxScroll()
-	{
-		return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0);
-	}
+	public int getMaxScroll() { return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0); }
 
 	public void refreshPage()
 	{
 
-		this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
+		this.validateScroll();
 
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 
@@ -323,7 +345,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	public void refreshSearch() { this.modifySearch(this.searchString); }
 
-	public void modifySearch(String newSearch)
+	public void modifySearch(@Nonnull String newSearch)
 	{
 		this.searchString = newSearch.toLowerCase();
 
@@ -372,10 +394,11 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
+		this.searchInput.setResponder(this::modifySearch);
 
 		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
@@ -393,8 +416,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		if(!this.visible)
 			return;
 
-		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
-			this.modifySearch(this.searchInput.getValue());
+		//Removed search check as this is now handled by EditBox.setResponder
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
@@ -414,8 +436,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		}
 
 		//Render the search field
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		gui.resetColor();
 		gui.blit(GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area

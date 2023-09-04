@@ -60,7 +60,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	CoinValueInput priceSelection;
 	EditBox customNameInput;
 	
-	ItemEditWidget itemEdit;
+	ItemEditWidget itemEdit = null;
 	ScrollBarWidget itemEditScroll;
 	
 	EasyButton buttonToggleTradeType;
@@ -81,7 +81,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(TraderScreen.WIDTH / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
 		
-		this.itemEdit = this.addChild(new ItemEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this));
+		this.itemEdit = this.addChild(new ItemEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this.itemEdit, this));
 		if(this.itemEditScrollValue >= 0)
 			this.itemEdit.setScroll(itemEditScrollValue);
 		
