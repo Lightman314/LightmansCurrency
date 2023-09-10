@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.easy;
 
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
@@ -26,6 +27,11 @@ public class EasyText {
     public static void sendMessage(Player player, Component message) { player.sendMessage(message, DUMMY_ID); }
 
 
+    public static void sendCommandSucess(CommandSourceStack stack, Component message, boolean postToAdmins) { stack.sendSuccess(message, postToAdmins); }
+
+    public static void sendCommandFail(CommandSourceStack stack, Component message) { stack.sendFailure(message); }
+
     public static class Serializer extends Component.Serializer {}
+
 
 }

@@ -3,10 +3,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -14,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkT
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
@@ -21,13 +21,13 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-
-public class TradingTerminalScreen extends EasyScreen implements IScrollable {
+public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
@@ -48,17 +48,21 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 		return traderList;
 	}
 	private List<TraderData> filteredTraderList = new ArrayList<>();
-	
-	public TradingTerminalScreen() { super(EasyText.translatable("block.lightmanscurrency.terminal")); this.resize(176,187); }
-	
+
+	public NetworkTerminalScreen(TerminalMenu menu, Inventory inventory, Component ignored) {
+		super(menu, inventory, EasyText.translatable("block.lightmanscurrency.terminal"));
+		this.resize(176,187);
+	}
+
 	@Override
 	protected void initialize(ScreenArea screenArea)
 	{
-		
-		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
+
+		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, this.searchField, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
+		this.searchField.setResponder(this::updateTraderList);
 		
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + NetworkTraderButton.WIDTH, 17), NetworkTraderButton.HEIGHT * 5 + 2, this));
 		
@@ -66,14 +70,11 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 		
 		this.tick();
 		
-		this.updateTraderList();
+		this.updateTraderList(this.searchField.getValue());
 		
 		this.validateScroll();
 		
 	}
-	
-	@Override
-	public boolean isPauseScreen() { return false; }
 	
 	private void initTraderButtons(ScreenArea screenArea)
 	{
@@ -95,36 +96,6 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 	}
 	
 	@Override
-	public boolean charTyped(char c, int code)
-	{
-		String s = this.searchField.getValue();
-		if(this.searchField.charTyped(c, code))
-		{
-			if(!Objects.equals(s, this.searchField.getValue()))
-			{
-				this.updateTraderList();
-			}
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean keyPressed(int key, int scanCode, int mods)
-	{
-		String s = this.searchField.getValue();
-		if(this.searchField.keyPressed(key, scanCode, mods))
-		{
-			if(!Objects.equals(s,  this.searchField.getValue()))
-			{
-				this.updateTraderList();
-			}
-			return true;
-		}
-		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
-	}
-	
-	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		if(this.handleScrollWheel(delta))
 			return true;
@@ -135,9 +106,7 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 	{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
-		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.filteredTraderList.get(index).getID()));
-		}
 	}
 	
 	private int getTraderIndex(EasyButton button)
@@ -147,10 +116,10 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 		return -1;
 	}
 	
-	private void updateTraderList()
+	private void updateTraderList(String searchString)
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = searchString.isBlank() ? this.traderList() : TraderSearchFilter.FilterTraders(this.traderList(), searchString);
 		//Validate the scroll
 		this.validateScroll();
 		//Update the trader buttons
@@ -211,8 +180,6 @@ public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 			} catch (Throwable t) { return 0; }
 		}
 	}
-
-	private void validateScroll() { scroll = Math.min(scroll, this.getMaxScroll()); }
 	
 	@Override
 	public int currentScroll() { return scroll; }

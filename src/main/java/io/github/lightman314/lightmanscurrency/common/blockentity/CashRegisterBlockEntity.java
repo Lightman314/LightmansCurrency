@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
-public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
+public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderSource{
 	
 	List<BlockPos> positions = new ArrayList<>();
 	
@@ -39,7 +40,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	
 	public void OpenContainer(Player player)
 	{
-		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition);
+		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition, BlockEntityValidator.of(this));
 		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
@@ -116,8 +117,5 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			}
 		}
 	}
-	
-	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 }

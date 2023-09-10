@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -92,10 +92,10 @@ public class TransferTab extends ATMTab {
 	private List<Team> getTeamList()
 	{
 		List<Team> results = Lists.newArrayList();
-		AccountReference source = this.screen.getMenu().getBankAccountReference();
+		BankReference source = this.screen.getMenu().getBankAccountReference();
 		Team blockTeam = null;
-		if(source != null && source.accountType == AccountType.Team)
-			blockTeam = TeamSaveData.GetTeam(true, source.teamID);
+		if(source instanceof TeamBankReference teamBankReference)
+			blockTeam = TeamSaveData.GetTeam(true, teamBankReference.teamID);
 		for(Team team : TeamSaveData.GetAllTeams(true))
 		{
 			if(team.hasBankAccount() && team != blockTeam)

@@ -19,6 +19,7 @@ public class WorldPosition {
     @Nullable
     public final ResourceKey<Level> getDimension() { return this.dimension; }
     public final boolean sameDimension(@Nonnull WorldPosition other) { if(this.isVoid() || other.isVoid()) return true; return this.dimension.equals(other.dimension); }
+    public final boolean sameDimension(@Nonnull Level level) { if(this.isVoid()) return true; return this.dimension.equals(level.dimension()); }
     public final boolean isVoid() { return this.dimension == null; }
     private final BlockPos pos;
     @Nonnull

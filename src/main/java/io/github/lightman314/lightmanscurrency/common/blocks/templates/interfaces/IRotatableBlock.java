@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces;
 
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,21 +18,15 @@ public interface IRotatableBlock {
 	 * @param pos This blocks BlockPos.
 	 * @param facing This blocks rotational direction.
 	 */
-	public static BlockPos getRightPos(BlockPos pos, Direction facing)
+	static BlockPos getRightPos(BlockPos pos, Direction facing)
 	{
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case SOUTH:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case EAST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case WEST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			default:
-				return pos;
-		}
+		return switch (facing) {
+			case NORTH -> new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
+			case SOUTH -> new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
+			case EAST -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
+			case WEST -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
+			default -> pos;
+		};
 	}
 
 	/**
@@ -41,89 +34,65 @@ public interface IRotatableBlock {
 	 * @param pos This blocks BlockPos.
 	 * @param facing This blocks rotational direction.
 	 */
-	public static BlockPos getLeftPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case SOUTH:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case EAST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case WEST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			default:
-				return pos;
-		}
+	static BlockPos getLeftPos(BlockPos pos, Direction facing) {
+		return switch (facing) {
+			case NORTH -> new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
+			case SOUTH -> new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
+			case EAST -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
+			case WEST -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
+			default -> pos;
+		};
 	}
-	
+
 	/**
 	 * Gets the BlockPos of the block behind the given block.
 	 * @param pos This blocks BlockPos.
 	 * @param facing This blocks rotational direction.
 	 */
-	public static BlockPos getForwardPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case SOUTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case EAST:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case WEST:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			default:
-				return pos;
-		}
+	static BlockPos getForwardPos(BlockPos pos, Direction facing) {
+		return switch (facing) {
+			case NORTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
+			case SOUTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
+			case EAST -> new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
+			case WEST -> new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
+			default -> pos;
+		};
 	}
-	
+
 	/**
 	 * Gets the BlockPos of the block in front of the given block.
 	 * @param pos This blocks BlockPos.
 	 * @param facing This blocks rotational direction.
 	 */
-	public static BlockPos getBackwardPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case SOUTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case EAST:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case WEST:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			default:
-				return pos;
-		}
+	static BlockPos getBackwardPos(BlockPos pos, Direction facing) {
+		return switch (facing) {
+			case NORTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
+			case SOUTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
+			case EAST -> new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
+			case WEST -> new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
+			default -> pos;
+		};
 	}
 
 	/**
 	 * Gets the local right direction based on the blocks rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
-	public static Vector3f getRightVect(Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(1f, 0f, 0f);
-			case SOUTH:
-				return new Vector3f(-1f, 0f, 0f);
-			case EAST:
-				return new Vector3f(0f, 0f, 1f);
-			case WEST:
-				return new Vector3f(0f, 0f, -1f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
+	static Vector3f getRightVect(Direction facing) {
+		return switch (facing) {
+			case NORTH -> new Vector3f(1f, 0f, 0f);
+			case SOUTH -> new Vector3f(-1f, 0f, 0f);
+			case EAST -> new Vector3f(0f, 0f, 1f);
+			case WEST -> new Vector3f(0f, 0f, -1f);
+			default -> new Vector3f(0f, 0f, 0f);
+		};
 	}
-	
+
 	/**
 	 * Gets the local left direction based on the blocks rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
-	public static Vector3f getLeftVect(Direction facing) {
+	static Vector3f getLeftVect(Direction facing) {
 		return MathUtil.VectorMult(getRightVect(facing), -1f);
 	}
 
@@ -131,60 +100,47 @@ public interface IRotatableBlock {
 	 * Gets the local forward (toward the back) direction based on the blocks rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
-	public static Vector3f getForwardVect(Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(0f, 0f, -1f);
-			case SOUTH:
-				return new Vector3f(0f, 0f, 1f);
-			case EAST:
-				return new Vector3f(1f, 0f, 0f);
-			case WEST:
-				return new Vector3f(-1f, 0f, 0f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
+	static Vector3f getForwardVect(Direction facing) {
+		return switch (facing) {
+			case NORTH -> new Vector3f(0f, 0f, -1f);
+			case SOUTH -> new Vector3f(0f, 0f, 1f);
+			case EAST -> new Vector3f(1f, 0f, 0f);
+			case WEST -> new Vector3f(-1f, 0f, 0f);
+			default -> new Vector3f(0f, 0f, 0f);
+		};
 	}
-	
+
 	/**
 	 * Gets the local backward (toward the front) direction based on the blocks rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
-	public static Vector3f getBackwardVect(Direction facing) {
+	static Vector3f getBackwardVect(Direction facing) {
 		return MathUtil.VectorMult(getForwardVect(facing), -1f);
 	}
-	
+
 	/**
 	 * Gets the Vector3f offset from the world-defined bottom-left corner, to the local bottom-left of the block.
 	 * @param facing The rotatable blocks facing.
 	 */
-	public static Vector3f getOffsetVect(Direction facing)
+	static Vector3f getOffsetVect(Direction facing)
 	{
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(0f, 0f, 1f);
-			case SOUTH:
-				return new Vector3f(1f, 0f, 0f);
-			//case EAST:
-			//	return new Vector3f(0f, 0f, 0f);
-			case WEST:
-				return new Vector3f(1f, 0f, 1f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
+		return switch (facing) {
+			case NORTH -> new Vector3f(0f, 0f, 1f);
+			case SOUTH -> new Vector3f(1f, 0f, 0f);
+			case WEST -> new Vector3f(1f, 0f, 1f);
+			default -> new Vector3f(0f, 0f, 0f);
+		};
 	}
-	
+
 	/**
 	 * Gets the rotational direction of the given rotatable block state.
 	 */
-	public Direction getFacing(BlockState state);
-	
-	public static Direction getRelativeSide(Direction facing, Direction side)
+	default Direction getFacing(BlockState state) { return state.getValue(FACING); }
+
+	static Direction getRelativeSide(Direction facing, Direction side)
 	{
 		if(side == null)
-			return side;
+			return null;
 		if(side.getAxis() == Axis.Y)
 			return side;
 		//Since my facings are backwards, invert it
@@ -192,11 +148,11 @@ public interface IRotatableBlock {
 			facing = facing.getOpposite();
 		return Direction.from2DDataValue(facing.get2DDataValue() + side.get2DDataValue());
 	}
-	
-	public static Direction getActualSide(Direction facing, Direction relativeSide)
+
+	static Direction getActualSide(Direction facing, Direction relativeSide)
 	{
 		if(relativeSide == null)
-			return relativeSide;
+			return null;
 		if(relativeSide.getAxis() == Axis.Y)
 			return relativeSide;
 		//Since my facings are backwards, invert it
@@ -205,5 +161,5 @@ public interface IRotatableBlock {
 		Direction result = Direction.from2DDataValue(facing.get2DDataValue() - relativeSide.get2DDataValue() + 4);
 		return result.getAxis() == Axis.X ? result.getOpposite() : result;
 	}
-	
+
 }

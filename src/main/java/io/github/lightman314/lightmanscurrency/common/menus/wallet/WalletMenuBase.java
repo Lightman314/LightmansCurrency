@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenu
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -20,7 +21,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public abstract class WalletMenuBase extends AbstractContainerMenu {
+public abstract class WalletMenuBase extends EasyMenu {
 
 	private static int maxWalletSlots = 0;
 	public static int getMaxWalletSlots() { return maxWalletSlots; }
@@ -61,15 +61,15 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	protected final Container coinInput;
 	
 	protected final WalletItem walletItem;
-	
-	public final Player player;
+
 	public Player getPlayer() { return this.player; }
 	
 	protected WalletMenuBase(MenuType<?> type, int windowID, Inventory inventory, int walletStackIndex) {
-		super(type, windowID);
-		
+		super(type, windowID, inventory);
+
+		this.addValidator(this::validateHasWallet);
+
 		this.inventory = inventory;
-		this.player = this.inventory.player;
 		
 		this.walletStackIndex = walletStackIndex;
 		
@@ -121,9 +121,6 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	public final int getRowCount() { return 1 + ((this.coinInput.getContainerSize() - 1)/9); }
 	
 	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
-	
-	@Override
-	public boolean stillValid(@Nonnull Player playerIn) { this.validateHasWallet(); return true; }
 
 	public final boolean validateHasWallet() {
 		if(!this.hasWallet())
@@ -132,10 +129,9 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 				LightmansCurrency.LogWarning("Forcibly closing the wallet menu, as the player no longer has a wallet equipped!");
 			else
 				LightmansCurrency.LogWarning("Forcibly closing the wallet menu, as the player is no longer holding a wallet in slot " + this.walletStackIndex + "!");
-			this.player.closeContainer();
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	public final void saveWalletContents()

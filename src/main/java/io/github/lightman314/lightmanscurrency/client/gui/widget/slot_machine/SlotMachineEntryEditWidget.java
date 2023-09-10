@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -17,13 +19,14 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.Supplier;
 
-public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implements IEasyTickable {
+public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implements IEasyTickable, ITooltipSource {
 
     public static final int WIDTH = 80;
     public static final int HEIGHT = 46;
@@ -106,9 +109,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                             {
                                 if(rightClick) //If right-click, set as 1
                                 {
-                                    ItemStack copy = heldItem.copy();
-                                    copy.setCount(1);
-                                    this.tab.commonTab.AddEntryItem(entryIndex, copy);
+                                    this.tab.commonTab.AddEntryItem(entryIndex, InventoryUtil.copyWithCount(heldItem,1));
                                 }
                                 else //Otherwise add whole stack
                                     this.tab.commonTab.AddEntryItem(entryIndex, heldItem);
@@ -143,11 +144,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                                     this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, newStack);
                                 }
                                 else
-                                {
-                                    ItemStack copy = heldItem.copy();
-                                    copy.setCount(1);
-                                    this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, copy);
-                                }
+                                    this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, InventoryUtil.copyWithCount(heldItem, 1));
                                 return true;
                             }
                             else //Replace with new held item
@@ -200,6 +197,22 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
     }
 
     @Override
-    public void playDownSound(@Nonnull SoundManager soundManager) { }
+    public List<Component> getTooltipText(int mouseX, int mouseY) {
+        SlotMachineEntry entry = this.getEntry();
+        if(entry != null)
+        {
+            if(mouseY >= this.getY() + ITEM_POSY && mouseY < this.getY() + ITEM_POSY + 16)
+            {
+                int itemIndex = this.getItemSlotIndex(mouseX);
+                if(itemIndex >= 0 && itemIndex < entry.items.size())
+                {
+                    ItemStack item = entry.items.get(itemIndex);
+                    if(!item.isEmpty())
+                        return EasyScreenHelper.getTooltipFromItem(item);
+                }
+            }
+        }
+        return null;
+    }
 
 }

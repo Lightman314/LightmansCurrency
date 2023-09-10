@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -17,8 +17,8 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientBankData {
 
 	private static final Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
-	private static AccountReference lastSelectedAccount = null;
-	
+	private static BankReference lastSelectedAccount = null;
+
 	public static BankAccount GetPlayerBankAccount(UUID playerID)
 	{
 		if(loadedBankAccounts.containsKey(playerID))
@@ -27,13 +27,13 @@ public class ClientBankData {
 		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
 		return new BankAccount();
 	}
-	
+
 	public static void InitBankAccounts(Map<UUID,BankAccount> bankAccounts)
 	{
 		loadedBankAccounts.clear();
-		bankAccounts.forEach((id,account) -> loadedBankAccounts.put(id, account));
+		loadedBankAccounts.putAll(bankAccounts);
 	}
-	
+
 	public static void UpdateBankAccount(CompoundTag compound)
 	{
 		try {
@@ -43,19 +43,17 @@ public class ClientBankData {
 				loadedBankAccounts.put(owner, account);
 		} catch(Exception e) { e.printStackTrace(); }
 	}
-	
-	public static void UpdateLastSelectedAccount(AccountReference reference) {
+
+	public static void UpdateLastSelectedAccount(BankReference reference) {
 		lastSelectedAccount = reference;
 	}
-	
-	public static AccountReference GetLastSelectedAccount() {
-		return lastSelectedAccount;
-	}
-	
+
+	public static BankReference GetLastSelectedAccount() { return lastSelectedAccount; }
+
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
 		loadedBankAccounts.clear();
 		lastSelectedAccount = null;
 	}
-	
+
 }

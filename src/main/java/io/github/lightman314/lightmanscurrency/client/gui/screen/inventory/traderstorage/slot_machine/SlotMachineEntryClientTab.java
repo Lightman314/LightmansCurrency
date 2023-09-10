@@ -51,9 +51,9 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
 
         for(int y = 0; y < ENTRY_ROWS; ++y)
         {
-            for(int x = 0; x < 2; x++)
+            for(int x = 0; x < ENTRY_COLUMNS; x++)
             {
-                this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * 2) + x)));
+                this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * ENTRY_COLUMNS) + x)));
             }
         }
 
@@ -89,7 +89,7 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public void tick() {
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader)
             trader.clearEntriesChangedCache();
-        this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
+        this.validateScroll();
         this.buttonAddEntry.visible = this.menu.hasPermission(Permissions.EDIT_TRADES);
     }
 

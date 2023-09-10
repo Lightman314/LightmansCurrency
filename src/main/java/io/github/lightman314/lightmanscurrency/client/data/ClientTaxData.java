@@ -19,7 +19,7 @@ public class ClientTaxData {
 
     public static List<TaxEntry> GetAllTaxEntries() { return ImmutableList.copyOf(loadedEntries.values()); }
 
-    public static TaxEntry GetEntry(long id) { return loadedEntries.getOrDefault(id, null); }
+    public static TaxEntry GetEntry(long id) { return loadedEntries.get(id); }
 
     public static void UpdateEntry(CompoundTag tag)
     {

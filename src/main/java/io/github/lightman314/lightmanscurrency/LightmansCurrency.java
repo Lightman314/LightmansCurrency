@@ -1,5 +1,9 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferenceType;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
@@ -7,11 +11,12 @@ import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferen
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataBook;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.common.core.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
+import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.byg.BYGCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
@@ -47,8 +52,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeL
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.ItemTraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
@@ -95,10 +98,14 @@ public class LightmansCurrency {
     private static final Logger LOGGER = LogManager.getLogger();
 
 
-    public static final CustomCreativeTab COIN_GROUP = CustomCreativeTab.build(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
-    public static final CustomCreativeTab MACHINE_GROUP = CustomCreativeTab.build(MODID + ".machines", () -> ModBlocks.COIN_MINT);
-	public static final CustomCreativeTab TRADING_GROUP = CustomCreativeTab.build(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
-	public static final CustomCreativeTab UPGRADE_GROUP = CustomCreativeTab.build(MODID + ".upgrades", () -> ModItems.ITEM_CAPACITY_UPGRADE_1);
+	@Deprecated(since = "2.1.2.3")
+    public static final CustomCreativeTab COIN_GROUP = ModCreativeGroups.getCoinGroup();
+	@Deprecated(since = "2.1.2.3")
+    public static final CustomCreativeTab MACHINE_GROUP = ModCreativeGroups.getMachineGroup();
+	@Deprecated(since = "2.1.2.3")
+	public static final CustomCreativeTab TRADING_GROUP = ModCreativeGroups.getTradingGroup();
+	@Deprecated(since = "2.1.2.3")
+	public static final CustomCreativeTab UPGRADE_GROUP = ModCreativeGroups.getUpgradeGroup();
 
 	/**
 	 * Whether the Curios API mod is installed
@@ -137,25 +144,21 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(this);
 
 		//Setup Wood Compatibilities before registering blocks/items
-		if(ModList.get().isLoaded("biomesoplenty"))
-			BOPWoodTypes.setupWoodTypes();
+		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+		IntegrationUtil.SafeRunIfLoaded("byg", BYGCustomWoodTypes::setupWoodTypes, "Error setting up BYG wood types! BYG has probably changed their API!");
         
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
-        
-        if(ModList.get().isLoaded("lightmansdiscord"))
-        {
-        	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
-        }
 
-		if(ModList.get().isLoaded("immersiveengineering"))
-		{
-			LCImmersive.registerRotationBlacklists();
-		}
+		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", () -> {
+			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+        }, null);
+
+		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
         
     }
 	
@@ -244,6 +247,15 @@ public class LightmansCurrency {
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxReferenceType.register(TaxableTraderReference.TYPE);
+
+		//Register Bank Account Reference Types
+		BankReferenceType.register(PlayerBankReference.TYPE);
+		BankReferenceType.register(TeamBankReference.TYPE);
+
+		//Register Menu Validator Types
+		MenuValidatorType.register(SimpleValidator.TYPE);
+		MenuValidatorType.register(BlockEntityValidator.TYPE);
+		MenuValidatorType.register(BlockValidator.TYPE);
 
 		//Register Upgrade Types
 		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());

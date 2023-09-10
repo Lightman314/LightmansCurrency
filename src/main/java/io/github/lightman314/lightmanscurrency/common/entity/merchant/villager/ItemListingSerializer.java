@@ -35,9 +35,9 @@ public class ItemListingSerializer {
     }
 
 
-    public static JsonObject serialize(Map<Integer, List<ItemListing>> trades) {
+    public static JsonObject serialize(Map<Integer, List<ItemListing>> trades, int count) {
         JsonObject json = new JsonObject();
-        for(int i = 1; i <= 5; ++i)
+        for(int i = 1; i <= count; ++i)
             json.add("TradesLevel" + i, serializeList(trades.getOrDefault(i,new ArrayList<>())));
         return json;
     }

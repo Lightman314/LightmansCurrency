@@ -106,6 +106,14 @@ public class LCItemTagProvider extends ItemTagsProvider {
         //Trader Interface
         this.cTag(LCTags.Items.TRADER_INTERFACE).add(ModBlocks.ITEM_TRADER_INTERFACE);
 
+        //Coin Jars
+        this.cTag(LCTags.Items.COIN_JAR_NORMAL)
+                .add(ModBlocks.PIGGY_BANK)
+                .add(ModBlocks.COINJAR_BLUE);
+        this.cTag(LCTags.Items.COIN_JAR_ALL)
+                .addTag(LCTags.Items.COIN_JAR_NORMAL)
+                .add(ModBlocks.SUS_JAR);
+
         //Book Tag for Bookshelf Trader
         this.cTag(LCTags.Items.TRADABLE_BOOK)
                 .add(Items.BOOK)

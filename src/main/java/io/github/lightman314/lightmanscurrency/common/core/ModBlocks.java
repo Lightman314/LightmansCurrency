@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 
+import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.blocks.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.*;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -34,48 +37,20 @@ public class ModBlocks {
 	 */
 	public static void init() { }
 
-	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() {
-		return (block, tab) -> {
-			Item.Properties properties = new Item.Properties();
-			if(tab != null)
-				properties.tab(tab);
-			else
-				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
-			return new BlockItem(block, properties);
-		};
+	private static Item.Properties PropertiesForTab(CreativeModeTab tab) {
+		Item.Properties properties = new Item.Properties();
+		if(tab != null)
+			properties.tab(tab);
+		return properties;
 	}
-	private static BiFunction<Block,CreativeModeTab,Item> getCoinGenerator(boolean fireResistant) {
-		return (block, tab) -> {
-			Item.Properties properties = new Item.Properties();
-			if(tab != null)
-				properties.tab(tab);
-			else
-				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
-			if(fireResistant)
-				properties.fireResistant();
-			return new CoinBlockItem(block, properties);
-		};
-	}
-	private static BiFunction<Block,CreativeModeTab,Item> getCoinJarGenerator() {
-		return (block, tab) -> {
-			Item.Properties properties = new Item.Properties();
-			if(tab != null)
-				properties.tab(tab);
-			else
-				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
-			return new CoinJarItem(block, properties);
-		};
-	}
-	private static BiFunction<Block,CreativeModeTab,Item> getCustomRendererGenerator() {
-		return (block,tab) -> {
-			Item.Properties properties = new Item.Properties();
-			if(tab != null)
-				properties.tab(tab);
-			else
-				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
-			return new CustomBlockModelItem(block, properties);
-		};
-	}
+
+	private static Item.Properties FireResistant(Item.Properties properties, boolean fireResistant) { if(fireResistant) return properties.fireResistant(); return properties; }
+
+	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() { return (block, tab) ->  new BlockItem(block, PropertiesForTab(tab)); }
+	private static BiFunction<Block,CreativeModeTab,Item> getCoinGenerator(boolean fireResistant) { return (block, tab) ->  new CoinBlockItem(block, FireResistant(PropertiesForTab(tab), fireResistant)); }
+	private static BiFunction<Block,CreativeModeTab,Item> getCoinJarGenerator() { return (block, tab) ->  new CoinJarItem(block, PropertiesForTab(tab)); }
+	private static BiFunction<Block,CreativeModeTab,Item> getColoredCoinJarGenerator() { return (block, tab) ->  new CoinJarItem.Colored(block, PropertiesForTab(tab)); }
+	private static BiFunction<Block,CreativeModeTab,Item> getCustomRendererGenerator() { return (block,tab) ->  new CustomBlockModelItem(block, PropertiesForTab(tab)); }
 
 
 	//Coin piles
@@ -157,11 +132,12 @@ public class ModBlocks {
 	public static final RegistryObject<Block> COIN_CHEST;
 
 	//Tax Block
-	public static final RegistryObject<TaxBlock> TAX_BLOCK;
+	public static final RegistryObject<TaxCollectorBlock> TAX_COLLECTOR;
 
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
+	public static final RegistryObject<Block> SUS_JAR;
 
 	//Auciton Stands
 	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
@@ -171,7 +147,7 @@ public class ModBlocks {
 		LightmansCurrency.LogDebug("Loading the ModBlocks class!");
 
 		//Coin Piles
-		COINPILE_COPPER = register("coinpile_copper", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_COPPER = register("coinpile_copper", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_ORANGE)
 								.strength(3.0f, 6.0f)
@@ -179,7 +155,7 @@ public class ModBlocks {
 						ModItems.COIN_COPPER::get
 				)
 		);
-		COINPILE_IRON = register("coinpile_iron", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_IRON = register("coinpile_iron", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, 6.0f)
@@ -187,7 +163,7 @@ public class ModBlocks {
 						ModItems.COIN_IRON::get
 				)
 		);
-		COINPILE_GOLD = register("coinpile_gold", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_GOLD = register("coinpile_gold", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.GOLD)
 								.strength(3.0f, 6.0f)
@@ -195,7 +171,7 @@ public class ModBlocks {
 						ModItems.COIN_GOLD::get
 				)
 		);
-		COINPILE_EMERALD = register("coinpile_emerald", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_EMERALD = register("coinpile_emerald", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.EMERALD)
 								.strength(3.0f, 6.0f)
@@ -203,7 +179,7 @@ public class ModBlocks {
 						ModItems.COIN_EMERALD::get
 				)
 		);
-		COINPILE_DIAMOND = register("coinpile_diamond", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_DIAMOND = register("coinpile_diamond", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.DIAMOND)
 								.strength(3.0f, 6.0f)
@@ -211,7 +187,7 @@ public class ModBlocks {
 						ModItems.COIN_DIAMOND::get
 				)
 		);
-		COINPILE_NETHERITE = register("coinpile_netherite", ModCreativeGroups.COIN_GROUP, getCoinGenerator(true), () -> new CoinpileBlock(
+		COINPILE_NETHERITE = register("coinpile_netherite", ModCreativeGroups::getCoinGroup, getCoinGenerator(true), () -> new CoinpileBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_BLACK)
 								.strength(3.0f, 6.0f)
@@ -221,7 +197,7 @@ public class ModBlocks {
 		);
 
 		//Coin Blocks
-		COINBLOCK_COPPER = register("coinblock_copper", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_COPPER = register("coinblock_copper", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_ORANGE)
 								.strength(3.0f, 6.0f)
@@ -229,7 +205,7 @@ public class ModBlocks {
 						ModItems.COIN_COPPER::get
 				)
 		);
-		COINBLOCK_IRON = register("coinblock_iron", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_IRON = register("coinblock_iron", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, 6.0f)
@@ -237,7 +213,7 @@ public class ModBlocks {
 						ModItems.COIN_IRON::get
 				)
 		);
-		COINBLOCK_GOLD = register("coinblock_gold", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_GOLD = register("coinblock_gold", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.GOLD)
 								.strength(3.0f, 6.0f)
@@ -245,7 +221,7 @@ public class ModBlocks {
 						ModItems.COIN_GOLD::get
 				)
 		);
-		COINBLOCK_EMERALD = register("coinblock_emerald", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_EMERALD = register("coinblock_emerald", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.EMERALD)
 								.strength(3.0f, 6.0f)
@@ -253,7 +229,7 @@ public class ModBlocks {
 						ModItems.COIN_EMERALD::get
 				)
 		);
-		COINBLOCK_DIAMOND = register("coinblock_diamond", ModCreativeGroups.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_DIAMOND = register("coinblock_diamond", ModCreativeGroups::getCoinGroup, getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.DIAMOND)
 								.strength(3.0f, 6.0f)
@@ -261,7 +237,7 @@ public class ModBlocks {
 						ModItems.COIN_DIAMOND::get
 				)
 		);
-		COINBLOCK_NETHERITE = register("coinblock_netherite", ModCreativeGroups.COIN_GROUP, getCoinGenerator(true), () -> new CoinBlock(
+		COINBLOCK_NETHERITE = register("coinblock_netherite", ModCreativeGroups::getCoinGroup, getCoinGenerator(true), () -> new CoinBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_BLACK)
 								.strength(3.0f, 6.0f)
@@ -271,21 +247,21 @@ public class ModBlocks {
 		);
 
 		//Machines
-		ATM = register("atm", ModCreativeGroups.MACHINE_GROUP, () -> new ATMBlock(
+		ATM = register("atm", ModCreativeGroups::getMachineGroup, () -> new ATMBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_GRAY)
 								.strength(3.0f, 6.0f)
 								.sound(SoundType.METAL)
 				)
 		);
-		COIN_MINT = register("coinmint", ModCreativeGroups.MACHINE_GROUP, () -> new CoinMintBlock(
+		COIN_MINT = register("coinmint", ModCreativeGroups::getMachineGroup, () -> new CoinMintBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_LIGHT_BLUE)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
 				)
 		);
-		CASH_REGISTER = register("cash_register", ModCreativeGroups.MACHINE_GROUP, (block, tab) -> {
+		CASH_REGISTER = register("cash_register", ModCreativeGroups::getMachineGroup, (block, tab) -> {
 					Item.Properties properties = new Item.Properties();
 					if(tab != null)
 						properties.tab(tab);
@@ -302,7 +278,7 @@ public class ModBlocks {
 
 		//Item Traders
 		//Display Case
-		DISPLAY_CASE = register("display_case", ModCreativeGroups.TRADING_GROUP, () -> new DisplayCaseBlock(
+		DISPLAY_CASE = register("display_case", ModCreativeGroups::getTradingGroup, () -> new DisplayCaseBlock(
 						Block.Properties.of(Material.GLASS)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.GLASS)
@@ -310,7 +286,7 @@ public class ModBlocks {
 		);
 
 		//Vending Machine
-		VENDING_MACHINE = registerColored("vending_machine", ModCreativeGroups.TRADING_GROUP, c -> new VendingMachineBlock(
+		VENDING_MACHINE = registerColored("vending_machine", ModCreativeGroups::getTradingGroup, c -> new VendingMachineBlock(
 						Block.Properties.of(Material.METAL)
 								.color(c.mapColor)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -320,7 +296,7 @@ public class ModBlocks {
 		);
 
 		//Large Vending Machine
-		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", ModCreativeGroups.TRADING_GROUP, c -> new VendingMachineLargeBlock(
+		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", ModCreativeGroups::getTradingGroup, c -> new VendingMachineLargeBlock(
 						Block.Properties.of(Material.METAL)
 								.color(c.mapColor)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -330,7 +306,7 @@ public class ModBlocks {
 		);
 
 		//Shelves
-		SHELF = registerWooden("shelf", ModCreativeGroups.TRADING_GROUP, w -> new ShelfBlock(
+		SHELF = registerWooden("shelf", WoodType.Attributes.needsSlab, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), w -> new ShelfBlock(
 						Block.Properties.of(Material.WOOD)
 								.color(w.mapColor)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -339,7 +315,7 @@ public class ModBlocks {
 		);
 
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", ModCreativeGroups.TRADING_GROUP, w -> new CardDisplayBlock(
+		CARD_DISPLAY = registerWooden("card_display", WoodType.Attributes.needsLog, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), w -> new CardDisplayBlock(
 						Block.Properties.of(Material.WOOD)
 								.color(w.mapColor)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
@@ -348,7 +324,7 @@ public class ModBlocks {
 		);
 
 		//Freezer
-		FREEZER = registerColored("freezer", ModCreativeGroups.TRADING_GROUP, c -> new FreezerBlock(
+		FREEZER = registerColored("freezer", ModCreativeGroups::getTradingGroup, c -> new FreezerBlock(
 						Block.Properties.of(Material.METAL)
 								.color(c.mapColor)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -359,7 +335,7 @@ public class ModBlocks {
 		);
 
 		//Armor Display
-		ARMOR_DISPLAY = register("armor_display", ModCreativeGroups.TRADING_GROUP, () -> new ArmorDisplayBlock(
+		ARMOR_DISPLAY = register("armor_display", ModCreativeGroups::getTradingGroup, () -> new ArmorDisplayBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -368,7 +344,7 @@ public class ModBlocks {
 		);
 
 		//Ticket Kiosk
-		TICKET_KIOSK = register("ticket_kiosk", ModCreativeGroups.TRADING_GROUP, () -> new TicketKioskBlock(
+		TICKET_KIOSK = register("ticket_kiosk", ModCreativeGroups::getTradingGroup, () -> new TicketKioskBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -377,7 +353,7 @@ public class ModBlocks {
 		);
 
 		//Bookshelf Traders
-		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", ModCreativeGroups.TRADING_GROUP, w -> new BookTraderBlock(
+		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", WoodType.Attributes.needsPlanksAndSlab, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), w -> new BookTraderBlock(
 						Block.Properties.of(Material.WOOD)
 								.color(w.mapColor)
 								.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -386,7 +362,7 @@ public class ModBlocks {
 		);
 
 		//Slot Machine Trader
-		SLOT_MACHINE = register("slot_machine", ModCreativeGroups.TRADING_GROUP, () -> new SlotMachineBlock(
+		SLOT_MACHINE = register("slot_machine", ModCreativeGroups::getTradingGroup, () -> new SlotMachineBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.COLOR_YELLOW)
 								.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -395,7 +371,7 @@ public class ModBlocks {
 		);
 
 		//Network Traders
-		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", ModCreativeGroups.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", ModCreativeGroups::getTradingGroup, () -> new NetworkItemTraderBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -403,7 +379,7 @@ public class ModBlocks {
 						NetworkItemTraderBlock.TRADER_COUNT_SMALL
 				)
 		);
-		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", ModCreativeGroups.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", ModCreativeGroups::getTradingGroup, () -> new NetworkItemTraderBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -411,7 +387,7 @@ public class ModBlocks {
 						NetworkItemTraderBlock.TRADER_COUNT_MEDIUM
 				)
 		);
-		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", ModCreativeGroups.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", ModCreativeGroups::getTradingGroup, () -> new NetworkItemTraderBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -419,7 +395,7 @@ public class ModBlocks {
 						NetworkItemTraderBlock.TRADER_COUNT_LARGE
 				)
 		);
-		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", ModCreativeGroups.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", ModCreativeGroups::getTradingGroup, () -> new NetworkItemTraderBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -429,7 +405,7 @@ public class ModBlocks {
 		);
 
 		//Trader Interface
-		ITEM_TRADER_INTERFACE = register("item_trader_interface", ModCreativeGroups.MACHINE_GROUP, () -> new ItemTraderInterfaceBlock(
+		ITEM_TRADER_INTERFACE = register("item_trader_interface", ModCreativeGroups::getMachineGroup, () -> new ItemTraderInterfaceBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
@@ -438,7 +414,7 @@ public class ModBlocks {
 		);
 
 		//Terminal
-		TERMINAL = register("terminal", ModCreativeGroups.MACHINE_GROUP, () -> new TerminalBlock(
+		TERMINAL = register("terminal", ModCreativeGroups::getMachineGroup, () -> new TerminalBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, 6.0f)
@@ -448,7 +424,7 @@ public class ModBlocks {
 		);
 
 		//Gem Terminal
-		GEM_TERMINAL = register("gem_terminal", ModCreativeGroups.MACHINE_GROUP, () -> new TerminalBlock(
+		GEM_TERMINAL = register("gem_terminal", ModCreativeGroups::getMachineGroup, () -> new TerminalBlock(
 						Block.Properties.of(Material.AMETHYST)
 								.color(MaterialColor.COLOR_PURPLE)
 								.strength(3.0f, 6.0f)
@@ -458,7 +434,7 @@ public class ModBlocks {
 		);
 
 		//Paygate
-		PAYGATE = register("paygate", ModCreativeGroups.TRADING_GROUP, () -> new PaygateBlock(
+		PAYGATE = register("paygate", ModCreativeGroups::getTradingGroup, () -> new PaygateBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -467,7 +443,7 @@ public class ModBlocks {
 		);
 
 		//Ticket Machine
-		TICKET_STATION = register("ticket_machine", ModCreativeGroups.MACHINE_GROUP, () -> new TicketMachineBlock(
+		TICKET_STATION = register("ticket_machine", ModCreativeGroups::getMachineGroup, () -> new TicketMachineBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, 6.0f)
@@ -476,7 +452,7 @@ public class ModBlocks {
 		);
 
 		//Coin Chest
-		COIN_CHEST = register("coin_chest", ModCreativeGroups.MACHINE_GROUP, getCustomRendererGenerator(), () -> new CoinChestBlock(
+		COIN_CHEST = register("coin_chest", ModCreativeGroups::getMachineGroup, getCustomRendererGenerator(), () -> new CoinChestBlock(
 						Block.Properties.of(Material.WOOD)
 								.color(MaterialColor.WOOD)
 								.strength(2.5f, Float.POSITIVE_INFINITY)
@@ -485,7 +461,7 @@ public class ModBlocks {
 		);
 
 		//Tax Block
-		TAX_BLOCK = register("tax_block", () -> null, () -> new TaxBlock(
+		TAX_COLLECTOR = register("tax_block", ModCreativeGroups::getMachineGroup, () -> new TaxCollectorBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.GOLD)
 								.strength(3f, Float.POSITIVE_INFINITY)
@@ -494,7 +470,7 @@ public class ModBlocks {
 		);
 
 		//Coin Jars
-		PIGGY_BANK = register("piggy_bank", ModCreativeGroups.MACHINE_GROUP, getCoinJarGenerator(), () -> new CoinJarBlock(
+		PIGGY_BANK = register("piggy_bank", ModCreativeGroups::getMachineGroup, getCoinJarGenerator(), () -> new CoinJarBlock(
 						Block.Properties.of(Material.STONE)
 								.color(MaterialColor.COLOR_PINK)
 								.strength(0.1f, 2.0f)
@@ -502,7 +478,7 @@ public class ModBlocks {
 						Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
-		COINJAR_BLUE = register("coinjar_blue", ModCreativeGroups.MACHINE_GROUP, getCoinJarGenerator(), () -> new CoinJarBlock(
+		COINJAR_BLUE = register("coinjar_blue", ModCreativeGroups::getMachineGroup, getCoinJarGenerator(), () -> new CoinJarBlock(
 						Block.Properties.of(Material.STONE)
 								.color(MaterialColor.COLOR_BLUE)
 								.strength(0.1f, 2.0f)
@@ -511,8 +487,17 @@ public class ModBlocks {
 				)
 		);
 
+		SUS_JAR = register("sus_jar", ModCreativeGroups::getMachineGroup, getColoredCoinJarGenerator(), () -> new CoinJarBlock(
+						Block.Properties.of(Material.STONE)
+								.color(MaterialColor.SNOW)
+								.strength(0.1f, 2.0f)
+								.sound(SoundType.STONE),
+						Block.box(4, 0d, 4d, 12d, 8d, 12d)
+				)
+		);
+
 		//Auction Stand
-		AUCTION_STAND = registerWooden("auction_stand", ModCreativeGroups.MACHINE_GROUP, w ->
+		AUCTION_STAND = registerWooden("auction_stand", WoodType.Attributes.needsLog, ModCreativeGroups.getExtraOr(ModCreativeGroups::getMachineGroup), w ->
 				new AuctionStandBlock(Block.Properties.of(Material.WOOD).color(w.mapColor).strength(2.0f))
 		);
 
@@ -586,19 +571,21 @@ public class ModBlocks {
 	/**
 	 * Wooden block registration code
 	 */
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, Function<WoodType,T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Predicate<WoodType.Attributes> check, NonNullFunction<WoodType,CreativeModeTab> itemGroup, Function<WoodType,T> block)
 	{
-		return registerWooden(name, itemGroup, getDefaultGenerator(), block);
+		return registerWooden(name, check, itemGroup, getDefaultGenerator(), block);
 	}
 
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Function<WoodType,T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Predicate<WoodType.Attributes> check, NonNullFunction<WoodType,CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Function<WoodType,T> block)
 	{
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
+			if(!check.test(woodType.attributes))
+				continue;
 			String thisName = woodType.generateID(name);
 			//Register the block normally
-			bundle.put(woodType, register(thisName, itemGroup, itemGenerator, () -> block.apply(woodType)));
+			bundle.put(woodType, register(thisName, () -> itemGroup.apply(woodType), itemGenerator, () -> block.apply(woodType)));
 		}
 		return bundle.lock();
 	}
@@ -618,7 +605,7 @@ public class ModBlocks {
 		{
 			for(Color color : Color.values())
 			{
-				String thisName = name + "_" + woodType.name + "_" + color.getResourceSafeName();
+				String thisName = name + "_" + woodType.id + "_" + color.getResourceSafeName();
 				//Register the block normally
 				bundle.put(woodType, color, register(thisName, itemGroup, itemGenerator, block));
 			}

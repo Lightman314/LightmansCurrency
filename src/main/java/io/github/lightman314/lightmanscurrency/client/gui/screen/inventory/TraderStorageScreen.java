@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -118,17 +117,23 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 	{
 		//Position the tab buttons
 		int xPos = this.leftPos - TabButton.SIZE;
-		AtomicInteger index = new AtomicInteger(0);
-		this.tabButtons.forEach((key,button) -> {
+		int index = 0;
+
+		List<Pair<Integer,TabButton>> sortedButtons = new ArrayList<>();
+		this.tabButtons.forEach((key,button) -> sortedButtons.add(Pair.of(key,button)));
+		sortedButtons.sort(Comparator.comparingInt(Pair::getFirst));
+		for(Pair<Integer,TabButton> buttonPair : sortedButtons)
+		{
+			int key = buttonPair.getFirst();
+			TabButton button = buttonPair.getSecond();
 			TraderStorageClientTab<?> tab = this.availableTabs.get(key);
 			button.visible = tab != null && tab.tabButtonVisible() && tab.commonTab.canOpen(this.menu.player);
 			if(button.visible)
 			{
-				int yPos = this.topPos + TabButton.SIZE * index.get();
+				int yPos = this.topPos + TabButton.SIZE * index++;
 				button.reposition(xPos, yPos, 3);
-				index.set(index.get() + 1);
 			}
-		});
+		}
 	}
 
 	@Override

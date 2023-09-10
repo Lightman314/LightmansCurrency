@@ -10,6 +10,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
@@ -19,20 +21,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class TraderInterfaceMenu extends AbstractContainerMenu {
+public class TraderInterfaceMenu extends EasyMenu {
 
 	private final TraderInterfaceBlockEntity blockEntity;
 	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
 	
-	public final Player player;
-	
 	public static final int SLOT_OFFSET = 15;
 	
-	private boolean canEditTabs = true;
+	private boolean canEditTabs;
 	Map<Integer,TraderInterfaceTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderInterfaceTab> getAllTabs() { return this.availableTabs; }
 	public void setTab(int key, TraderInterfaceTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
@@ -43,11 +42,14 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
 	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
-		super(ModMenus.TRADER_INTERFACE.get(), windowID);
-		
-		this.player = inventory.player;
+		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
+
 		this.blockEntity = blockEntity;
-		
+
+		this.addValidator(BlockEntityValidator.of(this.blockEntity));
+		this.addValidator(this.blockEntity::canAccess);
+
+		this.canEditTabs = true;
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
@@ -79,9 +81,6 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		
 	}
 
-	@Override
-	public boolean stillValid(@Nonnull Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
-	
 	@Override
 	public void removed(@Nonnull Player player) {
 		super.removed(player);

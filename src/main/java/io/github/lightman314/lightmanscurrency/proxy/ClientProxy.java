@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
@@ -24,10 +24,10 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
@@ -64,13 +64,13 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 
 public class ClientProxy extends CommonProxy{
-	
-	boolean openTerminal = false;
+
 	boolean openTeamManager = false;
 	boolean openNotifications = false;
 	
@@ -96,7 +96,8 @@ public class ClientProxy extends CommonProxy{
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
     	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
-    	
+
+		MenuScreens.register(ModMenus.NETWORK_TERMINAL.get(), NetworkTerminalScreen::new);
     	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
     	MenuScreens.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
     	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
@@ -116,6 +117,8 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
 
 		MenuScreens.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
+
+		MenuScreens.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -235,16 +238,13 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
+	public void receiveSelectedBankAccount(BankReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
 
 	@Override
 	public void updateTaxEntries(CompoundTag compound) { ClientTaxData.UpdateEntry(compound); }
 
 	@Override
 	public void removeTaxEntry(long id) { ClientTaxData.RemoveEntry(id); }
-
-	@Override
-	public void openTerminalScreen() { this.openTerminal = true; }
 	
 	@Override
 	public void openNotificationScreen() { this.openNotifications = true; }
@@ -287,12 +287,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		if(event.phase == TickEvent.Phase.START)
 		{
-			if(this.openTerminal)
-			{
-				this.openTerminal = false;
-				Minecraft.getInstance().setScreen(new TradingTerminalScreen());
-			}
-			else if(this.openTeamManager)
+			if(this.openTeamManager)
 			{
 				this.openTeamManager = false;
 				Minecraft.getInstance().setScreen(new TeamManagerScreen());
@@ -321,16 +316,9 @@ public class ClientProxy extends CommonProxy{
 		Minecraft minecraft = Minecraft.getInstance();
 		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 	}
-	
-	@SubscribeEvent
-	public void onLogin(ClientPlayerNetworkEvent.LoggedInEvent event) {
-		//Initialize the item edit widgets item list
-		try{
-			ItemEditWidget.initItemList();
-		} catch(Throwable t) {
-			LightmansCurrency.LogError("Error encountered while setting up the Item Edit list.", t);
-		}
-	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggedInEvent event) { ItemEditWidget.ConfirmItemListLoaded(); }
 
 	@Override
 	@Nonnull

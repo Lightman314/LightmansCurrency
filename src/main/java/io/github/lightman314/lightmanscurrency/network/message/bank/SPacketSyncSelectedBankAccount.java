@@ -4,22 +4,22 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class SPacketSyncSelectedBankAccount {
 
-	final AccountReference selectedAccount;
+	final BankReference selectedAccount;
 	
-	public SPacketSyncSelectedBankAccount(AccountReference selectedAccount) { this.selectedAccount = selectedAccount; }
+	public SPacketSyncSelectedBankAccount(BankReference selectedAccount) { this.selectedAccount = selectedAccount; }
 	
 	public static void encode(SPacketSyncSelectedBankAccount message, FriendlyByteBuf buffer) {
-		message.selectedAccount.writeToBuffer(buffer);
+		message.selectedAccount.encode(buffer);
 	}
 	
 	public static SPacketSyncSelectedBankAccount decode(FriendlyByteBuf buffer) {
-		return new SPacketSyncSelectedBankAccount(BankAccount.LoadReference(true, buffer));
+		return new SPacketSyncSelectedBankAccount(BankReference.decode(buffer).flagAsClient());
 	}
 	
 	public static void handle(SPacketSyncSelectedBankAccount message, Supplier<Context> supplier) {

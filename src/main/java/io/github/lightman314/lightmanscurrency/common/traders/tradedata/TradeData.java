@@ -79,7 +79,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		CoinValue cost = this.cost;
 		long taxAmount = 0;
 		for(TaxEntry entry : trader.getApplicableTaxes())
-			taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+			taxAmount += cost.percentageOfValue(entry.getTaxRate()).getValueNumber();
 		return cost.plusValue(CoinValue.fromNumber(taxAmount));
 	}
 	public CoinValue getCostWithTaxes(TradeContext context)
@@ -90,7 +90,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			TraderData trader = context.getTrader();
 			long taxAmount = 0;
 			for(TaxEntry entry : trader.getApplicableTaxes())
-				taxAmount += cost.percentageOfValue(entry.getTaxPercentage()).getValueNumber();
+				taxAmount += cost.percentageOfValue(entry.getTaxRate()).getValueNumber();
 			return cost.plusValue(CoinValue.fromNumber(taxAmount));
 		}
 		return cost;

@@ -11,9 +11,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -25,7 +29,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
@@ -35,17 +38,15 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class TraderStorageMenu extends AbstractContainerMenu implements IClientTracker {
+public class TraderStorageMenu extends EasyMenu implements IValidatedMenu {
 
 	public final Supplier<TraderData> traderSource;
 	public final TraderData getTrader() { return this.traderSource.get(); }
-	public final Player player;
 
 	public static final int SLOT_OFFSET = 15;
 	
@@ -79,17 +80,23 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 	private final List<Consumer<CompoundTag>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
-	
-	public boolean isClient() { return this.player.level.isClientSide; }
-	
-	public TraderStorageMenu(int windowID, Inventory inventory, long traderID) {
-		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
+
+	private final MenuValidator validator;
+	@Nonnull
+	@Override
+	public MenuValidator getValidator() { return this.validator; }
+
+	public TraderStorageMenu(int windowID, Inventory inventory, long traderID, @Nonnull MenuValidator validator) {
+		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID), validator);
 	}
 	
-	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource) {
-		super(type, windowID);
+	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource, @Nonnull MenuValidator validator) {
+		super(type, windowID, inventory);
+		this.validator = validator;
 		this.traderSource = traderSource;
-		this.player = inventory.player;
+
+		this.addValidator(() -> this.hasPermission(Permissions.OPEN_STORAGE));
+		this.addValidator(this.validator);
 
 		this.canEditTabs = true;
 		TraderData trader = this.traderSource.get();
@@ -98,6 +105,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
+		this.setTab(TraderStorageTab.TAB_TAX_INFO, new TaxInfoTab(this));
 		if(trader != null)
 			trader.initStorageTabs(this);
 		this.canEditTabs = false;
@@ -151,9 +159,6 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 		this.clearContainer(this.player, container);
 	}
 
-	@Override
-	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
-	
 	public void validateCoinSlots() {
 		boolean canAddCoins = this.hasCoinSlotAccess();
 		for(CoinSlot slot : this.coinSlots) slot.active = canAddCoins && this.coinSlotsVisible;

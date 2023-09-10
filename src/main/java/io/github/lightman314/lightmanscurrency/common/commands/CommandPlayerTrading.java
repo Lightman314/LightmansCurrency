@@ -13,11 +13,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.UUID;
 
 public class CommandPlayerTrading {
 
@@ -42,17 +39,18 @@ public class CommandPlayerTrading {
     private static int requestPlayerTrade(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer host = context.getSource().getPlayerOrException();
         ServerPlayer guest = EntityArgument.getPlayer(context, "player");
+        CommandSourceStack source = context.getSource();
 
         if(guest == host)
         {
-            context.getSource().sendFailure(new TranslatableComponent("command.lightmanscurrency.lctrade.self"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctrade.self"));
             return 0;
         }
 
         int tradeID = PlayerTradeManager.CreateNewTrade(host, guest);
 
-        host.sendMessage(new TranslatableComponent("command.lightmanscurrency.lctrade.host.notify", guest.getName()), new UUID(0,0));
-        guest.sendMessage(new TranslatableComponent("command.lightmanscurrency.lctrade.guest.notify", host.getName(), new TranslatableComponent("command.lightmanscurrency.lctrade.guest.notify.here").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GREEN).withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lctradeaccept " + tradeID)))).withStyle(ChatFormatting.GOLD), new UUID(0,0));
+        EasyText.sendMessage(host, EasyText.translatable("command.lightmanscurrency.lctrade.host.notify", guest.getName()));
+        EasyText.sendMessage(guest, EasyText.translatable("command.lightmanscurrency.lctrade.guest.notify", host.getName(), EasyText.translatable("command.lightmanscurrency.lctrade.guest.notify.here").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GREEN).withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lctradeaccept " + tradeID)))).withStyle(ChatFormatting.GOLD));
 
         return 1;
     }
@@ -60,6 +58,7 @@ public class CommandPlayerTrading {
     private static int acceptPlayerTrade(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer guest = context.getSource().getPlayerOrException();
         int tradeID = TradeIDArgument.getTradeID(context,"tradeID");
+        CommandSourceStack source = context.getSource();
 
         PlayerTrade trade = PlayerTradeManager.GetTrade(tradeID);
         if(trade != null && trade.isGuest(guest))
@@ -67,20 +66,20 @@ public class CommandPlayerTrading {
             int rangeResult = trade.isGuestInRange(guest);
             if(rangeResult > 0)
             {
-                context.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lctradeaccept.fail." + rangeResult, PlayerTrade.enforceDistance()));
+                EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.fail." + rangeResult, PlayerTrade.enforceDistance()));
                 return 0;
             }
             if(trade.requestAccepted(guest))
                 return 1;
             else
             {
-                context.getSource().sendFailure(new TranslatableComponent("command.lightmanscurrency.lctradeaccept.error"));
+                EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.error"));
                 return 0;
             }
         }
         else
         {
-            context.getSource().sendFailure(new TranslatableComponent("command.lightmanscurrency.lctradeaccept.notfound"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.notfound"));
             return 0;
         }
     }

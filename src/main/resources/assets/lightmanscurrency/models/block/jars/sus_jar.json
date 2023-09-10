@@ -1,0 +1,100 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/jars/jarblock",
+	"textures": {
+		"main": "lightmanscurrency:block/jars/sus_jar",
+		"particle": "#main"
+	},
+	"elements": [
+		{
+			"name": "body",
+			"from": [6, 1, 6],
+			"to": [10, 5, 9],
+			"faces": {
+				"north": {"uv": [0, 0, 4, 4], "texture": "#main", "tintindex": 0},
+				"east": {"uv": [4, 0, 7, 4], "texture": "#main", "tintindex": 0},
+				"south": {"uv": [0, 4, 4, 8], "texture": "#main", "tintindex": 0},
+				"west": {"uv": [4, 4, 7, 8], "texture": "#main", "tintindex": 0},
+				"up": {"uv": [11, 3, 7, 0], "texture": "#main", "tintindex": 0},
+				"down": {"uv": [11, 3, 7, 6], "texture": "#main", "tintindex": 0}
+			}
+		},
+		{
+			"name": "pack",
+			"from": [7, 1, 9],
+			"to": [9, 4, 10],
+			"faces": {
+				"east": {"uv": [2, 8, 3, 11], "texture": "#main", "tintindex": 0},
+				"south": {"uv": [0, 8, 2, 11], "texture": "#main", "tintindex": 0},
+				"west": {"uv": [3, 8, 4, 11], "texture": "#main", "tintindex": 0},
+				"up": {"uv": [11, 8, 9, 7], "texture": "#main", "tintindex": 0},
+				"down": {"uv": [10, 9, 8, 10], "texture": "#main", "tintindex": 0}
+			}
+		},
+		{
+			"name": "left foot",
+			"from": [6, 0, 7],
+			"to": [7, 1, 8],
+			"faces": {
+				"north": {"uv": [6, 8, 7, 9], "texture": "#main", "tintindex": 0},
+				"east": {"uv": [9, 8, 10, 9], "texture": "#main", "tintindex": 0},
+				"south": {"uv": [4, 10, 5, 11], "texture": "#main", "tintindex": 0},
+				"west": {"uv": [5, 10, 6, 11], "texture": "#main", "tintindex": 0},
+				"down": {"uv": [8, 10, 7, 11], "texture": "#main", "tintindex": 0}
+			}
+		},
+		{
+			"name": "right foot",
+			"from": [9, 0, 7],
+			"to": [10, 1, 8],
+			"faces": {
+				"north": {"uv": [8, 10, 9, 11], "texture": "#main", "tintindex": 0},
+				"east": {"uv": [10, 8, 11, 9], "texture": "#main", "tintindex": 0},
+				"south": {"uv": [9, 10, 10, 11], "texture": "#main", "tintindex": 0},
+				"west": {"uv": [10, 9, 11, 10], "texture": "#main", "tintindex": 0},
+				"down": {"uv": [1, 11, 0, 12], "texture": "#main", "tintindex": 0}
+			}
+		},
+		{
+			"name": "visor",
+			"from": [7, 3, 5],
+			"to": [9, 4, 6],
+			"faces": {
+				"north": {"uv": [4, 8, 6, 9], "texture": "#main"},
+				"east": {"uv": [11, 0, 12, 1], "texture": "#main"},
+				"west": {"uv": [1, 11, 2, 12], "texture": "#main"},
+				"up": {"uv": [8, 10, 6, 9], "texture": "#main"},
+				"down": {"uv": [11, 6, 9, 7], "texture": "#main"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 7.75, 0]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 8, 0]
+		},
+		"firstperson_righthand": {
+			"rotation": [-8, 102, 0],
+			"translation": [0, 7.25, 0]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 129, 0],
+			"translation": [0, 7.25, 0]
+		},
+		"ground": {
+			"translation": [0, 4, 0]
+		},
+		"gui": {
+			"rotation": [30, -141, 1],
+			"translation": [0, 5, 0]
+		},
+		"head": {
+			"translation": [0, 14.5, 0]
+		},
+		"fixed": {
+			"translation": [0, 5, 0]
+		}
+	}
+}

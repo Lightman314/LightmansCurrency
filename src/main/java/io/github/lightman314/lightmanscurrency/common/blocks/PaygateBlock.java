@@ -59,7 +59,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 					PaygateTraderData trader = paygate.getTraderData();
 					if(trader != null)
 					{
-						trader.ExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
+						trader.TryExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
 						return InteractionResult.SUCCESS;
 					}
 				}

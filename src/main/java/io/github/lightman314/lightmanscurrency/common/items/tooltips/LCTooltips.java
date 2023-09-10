@@ -15,7 +15,9 @@ public class LCTooltips {
 	public static final NonNullSupplier<List<Component>> TERMINAL = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.terminal");
 	public static final NonNullSupplier<List<Component>> TICKET_MACHINE = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.ticketmachine");
 	public static final NonNullSupplier<List<Component>> CASH_REGISTER = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.cashregister");
-	
+
+	public static final NonNullSupplier<List<Component>> TAX_COLLECTOR = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.tax_collector");
+
 	public static final NonNullSupplier<List<Component>> COIN_MINT = () -> {
 		List<Component> result = new ArrayList<>();
 		if(Config.SERVER.allowCoinMinting.get())

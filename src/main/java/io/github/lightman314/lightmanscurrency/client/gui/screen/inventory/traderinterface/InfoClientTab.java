@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -200,7 +199,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		if(this.menu.getBE() == null)
 			return;
 
-		if(WARNING_AREA.atPosition(WARNING_AREA.pos.offset((IEasyScreen)this.screen)).isMouseInArea(gui.mousePos))
+		if(WARNING_AREA.atPosition(WARNING_AREA.pos.offset(this.screen)).isMouseInArea(gui.mousePos))
 		{
 			List<Component> warnings = this.getWarningMessages();
 			if(warnings.size() > 0)

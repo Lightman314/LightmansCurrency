@@ -9,6 +9,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.CoinValueArgument;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -73,38 +75,39 @@ public class CommandBank {
     static int giveAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-        return giveTo(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getReference).toList(), amount);
+        return giveTo(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getBankReference).toList(), amount);
     }
 
     static int givePlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
-        return giveTo(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(BankAccount::GenerateReference).toList(), amount);
+        return giveTo(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(PlayerBankReference::of).toList(), amount);
     }
 
     static int giveTeam(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        CommandSourceStack source = commandContext.getSource();
         Team team = TeamSaveData.GetTeam(false, teamID);
         if(team == null)
         {
-            commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.team.noteam", teamID));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.team.noteam", teamID));
             return 0;
         }
         else if(!team.hasBankAccount())
         {
-            commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.team.nobank", teamID));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.team.nobank", teamID));
             return 0;
         }
-        return giveTo(commandContext.getSource(), Lists.newArrayList(team.getReference()), amount);
+        return giveTo(commandContext.getSource(), Lists.newArrayList(team.getBankReference()), amount);
     }
 
-    static int giveTo(CommandSourceStack source, List<BankAccount.AccountReference> accounts, CoinValue amount)
+    static int giveTo(CommandSourceStack source, List<BankReference> accounts, CoinValue amount)
     {
         int count = 0;
         Component bankName = null;
-        for(BankAccount.AccountReference account : accounts)
+        for(BankReference account : accounts)
         {
             if(BankAccount.ServerGiveCoins(account.get(), amount))
             {
@@ -115,13 +118,13 @@ public class CommandBank {
 
         }
         if(count < 1)
-            source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.give.fail"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.fail"));
         else
         {
             if(count == 1)
-                source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbank.give.success.single", amount.getComponent("NULL"), bankName), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success.single", amount.getComponent("NULL"), bankName), true);
             else
-                source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbank.give.success", amount.getComponent("NULL"), count), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success", amount.getComponent("NULL"), count), true);
         }
         return count;
     }
@@ -135,39 +138,40 @@ public class CommandBank {
     static int takeAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-        return takeFrom(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getReference).toList(), amount);
+        return takeFrom(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getBankReference).toList(), amount);
     }
 
     static int takePlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
-        return takeFrom(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(BankAccount::GenerateReference).toList(), amount);
+        return takeFrom(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(PlayerBankReference::of).toList(), amount);
     }
 
     static int takeTeam(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        CommandSourceStack source = commandContext.getSource();
         Team team = TeamSaveData.GetTeam(false, teamID);
         if(team == null)
         {
-            commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.team.noteam", teamID));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.team.noteam", teamID));
             return 0;
         }
         else if(!team.hasBankAccount())
         {
-            commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.team.nobank", teamID));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.team.nobank", teamID));
             return 0;
         }
-        return takeFrom(commandContext.getSource(), Lists.newArrayList(team.getReference()), amount);
+        return takeFrom(commandContext.getSource(), Lists.newArrayList(team.getBankReference()), amount);
     }
 
-    static int takeFrom(CommandSourceStack source, List<BankAccount.AccountReference> accounts, CoinValue amount)
+    static int takeFrom(CommandSourceStack source, List<BankReference> accounts, CoinValue amount)
     {
         int count = 0;
         Component bankName = null;
         CoinValue largestAmount = CoinValue.EMPTY;
-        for(BankAccount.AccountReference account : accounts)
+        for(BankReference account : accounts)
         {
             Pair<Boolean,CoinValue> result = BankAccount.ServerTakeCoins(account.get(), amount);
             if(result.getFirst())
@@ -180,13 +184,13 @@ public class CommandBank {
             }
         }
         if(count < 1)
-            source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcbank.take.fail"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.fail"));
         else
         {
             if(count == 1)
-                source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbank.take.success.single", largestAmount.getComponent("NULL"), bankName), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success.single", largestAmount.getComponent("NULL"), bankName), true);
             else
-                source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbank.take.success", largestAmount.getComponent("NULL"), count), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success", largestAmount.getComponent("NULL"), count), true);
         }
         return count;
     }

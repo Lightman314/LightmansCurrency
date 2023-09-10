@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-2.1.2.2'
+version = '1.18.2-2.1.2.3'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -49,7 +49,8 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
-                    '--existing', file('optional_assets/1.18.2/biomesoplenty')
+                    '--existing', file('optional_assets/1.18.2/biomesoplenty'),
+                    '--existing', file('optional_assets/1.18.2/byg')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -80,6 +81,11 @@ repositories {
     	name = "ModMaven"
     	url = "https://modmaven.k-4u.nl"
     }*/
+    //Geckolib
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+    }
 }
 
 dependencies {
@@ -103,8 +109,11 @@ dependencies {
     //Wood Compatibility
     //Biomes O' Plenty
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:3827434")
-    //BOP Requirement
     implementation fg.deobf("curse.maven:terrablender-563928:3957976")
+    //BYG
+    implementation fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:4036050")
+    //implementation fg.deobf("curse.maven:terrablender-563928:4629898") //Already included by BOP
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.18:3.0.46")
     
 }
 

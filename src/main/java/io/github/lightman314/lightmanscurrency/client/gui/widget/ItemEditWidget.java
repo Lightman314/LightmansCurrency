@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
@@ -44,6 +43,9 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
+	private static ItemEditWidget latestInstance = null;
+	private static boolean rebuilding = false;
+
 	private static final List<CreativeModeTab> ITEM_GROUP_BLACKLIST = new ArrayList<>();
 
 	public static void BlacklistCreativeTabs(CreativeModeTab... tabs) {
@@ -65,6 +67,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		if(!ITEM_BLACKLIST.contains(itemFilter))
 			ITEM_BLACKLIST.add(itemFilter);
 	}
+
+	public static boolean IsCreativeTabAllowed(CreativeModeTab tab) { return !ITEM_GROUP_BLACKLIST.contains(tab); }
 
 	private static final List<ItemInsertRule> ITEM_ADDITIONS = new ArrayList<>();
 	public static void AddExtraItem(ItemStack item) { ITEM_ADDITIONS.add(ItemInsertRule.atEnd(item)); }
@@ -95,9 +99,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	public int stackSizeOffX;
 	public int stackSizeOffY;
 
-	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems;
+	private static final List<ItemStack> allItems = new ArrayList<>();
+	private static final Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
 
-	private List<ItemStack> searchResultItems;
+	private List<ItemStack> searchResultItems = new ArrayList<>();
 
 	private String searchString;
 
@@ -107,10 +112,17 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private final Font font;
 
-	public ItemEditWidget(ScreenPosition pos, int columns, int rows, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, listener); }
-	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
+	private final ItemEditWidget oldItemEdit;
+	@Nullable
+	private EditBox getOldSearchInput() { return this.oldItemEdit != null ? this.oldItemEdit.searchInput : null; }
+	private String getOldSearchString() { return this.oldItemEdit != null ? this.oldItemEdit.searchString : ""; }
+
+	public ItemEditWidget(ScreenPosition pos, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, oldItemEdit, listener); }
+	public ItemEditWidget(int x, int y, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) {
 		super(x, y, columns * 18, rows * 18);
+		latestInstance = this;
 		this.listener = listener;
+		this.oldItemEdit = oldItemEdit;
 
 		this.columns = columns;
 		this.rows = rows;
@@ -124,27 +136,54 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 
+		//Attempt to reload the item list, but using a different thread now :)
+		//Will hopefully not encounter any errors that normally happen during the PlayerLoginEvent call
+		ConfirmItemListLoaded();
+
 		//Set the search to the default value to initialize the inventory
-		this.modifySearch("");
+		this.modifySearch(this.getOldSearchString());
 
 	}
 
 	@Override
 	public ItemEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
+	/**
+	 * Re-initializes the item edit list on a different thread.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void ConfirmItemListLoaded()
+	{
+		if(allItems.size() == 0) //Flag as rebuilding asap if the list is empty
+			rebuilding = true;
+		new Thread(ItemEditWidget::safeInitItemList).start();
+	}
+
+	/**
+	 * Re-initializes the item edit list. Runs on the same thread, so may cause lag if called at an inappropriate time.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void safeInitItemList()
+	{
+		try { initItemList(); }
+		catch (Throwable t) { LightmansCurrency.LogError("Error occurred while attempting to set up the Item List!\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t); }
+		rebuilding = false;
+	}
+
 	public static void initItemList() {
 
-		if(preFilteredItems != null)
+		if(allItems.size() > 0)
 			return;
 
-		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
+		//Flag as rebuilding
+		rebuilding = true;
 
-		List<ItemStack> allItems = new ArrayList<>();
+		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 
 		//Go through all the item groups to avoid allowing sales of hidden items
 		for(CreativeModeTab creativeTab : CreativeModeTab.TABS)
 		{
-			if(!ITEM_GROUP_BLACKLIST.contains(creativeTab))
+			if(IsCreativeTabAllowed(creativeTab))
 			{
 				//Get all the items in this creative tab
 				NonNullList<ItemStack> items = NonNullList.create();
@@ -154,7 +193,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				{
 					if(isItemAllowed(stack))
 					{
-						addToList(allItems, stack);
+						addToList(stack);
 
 						if(stack.getItem() == Items.ENCHANTED_BOOK)
 						{
@@ -166,7 +205,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 									ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
 									EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
 									if(isItemAllowed(newBook))
-										addToList(allItems, newBook);
+										addToList(newBook);
 								}
 							});
 						}
@@ -182,21 +221,22 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			if(extraItemRule.shouldInsertAtEnd())
 			{
 				ItemStack extraItem = extraItemRule.insertStack.copy();
-				if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+				if(isItemAllowed(extraItem) && notYetInList(extraItem))
 					allItems.add(extraItem.copy());
 			}
 		}
 
-		preFilteredItems = new HashMap<>();
-
 		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
+
+		if(latestInstance != null)
+			latestInstance.refreshSearch();
 
 	}
 
-	private static void addToList(List<ItemStack> allItems, ItemStack stack)
+	private static void addToList(ItemStack stack)
 	{
 		stack = stack.copy();
-		if(notYetInList(allItems, stack))
+		if(notYetInList(stack))
 		{
 			//Add any before rules
 			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
@@ -204,7 +244,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				if(insertRule.shouldInsertBefore(stack))
 				{
 					ItemStack extraItem = insertRule.insertStack.copy();
-					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
 						allItems.add(extraItem);
 				}
 			}
@@ -217,15 +257,16 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				if(insertRule.shouldInsertAfter(stack))
 				{
 					ItemStack extraItem = insertRule.insertStack.copy();
-					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
 						allItems.add(extraItem);
 				}
 			}
 		}
 	}
 
-	private static boolean notYetInList(List<ItemStack> allItems, ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
+	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
 
+	@Nonnull
 	private List<ItemStack> getFilteredItems()
 	{
 		if(this.listener.restrictItemEditItems())
@@ -234,38 +275,35 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : trade.getRestriction();
 			return getFilteredItems(restriction);
 		}
-		return getFilteredItems(ItemTradeRestriction.NONE);
+		return allItems;
 	}
 
+	@Nonnull
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
+		//If the items are still being collected, don't try to access the lists
+		if(rebuilding)
+			return new ArrayList<>();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
-			return getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
+			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
-		if(preFilteredItems.containsKey(type))
-			return preFilteredItems.get(type);
-		else
+		if(!preFilteredItems.containsKey(type))
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
-			return preFilteredItems.put(type, getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+			preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
 		}
+		return preFilteredItems.get(type);
 	}
 
-	public int getMaxScroll()
-	{
-		return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0);
-	}
+	public int getMaxScroll() { return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0); }
 
 	public void refreshPage()
 	{
 
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
+		this.validateScroll();
 
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 
@@ -284,7 +322,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	public void refreshSearch() { this.modifySearch(this.searchString); }
 
-	public void modifySearch(String newSearch)
+	public void modifySearch(@Nonnull String newSearch)
 	{
 		this.searchString = newSearch.toLowerCase();
 
@@ -333,26 +371,29 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
+		this.searchInput.setResponder(this::modifySearch);
 
 		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-
+	protected void renderTick() {
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
+	}
+
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
 		if(!this.visible)
 			return;
 
-		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
-			this.modifySearch(this.searchInput.getValue());
+		//Removed search check as this is now handled by EditBox.setResponder
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
@@ -372,8 +413,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		}
 
 		//Render the search field
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		gui.resetColor();
 		gui.blit(GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
@@ -451,7 +491,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		return false;
 	}
 
-	public boolean stackCountScroll(double mouseX, double mouseY, double delta) {
+	public boolean stackCountScroll(double delta) {
 		if(delta > 0)
 		{
 			if(this.stackCount < 64)

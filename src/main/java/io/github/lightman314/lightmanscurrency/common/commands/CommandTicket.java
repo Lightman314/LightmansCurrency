@@ -34,7 +34,8 @@ public class CommandTicket {
     }
 
     static int changeColor(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
-        ServerPlayer player = commandContext.getSource().getPlayerOrException();
+        CommandSourceStack source = commandContext.getSource();
+        ServerPlayer player = source.getPlayerOrException();
         ItemStack heldItem = player.getMainHandItem();
         if(heldItem.getItem() instanceof TicketItem)
         {
@@ -42,7 +43,7 @@ public class CommandTicket {
             TicketItem.SetTicketColor(heldItem, color);
         }
         else
-            commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.ticket.color.not_held"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.ticket.color.not_held"));
         return 0;
     }
 

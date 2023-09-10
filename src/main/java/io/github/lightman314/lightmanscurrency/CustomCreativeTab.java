@@ -22,21 +22,22 @@ public class CustomCreativeTab extends CreativeModeTab {
 
 	private final ItemSorter itemSorter = new ItemSorter();
 	
-	Supplier<ItemLike> iconItem;
+	Supplier<ItemStack> iconItem;
 
-	private CustomCreativeTab(String label, Supplier<ItemLike> iconItem)
+	private CustomCreativeTab(String label, Supplier<ItemStack> iconItem)
 	{
 		super(label);
 		this.iconItem = iconItem;
 	}
 
-	public static CustomCreativeTab build(String label, Supplier<RegistryObject<? extends ItemLike>> iconItem) { return new CustomCreativeTab(label, () -> iconItem.get().get()); }
-	
+	public static CustomCreativeTab build(String label, Supplier<RegistryObject<? extends ItemLike>> iconItem) { return new CustomCreativeTab(label, () -> new ItemStack(iconItem.get().get())); }
+	public static CustomCreativeTab build2(String label, Supplier<ItemStack> iconItem) { return new CustomCreativeTab(label, () -> iconItem.get()); }
+
 	@Override
 	public ItemStack makeIcon()
 	{
 		if(this.iconItem != null)
-			return new ItemStack(this.iconItem.get());
+			return this.iconItem.get();
 		return ItemStack.EMPTY;
 	}
 	

@@ -94,9 +94,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	}
 	
 	//@Override
-	public void markTradesDirty() {
-		this.markDirty(this::saveTrades);
-	}
+	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
 	public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
 	

@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.datagen.client.LCBlockStateProvider;
+import io.github.lightman314.lightmanscurrency.datagen.client.*;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.LCRecipeProvider;
-import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCBlockTagProvider;
-import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCItemTagProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,6 +34,10 @@ public class LCDataEventListener {
         {
             //Block States
             generator.addProvider(new LCBlockStateProvider(generator, existingFileHelper));
+
+            //Language
+            //generator.addProvider(event.includeClient(), new LCLanguageProvider(output));
+
         }
     }
 

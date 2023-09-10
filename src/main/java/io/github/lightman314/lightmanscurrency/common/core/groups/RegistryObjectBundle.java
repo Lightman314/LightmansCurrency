@@ -54,6 +54,7 @@ public class RegistryObjectBundle<T,L> {
 			values.add(value.get());
 		return values;
 	}
+	public Set<L> getKeys() { return this.values.keySet(); }
 	public List<ResourceLocation> getAllKeys() { return this.values.values().stream().map(RegistryObject::getId).toList(); }
 
 	@SafeVarargs
@@ -71,11 +72,13 @@ public class RegistryObjectBundle<T,L> {
 		return keys;
 	}
 
-	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
+	public List<T> getAllSorted() { return this.getAllSorted(BundleRequestFilter.ALL); }
+	public List<T> getAllSorted(BundleRequestFilter filter) { return this.getAllSorted(filter, this.sorter); }
 
-	public List<T> getAllSorted(Comparator<L> sorter)
+	public List<T> getAllSorted(Comparator<L> sorter) { return this.getAllSorted(BundleRequestFilter.ALL, sorter); }
+	public List<T> getAllSorted(BundleRequestFilter filter, Comparator<L> sorter)
 	{
-		List<L> keys = this.getKeysSorted(sorter);
+		List<L> keys = this.getKeysSorted(sorter).stream().filter(filter::filterKey).toList();
 		List<T> result = new ArrayList<>();
 		for(L key : keys)
 		{

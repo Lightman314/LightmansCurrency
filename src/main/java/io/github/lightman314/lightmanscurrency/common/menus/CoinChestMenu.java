@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,6 +32,9 @@ public class CoinChestMenu extends LazyMessageMenu {
         super(ModMenus.COIN_CHEST.get(), id, inventory);
         this.be = be;
         this.be.startOpen(this.player);
+
+        this.addValidator(BlockEntityValidator.of(be));
+        this.addValidator(this.be::allowAccess);
 
         //Chest Slots
         List<CoinSlot> cSlots = new ArrayList<>();
@@ -137,9 +141,6 @@ public class CoinChestMenu extends LazyMessageMenu {
         return clickedStack;
 
     }
-
-    @Override
-    public boolean stillValid(@Nonnull Player player) { return MenuUtil.stillValid(player, this.be) && this.be.allowAccess(player); }
 
     @Override
     public void removed(@Nonnull Player player) { super.removed(player); this.be.stopOpen(player); }

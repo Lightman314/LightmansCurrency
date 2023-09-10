@@ -171,13 +171,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		}
 	}
 	
-	private void validateScroll() {
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
-	}
-	
 	private int isMouseOverSlot(ScreenPosition mousePos) {
 		
 		int foundColumn = -1;

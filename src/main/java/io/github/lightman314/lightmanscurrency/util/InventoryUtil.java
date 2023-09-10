@@ -631,4 +631,11 @@ public class InventoryUtil {
 			return 0;
 	}
 
+	public static ItemStack copyWithCount(ItemStack stack, int newCount)
+	{
+		ItemStack copy = stack.copy();
+		copy.setCount(newCount);
+		return copy;
+	}
+
 }

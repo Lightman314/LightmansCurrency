@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -59,7 +59,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
-		traderList.sort(TradingTerminalScreen.TERMINAL_SORTER);
+		traderList.sort(NetworkTerminalScreen.TERMINAL_SORTER);
 		return traderList;
 	}
 	

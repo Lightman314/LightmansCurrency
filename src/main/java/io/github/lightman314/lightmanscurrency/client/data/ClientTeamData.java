@@ -22,10 +22,7 @@ public class ClientTeamData {
 	public static List<Team> GetAllTeams() { return new ArrayList<>(loadedTeams.values()); }
 
 	@Nullable
-	public static Team GetTeam(long teamID)
-	{
-		return loadedTeams.getOrDefault(teamID, null);
-	}
+	public static Team GetTeam(long teamID) { return loadedTeams.get(teamID); }
 	
 	public static void InitTeams(List<Team> teams)
 	{
@@ -39,13 +36,8 @@ public class ClientTeamData {
 		loadedTeams.put(updatedTeam.getID(), updatedTeam);
 	}
 	
-	public static void RemoveTeam(long teamID)
-	{
-		loadedTeams.remove(teamID);
-	}
+	public static void RemoveTeam(long teamID) { loadedTeams.remove(teamID); }
 	
 	@SubscribeEvent
-	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
-		loadedTeams.clear();
-	}
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) { loadedTeams.clear(); }
 }

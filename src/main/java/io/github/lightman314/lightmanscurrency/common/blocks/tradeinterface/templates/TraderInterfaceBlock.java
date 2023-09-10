@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -33,14 +34,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
-	
+
+	@Nonnull
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -54,9 +56,9 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		}
 		return InteractionResult.SUCCESS;
 	}
-	
+
 	@Override
-	public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -67,9 +69,9 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 			}
 		}
 	}
-	
+
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 		if(blockEntity != null)
@@ -81,15 +83,15 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		}
 		super.playerWillDestroy(level, pos, state, player);
 	}
-	
+
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
-		
+	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
-		    return;
-		
+			return;
+
 		if(!level.isClientSide)
 		{
 			TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
@@ -111,10 +113,10 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
 			}
 		}
-		
+
 		super.onRemove(state, level, pos, newState, flag);
 	}
-	
+
 	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderInterfaceBlockEntity trader);
 
 	@Override
@@ -126,33 +128,36 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return this.createBlockEntity(pos, state); }
-	
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+		return this.createBlockEntity(pos, state);
+	}
+
 	protected abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 	protected abstract BlockEntityType<?> interfaceType();
 
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(this.interfaceType()); }
 
-	protected final TraderInterfaceBlockEntity getBlockEntity(LevelAccessor level, BlockPos pos, BlockState ignored) {
+	protected final TraderInterfaceBlockEntity getBlockEntity(LevelAccessor level, BlockPos pos, BlockState state) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if(be instanceof TraderInterfaceBlockEntity tibe)
 			return tibe;
 		return null;
 	}
-	
+
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
-	
+
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
-	
+
 	@Override
-	public boolean isSignalSource(@NotNull BlockState state) { return true; }
-	
+	@SuppressWarnings("deprecation")
+	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
+
 	public ItemStack getDropBlockItem(BlockState state, TraderInterfaceBlockEntity traderInterface) { return new ItemStack(state.getBlock()); }
-	
+
 }

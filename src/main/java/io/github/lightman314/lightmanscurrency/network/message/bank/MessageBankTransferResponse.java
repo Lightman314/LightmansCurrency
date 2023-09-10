@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -36,11 +36,8 @@ public class MessageBankTransferResponse {
 			LocalPlayer player = minecraft.player;
 			if(player != null)
 			{
-				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
-				{
-					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu)player.containerMenu;
+				if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 					menu.setTransferMessage(message.responseMessage);
-				}
 			}
 		});
 		supplier.get().setPacketHandled(true);

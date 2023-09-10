@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
@@ -78,7 +80,7 @@ public class Team {
 			return this.isOwner(player);
 	}
 	public BankAccount getBankAccount() { return this.bankAccount; }
-	public BankAccount.AccountReference getReference() { if(this.hasBankAccount()) return BankAccount.GenerateReference(this.isClient, this.id); return null; }
+	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
 	
 	/**
 	 * Determines if the given player is the owner of this team.

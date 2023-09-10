@@ -5,8 +5,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
@@ -15,15 +16,12 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.B
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -32,22 +30,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 public class BankAccount {
 
-	public enum AccountType { Player(0), Team(1);
-
-		public final int id;
-
-		AccountType(int id) { this.id = id; }
-
-		public static AccountType fromID(int id) {
-			for(AccountType type : AccountType.values())
-				if(type.id == id)
-					return type;
-			return AccountType.Player;
-		}
-
-	}
-
-	private final IMarkDirty markDirty;
+	private final Runnable markDirty;
 
 	private CoinValue coinStorage = CoinValue.EMPTY;
 	public CoinValue getCoinStorage() { return this.coinStorage; }
@@ -99,6 +82,11 @@ public class BankAccount {
 		if(oldValue >= this.getNotificationLevel() && this.coinStorage.getValueNumber() < this.getNotificationLevel())
 			this.pushNotification(() -> new LowBalanceNotification(this.getName(), this.notificationLevel));
 		return withdrawAmount;
+	}
+
+	public void LogInteraction(TaxEntry tax, CoinValue amount) {
+		this.pushLocalNotification(new DepositWithdrawNotification.Trader(tax.getName(), this.getName(), true, amount));
+		this.markDirty();
 	}
 
 	public void LogInteraction(Player player, CoinValue amount, boolean isDeposit) {
@@ -189,9 +177,9 @@ public class BankAccount {
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 
-	public static MutableComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
+	public static MutableComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, BankReference destination)
 	{
-		return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination.get());
+		return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get());
 	}
 
 	public static MutableComponent TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
@@ -217,11 +205,11 @@ public class BankAccount {
 
 	}
 
-	public BankAccount() { this((IMarkDirty)null); }
-	public BankAccount(IMarkDirty markDirty) { this.markDirty = markDirty; }
+	public BankAccount() { this((Runnable)null); }
+	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
 
 	public BankAccount(CompoundTag compound) { this(null, compound); }
-	public BankAccount(IMarkDirty markDirty, CompoundTag compound) {
+	public BankAccount(Runnable markDirty, CompoundTag compound) {
 		this.markDirty = markDirty;
 		this.coinStorage = CoinValue.safeLoad(compound, "CoinStorage");
 		this.logger.load(compound.getCompound("AccountLogs"));
@@ -232,7 +220,7 @@ public class BankAccount {
 	public void markDirty()
 	{
 		if(this.markDirty != null)
-			this.markDirty.markDirty();
+			this.markDirty.run();
 	}
 
 	public final CompoundTag save() {
@@ -242,123 +230,6 @@ public class BankAccount {
 		compound.putString("OwnerName", this.ownerName);
 		compound.put("NotificationLevel", this.notificationLevel.save());
 		return compound;
-	}
-
-	public static AccountReference GenerateReference(Player player) { return GenerateReference(player.level.isClientSide, player.getUUID()); }
-	public static AccountReference GenerateReference(boolean isClient, UUID playerID) { return new AccountReference(isClient, playerID); }
-	public static AccountReference GenerateReference(boolean isClient, PlayerReference player) { return GenerateReference(isClient, player.id); }
-	public static AccountReference GenerateReference(boolean isClient, Team team) { return GenerateReference(isClient, team.getID()); }
-	public static AccountReference GenerateReference(boolean isClient, long teamID) { return new AccountReference(isClient, teamID); }
-
-
-	public static AccountReference LoadReference(boolean isClient, CompoundTag compound) {
-		if(compound.contains("PlayerID"))
-		{
-			UUID id = compound.getUUID("PlayerID");
-			return GenerateReference(isClient, id);
-		}
-		if(compound.contains("TeamID"))
-		{
-			long id = compound.getLong("TeamID");
-			return GenerateReference(isClient, id);
-		}
-		return null;
-	}
-
-	public static AccountReference LoadReference(boolean isClient, FriendlyByteBuf buffer) {
-		try {
-			AccountType accountType = AccountType.fromID(buffer.readInt());
-			if(accountType == AccountType.Player)
-			{
-				UUID id = buffer.readUUID();
-				return GenerateReference(isClient, id);
-			}
-			if(accountType == AccountType.Team)
-			{
-				long id = buffer.readLong();
-				return GenerateReference(isClient, id);
-			}
-			return null;
-		} catch(Exception e) { e.printStackTrace(); return null; }
-	}
-
-	public static class AccountReference {
-
-		private final boolean isClient;
-		public final AccountType accountType;
-		public final UUID playerID;
-		public final long teamID;
-
-		private AccountReference(boolean isClient, UUID playerID) { this.isClient = isClient; this.accountType = AccountType.Player; this.playerID = playerID; this.teamID = -1; }
-
-		private AccountReference(boolean isClient, long teamID) { this.isClient = isClient; this.accountType = AccountType.Team; this.teamID = teamID; this.playerID = null; }
-
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			//compound.putInt("Type", this.accountType.id);
-			if(this.playerID != null)
-				compound.putUUID("PlayerID", this.playerID);
-			if(this.teamID >= 0)
-				compound.putLong("TeamID", this.teamID);
-			return compound;
-		}
-
-		public void writeToBuffer(FriendlyByteBuf buffer) {
-			buffer.writeInt(this.accountType.id);
-			if(this.playerID != null)
-				buffer.writeUUID(this.playerID);
-			if(this.teamID >= 0)
-				buffer.writeLong(this.teamID);
-		}
-
-		public BankAccount get() {
-			switch(this.accountType) {
-				case Player:
-					return BankSaveData.GetBankAccount(this.isClient, this.playerID);
-				case Team:
-					Team team = TeamSaveData.GetTeam(this.isClient, this.teamID);
-					if(team != null && team.hasBankAccount())
-						return team.getBankAccount();
-				default:
-					return null;
-			}
-		}
-
-		public boolean allowedAccess(Player player) {
-			switch(this.accountType)
-			{
-				case Player:
-					return player.getUUID().equals(this.playerID) || CommandLCAdmin.isAdminPlayer(player);
-				case Team:
-					Team team = TeamSaveData.GetTeam(this.isClient, this.teamID);
-					if(team != null && team.hasBankAccount())
-						return team.canAccessBankAccount(player);
-				default:
-					return false;
-			}
-		}
-
-	}
-
-	public interface IMarkDirty { void markDirty(); }
-
-	public interface IBankAccountMenu extends IClientTracker
-	{
-		Player getPlayer();
-		Container getCoinInput();
-		default void onDepositOrWithdraw() {}
-		default AccountReference getBankAccountReference() {
-			return this.isClient() ? ClientBankData.GetLastSelectedAccount() : BankSaveData.GetSelectedBankAccount(this.getPlayer());
-		}
-		default BankAccount getBankAccount() {
-			AccountReference reference = this.getBankAccountReference();
-			return reference == null ? null : reference.get();
-		}
-	}
-
-	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
-	{
-		void setTransferMessage(MutableComponent component);
 	}
 
 }

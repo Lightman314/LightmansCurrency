@@ -534,9 +534,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 			}
 
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-
 			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore editing internal storage if this is flagged as creative.
@@ -553,6 +550,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			}
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
@@ -588,8 +588,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Put the payment in the purchasers' wallet, coin slot, etc.
 			context.givePayment(price);
 
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
 			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore editing internal storage if this is flagged as creative.
@@ -607,6 +605,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			}
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
@@ -666,9 +667,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 			}
 
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
 			{
@@ -684,6 +682,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			}
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), CoinValue.EMPTY));
 
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, CoinValue.EMPTY);

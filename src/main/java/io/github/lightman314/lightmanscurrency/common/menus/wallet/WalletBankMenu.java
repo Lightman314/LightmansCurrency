@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,6 +16,8 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public WalletBankMenu(int windowId, Inventory inventory, int walletStackIndex) {
 		
 		super(ModMenus.WALLET_BANK.get(), windowId, inventory, walletStackIndex);
+
+		this.addValidator(this::hasBankAccess);
 		
 		this.addCoinSlots(BANK_WIDGET_SPACING + 1);
 		this.addDummySlots(WalletMenuBase.getMaxWalletSlots());
@@ -33,9 +35,9 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(@Nonnull Player player) {
+	protected void onValidationTick(@Nonnull Player player) {
+		super.onValidationTick(player);
 		this.getBankAccountReference();
-		return super.stillValid(player) && this.hasBankAccess();
 	}
 	
 	@Override

@@ -39,6 +39,9 @@ public class LCTags {
         public static final TagKey<Item> TRADING_TERMINAL = tag("trading_terminal");
         public static final TagKey<Item> ATM = tag("atm");
 
+        public static final TagKey<Item> COIN_JAR_NORMAL = tag("coin_jar/normal");
+        public static final TagKey<Item> COIN_JAR_ALL = tag("coin_jar/all");
+
         //Ticket Tags
         public static final TagKey<Item> TICKET = tag("ticket");
         public static final TagKey<Item> TICKET_MATERIAL = tag("ticket_material");

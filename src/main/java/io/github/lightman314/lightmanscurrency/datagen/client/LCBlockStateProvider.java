@@ -156,7 +156,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                         .texture("main", data.plankTexture);
             }
             else
-                LightmansCurrency.LogWarning("Could not generate models for wood type '" + type.name + "' as it has no wood data!");
+                LightmansCurrency.LogWarning("Could not generate models for wood type '" + type.id + "' as it has no wood data!");
             //Generate the block state
             this.registerRotatable(block, modelID, false);
         });
@@ -298,7 +298,10 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
         //2.1.2.2
         //Tax Block
-        this.registerRotatable(ModBlocks.TAX_BLOCK);
+        this.registerRotatable(ModBlocks.TAX_COLLECTOR);
+
+        //2.1.2.3
+        this.registerRotatableInv(ModBlocks.SUS_JAR, "jars/sus_jar", true);
 
     }
 
@@ -341,6 +344,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         ModelFile model = this.lazyBlockModel(modelID, check);
         this.getVariantBuilder(block.get())
                 .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
+        this.registerBlockItemModel(block, model);
+    }
+    private void registerRotatableInv(RegistryObject<? extends Block> block, String modelID, boolean check)
+    {
+        ModelFile model = this.lazyBlockModel(modelID, check);
+        this.getVariantBuilder(block.get())
+                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationYInv(state)).build());
         this.registerBlockItemModel(block, model);
     }
 

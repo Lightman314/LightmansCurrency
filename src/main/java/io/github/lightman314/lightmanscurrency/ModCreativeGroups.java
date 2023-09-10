@@ -1,22 +1,46 @@
-package io.github.lightman314.lightmanscurrency.common.core;
+package io.github.lightman314.lightmanscurrency;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.enchantments.LCEnchantmentCategories;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class ModCreativeGroups {
 
-    public static final NonNullSupplier<CreativeModeTab> COIN_GROUP = () -> LightmansCurrency.COIN_GROUP;
-    public static final NonNullSupplier<CreativeModeTab> MACHINE_GROUP = () -> LightmansCurrency.MACHINE_GROUP;
-    public static final NonNullSupplier<CreativeModeTab> TRADING_GROUP = () -> LightmansCurrency.TRADING_GROUP;
-    public static final NonNullSupplier<CreativeModeTab> UPGRADE_GROUP = () -> LightmansCurrency.UPGRADE_GROUP;
+    private static final CustomCreativeTab COIN_GROUP = CustomCreativeTab.build(LightmansCurrency.MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
+    @Nonnull
+    public static CustomCreativeTab getCoinGroup() { return COIN_GROUP; }
+    private static final CustomCreativeTab MACHINE_GROUP = CustomCreativeTab.build(LightmansCurrency.MODID + ".machines", () -> ModBlocks.COIN_MINT);
+    @Nonnull
+    public static CustomCreativeTab getMachineGroup() { return MACHINE_GROUP; }
+    private static final CustomCreativeTab TRADING_GROUP = CustomCreativeTab.build(LightmansCurrency.MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
+    @Nonnull
+    public static CustomCreativeTab getTradingGroup() { return TRADING_GROUP; }
+    private static final CustomCreativeTab UPGRADE_GROUP = CustomCreativeTab.build(LightmansCurrency.MODID + ".upgrades", () -> ModItems.ITEM_CAPACITY_UPGRADE_1);
+    @Nonnull
+    public static CustomCreativeTab getUpgradeGroup() { return UPGRADE_GROUP; }
+    private static CustomCreativeTab EXTRA_GROUP = null;
+    @Nonnull
+    public static CustomCreativeTab getExtraGroup() {
+        if(EXTRA_GROUP == null)
+            EXTRA_GROUP = CustomCreativeTab.build2(LightmansCurrency.MODID + ".extra", ezRandomIcon(ModCreativeGroups::getExtraGroup));
+        return EXTRA_GROUP;
+    }
+
+    public static NonNullFunction<WoodType,CreativeModeTab> getExtraOr(NonNullSupplier<CreativeModeTab> normalSource) { return w -> w.isModded() ? getExtraGroup() : normalSource.get(); }
 
     public static void setupCreativeTabs() {
-        LightmansCurrency.COIN_GROUP.setEnchantmentCategories(LCEnchantmentCategories.WALLET_CATEGORY, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY);
-        LightmansCurrency.COIN_GROUP.startInit().add(
+        COIN_GROUP.setEnchantmentCategories(LCEnchantmentCategories.WALLET_CATEGORY, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY);
+        COIN_GROUP.startInit().add(
                 //Coin -> Coin Pile -> Coin Block by type
                 ModItems.COIN_COPPER, ModBlocks.COINPILE_COPPER, ModBlocks.COINBLOCK_COPPER,
                 ModItems.COIN_IRON, ModBlocks.COINPILE_IRON, ModBlocks.COINBLOCK_IRON,
@@ -31,7 +55,7 @@ public class ModCreativeGroups {
                 ModItems.TRADING_CORE
         ).build();
 
-        LightmansCurrency.MACHINE_GROUP.startInit().add(
+        MACHINE_GROUP.startInit().add(
                 //Coin Mint
                 ModBlocks.COIN_MINT,
                 //ATM
@@ -43,6 +67,8 @@ public class ModCreativeGroups {
                 ModBlocks.GEM_TERMINAL, ModItems.PORTABLE_GEM_TERMINAL,
                 //Trader Interface
                 ModBlocks.ITEM_TRADER_INTERFACE,
+                //Tax Collector
+                ModBlocks.TAX_COLLECTOR,
                 //Auction Stands
                 ModBlocks.AUCTION_STAND,
                 //Ticket Machine
@@ -59,7 +85,7 @@ public class ModCreativeGroups {
                 ModBlocks.COINJAR_BLUE
         ).build();
 
-        LightmansCurrency.TRADING_GROUP.startInit().add(
+        TRADING_GROUP.startInit().add(
                 //Item Traders (normal)
                 ModBlocks.SHELF,
                 ModBlocks.DISPLAY_CASE,
@@ -78,7 +104,7 @@ public class ModCreativeGroups {
                 ModBlocks.PAYGATE
         ).build();
 
-        LightmansCurrency.UPGRADE_GROUP.startInit().add(
+        UPGRADE_GROUP.startInit().add(
                 //Item Capacity
                 ModItems.ITEM_CAPACITY_UPGRADE_1, ModItems.ITEM_CAPACITY_UPGRADE_2, ModItems.ITEM_CAPACITY_UPGRADE_3,
                 //Speed
@@ -93,6 +119,25 @@ public class ModCreativeGroups {
                 ModItems.COIN_CHEST_SECURITY_UPGRADE
         ).build();
 
+        if(EXTRA_GROUP != null)
+        {
+            EXTRA_GROUP.startInit().add(
+                ModBlocks.AUCTION_STAND,
+                ModBlocks.SHELF,
+                ModBlocks.CARD_DISPLAY,
+                ModBlocks.BOOKSHELF_TRADER
+            ).build();
+        }
+
+    }
+
+    private static Supplier<ItemStack> ezRandomIcon(Supplier<CreativeModeTab> tabSource) {
+        return () -> {
+            CreativeModeTab tab = tabSource.get();
+            NonNullList<ItemStack> list = NonNullList.create();
+            tab.fillItemList(list);
+            return list.get((int)((TimeUtil.getCurrentTime() / 1000) % list.size()));
+        };
     }
 
 }
