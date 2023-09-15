@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-2.1.2.3'
+version = '1.18.2-2.1.2.3a'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -98,7 +98,7 @@ dependencies {
     implementation fg.deobf("curse.maven:jei-238222:3723913")
     
     //Curios API
-    implementation fg.deobf("curse.maven:curios-309927:3841948")
+    compileOnly fg.deobf("curse.maven:curios-309927:3841948")
 
     //Immersive Engineering
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3964014")

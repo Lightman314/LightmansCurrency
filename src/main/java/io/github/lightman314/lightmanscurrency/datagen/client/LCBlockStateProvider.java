@@ -140,7 +140,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                         this.lazyColoredID("large_vending_machine/", color, "_top_right"),
                         this.lazyColoredID("large_vending_machine/", color, "_bottom_left"),
                         this.lazyColoredID("large_vending_machine/", color, "_bottom_right"),
-                        this.lazyColoredID("large_vending_machine/", color, ""),
+                        this.lazyColoredID("large_vending_machine/", color, "_item"),
                         false
                 ));
 

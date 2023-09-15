@@ -223,7 +223,7 @@ public class ClientEvents {
 	
 	//Interact
 	@SubscribeEvent
-	public static void onInventoryClick(ScreenEvent.MouseInputEvent event)
+	public static void onInventoryClick(ScreenEvent.MouseClickedEvent.Post event)
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
@@ -238,7 +238,6 @@ public class ClientEvents {
 			if(gui instanceof CreativeModeInventoryScreen creativeScreen && creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 				return;
 			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			
 			
 			//Wallet Slot click detection
 			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition) && !isMouseOverVisibilityButton(gui, event.getMouseX(), event.getMouseY(), slotPosition))

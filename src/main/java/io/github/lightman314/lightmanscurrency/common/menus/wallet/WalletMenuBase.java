@@ -136,7 +136,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 
 	public final void saveWalletContents()
 	{
-		if(this.validateHasWallet())
+		if(!this.validateHasWallet())
 			return;
 		//Write the bag contents back into the item stack
 		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
