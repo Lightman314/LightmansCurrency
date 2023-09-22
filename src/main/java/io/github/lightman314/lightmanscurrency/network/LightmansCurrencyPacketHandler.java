@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network;
 
 import io.github.lightman314.lightmanscurrency.network.message.*;
-import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
 import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
@@ -84,11 +83,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageTraderMessage.class, MessageTraderMessage::encode, MessageTraderMessage::decode, MessageTraderMessage::handle);
 		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
 		register(MessageStorageInteractionC.class, MessageStorageInteractionC::encode, MessageStorageInteractionC::decode, MessageStorageInteractionC::handle);
-		
-		//Armor Display Trader
-		register(MessageRequestArmorStandID.class, MessageRequestArmorStandID::encode, MessageRequestArmorStandID::decode, MessageRequestArmorStandID::handle);
-		register(MessageSendArmorStandID.class, MessageSendArmorStandID::encode, MessageSendArmorStandID::decode, MessageSendArmorStandID::handle);
-		
+
 		//Wallet
 		register(MessagePlayPickupSound.class, MessagePlayPickupSound::encode, MessagePlayPickupSound::decode, MessagePlayPickupSound::handle);
 		register(MessageWalletConvertCoins.class, MessageWalletConvertCoins::encode, MessageWalletConvertCoins::decode, MessageWalletConvertCoins::handle);
