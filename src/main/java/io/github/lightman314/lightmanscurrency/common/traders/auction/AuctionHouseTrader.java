@@ -30,8 +30,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.MessageStartBid;
+import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -248,7 +247,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		else
 		{
 			//Open bid menu for the given trade index
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(context.getPlayer()), new MessageStartBid(this.getID(), tradeIndex));
+			new SPacketStartBid(this.getID(), tradeIndex).sendTo(context.getPlayer());
 			return TradeResult.SUCCESS;
 		}
 	}

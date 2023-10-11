@@ -21,8 +21,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -107,8 +107,8 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
-		if(message.contains("TradeIndex"))
+	public void receiveSelfMessage(LazyPacketData message) {
+		if(message.contains("TradeIndex", LazyPacketData.TYPE_INT))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 	}
 

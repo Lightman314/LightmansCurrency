@@ -7,7 +7,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
@@ -36,7 +35,7 @@ public class CommandBalTop {
 		
 	}
 	
-	static int executePage(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int executePage(CommandContext<CommandSourceStack> commandContext) {
 		
 		return execute(commandContext, IntegerArgumentType.getInteger(commandContext, "page"));
 		

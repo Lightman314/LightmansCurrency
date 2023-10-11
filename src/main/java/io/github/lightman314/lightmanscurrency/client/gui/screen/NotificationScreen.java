@@ -22,8 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageFlagNotificationsSeen;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -264,7 +263,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 	}
 
 	public void markAsRead(EasyButton button) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageFlagNotificationsSeen(this.selectedCategory));
+		new CPacketFlagNotificationsSeen(this.selectedCategory).send();
 	}
 	
 	@Override

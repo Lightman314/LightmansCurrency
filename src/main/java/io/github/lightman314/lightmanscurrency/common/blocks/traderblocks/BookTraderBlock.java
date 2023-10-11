@@ -32,7 +32,6 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
     @Override
     protected BlockEntityType<?> traderType() { return ModBlockEntities.BOOK_TRADER.get(); }
 
-
     @Override
     public Vector3f GetBookRenderPos(int tradeSlot, BlockState state) {
         //Get facing

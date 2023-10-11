@@ -10,11 +10,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.taxes.TaxInfoWi
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.network.chat.Component;
@@ -98,7 +98,7 @@ public class TaxInfoClientTab extends TraderStorageClientTab<TaxInfoTab> impleme
     public TraderData getTrader() { return this.menu.getTrader(); }
 
     @Override
-    public boolean canPlayerForceIgnore() { return CommandLCAdmin.isAdminPlayer(this.menu.player); }
+    public boolean canPlayerForceIgnore() { return LCAdminMode.isAdminPlayer(this.menu.player); }
 
     @Override
     public void AcceptTaxCollector(long taxEntryID) { this.commonTab.AcceptTaxes(taxEntryID); }

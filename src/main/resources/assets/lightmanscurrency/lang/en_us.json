@@ -167,6 +167,7 @@
 	"block.lightmanscurrency.shelf_byg_imparius": "Imparius Shelf",
 	"block.lightmanscurrency.shelf_byg_jacaranda": "Jacaranda Shelf",
 	"block.lightmanscurrency.shelf_byg_lament": "Lament Shelf",
+	"block.lightmanscurrency.shelf_byg_mangrove": "Mangrove Shelf",
 	"block.lightmanscurrency.shelf_byg_mahogany": "Mahogany Shelf",
 	"block.lightmanscurrency.shelf_byg_maple": "Maple Shelf",
 	"block.lightmanscurrency.shelf_byg_nightshade": "Nightshade Shelf",
@@ -180,6 +181,31 @@
 	"block.lightmanscurrency.shelf_byg_willow": "Willow Shelf",
 	"block.lightmanscurrency.shelf_byg_witch_hazel": "Witch Hazel Shelf",
 	"block.lightmanscurrency.shelf_byg_zelkova": "Zelkova Shelf",
+	
+	
+	"block.lightmanscurrency.shelf_2x2_oak": "Oak 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_spruce": "Spruce 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_birch": "Birch 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_jungle": "Jungle 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_acacia": "Acacia 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_dark_oak": "Dark Oak 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_mangrove": "Mangrove 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_cherry": "Cherry 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_bamboo": "Bamboo 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_crimson": "Crimson 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_warped": "Warped 2x2 Shelf",
+	
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_dead": "Dead 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_fir": "Fir 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_hellbark": "Hellbark 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_jacaranda": "Jacaranda 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_magic": "Magic 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_mahogany": "Mahogany 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_palm": "Palm 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_redwood": "Redwood 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_umbran": "Umbran 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_biomesoplenty_willow": "Willow 2x2 Shelf",
+	
 	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
 	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
@@ -226,6 +252,7 @@
 	"block.lightmanscurrency.card_display_byg_jacaranda": "Jacaranda Card Display",
 	"block.lightmanscurrency.card_display_byg_lament": "Lament Card Display",
 	"block.lightmanscurrency.card_display_byg_mahogany": "Mahogany Card Display",
+	"block.lightmanscurrency.card_display_byg_mangrove": "Mangrove Card Display",
 	"block.lightmanscurrency.card_display_byg_maple": "Maple Card Display",
 	"block.lightmanscurrency.card_display_byg_nightshade": "Nightshade Card Display",
 	"block.lightmanscurrency.card_display_byg_palm": "Palm Card Display",
@@ -303,6 +330,7 @@
 	"block.lightmanscurrency.bookshelf_trader_byg_jacaranda": "Jacaranda Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_lament": "Lament Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_mahogany": "Mahogany Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_byg_mangrove": "Mangrove Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_maple": "Maple Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_nightshade": "Nightshade Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_palm": "Palm Bookshelf Trader",
@@ -375,6 +403,7 @@
 	"block.lightmanscurrency.auction_stand_byg_jacaranda": "Jacaranda Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_lament": "Lament Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_mahogany": "Mahogany Auction Stand",
+	"block.lightmanscurrency.auction_stand_byg_mangrove": "Mangrove Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_maple": "Maple Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_nightshade": "Nightshade Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_palm": "Palm Auction Stand",
@@ -685,6 +714,7 @@
     
     "key.wallet": "Open Wallet",
     "key.portable_terminal": "Access Portable Terminal",
+    "key.portable_atm": "Access Portable ATM",
     
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
     
@@ -1074,6 +1104,23 @@
     "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",
     "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
     "command.lightmanscurrency.lcbaltop.error.page": "Page is too large",
+	
+	
+	"command.lightmanscurrency.lcftb.invalid_price": "INVALID",
+	"command.lightmanscurrency.lcftb.fail.invalid_price": "Could not process the purchase as the configured price is invalid!",
+	"command.lightmanscurrency.lcftb.fail.nodata": "Could not access your claim data!",
+	"command.lightmanscurrency.lcftb.claims.success": "Purchased %s more claim chunk(s)!",
+	"command.lightmanscurrency.lcftb.claims.info": "You have bought %1$s of %2$s available claim chunks.",
+	"command.lightmanscurrency.lcftb.claims.fail.cantafford": "Cannot afford to purchase any claim chunks.",
+	"command.lightmanscurrency.lcftb.claims.fail.disabled": "You may not purchase claim chunks on this server!",
+	"command.lightmanscurrency.lcftb.claims.limit_reached": "You have reached the maximum number of claim chunks that you are allowed to purchase (%s)",
+	"command.lightmanscurrency.lcftb.forceload.success": "Purchased %s more forceload chunk(s)!",
+	"command.lightmanscurrency.lcftb.forceload.info": "You have bought %1$s of %2$s available forceload chunks.",
+	"command.lightmanscurrency.lcftb.forceload.fail.cantafford": "Cannot afford to purchase any forceload chunks.",
+	"command.lightmanscurrency.lcftb.forceload.fail.disabled": "You may not purchase forceload chunks on this server!",
+	"command.lightmanscurrency.lcftb.forceload.limit_reached": "You have reached the maximum number of forceload chunks that you are allowed to purchase (%s)",
+	"command.lightmanscurrency.lcftb.info.price": "Costs %s per chunk!",
+	"command.lightmanscurrency.lcftb.info.disabled.all": "Purchase of claim and forceload chunks is disabled on this server!",
     
     "command.argument.trader.notfound": "Could not find a trader with the given ID.",
     "command.trader.block.notfound": "No trader block at the given position.",
@@ -1087,6 +1134,9 @@
     "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials:%s",
     
     "curios.identifier.wallet": "Wallet",
+	
+	"resourcepack.lightmanscurrency.rupees": "LC Rupees (WIP)",
+	"resourcepack.lightmanscurrency.closer_items": "LC Fancy Item Placement",
     
     "advancements.lightmanscurrency.root.title": "Lightman's Currency",
     "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",

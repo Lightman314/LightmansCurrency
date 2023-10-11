@@ -21,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyData
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue.CoinValuePair;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -38,7 +37,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class MoneyUtil {
@@ -86,7 +84,7 @@ public class MoneyUtil {
 			LightmansCurrency.LogError("Error loading Master Coin List. Using default values for now.", e);
 			moneyData = MoneyData.generateDefault();
 		}
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), moneyData);
+		moneyData.sendToAll();
 	}
 	
 	private static void createMoneyDataFile(File mcl) {
@@ -112,7 +110,7 @@ public class MoneyUtil {
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		//Send the player the Money Data
-		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getEntity()), moneyData);
+		moneyData.sendTo(event.getEntity());
 	}
 	
 	/**

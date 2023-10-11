@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -45,7 +45,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
@@ -96,7 +95,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level().isClientSide)
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), MessagePlayPickupSound.INSTANCE);
+				SPacketPlayPickupSound.INSTANCE.sendTo(player);
 			event.setCanceled(true);
 			
 		}
@@ -201,7 +200,7 @@ public class EventHandler {
 			return;
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
-			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+			new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(target);
 	}
 	
 	//Drop the wallet if keep inventory isn't on.

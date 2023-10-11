@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -258,7 +259,7 @@ public class PaygateTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -273,37 +274,31 @@ public class PaygateTradeData extends TradeData {
 			}
 			else
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 			}
 		}
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 	}
 
 	@Override
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 		
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 		
 	}

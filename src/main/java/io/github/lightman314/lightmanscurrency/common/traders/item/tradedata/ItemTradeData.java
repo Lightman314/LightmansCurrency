@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.ChatFormatting;
@@ -539,7 +540,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -547,10 +548,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				return;
 			if(this.isSale())
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				extraData.putInt("StartingSlot", -1);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+						.setInt("TradeIndex", tradeIndex)
+						.setInt("StartingSlot", -1));
 			}
 			if(this.isPurchase() && index >= 0 && index < 2)
 			{
@@ -559,10 +559,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
-					extraData.putInt("TradeIndex", tradeIndex);
-					extraData.putInt("StartingSlot", index);
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+							.setInt("TradeIndex", tradeIndex)
+							.setInt("StartingSlot", index));
 				}
 				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
 				{
@@ -587,10 +586,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(barterItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
-					extraData.putInt("TradeIndex", tradeIndex);
-					extraData.putInt("StartingSlot", index + 2);
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+							.setInt("TradeIndex", tradeIndex)
+							.setInt("StartingSlot", index + 2));
 				}
 				if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
 				{
@@ -656,7 +654,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -669,10 +667,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
-					extraData.putInt("TradeIndex", tradeIndex);
-					extraData.putInt("StartingSlot", index);
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+							.setInt("TradeIndex", tradeIndex)
+							.setInt("StartingSlot", index));
 				}
 				if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
 				{
@@ -692,25 +689,22 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			}
 			else if(this.isPurchase())
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				extraData.putInt("StartingSlot", -1);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+						.setInt("TradeIndex", tradeIndex)
+						.setInt("StartingSlot", -1));
 			}
 		}
 	}
 
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 	}
 

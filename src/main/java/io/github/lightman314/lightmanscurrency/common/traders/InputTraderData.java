@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +27,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public abstract class InputTraderData extends TraderData {
 
@@ -168,9 +170,29 @@ public abstract class InputTraderData extends TraderData {
 	public abstract MutableComponent inputSettingsTabTooltip();
 	@OnlyIn(Dist.CLIENT)
 	public List<? extends InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
-	
+
 	@Override
-	public void receiveNetworkMessage(@NotNull Player player, @NotNull CompoundTag message)
+	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
+		super.handleSettingsChange(player, message);
+
+		if(message.contains("SetInputSide"))
+		{
+			boolean newValue = message.getBoolean("SetInputSide");
+			Direction side = Direction.from3DDataValue(message.getInt("Side"));
+			this.setInputSide(player, side, newValue);
+		}
+		if(message.contains("SetOutputSide"))
+		{
+			boolean newValue = message.getBoolean("SetOutputSide");
+			Direction side = Direction.from3DDataValue(message.getInt("Side"));
+			this.setOutputSide(player, side, newValue);
+		}
+	}
+
+	@Override
+	@SuppressWarnings("deprecation")
+	@Deprecated(since = "2.1.2.4")
+	public void receiveNetworkMessage(@Nonnull Player player, @Nonnull CompoundTag message)
 	{
 		super.receiveNetworkMessage(player, message);
 		

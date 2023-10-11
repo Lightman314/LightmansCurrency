@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.money;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -12,15 +11,21 @@ import com.google.gson.JsonParser;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyDataEvent;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
-public class MoneyData {
+import javax.annotation.Nonnull;
+
+public class MoneyData extends ServerToClientPacket {
+
+	public static final Handler<MoneyData> PACKET_HANDLER = new PacketHandler();
 
 	private final List<CoinData> coinList = new ArrayList<>();
 	private List<CoinData> sortedCoinList = new ArrayList<>();
@@ -58,30 +63,32 @@ public class MoneyData {
 		return json;
 	}
 	
-	public static void encode(MoneyData data, FriendlyByteBuf buffer) {
-		JsonObject json = data.toJson();
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
+		JsonObject json = this.toJson();
 		String jsonString = FileUtil.GSON.toJson(json);
 		int stringSize = jsonString.length();
 		buffer.writeInt(stringSize);
 		buffer.writeUtf(jsonString, stringSize);
 	}
-	
-	public static MoneyData decode(FriendlyByteBuf buffer) {
-		try {
-			LightmansCurrency.LogInfo("Decoding money data packet:");
-			int stringSize = buffer.readInt();
-			String jsonString = buffer.readUtf(stringSize);
-			JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
-			return fromJson(json);
-		} catch(Throwable t) { LightmansCurrency.LogError("Error decoding MoneyData.", t); return generateDefault(); }
-	}
-	
-	public static void handle(MoneyData data, Supplier<Context> source) {
-		source.get().enqueueWork(() ->{
+
+	private static class PacketHandler extends Handler<MoneyData>
+	{
+		@Nonnull
+		@Override
+		public MoneyData decode(@Nonnull FriendlyByteBuf buffer) {
+			try {
+				LightmansCurrency.LogInfo("Decoding money data packet:");
+				int stringSize = buffer.readInt();
+				String jsonString = buffer.readUtf(stringSize);
+				JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+				return fromJson(json);
+			} catch(Throwable t) { LightmansCurrency.LogError("Error decoding MoneyData.", t); return generateDefault(); }
+		}
+		@Override
+		protected void handle(@Nonnull MoneyData message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.LogInfo("Received money data packet from server. Synchronizing coin list.");
-			MoneyUtil.receiveMoneyData(data);
-		});
-		source.get().setPacketHandled(true);
+			MoneyUtil.receiveMoneyData(message);
+		}
 	}
 	
 	public static MoneyData generateDefault() {

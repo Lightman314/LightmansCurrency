@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferenceType;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -35,7 +35,7 @@ public class PlayerBankReference extends BankReference {
     public BankAccount get() { return BankSaveData.GetBankAccount(this.isClient(), this.playerID); }
 
     @Override
-    public boolean allowedAccess(@Nonnull Player player) { return CommandLCAdmin.isAdminPlayer(player) || this.playerID.equals(player.getUUID()); }
+    public boolean allowedAccess(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.playerID.equals(player.getUUID()); }
 
     @Override
     protected void saveAdditional(CompoundTag tag) { tag.putUUID("PlayerID", this.playerID); }

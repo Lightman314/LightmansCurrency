@@ -69,7 +69,10 @@ public class ClientModEvents {
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
 		if(LightmansCurrency.isCuriosLoaded())
+		{
 			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
+			event.register(ClientEvents.KEY_PORTABLE_ATM);
+		}
 	}
 
 	@SubscribeEvent

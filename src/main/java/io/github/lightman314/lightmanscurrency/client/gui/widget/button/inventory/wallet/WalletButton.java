@@ -12,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class WalletButton extends InventoryButton {
 

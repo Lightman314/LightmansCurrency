@@ -23,9 +23,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.Persistent
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageClearClientTraders;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketClearClientTraders;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketMessageRemoveClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -456,7 +456,7 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			tsd.setDirty();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(updateMessage));
+			new SPacketUpdateClientTrader(updateMessage).sendToAll();
 		}
 		
 	}
@@ -506,7 +506,7 @@ public class TraderSaveData extends SavedData {
 		try{ trader.OnRegisteredToOffice();
 		} catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
 		//Send update packet to all relevant clients
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(trader.save()));
+		new SPacketUpdateClientTrader(trader.save()).sendToAll();
 		//Register tick listeners (if applicable)
 		if(trader instanceof IEasyTickable t)
 			this.tickers.add(t);
@@ -526,7 +526,7 @@ public class TraderSaveData extends SavedData {
 				if(trader instanceof IEasyTickable t)
 					tsd.tickers.remove(t);
 				tsd.setDirty();
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
+				new SPacketMessageRemoveClientTrader(traderID).sendToAll();
 				if(trader.shouldAlwaysShowOnTerminal())
 					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
 			}
@@ -634,7 +634,7 @@ public class TraderSaveData extends SavedData {
 									EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
 								} catch(Throwable t) { t.printStackTrace(); }
 							}
-							LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderData.getID()));
+							new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 							return true;
 						}
 						return false;
@@ -679,9 +679,9 @@ public class TraderSaveData extends SavedData {
 			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
 			
 			//Send the clear message
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+			SPacketClearClientTraders.INSTANCE.sendToTarget(target);
 			//Send update message to the newly connected client
-			tsd.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
+			tsd.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save()).sendToTarget(target));
 
 		}
 	}
@@ -689,8 +689,8 @@ public class TraderSaveData extends SavedData {
 	private void resendTraderData()
 	{
 		PacketTarget target = PacketDistributor.ALL.noArg();
-		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
-		this.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
+		SPacketClearClientTraders.INSTANCE.sendToTarget(target);
+		this.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save()).sendToTarget(target));
 	}
 	
 	

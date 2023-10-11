@@ -47,6 +47,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.VENDING_MACHINE)
                 .add(ModBlocks.VENDING_MACHINE_LARGE)
                 .add(ModBlocks.SHELF)
+                .add(ModBlocks.SHELF_2x2)
                 .add(ModBlocks.CARD_DISPLAY)
                 .add(ModBlocks.ARMOR_DISPLAY)
                 .add(ModBlocks.FREEZER)
@@ -109,6 +110,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         this.cTag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.SHELF)
+                .add(ModBlocks.SHELF_2x2)
                 .add(ModBlocks.CARD_DISPLAY)
                 .add(ModBlocks.BOOKSHELF_TRADER)
                 .add(ModBlocks.COIN_CHEST)

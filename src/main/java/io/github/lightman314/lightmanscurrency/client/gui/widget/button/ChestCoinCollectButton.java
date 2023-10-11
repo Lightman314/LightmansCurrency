@@ -8,14 +8,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageChestQuickCollect;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketChestQuickCollect;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 public class ChestCoinCollectButton extends IconButton {
 
@@ -24,7 +21,7 @@ public class ChestCoinCollectButton extends IconButton {
     private final ContainerScreen screen;
 
     public ChestCoinCollectButton(ContainerScreen screen) {
-        super(0,0, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get())), ChestCoinCollectButton::getIcon);
+        super(0,0, b -> CPacketChestQuickCollect.sendToServer(), ChestCoinCollectButton::getIcon);
         this.screen = screen;
         lastButton = this;
         //Position in the top-right corner

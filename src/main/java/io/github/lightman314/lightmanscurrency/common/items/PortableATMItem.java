@@ -29,15 +29,13 @@ public class PortableATMItem extends TooltipItem{
 	public InteractionResultHolder<ItemStack> use(@Nonnull Level world, @Nonnull Player player, @Nonnull InteractionHand hand)
 	{
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getMenuProvider(), EasyMenu.nullEncoder());
+			NetworkHooks.openScreen(sp, getMenuProvider(), EasyMenu.nullEncoder());
 		return InteractionResultHolder.success(player.getItemInHand(hand));
 	}
 	
-	public MenuProvider getMenuProvider()
+	public static MenuProvider getMenuProvider()
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> {
-			return new ATMMenu(windowId, playerInventory, SimpleValidator.NULL);
-		}, Component.empty());
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> new ATMMenu(windowId, playerInventory, SimpleValidator.NULL), Component.empty());
 	}
 	
 }

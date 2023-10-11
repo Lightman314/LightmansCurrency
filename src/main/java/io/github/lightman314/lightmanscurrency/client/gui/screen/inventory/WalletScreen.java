@@ -16,11 +16,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWalletBank;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletQuickCollect;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWalletBank;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletExchangeCoins;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletQuickCollect;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletToggleAutoExchange;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -145,23 +144,23 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 	
 	private void PressExchangeButton(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletConvertCoins());
+		CPacketWalletExchangeCoins.sendToServer();
 	}
 	
 	private void PressAutoExchangeToggleButton(EasyButton button)
 	{
-		this.menu.ToggleAutoConvert();
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletToggleAutoConvert());
+		this.menu.ToggleAutoExchange();
+		CPacketWalletToggleAutoExchange.sendToServer();
 	}
 	
 	private void PressOpenBankButton(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWalletBank(this.menu.getWalletStackIndex()));
+		new CPacketOpenWalletBank(this.menu.getWalletStackIndex()).send();
 	}
 	
 	private void PressQuickCollectButton(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletQuickCollect());
+		CPacketWalletQuickCollect.sendToServer();
 	}
 	
 }

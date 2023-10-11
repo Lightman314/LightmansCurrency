@@ -13,9 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -29,8 +29,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.CMessageCollectTicketStubs;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -119,7 +118,7 @@ public class PaygateTraderData extends TraderData {
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
 		
-		if(this.getTradeCount() >= this.getMaxTradeCount() && !CommandLCAdmin.isAdminPlayer(requestor))
+		if(this.getTradeCount() >= this.getMaxTradeCount() && !LCAdminMode.isAdminPlayer(requestor))
 		{
 			Permissions.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
 			return;
@@ -405,7 +404,7 @@ public class PaygateTraderData extends TraderData {
 	@OnlyIn(Dist.CLIENT)
 	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource)
 	{
-		return new IconButton(0,0, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new CMessageCollectTicketStubs(this.getID())), IconData.of(ModItems.TICKET_STUB))
+		return new IconButton(0,0, b -> new CPacketCollectTicketStubs(this.getID()).send(), IconData.of(ModItems.TICKET_STUB))
 				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.storedTicketStubs > 0, () -> EasyText.translatable("tooltip.lightmanscurrency.trader.collect_ticket_stubs", this.storedTicketStubs), EasyText::empty),
 				EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)),
 				EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0));

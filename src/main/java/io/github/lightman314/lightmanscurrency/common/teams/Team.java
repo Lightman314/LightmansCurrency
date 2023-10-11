@@ -11,14 +11,16 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.NonNullSupplier;
 
@@ -26,21 +28,15 @@ public class Team {
 
 	public static final int MAX_NAME_LENGTH = 32;
 	
-	public static final String CATEGORY_MEMBER = "MEMBER";
-	public static final String CATEGORY_ADMIN = "ADMIN";
-	public static final String CATEGORY_REMOVE = "REMOVE";
-	public static final String CATEGORY_OWNER = "OWNER";
-	
-	private long id;
+	private final long id;
 	public long getID() { return this.id; }
-	public void overrideID(long newID) { this.id = newID; }
-	PlayerReference owner = null;
+	PlayerReference owner;
 	public PlayerReference getOwner() { return this.owner; }
-	String teamName = "Some Team";
+	String teamName;
 	public String getName() { return this.teamName; }
 	
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; }
+	public Team flagAsClient() { this.isClient = true; return this; }
 	
 	List<PlayerReference> admins = Lists.newArrayList();
 	/**
@@ -86,7 +82,7 @@ public class Team {
 	 * Determines if the given player is the owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || CommandLCAdmin.isAdminPlayer(player); }
+	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
 	/**
 	 * Determines if the given player is the owner of this team.
 	 */
@@ -110,10 +106,100 @@ public class Team {
 	 */
 	public boolean isMember(UUID playerID) { return PlayerReference.listContains(this.members, playerID) || this.isAdmin(playerID); }
 	
-	public void changeAddMember(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_MEMBER); }
-	public void changeAddAdmin(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_ADMIN); }
-	public void changeRemoveMember(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_REMOVE); }
-	public void changeOwner(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_OWNER); }
+	public void changeAddMember(Player requestor, String name) {
+		if(!this.isAdmin(requestor))
+			return;
+		PlayerReference player = PlayerReference.of(false, name);
+		if(player == null)
+			return;
+		//Add or remove the member
+		//Confirm that this player isn't already on a list
+		if(this.isMember(player.id))
+			return;
+		//Add the member
+		this.members.add(player);
+		this.markDirty();
+	}
+	public void changeAddAdmin(Player requestor, String name) {
+		if(!this.isAdmin(requestor))
+			return;
+		PlayerReference player = PlayerReference.of(false, name);
+		if(player == null)
+			return;
+		//Add or remove the admin
+		//Check if the player is an admin. If they are demote them
+		if(this.isAdmin(player.id))
+		{
+			//If the player is the owner, cannot do anything. Requires the owner transfer command
+			if(this.isOwner(player.id))
+				return;
+			//Can only demote admins if owner or self
+			if(player.is(requestor) || this.isOwner(requestor))
+			{
+				//Remove them from the admin list
+				PlayerReference.removeFromList(this.admins, player);
+				//Add them as a member
+				this.members.add(player);
+				this.markDirty();
+			}
+		}
+		//If the player is not already an admin, confirm that this is the owner promoting them and promote them to admin
+		else if(this.isOwner(requestor))
+		{
+			//Remove from the member list if making them an admin
+			if(this.isMember(player.id))
+				PlayerReference.removeFromList(this.members, player);
+			//Add to the admin list
+			this.admins.add(player);
+			this.markDirty();
+		}
+	}
+	public void changeRemoveMember(Player requestor, String name) {
+		PlayerReference player = PlayerReference.of(false, name);
+		if(player == null)
+			return;
+		if(!this.isAdmin(requestor) && !player.is(requestor))
+			return;
+		//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
+		if(!this.isMember(player.id))
+			return;
+
+		//Confirm that this player isn't an admin, and if they are, confirm that this is the owner or self
+		if(this.isAdmin(player.id) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(player)))
+			return;
+		//Cannot remove the owner, can only replace them with the Owner-transfer category.
+		if(this.isOwner(player.id))
+			return;
+
+		boolean notFound = true;
+		if(this.isAdmin(player.id))
+			PlayerReference.removeFromList(this.admins, player);
+		else
+			PlayerReference.removeFromList(this.members, player);
+
+		if(notFound)
+			return;
+
+		this.markDirty();
+	}
+	public void changeOwner(Player requestor, String name) {
+		if(!this.isOwner(requestor))
+			return;
+		PlayerReference player = PlayerReference.of(false, name);
+		if(player == null)
+			return;
+		//Cannot set the owner to the already present owner
+		if(this.owner.is(player))
+			return;
+		//Set the previous owner as an admin
+		this.admins.add(this.owner);
+		//Set the new owner
+		this.owner = player;
+		//Check if the new owner is an admin or a member, and if so remove them.
+		PlayerReference.removeFromList(this.admins, player);
+		PlayerReference.removeFromList(this.members, player);
+		this.markDirty();
+	}
 	
 	public void changeName(Player requestor, String newName)
 	{
@@ -126,96 +212,11 @@ public class Team {
 		}
 	}
 	
-	public void changeAny(Player requestor, String playerName, String category)
-	{
-		PlayerReference player = PlayerReference.of(this.isClient, playerName);
-		if(player == null)
-			return;
-		if(category.contentEquals(CATEGORY_MEMBER) && this.isAdmin(requestor))
-		{
-			//Add or remove the member
-			//Confirm that this player isn't already on a list
-			if(this.isMember(player.id))
-				return;
-			//Add the member
-			this.members.add(player);
-			this.markDirty();
-		}
-		else if(category.contentEquals(CATEGORY_ADMIN) && this.isAdmin(requestor))
-		{
-			//Add or remove the admin
-			//Check if the player is an admin. If they are demote them
-			if(this.isAdmin(player.id))
-			{
-				//If the player is the owner, cannot do anything. Requires the owner transfer command
-				if(this.isOwner(player.id))
-					return;
-				//Can only demote admins if owner or self
-				if(PlayerReference.of(requestor).is(player) || this.isOwner(requestor))
-				{
-					//Remove them from the admin list
-					PlayerReference.removeFromList(this.admins, player);
-					//Add them as a member
-					this.members.add(player);
-					this.markDirty();
-				}
-			}
-			//If the player is not already an admin, confirm that this is the owner promoting them and promote them to admin
-			else if(this.isOwner(requestor))
-			{
-				//Remove from the member list if making them an admin
-				if(this.isMember(player.id))
-					PlayerReference.removeFromList(this.members, player);
-				//Add to the admin list
-				this.admins.add(player);
-				this.markDirty();
-			}
-		}
-		else if(category.contentEquals(CATEGORY_REMOVE) && (this.isAdmin(requestor) || PlayerReference.of(requestor).is(player)))
-		{
-			//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
-			if(!this.isMember(player.id))
-				return;
-			
-			//Confirm that this player isn't an admin, and if they are, confirm that this is the owner or self
-			if(this.isAdmin(player.id) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(player)))
-				return;
-			//Cannot remove the owner, can only replace them with the Owner-transfer category.
-			if(this.isOwner(player.id))
-				return;
-			
-			boolean notFound = true;
-			if(this.isAdmin(player.id))
-				PlayerReference.removeFromList(this.admins, player);
-			else
-				PlayerReference.removeFromList(this.members, player);
-			
-			if(notFound)
-				return;
-			
-			this.markDirty();
-		}
-		else if(category.contentEquals(CATEGORY_OWNER) && this.isOwner(requestor))
-		{
-			//Cannot set the owner to yourself
-			if(this.owner.is(player))
-				return;
-			//Set the previous owner as an admin
-			this.admins.add(this.owner);
-			//Set the new owner
-			this.owner = player;
-			//Check if the new owner is an admin or a member, and if so remove them.
-			PlayerReference.removeFromList(this.admins, player);
-			PlayerReference.removeFromList(this.members, player);
-			this.markDirty();
-		}
-	}
-	
 	public void createBankAccount(Player requestor)
 	{
 		if(this.hasBankAccount() || !isOwner(requestor))
 			return;
-		this.bankAccount = new BankAccount(() -> this.markDirty());
+		this.bankAccount = new BankAccount(this::markDirty);
 		this.bankAccount.updateOwnersName(this.teamName);
 		this.bankAccount.setNotificationConsumer(this::notificationSender);
 		this.markDirty();
@@ -253,8 +254,28 @@ public class Team {
 			result = 2;
 		return result;
 	}
+
+	public final void HandleEditRequest(@Nonnull ServerPlayer requestor, @Nonnull LazyPacketData request)
+	{
+		if(request.contains("Disband") && this.isOwner(requestor))
+			TeamSaveData.RemoveTeam(this.getID());
+		if(request.contains("ChangeOwner", LazyPacketData.TYPE_STRING))
+			this.changeOwner(requestor, request.getString("ChangeOwner"));
+		if(request.contains("AddMember", LazyPacketData.TYPE_STRING))
+			this.changeAddMember(requestor, request.getString("AddMember"));
+		if(request.contains("AddAdmin", LazyPacketData.TYPE_STRING))
+			this.changeAddAdmin(requestor, request.getString("AddAdmin"));
+		if(request.contains("RemoveMember", LazyPacketData.TYPE_STRING))
+			this.changeRemoveMember(requestor, request.getString("RemoveMember"));
+		if(request.contains("ChangeName", LazyPacketData.TYPE_STRING))
+			this.changeName(requestor, request.getString("ChangeName"));
+		if(request.contains("CreateBankAccount"))
+			this.createBankAccount(requestor);
+		if(request.contains("ChangeBankLimit", LazyPacketData.TYPE_INT))
+			this.changeBankLimit(requestor, request.getInt("ChangeBankLimit"));
+	}
 	
-	private Team(@Nonnull long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
+	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		this.id = teamID;
 		this.owner = owner;
@@ -276,19 +297,13 @@ public class Team {
 		compound.putString("Name", this.teamName);
 		
 		ListTag memberList = new ListTag();
-		for(int i = 0; i < this.members.size(); ++i)
-		{
-			CompoundTag thisMember = this.members.get(i).save();
-			memberList.add(thisMember);
-		}
+		for (PlayerReference member : this.members)
+			memberList.add(member.save());
 		compound.put("Members", memberList);
 		
 		ListTag adminList = new ListTag();
-		for(int i = 0; i < this.admins.size(); ++i)
-		{
-			CompoundTag thisAdmin = this.admins.get(i).save();
-			adminList.add(thisAdmin);
-		}
+		for (PlayerReference admin : this.admins)
+			adminList.add(admin.save());
 		compound.put("Admins", adminList);
 		
 		//Bank Account
@@ -344,13 +359,9 @@ public class Team {
 			
 		}
 		return null;
-		
 	}
 	
-	public static Team of(@Nonnull long id, @Nonnull PlayerReference owner, @Nonnull String name)
-	{
-		return new Team(id, owner, name);
-	}
+	public static Team of(long id, @Nonnull PlayerReference owner, @Nonnull String name) { return new Team(id, owner, name); }
 	
 	public static Comparator<Team> sorterFor(Player player) { return new TeamSorter(player); }
 

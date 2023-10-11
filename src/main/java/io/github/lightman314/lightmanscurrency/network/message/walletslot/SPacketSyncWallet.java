@@ -1,18 +1,22 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent.Context;
+import org.jetbrains.annotations.Nullable;
 
-public class SPacketSyncWallet {
-	
+import javax.annotation.Nonnull;
+
+public class SPacketSyncWallet extends ServerToClientPacket {
+
+	public static final Handler<SPacketSyncWallet> HANDLER = new H();
+
 	int entityID;
 	ItemStack walletItem;
 	boolean visible;
@@ -24,19 +28,19 @@ public class SPacketSyncWallet {
 		this.visible = visible;
 	}
 	
-	public static void encode(SPacketSyncWallet message, FriendlyByteBuf buffer) {
-		buffer.writeInt(message.entityID);
-		buffer.writeItemStack(message.walletItem, false);
-		buffer.writeBoolean(message.visible);
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
+		buffer.writeInt(this.entityID);
+		buffer.writeItemStack(this.walletItem, false);
+		buffer.writeBoolean(this.visible);
 	}
 
-	public static SPacketSyncWallet decode(FriendlyByteBuf buffer) {
-		return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean());
-	}
-
-	public static void handle(SPacketSyncWallet message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() ->
-		{
+	private static class H extends Handler<SPacketSyncWallet>
+	{
+		@Nonnull
+		@Override
+		public SPacketSyncWallet decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean()); }
+		@Override
+		protected void handle(@Nonnull SPacketSyncWallet message, @Nullable ServerPlayer sender) {
 			Minecraft minecraft = Minecraft.getInstance();
 			if(minecraft != null)
 			{
@@ -51,8 +55,7 @@ public class SPacketSyncWallet {
 					}
 				}
 			}
-		});
-		supplier.get().setPacketHandled(true);
+		}
 	}
 
 }

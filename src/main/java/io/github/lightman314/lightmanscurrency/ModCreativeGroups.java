@@ -123,8 +123,9 @@ public class ModCreativeGroups {
                 .icon(ezIcon(ModBlocks.DISPLAY_CASE))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
-                    ezPop(p, ModBlocks.SHELF, BundleRequestFilter.VANILLA);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
+                    ezPop(p, ModBlocks.SHELF, BundleRequestFilter.VANILLA);
+                    ezPop(p, ModBlocks.SHELF_2x2, BundleRequestFilter.VANILLA);
                     ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFilter.VANILLA);
                     ezPop(p, ModBlocks.VENDING_MACHINE);
                     ezPop(p, ModBlocks.FREEZER);
@@ -162,7 +163,6 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.NETWORK_UPGRADE);
                     ezPop(p, ModItems.HOPPER_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
-                    //ezPop(p, ModItems.COIN_CHEST_BANK_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
@@ -181,6 +181,7 @@ public class ModCreativeGroups {
                     .displayItems((parameters,p) -> {
                         ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFilter.MODDED);
                         ezPop(p, ModBlocks.SHELF, BundleRequestFilter.MODDED);
+                        ezPop(p, ModBlocks.SHELF_2x2, BundleRequestFilter.MODDED);
                         ezPop(p, ModBlocks.CARD_DISPLAY, BundleRequestFilter.MODDED);
                         ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFilter.MODDED);
                     }).build()

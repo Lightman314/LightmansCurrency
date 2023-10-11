@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,19 +41,15 @@ public class SlotMachinePriceTab extends TraderStorageTab {
         {
             trader.setPrice(newPrice);
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.put("SetPrice", newPrice.save());
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleTag("SetPrice", newPrice.save()));
         }
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
+    public void receiveMessage(LazyPacketData message) {
         if(message.contains("SetPrice"))
         {
-            this.SetPrice(CoinValue.load(message.getCompound("SetPrice")));
+            this.SetPrice(CoinValue.load(message.getNBT("SetPrice")));
         }
     }
 

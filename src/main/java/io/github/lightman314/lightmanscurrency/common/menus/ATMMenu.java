@@ -5,13 +5,13 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferen
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.Component;
@@ -134,7 +134,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	
 	public MutableComponent SetPlayerAccount(String playerName) {
 		
-		if(CommandLCAdmin.isAdminPlayer(this.player))
+		if(LCAdminMode.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)

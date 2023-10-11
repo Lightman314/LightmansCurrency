@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.sorting.TerminalSorter;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -59,7 +60,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
-		traderList.sort(NetworkTerminalScreen.TERMINAL_SORTER);
+		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
 	

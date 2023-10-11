@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,10 +16,9 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.sorting.TerminalSorter;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -33,8 +31,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
-	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
-	public static final Comparator<TraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
 	
 	private EditBox searchField;
 	private static int scroll = 0;
@@ -47,7 +43,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
 		//No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
 		//traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
-		traderList.sort(TERMINAL_SORTER);
+		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
 	private List<TraderData> filteredTraderList = new ArrayList<>();
@@ -142,7 +138,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.filteredTraderList.get(index).getID()));
+			new CPacketOpenTrades(this.filteredTraderList.get(index).getID()).send();
 	}
 	
 	private int getTraderIndex(EasyButton button)
@@ -171,49 +167,6 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 				this.traderButtons.get(i).SetData(this.filteredTraderList.get(startIndex + i));
 			else
 				this.traderButtons.get(i).SetData(null);
-		}
-	}
-
-	private record TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) implements Comparator<TraderData> {
-
-		@Override
-		public int compare(TraderData a, TraderData b) {
-			try {
-
-				if (this.auctionHousePriority) {
-					boolean ahA = a instanceof AuctionHouseTrader;
-					boolean ahB = b instanceof AuctionHouseTrader;
-					if (ahA && !ahB)
-						return -1;
-					else if (ahB && !ahA)
-						return 1;
-				}
-
-				if (this.emptyAtBottom) {
-					boolean emptyA = !a.hasValidTrade();
-					boolean emptyB = !b.hasValidTrade();
-					if (emptyA != emptyB)
-						return emptyA ? 1 : -1;
-				}
-
-				if (this.creativeAtTop) {
-					//Prioritize creative traders at the top of the list
-					if (a.isCreative() && !b.isCreative())
-						return -1;
-					else if (b.isCreative() && !a.isCreative())
-						return 1;
-					//If both or neither are creative, sort by name.
-				}
-
-				//Sort by trader name
-				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
-				//Sort by owner name if trader name is equal
-				if (sort == 0)
-					sort = a.getOwner().getOwnerName(true).compareToIgnoreCase(b.getOwner().getOwnerName(true));
-
-				return sort;
-
-			} catch (Throwable t) { return 0; }
 		}
 	}
 	

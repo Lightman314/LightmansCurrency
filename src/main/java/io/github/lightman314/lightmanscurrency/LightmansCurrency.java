@@ -6,12 +6,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValid
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
+import io.github.lightman314.lightmanscurrency.integration.ftbchunks.LCFTBChunksIntegration;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -22,7 +24,6 @@ import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
@@ -43,13 +44,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
-import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
+import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -66,7 +66,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
@@ -105,7 +104,6 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::imc);
 
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
@@ -124,21 +122,13 @@ public class LightmansCurrency {
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
 
-		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", () -> {
-			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
-		}, null);
+		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
+
+		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, null);
 
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
         
     }
-	
-	private void imc(InterModEnqueueEvent event) {
-		if(isCuriosLoaded())
-			safeEnqueueWork(event, "Error during LC ==> Curios Inter-mod Communications!", this::curiosIMC);
-	}
-
-	private void curiosIMC() { /*Done via datapack now, no longer need to register these in the code*/ }
     
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
@@ -235,6 +225,7 @@ public class LightmansCurrency {
 		//Villager Trades
 		VillagerTradeManager.registerDefaultTrades();
 		ItemListingSerializer.registerDefaultSerializers();
+
 	}
     
     private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
@@ -246,9 +237,6 @@ public class LightmansCurrency {
     		//Have the loot manager validate the entity loot contents
     		LootManager.validateEntityDropList();
     		LootManager.debugLootConfigs();
-
-			//Regenerate the loot tables so that any itemLoot entries being changed will be reflected in-game.
-			LootManager.regenerateLootTables();
 
 			//Only reload villager overrides on the initial load, as it's impossible to change the values after the villager trades have been loaded.
 			Config.reloadVillagerOverrides();
@@ -264,14 +252,12 @@ public class LightmansCurrency {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
-    	
     	//Preload target
     	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
     	//Sync time
-    	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
+		SPacketSyncTime.syncWith(target);
     	//Sync admin list
-    	LightmansCurrencyPacketHandler.instance.send(target, CommandLCAdmin.getAdminSyncMessage());
-    	
+		LCAdminMode.sendSyncPacket(target);
     }
     
     /**

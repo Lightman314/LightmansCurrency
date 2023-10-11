@@ -5,8 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.SMessageUpdatePlayerTrade;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPacketSyncPlayerTrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +22,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -371,9 +369,9 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         final ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
         final ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
         if(hostPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> hostPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(hostPlayer);
         if(guestPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> guestPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(guestPlayer);
 
         this.takeMenuAction(PlayerTradeMenu::onTradeChange);
     }

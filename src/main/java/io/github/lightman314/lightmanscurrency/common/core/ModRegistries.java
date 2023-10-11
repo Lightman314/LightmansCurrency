@@ -21,6 +21,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -76,6 +77,10 @@ public class ModRegistries {
 
 		CREATIVE_TABS.register(bus);
 		ModCreativeGroups.init();
+
+		//Loot Pool Entry Types
+		LOOT_POOL_ENTRY_TYPES.register(bus);
+		ModLootPoolEntryTypes.init();
 		
 	}
 	
@@ -101,5 +106,7 @@ public class ModRegistries {
     public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(ForgeRegistries.Keys.COMMAND_ARGUMENT_TYPES, LightmansCurrency.MODID);
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
+
+	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
 
 }

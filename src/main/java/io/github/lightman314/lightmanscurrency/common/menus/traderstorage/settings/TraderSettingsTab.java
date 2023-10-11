@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -34,24 +35,23 @@ public class TraderSettingsTab extends TraderStorageTab {
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
+    @Deprecated(since = "2.1.2.4")
     public void SendSettingsMessage(CompoundTag settingsUpdate)
     {
         if(this.menu.isClient())
-        {
-            CompoundTag message = new CompoundTag();
-            message.put("SettingsUpdate", settingsUpdate);
-            this.menu.sendMessage(message);
-        }
+            this.menu.SendMessage(LazyPacketData.simpleTag("SettingsUpdate", settingsUpdate));
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
-
-        if(message.contains("SettingsUpdate"))
+    @SuppressWarnings("deprecation")
+    public void receiveMessage(LazyPacketData message) {
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
         {
-            TraderData trader = this.menu.getTrader();
-            if(trader != null)
-                trader.receiveNetworkMessage(this.menu.player, message.getCompound("SettingsUpdate"));
+            if(message.contains("SettingsUpdate", LazyPacketData.TYPE_NBT))
+                trader.receiveNetworkMessage(this.menu.player, message.getNBT("SettingsUpdate"));
+            else
+                trader.handleSettingsChange(this.menu.player, message);
         }
 
     }

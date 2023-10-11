@@ -2,18 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -122,7 +120,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
         return entry.getOwner().isAdmin(this.player);
     }
 
-    public boolean isAdmin() { return CommandLCAdmin.isAdminPlayer(this.player); }
+    public boolean isAdmin() { return LCAdminMode.isAdminPlayer(this.player); }
 
     @Override
     public void HandleMessage(LazyPacketData message) {

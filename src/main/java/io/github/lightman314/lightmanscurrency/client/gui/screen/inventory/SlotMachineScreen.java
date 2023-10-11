@@ -25,10 +25,9 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenNetworkTerminal;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -219,17 +218,17 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private void OpenStorage(EasyButton button) {
         if(this.menu.getTrader() != null)
-            LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.menu.getTrader().getID()));
+            new CPacketOpenStorage(this.menu.getTrader().getID()).send();
     }
 
     private void CollectCoins(EasyButton button) {
         if(this.menu.getTrader() != null)
-            LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
+            CPacketCollectCoins.sendToServer();
     }
 
     private void OpenTerminal(EasyButton button) {
         if(this.showTerminalButton())
-            LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal());
+            new CPacketOpenNetworkTerminal().send();
     }
 
     @Override

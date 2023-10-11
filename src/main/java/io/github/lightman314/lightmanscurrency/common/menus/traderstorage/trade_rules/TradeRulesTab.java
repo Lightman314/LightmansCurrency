@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -45,19 +46,18 @@ public abstract class TradeRulesTab extends TraderStorageTab {
             host.HandleRuleUpdate(type, updateMessage);
         if(this.menu.isClient())
         {
-            CompoundTag message = new CompoundTag();
-            message.putString("TradeRuleEdit", type.toString());
-            message.put("UpdateMessage", updateMessage);
-            this.menu.sendMessage(message);
+            this.menu.SendMessage(LazyPacketData.builder()
+                    .setString("TradeRuleEdit", type.toString())
+                    .setCompound("UpdateMessage", updateMessage));
         }
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
+    public void receiveMessage(LazyPacketData message) {
         if(message.contains("TradeRuleEdit"))
         {
             ResourceLocation type = new ResourceLocation(message.getString("TradeRuleEdit"));
-            CompoundTag updateMessage = message.getCompound("UpdateMessage");
+            CompoundTag updateMessage = message.getNBT("UpdateMessage");
             this.EditTradeRule(type, updateMessage);
         }
     }
@@ -100,7 +100,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         }
 
         @Override
-        public void receiveMessage(CompoundTag message) {
+        public void receiveMessage(LazyPacketData message) {
             super.receiveMessage(message);
             if(message.contains("TradeIndex"))
                 this.tradeIndex = message.getInt("TradeIndex");

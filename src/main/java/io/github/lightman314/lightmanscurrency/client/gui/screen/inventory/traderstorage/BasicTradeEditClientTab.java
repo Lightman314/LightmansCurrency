@@ -20,7 +20,10 @@ import javax.annotation.Nonnull;
 
 public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer {
 
-	public BasicTradeEditClientTab(Object screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(((TraderStorageScreen)screen)::selfMessage); }
+	public BasicTradeEditClientTab(Object screen, T commonTab) {
+		super(screen, commonTab);
+		this.commonTab.setClient(((TraderStorageScreen)screen)::selfMessage);
+	}
 
 	@Nonnull
 	@Override
@@ -75,25 +78,37 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
+			trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
 			trade.onInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
+			trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
 			trade.onOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
 			trade.onInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+			trade.OnInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}

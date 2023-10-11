@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.WalletCapabilit
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantContainer;
 import net.minecraft.world.inventory.MerchantMenu;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MerchantMenu.class)
 public abstract class MerchantMenuMixin {
-    /*
+
     @Unique
     protected MerchantMenu self() { return (MerchantMenu)(Object)this; }
 
@@ -35,11 +36,12 @@ public abstract class MerchantMenuMixin {
     private void tryMoveItemsEarly(int trade, CallbackInfo info)
     {
         //Clear coin items into the wallet instead of their inventory
-        MerchantMenu self = this.self();
-        if(trade >= 0 && trade < self.getOffers().size())
-            this.EjectMoneyIntoWallet(this.getPlayer(), false);
+        try {
+            MerchantMenu self = this.self();
+            if(trade >= 0 && trade < self.getOffers().size())
+                this.EjectMoneyIntoWallet(this.getPlayer(), false);
+        } catch (Throwable ignored) {}
     }
-
 
     @Inject(at = @At("TAIL"), method = "tryMoveItems")
     private void tryMoveItems(int trade, CallbackInfo info)
@@ -110,7 +112,21 @@ public abstract class MerchantMenuMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "removed")
-    private void onRemoved(Player player, CallbackInfo info) { this.EjectMoneyIntoWallet(player, true); }
+    private void removed(Player player, CallbackInfo info) {
+        if(this.isPlayerAliveAndValid(player))
+            this.EjectMoneyIntoWallet(player, true);
+    }
+
+    protected boolean isPlayerAliveAndValid(Player player)
+    {
+        if(player.isAlive())
+        {
+            if(player instanceof ServerPlayer sp)
+                return !sp.hasDisconnected();
+            return true;
+        }
+        return false;
+    }
 
     private void EjectMoneyIntoWallet(Player player, boolean noUpdate)
     {
@@ -134,5 +150,5 @@ public abstract class MerchantMenuMixin {
     }
 
     private static boolean isCoinOrEmpty(ItemStack item) { return MoneyUtil.isCoin(item, false) || item.isEmpty(); }
-    */
+
 }

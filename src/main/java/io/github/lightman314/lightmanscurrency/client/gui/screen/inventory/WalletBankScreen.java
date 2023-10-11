@@ -19,8 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWallet;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -144,9 +143,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }
 	
-	private void PressOpenWalletButton(EasyButton button) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(this.menu.getWalletStackIndex()));
-	}
+	private void PressOpenWalletButton(EasyButton button) { new CPacketOpenWallet(this.menu.getWalletStackIndex()).send(); }
 	
 	
 }

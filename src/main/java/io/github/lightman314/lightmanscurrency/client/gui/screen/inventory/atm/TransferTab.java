@@ -24,9 +24,8 @@ import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferPlayer;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferTeam;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -125,13 +124,13 @@ public class TransferTab extends ATMTab {
 	{
 		if(this.playerMode)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransferPlayer(this.playerInput.getValue(), this.amountWidget.getCoinValue()));
+			new CPacketBankTransferPlayer(this.playerInput.getValue(), this.amountWidget.getCoinValue()).send();
 			this.playerInput.setValue("");
 			this.amountWidget.setCoinValue(CoinValue.EMPTY);
 		}
 		else if(this.selectedTeam >= 0)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransferTeam(this.selectedTeam, this.amountWidget.getCoinValue()));
+			new CPacketBankTransferTeam(this.selectedTeam, this.amountWidget.getCoinValue()).send();
 			this.amountWidget.setCoinValue(CoinValue.EMPTY);
 		}
 	}

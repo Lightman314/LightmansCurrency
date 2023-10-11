@@ -3,9 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import net.minecraft.client.gui.Font;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,12 +39,16 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> extends
 	/**
 	 * Processes a client -> client message from another tab immediately after the tab was changed.
 	 */
+	@Deprecated(since = "2.1.2.4")
 	public void receiveSelfMessage(CompoundTag message) { }
+	public void receiveSelfMessage(LazyPacketData message) { }
 	
 	/**
 	 * Processes a server -> client message response to an action made on the client.
 	 */
+	@Deprecated(since = "2.1.2.4")
 	public void receiveServerMessage(CompoundTag message) { }
+	public void receiveServerMessage(LazyPacketData message) { }
 
 	public boolean shouldRenderInventoryText() { return true; }
 

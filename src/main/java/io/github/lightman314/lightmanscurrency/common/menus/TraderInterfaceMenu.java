@@ -15,8 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.types.Blo
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageInterfaceInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,7 +30,7 @@ public class TraderInterfaceMenu extends EasyMenu {
 	
 	public static final int SLOT_OFFSET = 15;
 	
-	private boolean canEditTabs = true;
+	private boolean canEditTabs;
 	Map<Integer,TraderInterfaceTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderInterfaceTab> getAllTabs() { return this.availableTabs; }
 	public void setTab(int key, TraderInterfaceTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
@@ -44,10 +43,11 @@ public class TraderInterfaceMenu extends EasyMenu {
 	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
 		this.blockEntity = blockEntity;
+		this.canEditTabs = true;
 
 		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		this.addValidator(this.blockEntity::canAccess);
-		
+
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
@@ -186,7 +186,7 @@ public class TraderInterfaceMenu extends EasyMenu {
 	public void sendMessage(CompoundTag message) {
 		if(this.isClient())
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageInterfaceInteraction(message));
+			new CPacketInterfaceInteraction(message).send();
 			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
 		}
 	}

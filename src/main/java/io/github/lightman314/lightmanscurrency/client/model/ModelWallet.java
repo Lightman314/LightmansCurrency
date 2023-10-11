@@ -21,10 +21,7 @@ public class ModelWallet<T extends LivingEntity> extends HumanoidModel<T> {
 	
 	@Nonnull
 	@Override
-	protected Iterable<ModelPart> headParts()
-	{
-		return ImmutableList.of();
-	}
+	protected Iterable<ModelPart> headParts() { return ImmutableList.of(); }
 	
 	@Nonnull
 	@Override

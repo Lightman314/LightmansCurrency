@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -210,7 +209,7 @@ public class WalletItem extends Item{
 							walletHandler.setWallet(wallet);
 							player.setItemInHand(hand, ItemStack.EMPTY);
 							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
-							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
+							new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()).sendTo(player);
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
 							equippedWallet = true;

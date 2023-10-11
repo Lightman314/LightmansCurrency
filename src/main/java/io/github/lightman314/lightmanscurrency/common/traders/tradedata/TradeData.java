@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTrade
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -33,11 +34,9 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
-	public enum TradeDirection { SALE(0,1), PURCHASE(1,0), NONE(-1,0);
+	public enum TradeDirection { SALE(0), PURCHASE(1), NONE(-1);
 		public final int index;
-		private final int nextIndex;
-		public final TradeDirection next() { return fromIndex(this.nextIndex); }
-		TradeDirection(int index, int nextIndex) { this.index = index; this.nextIndex = nextIndex; }
+		TradeDirection(int index) { this.index = index; }
 		public static TradeDirection fromIndex(int index) {
 			for(TradeDirection d : TradeDirection.values())
 			{
@@ -218,34 +217,41 @@ public abstract class TradeData implements ITradeRuleHost {
 	@OnlyIn(Dist.CLIENT)
 	public abstract TradeRenderManager<?> getButtonRenderer();
 
+	@Deprecated(since = "2.1.2.4")
+	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an input display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendInputInteractionMessage for consistent execution
-	 * 
+	 *
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
-	
+	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+
+
+	@Deprecated(since = "2.1.2.4")
+	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an output display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOutputInteractionMessage for consistent execution
-	 * 
+	 *
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
-	
+	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+
+	@Deprecated(since = "2.1.2.4")
+	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.
-	 * 
+	 *
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param mouseX The local X position of the mouse button when it was clicked. [0,tradeButtonWidth)
@@ -253,7 +259,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item currently being held by the player.
 	 */
-	public abstract void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem);
 
 	@NotNull
 	public final List<Integer> getRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots) {

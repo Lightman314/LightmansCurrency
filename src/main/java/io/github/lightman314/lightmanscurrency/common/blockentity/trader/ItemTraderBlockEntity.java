@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
@@ -51,8 +52,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 			trader.setAlwaysShowOnTerminal();
 		return trader;
 	}
+
+	@OnlyIn(Dist.CLIENT)
+	@Nonnull
+	public ItemPositionData GetRenderData()
+	{
+		if(this.getBlockState().getBlock() instanceof IItemTraderBlock traderBlock)
+			return traderBlock.getItemPositionData();
+		return ItemPositionData.EMPTY;
+	}
 	
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isDoubleTrade)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -63,6 +74,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public List<Quaternionf> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -87,6 +99,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public float GetStackRenderScale(int tradeSlot)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -97,6 +110,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public int maxRenderIndex()
 	{
 		Block block = this.getBlockState().getBlock();

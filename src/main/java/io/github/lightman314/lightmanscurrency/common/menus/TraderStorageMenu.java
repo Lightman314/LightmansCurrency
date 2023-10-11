@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInf
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -29,9 +28,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
@@ -43,7 +40,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class TraderStorageMenu extends EasyMenu implements IValidatedMenu {
+public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu {
 
 	public final Supplier<TraderData> traderSource;
 	public final TraderData getTrader() { return this.traderSource.get(); }
@@ -77,7 +74,9 @@ public class TraderStorageMenu extends EasyMenu implements IValidatedMenu {
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
 
-	private final List<Consumer<CompoundTag>> listeners = new ArrayList<>();
+	@Deprecated(since = "2.1.2.4")
+	private final List<Consumer<CompoundTag>> oldListeners = new ArrayList<>();
+	private final List<Consumer<LazyPacketData>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
 	
@@ -257,44 +256,62 @@ public class TraderStorageMenu extends EasyMenu implements IValidatedMenu {
 		else
 			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
 	}
-	
+
+	public LazyPacketData.Builder createTabChangeMessage(int newTab, @Nullable LazyPacketData.Builder extraData, int newTradeIndex) {
+		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		message.setInt("ChangeSelectedTrade", newTradeIndex);
+		return this.createTabChangeMessage(newTab, message);
+	}
+
+	@Deprecated(since = "2.1.2.4")
 	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData, int newTradeIndex) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putInt("ChangeSelectedTrade", newTradeIndex);
 		return this.createTabChangeMessage(newTab, message);
 	}
-
+	@Deprecated(since = "2.1.2.4")
 	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putInt("ChangeTab", newTab);
 		return message;
 	}
 
+	public LazyPacketData.Builder createTabChangeMessage(int newTab) { return this.createTabChangeMessage(newTab, (LazyPacketData.Builder)null); }
+	public LazyPacketData.Builder createTabChangeMessage(int newTab, @Nullable LazyPacketData.Builder extraData) {
+		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		message.setInt("ChangeTab", newTab);
+		return message;
+	}
+
+
 	public void SetCoinSlotsActive(boolean nowActive)
 	{
 		this.coinSlotsVisible = nowActive;
 		SimpleSlot.SetActive(this.coinSlots, nowActive);
 		if(this.isClient())
-			this.sendMessage(this.createCoinSlotActiveMessage(nowActive, null));
+			this.SendMessage(this.createCoinSlotActiveMessage(nowActive, (LazyPacketData.Builder)null));
 	}
 
+
+	@Deprecated(since = "2.1.2.4")
 	public CompoundTag createCoinSlotActiveMessage(boolean nowActive, @Nullable CompoundTag extraData) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putBoolean("SetCoinSlotsActive", nowActive);
 		return message;
 	}
-	
-	public void sendMessage(CompoundTag message) {
-		if(this.isClient())
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStorageInteraction(message));
-		}
-		else
-		{
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(this.player), new MessageStorageInteractionC(message));
-		}
+
+	public LazyPacketData.Builder createCoinSlotActiveMessage(boolean nowActive, @Nullable LazyPacketData.Builder extraData) {
+		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		message.setBoolean("SetCoinSlotsActive", nowActive);
+		return message;
 	}
-	
+
+	@Deprecated(since = "2.1.2.4")
+	public void sendMessage(CompoundTag message) {
+		this.SendMessage(LazyPacketData.simpleTag("OldMessage", message));
+	}
+
+	@Deprecated(since = "2.1.2.4")
 	public void receiveMessage(CompoundTag message) {
 		//LightmansCurrency.LogInfo("Received message:\n" + message.getAsString());
 		if(message.contains("ChangeTab", Tag.TAG_INT))
@@ -303,11 +320,36 @@ public class TraderStorageMenu extends EasyMenu implements IValidatedMenu {
 			this.SetCoinSlotsActive(message.getBoolean("SetCoinSlotsActive"));
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable ignored) { }
-		for(Consumer<CompoundTag> listener : this.listeners)
+		for(Consumer<CompoundTag> listener : this.oldListeners)
 			try { listener.accept(message); } catch(Throwable ignored) {}
 	}
-	
+
+	@Override
+	public void HandleMessage(LazyPacketData message) {
+		//Old Message Format
+		if(message.contains("OldMessage", LazyPacketData.TYPE_NBT))
+			this.receiveMessage(message.getNBT("OldMessage"));
+		//Change Tab
+		if(message.contains("ChangeTab", LazyPacketData.TYPE_INT))
+			this.changeTab(message.getInt("ChangeTab"));
+		//Set Coin Slots Active/Inactive
+		if(message.contains("SetCoinSlotsActive", LazyPacketData.TYPE_BOOLEAN))
+			this.SetCoinSlotsActive(message.getBoolean("SetCoinSlotsActive"));
+		//Tab Listener
+		try { this.getCurrentTab().receiveMessage(message); }
+		catch (Throwable ignored) {}
+		for(Consumer<LazyPacketData> listener : this.listeners)
+			try { listener.accept(message); } catch (Throwable ignored) {}
+
+	}
+
+	@Deprecated(since = "2.1.2.4")
 	public void addMessageListener(Consumer<CompoundTag> listener) {
+		if(!this.oldListeners.contains(listener) && listener != null)
+			this.oldListeners.add(listener);
+	}
+
+	public void addListener(Consumer<LazyPacketData> listener) {
 		if(!this.listeners.contains(listener) && listener != null)
 			this.listeners.add(listener);
 	}

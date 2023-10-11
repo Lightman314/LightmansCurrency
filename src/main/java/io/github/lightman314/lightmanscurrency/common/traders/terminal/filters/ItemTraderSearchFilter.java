@@ -9,65 +9,62 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-public class ItemTraderSearchFilter extends TraderSearchFilter{
+public class ItemTraderSearchFilter extends TraderSearchFilter {
 
 	@Override
 	public boolean filter(TraderData data, String searchText) {
 		
 		//Search the items being sold
-		if(data instanceof ItemTraderData)
+		if(data instanceof ItemTraderData trader)
 		{
-			List<ItemTradeData> trades = ((ItemTraderData)data).getTradeData();
-			for(int i = 0; i < trades.size(); i++)
-			{
-				if(trades.get(i).isValid())
-				{
-					ItemStack sellItem = trades.get(i).getSellItem(0);
-					ItemStack sellItem2 = trades.get(i).getSellItem(1);
+			List<ItemTradeData> trades = trader.getTradeData();
+			for (ItemTradeData trade : trades) {
+				if (trade.isValid()) {
+					ItemStack sellItem = trade.getSellItem(0);
+					ItemStack sellItem2 = trade.getSellItem(1);
 					//Search item name
-					if(sellItem.getHoverName().getString().toLowerCase().contains(searchText))
+					if (sellItem.getHoverName().getString().toLowerCase().contains(searchText))
 						return true;
-					if(sellItem2.getHoverName().getString().toLowerCase().contains(searchText))
+					if (sellItem2.getHoverName().getString().toLowerCase().contains(searchText))
 						return true;
 					//Search custom name
-					if(trades.get(i).getCustomName(0).toLowerCase().contains(searchText))
+					if (trade.getCustomName(0).toLowerCase().contains(searchText))
 						return true;
-					if(trades.get(i).getCustomName(1).toLowerCase().contains(searchText))
+					if (trade.getCustomName(1).toLowerCase().contains(searchText))
 						return true;
 					//Search enchantments
 					AtomicBoolean foundEnchantment = new AtomicBoolean(false);
-					EnchantmentHelper.getEnchantments(sellItem).forEach((enchantment, level) ->{
-						if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
+					EnchantmentHelper.getEnchantments(sellItem).forEach((enchantment, level) -> {
+						if (enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 							foundEnchantment.set(true);
 					});
-					EnchantmentHelper.getEnchantments(sellItem2).forEach((enchantment, level) ->{
-						if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
+					EnchantmentHelper.getEnchantments(sellItem2).forEach((enchantment, level) -> {
+						if (enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 							foundEnchantment.set(true);
 					});
-					if(foundEnchantment.get())
+					if (foundEnchantment.get())
 						return true;
-					
+
 					//Check the barter item if applicable
-					if(trades.get(i).isBarter())
-					{
-						ItemStack barterItem = trades.get(i).getBarterItem(0);
-						ItemStack barterItem2 = trades.get(i).getBarterItem(1);
+					if (trade.isBarter()) {
+						ItemStack barterItem = trade.getBarterItem(0);
+						ItemStack barterItem2 = trade.getBarterItem(1);
 						//Search item name
-						if(barterItem.getHoverName().getString().toLowerCase().contains(searchText))
+						if (barterItem.getHoverName().getString().toLowerCase().contains(searchText))
 							return true;
-						if(barterItem2.getHoverName().getString().toLowerCase().contains(searchText))
+						if (barterItem2.getHoverName().getString().toLowerCase().contains(searchText))
 							return true;
 						//Search enchantments
 						foundEnchantment.set(false);
-						EnchantmentHelper.getEnchantments(barterItem).forEach((enchantment, level) ->{
-							if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
+						EnchantmentHelper.getEnchantments(barterItem).forEach((enchantment, level) -> {
+							if (enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 								foundEnchantment.set(true);
 						});
-						EnchantmentHelper.getEnchantments(barterItem2).forEach((enchantment, level) ->{
-							if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
+						EnchantmentHelper.getEnchantments(barterItem2).forEach((enchantment, level) -> {
+							if (enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 								foundEnchantment.set(true);
 						});
-						if(foundEnchantment.get())
+						if (foundEnchantment.get())
 							return true;
 					}
 				}

@@ -68,7 +68,6 @@ public class ModItems {
 
 		//Coin Chest Upgrades
 		COIN_CHEST_EXCHANGE_UPGRADE = ModRegistries.ITEMS.register("coin_chest_exchange_upgrade", () -> new UpgradeItem.Simple(UpgradeType.COIN_CHEST_EXCHANGE, new Item.Properties()));
-		COIN_CHEST_BANK_UPGRADE = ModRegistries.ITEMS.register("coin_chest_bank_upgrade", () -> new UpgradeItem.Simple(UpgradeType.COIN_CHEST_BANK, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_1 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_1", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange1, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_2 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_2", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange2, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_3 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_3", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange3, new Item.Properties()));
@@ -120,7 +119,6 @@ public class ModItems {
 	public static final RegistryObject<Item> HOPPER_UPGRADE;
 
 	public static final RegistryObject<Item> COIN_CHEST_EXCHANGE_UPGRADE;
-	public static final RegistryObject<Item> COIN_CHEST_BANK_UPGRADE;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_1;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_2;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_3;

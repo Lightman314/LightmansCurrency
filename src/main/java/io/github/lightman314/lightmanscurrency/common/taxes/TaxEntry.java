@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldArea;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
@@ -90,7 +90,7 @@ public class TaxEntry implements IClientTracker {
         //Don't render the area if there is no area to draw (because infinite range)
         if(player == null || this.isInfiniteRange())
             return false;
-        if(CommandLCAdmin.isAdminPlayer(player))
+        if(LCAdminMode.isAdminPlayer(player))
             return true;
         if(this.getRenderMode() == 1)
             return this.canAccess(player);
@@ -228,7 +228,7 @@ public class TaxEntry implements IClientTracker {
     public void setActive(boolean newState, @Nullable Player player) {
         if(this.active == newState)
             return;
-        if(Config.SERVER.taxMachinesAdminOnly.get() && !CommandLCAdmin.isAdminPlayer(player) && !this.active)
+        if(Config.SERVER.taxMachinesAdminOnly.get() && !LCAdminMode.isAdminPlayer(player) && !this.active)
         {
             Permissions.PermissionWarning(player, "activate a tax entry", Permissions.ADMIN_MODE);
             return;

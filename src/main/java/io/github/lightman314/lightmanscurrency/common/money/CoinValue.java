@@ -152,6 +152,22 @@ public class CoinValue
 		return fromNumber(value);
 	}
 
+	/**
+	 * Gets a non-empty coin value from either the value of the item,
+	 * or if the item is not a registered coin it falls back onto the given number value.
+	 */
+	@Nonnull
+	public static CoinValue fromItemOrValue(Item coin, long value) { return fromItemOrValue(coin, 1, value); }
+
+	@Nonnull
+	public static CoinValue fromItemOrValue(Item coin, int itemCount, long value)
+	{
+		long coinValue = MoneyUtil.getValue(coin);
+		if(coinValue > 0)
+			return fromNumber(coinValue * itemCount);
+		return fromNumber(value);
+	}
+
 	public final void encode(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(this.isFree());
 		if(!this.isFree())

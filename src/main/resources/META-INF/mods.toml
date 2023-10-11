@@ -16,6 +16,7 @@ logoFile="lightman_icon.png"
 #credits="Thanks for this example mod goes to Java" #optional
 authors="${mod_authors}" #optional
 description='''${mod_description}'''
+displayTest="MATCH_VERSION"
 
 [[dependencies.${mod_id}]]
     modId="forge" #mandatory

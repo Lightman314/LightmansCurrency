@@ -16,8 +16,8 @@ import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -132,9 +132,7 @@ public class OwnershipTab extends SettingsSubTab {
     {
         if(this.newOwnerInput.getValue().isBlank())
             return;
-        CompoundTag message = new CompoundTag();
-        message.putString("ChangePlayerOwner", this.newOwnerInput.getValue());
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleString("ChangePlayerOwner", this.newOwnerInput.getValue()));
         this.newOwnerInput.setValue("");
     }
 
@@ -142,9 +140,7 @@ public class OwnershipTab extends SettingsSubTab {
     {
         if(this.getSelectedTeam() == null)
             return;
-        CompoundTag message = new CompoundTag();
-        message.putLong("ChangeTeamOwner", this.selectedTeam);
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleLong("ChangeTeamOwner", this.selectedTeam));
         this.selectedTeam = -1;
     }
 

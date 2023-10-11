@@ -19,10 +19,10 @@ base {
     archivesName = mod_id
 }
 
-/*mixin { //Disable for 2.1.2.3 patch A
-    //add sourceSets.main, "lightmanscurrency.refmap.json"
-    //config "lightmanscurrency.mixins.json"
-}*/
+mixin {
+    add sourceSets.main, "lightmanscurrency.refmap.json"
+    config "lightmanscurrency.mixins.json"
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -68,26 +68,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', mod_id
-
-            //Fix other mods mixins
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
             property 'forge.enabledGameTestNamespaces', mod_id
 
             //Fix other mods mixins
@@ -150,8 +130,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     //JEI when actually working on plugin
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
+    //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
+    //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
     implementation fg.deobf("curse.maven:jei-238222:4595492")
 
@@ -166,10 +146,15 @@ dependencies {
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
+    //FTB Chunks claim purchase compat
+    implementation fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
+    implementation fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
+    implementation fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
+    implementation fg.deobf('curse.maven:architectury-api-419699:4663010')
+
     //Wood Compatibility
     //Biomes O' Plenty
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
-    //BOP Requirement
     implementation fg.deobf("curse.maven:terrablender-563928:4647094")
 
 }

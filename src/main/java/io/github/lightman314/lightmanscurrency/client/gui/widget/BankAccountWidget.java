@@ -8,8 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankInteraction;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -90,13 +89,13 @@ public class BankAccountWidget implements IEasyTickable {
 	
 	private void OnDeposit(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankInteraction(true, this.amountSelection.getCoinValue()));
+		new CPacketBankInteraction(true, this.amountSelection.getCoinValue()).send();
 		this.amountSelection.setCoinValue(CoinValue.EMPTY);
 	}
 	
 	private void OnWithdraw(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankInteraction(false, this.amountSelection.getCoinValue()));
+		new CPacketBankInteraction(false, this.amountSelection.getCoinValue()).send();
 		this.amountSelection.setCoinValue(CoinValue.EMPTY);
 	}
 

@@ -9,9 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.teams.MessageDisbandTeam;
-import io.github.lightman314.lightmanscurrency.network.message.teams.MessageEditTeam;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
@@ -88,7 +86,7 @@ public class TeamOwnerTab extends TeamTab{
 		
 		Team team = this.getActiveTeam();
 		team.changeOwner(this.getPlayer(), this.newOwnerName.getValue());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageEditTeam(team.getID(), this.newOwnerName.getValue(), Team.CATEGORY_OWNER));
+		this.RequestChange(LazyPacketData.simpleString("ChangeOwner", this.newOwnerName.getValue()));
 		this.newOwnerName.setValue("");
 		
 	}
@@ -97,8 +95,8 @@ public class TeamOwnerTab extends TeamTab{
 	{
 		if(this.getActiveTeam() == null)
 			return;
-		
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageDisbandTeam(this.getActiveTeam().getID()));
+
+		this.RequestChange(LazyPacketData.simpleFlag("Disband"));
 	}
 
 }

@@ -20,12 +20,6 @@ public class ModGameRules {
 	public static final GameRules.Key<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
 	public static final GameRules.Key<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0, keepWithinLimits(0, 100)));
 	
-
-	private static GameRules.Type<GameRules.IntegerValue> createInteger(int defaultVal) { return GameRules.IntegerValue.create(defaultVal); }
-
-
-	private static GameRules.Type<GameRules.IntegerValue> createInteger(int defaultVal, BiConsumer<MinecraftServer, GameRules.IntegerValue> callback) { return GameRules.IntegerValue.create(defaultVal, callback); }
-	
 	private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Category category, GameRules.Type<T> ruleType)
 	{
 		if(ruleType == null)

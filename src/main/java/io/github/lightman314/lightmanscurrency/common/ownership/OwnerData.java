@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.ownership;
 
 import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -79,7 +79,7 @@ public class OwnerData {
 		return this.playerOwner;
 	}
 	
-	public boolean isAdmin(Player player) { return CommandLCAdmin.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
+	public boolean isAdmin(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
 	
 	public boolean isAdmin(PlayerReference player)
 	{
@@ -91,7 +91,7 @@ public class OwnerData {
 		return player.is(this.playerOwner);
 	}
 	
-	public boolean isMember(Player player) { return CommandLCAdmin.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
+	public boolean isMember(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
 	
 	public boolean isMember(PlayerReference player) {
 		if(player == null)
