@@ -12,13 +12,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerWhitelistTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -39,20 +38,13 @@ public class PlayerWhitelist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(!this.isWhitelisted(event.getPlayerReference()))
-			event.addDenial(Component.translatable("traderule.lightmanscurrency.whitelist.denial"));
+			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.whitelist.denial"));
 		else
-			event.addHelpful(Component.translatable("traderule.lightmanscurrency.whitelist.allowed"));
+			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.whitelist.allowed"));
 		
 	}
 	
-	public boolean isWhitelisted(PlayerReference player)
-	{
-		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers) {
-			if (whitelistedPlayer.is(player))
-				return true;
-		}
-		return false;
-	}
+	public boolean isWhitelisted(PlayerReference player) { return PlayerReference.isInList(this.whitelistedPlayers, player); }
 	
 	public boolean addToWhitelist(Player player)
 	{
@@ -68,10 +60,7 @@ public class PlayerWhitelist extends TradeRule{
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player names
-		ListTag playerNameList = new ListTag();
-		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers)
-			playerNameList.add(whitelistedPlayer.save());
-		compound.put("WhitelistedPlayers", playerNameList);
+		PlayerReference.saveList(compound, this.whitelistedPlayers, "WhitelistedPlayers");
 	}
 	
 	@Override
@@ -82,16 +71,7 @@ public class PlayerWhitelist extends TradeRule{
 		
 		//Load whitelisted players
 		if(compound.contains("WhitelistedPlayers", Tag.TAG_LIST))
-		{
-			this.whitelistedPlayers.clear();
-			ListTag playerList = compound.getList("WhitelistedPlayers", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerList.size(); ++i)
-			{
-				PlayerReference reference = PlayerReference.load(playerList.getCompound(i));
-				if(reference != null)
-					this.whitelistedPlayers.add(reference);
-			}
-		}
+			this.whitelistedPlayers = PlayerReference.loadList(compound, "WhitelistedPlayers");
 		
 	}
 	

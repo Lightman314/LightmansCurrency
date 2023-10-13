@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
@@ -83,10 +84,7 @@ public class PlayerReference {
 		return entity.getUUID().equals(this.id);
 	}
 	
-	public boolean isOnline()
-	{
-		return this.getPlayer() != null;
-	}
+	public boolean isOnline() { return this.getPlayer() != null; }
 	
 	public Player getPlayer() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -139,22 +137,36 @@ public class PlayerReference {
 	{
 		ListTag list = new ListTag();
 		for (PlayerReference playerReference : playerList) {
-			CompoundTag thisCompound = playerReference.save();
-			list.add(thisCompound);
+			if(playerReference != null)
+				list.add(playerReference.save());
 		}
 		compound.put(tag, list);
+	}
+
+	public static JsonArray saveJsonList(List<PlayerReference> playerList)
+	{
+		JsonArray array = new JsonArray();
+		for(PlayerReference playerReference : playerList)
+		{
+			if(playerReference != null)
+				array.add(playerReference.saveAsJson());
+		}
+		return array;
 	}
 	
 	public static List<PlayerReference> loadList(CompoundTag compound, String tag)
 	{
-		List<PlayerReference> playerList = Lists.newArrayList();
-		ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
-		for(int i = 0; i < list.size(); ++i)
+		List<PlayerReference> playerList = new ArrayList<>();
+		if(compound.contains(tag, Tag.TAG_LIST))
 		{
-			CompoundTag thisCompound = list.getCompound(i);
-			PlayerReference player = load(thisCompound);
-			if(player != null)
-				playerList.add(player);
+			ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
+			for(int i = 0; i < list.size(); ++i)
+			{
+				CompoundTag thisCompound = list.getCompound(i);
+				PlayerReference player = load(thisCompound);
+				if(player != null)
+					playerList.add(player);
+			}
 		}
 		return playerList;
 	}
@@ -201,14 +213,16 @@ public class PlayerReference {
 			return of(playerID, playerName);
 		return null;
 	}
+
+	public static boolean isInList(List<PlayerReference> list, Entity entry) { if(entry != null) return isInList(list, entry.getUUID()); return false; }
 	
-	public static boolean listContains(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return listContains(list, entry.id); return false; }
+	public static boolean isInList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return isInList(list, entry.id); return false; }
 	
-	public static boolean listContains(List<PlayerReference> list, UUID id)
+	public static boolean isInList(List<PlayerReference> list, UUID id)
 	{
 		for(PlayerReference player : list)
 		{
-			if(player.is(id))
+			if(player != null && player.is(id))
 				return true;
 		}
 		return false;
@@ -220,7 +234,8 @@ public class PlayerReference {
 	{
 		for(int i = 0; i < list.size(); ++i)
 		{
-			if(list.get(i).is(id))
+			PlayerReference pr = list.get(i);
+			if(pr != null && pr.is(id))
 			{
 				list.remove(i);
 				return true;

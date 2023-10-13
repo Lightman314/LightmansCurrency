@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
-
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
@@ -18,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -38,13 +35,13 @@ public class Team {
 	private boolean isClient = false;
 	public Team flagAsClient() { this.isClient = true; return this; }
 	
-	List<PlayerReference> admins = Lists.newArrayList();
+	List<PlayerReference> admins = new ArrayList<>();
 	/**
 	 * List of the teams admins.
 	 * Does not included the owner.
 	 */
 	public List<PlayerReference> getAdmins() { return this.admins; }
-	List<PlayerReference> members = Lists.newArrayList();
+	List<PlayerReference> members = new ArrayList<>();
 	/**
 	 * List of the teams members.
 	 * Does not include admins or the owner.
@@ -91,20 +88,20 @@ public class Team {
 	 * Determines if the given player is an admin or owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isAdmin(Player player) { return PlayerReference.listContains(this.admins, player.getUUID()) || this.isOwner(player); }
+	public boolean isAdmin(Player player) { return PlayerReference.isInList(this.admins, player) || this.isOwner(player); }
 	/**
 	 * Determines if the given player is an admin or owner of this team.
 	 */
-	public boolean isAdmin(UUID playerID) { return PlayerReference.listContains(this.admins, playerID) || this.isOwner(playerID); }
+	public boolean isAdmin(UUID playerID) { return PlayerReference.isInList(this.admins, playerID) || this.isOwner(playerID); }
 	/**
 	 * Determines if the given player is a member, admin, or owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isMember(Player player) { return PlayerReference.listContains(this.members, player.getUUID()) || this.isAdmin(player); }
+	public boolean isMember(Player player) { return PlayerReference.isInList(this.members, player) || this.isAdmin(player); }
 	/**
 	 * Determines if the given player is a member, admin, or owner of this team.
 	 */
-	public boolean isMember(UUID playerID) { return PlayerReference.listContains(this.members, playerID) || this.isAdmin(playerID); }
+	public boolean isMember(UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
 	
 	public void changeAddMember(Player requestor, String name) {
 		if(!this.isAdmin(requestor))
@@ -295,16 +292,10 @@ public class Team {
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
 		compound.putString("Name", this.teamName);
-		
-		ListTag memberList = new ListTag();
-		for (PlayerReference member : this.members)
-			memberList.add(member.save());
-		compound.put("Members", memberList);
-		
-		ListTag adminList = new ListTag();
-		for (PlayerReference admin : this.admins)
-			adminList.add(admin.save());
-		compound.put("Admins", adminList);
+
+		PlayerReference.saveList(compound, this.members, "Members");
+
+		PlayerReference.saveList(compound, this.admins, "Admins");
 		
 		//Bank Account
 		if(this.bankAccount != null)
@@ -329,22 +320,10 @@ public class Team {
 		if(owner != null)
 		{
 			Team team = of(id, owner, name);
-			
-			ListTag adminList = compound.getList("Admins", Tag.TAG_COMPOUND);
-			for(int i = 0; i < adminList.size(); ++i)
-			{
-				PlayerReference admin = PlayerReference.load(adminList.getCompound(i));
-				if(admin != null)
-					team.admins.add(admin);
-			}
-			
-			ListTag memberList = compound.getList("Members", Tag.TAG_COMPOUND);
-			for(int i = 0; i < memberList.size(); ++i)
-			{
-				PlayerReference member = PlayerReference.load(memberList.getCompound(i));
-				if(member != null)
-					team.members.add(member);
-			}
+
+			team.admins = PlayerReference.loadList(compound, "Admins");
+
+			team.members = PlayerReference.loadList(compound, "Members");
 			
 			if(compound.contains("BankAccount", Tag.TAG_COMPOUND))
 			{

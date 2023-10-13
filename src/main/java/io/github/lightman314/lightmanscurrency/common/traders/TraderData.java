@@ -190,7 +190,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isAdmin(player))
 			return Integer.MAX_VALUE;
 		
-		if(this.isAlly(PlayerReference.of(player)))
+		if(this.isAlly(player))
 			return this.getAllyPermissionLevel(permission);
 		
 		return 0;
@@ -233,16 +233,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	private boolean isAdmin(Player player) { return player == null || this.owner.isAdmin(player); }
 	private boolean isAdmin(PlayerReference player) { return player == null || this.owner.isAdmin(player); }
-	
+
+	private boolean isAlly(Player player) {
+		if(this.owner.isMember(player))
+			return true;
+		return PlayerReference.isInList(this.allies, player);
+	}
 	private boolean isAlly(PlayerReference player) {
 		if(this.owner.isMember(player))
 			return true;
-		for(PlayerReference ally : this.allies)
-		{
-			if(ally.is(player))
-				return true;
-		}
-		return false;
+		return PlayerReference.isInList(this.allies, player);
 	}
 	
 	private final NotificationData logger = new NotificationData();
@@ -596,10 +596,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
 	
 	protected final void saveAllies(CompoundTag compound) {
-		ListTag allyData = new ListTag();
-		for(PlayerReference ally : this.allies)
-			allyData.add(ally.save());
-		compound.put("Allies", allyData);
+		PlayerReference.saveList(compound, this.allies, "Allies");
 	}
 	
 	protected final void saveAllyPermissions(CompoundTag compound) {
@@ -714,13 +711,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("Allies"))
 		{
 			this.allies.clear();
-			ListTag allyList = compound.getList("Allies", Tag.TAG_COMPOUND);
-			for(int i = 0; i < allyList.size(); ++i)
-			{
-				PlayerReference ally = PlayerReference.load(allyList.getCompound(i));
-				if(ally != null)
-					this.allies.add(ally);
-			}
+			this.allies.addAll(PlayerReference.loadList(compound, "Allies"));
 		}
 		
 		if(compound.contains("AllyPermissions"))
@@ -1189,7 +1180,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
 				PlayerReference newAlly = PlayerReference.of(this.isClient, message.getString("AddAlly"));
-				if(newAlly != null && !PlayerReference.listContains(this.allies, newAlly.id))
+				if(newAlly != null && !PlayerReference.isInList(this.allies, newAlly.id))
 				{
 					this.allies.add(newAlly);
 					this.markDirty(this::saveAllies);
@@ -1203,7 +1194,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
 				PlayerReference oldAlly = PlayerReference.of(this.isClient, message.getString("RemoveAlly"));
-				if(oldAlly != null && PlayerReference.removeFromList(this.allies, oldAlly.id))
+				if(PlayerReference.removeFromList(this.allies, oldAlly))
 				{
 					this.markDirty(this::saveAllies);
 
