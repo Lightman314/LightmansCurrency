@@ -25,7 +25,7 @@ public class CPacketInterfaceInteraction extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketInterfaceInteraction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceInteraction(buffer.readAnySizeNbt()); }
+		public CPacketInterfaceInteraction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceInteraction(buffer.readNbt()); }
 		@Override
 		protected void handle(@Nonnull CPacketInterfaceInteraction message, @Nullable ServerPlayer sender) {
 			if(sender != null && sender.containerMenu instanceof TraderInterfaceMenu menu)

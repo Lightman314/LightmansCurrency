@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.network.chat.Component;
@@ -15,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 import javax.annotation.Nonnull;
 
-@IPNIgnore
 public class MintScreen extends EasyMenuScreen<MintMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");

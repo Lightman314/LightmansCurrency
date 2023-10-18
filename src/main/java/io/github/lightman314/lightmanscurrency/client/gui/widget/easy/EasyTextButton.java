@@ -4,6 +4,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -39,24 +41,15 @@ public class EasyTextButton extends EasyButton {
     public final void setMessage(@Nonnull Component text) { this.text = () -> text; }
     public final void setMessage(@Nonnull NonNullSupplier<Component> text) { this.text = text; }
 
-    //Copy/pasted from AbstractButton.getTextureY()
-    private int getTextureY() {
-        int i = 1;
-        if (!this.active) {
-            i = 0;
-        } else if (this.isHoveredOrFocused()) {
-            i = 2;
-        }
-
-        return 46 + (i * 20);
-    }
-
     @Override
     protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
-        gui.renderButtonBG(0, 0, this.getWidth(), this.getHeight(), this.alpha, this.getTextureY());
+        gui.renderButtonBG(0, 0, this.getWidth(), this.getHeight(), this.alpha, this.isHoveredOrFocused());
+        gui.resetColor();
         int i = getFGColor();
-        this.renderScrollingString(gui.getGui(), gui.font, 2, i | Mth.ceil(this.alpha * 255.0F) << 24);
+        this.renderString(gui, i | Mth.ceil(this.alpha * 255.0F) << 24);
     }
+
+    public void renderString(@Nonnull EasyGuiGraphics gui, int color) { this.renderScrollingString(gui.getGui(), gui.font, 2, color); }
 
     protected void renderTick() { super.setMessage(this.text.get()); }
 

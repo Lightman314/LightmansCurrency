@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -18,7 +19,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
@@ -40,15 +40,15 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	public void OpenContainer(Player player)
 	{
 		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition, BlockEntityValidator.of(this));
-		if(!(player instanceof ServerPlayer))
+		if(!(player instanceof ServerPlayer sp))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
 		if(this.getTraders().size() > 0)
-			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
+			sp.openMenu(provider, this.worldPosition);
 		else
-			player.sendSystemMessage(Component.translatable("message.lightmanscurrency.cash_register.notlinked"));
+			player.sendSystemMessage(EasyText.translatable("message.lightmanscurrency.cash_register.notlinked"));
 	}
 	
 	@Override

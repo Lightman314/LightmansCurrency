@@ -108,7 +108,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
@@ -832,7 +831,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public void openTraderMenu(Player player) { this.openTraderMenu(player, SimpleValidator.NULL); }
 	public void openTraderMenu(Player player, @Nonnull MenuValidator validator) {
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
+			sp.openMenu(this.getTraderMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
 	protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new TraderMenuProvider(this.id, validator); }
@@ -850,7 +849,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
 			return;
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderStorageMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
+			sp.openMenu(this.getTraderStorageMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
 	protected MenuProvider getTraderStorageMenuProvider(@Nonnull MenuValidator validator)  { return new TraderStorageMenuProvider(this.id, validator); }

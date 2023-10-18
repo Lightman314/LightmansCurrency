@@ -34,6 +34,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -445,7 +446,7 @@ public class TraderSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(TraderSaveData::new, TraderSaveData::new, "lightmanscurrency_trader_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(TraderSaveData::new, TraderSaveData::new, DataFixTypes.LEVEL), "lightmanscurrency_trader_data");
 		}
 		return null;
 	}

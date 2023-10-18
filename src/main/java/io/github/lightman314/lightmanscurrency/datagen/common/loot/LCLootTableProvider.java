@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.loot;
 
 import io.github.lightman314.lightmanscurrency.common.loot.LCLootTables;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.packs.*;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
@@ -14,6 +13,6 @@ import java.util.List;
 public class LCLootTableProvider {
 
     public static LootTableProvider create(@Nonnull PackOutput output) { return new LootTableProvider(output, LCLootTables.all(),
-            List.of(new SubProviderEntry(EntityAddonLoot::new, LootManager.ENTITY_PARAMS),
+            List.of(new SubProviderEntry(EntityAddonLoot::new, LootContextParamSets.ENTITY),
                     new SubProviderEntry(ChestAddonLoot::new, LootContextParamSets.EMPTY))); }
 }

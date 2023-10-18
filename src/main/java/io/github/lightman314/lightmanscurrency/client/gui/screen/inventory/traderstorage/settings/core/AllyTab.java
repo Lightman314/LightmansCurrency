@@ -69,7 +69,6 @@ public class AllyTab extends SettingsSubTab {
 
     @Override
     public void tick() {
-        this.nameInput.tick();
         this.buttonAddAlly.active = this.buttonRemoveAlly.active = !this.nameInput.getValue().isEmpty();
     }
 

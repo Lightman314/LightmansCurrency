@@ -10,7 +10,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -30,7 +29,7 @@ public class TerminalMenuProvider implements MenuProvider {
 
     public static void OpenMenu(@Nonnull ServerPlayer player, @Nonnull MenuValidator validator)
     {
-        NetworkHooks.openScreen(player, new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
+        player.openMenu(new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
     }
 
 }

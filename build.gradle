@@ -7,7 +7,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.14,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
@@ -133,29 +133,27 @@ dependencies {
     //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
     //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    implementation fg.deobf("curse.maven:jei-238222:4595492")
+    implementation fg.deobf("curse.maven:jei-238222:4767571")
 
     //Curios API
-    compileOnly fg.deobf("curse.maven:curios-309927:4583413")
+    compileOnly fg.deobf("curse.maven:curios-309927:4780211")
 
     //Immersive Engineering API
     //TODO update to 1.20 build once released
-    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
-
-    compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:4591814')
+    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
     //FTB Chunks claim purchase compat
-    implementation fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
-    implementation fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
-    implementation fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
-    implementation fg.deobf('curse.maven:architectury-api-419699:4663010')
+    compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
+    compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
+    compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
+    compileOnly fg.deobf('curse.maven:architectury-api-419699:4663010')
 
     //Wood Compatibility
     //Biomes O' Plenty
-    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
-    implementation fg.deobf("curse.maven:terrablender-563928:4647094")
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4776295")
+    implementation fg.deobf("curse.maven:terrablender-563928:4800869")
 
 }
 
@@ -163,22 +161,20 @@ dependencies {
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
 // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
-def replaceProperties = [
-        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-        forge_version: forge_version, forge_version_range: forge_version_range,
-        loader_version_range: loader_version_range,
-        mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-        mod_authors: mod_authors, mod_description: mod_description,
-        //Custom Properties
-        ldi_version_range: ldi_version_range
-]
-processResources {
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+            //Custom Properties
+            ldi_version_range: ldi_version_range
+    ]
     inputs.properties replaceProperties
-    replaceProperties.put 'project', project
 
-    filesMatching(resourceTargets) {
-        expand replaceProperties
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
     }
 }
 

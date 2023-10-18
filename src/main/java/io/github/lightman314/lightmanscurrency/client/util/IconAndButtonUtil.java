@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -35,6 +36,9 @@ import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class IconAndButtonUtil {
+
+	public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted"));
+
 
 	/**
 	 * Texture file used for miscellaneous icons, most of which are refferred to in the IconData constants below.

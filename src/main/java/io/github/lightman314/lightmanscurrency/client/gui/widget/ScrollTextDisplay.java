@@ -104,19 +104,19 @@ public class ScrollTextDisplay extends EasyWidget {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
 	{
 		if(!this.visible)
 			return false;
 		
-		if(delta < 0)
+		if(deltaX < 0)
 		{			
 			if(this.canScrollDown())
 				scroll++;
 			else
 				return false;
 		}
-		else if(delta > 0)
+		else if(deltaX > 0)
 		{
 			if(scroll > 0)
 				scroll--;

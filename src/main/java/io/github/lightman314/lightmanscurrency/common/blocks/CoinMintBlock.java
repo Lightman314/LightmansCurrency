@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -52,12 +51,12 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 	@SuppressWarnings("deprecation")
 	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
-		if(!level.isClientSide)
+		if(!level.isClientSide && player instanceof ServerPlayer sp)
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
 			if(tileEntity instanceof CoinMintBlockEntity mint)
 			{
-				NetworkHooks.openScreen((ServerPlayer)player, new CoinMintMenuProvider(mint), pos);
+				sp.openMenu(new CoinMintMenuProvider(mint), pos);
 				return InteractionResult.SUCCESS;
 			}
 		}

@@ -32,7 +32,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -79,7 +78,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         {
             if(be.allowAccess(player))
             {
-                NetworkHooks.openScreen(sp, CoinChestBlockEntity.getMenuProvider(be), pos);
+                sp.openMenu(CoinChestBlockEntity.getMenuProvider(be), pos);
                 PiglinAi.angerNearbyPiglins(player, true);
             }
             else

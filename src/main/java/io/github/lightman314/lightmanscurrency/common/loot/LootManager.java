@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.collect.Lists;
 
@@ -22,11 +23,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
@@ -34,7 +34,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -45,7 +44,7 @@ import javax.annotation.Nullable;
 @Mod.EventBusSubscriber
 public class LootManager {
 
-	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
+	//public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
 
 
 	public static void registerDroplistListeners()
@@ -243,13 +242,13 @@ public class LootManager {
 		{
 			player = event.getSource().getDirectEntity() instanceof Player p ? p : (Player)event.getSource().getEntity();
 			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
-			if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
-				return;
+			//if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
+			//	return;
 		}
 
 		EntityPoolLevel poolLevel = GetEntityPoolLevel(entity);
 		if(poolLevel != null)
-			DropEntityLoot(entity, player, poolLevel);
+			DropEntityLoot(entity, player, event, poolLevel);
 
 	}
 
@@ -312,26 +311,16 @@ public class LootManager {
 
 	public static List<ItemStack> getLoot(@Nonnull ResourceLocation lootTable, @Nonnull LootContext context)
 	{
-		List<ItemStack> results = new ArrayList<>();
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server == null)
-			return results;
+			return new ArrayList<>();
 		LootTable table = server.getLootData().getLootTable(lootTable);
 		if(table == null)
-			return results;
+			return new ArrayList<>();
 		//Filter results
 		return safelyGetLoot(table, context);
 	}
-
-	private static ItemStack replaceItem(@Nonnull ItemStack stack, @Nonnull Item replacement)
-	{
-		ItemStack newStack = new ItemStack(replacement, stack.getCount());
-		if(stack.hasTag())
-			newStack.setTag(stack.getTag().copy());
-		return newStack;
-	}
-
-	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull EntityPoolLevel coinPool)
+	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull LivingDeathEvent event, @Nonnull EntityPoolLevel coinPool)
 	{
 
 		if(!Config.COMMON.enableEntityDrops.get())
@@ -340,23 +329,26 @@ public class LootManager {
 		if(!coinPool.isBoss && player == null)
 			return;
 
-		LootContext context = generateEntityContext(entity, player);
+		LootContext context = generateEntityContext(entity, player, event);
 
 		InventoryUtil.dumpContents(entity.level(), entity.blockPosition(), getLoot(coinPool.lootTable, context));
 
 	}
 
-	public static LootContext generateEntityContext(@Nonnull Entity entity, @Nullable Player player)
+	public static LootContext generateEntityContext(@Nonnull Entity entity, @Nullable Player player, @Nonnull LivingDeathEvent event)
 	{
 		if(!(entity.level() instanceof ServerLevel level))
 			throw new IllegalArgumentException("Function must be run on the server side!");
-		LootParams.Builder parameterBuilder = new LootParams.Builder(level);
-		//Add the KilledByPlayer condition to the Loot Context
-		if(player != null)
-			parameterBuilder.withParameter(LootContextParams.KILLER_ENTITY, player);
+		LootParams.Builder parameterBuilder = new LootParams.Builder(level)
+				.withParameter(LootContextParams.THIS_ENTITY, entity)
+				.withParameter(LootContextParams.ORIGIN, entity.position())
+				.withParameter(LootContextParams.DAMAGE_SOURCE, event.getSource())
+				.withOptionalParameter(LootContextParams.KILLER_ENTITY, event.getSource().getEntity())
+				.withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, event.getSource().getDirectEntity())
+				.withOptionalParameter(LootContextParams.LAST_DAMAGE_PLAYER, player);
 
-		LootParams params = parameterBuilder.create(ENTITY_PARAMS);
-		return new LootContext.Builder(params).create(new ResourceLocation(LightmansCurrency.MODID, "generated_entity_loot/" + getSafeId(entity)));
+		LootParams params = parameterBuilder.create(LootContextParamSets.ENTITY);
+		return new LootContext.Builder(params).create(Optional.empty());
 	}
 
 	@Nullable

@@ -22,7 +22,7 @@ public class SPacketSyncClientTax extends ServerToClientPacket {
     {
         @Nonnull
         @Override
-        public SPacketSyncClientTax decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncClientTax(buffer.readAnySizeNbt()); }
+        public SPacketSyncClientTax decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncClientTax(buffer.readNbt()); }
         @Override
         protected void handle(@Nonnull SPacketSyncClientTax message, @Nullable ServerPlayer sender) {
             LightmansCurrency.PROXY.updateTaxEntries(message.updateTag);

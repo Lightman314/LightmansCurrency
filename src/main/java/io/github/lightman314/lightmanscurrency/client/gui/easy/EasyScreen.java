@@ -71,15 +71,18 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     protected abstract void initialize(ScreenArea screenArea);
 
+    private boolean bgRendered = true;
+
     @Override
     public final void render(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
+        bgRendered = false;
         this.renderTick();
         EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, this.font, mouseX, mouseY, partialTicks).pushOffset(this.getCorner());
         //Trigger Pre-Render ticks
         for(IPreRender r : ImmutableList.copyOf(this.preRenders))
             r.preRender(gui);
         //Render background tint
-        this.renderBackground(mcgui);
+        this.renderBackground(mcgui, mouseX, mouseY, partialTicks);
         //Render background
         this.renderBG(gui);
         //Render Widgets
@@ -90,6 +93,15 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         EasyScreenHelper.RenderTooltips(gui, ImmutableList.copyOf(this.tooltipSources));
         //Render After Tooltips
         this.renderAfterTooltips(gui);
+    }
+
+    @Override
+    public void renderBackground(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        if(!this.bgRendered)
+        {
+            this.bgRendered = true;
+            super.renderBackground(gui, mouseX, mouseY, partialTicks);
+        }
     }
 
     protected void renderTick() {}
@@ -112,8 +124,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.renderables.add(r);
         if(child instanceof GuiEventListener && child instanceof NarratableEntry)
             super.addWidget((GuiEventListener & NarratableEntry)child);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        if(ticker != null && !this.guiTickers.contains(ticker))
+        if(child instanceof IEasyTickable ticker && !this.guiTickers.contains(ticker))
             this.guiTickers.add(ticker);
         if(child instanceof ITooltipSource t && !this.tooltipSources.contains(t))
             this.tooltipSources.add(t);
@@ -136,8 +147,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.renderables.remove(r);
         if(child instanceof GuiEventListener l)
             super.removeWidget(l);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        this.guiTickers.remove(ticker);
+        if(child instanceof IEasyTickable ticker)
+            this.guiTickers.remove(ticker);
         if(child instanceof ITooltipSource t)
             this.tooltipSources.remove(t);
         if(child instanceof IMouseListener l)
@@ -182,13 +193,13 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected final void removeWidget(@Nonnull GuiEventListener widget) { this.removeChild(widget); }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         for(IScrollListener l : ImmutableList.copyOf(this.scrollListeners))
         {
-            if(l.mouseScrolled(mouseX, mouseY, scroll))
+            if(l.mouseScrolled(mouseX, mouseY, scrollX))
                 return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scroll);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

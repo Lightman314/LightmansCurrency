@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -33,7 +34,7 @@ public class RecipeValidator {
 	
 	private static Collection<Recipe<?>> getRecipes(RecipeManager recipeManager, RecipeType<?> recipeType)
 	{
-		return recipeManager.getRecipes().stream().filter(recipe -> recipe.getType() == recipeType).collect(Collectors.toSet());
+		return recipeManager.getRecipes().stream().map(RecipeHolder::value).filter(recipe -> recipe.getType() == recipeType).collect(Collectors.toSet());
 	}
 	
 	public static class Results

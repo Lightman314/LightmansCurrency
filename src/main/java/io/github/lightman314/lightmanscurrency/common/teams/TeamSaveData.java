@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -77,7 +78,7 @@ public class TeamSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(TeamSaveData::new, TeamSaveData::new, "lightmanscurrency_team_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(TeamSaveData::new, TeamSaveData::new, DataFixTypes.LEVEL), "lightmanscurrency_team_data");
 		}
 		return null;
 	}

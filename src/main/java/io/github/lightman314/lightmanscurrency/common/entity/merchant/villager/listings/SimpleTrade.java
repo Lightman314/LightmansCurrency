@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.listings;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
@@ -14,9 +15,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class SimpleTrade implements VillagerTrades.ItemListing
 {
@@ -96,8 +99,11 @@ public class SimpleTrade implements VillagerTrades.ItemListing
     }
 
     public static ItemStack createSuspiciousStew(MobEffect effect, int duration) {
+        return createSuspiciousStew(Lists.newArrayList(new SuspiciousEffectHolder.EffectEntry(effect,duration)));
+    }
+    public static ItemStack createSuspiciousStew(List<SuspiciousEffectHolder.EffectEntry> effects) {
         ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW, 1);
-        SuspiciousStewItem.saveMobEffect(stew, effect, duration);
+        SuspiciousStewItem.saveMobEffects(stew, effects);
         return stew;
     }
 

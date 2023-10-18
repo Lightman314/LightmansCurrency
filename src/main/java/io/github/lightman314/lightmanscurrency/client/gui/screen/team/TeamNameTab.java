@@ -61,8 +61,7 @@ public class TeamNameTab extends TeamTab {
 
 	@Override
 	public void tick() {
-		
-		this.nameInput.tick();
+
 		this.buttonChangeName.active = !this.nameInput.getValue().isBlank() && !this.nameInput.getValue().contentEquals(this.getActiveTeam().getName());
 		
 	}

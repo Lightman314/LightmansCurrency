@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,6 +72,9 @@ public class WoodType implements IOptionalKey {
     public String getModID() { return this.modid; }
     public final boolean isMod(String modid) { return this.getModID().equalsIgnoreCase(modid); }
     public boolean isValid() { return true; }
+    public final boolean hasCondition() { return this.getRecipeCondition() != null; }
+    @Nullable
+    public ICondition getRecipeCondition() { return this.isModded() ? null : new ModLoadedCondition(this.getModID()); }
     @Override
     public final boolean isModded() { return !this.isVanilla(); }
 

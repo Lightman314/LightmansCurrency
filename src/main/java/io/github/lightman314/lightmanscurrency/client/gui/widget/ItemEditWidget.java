@@ -131,6 +131,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	private String searchString;
 
 	EditBox searchInput;
+	ScrollListener scrollListener;
 	ScrollListener stackScrollListener;
 	private final IItemEditListener listener;
 
@@ -421,23 +422,19 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		this.searchInput.setTextColor(0xFFFFFF);
 		this.searchInput.setResponder(this::modifySearch);
 
+		this.scrollListener = this.addChild(new ScrollListener(this.getArea(), this));
+
 		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
 	}
 
 	@Override
 	protected void renderTick() {
-		this.searchInput.visible = this.visible;
-		this.stackScrollListener.active = this.visible;
+		this.searchInput.visible = this.scrollListener.active = this.stackScrollListener.active = this.visible;
 	}
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-
-		if(!this.visible)
-			return;
-
-		//Removed search check as this is now handled by EditBox.setResponder
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
@@ -464,8 +461,6 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		gui.blit(GUI_TEXTURE, this.stackSizeOffX, this.stackSizeOffY, 108, 0, 18, 18);
 
 	}
-
-	public void tick() { this.searchInput.tick(); }
 
 	private ItemStack getQuantityFixedStack(ItemStack stack) {
 		ItemStack copy = stack.copy();
@@ -545,25 +540,6 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		{
 			if(this.stackCount > 1)
 				this.stackCount--;
-		}
-		return true;
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{
-			if(this.scroll < this.getMaxScroll())
-				this.scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				this.scroll--;
-			else
-				return false;
 		}
 		return true;
 	}

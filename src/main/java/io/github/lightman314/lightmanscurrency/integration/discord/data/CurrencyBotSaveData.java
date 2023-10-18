@@ -4,6 +4,7 @@ import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -36,7 +37,7 @@ public class CurrencyBotSaveData extends SavedData {
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(CurrencyBotSaveData::new, CurrencyBotSaveData::new, "lightmanscurrency_discord_data");
+            return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(CurrencyBotSaveData::new, CurrencyBotSaveData::new, DataFixTypes.LEVEL), "lightmanscurrency_discord_data");
         return null;
     }
 

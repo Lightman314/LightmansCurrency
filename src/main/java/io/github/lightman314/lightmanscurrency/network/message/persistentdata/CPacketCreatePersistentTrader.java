@@ -34,7 +34,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 	
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
 		buffer.writeLong(this.traderID);
 		buffer.writeUtf(this.id);
 		buffer.writeUtf(this.owner);

@@ -128,10 +128,10 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(this.handleScrollWheel(delta))
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		if(this.handleScrollWheel(deltaX))
 			return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 	}
 	
 	private void OpenTrader(EasyButton button)

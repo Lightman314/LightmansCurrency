@@ -1,11 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import com.google.gson.JsonElement;
-
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -21,14 +18,6 @@ public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
 	
-	
-	public static MintType readType(JsonElement json)
-	{
-		try {
-			return readType(json.getAsString());
-		} catch(Exception e) { e.printStackTrace(); return MintType.OTHER; }
-	}
-	
 	public static MintType readType(String typeName)
 	{
 		for(MintType type : MintType.values())
@@ -38,17 +27,15 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		return MintType.OTHER;
 	}
-	
-	private final ResourceLocation id;
+
 	private final MintType type;
 	private final int duration;
 	private final Ingredient ingredient;
-	public final int ingredientCount;
+	private final int ingredientCount;
 	private final ItemStack result;
 	
-	public CoinMintRecipe(ResourceLocation id, MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
+	public CoinMintRecipe(MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
-		this.id = id;
 		this.type = type;
 		this.duration = duration;
 		this.ingredient = ingredient;
@@ -57,7 +44,9 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	public Ingredient getIngredient() { return this.ingredient; }
+	public int getIngredientCount() { return this.ingredientCount; }
 	public MintType getMintType() { return this.type; }
+	public String getMintTypeString() { return this.type.toString(); }
 	
 	public boolean allowed()
 	{
@@ -94,13 +83,11 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public ItemStack getOutputItem() { return this.result.copy(); }
 
 	@Override
-	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+	@Nonnull
+	public ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	public int getInternalDuration() { return this.duration; }
 	public int getDuration() { return this.duration > 0 ? this.duration : Config.SERVER.defaultMintDuration.get(); }
-
-	@Override
-	public @Nonnull ResourceLocation getId() { return this.id; }
 
 	@Override
 	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }

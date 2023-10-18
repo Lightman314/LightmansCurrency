@@ -22,6 +22,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -81,6 +82,10 @@ public class ModRegistries {
 		//Loot Pool Entry Types
 		LOOT_POOL_ENTRY_TYPES.register(bus);
 		ModLootPoolEntryTypes.init();
+
+		//Crafting Conditions
+		CRAFTING_CONDITIONS.register(bus);
+		LCCraftingConditions.init();
 		
 	}
 	
@@ -108,5 +113,7 @@ public class ModRegistries {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
+
+	public static final DeferredRegister<Codec<? extends ICondition>> CRAFTING_CONDITIONS = DeferredRegister.create(ForgeRegistries.CONDITION_SERIALIZERS, LightmansCurrency.MODID);
 
 }

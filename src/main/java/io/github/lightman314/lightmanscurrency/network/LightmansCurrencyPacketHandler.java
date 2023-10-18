@@ -22,10 +22,8 @@ import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.*;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.network.simple.SimpleChannel;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
@@ -36,19 +34,18 @@ import javax.annotation.Nonnull;
 
 public class LightmansCurrencyPacketHandler {
 	
-	public static final String PROTOCOL_VERSION = "1";
+	public static final int PROTOCOL_VERSION = 1;
 	
 	public static SimpleChannel instance;
-	private static int nextId = 0;
 
 	public static void init()
 	{
 		
-		instance = NetworkRegistry.ChannelBuilder
+		instance = ChannelBuilder
 				.named(new ResourceLocation(LightmansCurrency.MODID,"network"))
-				.networkProtocolVersion(() -> PROTOCOL_VERSION)
-				.clientAcceptedVersions(PROTOCOL_VERSION::equals)
-				.serverAcceptedVersions(PROTOCOL_VERSION::equals)
+				.networkProtocolVersion(PROTOCOL_VERSION)
+				.clientAcceptedVersions(Channel.VersionTest.exact(PROTOCOL_VERSION))
+				.serverAcceptedVersions(Channel.VersionTest.exact(PROTOCOL_VERSION))
 				.simpleChannel();
 		
 		//ATM & Bank
@@ -160,7 +157,11 @@ public class LightmansCurrencyPacketHandler {
 
 	private static <T extends CustomPacket> void register(@Nonnull Class<T> clazz, @Nonnull CustomPacket.Handler<T> handler)
 	{
-		instance.registerMessage(nextId++, clazz, CustomPacket::encode, handler::decode, handler::handlePacket);
+		instance.messageBuilder(clazz)
+				.encoder(CustomPacket::encode)
+				.decoder(handler::decode)
+				.consumerMainThread(handler::handlePacket)
+				.add();
 	}
 	
 	public static PacketTarget getTarget(Player player)
@@ -170,6 +171,6 @@ public class LightmansCurrencyPacketHandler {
 		return null;
 	}
 	
-	public static PacketTarget getTarget(ServerPlayer player) { return PacketDistributor.PLAYER.with(() -> player); }
+	public static PacketTarget getTarget(ServerPlayer player) { return PacketDistributor.PLAYER.with(player); }
 	
 }

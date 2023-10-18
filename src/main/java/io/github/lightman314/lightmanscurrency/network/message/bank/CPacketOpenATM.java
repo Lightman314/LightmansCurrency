@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,7 +25,7 @@ public class CPacketOpenATM extends ClientToServerPacket.Simple {
 		@Override
 		public void handle(@Nonnull CPacketOpenATM message, @Nullable ServerPlayer sender) {
 			if(sender != null)
-				NetworkHooks.openScreen(sender, PortableATMItem.getMenuProvider(), EasyMenu.nullEncoder());
+				sender.openMenu(PortableATMItem.getMenuProvider(), EasyMenu.nullEncoder());
 		}
 	}
 

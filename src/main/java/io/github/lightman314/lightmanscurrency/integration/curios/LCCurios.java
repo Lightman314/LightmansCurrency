@@ -33,7 +33,7 @@ public class LCCurios {
 	public static final String WALLET_SLOT = "wallet";
 
 	private static ICuriosItemHandler lazyGetCuriosHelper(LivingEntity entity) {
-		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(entity);
+		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosInventory(entity);
 		return optional.isPresent() ? optional.orElseGet(() -> { throw new RuntimeException("Unexpected error occurred!"); }) : null;
 	}
 	public static boolean hasWalletSlot(LivingEntity entity) {

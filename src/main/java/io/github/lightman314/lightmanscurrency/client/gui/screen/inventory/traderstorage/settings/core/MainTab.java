@@ -161,15 +161,9 @@ public class MainTab extends SettingsSubTab {
             this.buttonSavePersistentTrader.active = trader.hasValidTrade();
         }
         if(this.persistentTraderIDInput != null)
-        {
             this.persistentTraderIDInput.visible = isAdmin;
-            this.persistentTraderIDInput.tick();
-        }
         if(this.persistentTraderOwnerInput != null)
-        {
             this.persistentTraderOwnerInput.visible = isAdmin;
-            this.persistentTraderOwnerInput.tick();
-        }
     }
 
     private void SetName(EasyButton button)

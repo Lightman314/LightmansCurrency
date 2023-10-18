@@ -38,7 +38,7 @@ public class CPacketInterfaceHandlerMessage extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(), new ResourceLocation(buffer.readUtf(MAX_TYPE_LENGTH)), buffer.readAnySizeNbt()); }
+		public CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(), new ResourceLocation(buffer.readUtf(MAX_TYPE_LENGTH)), buffer.readNbt()); }
 		@Override
 		protected void handle(@Nonnull CPacketInterfaceHandlerMessage message, @Nullable ServerPlayer sender) {
 			if(sender != null && sender.level().getBlockEntity(message.pos) instanceof TraderInterfaceBlockEntity interfaceBE)

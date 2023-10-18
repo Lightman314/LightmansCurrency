@@ -345,7 +345,7 @@ public class EventHandler {
 			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+				new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(livingEntity));
 				walletHandler.clean();
 			}
 		}

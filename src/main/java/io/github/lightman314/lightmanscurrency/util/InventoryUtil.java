@@ -11,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -496,7 +495,7 @@ public class InventoryUtil {
 
 	public static SimpleContainer decodeItems(FriendlyByteBuf buffer) {
 		int inventorySize = buffer.readInt();
-		return loadAllItems("ITEMS", buffer.readAnySizeNbt(), inventorySize);
+		return loadAllItems("ITEMS", buffer.readNbt(), inventorySize);
 	}
 
 	public static SimpleContainer copy(Container inventory) {

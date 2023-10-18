@@ -108,7 +108,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 
 	@Override
 	public void serverTick() {
-		if(this.lastRelevantRecipe != null && this.storage.getItem(0).getCount() >= this.lastRelevantRecipe.ingredientCount && this.hasOutputSpace())
+		if(this.lastRelevantRecipe != null && this.storage.getItem(0).getCount() >= this.lastRelevantRecipe.getIngredientCount() && this.hasOutputSpace())
 		{
 			this.mintTime++;
 			if(this.mintTime >= this.lastRelevantRecipe.getDuration())
@@ -196,7 +196,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			return;
 
 		//Confirm that we have the required inputs
-		if(this.storage.getItem(0).getCount() < this.lastRelevantRecipe.ingredientCount)
+		if(this.storage.getItem(0).getCount() < this.lastRelevantRecipe.getIngredientCount())
 			return;
 		
 		//Place the output item(s)

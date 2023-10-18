@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
@@ -44,8 +43,8 @@ public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
 	{
-		if(!level.isClientSide)
-			NetworkHooks.openScreen((ServerPlayer)player, this.getMenuProvider(state, level, pos), pos);
+		if(!level.isClientSide && player instanceof ServerPlayer sp)
+			sp.openMenu(this.getMenuProvider(state, level, pos), pos);
 		return InteractionResult.SUCCESS;
 	}
 	

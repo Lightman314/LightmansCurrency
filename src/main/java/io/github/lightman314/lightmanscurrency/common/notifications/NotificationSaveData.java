@@ -14,6 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -67,7 +68,7 @@ public class NotificationSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(NotificationSaveData::new, NotificationSaveData::new, "lightmanscurrency_notification_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(NotificationSaveData::new,NotificationSaveData::new,DataFixTypes.LEVEL), "lightmanscurrency_notification_data");
 		}
 		return null;
 	}

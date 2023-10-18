@@ -274,18 +274,18 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 	public int getMaxScroll() { return this.getMaxNotificationScroll(); }
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
 		//If mouse is over the screen, scroll the notifications
 		if(this.getCorner().offset(TabButton.SIZE, 0).isMouseInArea(mouseX, mouseY, this.getXSize() - TabButton.SIZE, this.getYSize()))
 		{
-			if(this.notificationScrolled(delta))
+			if(this.notificationScrolled(deltaX))
 				return true;
 			//Don't scroll the tabs while the mouse is over the center of the screen.
-			return super.mouseScrolled(mouseX, mouseY, delta);
+			return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 		}
-		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
+		else if(this.tabScrolled(deltaX)) //Otherwise scroll the tabs
 			return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 	}
 	
 	@Override

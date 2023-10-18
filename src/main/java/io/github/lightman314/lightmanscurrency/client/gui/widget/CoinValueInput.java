@@ -277,7 +277,6 @@ public class CoinValueInput extends EasyWidgetWithChildren implements IScrollabl
 		}
 		else if(this.valueInput != null)
 		{
-			this.valueInput.tick();
 			this.valueInput.active = !this.coinValue.isFree() && !this.locked;
 			if(!this.coinValue.isFree())
 			{
@@ -295,7 +294,6 @@ public class CoinValueInput extends EasyWidgetWithChildren implements IScrollabl
 				this.lastInput = this.valueInput.getValue();
 			}
 		}
-		
 	}
 	
 	public void IncreaseButtonHit(EasyButton button)

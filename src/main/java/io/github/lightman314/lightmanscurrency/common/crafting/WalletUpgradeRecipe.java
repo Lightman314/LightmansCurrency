@@ -1,17 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -22,22 +19,18 @@ import javax.annotation.Nonnull;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
-	private final ResourceLocation id;
+
 	private final String group;
 	private final ItemStack recipeOutput;
 	private final NonNullList<Ingredient> ingredients;
 	private final boolean isSimple;
 
-	public WalletUpgradeRecipe(ResourceLocation idIn, String groupIn, ItemStack recipeOutputIn, NonNullList<Ingredient> ingredients) {
-		this.id = idIn;
+	public WalletUpgradeRecipe(String groupIn, ItemStack recipeOutputIn, NonNullList<Ingredient> ingredients) {
 		this.group = groupIn;
 		this.recipeOutput = recipeOutputIn;
 		this.ingredients = ingredients;
 		this.isSimple = ingredients.stream().allMatch(Ingredient::isSimple);
 	}
-
-	@Override
-	public @Nonnull ResourceLocation getId() { return this.id; }
 
 	@Override
 	public @Nonnull RecipeSerializer<?> getSerializer() {
@@ -56,12 +49,13 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
 	 */
 	@Override
-	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) {
-		return this.recipeOutput;
-	}
+	@Nonnull
+	public ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { return this.recipeOutput; }
+	public ItemStack getResultItem() { return this.recipeOutput; }
 
 	@Override
-	public @Nonnull NonNullList<Ingredient> getIngredients() {
+	@Nonnull
+	public NonNullList<Ingredient> getIngredients() {
 		return this.ingredients;
 	}
 
@@ -121,36 +115,27 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	public @Nonnull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
 
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
-		
+
+		private static final Codec<WalletUpgradeRecipe> CODEC = RecordCodecBuilder.create((b) -> b.group(
+				ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(WalletUpgradeRecipe::getGroup),
+				CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(WalletUpgradeRecipe::getResultItem),
+				Ingredient.CODEC_NONEMPTY.listOf().fieldOf("ingredients").flatXmap((list) ->
+				{
+					Ingredient[] aingredient = list.stream().filter((ingredient) -> !ingredient.isEmpty()).toArray(Ingredient[]::new);
+					if (aingredient.length == 0) {
+						return DataResult.error(() -> "No ingredients for shapeless recipe");
+					} else {
+						return aingredient.length > 3 * 3 ? DataResult.error(() -> "Too many ingredients for shapeless recipe") : DataResult.success(NonNullList.of(Ingredient.EMPTY, aingredient));
+					}
+				}, DataResult::success).forGetter(WalletUpgradeRecipe::getIngredients))
+				.apply(b, WalletUpgradeRecipe::new));
+
+		@Nonnull
 		@Override
-		public @Nonnull WalletUpgradeRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
-			String s = GsonHelper.getAsString(json, "group", "");
-			NonNullList<Ingredient> nonnulllist = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
-			if (nonnulllist.isEmpty()) {
-				throw new JsonParseException("No ingredients for shapeless recipe");
-			} else if (nonnulllist.size() > 3 * 3) {
-				throw new JsonParseException("Too many ingredients for shapeless recipe the max is " + (3 * 3));
-			} else {
-				ItemStack itemstack = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
-				return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);
-			}
-	    }
-
-		private static NonNullList<Ingredient> readIngredients(JsonArray ingredientArray) {
-			NonNullList<Ingredient> nonnulllist = NonNullList.create();
-
-			for(int i = 0; i < ingredientArray.size(); ++i) {
-				Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i));
-				if (!ingredient.isEmpty()) {
-					nonnulllist.add(ingredient);
-				}
-			}
-
-			return nonnulllist;
-		}
+		public Codec<WalletUpgradeRecipe> codec() { return CODEC; }
 
 		@Override
-    	public WalletUpgradeRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+    	public WalletUpgradeRecipe fromNetwork(FriendlyByteBuf buffer) {
     		String s = buffer.readUtf(32767);
     		int i = buffer.readVarInt();
     		NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i, Ingredient.EMPTY);
@@ -158,7 +143,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 			nonnulllist.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
 
     		ItemStack itemstack = buffer.readItem();
-    		return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);
+    		return new WalletUpgradeRecipe(s, itemstack, nonnulllist);
     	}
 
     	@Override

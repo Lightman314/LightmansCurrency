@@ -14,7 +14,7 @@ public class ModLootPoolEntryTypes {
     public static final RegistryObject<LootPoolEntryType> LOOT_TIER_TYPE;
 
     static {
-        LOOT_TIER_TYPE = ModRegistries.LOOT_POOL_ENTRY_TYPES.register("configured_item", () -> new LootPoolEntryType(new ConfigLoot.Serializer()));
+        LOOT_TIER_TYPE = ModRegistries.LOOT_POOL_ENTRY_TYPES.register("configured_item", () -> new LootPoolEntryType(ConfigLoot.CODEC));
     }
 
 }

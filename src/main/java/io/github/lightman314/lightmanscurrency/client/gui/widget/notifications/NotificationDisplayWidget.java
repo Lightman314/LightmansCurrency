@@ -149,8 +149,8 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-		this.handleScrollWheel(scroll);
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		this.handleScrollWheel(scrollX);
 		return true;
 	}
 	

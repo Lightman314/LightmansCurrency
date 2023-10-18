@@ -31,7 +31,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -258,7 +257,7 @@ public class TaxEntry implements IClientTracker {
     public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
     {
         if(player instanceof ServerPlayer sp && this.canAccess(player))
-            NetworkHooks.openScreen(sp, new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
+            sp.openMenu(new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
     public CompoundTag save()

@@ -25,7 +25,7 @@ public class CPacketFlagNotificationsSeen extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketFlagNotificationsSeen decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketFlagNotificationsSeen(NotificationCategory.deserialize(buffer.readAnySizeNbt())); }
+		public CPacketFlagNotificationsSeen decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketFlagNotificationsSeen(NotificationCategory.deserialize(buffer.readNbt())); }
 		@Override
 		protected void handle(@Nonnull CPacketFlagNotificationsSeen message, @Nullable ServerPlayer sender) {
 			if(sender != null)

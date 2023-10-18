@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.mixin;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -59,7 +59,7 @@ public abstract class MerchantMenuMixin {
                         ItemStack coinA = offer.getCostA();
                         ItemStack coinB = offer.getCostB();
 
-                        CoinValue tradeValue = MoneyUtil.getCoinValue(ImmutableList.of(coinA, coinB));
+                        CoinValue tradeValue = MoneyUtil.getCoinValue(ListUtil.newArrayList(coinA, coinB));
                         LightmansCurrency.LogDebug("Coin Value of the selected trade is " + tradeValue.getString());
                         Player player = this.getPlayer();
 
@@ -81,7 +81,7 @@ public abstract class MerchantMenuMixin {
                             coinA.setCount(tempC2AA);
                             coinB.setCount(tempC2AB);
 
-                            CoinValue thisValue = MoneyUtil.getCoinValue(ImmutableList.of(coinA, coinB));
+                            CoinValue thisValue = MoneyUtil.getCoinValue(ListUtil.newArrayList(coinA, coinB));
                             if(availableFunds.getValueNumber() < thisValue.getValueNumber())
                                 keepLooping = false;
                             else
@@ -149,6 +149,6 @@ public abstract class MerchantMenuMixin {
         }
     }
 
-    private static boolean isCoinOrEmpty(ItemStack item) { return MoneyUtil.isCoin(item, false) || item.isEmpty(); }
+    private static boolean isCoinOrEmpty(ItemStack item) { return item.isEmpty() || MoneyUtil.isCoin(item, false); }
 
 }

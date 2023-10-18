@@ -1,65 +1,46 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-
-import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe.MintType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipeCodecs;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CoinMintRecipeSerializer implements RecipeSerializer<CoinMintRecipe>{
 
+	private static final Codec<CoinMintRecipe> CODEC = RecordCodecBuilder.create((b) ->
+			b.group(
+					ExtraCodecs.strictOptionalField(Codec.STRING, "mintType", "OTHER").forGetter(CoinMintRecipe::getMintTypeString),
+					ExtraCodecs.strictOptionalField(Codec.INT, "duration", 0).forGetter(CoinMintRecipe::getInternalDuration),
+					Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CoinMintRecipe::getIngredient),
+					ExtraCodecs.strictOptionalField(Codec.INT, "count", 1).forGetter(CoinMintRecipe::getIngredientCount),
+					CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(CoinMintRecipe::getOutputItem))
+					.apply(b, (type,duration,ingredient,ingredientcount,result) -> new CoinMintRecipe(CoinMintRecipe.readType(type),duration,ingredient,ingredientcount,result)));
+
+	@Nonnull
 	@Override
-	public @NotNull CoinMintRecipe fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
-		if(!json.has("ingredient"))
-		{
-			throw new JsonSyntaxException("Missing ingredient, expected to find an item.");
-		}
-		Ingredient ingredient = Ingredient.fromJson(json.getAsJsonObject("ingredient"));
-		int ingredientCount = 1;
-		if(json.has("count"))
-			ingredientCount = json.get("count").getAsInt();
-
-		if(!json.has("result"))
-		{
-			throw new JsonSyntaxException("Missing result. Expected to find an item.");
-		}
-		ItemStack result = ShapedRecipe.itemStackFromJson(json.get("result").getAsJsonObject());
-		if(result.isEmpty())
-		{
-			throw new JsonSyntaxException("Result is empty.");
-		}
-		MintType type = MintType.OTHER;
-		if(json.has("mintType"))
-			type = CoinMintRecipe.readType(json.get("mintType"));
-
-		int duration = 0;
-		if(json.has("duration"))
-			duration = json.get("duration").getAsInt();
-		
-		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
-	}
+	public Codec<CoinMintRecipe> codec() { return CODEC; }
 
 	@Override
-	public CoinMintRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+	public CoinMintRecipe fromNetwork(FriendlyByteBuf buffer) {
 		CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
 		Ingredient ingredient = Ingredient.fromNetwork(buffer);
 		int ingredientCount = buffer.readInt();
 		ItemStack result = buffer.readItem();
 		int duration = buffer.readInt();
-		return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+		return new CoinMintRecipe(type, duration, ingredient, ingredientCount, result);
 	}
 
 	@Override
 	public void toNetwork(FriendlyByteBuf buffer, CoinMintRecipe recipe) {
 		buffer.writeUtf(recipe.getMintType().name());
 		recipe.getIngredient().toNetwork(buffer);
-		buffer.writeInt(recipe.ingredientCount);
+		buffer.writeInt(recipe.getIngredientCount());
 		buffer.writeItemStack(recipe.getOutputItem(), false);
 		buffer.writeInt(recipe.getInternalDuration());
 	}

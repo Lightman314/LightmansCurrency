@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class TeamSelectWidget extends EasyWidgetWithChildren {
+public class TeamSelectWidget extends EasyWidgetWithChildren implements IScrollable {
 
 	private final int rows;
 	private final Size size;
@@ -28,6 +29,8 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	private final Supplier<Team> selectedTeam;
 	private final Consumer<Integer> onPress;
 	private final List<TeamButton> teamButtons = new ArrayList<>();
+
+	private ScrollListener scrollListener = null;
 	
 	public TeamSelectWidget(ScreenPosition pos, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, teamSource, selectedTeam, onPress); }
 	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
@@ -56,6 +59,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			TeamButton button = this.addChild(new TeamButton(this.getPosition().offset(0, i * TeamButton.HEIGHT), this.size, this::onTeamSelect, () -> this.getTeam(index), () -> this.isSelected(index)));
 			this.teamButtons.add(button);
 		}
+		this.scrollListener = this.addChild(new ScrollListener(this.getArea(), this));
 	}
 
 	@Override
@@ -102,35 +106,6 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	{
 		return MathUtil.clamp(teamListSize - this.rows, 0, Integer.MAX_VALUE);
 	}
-	
-	private boolean canScrollDown()
-	{
-		return scroll < this.maxScroll(this.teamSource.get().size());
-	}
-	
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
-	{
-		if(!this.visible)
-			return false;
-		
-		if(delta < 0)
-		{			
-			if(this.canScrollDown())
-				scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(scroll > 0)
-				scroll--;
-			else
-				return false;
-		}
-		
-		return true;
-	}
 
 	private void onTeamSelect(EasyButton button)
 	{
@@ -150,5 +125,19 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	
 	@Override
 	public void playDownSound(@NotNull SoundManager soundManager) { }
-	
+
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		this.scroll = newScroll;
+		this.validateScroll();
+	}
+
+	@Override
+	public int getMaxScroll() {
+		List<Team> teams = this.teamSource.get();
+		return this.maxScroll(teams.size());
+	}
 }

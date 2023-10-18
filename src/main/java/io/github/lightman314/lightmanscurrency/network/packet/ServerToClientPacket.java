@@ -24,7 +24,7 @@ public abstract class ServerToClientPacket extends CustomPacket {
     public final void sendToTargets(@Nonnull List<PacketDistributor.PacketTarget> targets)
     {
         for(PacketDistributor.PacketTarget target : targets)
-            LightmansCurrencyPacketHandler.instance.send(target, this);
+            LightmansCurrencyPacketHandler.instance.send(this, target);
     }
 
     public static class Simple extends ServerToClientPacket {

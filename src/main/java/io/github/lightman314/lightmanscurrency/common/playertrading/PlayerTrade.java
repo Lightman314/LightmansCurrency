@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -207,8 +206,8 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
                 return false;
             }
             //Open the Player Trading menu for both involved parties
-            NetworkHooks.openScreen(host, this, this::writeAdditionalMenuData);
-            NetworkHooks.openScreen(guest, this, this::writeAdditionalMenuData);
+            host.openMenu(this, this::writeAdditionalMenuData);
+            guest.openMenu(this, this::writeAdditionalMenuData);
             LightmansCurrency.LogInfo("Trade Request accepted, and Player Trading menu should be open for both players.");
             return true;
         }

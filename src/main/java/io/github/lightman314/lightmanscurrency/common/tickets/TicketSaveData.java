@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,7 @@ public class TicketSaveData extends SavedData {
     private static TicketSaveData get() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(TicketSaveData::new, TicketSaveData::new, "lightmanscurrency_ticket_data");
+            return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(TicketSaveData::new, TicketSaveData::new, DataFixTypes.LEVEL), "lightmanscurrency_ticket_data");
         return null;
     }
 

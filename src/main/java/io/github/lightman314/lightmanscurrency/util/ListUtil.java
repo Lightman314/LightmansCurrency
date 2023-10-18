@@ -2,19 +2,16 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ListUtil {
 
-    public static <T> List<T> convertList(List<? extends T> list) {
-        return new ArrayList<>(list);
-    }
+    @SafeVarargs
+    public static <T> List<T> newArrayList(T... values) { return new ArrayList<>(Arrays.stream(values).toList()); }
 
-    public static List<Integer> createList(int[] array)
-    {
-        List<Integer> list = new ArrayList<>();
-        for(int val : array)
-            list.add(val);
-        return list;
-    }
+    public static <T> List<T> immutableCopyOf(List<T> list) { return Collections.unmodifiableList(list); }
+    @SafeVarargs
+    public static <T> List<T> immutableList(T... values) { return Collections.unmodifiableList(Arrays.asList(values)); }
+
 }

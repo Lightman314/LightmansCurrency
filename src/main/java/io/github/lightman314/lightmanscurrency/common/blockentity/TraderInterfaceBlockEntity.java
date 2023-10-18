@@ -62,7 +62,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
@@ -530,12 +529,12 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	protected abstract void hopperTick();
 	
 	public void openMenu(Player player) {
-		if(this.canAccess(player))
+		if(this.canAccess(player) && player instanceof ServerPlayer sp)
 		{
 			MenuProvider provider = this.getMenuProvider();
 			if(provider == null)
 				return;
-			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
+			sp.openMenu(provider, this.worldPosition);
 		}
 	}
 	

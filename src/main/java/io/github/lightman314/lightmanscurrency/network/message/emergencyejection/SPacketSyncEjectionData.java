@@ -17,13 +17,13 @@ public class SPacketSyncEjectionData extends ServerToClientPacket {
 	
 	public SPacketSyncEjectionData(CompoundTag data) { this.data = data; }
 	
-	public void encode(FriendlyByteBuf buffer) { buffer.writeNbt(this.data); }
+	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeNbt(this.data); }
 
 	private static class H extends Handler<SPacketSyncEjectionData>
 	{
 		@Nonnull
 		@Override
-		public SPacketSyncEjectionData decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncEjectionData(buffer.readAnySizeNbt()); }
+		public SPacketSyncEjectionData decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncEjectionData(buffer.readNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncEjectionData message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.PROXY.receiveEmergencyEjectionData(message.data);

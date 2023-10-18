@@ -346,31 +346,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.canScrollDown())
-			{
-				this.scroll++;
-				this.resetButtons();
-			}
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-			{
-				scroll--;
-				this.resetButtons();
-			}	
-			else
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		for(int i = 0; i < this.allButtons.size(); ++i)
 		{

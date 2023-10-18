@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -52,12 +53,12 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void addLayers(EntityRenderersEvent.AddLayers event)
 	{
-		addWalletLayer(event,"default");
-		addWalletLayer(event,"slim");
+		addWalletLayer(event,PlayerSkin.Model.WIDE);
+		addWalletLayer(event,PlayerSkin.Model.SLIM);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
+	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, PlayerSkin.Model skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
 		if(renderer instanceof LivingEntityRenderer livingRenderer) {

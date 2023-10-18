@@ -2,11 +2,10 @@ package io.github.lightman314.lightmanscurrency.network.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 public abstract class CustomPacket {
 
@@ -16,9 +15,8 @@ public abstract class CustomPacket {
     {
         @Nonnull
         public abstract T decode(@Nonnull FriendlyByteBuf buffer);
-        public final void handlePacket(@Nonnull T message, @Nonnull Supplier<NetworkEvent.Context> supplier)
+        public final void handlePacket(@Nonnull T message, @Nonnull CustomPayloadEvent.Context context)
         {
-            NetworkEvent.Context context = supplier.get();
             context.enqueueWork(() -> this.handle(message, context.getSender()));
             context.setPacketHandled(true);
         }

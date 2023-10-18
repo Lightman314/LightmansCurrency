@@ -41,7 +41,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		return json;
 	}
 	
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
 		buffer.writeNbt(this.auctionData);
 		buffer.writeUtf(this.id);
 	}
@@ -50,7 +50,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketCreatePersistentAuction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentAuction(buffer.readAnySizeNbt(), buffer.readUtf()); }
+		public CPacketCreatePersistentAuction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentAuction(buffer.readNbt(), buffer.readUtf()); }
 		@Override
 		protected void handle(@Nonnull CPacketCreatePersistentAuction message, @Nullable ServerPlayer sender) {
 			if(LCAdminMode.isAdminPlayer(sender))
@@ -79,7 +79,6 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 					persistentAuctions.add(auctionJson);
 					TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 					sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.add", message.id));
-					return;
 				}
 				else
 				{
@@ -106,7 +105,6 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						}
 					}
 					LightmansCurrency.LogError("Could not generate ID, as all auction_# ID's are somehow spoken for.");
-
 				}
 			}
 			else if(sender != null)

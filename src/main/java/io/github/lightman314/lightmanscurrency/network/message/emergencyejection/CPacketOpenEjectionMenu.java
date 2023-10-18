@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.network.message.emergencyejectio
 import io.github.lightman314.lightmanscurrency.common.menus.EjectionRecoveryMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,7 @@ public class CPacketOpenEjectionMenu extends ClientToServerPacket.Simple {
 		@Override
 		protected void handle(@Nonnull CPacketOpenEjectionMenu message, @Nullable ServerPlayer sender) {
 			if(sender != null)
-				NetworkHooks.openScreen(sender, EjectionRecoveryMenu.PROVIDER);
+				sender.openMenu(EjectionRecoveryMenu.PROVIDER);
 		}
 	}
 	

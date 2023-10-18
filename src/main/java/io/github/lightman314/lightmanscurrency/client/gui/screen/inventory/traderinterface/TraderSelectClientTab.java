@@ -136,8 +136,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	@Override
 	public void tick() {
-		
-		this.searchField.tick();
 
 		for (NetworkTraderButton button : this.traderButtons) {
 			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();

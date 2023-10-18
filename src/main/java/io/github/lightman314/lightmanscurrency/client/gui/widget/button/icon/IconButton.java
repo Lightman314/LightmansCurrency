@@ -53,23 +53,12 @@ public class IconButton extends EasyButton {
 	
 	public void setIcon(@Nonnull NonNullFunction<IconButton,IconData> iconSource) { this.iconSource = iconSource; }
 
-	//Copy/pasted from AbstractButton.getTextureY()
-	private int getTextureY() {
-		int i = 1;
-		if (!this.active) {
-			i = 0;
-		} else if (this.isHoveredOrFocused()) {
-			i = 2;
-		}
-
-		return 46 + (i * 20);
-	}
 
 	@Override
 	public void renderWidget(@NotNull EasyGuiGraphics gui)
 	{
 
-		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY());
+		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.isHoveredOrFocused());
 
         if(!this.active)
             gui.setColor(0.5f,0.5f,0.5f);

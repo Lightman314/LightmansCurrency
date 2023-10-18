@@ -43,7 +43,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.*;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
-import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -135,9 +134,6 @@ public class LightmansCurrency {
 	private void commonSetupWork(FMLCommonSetupEvent event) {
 
 		LightmansCurrencyPacketHandler.init();
-
-		//Register Crafting Conditions
-		LCCraftingConditions.register();
 
 		//Initialize the TraderData deserializers
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);

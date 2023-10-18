@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -65,7 +66,7 @@ public class TaxSaveData extends SavedData {
     private static TaxSaveData get() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(TaxSaveData::new, TaxSaveData::new, "lightmanscurrency_tax_data");
+            return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(TaxSaveData::new, TaxSaveData::new, DataFixTypes.LEVEL), "lightmanscurrency_tax_data");
         return null;
     }
 

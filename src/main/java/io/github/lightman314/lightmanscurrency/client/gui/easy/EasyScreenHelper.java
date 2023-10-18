@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -15,10 +14,9 @@ import java.util.List;
 public class EasyScreenHelper {
 
     @Nullable
+    @Deprecated
     public static IEasyTickable getWidgetTicker(@Nullable Object widget)
     {
-        if(widget instanceof EditBox e)
-            return e::tick;
         if(widget instanceof IEasyTickable t)
             return t;
         return null;

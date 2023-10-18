@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -74,13 +75,12 @@ public final class EasyGuiGraphics {
     }
     public void blitSpriteFadeHoriz(@Nonnull Sprite sprite, @Nonnull ScreenPosition pos, float percent, boolean hovered) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent, hovered); }
 
-    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY)
+    public void renderButtonBG(int x, int y, int width, int height, float alpha, boolean isHovered)
     {
-        Minecraft minecraft = Minecraft.getInstance();
         this.setColor(1f, 1f, 1f, alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        this.gui.blitNineSliced(AbstractWidget.WIDGETS_LOCATION, this.offset.x + x, this.offset.y + y, width, height, 20, 4, 200, 20, 0, textureY);
+        this.gui.blitSprite(IconAndButtonUtil.BUTTON_SPRITES.get(true, isHovered), this.offset.x + x, this.offset.y + y, width, height);
         this.resetColor();
     }
 

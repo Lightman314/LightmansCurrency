@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_tr
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
@@ -73,12 +74,27 @@ public class LCResourcePacks {
         public void addToRepository(@Nonnull Consumer<Pack> consumer)
         {
             Path resourcePath = ModList.get().getModFileById(this.modid).getFile().findResource(this.path);
-            Pack pack = Pack.readMetaAndCreate("builtin/" + this.path, this.name, false, (path) -> new PathPackResources(path, resourcePath, false), PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
+            Pack pack = Pack.readMetaAndCreate("builtin/" + this.path, this.name, false, new PackSupplier(resourcePath), PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
             if(pack == null)
                 LightmansCurrency.LogWarning("Custom Resource Pack of '" + this.modid + "/" + this.path + " failed to load properly!");
             else
                 consumer.accept(pack);
         }
+
+        private record PackSupplier(Path root) implements Pack.ResourcesSupplier {
+            @Nonnull
+            @Override
+            public PackResources openPrimary(@Nonnull String path) {
+                return new PathPackResources(path, this.root, false);
+            }
+
+            @Nonnull
+            @Override
+            public PackResources openFull(@Nonnull String path, @Nonnull Pack.Info info) {
+                return new PathPackResources(path, this.root, false);
+            }
+        }
+
     }
 
 }

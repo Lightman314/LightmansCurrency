@@ -505,6 +505,7 @@ public class Config {
 			this.allowFakePlayerCoinDrops = builder
 					.comment("Whether modded machines that emulate player behaviour can trigger coin drops from entities.",
 							"Set to false to help prevent coin farming.")
+					.comment("NOTE: DOES NOT FUNCTION IN 1.20.2 AT THIS TIME!")
 					.define("allowFakePlayerTrigger", true);
 
 			//Copper

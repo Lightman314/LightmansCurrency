@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
@@ -21,8 +18,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
 
 public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
 
@@ -30,8 +28,8 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
     private final Item result;
     private final int count;
     private final List<Ingredient> ingredients = Lists.newArrayList();
-    private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
-    @javax.annotation.Nullable
+    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+    @Nullable
     private String group;
 
     public WalletUpgradeRecipeBuilder(RecipeCategory category, ItemLike result, int count) {
@@ -75,8 +73,8 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
     }
 
     @Nonnull
-    public WalletUpgradeRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull CriterionTriggerInstance criterion) {
-        this.advancement.addCriterion(name, criterion);
+    public WalletUpgradeRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull Criterion<?> criterion) {
+        this.criteria.put(name, criterion);
         return this;
     }
 
@@ -91,14 +89,15 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
     public Item getResult() { return this.result; }
 
     @Override
-    public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
+    public void save(@Nonnull RecipeOutput output, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
-        this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.result, this.count, this.group == null ? "" : this.group, determineBookCategory(this.category), this.ingredients, this.advancement, id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+        Advancement.Builder advancement$builder = output.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement$builder::addCriterion);
+        output.accept(new Result(id, this.result, this.count, this.group == null ? "" : this.group, determineBookCategory(this.category), this.ingredients, advancement$builder, id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
     }
 
     private void ensureValid(ResourceLocation id) {
-        if (this.advancement.getCriteria().isEmpty()) {
+        if (this.criteria.isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + id);
         }
     }
@@ -109,8 +108,7 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
         private final int count;
         private final String group;
         private final List<Ingredient> ingredients;
-        private final Advancement.Builder advancement;
-        private final ResourceLocation advancementId;
+        private final AdvancementHolder advancement;
 
         public Result(ResourceLocation id, Item result, int count, String group, CraftingBookCategory category, List<Ingredient> ingredients, Advancement.Builder advancement, ResourceLocation advancementId) {
             super(category);
@@ -119,8 +117,7 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
             this.count = count;
             this.group = group;
             this.ingredients = ingredients;
-            this.advancement = advancement;
-            this.advancementId = advancementId;
+            this.advancement = advancement.build(advancementId);
         }
 
         public void serializeRecipeData(@Nonnull JsonObject json) {
@@ -132,7 +129,7 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
             JsonArray jsonarray = new JsonArray();
 
             for(Ingredient ingredient : this.ingredients) {
-                jsonarray.add(ingredient.toJson());
+                jsonarray.add(ingredient.toJson(false));
             }
 
             json.add("ingredients", jsonarray);
@@ -146,16 +143,13 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
         }
 
         @Nonnull
-        public RecipeSerializer<?> getType() { return ModRecipes.WALLET_UPGRADE.get(); }
+        public RecipeSerializer<?> type() { return ModRecipes.WALLET_UPGRADE.get(); }
 
         @Nonnull
-        public ResourceLocation getId() { return this.id; }
+        public ResourceLocation id() { return this.id; }
 
         @Nullable
-        public JsonObject serializeAdvancement() { return this.advancement.serializeToJson(); }
-
-        @Nullable
-        public ResourceLocation getAdvancementId() { return this.advancementId; }
+        public AdvancementHolder advancement() { return this.advancement; }
 
     }
 

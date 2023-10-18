@@ -24,7 +24,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -207,7 +206,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 				player.sendSystemMessage(EasyText.translatable("message.lightmanscurrency.wallet.none_equipped"));
                 return;
 			}
-			NetworkHooks.openScreen(player, menu, dataWriter);
+			player.openMenu(menu, dataWriter);
 		}
         else
 		{
@@ -216,7 +215,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 				return;
 			if(!WalletItem.isWallet(inventory.getItem(walletIndex)))
 				return;
-			NetworkHooks.openScreen(player, menu, dataWriter);
+			player.openMenu(menu, dataWriter);
 		}
 	}
 

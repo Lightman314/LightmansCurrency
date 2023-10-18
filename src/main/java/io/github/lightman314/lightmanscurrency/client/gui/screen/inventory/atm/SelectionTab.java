@@ -173,8 +173,6 @@ public class SelectionTab extends ATMTab {
 	public void tick() {
 		this.buttonPersonalAccount.active = !this.isSelfSelected();
 		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
-		if(this.adminMode)
-			this.playerAccountSelect.tick();
 	}
 
 	@Override

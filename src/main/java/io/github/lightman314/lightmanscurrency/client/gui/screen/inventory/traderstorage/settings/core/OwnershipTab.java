@@ -109,8 +109,6 @@ public class OwnershipTab extends SettingsSubTab {
 
         this.refreshTeamList();
 
-        this.newOwnerInput.tick();
-
         this.buttonSetOwner.active = !this.newOwnerInput.getValue().isBlank();
         this.buttonSetTeamOwner.active = this.getSelectedTeam() != null;
 

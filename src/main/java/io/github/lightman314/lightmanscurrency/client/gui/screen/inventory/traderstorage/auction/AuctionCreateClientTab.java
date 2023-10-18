@@ -160,7 +160,6 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		{
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = !this.locked;
 			this.buttonSubmitPersistentAuction.active = this.pendingAuction.isValid();
-			this.persistentAuctionIDInput.tick();
 		}
 		else
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = false;

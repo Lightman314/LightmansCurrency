@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
@@ -32,7 +31,6 @@ import net.minecraft.world.entity.player.Inventory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@IPNIgnore
 public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 
 	private final Map<Integer,TraderStorageClientTab<?>> availableTabs = new HashMap<>();

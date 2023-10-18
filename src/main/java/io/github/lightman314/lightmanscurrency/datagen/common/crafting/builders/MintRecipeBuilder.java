@@ -3,13 +3,11 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe.MintType;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -20,9 +18,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.function.Consumer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class MintRecipeBuilder  implements RecipeBuilder {
+public class MintRecipeBuilder implements RecipeBuilder {
 
     private final MintType type;
     private final Item result;
@@ -31,7 +30,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     private Ingredient ingredient = null;
     private int ingredientCount = 1;
 
-    private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
+    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
     public MintRecipeBuilder(MintType type, ItemLike result, int count) {
         this.type = type;
@@ -66,7 +65,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
 
     @Nonnull
     @Override
-    public MintRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull CriterionTriggerInstance criteria) { this.advancement.addCriterion(name, criteria); return this; }
+    public MintRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull Criterion<?> criteria) { this.criteria.put(name, criteria); return this; }
 
     @Nonnull
     @Override
@@ -77,14 +76,15 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     public Item getResult() { return this.result; }
 
     @Override
-    public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
+    public void save(@Nonnull RecipeOutput output, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
-        this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.type, this.result, this.count, this.duration, this.ingredient, this.ingredientCount, this.advancement, id.withPrefix("recipes/coin_mint/")));
+        Advancement.Builder advancement$builder = output.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement$builder::addCriterion);
+        output.accept(new Result(id, this.type, this.result, this.count, this.duration, this.ingredient, this.ingredientCount, advancement$builder, id.withPrefix("recipes/coin_mint/")));
     }
 
     private void ensureValid(ResourceLocation id) {
-        if (this.advancement.getCriteria().isEmpty()) {
+        if (this.criteria.isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + id);
         }
         if(this.ingredient == null)
@@ -101,8 +101,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
         private final int duration;
         private final Ingredient ingredient;
         private final int ingredientCount;
-        private final Advancement.Builder advancement;
-        private final ResourceLocation advancementId;
+        private final AdvancementHolder advancement;
 
         public Result(ResourceLocation id, MintType type, Item result, int count, int duration, Ingredient ingredient, int ingredientCount, Advancement.Builder advancement, ResourceLocation advancementId)
         {
@@ -113,14 +112,13 @@ public class MintRecipeBuilder  implements RecipeBuilder {
             this.duration = duration;
             this.ingredient = ingredient;
             this.ingredientCount = ingredientCount;
-            this.advancement = advancement;
-            this.advancementId = advancementId;
+            this.advancement = advancement.build(advancementId);
         }
 
         @Override
         public void serializeRecipeData(@Nonnull JsonObject json) {
             json.addProperty("mintType", this.type.toString());
-            json.add("ingredient", this.ingredient.toJson());
+            json.add("ingredient", this.ingredient.toJson(false));
             if(this.ingredientCount > 1)
                 json.addProperty("count", this.ingredientCount);
 
@@ -135,16 +133,13 @@ public class MintRecipeBuilder  implements RecipeBuilder {
 
         @Nonnull
         @Override
-        public ResourceLocation getId() { return this.id; }
+        public ResourceLocation id() { return this.id; }
         @Nonnull
         @Override
-        public RecipeSerializer<?> getType() { return ModRecipes.COIN_MINT.get(); }
+        public RecipeSerializer<?> type() { return ModRecipes.COIN_MINT.get(); }
         @Nullable
         @Override
-        public JsonObject serializeAdvancement() { return this.advancement.serializeToJson(); }
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() { return this.advancementId; }
+        public AdvancementHolder advancement() { return this.advancement; }
 
     }
 

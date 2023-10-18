@@ -73,8 +73,7 @@ public class TeamOwnerTab extends TeamTab{
 
 	@Override
 	public void tick() {
-		
-		this.newOwnerName.tick();
+
 		this.buttonChangeOwner.active = !this.newOwnerName.getValue().isBlank();
 		
 	}
