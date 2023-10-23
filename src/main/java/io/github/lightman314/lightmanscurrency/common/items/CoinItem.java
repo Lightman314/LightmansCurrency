@@ -38,6 +38,8 @@ public class CoinItem extends Item{
 		CoinData coinData = MoneyUtil.getData(stack.getItem());
 		if(coinData != null)
 		{
+			if(!Config.serverSpec.isLoaded())
+				return;
 			switch (Config.SERVER.coinTooltipType.get()) {
 				case DEFAULT -> {
 					if (coinData.convertsDownwards()) {

@@ -16,15 +16,14 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMSetPlayerAccount;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketATMSetPlayerAccount;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
@@ -69,7 +68,7 @@ public class SelectionTab extends ATMTab {
 		this.buttonPersonalAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 15), 70, 20, EasyText.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
 		
 		this.buttonToggleAdminMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
-		this.buttonToggleAdminMode.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().getPlayer());
+		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
 		
 		this.playerAccountSelect = this.addChild(new EditBox(this.screen.getFont(), screenArea.x + 7, screenArea.y + 20, 162, 20, EasyText.empty()));
 		this.playerAccountSelect.visible = false;
@@ -113,14 +112,14 @@ public class SelectionTab extends ATMTab {
 			if(selectedTeam != null && team.getID() == selectedTeam.getID())
 				return;
 			BankReference account = TeamBankReference.of(team).flagAsClient();
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
+			new CPacketSelectBankAccount(account).send();
 		} catch(Throwable ignored) { }
 	}
 	
 	private void PressPersonalAccount(EasyButton button)
 	{
 		BankReference account = PlayerBankReference.of(this.screen.getMenu().getPlayer());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
+		new CPacketSelectBankAccount(account).send();
 	}
 	
 	private void ToggleAdminMode(EasyButton button) {
@@ -136,7 +135,7 @@ public class SelectionTab extends ATMTab {
 		String playerName = this.playerAccountSelect.getValue();
 		this.playerAccountSelect.setValue("");
 		if(!playerName.isBlank())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageATMSetPlayerAccount(playerName));
+			new CPacketATMSetPlayerAccount(playerName).send();
 	}
 	
 	public void ReceiveSelectPlayerResponse(MutableComponent message) {
@@ -173,7 +172,7 @@ public class SelectionTab extends ATMTab {
 	@Override
 	public void tick() {
 		this.buttonPersonalAccount.active = !this.isSelfSelected();
-		this.buttonToggleAdminMode.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().getPlayer());
+		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
 		if(this.adminMode)
 			this.playerAccountSelect.tick();
 	}

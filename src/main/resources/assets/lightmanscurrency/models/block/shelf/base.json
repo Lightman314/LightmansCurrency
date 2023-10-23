@@ -1,6 +1,6 @@
 {
 	"credit": "Made with Blockbench",
-    "parent": "lightmanscurrency:block/block",
+	"parent": "lightmanscurrency:block/block",
 	"textures": { "particle": "#main" },
 	"elements": [
 		{
@@ -17,24 +17,23 @@
 			}
 		},
 		{
-            "name": "Shelf",
+			"name": "Shelf",
 			"from": [0, 0, 1],
 			"to": [16, 2, 5],
 			"faces": {
-				"east": {"uv": [13, 14, 15, 16], "texture": "#main"},
+				"east": {"uv": [11, 14, 15, 16], "texture": "#main"},
 				"south": {"uv": [0, 14, 16, 16], "texture": "#main"},
-				"west": {"uv": [1, 14, 3, 16], "texture": "#main"},
+				"west": {"uv": [1, 14, 5, 16], "texture": "#main"},
 				"up": {"uv": [0, 1, 16, 5], "texture": "#main"},
 				"down": {"uv": [0, 11, 16, 15], "texture": "#main"}
 			}
 		}
 	],
-    "display":
-    {
-        "fixed": {
-            "rotation": [0, 180, 0],
-            "scale" : [0.5, 0.5, 0.5],
-            "translation": [0, 0, -3.5]
-        }
-    }
+	"display": {
+		"fixed": {
+			"rotation": [0, 180, 0],
+			"translation": [0, 0, -3.5],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	}
 }

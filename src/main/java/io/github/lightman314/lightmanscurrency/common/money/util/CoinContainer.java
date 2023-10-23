@@ -14,7 +14,7 @@ public class CoinContainer extends SimpleContainer
     public CoinContainer(int size, boolean allowHidden) { super(size); this.allowHidden = allowHidden; }
     public CoinContainer(Container other) { this(other, true); }
     public CoinContainer(Container other, boolean allowHidden) {
-        this(other.getContainerSize());
+        this(other.getContainerSize(), allowHidden);
         for(int i = 0; i < other.getContainerSize(); ++i)
             this.setItem(i, other.getItem(i));
     }

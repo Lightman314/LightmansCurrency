@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -14,19 +13,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
-	public ArmorDisplayBlock(Properties properties)
-	{
-		super(properties);
-	}
+	public ArmorDisplayBlock(Properties properties) { super(properties); }
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) {
@@ -45,21 +37,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
-	
-	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) { return new ArrayList<>(); }
-	
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state) { return new ArrayList<>(); }
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state){ return 0f; }
-	
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex() { return -1; }
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_ARMOR; }

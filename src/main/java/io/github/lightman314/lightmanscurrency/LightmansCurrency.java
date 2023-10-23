@@ -5,12 +5,16 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.types.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.*;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.byg.BYGCustomWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
+import io.github.lightman314.lightmanscurrency.integration.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -21,7 +25,6 @@ import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
@@ -42,15 +45,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
-import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
-import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -128,18 +128,16 @@ public class LightmansCurrency {
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
 
-		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", () -> {
-			MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-			FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
-		}, null);
+		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
+
+		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, null);
 
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
         
     }
 	
 	private void imc(InterModEnqueueEvent event) {
-		if(isCuriosLoaded())
-			safeEnqueueWork(event, "Error during LC ==> Curios Inter-mod Communications!", this::curiosIMC);
+		safeEnqueueWork(event, "", IntegrationUtil.SafeEnqueueWork("curios", this::curiosIMC, "Error during LC ==> Curios Inter-mod Communications!"));
 	}
 
 	private void curiosIMC() {
@@ -255,9 +253,6 @@ public class LightmansCurrency {
     		LootManager.validateEntityDropList();
     		LootManager.debugLootConfigs();
 
-			//Regenerate the loot tables so that any itemLoot entries being changed will be reflected in-game.
-			LootManager.regenerateLootTables();
-
 			//Only reload villager overrides on the initial load, as it's impossible to change the values after the villager trades have been loaded.
 			Config.reloadVillagerOverrides();
     	}
@@ -272,14 +267,12 @@ public class LightmansCurrency {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
-    	
     	//Preload target
     	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
     	//Sync time
-    	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
+		SPacketSyncTime.syncWith(target);
     	//Sync admin list
-    	LightmansCurrencyPacketHandler.instance.send(target, CommandLCAdmin.getAdminSyncMessage());
-    	
+		LCAdminMode.sendSyncPacket(target);
     }
     
     /**

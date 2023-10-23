@@ -9,7 +9,6 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -18,6 +17,7 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -74,11 +74,13 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
         return this;
     }
 
+    @Nonnull
     public WalletUpgradeRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull CriterionTriggerInstance criterion) {
         this.advancement.addCriterion(name, criterion);
         return this;
     }
 
+    @Nonnull
     public WalletUpgradeRecipeBuilder group(@Nullable String group) {
         this.group = group;
         return this;
@@ -135,7 +137,7 @@ public class WalletUpgradeRecipeBuilder extends CraftingRecipeBuilder implements
 
             json.add("ingredients", jsonarray);
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result).toString());
+            jsonobject.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
             if (this.count > 1) {
                 jsonobject.addProperty("count", this.count);
             }

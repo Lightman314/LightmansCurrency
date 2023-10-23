@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferen
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
+import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketInitializeClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
+import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketUpdateClientBank;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -29,7 +29,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -140,7 +139,7 @@ public class BankSaveData extends SavedData {
 			BankAccount bankAccount = GetBankAccount(false, player);
 			CompoundTag compound = bankAccount.save();
 			compound.putUUID("Player", player);
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientBank(compound));
+			new SPacketUpdateClientBank(compound).sendToAll();
 		}
 	}
 	
@@ -180,7 +179,7 @@ public class BankSaveData extends SavedData {
 			return;
 		if(player.level.isClientSide)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
+			new CPacketSelectBankAccount(account).send();
 		}
 		else
 		{
@@ -203,8 +202,7 @@ public class BankSaveData extends SavedData {
 				}
 				
 				bsd.setDirty();
-				try {
-					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncSelectedBankAccount(account));
+				try { new SPacketSyncSelectedBankAccount(account).sendTo(player);
 				} catch(Throwable ignored) {}
 			}
 		}
@@ -229,11 +227,11 @@ public class BankSaveData extends SavedData {
 			bankList.add(tag);
 		});
 		compound.put("BankAccounts", bankList);
-		LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound));
+		new SPacketInitializeClientBank(compound).sendToTarget(target);
 		
 		//Update to let them know their selected bank account
 		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());
-		LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncSelectedBankAccount(selectedAccount));
+		new SPacketSyncSelectedBankAccount(selectedAccount).sendToTarget(target);
 		
 	}
 	

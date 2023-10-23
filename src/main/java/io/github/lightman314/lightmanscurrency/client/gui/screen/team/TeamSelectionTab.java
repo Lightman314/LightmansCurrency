@@ -14,8 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.teams.MessageCreateTeam;
+import io.github.lightman314.lightmanscurrency.network.message.teams.CPacketCreateTeam;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -115,7 +114,7 @@ public class TeamSelectionTab extends TeamTab {
 	{
 		if(this.newTeamName.getValue().isEmpty())
 			return;
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCreateTeam(this.newTeamName.getValue()));
+		new CPacketCreateTeam(this.newTeamName.getValue()).send();
 		this.newTeamName.setValue("");
 	}
 	

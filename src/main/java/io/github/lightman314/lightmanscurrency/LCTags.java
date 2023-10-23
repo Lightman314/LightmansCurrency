@@ -30,14 +30,31 @@ public class LCTags {
         //Trader Tags for Advancements
         public static final TagKey<Item> TRADER = tag("trader");
         public static final TagKey<Item> TRADER_NORMAL = tag("trader_normal");
+
+        public static final TagKey<Item> TRADER_DISPLAY_CASE = tag("traders/display_case");
+        public static final TagKey<Item> TRADER_SHELF = tag("traders/shelf");
+        public static final TagKey<Item> TRADER_SHELF_2x2 = tag("traders/shelf_2x2");
+        public static final TagKey<Item> TRADER_CARD_DISPLAY = tag("traders/card_display");
+        public static final TagKey<Item> TRADER_VENDING_MACHINE = tag("traders/vending_machine");
+        public static final TagKey<Item> TRADER_FREEZER = tag("traders/freezer");
+        public static final TagKey<Item> TRADER_LARGE_VENDING_MACHINE = tag("traders/large_vending_machine");
+
         public static final TagKey<Item> TRADER_NETWORK = tag("trader_network");
+        public static final TagKey<Item> TRADER_NETWORK_ITEM = tag("traders/network/item");
         public static final TagKey<Item> TRADER_SPECIALTY = tag("trader_specialty");
+        public static final TagKey<Item> TRADER_SPECIALTY_ARMOR_DISPLAY = tag("traders/special/armor_display");
+        public static final TagKey<Item> TRADER_SPECIALTY_TICKET_KIOSK = tag("traders/special/ticket_kiosk");
+        public static final TagKey<Item> TRADER_SPECIALTY_BOOKSHELF = tag("traders/special/bookshelf");
+        public static final TagKey<Item> TRADER_SPECIALTY_SLOT_MACHINE = tag("traders/special/slot_machine");
+        public static final TagKey<Item> TRADER_SPECIALTY_PAYGATE = tag("traders/special/paygate");
+
         public static final TagKey<Item> TRADER_INTERFACE = tag("trader_interface");
 
         public static final TagKey<Item> NETWORK_TERMINAL = tag("network_terminal");
         @Deprecated
         public static final TagKey<Item> TRADING_TERMINAL = tag("trading_terminal");
         public static final TagKey<Item> ATM = tag("atm");
+        public static final TagKey<Item> AUCTION_STAND = tag("auction_stand");
 
         public static final TagKey<Item> COIN_JAR_NORMAL = tag("coin_jar/normal");
         public static final TagKey<Item> COIN_JAR_ALL = tag("coin_jar/all");

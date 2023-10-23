@@ -24,8 +24,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
@@ -189,7 +189,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))

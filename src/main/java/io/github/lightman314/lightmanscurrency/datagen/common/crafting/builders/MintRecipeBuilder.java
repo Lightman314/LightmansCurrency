@@ -59,7 +59,7 @@ public class MintRecipeBuilder  implements RecipeBuilder {
     @Nonnull
     public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient) { return this.accepts(ingredient, 1); }
     @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient, int count) { this.ingredient = ingredient; this.ingredientCount = 1; return this; }
+    public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient, int count) { this.ingredient = ingredient; this.ingredientCount = count; return this; }
 
     @Nonnull
     public MintRecipeBuilder ofDuration(int duration) { this.duration = duration; return this; }
@@ -128,9 +128,9 @@ public class MintRecipeBuilder  implements RecipeBuilder {
             resultObject.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
             if(this.count > 1)
                 resultObject.addProperty("count", this.count);
-            if(this.duration > 0)
-                resultObject.addProperty("duration", this.duration);
             json.add("result", resultObject);
+            if(this.duration > 0)
+                json.addProperty("duration", this.duration);
         }
 
         @Nonnull

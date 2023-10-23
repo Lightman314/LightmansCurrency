@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import net.minecraft.client.gui.Font;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,36 +15,40 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> extends
 	public final TraderStorageScreen screen;
 	public final TraderStorageMenu menu;
 	public final T commonTab;
-	
+
 	protected TraderStorageClientTab(Object screen, T commonTab) {
 		super((IEasyScreen)screen);
 		this.screen = (TraderStorageScreen)screen;
 		this.menu = this.screen.getMenu();
 		this.commonTab = commonTab;
 	}
-	
+
 	@Override
 	public int getColor() { return 0xFFFFFF; }
-	
+
 	/**
 	 * Whether the tab button for this tab should be visible. Used to hide the advanced trade tab from the screen, to only be opened when needed.
 	 */
 	public boolean tabButtonVisible() { return true; }
-	
+
 	/**
 	 * The trade index of the trade that the trade rule button should open.
 	 */
 	public int getTradeRuleTradeIndex() { return -1; }
-	
+
 	/**
 	 * Processes a client -> client message from another tab immediately after the tab was changed.
 	 */
+	@Deprecated(since = "2.1.2.4")
 	public void receiveSelfMessage(CompoundTag message) { }
-	
+	public void receiveSelfMessage(LazyPacketData message) { }
+
 	/**
 	 * Processes a server -> client message response to an action made on the client.
 	 */
+	@Deprecated(since = "2.1.2.4")
 	public void receiveServerMessage(CompoundTag message) { }
+	public void receiveServerMessage(LazyPacketData message) { }
 
 	public boolean shouldRenderInventoryText() { return true; }
 

@@ -14,8 +14,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
@@ -23,14 +23,13 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.persistentdata.MessageAddPersistentAuction;
+import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentAuction;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -49,7 +48,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
-	public boolean blockInventoryClosing() { return CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player); }
+	public boolean blockInventoryClosing() { return LCAdminMode.isAdminPlayer(this.screen.getMenu().player); }
 	
 	AuctionTradeData pendingAuction;
 	
@@ -101,12 +100,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		
 		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA)
 				.withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION)));
-		this.buttonSubmitPersistentAuction.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player);
+		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().player);
 		this.buttonSubmitPersistentAuction.active = false;
 		
 		int idWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"));
 		this.persistentAuctionIDInput = this.addChild((new EditBox(this.getFont(), screenArea.x + idWidth + 2, screenArea.y - 40, screenArea.width - idWidth - 2, 18, EasyText.empty())));
-		this.persistentAuctionIDInput.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player);
+		this.persistentAuctionIDInput.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().player);
 		
 	}
 	
@@ -129,7 +128,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		if(this.locked && this.successTime != 0)
 			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
-		if(CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player))
+		if(LCAdminMode.isAdminPlayer(this.screen.getMenu().player))
 			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"), 0, -35, 0xFFFFFF);
 		
 	}
@@ -157,7 +156,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
-		if(CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player))
+		if(LCAdminMode.isAdminPlayer(this.screen.getMenu().player))
 		{
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = !this.locked;
 			this.buttonSubmitPersistentAuction.active = this.pendingAuction.isValid();
@@ -203,11 +202,11 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	}
 	
 	private void submitPersistentAuction(EasyButton button) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddPersistentAuction(this.pendingAuction.getAsNBT(), this.persistentAuctionIDInput.getValue()));
+		new CPacketCreatePersistentAuction(this.pendingAuction.getAsNBT(), this.persistentAuctionIDInput.getValue()).send();
 	}
 	
 	@Override
-	public void receiveServerMessage(CompoundTag message) {
+	public void receiveServerMessage(LazyPacketData message) {
 		if(message.contains("AuctionCreated"))
 		{
 			//LightmansCurrency.LogInfo("Received create response message from the server.\nAuction Created: " + message.getBoolean("AuctionCreated"));

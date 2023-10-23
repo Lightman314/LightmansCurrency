@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -20,10 +21,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketStoreCoins;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -39,7 +39,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 	public TraderStorageClientTab<?> currentTab() { return this.availableTabs.get(this.menu.getCurrentTabIndex()); }
 
 	Map<Integer,TabButton> tabButtons = new HashMap<>();
-	
+
 	EasyButton buttonShowTrades;
 	EasyButton buttonCollectMoney;
 
@@ -66,8 +66,9 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		else
 			LightmansCurrency.LogDebug("Storage Screen created with " + this.availableTabs.size() + " client tabs.");
 		menu.addMessageListener(this::serverMessage);
+		menu.addListener(this::serverMessage);
 	}
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea) {
 
@@ -110,7 +111,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		this.currentTab().onOpen();
 
 		this.containerTick();
-		
+
 	}
 
 	private void tickTabButtons()
@@ -149,14 +150,14 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 
 		//Main BG
 		gui.renderNormalBackground(TraderScreen.GUI_TEXTURE, this);
-		
+
 		//Coin Slots
 		for(CoinSlot slot : this.menu.getCoinSlots())
 		{
 			if(slot.isActive())
 				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, this.imageWidth, 0, 18, 18);
 		}
-		
+
 		//Current tab
 		if(this.currentTab() != null)
 		{
@@ -175,7 +176,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		try { this.currentTab().renderAfterWidgets(gui);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), t); }
 	}
-	
+
 	@Override
 	public void screenTick()
 	{
@@ -184,102 +185,124 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 			this.onClose();
 			return;
 		}
-		
+
 		this.menu.validateCoinSlots();
-		
+
 		if(!this.menu.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			this.onClose();
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.menu.getTrader().getID()));
+			new CPacketOpenTrades(this.menu.getTrader().getID()).send();
 			return;
 		}
 
 		//Reset to the default tab if the currently selected tab doesn't have access permissions
 		if(!this.currentTab().commonTab.canOpen(this.menu.player))
 			this.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-		
+
 	}
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }
-	
+
 	private TabButton getTabButton(int key) {
 		if(this.tabButtons.containsKey(key))
 			return this.tabButtons.get(key);
 		return null;
 	}
 
-	public void changeTab(int newTab) { this.changeTab(newTab, true, null); }
-	
+	public void changeTab(int newTab) { this.changeTab(newTab, true, (LazyPacketData.Builder)null); }
+
+	@Deprecated(since = "2.1.2.4")
 	public void changeTab(int newTab, boolean sendMessage, @Nullable CompoundTag selfMessage) {
-		
+		this.changeTab(newTab, sendMessage, selfMessage == null ? null : LazyPacketData.simpleTag("OldMessage", selfMessage));
+	}
+
+	public void changeTab(int newTab, boolean sendMessage, @Nullable LazyPacketData.Builder selfMessage) {
+
 		if(newTab == this.menu.getCurrentTabIndex())
 			return;
-		
+
 		//Close the old tab
 		int oldTab = this.menu.getCurrentTabIndex();
 		this.currentTab().onClose();
-		
+
 		//Make the old tabs button active again
 		TabButton button = this.getTabButton(this.menu.getCurrentTabIndex());
 		if(button != null)
 			button.active = true;
-		
+
 		//Change the tab officially
 		this.menu.changeTab(newTab);
-		
+
 		//Make the tab button for the current tab inactive
 		button = this.getTabButton(this.menu.getCurrentTabIndex());
 		if(button != null)
 			button.active = false;
-		
+
 		//Open the new tab
 		if(selfMessage != null)
-			this.currentTab().receiveSelfMessage(selfMessage);
+		{
+			LazyPacketData message = selfMessage.build();
+			if(message.contains("OldMessage", LazyPacketData.TYPE_NBT))
+				this.currentTab().receiveSelfMessage(message.getNBT("OldMessage"));
+			this.currentTab().receiveSelfMessage(message);
+		}
+
 		this.currentTab().onOpen();
-		
+
 		//Inform the server that the tab has been changed
 		if(oldTab != this.menu.getCurrentTabIndex() && sendMessage)
-			this.menu.sendMessage(this.menu.createTabChangeMessage(newTab, selfMessage));
-		
+			this.menu.SendMessage(this.menu.createTabChangeMessage(newTab, selfMessage));
+
 	}
 
+	@Deprecated(since = "2.1.2.4")
 	public void selfMessage(CompoundTag message) {
 		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
 		if(message.contains("ChangeTab",Tag.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"), false, message);
 		this.currentTab().receiveSelfMessage(message);
 	}
-	
+
+	public void selfMessage(LazyPacketData.Builder message) {
+		LazyPacketData bm = message.build();
+		if(bm.contains("OldMessage", LazyPacketData.TYPE_NBT))
+			this.selfMessage(bm.getNBT("OldMessage"));
+		if(bm.contains("ChangeTab", LazyPacketData.TYPE_INT))
+			this.changeTab(bm.getInt("ChangeTab"), false, message);
+		else
+			this.currentTab().receiveSelfMessage(message.build());
+	}
+
+	@Deprecated(since = "2.1.2.4")
 	public void serverMessage(CompoundTag message) { this.currentTab().receiveServerMessage(message); }
-	
+	public void serverMessage(LazyPacketData message) { this.currentTab().receiveServerMessage(message); }
+
 	private void PressTradesButton(EasyButton button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.menu.getTrader().getID()));
+		new CPacketOpenTrades(this.menu.getTrader().getID()).send();
 	}
-	
+
 	private void PressCollectionButton(EasyButton button)
 	{
 		//Open the container screen
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
+			CPacketCollectCoins.sendToServer();
 		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "collect stored coins", Permissions.COLLECT_COINS);
 	}
-	
+
 	private void PressStoreCoinsButton(EasyButton button)
 	{
 		if(this.menu.hasPermission(Permissions.STORE_COINS))
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStoreCoins());
-		}
+			CPacketStoreCoins.sendToServer();
 		else
 			Permissions.PermissionWarning(this.menu.player, "store coins", Permissions.STORE_COINS);
 	}
-	
+
 	private void PressTradeRulesButton(EasyButton button)
 	{
 		if(this.currentTab().getTradeRuleTradeIndex() < 0)
@@ -288,5 +311,5 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		message.putInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex());
 		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, message);
 	}
-	
+
 }

@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -159,7 +159,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         public MutableComponent getTooltip() { return IconAndButtonUtil.TOOLTIP_TRADE_RULES_TRADE; }
 
         @Override
-        public void receiveSelfMessage(CompoundTag message) { this.commonTab.receiveMessage(message); }
+        public void receiveSelfMessage(LazyPacketData message) { this.commonTab.receiveMessage(message); }
     }
 
 }

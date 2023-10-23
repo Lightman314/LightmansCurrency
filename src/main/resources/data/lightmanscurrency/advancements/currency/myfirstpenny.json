@@ -20,7 +20,7 @@
             "conditions": {
                 "items": [
                     {
-                        "tag": "lightmanscurrency:coin"
+                        "tag": "lightmanscurrency:coins"
                     }
                 ]
             }

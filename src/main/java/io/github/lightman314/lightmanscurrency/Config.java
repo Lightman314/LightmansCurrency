@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayO
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
@@ -19,7 +20,6 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -643,6 +643,9 @@ public class Config {
 		public final ForgeConfigSpec.IntValue maxAuctionDuration;
 		public final ForgeConfigSpec.IntValue minAuctionDuration;
 
+		//Terminal Options
+		public final ForgeConfigSpec.BooleanValue moveUnnamedTradersToBottom;
+
 		//Money Chest Upgrade Options
 		public final ForgeConfigSpec.IntValue coinChestMagnetRange1;
 		public final ForgeConfigSpec.IntValue coinChestMagnetRange2;
@@ -663,6 +666,14 @@ public class Config {
 		public final ForgeConfigSpec.IntValue taxMachineMaxRadius;
 		public final ForgeConfigSpec.IntValue taxMachineMaxHeight;
 		public final ForgeConfigSpec.IntValue taxMachineMaxVertOffset;
+
+		//FTB Chunks Options
+		public final ForgeConfigSpec.BooleanValue ftbChunksAllowClaimPurchase;
+		public final CoinValueConfig ftbChunksClaimPrice;
+		public final ForgeConfigSpec.IntValue ftbChunksMaxClaimCount;
+		public final ForgeConfigSpec.BooleanValue ftbChunksAllowForceloadPurchase;
+		public final CoinValueConfig ftbChunksForceloadPrice;
+		public final ForgeConfigSpec.IntValue ftbChunksMaxForceloadCount;
 
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
@@ -834,6 +845,13 @@ public class Config {
 
 			builder.pop();
 
+			builder.comment("Network Terminal Settings").push("terminal");
+
+			this.moveUnnamedTradersToBottom = builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
+					.define("sortUnnamedToBottom", false);
+
+			builder.pop();
+
 			builder.comment("Player Trading Options").push("player_trading");
 
 			this.maxPlayerTradingRange = builder.comment("The maximum distance allowed between players in order for a player trade to persist.",
@@ -859,6 +877,29 @@ public class Config {
 			this.taxMachineMaxVertOffset = builder.comment("The maximum vertical offset of a Tax Block's vertical offset in meters.",
 							"Note: Vertical offset can be negative, so this will also enforce the lowest value.")
 					.defineInRange("maxVertOffset", 32, 4, Integer.MAX_VALUE);
+
+			builder.pop();
+
+			builder.comment("FTB Chunks compat settings. Requires FTB Chunks to apply!").push("ftbchunks");
+
+			//Claim Purchase Settings
+			this.ftbChunksAllowClaimPurchase = builder.comment("Whether the '/lcftb buy claims' command will be accesible to players.")
+					.define("allowClaimPurchase", false);
+			this.ftbChunksClaimPrice = CoinValueConfig.define(builder.comment("The price per claim chunk purchased."),
+					"claimPrice", "1-lightmanscurrency:coin_gold", () -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100), SPEC_SUPPLIER);
+			this.ftbChunksMaxClaimCount = builder.comment("The maximum number of extra claim chunks allowed to be purchased with this command.",
+							"Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well.")
+					.defineInRange("maxClaimCount", 1000000, 1, Integer.MAX_VALUE);
+
+			//Forceload Purchase Settings
+			this.ftbChunksAllowForceloadPurchase = builder.comment("Whether the `/lcftb buyForceload` command will be accessible to players.")
+					.define("allowForceloadPurchase", false);
+			this.ftbChunksForceloadPrice = CoinValueConfig.define(builder.comment("The price per forceload chunk purchased."),
+					"forceloadPrice", "10-lightmanscurrency:coin_netherite", () -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 10, 1000000), SPEC_SUPPLIER);
+			this.ftbChunksMaxForceloadCount = builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
+							"Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well.")
+					.defineInRange("maxForceloadCount", 100, 1, Integer.MAX_VALUE);
+
 
 			builder.pop();
 

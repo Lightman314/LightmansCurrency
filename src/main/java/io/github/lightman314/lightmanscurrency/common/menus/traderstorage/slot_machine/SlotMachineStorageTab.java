@@ -11,9 +11,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -155,11 +154,10 @@ public class SlotMachineStorageTab extends TraderStorageTab{
     }
 
     private void sendStorageClickMessage(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-        CompoundTag message = new CompoundTag();
-        message.putInt("ClickedSlot", storageSlot);
-        message.putBoolean("HeldShift", isShiftHeld);
-        message.putBoolean("LeftClick", leftClick);
-        this.menu.sendMessage(message);
+        this.menu.SendMessage(LazyPacketData.builder()
+                .setInt("ClickedSlot", storageSlot)
+                .setBoolean("HeldShift", isShiftHeld)
+                .setBoolean("LeftClick", leftClick));
     }
 
     public void quickTransfer(int type) {
@@ -217,18 +215,14 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                 trader.markStorageDirty();
 
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putInt("QuickTransfer", type);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
 
         }
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
-        if(message.contains("ClickedSlot", Tag.TAG_INT))
+    public void receiveMessage(LazyPacketData message) {
+        if(message.contains("ClickedSlot", LazyPacketData.TYPE_INT))
         {
             int storageSlot = message.getInt("ClickedSlot");
             boolean isShiftHeld = message.getBoolean("HeldShift");

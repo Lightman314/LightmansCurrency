@@ -1,15 +1,18 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent.Context;
+import org.jetbrains.annotations.Nullable;
 
-public class CPacketSetVisible {
+import javax.annotation.Nonnull;
+
+public class CPacketSetVisible extends ClientToServerPacket {
+
+	public static final Handler<CPacketSetVisible> HANDLER = new H();
 
 	int entityID;
 	boolean visible;
@@ -19,27 +22,28 @@ public class CPacketSetVisible {
 		this.visible = visible;
 	}
 	
-	public static void encode(CPacketSetVisible message, FriendlyByteBuf buffer) {
-		buffer.writeInt(message.entityID);
-		buffer.writeBoolean(message.visible);
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
+		buffer.writeInt(this.entityID);
+		buffer.writeBoolean(this.visible);
 	}
-	
-	public static CPacketSetVisible decode(FriendlyByteBuf buffer) {
-		return new CPacketSetVisible(buffer.readInt(), buffer.readBoolean());
-	}
-	
-	public static void handle(CPacketSetVisible message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() ->
-		{
-			ServerPlayer player = supplier.get().getSender();
-			Entity entity = player.level.getEntity(message.entityID);
+
+	private static class H extends Handler<CPacketSetVisible>
+	{
+		@Nonnull
+		@Override
+		public CPacketSetVisible decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSetVisible(buffer.readInt(), buffer.readBoolean()); }
+		@Override
+		protected void handle(@Nonnull CPacketSetVisible message, @Nullable ServerPlayer sender) {
+			if(sender == null)
+				return;
+			Entity entity = sender.level.getEntity(message.entityID);
 			if(entity != null)
 			{
 				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 				if(walletHandler != null)
 					walletHandler.setVisible(message.visible);
 			}
-		});
-		supplier.get().setPacketHandled(true);
+		}
 	}
+
 }

@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,6 +33,6 @@ public class TraderLogTab extends TraderStorageTab {
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     @Override
-    public void receiveMessage(CompoundTag message) { }
+    public void receiveMessage(LazyPacketData message) { }
 
 }

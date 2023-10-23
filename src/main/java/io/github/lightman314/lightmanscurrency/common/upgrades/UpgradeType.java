@@ -39,7 +39,6 @@ public abstract class UpgradeType {
 
 	//Coin Chest Upgrades
 	public static final CoinChestExchangeUpgrade COIN_CHEST_EXCHANGE = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_exchange"), new CoinChestExchangeUpgrade());
-	public static final CoinChestBankUpgrade COIN_CHEST_BANK = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_bank"), new CoinChestBankUpgrade());
 	public static final CoinChestMagnetUpgrade COIN_CHEST_MAGNET = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_magnet"), new CoinChestMagnetUpgrade());
 	public static final CoinChestSecurityUpgrade COIN_CHEST_SECURITY = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_security"), new CoinChestSecurityUpgrade());
 

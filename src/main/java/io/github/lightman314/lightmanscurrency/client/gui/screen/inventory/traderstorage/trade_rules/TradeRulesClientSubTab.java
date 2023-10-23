@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.client.gui.Font;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

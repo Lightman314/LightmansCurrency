@@ -71,15 +71,16 @@ public class ModBlocks {
 	public static final RegistryObject<Block> DISPLAY_CASE;
 
 	//Vending Machines
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE;
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_OLDCOLORS;
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE;
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_OLDCOLORS;
 
 	//Large Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
 
 	//Wooden Shelves
-	public static final RegistryObjectBundle<Block, WoodType> SHELF;
+	public static final RegistryObjectBundle<Block,WoodType> SHELF;
+	public static final RegistryObjectBundle<Block,WoodType> SHELF_2x2;
 
 	//Card Shelves
 	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
@@ -301,6 +302,13 @@ public class ModBlocks {
 				Block.Properties.of(Material.WOOD)
 						.color(w.mapColor)
 						.strength(2.0f, Float.POSITIVE_INFINITY)
+				)
+		);
+		SHELF_2x2 = registerWooden("shelf_2x2", WoodType.Attributes.needsSlab, w -> new ShelfBlock(
+				BlockBehaviour.Properties.of(Material.WOOD)
+						.color(w.mapColor)
+						.strength(2.0f, Float.POSITIVE_INFINITY),
+						4
 				)
 		);
 

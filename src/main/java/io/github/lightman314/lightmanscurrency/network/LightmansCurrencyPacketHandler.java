@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.tax.*;
@@ -18,25 +18,19 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
-import net.minecraft.network.FriendlyByteBuf;
+import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyData;
-import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
+import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
 
 import javax.annotation.Nonnull;
 
@@ -46,7 +40,7 @@ public class LightmansCurrencyPacketHandler {
 	
 	public static SimpleChannel instance;
 	private static int nextId = 0;
-	
+
 	public static void init()
 	{
 		
@@ -58,138 +52,115 @@ public class LightmansCurrencyPacketHandler {
 				.simpleChannel();
 		
 		//ATM & Bank
-		//register(MessageATMConversion.class, MessageATMConversion::encode, MessageATMConversion::decode, MessageATMConversion::handle);
-		register(MessageSelectBankAccount.class, MessageSelectBankAccount::encode, MessageSelectBankAccount::decode, MessageSelectBankAccount::handle);
-		register(MessageBankInteraction.class, MessageBankInteraction::encode, MessageBankInteraction::decode, MessageBankInteraction::handle);
-		register(MessageInitializeClientBank.class, MessageInitializeClientBank::encode, MessageInitializeClientBank::decode, MessageInitializeClientBank::handle);
-		register(MessageUpdateClientBank.class, MessageUpdateClientBank::encode, MessageUpdateClientBank::decode, MessageUpdateClientBank::handle);
-		register(MessageBankTransferTeam.class, MessageBankTransferTeam::encode, MessageBankTransferTeam::decode, MessageBankTransferTeam::handle);
-		register(MessageBankTransferPlayer.class, MessageBankTransferPlayer::encode, MessageBankTransferPlayer::decode, MessageBankTransferPlayer::handle);
-		register(MessageBankTransferResponse.class, MessageBankTransferResponse::encode, MessageBankTransferResponse::decode, MessageBankTransferResponse::handle);
-		register(MessageATMSetPlayerAccount.class, MessageATMSetPlayerAccount::encode, MessageATMSetPlayerAccount::decode, MessageATMSetPlayerAccount::handle);
-		register(MessageATMPlayerAccountResponse.class, MessageATMPlayerAccountResponse::encode, MessageATMPlayerAccountResponse::decode, MessageATMPlayerAccountResponse::handle);
-		//register(MessageSetBankNotificationLevel.class, MessageSetBankNotificationLevel::encode, MessageSetBankNotificationLevel::decode, MessageSetBankNotificationLevel::handle);
-		register(SPacketSyncSelectedBankAccount.class,SPacketSyncSelectedBankAccount::encode, SPacketSyncSelectedBankAccount::decode, SPacketSyncSelectedBankAccount::handle);
-		
-		//Coinmint
-		//No longer used, as this is now handled by the LazyMessageMenu
-		//register(MessageMintCoin.class, MessageMintCoin::encode, MessageMintCoin::decode, MessageMintCoin::handle);
+		register(CPacketOpenATM.class, CPacketOpenATM.HANDLER);
+		register(CPacketSelectBankAccount.class, CPacketSelectBankAccount.HANDLER);
+		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
+		register(SPacketInitializeClientBank.class, SPacketInitializeClientBank.HANDLER);
+		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
+		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
+		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
+		register(SPacketBankTransferResponse.class, SPacketBankTransferResponse.HANDLER);
+		register(CPacketATMSetPlayerAccount.class, CPacketATMSetPlayerAccount.HANDLER);
+		register(SPacketATMPlayerAccountResponse.class, SPacketATMPlayerAccountResponse.HANDLER);
+		register(SPacketSyncSelectedBankAccount.class, SPacketSyncSelectedBankAccount.HANDLER);
 		
 		//Trader
-		register(MessageExecuteTrade.class, MessageExecuteTrade::encode, MessageExecuteTrade::decode, MessageExecuteTrade::handle);
-		register(MessageCollectCoins.class, MessageCollectCoins::encode, MessageCollectCoins::decode, MessageCollectCoins::handle);
-		register(MessageStoreCoins.class, MessageStoreCoins::encode, MessageStoreCoins::decode, MessageStoreCoins::handle);
-		register(MessageOpenStorage.class, MessageOpenStorage::encode, MessageOpenStorage::decode, MessageOpenStorage::handle);
-		register(MessageOpenTrades.class, MessageOpenTrades::encode, MessageOpenTrades::decode, MessageOpenTrades::handle);
-		register(MessageOpenNetworkTerminal.class, MessageOpenNetworkTerminal::encode, MessageOpenNetworkTerminal::decode, MessageOpenNetworkTerminal::handle);
-		register(MessageSyncUsers.class, MessageSyncUsers::encode, MessageSyncUsers::decode, MessageSyncUsers::handle);
-		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
-		register(MessageTraderMessage.class, MessageTraderMessage::encode, MessageTraderMessage::decode, MessageTraderMessage::handle);
-		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
-		register(MessageStorageInteractionC.class, MessageStorageInteractionC::encode, MessageStorageInteractionC::decode, MessageStorageInteractionC::handle);
+		register(CPacketExecuteTrade.class, CPacketExecuteTrade.HANDLER);
+		register(CPacketCollectCoins.class, CPacketCollectCoins.HANDLER);
+		register(CPacketStoreCoins.class, CPacketStoreCoins.HANDLER);
+		register(CPacketOpenStorage.class, CPacketOpenStorage.HANDLER);
+		register(CPacketOpenTrades.class, CPacketOpenTrades.HANDLER);
+		register(CPacketOpenNetworkTerminal.class, CPacketOpenNetworkTerminal.HANDLER);
+		register(SPacketSyncUsers.class, SPacketSyncUsers.HANDLER);
+		register(CPacketAddOrRemoveTrade.class, CPacketAddOrRemoveTrade.HANDLER);
 
 		//Paygate
-		register(CMessageCollectTicketStubs.class, CMessageCollectTicketStubs::encode, CMessageCollectTicketStubs::decode, CMessageCollectTicketStubs::handle);
+		register(CPacketCollectTicketStubs.class, CPacketCollectTicketStubs.HANDLER);
 
 		//Wallet
-		register(MessagePlayPickupSound.class, MessagePlayPickupSound::encode, MessagePlayPickupSound::decode, MessagePlayPickupSound::handle);
-		register(MessageWalletConvertCoins.class, MessageWalletConvertCoins::encode, MessageWalletConvertCoins::decode, MessageWalletConvertCoins::handle);
-		register(MessageWalletToggleAutoConvert.class, MessageWalletToggleAutoConvert::encode, MessageWalletToggleAutoConvert::decode, MessageWalletToggleAutoConvert::handle);
-		register(MessageOpenWallet.class, MessageOpenWallet::encode, MessageOpenWallet::decode, MessageOpenWallet::handle);
-		register(MessageOpenWalletBank.class, MessageOpenWalletBank::encode, MessageOpenWalletBank::decode, MessageOpenWalletBank::handle);
-		register(MessageWalletQuickCollect.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(MessageWalletQuickCollect::new), MessageWalletQuickCollect::handle);
-		register(MessageChestQuickCollect.class, MessageChestQuickCollect::encode, MessageChestQuickCollect::decode, MessageChestQuickCollect::handle);
+		register(SPacketPlayPickupSound.class, SPacketPlayPickupSound.HANDLER);
+		register(CPacketWalletExchangeCoins.class, CPacketWalletExchangeCoins.HANDLER);
+		register(CPacketWalletToggleAutoExchange.class, CPacketWalletToggleAutoExchange.HANDLER);
+		register(CPacketOpenWallet.class, CPacketOpenWallet.HANDLER);
+		register(CPacketOpenWalletBank.class, CPacketOpenWalletBank.HANDLER);
+		register(CPacketWalletQuickCollect.class, CPacketWalletQuickCollect.HANDLER);
+		register(CPacketChestQuickCollect.class, CPacketChestQuickCollect.HANDLER);
 
 		//Wallet Inventory Slot
-		register(SPacketSyncWallet.class, SPacketSyncWallet::encode, SPacketSyncWallet::decode, SPacketSyncWallet::handle);
-		register(CPacketSetVisible.class, CPacketSetVisible::encode, CPacketSetVisible::decode, CPacketSetVisible::handle);
-		register(CPacketWalletInteraction.class, CPacketWalletInteraction::encode, CPacketWalletInteraction::decode, CPacketWalletInteraction::handle);
+		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
+		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
+		register(CPacketWalletInteraction.class, CPacketWalletInteraction.HANDLER);
 		
-		//Ticket Machine
-		//No longer used, as this is now handled by the LazyMessageMenu
-		//register(MessageCraftTicket.class, MessageCraftTicket::encode, MessageCraftTicket::decode, MessageCraftTicket::handle);
-		
-		//Universal Traders
-		register(MessageClearClientTraders.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(MessageClearClientTraders::new), MessageClearClientTraders::handle);
-		register(MessageUpdateClientTrader.class, MessageUpdateClientTrader::encode, MessageUpdateClientTrader::decode, MessageUpdateClientTrader::handle);
-		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
+		//Trader Data Sync
+		register(SPacketClearClientTraders.class, SPacketClearClientTraders.HANDLER);
+		register(SPacketUpdateClientTrader.class, SPacketUpdateClientTrader.HANDLER);
+		register(SPacketMessageRemoveClientTrader.class, SPacketMessageRemoveClientTrader.HANDLER);
 		
 		//Auction House
-		register(MessageStartBid.class, MessageStartBid::encode, MessageStartBid::decode, MessageStartBid::handle);
-		register(MessageSubmitBid.class, MessageSubmitBid::encode, MessageSubmitBid::decode, MessageSubmitBid::handle);
-		register(SMessageSyncAuctionStandDisplay.class, SMessageSyncAuctionStandDisplay::encode, SMessageSyncAuctionStandDisplay::decode, SMessageSyncAuctionStandDisplay::handle);
+		register(SPacketStartBid.class, SPacketStartBid.HANDLER);
+		register(CPacketSubmitBid.class, CPacketSubmitBid.HANDLER);
+		register(SPacketSyncAuctionStandDisplay.class, SPacketSyncAuctionStandDisplay.HANDLER);
 		
 		//Trader Interfaces
-		register(MessageHandlerMessage.class, MessageHandlerMessage::encode, MessageHandlerMessage::decode, MessageHandlerMessage::handle);
-		register(MessageInterfaceInteraction.class, MessageInterfaceInteraction::encode, MessageInterfaceInteraction::decode, MessageInterfaceInteraction::handle);
+		register(CPacketInterfaceHandlerMessage.class, CPacketInterfaceHandlerMessage.HANDLER);
+		register(CPacketInterfaceInteraction.class, CPacketInterfaceInteraction.HANDLER);
 		
 		//Teams
-		register(MessageInitializeClientTeams.class, MessageInitializeClientTeams::encode, MessageInitializeClientTeams::decode, MessageInitializeClientTeams::handle);
-		register(MessageRemoveClientTeam.class, MessageRemoveClientTeam::encode, MessageRemoveClientTeam::decode, MessageRemoveClientTeam::handle);
-		register(MessageUpdateClientTeam.class, MessageUpdateClientTeam::encode, MessageUpdateClientTeam::decode, MessageUpdateClientTeam::handle);
-		register(MessageEditTeam.class, MessageEditTeam::encode, MessageEditTeam::decode, MessageEditTeam::handle);
-		register(MessageRenameTeam.class, MessageRenameTeam::encode, MessageRenameTeam::decode, MessageRenameTeam::handle);
-		register(MessageDisbandTeam.class, MessageDisbandTeam::encode, MessageDisbandTeam::decode, MessageDisbandTeam::handle);
-		register(MessageOpenTeamManager.class, MessageOpenTeamManager::encode, MessageOpenTeamManager::decode, MessageOpenTeamManager::handle);
-		register(MessageCreateTeam.class, MessageCreateTeam::encode, MessageCreateTeam::decode, MessageCreateTeam::handle);
-		register(MessageCreateTeamResponse.class, MessageCreateTeamResponse::encode, MessageCreateTeamResponse::decode, MessageCreateTeamResponse::handle);
-		register(MessageCreateTeamBankAccount.class, MessageCreateTeamBankAccount::encode, MessageCreateTeamBankAccount::decode, MessageCreateTeamBankAccount::handle);
-		register(MessageSetTeamBankLimit.class, MessageSetTeamBankLimit::encode, MessageSetTeamBankLimit::decode, MessageSetTeamBankLimit::handle);
+		register(SPacketClearClientTeams.class, SPacketClearClientTeams.HANDLER);
+		register(SPacketRemoveClientTeam.class, SPacketRemoveClientTeam.HANDLER);
+		register(SPacketUpdateClientTeam.class, SPacketUpdateClientTeam.HANDLER);
+		register(CPacketEditTeam.class, CPacketEditTeam.HANDLER);
+		register(CPacketCreateTeam.class, CPacketCreateTeam.HANDLER);
+		register(SPacketCreateTeamResponse.class, SPacketCreateTeamResponse.HANDLER);
 
 		//Lazy Menu Interaction
-		register(SMessageMenuInteraction.class, SMessageMenuInteraction::encode, SMessageMenuInteraction::decode, SMessageMenuInteraction::handle);
-		register(CMessageMenuInteraction.class, CMessageMenuInteraction::encode, CMessageMenuInteraction::decode, CMessageMenuInteraction::handle);
+		register(SPacketLazyMenu.class, SPacketLazyMenu.HANDLER);
+		register(CPacketLazyMenu.class, CPacketLazyMenu.HANDLER);
 
-		//Logger
-		//register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
-		//register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
-		
 		//Notifications
-		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
-		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
-		register(MessageClientNotification.class, MessageClientNotification::encode, MessageClientNotification::decode, MessageClientNotification::handle);
+		register(SPacketSyncNotifications.class, SPacketSyncNotifications.HANDLER);
+		register(CPacketFlagNotificationsSeen.class, CPacketFlagNotificationsSeen.HANDLER);
+		register(SPacketChatNotification.class, SPacketChatNotification.HANDLER);
 
 		//Taxes
-		register(MessageUpdateClientTax.class, MessageUpdateClientTax::encode, MessageUpdateClientTax::decode, MessageUpdateClientTax::handle);
-		register(MessageRemoveClientTax.class, MessageRemoveClientTax::encode, MessageRemoveClientTax::decode, MessageRemoveClientTax::handle);
+		register(SPacketSyncClientTax.class, SPacketSyncClientTax.HANDLER);
+		register(SPacketRemoveTax.class, SPacketRemoveTax.HANDLER);
 
 		//Core
-		register(MessageRequestNBT.class, MessageRequestNBT::encode, MessageRequestNBT::decode, MessageRequestNBT::handle);
-		register(MessageSyncClientTime.class, MessageSyncClientTime::encode, MessageSyncClientTime::decode, MessageSyncClientTime::handle);
+		register(CPacketRequestNBT.class, CPacketRequestNBT.HANDLER);
+		register(SPacketSyncTime.class, SPacketSyncTime.HANDLER);
 		
 		//Command/Admin
-		register(MessageSyncAdminList.class, MessageSyncAdminList::encode, MessageSyncAdminList::decode, MessageSyncAdminList::handle);
-		register(MessageDebugTrader.class, MessageDebugTrader::encode, MessageDebugTrader::decode, MessageDebugTrader::handle);
+		register(SPacketSyncAdminList.class, SPacketSyncAdminList.HANDLER);
+		register(SPacketDebugTrader.class, SPacketDebugTrader.HANDLER);
 		
 		//Money Data
-		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
+		register(MoneyData.class, MoneyData.PACKET_HANDLER);
 		
 		//ATM Data
-		register(ATMData.class, ATMData::encode, ATMData::decode, ATMData::handle);
+		register(ATMData.class, ATMData.PACKET_HANDLER);
 		
 		//Enchantments
-		register(SPacketMoneyMendingClink.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(SPacketMoneyMendingClink::new), SPacketMoneyMendingClink::handle);
+		register(SPacketMoneyMendingClink.class, SPacketMoneyMendingClink.HANDLER);
 		
 		//Persistent Data
-		register(MessageAddPersistentTrader.class, MessageAddPersistentTrader::encode, MessageAddPersistentTrader::decode, MessageAddPersistentTrader::handle);
-		register(MessageAddPersistentAuction.class, MessageAddPersistentAuction::encode, MessageAddPersistentAuction::decode, MessageAddPersistentAuction::handle);
+		register(CPacketCreatePersistentTrader.class, CPacketCreatePersistentTrader.HANDLER);
+		register(CPacketCreatePersistentAuction.class, CPacketCreatePersistentAuction.HANDLER);
 		
 		//Ejection data
-		register(SPacketSyncEjectionData.class, SPacketSyncEjectionData::encode, SPacketSyncEjectionData::decode, SPacketSyncEjectionData::handle);
-		register(CPacketChangeSelectedData.class, CPacketChangeSelectedData::encode, CPacketChangeSelectedData::decode, CPacketChangeSelectedData::handle);
-		register(SPacketChangeSelectedData.class, SPacketChangeSelectedData::encode, SPacketChangeSelectedData::decode, SPacketChangeSelectedData::handle);
-		register(CPacketOpenTraderRecovery.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketOpenTraderRecovery::new), CPacketOpenTraderRecovery::handle);
+		register(SPacketSyncEjectionData.class, SPacketSyncEjectionData.HANDLER);
+		register(CPacketOpenEjectionMenu.class, CPacketOpenEjectionMenu.HANDLER);
 
 		//Player Trading
-		register(SMessageUpdatePlayerTrade.class, SMessageUpdatePlayerTrade::encode, SMessageUpdatePlayerTrade::decode, SMessageUpdatePlayerTrade::handle);
-		register(CMessagePlayerTradeInteraction.class, CMessagePlayerTradeInteraction::encode, CMessagePlayerTradeInteraction::decode, CMessagePlayerTradeInteraction::handle);
+		register(SPacketSyncPlayerTrade.class, SPacketSyncPlayerTrade.HANDLER);
+		register(CPacketPlayerTradeInteraction.class, CPacketPlayerTradeInteraction.HANDLER);
 
 
 	}
-	
-	private static <T> void register(Class<T> clazz, BiConsumer<T,FriendlyByteBuf> encoder, Function<FriendlyByteBuf,T> decoder, BiConsumer<T,Supplier<Context>> handler)
+
+	private static <T extends CustomPacket> void register(@Nonnull Class<T> clazz, @Nonnull CustomPacket.Handler<T> handler)
 	{
-		instance.registerMessage(nextId++, clazz, encoder, decoder, handler);
+		instance.registerMessage(nextId++, clazz, CustomPacket::encode, handler::decode, handler::handlePacket);
 	}
 	
 	public static PacketTarget getTarget(Player player)
@@ -199,18 +170,6 @@ public class LightmansCurrencyPacketHandler {
 		return null;
 	}
 	
-	public static PacketTarget getTarget(ServerPlayer player)
-	{
-		return PacketDistributor.PLAYER.with(() -> player);
-	}
-	
-	private static class LazyEncoders
-	{
-
-		public static <T> void emptyEncode(T message, FriendlyByteBuf buffer) {}
-		public static <T> Function<FriendlyByteBuf,T> emptyDecode(NonNullSupplier<T> get) { return (buffer) -> get.get(); }
-		public static <T> Function<FriendlyByteBuf,T> emptyDecode(@Nonnull T instance) { return (buffer) -> instance; }
-
-	}
+	public static PacketTarget getTarget(ServerPlayer player) { return PacketDistributor.PLAYER.with(() -> player); }
 	
 }

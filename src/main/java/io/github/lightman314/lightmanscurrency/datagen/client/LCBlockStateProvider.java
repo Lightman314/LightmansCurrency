@@ -47,12 +47,12 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerCoinPile(ModBlocks.COINPILE_DIAMOND);
         this.registerCoinPile(ModBlocks.COINPILE_NETHERITE);
         //Coin Blocks
-        this.registerSimpleState(ModBlocks.COINBLOCK_COPPER);
-        this.registerSimpleState(ModBlocks.COINBLOCK_IRON);
-        this.registerSimpleState(ModBlocks.COINBLOCK_GOLD);
-        this.registerSimpleState(ModBlocks.COINBLOCK_EMERALD);
-        this.registerSimpleState(ModBlocks.COINBLOCK_DIAMOND);
-        this.registerSimpleState(ModBlocks.COINBLOCK_NETHERITE);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_COPPER);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_IRON);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_GOLD);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_EMERALD);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_DIAMOND);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_NETHERITE);
 
         //Trading Core
         this.registerBasicItem(ModItems.TRADING_CORE);
@@ -140,7 +140,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                         this.lazyColoredID("large_vending_machine/", color, "_top_right"),
                         this.lazyColoredID("large_vending_machine/", color, "_bottom_left"),
                         this.lazyColoredID("large_vending_machine/", color, "_bottom_right"),
-                        this.lazyColoredID("large_vending_machine/", color, ""),
+                        this.lazyColoredID("large_vending_machine/", color, "_item"),
                         false
                 ));
 
@@ -153,6 +153,22 @@ public class LCBlockStateProvider extends BlockStateProvider {
             {
                 //Build the model
                 this.models().getBuilder(modelID).parent(this.lazyBlockModel("shelf/base", true))
+                        .texture("main", data.plankTexture);
+            }
+            else
+                LightmansCurrency.LogWarning("Could not generate models for wood type '" + type.id + "' as it has no wood data!");
+            //Generate the block state
+            this.registerRotatable(block, modelID, false);
+        });
+
+        ModBlocks.SHELF_2x2.forEach((type,block) -> {
+            String modelID = this.lazyWoodenID("block/shelf2/", type);
+            //Collect the WoodData
+            WoodData data = type.getData();
+            if(data != null)
+            {
+                //Build the model
+                this.models().getBuilder(modelID).parent(this.lazyBlockModel("shelf2/base", true))
                         .texture("main", data.plankTexture);
             }
             else
@@ -289,7 +305,6 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.HOPPER_UPGRADE);
 
         this.registerBasicItem(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
-        this.registerBasicItem(ModItems.COIN_CHEST_BANK_UPGRADE);
         this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
         this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
         this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
@@ -325,10 +340,20 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     private void registerCoinPile(RegistryObject<? extends Block> block)
     {
-        ModelFile model = this.lazyBlockModel(ForgeRegistries.ITEMS.getKey(block.get().asItem()).getPath(), true);
+        String modelID = this.lazyModelID(block);
+        ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
+        this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_pile", true)).texture("main", texture);
+        ModelFile model = this.lazyBlockModel(modelID, false);
         this.getVariantBuilder(block.get())
                 .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBasicItem(block);
+    }
+    private void registerCoinBlock(RegistryObject<? extends Block> block)
+    {
+        String modelID = this.lazyModelID(block);
+        ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
+        this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_block", true)).texture("main", texture);
+        this.registerSimpleState(block, modelID);
     }
     private void registerPaygate(RegistryObject<? extends Block> block, String poweredModelID, String unpoweredModelID)
     {

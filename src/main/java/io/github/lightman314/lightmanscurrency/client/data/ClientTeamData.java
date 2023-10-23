@@ -23,22 +23,18 @@ public class ClientTeamData {
 
 	@Nullable
 	public static Team GetTeam(long teamID) { return loadedTeams.get(teamID); }
-	
-	public static void InitTeams(List<Team> teams)
-	{
-		loadedTeams.clear();
-		teams.forEach(team -> loadedTeams.put(team.getID(), team));
-	}
+
+	public static void ClearTeams() { loadedTeams.clear(); }
 	
 	public static void UpdateTeam(CompoundTag compound)
 	{
 		Team updatedTeam = Team.load(compound);
-		loadedTeams.put(updatedTeam.getID(), updatedTeam);
+		loadedTeams.put(updatedTeam.getID(), updatedTeam.flagAsClient());
 	}
 	
 	public static void RemoveTeam(long teamID) { loadedTeams.remove(teamID); }
 	
 	@SubscribeEvent
-	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) { loadedTeams.clear(); }
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) { ClearTeams(); }
 
 }

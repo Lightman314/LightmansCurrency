@@ -7,15 +7,14 @@ import java.util.function.Consumer;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
@@ -28,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.A
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -87,7 +87,7 @@ public class AuctionTradeData extends TradeData {
 	PlayerReference tradeOwner;
 	public PlayerReference getOwner() { return this.tradeOwner; }
 	public boolean isOwner(Player player) {
-		return (this.tradeOwner != null && this.tradeOwner.is(player)) || CommandLCAdmin.isAdminPlayer(player);
+		return (this.tradeOwner != null && this.tradeOwner.is(player)) || LCAdminMode.isAdminPlayer(player);
 	}
 	
 	long startTime = 0;
@@ -358,13 +358,13 @@ public class AuctionTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 	
 	private void openCancelAuctionTab(BasicTradeEditTab tab) {
 		if(tab.menu.getTrader() instanceof AuctionHouseTrader ah)
@@ -372,10 +372,7 @@ public class AuctionTradeData extends TradeData {
 			int tradeIndex = ah.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
-			
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 	}
 

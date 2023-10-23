@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +40,7 @@ public class EjectionData implements Container, IClientTracker {
 	}
 	
 	public boolean canAccess(Player player) {
-		if(CommandLCAdmin.isAdminPlayer(player))
+		if(LCAdminMode.isAdminPlayer(player))
 			return true;
 		if(this.owner == null)
 			return false;

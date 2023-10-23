@@ -4,12 +4,13 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.SPacketMoneyMendingClink;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.NonNullList;
@@ -58,10 +59,17 @@ public class MoneyMendingEnchantment extends Enchantment {
 				return;
 			//Go through the players inventory searching for items with the money mending enchantment
 			Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING.get(), entity, ItemStack::isDamaged);
+			ItemStack item = null;
+			if(entry == null)
+			{
+				if(LightmansCurrency.isCuriosValid(entity))
+					item = LCCurios.getMoneyMendingItem(entity);
+			}
+			else
+				item = entry.getValue();
 			if(entry != null)
 			{
 				//Repair the item
-				ItemStack item = entry.getValue();
 				int currentDamage = item.getDamageValue();
 				long repairAmount = Math.min(currentDamage, currentWalletValue / repairCost);
 				item.setDamageValue(currentDamage - (int)repairAmount);
@@ -91,15 +99,11 @@ public class MoneyMendingEnchantment extends Enchantment {
 				}
 				WalletItem.putWalletInventory(wallet, InventoryUtil.buildList(newWalletInventory));
 				walletHandler.setWallet(wallet);
+				//Reload the wallets contents if the wallet menu is open.
+				WalletMenuBase.OnWalletUpdated(entity);
 				if(entity instanceof Player player)
 				{
-					//Reload the wallets contents if the wallet menu is open.
-					if(player.containerMenu instanceof WalletMenuBase menu)
-						menu.reloadWalletContents();
-
-					//Send Money Mending clink message
-					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketMoneyMendingClink());
-
+					SPacketMoneyMendingClink.INSTANCE.sendTo(player);
 				}
 			}
 		}

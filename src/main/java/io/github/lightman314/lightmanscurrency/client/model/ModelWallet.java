@@ -21,22 +21,13 @@ public class ModelWallet<T extends LivingEntity> extends HumanoidModel<T> {
 	
 	@Nonnull
 	@Override
-	protected Iterable<ModelPart> headParts()
-	{
-		return ImmutableList.of();
-	}
+	protected Iterable<ModelPart> headParts() { return ImmutableList.of(); }
 	
 	@Nonnull
 	@Override
-	protected Iterable<ModelPart> bodyParts()
-	{
-		return ImmutableList.of(this.wallet);
-	}
+	protected Iterable<ModelPart> bodyParts() { return ImmutableList.of(this.wallet); }
 	
 	@Override
-	public void setupAnim(@Nonnull T t, float v, float v1, float v2, float v3, float v4)
-	{
-		
-	}
+	public void setupAnim(@Nonnull T t, float v, float v1, float v2, float v3, float v4) { }
 
 }

@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.datagen.client.LCBlockStateProvider;
+import io.github.lightman314.lightmanscurrency.datagen.client.LCItemPositionProvider;
 import io.github.lightman314.lightmanscurrency.datagen.client.LCLanguageProvider;
+import io.github.lightman314.lightmanscurrency.datagen.client.resourcepacks.LCCloserItemPositionProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.LCRecipeProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCBlockTagProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCItemTagProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.LCPoiTagProvider;
@@ -30,6 +33,8 @@ public class LCDataEventListener {
 
         //Recipes
         generator.addProvider(event.includeServer(), new LCRecipeProvider(output));
+        //Loot Tables
+        generator.addProvider(event.includeServer(), LCLootTableProvider.create(output));
 
         //Tags
         LCBlockTagProvider blockTagProvider = new LCBlockTagProvider(output, lookupHolder, existingFileHelper);
@@ -40,8 +45,12 @@ public class LCDataEventListener {
         //Block States
         generator.addProvider(event.includeClient(), new LCBlockStateProvider(output, existingFileHelper));
 
+        //Item Positions for Item Traders
+        generator.addProvider(event.includeClient(), new LCItemPositionProvider(output));
+        generator.addProvider(event.includeClient(), new LCCloserItemPositionProvider(output));
+
         //Language
-        //generator.addProvider(event.includeClient(), new LCLanguageProvider(output));
+        generator.addProvider(event.includeClient(), new LCLanguageProvider(output));
 
     }
 

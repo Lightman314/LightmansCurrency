@@ -2,7 +2,7 @@ modLoader="javafml"
 loaderVersion="[35,)"
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
-license="All rights reserved"
+license="Apache License 2.0"
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 
 [[mods]]
@@ -16,6 +16,7 @@ logoFile="lightman_icon.png"
 #credits="Thanks for this example mod goes to Java" #optional
 authors="Lightman314. Textures & models made by beta50test & Lightman314."
 description="Adds a simple money & shop system to the game."
+displayTest="MATCH_VERSION"
 
 [[dependencies.lightmanscurrency]]
     modId="forge" #mandatory

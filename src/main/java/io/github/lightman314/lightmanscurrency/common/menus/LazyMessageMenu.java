@@ -2,9 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.menu.CMessageMenuInteraction;
-import io.github.lightman314.lightmanscurrency.network.message.menu.SMessageMenuInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.menu.CPacketLazyMenu;
+import io.github.lightman314.lightmanscurrency.network.message.menu.SPacketLazyMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -29,14 +28,14 @@ public abstract class LazyMessageMenu extends EasyMenu {
     {
         if(this.isServer())
             return;
-        LightmansCurrencyPacketHandler.instance.sendToServer(new CMessageMenuInteraction(message));
+        new CPacketLazyMenu(message).send();
     }
 
     public void SendMessageToClient(LazyPacketData.Builder message)
     {
         if(this.isClient())
             return;
-        LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(this.player), new SMessageMenuInteraction(message));
+        new SPacketLazyMenu(message).sendTo(this.player);
     }
 
     public abstract void HandleMessage(LazyPacketData message);

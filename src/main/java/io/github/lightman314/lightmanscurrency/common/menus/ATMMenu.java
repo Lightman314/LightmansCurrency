@@ -5,16 +5,16 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferen
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -137,18 +137,18 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public MutableComponent SetPlayerAccount(String playerName) {
 
-		if(CommandLCAdmin.isAdminPlayer(this.player))
+		if(LCAdminMode.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(accountPlayer));
-				return Component.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
+				return EasyText.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else
-				return Component.translatable("gui.bank.transfer.error.null.to");
+				return EasyText.translatable("gui.bank.transfer.error.null.to");
 		}
-		return Component.literal("ERROR");
+		return EasyText.literal("ERROR");
 
 	}
 

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.integration;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraftforge.fml.ModList;
+import org.apache.commons.lang3.ObjectUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,5 +16,7 @@ public class IntegrationUtil {
                 runnable.run();
         } catch (Throwable t) { if(error != null) LightmansCurrency.LogError(error, t); }
     }
+
+    public static Runnable SafeEnqueueWork(@Nonnull String modid, @Nonnull Runnable runnable, @Nullable String error) { return () -> SafeRunIfLoaded(modid, runnable, error); }
 
 }

@@ -11,16 +11,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.persistentdata.MessageAddPersistentTrader;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
+import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentTrader;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -79,7 +78,7 @@ public class MainTab extends SettingsSubTab {
 
         this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 110), this::SavePersistentTraderData, IconAndButtonUtil.ICON_PERSISTENT_DATA)
                 .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_PERSISTENT_TRADER)));
-        this.buttonSavePersistentTrader.visible = CommandLCAdmin.isAdminPlayer(this.menu.player);
+        this.buttonSavePersistentTrader.visible = LCAdminMode.isAdminPlayer(this.menu.player);
 
 
         int idWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"));
@@ -103,7 +102,7 @@ public class MainTab extends SettingsSubTab {
             gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.banklink"), 32, 73, 0x404040);
 
         //Draw current trade count
-        if(CommandLCAdmin.isAdminPlayer(this.menu.player) && trader != null)
+        if(LCAdminMode.isAdminPlayer(this.menu.player) && trader != null)
         {
             String count = String.valueOf(trader.getTradeCount());
             int width = gui.font.width(count);
@@ -135,7 +134,7 @@ public class MainTab extends SettingsSubTab {
         this.buttonResetName.active = trader.hasCustomName();
         this.buttonResetName.visible = canChangeName;
 
-        boolean isAdmin = CommandLCAdmin.isAdminPlayer(this.menu.player);
+        boolean isAdmin = LCAdminMode.isAdminPlayer(this.menu.player);
         this.buttonToggleCreative.visible = isAdmin;
         if(this.buttonToggleCreative.visible)
         {
@@ -181,9 +180,7 @@ public class MainTab extends SettingsSubTab {
         String customName = trader.getCustomName();
         if(!customName.contentEquals(this.nameInput.getValue()))
         {
-            CompoundTag message = new CompoundTag();
-            message.putString("ChangeName", this.nameInput.getValue());
-            this.sendNetworkMessage(message);
+            this.sendMessage(LazyPacketData.simpleString("ChangeName", this.nameInput.getValue()));
             //LightmansCurrency.LogInfo("Sent 'Change Name' message with value:" + this.nameInput.getValue());
         }
     }
@@ -199,9 +196,7 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("MakeCreative", !trader.isCreative());
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleBoolean("MakeCreative", !trader.isCreative()));
     }
 
     private void ToggleBankLink(EasyButton button)
@@ -209,9 +204,7 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("LinkToBankAccount", !trader.getLinkedToBank());
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleBoolean("LinkToBankAccount", !trader.getLinkedToBank()));
     }
 
     private void AddTrade(EasyButton button)
@@ -219,7 +212,7 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(trader.getID(), true));
+        new CPacketAddOrRemoveTrade(trader.getID(), true).send();
     }
 
     private void RemoveTrade(EasyButton button)
@@ -227,14 +220,14 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(trader.getID(), false));
+        new CPacketAddOrRemoveTrade(trader.getID(), false).send();
     }
 
     private void SavePersistentTraderData(EasyButton button)
     {
         TraderData trader = this.menu.getTrader();
         if(trader != null && trader.canMakePersistent())
-            LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddPersistentTrader(trader.getID(), this.persistentTraderIDInput.getValue(), this.persistentTraderOwnerInput.getValue()));
+            new CPacketCreatePersistentTrader(trader.getID(), this.persistentTraderIDInput.getValue(), this.persistentTraderOwnerInput.getValue()).send();
     }
 
 }

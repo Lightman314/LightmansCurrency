@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.C
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.common.loot.LootModifiers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -70,6 +72,10 @@ public class ModRegistries {
 		//Command Argument Types
 		COMMAND_ARGUMENT_TYPES.register(bus);
 		ModCommandArguments.init();
+
+		//Loot Pool Entry Types
+		LOOT_POOL_ENTRY_TYPES.register(bus);
+		ModLootPoolEntryTypes.init();
 		
 	}
 	
@@ -93,5 +99,7 @@ public class ModRegistries {
     public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, LightmansCurrency.MODID);
     
     public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(ForgeRegistries.Keys.COMMAND_ARGUMENT_TYPES, LightmansCurrency.MODID);
-    
+
+	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
+
 }

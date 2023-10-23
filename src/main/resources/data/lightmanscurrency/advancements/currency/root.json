@@ -15,8 +15,15 @@
         "hidden": false
     },
     "criteria": {
-        "impossible": {
-            "trigger": "minecraft:impossible"
-        }
+        "coin": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:coins"
+                    }
+                ]
+            }
+		}
     }
 }

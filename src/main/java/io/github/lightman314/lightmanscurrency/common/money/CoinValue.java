@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 
 public class CoinValue
 {
-	
+
 	public enum ValueType { DEFAULT, VALUE }
 
 	public static final CoinValue EMPTY = new CoinValue();
@@ -39,9 +39,9 @@ public class CoinValue
 
 	public boolean isFree() { return false; }
 	public final ImmutableList<CoinValuePair> coinValues;
-	
+
 	public boolean hasAny() { return this.coinValues.size() > 0; }
-	
+
 	public boolean isValid() { return this.isFree() || this.coinValues.size() > 0; }
 
 	private CoinValue() { this.coinValues = ImmutableList.of(); }
@@ -152,6 +152,22 @@ public class CoinValue
 		return fromNumber(value);
 	}
 
+	/**
+	 * Gets a non-empty coin value from either the value of the item,
+	 * or if the item is not a registered coin it falls back onto the given number value.
+	 */
+	@Nonnull
+	public static CoinValue fromItemOrValue(Item coin, long value) { return fromItemOrValue(coin, 1, value); }
+
+	@Nonnull
+	public static CoinValue fromItemOrValue(Item coin, int itemCount, long value)
+	{
+		long coinValue = MoneyUtil.getValue(coin);
+		if(coinValue > 0)
+			return fromNumber(coinValue * itemCount);
+		return fromNumber(value);
+	}
+
 	public final void encode(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(this.isFree());
 		if(!this.isFree())
@@ -186,7 +202,7 @@ public class CoinValue
 
 	@Nonnull
 	public CoinValue minusValue(@Nonnull Item coin, int amount) { return fromNumber(this.getValueNumber() - MoneyUtil.getValue(coin) * amount); }
-	
+
 
 	@Nonnull
 	public CoinValue percentageOfValue(int percentage) { return this.percentageOfValue(percentage, false); }
@@ -258,7 +274,7 @@ public class CoinValue
 		}
 		return sortValue(list);
 	}
-	
+
 	private static List<CoinValuePair> sortValue(List<CoinValuePair> list)
 	{
 		List<CoinValuePair> newList = new ArrayList<>();
@@ -281,7 +297,7 @@ public class CoinValue
 		}
 		return newList;
 	}
-	
+
 	private static boolean needsRounding(List<CoinValuePair> list)
 	{
 		for(int i = 0; i < list.size(); i++)
@@ -291,7 +307,7 @@ public class CoinValue
 		}
 		return false;
 	}
-	
+
 	private static boolean needsRounding(List<CoinValuePair> list, int index)
 	{
 		CoinValuePair pair = list.get(index);
@@ -302,7 +318,7 @@ public class CoinValue
 		}
 		return false;
 	}
-	
+
 	public List<CoinValuePair> getEntries() { return this.coinValues; }
 
 	public List<ItemStack> getAsItemList() {
@@ -311,7 +327,7 @@ public class CoinValue
 			items.add(new ItemStack(entry.coin, entry.amount));
 		return items;
 	}
-	
+
 	public int getEntry(Item coinItem)
 	{
 		for(CoinValuePair pair : this.coinValues)
@@ -323,7 +339,7 @@ public class CoinValue
 	}
 
 	//No need for a copy function, as Coin Values are now Immutable
-	
+
 	public double getDisplayValue()
 	{
 		double totalValue = 0d;
@@ -335,13 +351,13 @@ public class CoinValue
 		}
 		return totalValue;
 	}
-	
+
 	public String getString() { return this.getString(""); }
-	
+
 	public String getString(String emptyFiller) { return getComponent(emptyFiller).getString(); }
-	
+
 	public MutableComponent getComponent() { return this.getComponent(""); }
-	
+
 	public MutableComponent getComponent(String emptyFiller) { return getComponent(EasyText.literal(emptyFiller)); }
 	public MutableComponent getComponent(MutableComponent emptyFiller)
 	{
@@ -368,7 +384,7 @@ public class CoinValue
 				return EasyText.literal("?");
 		}
 	}
-	
+
 	public long getValueNumber()
 	{
 		long value = 0;
@@ -383,10 +399,10 @@ public class CoinValue
 		//LightmansCurrency.LOGGER.info("Accumulated Value: " + value + " PricePair count: " + this.priceValues.size());
 		return value;
 	}
-	
+
 	public static class CoinValuePair
 	{
-		
+
 		public final Item coin;
 		public final int amount;
 
@@ -398,7 +414,7 @@ public class CoinValue
 			this.coin = coin;
 			this.amount = amount;
 		}
-		
+
 		public CoinValuePair copy() { return new CoinValuePair(this.coin,this.amount); }
 
 		public CompoundTag save()
@@ -444,7 +460,7 @@ public class CoinValue
 		}
 
 		private static CoinValuePair from(String itemID, int amount) { return new CoinValuePair(ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemID)), amount); }
-		
+
 	}
 
 	public JsonObject toJson()
@@ -461,7 +477,7 @@ public class CoinValue
 		}
 		return json;
 	}
-	
+
 	public static CoinValue Parse(JsonElement json) throws Exception
 	{
 		if(json.isJsonPrimitive())
@@ -533,10 +549,10 @@ public class CoinValue
 		}
 		throw new Exception("Coin Value entry input is not a valid Json Element.");
 	}
-	
+
 	@Override
 	public int hashCode() { return Objects.hashCode(this.isFree(), this.coinValues); }
-	
+
 	@Override
 	public boolean equals(Object other) {
 		if(this == other)
@@ -545,5 +561,5 @@ public class CoinValue
 			return coinValue.getValueNumber() == this.getValueNumber() && coinValue.isFree() == this.isFree();
 		return false;
 	}
-	
+
 }

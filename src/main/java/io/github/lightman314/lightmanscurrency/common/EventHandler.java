@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -95,7 +95,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level.isClientSide)
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), MessagePlayPickupSound.INSTANCE);
+				SPacketPlayPickupSound.INSTANCE.sendTo(player);
 			event.setCanceled(true);
 			
 		}
@@ -200,7 +200,7 @@ public class EventHandler {
 			return;
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
-			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+			new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(target);
 	}
 	
 	//Drop the wallet if keep inventory isn't on.
@@ -347,7 +347,7 @@ public class EventHandler {
 			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+				new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget((PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity)));
 				walletHandler.clean();
 			}
 		}

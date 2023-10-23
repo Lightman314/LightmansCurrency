@@ -1,19 +1,26 @@
 package io.github.lightman314.lightmanscurrency.network.message.enchantments;
 
-import java.util.function.Supplier;
-
-import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraftforge.network.NetworkEvent.Context;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
-public class SPacketMoneyMendingClink {
+import javax.annotation.Nonnull;
 
-	public static void handle(SPacketMoneyMendingClink ignored, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() -> {
-			if(Config.CLIENT.moneyMendingClink.get())
-				LightmansCurrency.PROXY.playCoinSound();
-		});
-		supplier.get().setPacketHandled(true);
+public class SPacketMoneyMendingClink extends ServerToClientPacket.Simple {
+
+	public static final Handler<SPacketMoneyMendingClink> HANDLER = new H();
+	public static final SPacketMoneyMendingClink INSTANCE = new SPacketMoneyMendingClink();
+
+	private SPacketMoneyMendingClink() {}
+
+	private static class H extends SimpleHandler<SPacketMoneyMendingClink>
+	{
+		protected H() { super(INSTANCE); }
+		@Override
+		protected void handle(@Nonnull SPacketMoneyMendingClink message, @Nullable ServerPlayer sender) {
+			LightmansCurrency.PROXY.playCoinSound();
+		}
 	}
 	
 }

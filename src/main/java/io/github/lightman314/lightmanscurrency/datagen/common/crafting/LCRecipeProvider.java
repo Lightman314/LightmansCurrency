@@ -246,6 +246,34 @@ public class LCRecipeProvider extends RecipeProvider {
 
         });
 
+        //Shelf
+        ModBlocks.SHELF_2x2.forEach((woodType,shelf) -> {
+            ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
+            Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
+            WoodData data = woodType.getData();
+            Item slab = data == null ? null : data.getSlab();
+            ItemLike trader = ModBlocks.SHELF.get(woodType);
+            if(slab != null && trader != null)
+            {
+                ResourceLocation id = WoodID("traders/shelf2/", woodType);
+                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, shelf.get())
+                        .group("shelf_trader_2x2")
+                        .unlockedBy("money", MoneyKnowledge())
+                        .unlockedBy("trader", TraderKnowledge())
+                        .unlockedBy("shelf", LazyTrigger(trader))
+                        .pattern("c").pattern("x").pattern("s")
+                        .define('c', Tags.Items.CHESTS_WOODEN)
+                        .define('x', trader)
+                        .define('s', slab)
+                        .save(c, id);
+                if(tempConditional != null)
+                    tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+            }
+            else
+                LightmansCurrency.LogDebug("Could not generate 2x2 shelf recipe for WoodType '" + woodType.id + "' as it has no defined slab item.");
+
+        });
+
         //Card Display
         ModBlocks.CARD_DISPLAY.forEach((woodType,card_display) -> {
             ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
@@ -632,18 +660,6 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .save(conditional::addRecipe, "null:null");
         conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE));
-
-        //Bank Upgrade (WIP)
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeBank.INSTANCE);
-        LegacyUpgradeRecipeBuilder.smithing(
-                        Ingredient.of(ModBlocks.ATM.get()),
-                        Ingredient.of(Items.ENDER_PEARL),
-                        RecipeCategory.MISC,
-                        ModItems.COIN_CHEST_BANK_UPGRADE.get())
-                .unlocks("money", MoneyKnowledge())
-                .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_BANK_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_BANK_UPGRADE));
 
         //Magnet Upgrades
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);

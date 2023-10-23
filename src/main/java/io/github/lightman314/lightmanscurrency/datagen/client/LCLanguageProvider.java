@@ -17,7 +17,7 @@ public class LCLanguageProvider extends LanguageProvider {
     protected final String modid;
     protected final String locale;
 
-    public LCLanguageProvider(PackOutput output) { this(output, LightmansCurrency.MODID, "en_us_temp"); }
+    public LCLanguageProvider(PackOutput output) { this(output, LightmansCurrency.MODID, "en_us_generated"); }
     public LCLanguageProvider(PackOutput output, String locale) { this(output, LightmansCurrency.MODID, locale); }
 
     protected LCLanguageProvider(PackOutput output, String modid, String locale) {
@@ -29,19 +29,9 @@ public class LCLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
 
-        //Only Generates wooden block names so I don't have to manually add them every time I add a wood compat
-
-        //Shelf
-        this.addWoodenBlocks(ModBlocks.SHELF, "%s Shelf", WoodType::isModded);
-        //Card Display
-        this.addWoodenBlocks(ModBlocks.CARD_DISPLAY, "%s Card Display", WoodType::isModded);
-
-        ///Specialty Traders
-        //Bookshelf Trader
-        this.addWoodenBlocks(ModBlocks.BOOKSHELF_TRADER, "%s Bookshelf Trader", WoodType::isModded);
-
-        //Auction House
-        this.addWoodenBlocks(ModBlocks.AUCTION_STAND, "%s Auction Stand", WoodType::isModded);
+        //Will only contain newly added wooden blocks on the patch they are made as a reminder
+        // to add names for other MC versions that have different wood compats
+        //this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s 2x2 Shelf", WoodType::isModded);
 
     }
 

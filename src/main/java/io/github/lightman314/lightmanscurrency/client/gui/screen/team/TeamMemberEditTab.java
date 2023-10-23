@@ -14,8 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.teams.MessageEditTeam;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -107,7 +106,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeAddMember(this.getPlayer(), this.memberNameInput.getValue());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageEditTeam(team.getID(), this.memberNameInput.getValue(), Team.CATEGORY_MEMBER));
+		this.RequestChange(LazyPacketData.simpleString("AddMember", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 		
 	}
@@ -119,7 +118,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeAddAdmin(this.getPlayer(), this.memberNameInput.getValue());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageEditTeam(team.getID(), this.memberNameInput.getValue(), Team.CATEGORY_ADMIN));
+		this.RequestChange(LazyPacketData.simpleString("AddAdmin", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 	}
 	
@@ -130,7 +129,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeRemoveMember(this.getPlayer(), this.memberNameInput.getValue());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageEditTeam(team.getID(), this.memberNameInput.getValue(), Team.CATEGORY_REMOVE));
+		this.RequestChange(LazyPacketData.simpleString("RemoveMember", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 	}
 

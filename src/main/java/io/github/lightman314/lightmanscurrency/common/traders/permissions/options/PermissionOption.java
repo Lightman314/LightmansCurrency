@@ -2,10 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.traders.permissions.optio
 
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -35,10 +34,9 @@ public abstract class PermissionOption {
 		if(this.tab.menu.getTrader() == null)
 			return;
 		this.tab.menu.getTrader().setAllyPermissionLevel(this.tab.menu.player, this.permission, newValue);
-		CompoundTag message = new CompoundTag();
-		message.putString("ChangeAllyPermissions", this.permission);
-		message.putInt("NewLevel", newValue);
-		this.tab.sendNetworkMessage(message);
+		this.tab.sendMessage(LazyPacketData.builder()
+				.setString("ChangeAllyPermissions", this.permission)
+				.setInt("NewLevel", newValue));
 	}
 	
 	public final void initWidgets(SettingsSubTab tab, int x, int y, Consumer<Object> addWidgets)
@@ -50,8 +48,8 @@ public abstract class PermissionOption {
 	protected abstract void createWidget(int x, int y, Consumer<Object> addWidgets);
 	
 	public void tick() {}
-	
-	public void render(PoseStack pose, int mouseX, int mouseY) { }
+
+	public void render(EasyGuiGraphics gui) { }
 	
 	public abstract int widgetWidth();
 	

@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.loot.glm;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -12,19 +10,22 @@ import com.mojang.serialization.DynamicOps;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
+import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
+
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
 	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
 	
+	@Nonnull
 	@Override
-	public @NotNull ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+	public ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
 		if(!Config.COMMON.enableChestLoot.get())
@@ -37,7 +38,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		if(lootLevel != null)
 		{
 			LightmansCurrency.LogDebug("Loot table '" + lootTable + "' has " + lootLevel + " level chest loot. Adding coins to the spawned loot.");
-			List<ItemStack> coinLoot = LootManager.GetRandomChestLoot(lootLevel, context);
+			List<ItemStack> coinLoot = LootManager.getLoot(lootLevel.lootTable, context);
 			for(ItemStack coin : coinLoot) {
 				LightmansCurrency.LogDebug("Adding " + coin.getCount() + "x " + ForgeRegistries.ITEMS.getKey(coin.getItem()).toString() + " to the chest loot.");
 				generatedLoot.add(coin);

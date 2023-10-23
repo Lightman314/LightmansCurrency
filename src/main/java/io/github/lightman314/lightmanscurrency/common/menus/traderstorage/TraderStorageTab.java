@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -64,6 +65,9 @@ public abstract class TraderStorageTab {
 	/**
 	 * Sends a message to the server to notify them about an interaction made client-side.
 	 */
-	public abstract void receiveMessage(CompoundTag message);
+	@Deprecated(since = "2.1.2.4")
+	public void receiveMessage(CompoundTag message) {}
+
+	public abstract void receiveMessage(LazyPacketData message);
 	
 }

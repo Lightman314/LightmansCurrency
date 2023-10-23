@@ -70,6 +70,7 @@ public class BlockEntityBlockHelper {
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.VENDING_MACHINE_LARGE);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.VENDING_MACHINE_LARGE_OLDCOLORS);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.SHELF);
+		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.SHELF_2x2);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.CARD_DISPLAY);
 
 		//Freezer Blocks

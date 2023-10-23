@@ -24,8 +24,8 @@ public class CommonProxy {
 	public void updateTrader(CompoundTag compound) {}
 	
 	public void removeTrader(long traderID) {}
-	
-	public void initializeTeams(CompoundTag compound) {}
+
+	public void clearTeams() {}
 	
 	public void updateTeam(CompoundTag compound) {}
 	

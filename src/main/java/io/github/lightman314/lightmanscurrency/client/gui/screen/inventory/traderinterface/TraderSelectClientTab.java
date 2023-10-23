@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -26,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.sorting.TerminalSorter;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -59,7 +59,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
-		traderList.sort(NetworkTerminalScreen.TERMINAL_SORTER);
+		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
 	
@@ -213,20 +213,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public void setScroll(int newScroll) {
 		this.scroll = Math.min(newScroll, this.getMaxScroll());
 		this.updateTraderButtons();
-	}
-	
-	private boolean onMouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.scroll < this.getMaxScroll())
-				this.setScroll(this.scroll + 1);
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				this.setScroll(this.scroll - 1);
-		}
-		return false;
 	}
 	
 }

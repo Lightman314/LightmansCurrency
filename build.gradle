@@ -1,12 +1,23 @@
+buildscript {
+    dependencies {
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+    }
+}
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.19.4-2.1.2.3b'
+version = '1.19.4-2.1.2.4'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
+
+mixin {
+    add sourceSets.main, "lightmanscurrency.refmap.json"
+    config "lightmanscurrency.mixins.json"
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -84,18 +95,18 @@ repositories {
 
 dependencies {
 
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
     minecraft 'net.minecraftforge:forge:1.19.4-45.1.0'
    	
    	//JEI when actually working on plugin
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
+    //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
+    //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
     implementation fg.deobf("curse.maven:jei-238222:4473386")
     
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:4478589")
-    //Curios Runtime
-    //runtimeOnly fg.deobf("curse.maven:curios-309927:4478589")
 
     //Immersive Engineering API
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
@@ -103,9 +114,15 @@ dependencies {
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660939')
 
+    //FTB Chunks claim purchase compat
+    compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727833')
+    compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4611938')
+    compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4661834')
+    compileOnly fg.deobf('curse.maven:architectury-api-419699:4633041')
+
     //Wood Compatibility
     //Biomes O' Plenty
-    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4573240")
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4681520")
     implementation fg.deobf("curse.maven:terrablender-563928:4629898")
     //BYG
     implementation fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:4602199")

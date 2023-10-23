@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
@@ -35,6 +36,9 @@ public abstract class SettingsSubTab extends EasyTab {
 
     public void tick() {}
 
+    public final void sendMessage(@Nonnull LazyPacketData.Builder message) { this.menu.SendMessage(message); }
+
+    @Deprecated(since = "2.1.2.4")
     public final void sendNetworkMessage(@Nonnull CompoundTag message) { this.commonTab.SendSettingsMessage(message); }
 
     public boolean shouldRenderInventoryText() { return true; }

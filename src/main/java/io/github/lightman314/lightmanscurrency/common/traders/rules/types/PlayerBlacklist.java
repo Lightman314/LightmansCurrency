@@ -11,15 +11,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerBlacklistTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -39,33 +36,20 @@ public class PlayerBlacklist extends TradeRule {
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(this.isBlacklisted(event.getPlayerReference()))
-			event.addDenial(Component.translatable("traderule.lightmanscurrency.blacklist.denial"));
+			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.blacklist.denial"));
 	}
 
-	public boolean isBlacklisted(PlayerReference player)
-	{
-		for (PlayerReference bannedPlayer : this.bannedPlayers) {
-			if (bannedPlayer.is(player))
-				return true;
-		}
-		return false;
-	}
+	public boolean isBlacklisted(PlayerReference player)  { return PlayerReference.isInList(this.bannedPlayers, player); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player
-		ListTag playerNameList = new ListTag();
-		for (PlayerReference bannedPlayer : this.bannedPlayers)
-			playerNameList.add(bannedPlayer.save());
-		compound.put("BannedPlayers", playerNameList);
+		PlayerReference.saveList(compound, this.bannedPlayers, "BannedPlayers");
 	}
 	
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
-		JsonArray blacklist = new JsonArray();
-		for (PlayerReference bannedPlayer : this.bannedPlayers)
-			blacklist.add(bannedPlayer.saveAsJson());
-		json.add("BannedPlayers", blacklist);
+		json.add("BannedPlayers", PlayerReference.saveJsonList(this.bannedPlayers));
 		return json;
 	}
 
@@ -74,16 +58,7 @@ public class PlayerBlacklist extends TradeRule {
 		
 		//Load blacklisted players
 		if(compound.contains("BannedPlayers", Tag.TAG_LIST))
-		{
-			this.bannedPlayers.clear();
-			ListTag playerList = compound.getList("BannedPlayers", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerList.size(); ++i)
-			{
-				PlayerReference reference = PlayerReference.load(playerList.getCompound(i));
-				if(reference != null)
-					this.bannedPlayers.add(reference);
-			}
-		}
+			this.bannedPlayers = PlayerReference.loadList(compound, "BannedPlayers");
 		
 	}
 	
@@ -122,8 +97,6 @@ public class PlayerBlacklist extends TradeRule {
 	public CompoundTag savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundTag data) { }
-	
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_BLACKLIST; }
 
 	@Nonnull
 	@Override

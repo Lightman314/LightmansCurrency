@@ -5,10 +5,10 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -153,30 +153,30 @@ public class WalletItem extends Item{
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
 		}
 		if(CanConvert(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoConvert(stack) ? Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
+				Component onOffText = getAutoConvert(stack) ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
 		}
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 		
 		CoinValue contents = CoinValue.fromInventory(getWalletInventory(stack));
 		if(contents.getValueNumber() > 0)
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.storedmoney", Component.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney", EasyText.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
 		
 	}
 	
@@ -210,7 +210,7 @@ public class WalletItem extends Item{
 							walletHandler.setWallet(wallet);
 							player.setItemInHand(hand, ItemStack.EMPTY);
 							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
-							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
+							new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()).sendTo(player);
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
 							equippedWallet = true;

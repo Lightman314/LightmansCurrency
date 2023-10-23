@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -47,11 +48,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             trader.addEntry();
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putBoolean("AddEntry", true);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleFlag("AddEntry"));
         }
     }
 
@@ -63,11 +60,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             trader.removeEntry(entryIndex);
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putInt("RemoveEntry", entryIndex);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleInt("RemoveEntry", entryIndex));
         }
     }
 
@@ -106,10 +99,9 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                CompoundTag message = new CompoundTag();
-                message.putInt("EditEntry", entryIndex);
-                message.put("AddItem", item.save(new CompoundTag()));
-                this.menu.sendMessage(message);
+                this.menu.SendMessage(LazyPacketData.builder()
+                        .setInt("EditEntry", entryIndex)
+                        .setCompound("AddItem", item.save(new CompoundTag())));
             }
         }
     }
@@ -136,11 +128,10 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                CompoundTag message = new CompoundTag();
-                message.putInt("EditEntry", entryIndex);
-                message.putInt("ItemIndex", itemIndex);
-                message.put("EditItem", item.save(new CompoundTag()));
-                this.menu.sendMessage(message);
+                this.menu.SendMessage(LazyPacketData.builder()
+                        .setInt("EditEntry", entryIndex)
+                        .setInt("ItemIndex", itemIndex)
+                        .setCompound("EditItem", item.save(new CompoundTag())));
             }
         }
     }
@@ -162,10 +153,9 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                CompoundTag message = new CompoundTag();
-                message.putInt("EditEntry", entryIndex);
-                message.putInt("RemoveItem", itemIndex);
-                this.menu.sendMessage(message);
+                this.menu.SendMessage(LazyPacketData.builder()
+                        .setInt("EditEntry", entryIndex)
+                        .setInt("RemoveItem", itemIndex));
             }
         }
     }
@@ -185,16 +175,15 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             LightmansCurrency.LogDebug("Changed entry[" + entryIndex + "]'s weight on the " + DebugUtil.getSideText(this.menu) + "!");
             if(this.menu.isClient())
             {
-                CompoundTag message = new CompoundTag();
-                message.putInt("EditEntry", entryIndex);
-                message.putInt("SetWeight", newWeight);
-                this.menu.sendMessage(message);
+                this.menu.SendMessage(LazyPacketData.builder()
+                        .setInt("EditEntry", entryIndex)
+                        .setInt("SetWeight", newWeight));
             }
         }
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
+    public void receiveMessage(LazyPacketData message) {
         if(message.contains("AddEntry"))
             this.AddEntry();
         if(message.contains("RemoveEntry"))
@@ -204,11 +193,11 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             int entryIndex = message.getInt("EditEntry");
             if(message.contains("AddItem"))
             {
-                this.AddEntryItem(entryIndex, ItemStack.of(message.getCompound("AddItem")));
+                this.AddEntryItem(entryIndex, ItemStack.of(message.getNBT("AddItem")));
             }
             else if(message.contains("EditItem") && message.contains("ItemIndex"))
             {
-                this.EditEntryItem(entryIndex, message.getInt("ItemIndex"), ItemStack.of(message.getCompound("EditItem")));
+                this.EditEntryItem(entryIndex, message.getInt("ItemIndex"), ItemStack.of(message.getNBT("EditItem")));
             }
             else if(message.contains("RemoveItem"))
             {

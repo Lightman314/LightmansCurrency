@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 
@@ -40,11 +40,7 @@ public class TaxInfoTab extends TraderStorageTab {
             if(entry != null && entry.IsInArea(trader))
                 entry.acceptTaxes(trader);
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putLong("AcceptTaxCollector", taxCollector);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleLong("AcceptTaxCollector", taxCollector));
         }
     }
 
@@ -57,11 +53,7 @@ public class TaxInfoTab extends TraderStorageTab {
             if(entry != null && entry.IsInArea(trader))
                 trader.FlagTaxEntryToIgnore(entry, this.menu.player);
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putLong("ForceIgnoreTaxCollector", taxCollector);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleLong("ForceIgnoreTaxCollector", taxCollector));
         }
     }
 
@@ -74,16 +66,12 @@ public class TaxInfoTab extends TraderStorageTab {
             if(entry != null && entry.IsInArea(trader))
                 trader.PardonTaxEntry(entry);
             if(this.menu.isClient())
-            {
-                CompoundTag message = new CompoundTag();
-                message.putLong("PardonTaxCollector", taxCollector);
-                this.menu.sendMessage(message);
-            }
+                this.menu.SendMessage(LazyPacketData.simpleLong("PardonTaxCollector", taxCollector));
         }
     }
 
     @Override
-    public void receiveMessage(CompoundTag message) {
+    public void receiveMessage(LazyPacketData message) {
 
         if(message.contains("AcceptTaxCollector"))
             this.AcceptTaxes(message.getLong("AcceptTaxCollector"));
