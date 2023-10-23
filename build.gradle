@@ -139,7 +139,6 @@ dependencies {
     compileOnly fg.deobf("curse.maven:curios-309927:4780211")
 
     //Immersive Engineering API
-    //TODO update to 1.20 build once released
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
