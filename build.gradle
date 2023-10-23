@@ -139,8 +139,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:curios-309927:4583413")
 
     //Immersive Engineering API
-    //TODO update to 1.20 build once released
-    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
+    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")
 
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:4591814')
 

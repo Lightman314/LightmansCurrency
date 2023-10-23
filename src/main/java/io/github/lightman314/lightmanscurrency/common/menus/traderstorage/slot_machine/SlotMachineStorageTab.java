@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -223,7 +222,7 @@ public class SlotMachineStorageTab extends TraderStorageTab{
 
     @Override
     public void receiveMessage(LazyPacketData message) {
-        if(message.contains("ClickedSlot", Tag.TAG_INT))
+        if(message.contains("ClickedSlot", LazyPacketData.TYPE_INT))
         {
             int storageSlot = message.getInt("ClickedSlot");
             boolean isShiftHeld = message.getBoolean("HeldShift");
