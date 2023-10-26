@@ -87,6 +87,7 @@ public class ModBlocks {
 
 	//Wooden Shelves
 	public static final RegistryObjectBundle<Block, WoodType> SHELF;
+	public static final RegistryObjectBundle<Block, WoodType> SHELF_2x2;
 
 	//Card Shelves
 	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
@@ -311,6 +312,14 @@ public class ModBlocks {
 								.color(w.mapColor)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.WOOD)
+				)
+		);
+		SHELF_2x2 = registerWooden("shelf_2x2", WoodType.Attributes.needsSlab, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), w -> new ShelfBlock(
+						Block.Properties.of(Material.WOOD)
+								.color(w.mapColor)
+								.strength(2.0f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.WOOD),
+						4
 				)
 		);
 

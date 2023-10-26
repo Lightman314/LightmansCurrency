@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
-import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -26,13 +25,12 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
@@ -112,7 +110,7 @@ public class ClientProxy extends CommonProxy{
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
-    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), EjectionRecoveryScreen::new);
 
 		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
 
@@ -131,6 +129,7 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
 		ClientRegistry.registerKeyBinding(ClientEvents.KEY_PORTABLE_TERMINAL);
+		ClientRegistry.registerKeyBinding(ClientEvents.KEY_PORTABLE_ATM);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
@@ -174,18 +173,9 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void removeTrader(long traderID) { ClientTraderData.RemoveTrader(traderID); }
-	
-	public void initializeTeams(CompoundTag compound)
-	{
-		if(compound.contains("Teams", Tag.TAG_LIST))
-		{
-			List<Team> teams = Lists.newArrayList();
-			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
-			teamList.forEach(nbt -> teams.add(Team.load((CompoundTag)nbt)));
-			ClientTeamData.InitTeams(teams);
-		}
-	}
-	
+
+	public void clearTeams() { ClientTeamData.ClearTeams(); }
+
 	public void updateTeam(CompoundTag compound) { ClientTeamData.UpdateTeam(compound); }
 	
 	@Override
@@ -277,10 +267,7 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void loadAdminPlayers(List<UUID> serverAdminList)
-	{
-		CommandLCAdmin.loadAdminPlayers(serverAdminList);
-	}
+	public void loadAdminPlayers(List<UUID> serverAdminList) { LCAdminMode.loadAdminPlayers(serverAdminList); }
 	
 	@SubscribeEvent
 	public void openScreenOnRenderTick(RenderTickEvent event)
@@ -313,8 +300,11 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void playCoinSound() {
-		Minecraft minecraft = Minecraft.getInstance();
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+		if(Config.CLIENT.moneyMendingClink.get())
+		{
+			Minecraft minecraft = Minecraft.getInstance();
+			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+		}
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)

@@ -15,8 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.types.Blo
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageInterfaceInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
@@ -188,7 +187,7 @@ public class TraderInterfaceMenu extends EasyMenu {
 	public void sendMessage(CompoundTag message) {
 		if(this.isClient())
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageInterfaceInteraction(message));
+			new CPacketInterfaceInteraction(message).send();
 			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
 		}
 	}

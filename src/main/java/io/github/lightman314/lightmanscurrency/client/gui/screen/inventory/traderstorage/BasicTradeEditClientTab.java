@@ -18,9 +18,12 @@ import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 
-public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer{
+public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer {
 
-	public BasicTradeEditClientTab(Object screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(((TraderStorageScreen)screen)::selfMessage); }
+	public BasicTradeEditClientTab(Object screen, T commonTab) {
+		super(screen, commonTab);
+		this.commonTab.setClient(((TraderStorageScreen)screen)::selfMessage);
+	}
 
 	@Nonnull
 	@Override
@@ -28,27 +31,27 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	@Override
 	public Component getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.edit_trades"); }
-	
+
 	@Override
 	public boolean blockInventoryClosing() { return false; }
 
 	TradeButtonArea tradeDisplay;
-	
+
 	EasyButton buttonAddTrade;
 	EasyButton buttonRemoveTrade;
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
+
 		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.traderSource, t -> this.menu.getContext(), screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu)));
 		this.tradeDisplay.setInteractionConsumer(this);
 		this.tradeDisplay.withTitle(screenArea.pos.offset(6, 6), screenArea.width - (this.renderAddRemoveButtons() ? 32 : 16), true);
-		
+
 		this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width- 25, 4), this::AddTrade));
 		this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width- 14, 4), this::RemoveTrade));
-		
+
 		this.tick();
-		
+
 	}
 
 	@Override
@@ -59,10 +62,10 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 			return this.menu.getTrader().canEditTradeCount();
 		return false;
 	}
-	
+
 	@Override
 	public void tick() {
-		
+
 		TraderData trader = this.menu.getTrader();
 		if(trader != null)
 		{
@@ -75,31 +78,43 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
+			trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
 			trade.onInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
+			trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
 			trade.onOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
-	
+
 	@Override
+	@SuppressWarnings("deprecation")
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
+		{
 			trade.onInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+			trade.OnInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "edit trade", Permissions.EDIT_TRADES);
 	}
-	
+
 	private void AddTrade(EasyButton button) { this.commonTab.addTrade(); }
-	
+
 	private void RemoveTrade(EasyButton button) { this.commonTab.removeTrade(); }
 
 }

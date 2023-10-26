@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTrade
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -66,33 +65,20 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 			}
 		}
 	}
-	
-	public boolean isOnList(PlayerReference player)
-	{
-		for (PlayerReference playerReference : this.playerList) {
-			if (playerReference.is(player))
-				return true;
-		}
-		return false;
-	}
+
+	public boolean isOnList(PlayerReference player)  { return PlayerReference.isInList(this.playerList, player); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player names
-		ListTag playerNameList = new ListTag();
-		for (PlayerReference playerReference : playerList)
-			playerNameList.add(playerReference.save());
-		compound.put("Players", playerNameList);
+		PlayerReference.saveList(compound, this.playerList, "Players");
 		//Save discount
 		compound.putInt("discount", this.discount);
 	}
 
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
-		JsonArray playerList = new JsonArray();
-		for (PlayerReference playerReference : this.playerList)
-			playerList.add(playerReference.saveAsJson());
-		json.add("Players", playerList);
+		json.add("Players", PlayerReference.saveJsonList(this.playerList));
 		json.addProperty("discounrd", this.discount);
 		return json;
 	}
@@ -101,24 +87,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	protected void loadAdditional(CompoundTag compound) {
 		//Load player names
 		if(compound.contains("Players", Tag.TAG_LIST))
-		{
-			this.playerList.clear();
-			ListTag playerNameList = compound.getList("Players", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerNameList.size(); i++)
-			{
-				CompoundTag thisCompound = playerNameList.getCompound(i);
-				PlayerReference reference = PlayerReference.load(thisCompound);
-				if(reference != null)
-					this.playerList.add(reference);
-				//Load old method
-				else if(thisCompound.contains("name", Tag.TAG_STRING))
-				{
-					reference = PlayerReference.of(false, thisCompound.getString("name"));
-					if(reference != null && !this.isOnList(reference))
-						this.playerList.add(reference);
-				}
-			}
-		}
+			this.playerList = PlayerReference.loadList(compound, "Players");
 		//Load discount
 		if(compound.contains("discount", Tag.TAG_INT))
 			this.discount = compound.getInt("discount");
@@ -145,14 +114,14 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	protected void handleUpdateMessage(CompoundTag updateInfo)
 	{
 		if(updateInfo.contains("Discount"))
-		{
 			this.discount = updateInfo.getInt("Discount");
-		}
 		else
 		{
 			boolean add = updateInfo.getBoolean("Add");
 			String name = updateInfo.getString("Name");
 			PlayerReference player = PlayerReference.of(false, name);
+			if(player == null)
+				return;
 			if(add && !this.isOnList(player))
 			{
 				this.playerList.add(player);

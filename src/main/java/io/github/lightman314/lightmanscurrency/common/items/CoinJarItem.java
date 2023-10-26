@@ -6,9 +6,11 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -79,6 +81,19 @@ public class CoinJarItem extends BlockItem {
 		public int getColor(ItemStack stack) {
 			CompoundTag compoundtag = stack.getTagElement("display");
 			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
+		}
+
+		@Override
+		public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> tabItems) {
+			if(this.allowdedIn(tab))
+			{
+				for(Color c : Color.values())
+				{
+					ItemStack stack = new ItemStack(this);
+					this.setColor(stack, c.hexColor);
+					tabItems.add(stack);
+				}
+			}
 		}
 	}
 

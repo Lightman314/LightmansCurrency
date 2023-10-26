@@ -7,8 +7,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenNetworkTerminal;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -18,11 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -138,17 +137,17 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 	
 	private void OpenStorage(EasyButton button) {
 		if(this.menu.isSingleTrader())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.menu.getSingleTrader().getID()));
+			new CPacketOpenStorage(this.menu.getSingleTrader().getID()).send();
 	}
 	
 	private void CollectCoins(EasyButton button) {
 		if(this.menu.isSingleTrader())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
+			CPacketCollectCoins.sendToServer();
 	}
 	
 	private void OpenTerminal(EasyButton button) {
 		if(this.showTerminalButton())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenNetworkTerminal());
+			new CPacketOpenNetworkTerminal().send();
 	}
 
 	@Override

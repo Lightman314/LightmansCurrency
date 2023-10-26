@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -69,13 +69,13 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 	}
 	
 	@Override
-	public void receiveServerMessage(CompoundTag message) {
+	public void receiveServerMessage(LazyPacketData message) {
 		if(message.contains("CancelSuccess"))
 			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}

@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
@@ -136,7 +137,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return;
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
-		if(CommandLCAdmin.isAdminPlayer(requestor))
+		if(LCAdminMode.isAdminPlayer(requestor))
 		{
 
 			this.overrideTradeCount(this.getTradeCount() + 1);
@@ -154,7 +155,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return;
 		if(this.getTradeCount() <= 1)
 			return;
-		if(CommandLCAdmin.isAdminPlayer(requestor))
+		if(LCAdminMode.isAdminPlayer(requestor))
 		{
 
 			this.overrideTradeCount(this.getTradeCount() - 1);

@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.datagen.client.*;
+import io.github.lightman314.lightmanscurrency.datagen.client.resourcepacks.LCCloserItemPositionProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.LCRecipeProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -23,6 +25,8 @@ public class LCDataEventListener {
         {
             //Recipes
             generator.addProvider(new LCRecipeProvider(generator));
+            //Loot Tables
+            generator.addProvider(new LCLootTableProvider(generator));
 
             //Tags
             LCBlockTagProvider blockTagProvider = new LCBlockTagProvider(generator, existingFileHelper);
@@ -35,8 +39,12 @@ public class LCDataEventListener {
             //Block States
             generator.addProvider(new LCBlockStateProvider(generator, existingFileHelper));
 
+            //Item Positions for Item Traders
+            generator.addProvider(new LCItemPositionProvider(generator));
+            generator.addProvider(new LCCloserItemPositionProvider(generator));
+
             //Language
-            //generator.addProvider(event.includeClient(), new LCLanguageProvider(output));
+            generator.addProvider(new LCLanguageProvider(generator));
 
         }
     }

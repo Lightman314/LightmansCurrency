@@ -13,15 +13,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
+import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -82,14 +80,14 @@ public class SelectionTab extends WalletBankTab {
 			if(selectedTeam != null && team.getID() == this.selectedTeam().getID())
 				return;
 			BankReference account = TeamBankReference.of(team).flagAsClient();
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
+			new CPacketSelectBankAccount(account).send();
 		} catch(Throwable ignored) { }
 	}
 	
 	private void PressPersonalAccount(EasyButton button)
 	{
 		BankReference account = PlayerBankReference.of(this.screen.getMenu().getPlayer());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
+		new CPacketSelectBankAccount(account).send();
 	}
 	
 	@Override

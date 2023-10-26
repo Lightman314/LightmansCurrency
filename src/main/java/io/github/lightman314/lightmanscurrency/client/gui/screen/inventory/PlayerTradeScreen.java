@@ -10,8 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.CMessagePlayerTradeInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.CPacketPlayerTradeInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -112,19 +111,19 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
             this.valueInput.setCoinValue(newValue);
         }
         message.put("ChangeMoney", newValue.save());
-        LightmansCurrencyPacketHandler.instance.sendToServer(new CMessagePlayerTradeInteraction(this.menu.tradeID, message));
+        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
     }
 
     private void OnPropose(EasyButton button) {
         CompoundTag message = new CompoundTag();
         message.putBoolean("TogglePropose", true);
-        LightmansCurrencyPacketHandler.instance.sendToServer(new CMessagePlayerTradeInteraction(this.menu.tradeID, message));
+        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
     }
 
     private void OnAccept(EasyButton button) {
         CompoundTag message = new CompoundTag();
         message.putBoolean("ToggleActive", true);
-        LightmansCurrencyPacketHandler.instance.sendToServer(new CMessagePlayerTradeInteraction(this.menu.tradeID, message));
+        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
     }
 
 }

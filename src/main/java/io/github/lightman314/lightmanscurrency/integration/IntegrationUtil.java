@@ -16,4 +16,6 @@ public class IntegrationUtil {
         } catch (Throwable t) { if(error != null) LightmansCurrency.LogError(error, t); }
     }
 
+    public static Runnable SafeEnqueueWork(@Nonnull String modid, @Nonnull Runnable runnable, @Nullable String error) { return () -> SafeRunIfLoaded(modid, runnable, error); }
+
 }

@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,7 +33,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.sendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
+				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
 				return null;
 			}
 			return ((AuctionHouseTrader)this.menu.getTrader()).getTrade(this.tradeIndex);
@@ -59,9 +59,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 			AuctionTradeData trade = trader.getTrade(this.tradeIndex);
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("CancelAuction", giveToPlayer);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.simpleBoolean("CancelAuction", giveToPlayer));
 				//Don't run the cancel interaction while on the client
 				return;
 			}
@@ -70,15 +68,13 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 				trade.CancelTrade(trader, giveToPlayer, this.menu.player);
 				trader.markTradesDirty();
 				trader.markStorageDirty();
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("CancelSuccess", true);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.simpleBoolean("CancelSuccess", true));
 			}
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");

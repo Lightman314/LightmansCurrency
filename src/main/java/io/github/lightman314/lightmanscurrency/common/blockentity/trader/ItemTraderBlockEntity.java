@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
@@ -27,24 +28,24 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
 	protected int tradeCount;
 	protected boolean networkTrader;
-	
+
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.ITEM_TRADER.get(), pos, state, 1, false); }
-	
+
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount) { this(ModBlockEntities.ITEM_TRADER.get(), pos, state, tradeCount, false); }
-	
+
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount, boolean networkTrader) { this(ModBlockEntities.ITEM_TRADER.get(), pos, state, tradeCount, networkTrader); }
-	
+
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { this(type, pos, state, 1, false);}
-	
+
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount) { this(type, pos, state, tradeCount, false); }
-	
+
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount, boolean networkTrader)
 	{
 		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.networkTrader = networkTrader;
 	}
-	
+
 	@Nonnull
 	public ItemTraderData buildNewTrader() {
 		ItemTraderData trader = new ItemTraderData(this.tradeCount, this.level, this.worldPosition);
@@ -52,8 +53,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 			trader.setAlwaysShowOnTerminal();
 		return trader;
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
+	@Nonnull
+	public ItemPositionData GetRenderData()
+	{
+		if(this.getBlockState().getBlock() instanceof IItemTraderBlock traderBlock)
+			return traderBlock.getItemPositionData();
+		return ItemPositionData.EMPTY;
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isDoubleTrade)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -62,8 +73,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		else
 			return Lists.newArrayList(new Vector3f(0.0f, 0.0f, 0.0f));
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public List<Quaternion> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -84,10 +96,11 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 			rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), 0f));
 			return rotation;
 		}
-			
+
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public float GetStackRenderScale(int tradeSlot)
 	{
 		Block block = this.getBlockState().getBlock();
@@ -96,8 +109,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		else
 			return 0f;
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
+	@Deprecated(since = "2.1.2.4")
 	public int maxRenderIndex()
 	{
 		Block block = this.getBlockState().getBlock();
@@ -106,7 +120,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		else
 			return 0;
 	}
-	
+
 	@Override
 	public void saveAdditional(@NotNull CompoundTag compound)
 	{
@@ -114,7 +128,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
-	
+
 	@Override
 	public void load(@NotNull CompoundTag compound)
 	{
@@ -122,5 +136,5 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
-	
+
 }

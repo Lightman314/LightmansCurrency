@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,15 +31,15 @@ import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
-	
+
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
-	
+
 	@Override
 	public void render(@NotNull ItemTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
-	
+
 	public static List<ItemStack> GetRenderItems(ItemTradeData trade) {
 		List<ItemStack> result = new ArrayList<>();
 		for(int i = 0; i < 2; ++i)
@@ -48,14 +50,20 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		}
 		return result;
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
 		try{
 			TraderData rawTrader = blockEntity.getRawTraderData();
 			if(!(rawTrader instanceof ItemTraderData trader))
 				return;
-			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
+			ItemPositionData positionData = blockEntity.GetRenderData();
+			final int maxIndex = positionData.isEmpty() ? blockEntity.maxRenderIndex() : positionData.getEntryCount();
+			final int renderLimit = Config.CLIENT.itemRenderLimit.get();
+			BlockState state = blockEntity.getBlockState();
+			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < maxIndex; tradeSlot++)
 			{
 
 				ItemTradeData trade = trader.getTrade(tradeSlot);
@@ -63,18 +71,28 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				if(renderItems.size() > 0)
 				{
 
-					ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-
 					//Get positions
-					List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
+					List<Vector3f> positions;
+					if(positionData.isEmpty())
+						positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
+					else
+						positions = positionData.getPositions(state, tradeSlot);
 
 					//Get rotation
-					List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
+					List<Quaternion> rotation;
+					if(positionData.isEmpty())
+						rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
+					else
+						rotation = positionData.getRotation(state, tradeSlot, partialTicks);
 
 					//Get scale
-					float scale = blockEntity.GetStackRenderScale(tradeSlot);
+					float scale;
+					if(positionData.isEmpty())
+						scale = blockEntity.GetStackRenderScale(tradeSlot);
+					else
+						scale = positionData.getScale(tradeSlot);
 
-					for(int pos = 0; pos < Config.CLIENT.itemRenderLimit.get() && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
+					for(int pos = 0; pos < renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 					{
 
 						pose.pushPose();
@@ -99,7 +117,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(0.25, 0.25, 0d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+							itemRenderer.renderStatic(renderItems.get(0), ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 
 							pose.popPose();
 
@@ -110,27 +128,23 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(-0.25, -0.25, 0.001d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							itemRenderer.renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+							itemRenderer.renderStatic(renderItems.get(1), ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 
 							pose.popPose();
 						}
 						else
-							itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+							itemRenderer.renderStatic(renderItems.get(0), ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 
 						pose.popPose();
-
 					}
-
 				}
-
 			}
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering an Item Trader!", t); }
-
 	}
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }
-	public static Quaternion getRotation(float partialTicks) { return Vector3f.YP.rotationDegrees( (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
+	public static Quaternion getRotation(float partialTicks) { return Vector3f.YP.rotationDegrees((ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
 
 	@SubscribeEvent
 	public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -138,5 +152,4 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			rotationTime++;
 	}
 
-	
 }

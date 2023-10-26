@@ -3,13 +3,13 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.*;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.money.util.CoinContainer;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
@@ -274,7 +274,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements UpgradeType
 
     public boolean allowAccess(Player player)
     {
-        if(CommandLCAdmin.isAdminPlayer(player))
+        if(LCAdminMode.isAdminPlayer(player))
             return true;
         for(CoinChestUpgradeData data : this.getChestUpgrades())
         {

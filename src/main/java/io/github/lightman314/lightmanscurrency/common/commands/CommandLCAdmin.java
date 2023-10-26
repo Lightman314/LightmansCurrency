@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -22,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderA
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -30,9 +29,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
-import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
 import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -55,14 +52,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 
 public class CommandLCAdmin {
-
-
-	private static List<UUID> adminPlayers = new ArrayList<>();
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
 	{
@@ -113,8 +106,8 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 		ServerPlayer sourcePlayer = source.getPlayerOrException();
 
-		ToggleAdminPlayer(sourcePlayer);
-		Component enabledDisabled = isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
+		LCAdminMode.ToggleAdminPlayer(sourcePlayer);
+		Component enabledDisabled = LCAdminMode.isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
 		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
 
 		return 1;
@@ -261,8 +254,8 @@ public class CommandLCAdmin {
 		TraderSaveData.DeleteTrader(trader.getID());
 		//Send success message
 		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
-		if(source.getEntity() != null && source.getEntity() instanceof Player)
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((Player)source.getEntity()), new MessageDebugTrader(trader.getID()));
+		if(source.getEntity() != null && source.getEntity() instanceof Player player)
+			new SPacketDebugTrader(trader.getID()).sendTo(player);
 		return 1;
 
 	}
@@ -374,20 +367,7 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	public static boolean isAdminPlayer(@Nullable Player player) { return player != null && adminPlayers.contains(player.getUUID()) && (player.hasPermissions(2) || Secret.hasSecretAccess(player)); }
-
-
-	private static void ToggleAdminPlayer(ServerPlayer player) {
-		UUID playerID = player.getUUID();
-		if(adminPlayers.contains(playerID))
-			adminPlayers.remove(playerID);
-		else
-			adminPlayers.add(playerID);
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageSyncAdminList(adminPlayers));
-	}
-
-	public static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
-
-	public static void loadAdminPlayers(List<UUID> serverAdminList) { adminPlayers = serverAdminList; }
+	@Deprecated(since = "2.1.2.4")
+	public static boolean isAdminPlayer(@Nullable Player player) { return LCAdminMode.isAdminPlayer(player); }
 
 }

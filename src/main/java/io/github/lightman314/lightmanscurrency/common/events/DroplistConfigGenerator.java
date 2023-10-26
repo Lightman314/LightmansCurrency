@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.events;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
+import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 

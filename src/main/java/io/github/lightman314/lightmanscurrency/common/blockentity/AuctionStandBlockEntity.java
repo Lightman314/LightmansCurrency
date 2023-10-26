@@ -7,8 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.SMessageSyncAuctionStandDisplay;
+import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketSyncAuctionStandDisplay;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +19,6 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.List;
@@ -42,7 +40,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     @SubscribeEvent
     public static void playerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if(AuctionHouseTrader.isEnabled() && event.getEntity() instanceof ServerPlayer sp)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sp), new SMessageSyncAuctionStandDisplay(displayItems));
+            new SPacketSyncAuctionStandDisplay(displayItems).sendTo(sp);
     }
 
     private static boolean randomizeNextOpportunity = false;
@@ -87,7 +85,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     private static void setDisplayItems(List<ItemStack> items)
     {
         displayItems = ImmutableList.copyOf(InventoryUtil.copyList(items));
-        LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SMessageSyncAuctionStandDisplay(displayItems));
+        new SPacketSyncAuctionStandDisplay(displayItems).sendToAll();
     }
 
     public static void syncItemsFromServer(List<ItemStack> items) { displayItems = ImmutableList.copyOf(items); }

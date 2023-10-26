@@ -14,8 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.MessageSubmitBid;
+import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
 import net.minecraft.ChatFormatting;
 
 import javax.annotation.Nonnull;
@@ -98,7 +97,7 @@ public class AuctionBidTab extends TraderClientTab {
 	}
 	
 	private void SubmitBid(EasyButton button) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCoinValue()));
+		new CPacketSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCoinValue()).send();
 		this.screen.closeTab();
 	}
 	

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -36,10 +36,9 @@ public abstract class PermissionOption {
 		if(this.tab.menu.getTrader() == null)
 			return;
 		this.tab.menu.getTrader().setAllyPermissionLevel(this.tab.menu.player, this.permission, newValue);
-		CompoundTag message = new CompoundTag();
-		message.putString("ChangeAllyPermissions", this.permission);
-		message.putInt("NewLevel", newValue);
-		this.tab.sendNetworkMessage(message);
+		this.tab.sendMessage(LazyPacketData.builder()
+				.setString("ChangeAllyPermissions", this.permission)
+				.setInt("NewLevel", newValue));
 	}
 	
 	public final void initWidgets(SettingsSubTab tab, int x, int y, Consumer<Object> addWidgets)

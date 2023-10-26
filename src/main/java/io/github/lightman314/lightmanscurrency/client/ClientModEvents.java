@@ -37,7 +37,7 @@ public class ClientModEvents {
 	public static void registerItemColors(ColorHandlerEvent.Item event)
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.getItemColors().register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
+		event.getItemColors().register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
 		event.getItemColors().register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
 		event.getBlockColors().register(new SusBlockColor(), ModBlocks.SUS_JAR.get());
 	}

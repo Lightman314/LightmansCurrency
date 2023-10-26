@@ -2,8 +2,7 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
+import io.github.lightman314.lightmanscurrency.network.message.CPacketRequestNBT;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -66,7 +65,7 @@ public class BlockEntityUtil
     public static void requestUpdatePacket(Level level, BlockPos pos)
     {
     	if(level.isClientSide)
-    		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(pos));
+            new CPacketRequestNBT(pos).send();
     }
     
 }

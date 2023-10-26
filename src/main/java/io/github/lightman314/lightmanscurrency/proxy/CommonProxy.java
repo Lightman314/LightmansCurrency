@@ -16,49 +16,49 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CommonProxy {
-	
+
 	public void setupClient() {}
-	
+
 	public void clearClientTraders() {}
-	
+
 	public void updateTrader(CompoundTag compound) {}
-	
+
 	public void removeTrader(long traderID) {}
-	
-	public void initializeTeams(CompoundTag compound) {}
-	
+
+	public void clearTeams() {}
+
 	public void updateTeam(CompoundTag compound) {}
-	
+
 	public void removeTeam(long teamID) {}
-	
+
 	public void initializeBankAccounts(CompoundTag compound) {}
-	
+
 	public void updateBankAccount(CompoundTag compound) {}
-	
+
 	public void receiveEmergencyEjectionData(CompoundTag compound) {}
-	
+
 	public void updateNotifications(NotificationData data) {}
-	
+
 	public void receiveNotification(Notification notification) {}
-	
+
 	public void receiveSelectedBankAccount(BankReference selectedAccount) {}
 
 	public void updateTaxEntries(CompoundTag compound) {}
 
 	public void removeTaxEntry(long id) {}
-	
+
 	public void openNotificationScreen() {}
-	
+
 	public void openTeamManager() {}
-	
+
 	public void playCoinSound() {}
-	
+
 	public void createTeamResponse(long teamID) {}
-	
+
 	public long getTimeDesync() { return 0; }
-	
+
 	public void setTimeDesync(long currentTime) { }
-	
+
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
 
 	@Nonnull

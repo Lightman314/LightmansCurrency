@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTaxData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.tax.MessageRemoveClientTax;
-import io.github.lightman314.lightmanscurrency.network.message.tax.MessageUpdateClientTax;
+import io.github.lightman314.lightmanscurrency.network.message.tax.SPacketRemoveTax;
+import io.github.lightman314.lightmanscurrency.network.message.tax.SPacketSyncClientTax;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -122,7 +122,7 @@ public class TaxSaveData extends SavedData {
         {
             data.setDirty();
             syncData.putLong("ID", id);
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTax(syncData));
+            new SPacketSyncClientTax(syncData).sendToAll();
         }
     }
 
@@ -146,7 +146,7 @@ public class TaxSaveData extends SavedData {
         if(data != null && data.entries.containsKey(id))
         {
             data.entries.remove(id);
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTax(id));
+            new SPacketRemoveTax(id).sendToAll();
         }
     }
 
@@ -158,7 +158,7 @@ public class TaxSaveData extends SavedData {
         if(data != null)
         {
             PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
-            data.entries.forEach((id,entry) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTax(entry.save())));
+            data.entries.forEach((id,entry) -> new SPacketSyncClientTax(entry.save()).sendToTarget(target));
         }
     }
 

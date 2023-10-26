@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTra
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -35,7 +36,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			if(this.tradeIndex >= paygate.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.sendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
+				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
 				return null;
 			}
 			return paygate.getTrade(this.tradeIndex);
@@ -61,11 +62,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.put("NewPrice", price.save());
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleCoinValue("NewPrice", price));
 		}
 	}
 	
@@ -77,11 +74,9 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("NewTicket", true);
-				if(ticket != null)
-					message.put("Ticket", ticket.save(new CompoundTag()));
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setBoolean("NewTicket", true)
+						.setCompound("Ticket", ticket.save(new CompoundTag())));
 			}
 		}
 	}
@@ -93,11 +88,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setDuration(duration);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewDuration", duration);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewDuration", duration));
 		}
 	}
 
@@ -109,29 +100,25 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setStoreTicketStubs(storeTicketStubs);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("StoreTicketStubs", storeTicketStubs);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleBoolean("StoreTicketStubs", storeTicketStubs));
 		}
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");
 		}
 		else if(message.contains("NewPrice"))
 		{
-			this.setPrice(CoinValue.load(message.getCompound("NewPrice")));
+			this.setPrice(message.getCoinValue("NewPrice"));
 		}
 		else if(message.contains("NewTicket"))
 		{
 			ItemStack ticket = ItemStack.EMPTY;
 			if(message.contains("Ticket"))
-				ticket = ItemStack.of(message.getCompound("Ticket"));
+				ticket = ItemStack.of(message.getNBT("Ticket"));
 			this.setTicket(ticket);
 		}
 		else if(message.contains("NewDuration"))

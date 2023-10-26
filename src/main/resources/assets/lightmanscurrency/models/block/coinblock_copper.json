@@ -1,7 +1,0 @@
-{
-    "parent": "lightmanscurrency:block/coinblock",
-	"textures": {
-		"side": "lightmanscurrency:block/coins_copper_block",
-		"top": "lightmanscurrency:block/coins_copper_blocktop"
-	}
-}

@@ -10,11 +10,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +68,7 @@ public class TaxSettingsTab extends SettingsSubTab {
 
     }
 
-    private boolean isIgnoreAllTaxesVisible() { return CommandLCAdmin.isAdminPlayer(this.menu.player) || this.getIgnoreAllTaxes(); }
+    private boolean isIgnoreAllTaxesVisible() { return LCAdminMode.isAdminPlayer(this.menu.player) || this.getIgnoreAllTaxes(); }
 
     private boolean getIgnoreAllTaxes()
     {
@@ -86,11 +86,7 @@ public class TaxSettingsTab extends SettingsSubTab {
     {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-        {
-            CompoundTag message = new CompoundTag();
-            message.putBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes());
-            this.sendNetworkMessage(message);
-        }
+            this.sendMessage(LazyPacketData.simpleBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
     }
 
     private void increaseAcceptableTaxRate(EasyButton button)
@@ -100,9 +96,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate + 10 : oldRate + 1;
-            CompoundTag message = new CompoundTag();
-            message.putInt("AcceptableTaxRate", newRate);
-            this.sendNetworkMessage(message);
+            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
         }
     }
 
@@ -113,9 +107,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate - 10 : oldRate - 1;
-            CompoundTag message = new CompoundTag();
-            message.putInt("AcceptableTaxRate", newRate);
-            this.sendNetworkMessage(message);
+            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
         }
     }
 

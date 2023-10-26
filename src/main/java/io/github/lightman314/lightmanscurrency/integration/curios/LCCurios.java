@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.integration.curios;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
+import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +14,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -107,6 +111,55 @@ public class LCCurios {
 			}
 		} catch(Throwable t) { LightmansCurrency.LogError("Error checking for Portable Terminal from curios.", t); }
 		return false;
+	}
+
+	public static boolean hasPortableATM(LivingEntity entity) {
+		try{
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
+			if(curiosHelper != null)
+			{
+				for(Map.Entry<String,ICurioStacksHandler> entry : curiosHelper.getCurios().entrySet())
+				{
+					ICurioStacksHandler stacksHandler = entry.getValue();
+					if(stacksHandler != null)
+					{
+						IDynamicStackHandler sh = stacksHandler.getStacks();
+						for(int i = 0; i < sh.getSlots(); ++i)
+						{
+							if(sh.getStackInSlot(i).getItem() instanceof PortableATMItem)
+								return true;
+						}
+					}
+				}
+			}
+		} catch(Throwable t) { LightmansCurrency.LogError("Error checking for Portable Terminal from curios.", t); }
+		return false;
+	}
+
+	@Nullable
+	public static ItemStack getMoneyMendingItem(LivingEntity entity)
+	{
+		try {
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
+			if(curiosHelper != null)
+			{
+				for(Map.Entry<String,ICurioStacksHandler> entry : curiosHelper.getCurios().entrySet())
+				{
+					ICurioStacksHandler stacksHandler = entry.getValue();
+					if(stacksHandler != null)
+					{
+						IDynamicStackHandler sh = stacksHandler.getStacks();
+						for(int i = 0; i < sh.getSlots(); ++i)
+						{
+							ItemStack item = sh.getStackInSlot(i);
+							if(EnchantmentHelper.getEnchantments(item).containsKey(ModEnchantments.MONEY_MENDING.get()))
+								return item;
+						}
+					}
+				}
+			}
+		} catch (Throwable t) { LightmansCurrency.LogError("Error checking for Money Mending item from curios.", t); }
+		return null;
 	}
 
 	public static ICapabilityProvider createWalletProvider(ItemStack stack)

@@ -8,8 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRenameTeam;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +72,7 @@ public class TeamNameTab extends TeamTab {
 			return;
 		
 		this.getActiveTeam().changeName(this.getPlayer(), this.nameInput.getValue());
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRenameTeam(this.getActiveTeam().getID(), this.nameInput.getValue()));
+		this.RequestChange(LazyPacketData.simpleString("ChangeName", this.nameInput.getValue()));
 		
 	}
 	

@@ -69,21 +69,41 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         //Normal
         this.cTag(LCTags.Items.TRADER_NORMAL)
-                .add(ModBlocks.DISPLAY_CASE)
-                .add(ModBlocks.VENDING_MACHINE)
-                .add(ModBlocks.VENDING_MACHINE_LARGE)
-                .add(ModBlocks.SHELF)
-                .add(ModBlocks.CARD_DISPLAY)
-                .add(ModBlocks.FREEZER);
+                .addTag(LCTags.Items.TRADER_DISPLAY_CASE)
+                .addTag(LCTags.Items.TRADER_VENDING_MACHINE)
+                .addTag(LCTags.Items.TRADER_LARGE_VENDING_MACHINE)
+                .addTag(LCTags.Items.TRADER_SHELF)
+                .addTag(LCTags.Items.TRADER_SHELF_2x2)
+                .addTag(LCTags.Items.TRADER_CARD_DISPLAY)
+                .addTag(LCTags.Items.TRADER_FREEZER);
+
+        //Normal Traders
+        this.cTag(LCTags.Items.TRADER_DISPLAY_CASE).add(ModBlocks.DISPLAY_CASE);
+        this.cTag(LCTags.Items.TRADER_VENDING_MACHINE).add(ModBlocks.VENDING_MACHINE);
+        this.cTag(LCTags.Items.TRADER_LARGE_VENDING_MACHINE).add(ModBlocks.VENDING_MACHINE_LARGE);
+        this.cTag(LCTags.Items.TRADER_SHELF).add(ModBlocks.SHELF);
+        this.cTag(LCTags.Items.TRADER_SHELF_2x2).add(ModBlocks.SHELF_2x2);
+        this.cTag(LCTags.Items.TRADER_CARD_DISPLAY).add(ModBlocks.CARD_DISPLAY);
+        this.cTag(LCTags.Items.TRADER_FREEZER).add(ModBlocks.FREEZER);
+
         //Specialty
         this.cTag(LCTags.Items.TRADER_SPECIALTY)
-                .add(ModBlocks.ARMOR_DISPLAY)
-                .add(ModBlocks.PAYGATE)
-                .add(ModBlocks.TICKET_KIOSK)
-                .add(ModBlocks.BOOKSHELF_TRADER)
-                .add(ModBlocks.SLOT_MACHINE);
+                .addTag(LCTags.Items.TRADER_SPECIALTY_ARMOR_DISPLAY)
+                .addTag(LCTags.Items.TRADER_SPECIALTY_PAYGATE)
+                .addTag(LCTags.Items.TRADER_SPECIALTY_TICKET_KIOSK)
+                .addTag(LCTags.Items.TRADER_SPECIALTY_BOOKSHELF)
+                .addTag(LCTags.Items.TRADER_SPECIALTY_SLOT_MACHINE);
+
+        //Specialty Traders
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_ARMOR_DISPLAY).add(ModBlocks.ARMOR_DISPLAY);
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_PAYGATE).add(ModBlocks.PAYGATE);
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_TICKET_KIOSK).add(ModBlocks.TICKET_KIOSK);
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_BOOKSHELF).add(ModBlocks.BOOKSHELF_TRADER);
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_SLOT_MACHINE).add(ModBlocks.SLOT_MACHINE);
+
         //Network
-        this.cTag(LCTags.Items.TRADER_NETWORK)
+        this.cTag(LCTags.Items.TRADER_NETWORK).addTag(LCTags.Items.TRADER_NETWORK_ITEM);
+        this.cTag(LCTags.Items.TRADER_NETWORK_ITEM)
                 .add(ModBlocks.ITEM_NETWORK_TRADER_1)
                 .add(ModBlocks.ITEM_NETWORK_TRADER_2)
                 .add(ModBlocks.ITEM_NETWORK_TRADER_3)

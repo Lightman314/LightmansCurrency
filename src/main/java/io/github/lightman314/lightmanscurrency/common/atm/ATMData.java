@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -14,20 +13,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkEvent.Context;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @Mod.EventBusSubscriber
-public class ATMData {
-	
+public class ATMData extends ServerToClientPacket {
+
+	public static final Handler<ATMData> PACKET_HANDLER = new PacketHandler();
+
 	public static final String ATM_FILE_LOCATION = "config/lightmanscurrency/ATMData.json";
 	
 	private final List<ATMExchangeButtonData> conversionButtons;
@@ -79,31 +82,36 @@ public class ATMData {
 			reloadATMData();
 		return loadedData;
 	}
-	
-	public static void encode(ATMData data, FriendlyByteBuf buffer) {
-		JsonObject json = data.save();
+
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
+		JsonObject json = this.save();
 		String jsonString = FileUtil.GSON.toJson(json);
 		int stringSize = jsonString.length();
 		buffer.writeInt(stringSize);
 		buffer.writeUtf(jsonString, stringSize);
 	}
-	
-	public static ATMData decode(FriendlyByteBuf buffer) {
-		try {
-			LightmansCurrency.LogInfo("Decoding atm data packet:");
-			int stringSize = buffer.readInt();
-			String jsonString = buffer.readUtf(stringSize);
-			JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
-			return new ATMData(json);
-		} catch(Throwable t) { LightmansCurrency.LogError("Error decoding ATMData.", t); return generateDefault(); }
-	}
-	
-	public static void handle(ATMData data, Supplier<Context> source) {
-		source.get().enqueueWork(() ->{
+
+	private static class PacketHandler extends Handler<ATMData> {
+		@Nonnull
+		@Override
+		public ATMData decode(@Nonnull FriendlyByteBuf buffer) {
+			try {
+				LightmansCurrency.LogInfo("Decoding atm data packet:");
+				int stringSize = buffer.readInt();
+				String jsonString = buffer.readUtf(stringSize);
+				JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+				return new ATMData(json);
+			} catch (Throwable t) {
+				LightmansCurrency.LogError("Error decoding ATMData.", t);
+				return generateDefault();
+			}
+		}
+
+		@Override
+		protected void handle(@Nonnull ATMData message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.LogInfo("Received atm data packet from server.");
-			loadedData = data;
-		});
-		source.get().setPacketHandled(true);
+			loadedData = message;
+		}
 	}
 	
 	private static ATMData generateDefault() {
@@ -124,7 +132,7 @@ public class ATMData {
 			LightmansCurrency.LogError("Error loading ATM Data. Using default values for now.", e);
 			loadedData = generateDefault();
 		}
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), loadedData);
+		loadedData.sendToAll();
 	}
 
 	@SubscribeEvent
@@ -135,7 +143,7 @@ public class ATMData {
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		//Send the ATM data to the player
-		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), get());
+		get().sendTo(event.getPlayer());
 	}
 	
 	private static void createATMDataFile(File file) {

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.loot.glm;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import org.jetbrains.annotations.NotNull;
+import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 
 import com.google.gson.JsonObject;
 
@@ -17,14 +17,15 @@ import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
+
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
-	private CoinsInChestsModifier() {
-		LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!");
-	}
+	private CoinsInChestsModifier() { LightmansCurrency.LogDebug("CoinsInChestModifier was deserialized!"); }
 	
+	@Nonnull
 	@Override
-	public @NotNull List<ItemStack> apply(List<ItemStack> generatedLoot, LootContext context) {
+	public List<ItemStack> apply(List<ItemStack> generatedLoot, LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
 		if(!Config.COMMON.enableChestLoot.get())
@@ -32,12 +33,12 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		
 		String lootTable = context.getQueriedLootTableId().toString();
 		
-		LootManager.ChestPoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
+		ChestPoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
 		
 		if(lootLevel != null)
 		{
 			LightmansCurrency.LogDebug("Loot table '" + lootTable + "' has " + lootLevel + " level chest loot. Adding coins to the spawned loot.");
-			List<ItemStack> coinLoot = LootManager.GetRandomChestLoot(lootLevel, context);
+			List<ItemStack> coinLoot = LootManager.getLoot(lootLevel.lootTable, context);
 			for(ItemStack coin : coinLoot) {
 				LightmansCurrency.LogDebug("Adding " + coin.getCount() + "x " + ForgeRegistries.ITEMS.getKey(coin.getItem()).toString() + " to the chest loot.");
 				generatedLoot.add(coin);

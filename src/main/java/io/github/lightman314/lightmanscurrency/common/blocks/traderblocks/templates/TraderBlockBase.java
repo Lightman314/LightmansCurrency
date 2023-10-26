@@ -49,10 +49,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 
 	private final VoxelShape shape;
 
-	public TraderBlockBase(Properties properties)
-	{
-		this(properties, LazyShapes.BOX_T);
-	}
+	public TraderBlockBase(Properties properties) { this(properties, LazyShapes.BOX_T); }
 
 	public TraderBlockBase(Properties properties, VoxelShape shape)
 	{

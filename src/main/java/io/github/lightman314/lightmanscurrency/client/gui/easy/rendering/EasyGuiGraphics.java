@@ -150,8 +150,10 @@ public final class EasyGuiGraphics extends GuiComponent {
     public void renderSlotBackground(Pair<ResourceLocation,ResourceLocation> background, int x, int y) {
         if(background == null)
             return;
-        TextureAtlasSprite textureatlassprite = Minecraft.getInstance().getTextureAtlas(background.getFirst()).apply(background.getSecond());
-        blit(this.pose, this.offset.x + x, this.offset.y + y, 0, 16, 16, textureatlassprite);
+        Minecraft minecraft = Minecraft.getInstance();
+        TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
+        RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
+        blit(this.pose, this.offset.x + x, this.offset.y + y, 100, 16, 16, textureatlassprite);
     }
 
     public void renderSlotHighlight(int x, int y) { fillGradient(this.pose, this.offset.x + x, this.offset.y + y, this.offset.x + x + 16, this.offset.y + y + 16, -2130706433, -2130706433, 0); }

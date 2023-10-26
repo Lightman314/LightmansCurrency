@@ -82,12 +82,14 @@ public class ModCreativeGroups {
                 ModBlocks.COIN_CHEST,
                 //Coin Jars
                 ModBlocks.PIGGY_BANK,
-                ModBlocks.COINJAR_BLUE
+                ModBlocks.COINJAR_BLUE,
+                ModBlocks.SUS_JAR
         ).build();
 
         TRADING_GROUP.startInit().add(
                 //Item Traders (normal)
                 ModBlocks.SHELF,
+                ModBlocks.SHELF_2x2,
                 ModBlocks.DISPLAY_CASE,
                 ModBlocks.CARD_DISPLAY,
                 ModBlocks.VENDING_MACHINE,
@@ -113,7 +115,6 @@ public class ModCreativeGroups {
                 //Extra
                 ModItems.NETWORK_UPGRADE, ModItems.HOPPER_UPGRADE,
                 ModItems.COIN_CHEST_EXCHANGE_UPGRADE,
-                ModItems.COIN_CHEST_BANK_UPGRADE,
                 ModItems.COIN_CHEST_MAGNET_UPGRADE_1, ModItems.COIN_CHEST_MAGNET_UPGRADE_2,
                 ModItems.COIN_CHEST_MAGNET_UPGRADE_3, ModItems.COIN_CHEST_MAGNET_UPGRADE_4,
                 ModItems.COIN_CHEST_SECURITY_UPGRADE

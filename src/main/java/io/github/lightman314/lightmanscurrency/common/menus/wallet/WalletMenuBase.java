@@ -56,7 +56,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
 	public boolean getAutoExchange() { return this.autoConvert; }
-	public void ToggleAutoConvert() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
+	public void ToggleAutoExchange() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
 	
 	protected final Container coinInput;
 	
@@ -151,7 +151,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 		
 	}
 	
-	public final void ConvertCoins()
+	public final void ExchangeCoins()
 	{
 		MoneyUtil.ExchangeAllCoinsUp(this.coinInput);
 		MoneyUtil.SortCoins(this.coinInput);
@@ -180,7 +180,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 		}
 		
 		if(this.autoConvert)
-			this.ConvertCoins();
+			this.ExchangeCoins();
 		else
 			this.saveWalletContents();
 		

@@ -12,8 +12,8 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -76,18 +76,14 @@ public class AllyTab extends SettingsSubTab {
     private void AddAlly(EasyButton button)
     {
         String allyName = this.nameInput.getValue();
-        CompoundTag message = new CompoundTag();
-        message.putString("AddAlly", allyName);
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleString("AddAlly", allyName));
         this.nameInput.setValue("");
     }
 
     private void RemoveAlly(EasyButton button)
     {
         String allyName = this.nameInput.getValue();
-        CompoundTag message = new CompoundTag();
-        message.putString("RemoveAlly", allyName);
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.simpleString("RemoveAlly", allyName));
         this.nameInput.setValue("");
     }
 

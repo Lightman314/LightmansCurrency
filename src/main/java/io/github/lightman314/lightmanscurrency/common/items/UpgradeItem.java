@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -105,8 +106,14 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			tag.put("UpgradeData", data.writeToNBT());
 		}
 	}
-	
-	public static List<Component> getUpgradeTooltip(ItemStack stack) { return getUpgradeTooltip(stack, false); }
+
+	public static List<Component> getUpgradeTooltip(ItemStack stack)
+	{
+		try {
+			return getUpgradeTooltip(stack, false);
+		} catch (Throwable ignored) {}
+		return new ArrayList<>();
+	}
 	
 	public static List<Component> getUpgradeTooltip(ItemStack stack, boolean forceCollection)
 	{

@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -117,18 +118,16 @@ public class InputTab extends SettingsSubTab {
 
     private void ToggleInputSide(Direction side)
     {
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("SetInputSide", !this.getInputSideValue(side));
-        message.putInt("Side", side.get3DDataValue());
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.builder()
+                .setBoolean("SetInputSide", !this.getInputSideValue(side))
+                .setInt("Side", side.get3DDataValue()));
     }
 
     private void ToggleOutputSide(Direction side)
     {
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("SetOutputSide", !this.getOutputSideValue(side));
-        message.putInt("Side", side.get3DDataValue());
-        this.sendNetworkMessage(message);
+        this.sendMessage(LazyPacketData.builder()
+                .setBoolean("SetOutputSide", !this.getOutputSideValue(side))
+                .setInt("Side", side.get3DDataValue()));
     }
 
 }

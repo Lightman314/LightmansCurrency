@@ -6,8 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.SMessageUpdatePlayerTrade;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPacketSyncPlayerTrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -24,9 +23,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -372,21 +369,22 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         final ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
         final ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
         if(hostPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> hostPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(hostPlayer);
         if(guestPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> guestPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(guestPlayer);
 
         this.takeMenuAction(PlayerTradeMenu::onTradeChange);
     }
 
 
     //Menu Handling/Opening
+    @Nonnull
     @Override
-    public @NotNull Component getDisplayName() { return EasyText.empty(); }
+    public Component getDisplayName() { return EasyText.empty(); }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
+    public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
 
     private void writeAdditionalMenuData(FriendlyByteBuf buffer) {
         buffer.writeInt(this.tradeID);

@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.menus.*;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -53,7 +53,7 @@ public class ModMenus {
 			return new TraderInterfaceMenu(id, inventory, blockEntity);
 		}));
 		
-		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> new MenuType<>((IContainerFactory<TraderRecoveryMenu>)(id, inventory, data) -> new TraderRecoveryMenu(id, inventory)));
+		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> new MenuType<>((IContainerFactory<EjectionRecoveryMenu>)(id, inventory, data) -> new EjectionRecoveryMenu(id, inventory)));
 
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> new MenuType<>((IContainerFactory<PlayerTradeMenu>)(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data))));
 
@@ -90,7 +90,7 @@ public class ModMenus {
 	
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	
-	public static final RegistryObject<MenuType<TraderRecoveryMenu>> TRADER_RECOVERY;
+	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> TRADER_RECOVERY;
 
 	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
 
