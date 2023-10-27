@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
@@ -31,9 +30,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.MessageStartBid;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -45,13 +43,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
+import javax.annotation.Nonnull;
+
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house");
 	
 	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
 	
-	List<AuctionTradeData> trades = new ArrayList<>();
+	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
 
@@ -94,9 +94,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	}
 	
 	//@Override
-	public void markTradesDirty() {
-		this.markDirty(this::saveTrades);
-	}
+	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
 	public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
 	
@@ -151,14 +149,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE) || Objects.equals(permission, Permissions.EDIT_TRADES))
 			return 1;
 		return 0;
 	}
 	
 	@Override
 	public int getPermissionLevel(Player player, String permission) {
-		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE) || Objects.equals(permission, Permissions.EDIT_TRADES))
 			return 1;
 		return 0;
 	}
@@ -249,7 +247,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		else
 		{
 			//Open bid menu for the given trade index
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(context.getPlayer()), new MessageStartBid(this.getID(), tradeIndex));
+			new SPacketStartBid(this.getID(), tradeIndex).sendTo(context.getPlayer());
 			return TradeResult.SUCCESS;
 		}
 	}
@@ -272,7 +270,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		long inventoryValue = MoneyUtil.getValue(menu.getCoinInventory());
 		if(!wallet.isEmpty())
 			inventoryValue += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
-    	if(inventoryValue < bidAmount.getRawValue())
+    	if(inventoryValue < bidAmount.getValueNumber())
     		return;
 		if(trade.tryMakeBid(this, player, bidAmount))
 		{
@@ -288,8 +286,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	}
 
-	@Override
-	public List<? extends TradeData> getTradeData() { return this.trades; }
+	@Nonnull
+    @Override
+	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
 
 	@Override
 	public IconData getIcon() { return ICON; }
@@ -315,7 +314,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		//Cancel Trade tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new AuctionTradeCancelTab(menu));
 		//Create Trade tab
-		menu.setTab(10, new AuctionCreateTab(menu));
+		menu.setTab(TraderStorageTab.TAB_TRADE_MISC, new AuctionCreateTab(menu));
 	}
 	
 	@Override
@@ -346,18 +345,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public int getTradeStock(int tradeIndex) { return 0; }
 
 	@Override
-	protected void addSettingsTabs(List<SettingsTab> tabs) { }
-
-	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }
 	
 	@Override
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
-	
-	@Override @Deprecated //Just load normally, as the Auction House data didn't change much.
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) { this.loadAdditional(compound); }
-	
-	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) { }
 	
 }

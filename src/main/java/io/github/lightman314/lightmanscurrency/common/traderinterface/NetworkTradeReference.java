@@ -4,7 +4,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.traders.ITradeSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import net.minecraft.nbt.CompoundTag;
@@ -53,8 +52,8 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		if(this.tradeIndex < 0)
 			return null;
 		TraderData trader = this.getTrader();
-		if(trader instanceof ITradeSource<?> tradeSource)
-			return tradeSource.getTrade(this.tradeIndex);
+		if(trader != null)
+			return trader.getTrade(this.tradeIndex);
 		return null;
 	}
 	

@@ -1,4 +1,0 @@
-{
-    "parent": "lightmanscurrency:block/freezer/base_bottom",
-	"textures": { "concrete": "block/purple_concrete_powder" }
-}

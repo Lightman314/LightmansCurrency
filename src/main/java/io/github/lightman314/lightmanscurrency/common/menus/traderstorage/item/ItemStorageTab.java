@@ -4,18 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -29,10 +26,10 @@ public class ItemStorageTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemStorageClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof ItemTraderData; }
+	public boolean canOpen(Player player) { return true; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
@@ -157,11 +154,10 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	private void sendStorageClickMessage(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		CompoundTag message = new CompoundTag();
-		message.putInt("ClickedSlot", storageSlot);
-		message.putBoolean("HeldShift", isShiftHeld);
-		message.putBoolean("LeftClick", leftClick);
-		this.menu.sendMessage(message);
+		this.menu.SendMessage(LazyPacketData.builder()
+				.setInt("ClickedSlot", storageSlot)
+				.setBoolean("HeldShift", isShiftHeld)
+				.setBoolean("LeftClick", leftClick));
 	}
 	
 	public void quickTransfer(int type) {
@@ -217,20 +213,16 @@ public class ItemStorageTab extends TraderStorageTab{
 			
 			if(changed)
 				trader.markStorageDirty();
-			
+
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("QuickTransfer", type);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
 			
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) { 
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("ClickedSlot", LazyPacketData.TYPE_INT))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

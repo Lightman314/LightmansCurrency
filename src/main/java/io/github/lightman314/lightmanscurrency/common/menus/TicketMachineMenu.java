@@ -1,17 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class TicketMachineMenu extends AbstractContainerMenu{
+public class TicketMachineMenu extends LazyMessageMenu{
 	
 	private final Container output = new SimpleContainer(1);
 	
@@ -28,8 +29,9 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 	
 	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity blockEntity)
 	{
-		super(ModMenus.TICKET_MACHINE.get(), windowId);
+		super(ModMenus.TICKET_MACHINE.get(), windowId, inventory);
 		this.blockEntity = blockEntity;
+		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		
 		//Slots
 		this.addSlot(new TicketModifierSlot(this.blockEntity.getStorage(), 0, 20, 21));
@@ -50,12 +52,6 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		{
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 114));
 		}
-	}
-	
-	@Override
-	public boolean stillValid(@NotNull Player playerIn)
-	{
-		return true;
 	}
 	
 	@Override
@@ -110,22 +106,23 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		return !this.blockEntity.getStorage().getItem(1).isEmpty();
 	}
 	
-	public boolean roomForOutput()
+	public boolean roomForOutput(boolean craftPass)
 	{
 		ItemStack outputStack = this.output.getItem(0);
 		if(outputStack.isEmpty())
 			return true;
-		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET.get())
+		if(hasMasterTicket())
 		{
-			//Confirm that the output item has the same ticket id as the master ticket
-			long ticketID = getTicketID();
-			long outputTicketID = TicketItem.GetTicketID(outputStack);
-			return ticketID == outputTicketID;
+			if((!craftPass && outputStack.getItem() == ModItems.TICKET.get()) || (craftPass && outputStack.getItem() == ModItems.TICKET_PASS.get()))
+			{
+				//Confirm that the output item has the same ticket id as the master ticket
+				long ticketID = getTicketID();
+				long outputTicketID = TicketItem.GetTicketID(outputStack);
+				return ticketID == outputTicketID;
+			}
 		}
-		else //Not empty, and no master ticket in the slot means that no new master ticket can be placed in the output slot
-		{
-			return false;
-		}
+		//Not empty, and no master ticket in the slot means that no new master ticket can be placed in the output slot
+		return false;
 	}
 	
 	public boolean hasMasterTicket()
@@ -134,14 +131,14 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		return TicketItem.isMasterTicket(masterTicket);
 	}
 	
-	public void craftTickets(boolean fullStack)
+	public void craftTickets(boolean fullStack, boolean craftPass)
 	{
 		if(!validInputs())
 		{
 			LightmansCurrency.LogDebug("Inputs for the Ticket Machine are not valid. Cannot craft tickets.");
 			return;
 		}
-		else if(!roomForOutput())
+		else if(!roomForOutput(craftPass))
 		{
 			LightmansCurrency.LogDebug("No room for Ticket Machine outputs. Cannot craft tickets.");
 			return;
@@ -157,7 +154,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			if(outputStack.isEmpty())
 			{
 				//Create a new ticket stack
-				ItemStack newTicket = TicketItem.CreateTicket(this.getTicketID(), this.getTicketColor(), count);
+				ItemStack newTicket = craftPass ? TicketItem.CreatePass(this.getTicketID(), this.getTicketColor(), count) : TicketItem.CreateTicket(this.getTicketID(), this.getTicketColor(), count);
 				this.output.setItem(0, newTicket);
 			}
 			else
@@ -213,5 +210,16 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		ItemStack stack = this.blockEntity.getStorage().getItem(0);
 		return TicketModifierSlot.getColorFromDye(stack);
 	}
-	
+
+	public void SendCraftTicketsMessage(boolean fullStack, boolean craftPass)
+	{
+		this.SendMessageToServer(LazyPacketData.builder().setBoolean("CraftTickets", fullStack).setBoolean("CraftPass", craftPass));
+	}
+
+	@Override
+	public void HandleMessage(LazyPacketData message) {
+		if(message.contains("CraftTickets"))
+			this.craftTickets(message.getBoolean("CraftTickets"), message.getBoolean("CraftPass"));
+	}
+
 }

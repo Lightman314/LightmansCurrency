@@ -2,15 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.payga
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -24,10 +23,10 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new PaygateTradeEditClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new PaygateTradeEditClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
+	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
@@ -37,7 +36,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			if(this.tradeIndex >= paygate.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.sendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
+				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
 				return null;
 			}
 			return paygate.getTrade(this.tradeIndex);
@@ -63,11 +62,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				price.save(message, "NewPrice");
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleCoinValue("NewPrice", price));
 		}
 	}
 	
@@ -79,11 +74,9 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("NewTicket", true);
-				if(ticket != null)
-					message.put("Ticket", ticket.save(new CompoundTag()));
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setBoolean("NewTicket", true)
+						.setCompound("Ticket", ticket.save(new CompoundTag())));
 			}
 		}
 	}
@@ -95,36 +88,46 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setDuration(duration);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewDuration", duration);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewDuration", duration));
+		}
+	}
+
+	public void setTicketStubHandling(boolean storeTicketStubs)
+	{
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.setStoreTicketStubs(storeTicketStubs);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+				this.menu.SendMessage(LazyPacketData.simpleBoolean("StoreTicketStubs", storeTicketStubs));
 		}
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");
 		}
 		else if(message.contains("NewPrice"))
 		{
-			CoinValue price = new CoinValue();
-			price.load(message, "NewPrice");
-			this.setPrice(price);
+			this.setPrice(message.getCoinValue("NewPrice"));
 		}
 		else if(message.contains("NewTicket"))
 		{
 			ItemStack ticket = ItemStack.EMPTY;
 			if(message.contains("Ticket"))
-				ticket = ItemStack.of(message.getCompound("Ticket"));
+				ticket = ItemStack.of(message.getNBT("Ticket"));
 			this.setTicket(ticket);
 		}
 		else if(message.contains("NewDuration"))
 		{
 			this.setDuration(message.getInt("NewDuration"));
+		}
+		else if(message.contains("StoreTicketStubs"))
+		{
+			this.setTicketStubHandling(message.getBoolean("StoreTicketStubs"));
 		}
 	}
 	

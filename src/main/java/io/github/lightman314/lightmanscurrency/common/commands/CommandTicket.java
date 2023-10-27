@@ -5,11 +5,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +33,8 @@ public class CommandTicket {
     }
 
     static int changeColor(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
-        ServerPlayer player = commandContext.getSource().getPlayerOrException();
+        CommandSourceStack source = commandContext.getSource();
+        ServerPlayer player = source.getPlayerOrException();
         ItemStack heldItem = player.getMainHandItem();
         if(heldItem.getItem() instanceof TicketItem)
         {
@@ -41,7 +42,7 @@ public class CommandTicket {
             TicketItem.SetTicketColor(heldItem, color);
         }
         else
-            commandContext.getSource().sendFailure(Component.translatable("command.lightmanscurrency.ticket.color.not_held"));
+            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.ticket.color.not_held"));
         return 0;
     }
 

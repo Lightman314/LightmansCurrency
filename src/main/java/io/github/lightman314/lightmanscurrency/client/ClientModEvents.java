@@ -1,19 +1,22 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.CoinChestRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.*;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.*;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.*;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.*;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -27,13 +30,6 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientModEvents {
 
 	@SubscribeEvent
-	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
-	{
-		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
-	}
-
-	@SubscribeEvent
 	public static void stitchTextures(TextureStitchEvent.Pre event) {
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add coin/wallet slot backgrounds
@@ -45,13 +41,36 @@ public class ClientModEvents {
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 			event.addSprite(TicketModifierSlot.EMPTY_DYE_SLOT);
 			event.addSprite(ItemTradeButtonRenderer.NBT_SLOT);
+			event.addSprite(BookRestriction.EMPTY_BOOK_SLOT);
 		}
+		else if(event.getAtlas().location() == Sheets.CHEST_SHEET)
+		{
+			//Add custom chest texture
+			event.addSprite(CoinChestRenderer.COIN_CHEST_TEXTURE);
+		}
+	}
+
+	@SubscribeEvent
+	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
+	{
+		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
+		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
+	}
+
+	@SubscribeEvent
+	public static void registerBlockColors(RegisterColorHandlersEvent.Block event)
+	{
+		event.register(new SusBlockColor(), ModBlocks.SUS_JAR.get());
 	}
 
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			event.register(block.getDoorModel());
+		event.register(SlotMachineBlock.LIGHT_MODEL_LOCATION);
+		event.register(NormalBookRenderer.MODEL_LOCATION);
+		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 	}
 	
 	@SubscribeEvent
@@ -80,7 +99,10 @@ public class ClientModEvents {
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
 		if(LightmansCurrency.isCuriosLoaded())
+		{
 			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
+			event.register(ClientEvents.KEY_PORTABLE_ATM);
+		}
 	}
 
 	@SubscribeEvent

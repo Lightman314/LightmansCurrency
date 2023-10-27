@@ -1,30 +1,33 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionTradeCancelTab> {
 
-	public AuctionTradeCancelClientTab(TraderStorageScreen screen, AuctionTradeCancelTab commonTab) { super(screen,commonTab); }
+	public AuctionTradeCancelClientTab(Object screen, AuctionTradeCancelTab commonTab) { super(screen,commonTab); }
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
-	public @NotNull IconData getIcon() { return IconData.BLANK; }
-
-	@Override
-	public MutableComponent getTooltip() { return Component.empty(); }
+	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -34,36 +37,27 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 
 	TradeButton tradeDisplay;
 	
-	Button buttonCancelPlayerGive;
-	Button buttonCancelStorageGive;
+	EasyButton buttonCancelPlayerGive;
+	EasyButton buttonCancelStorageGive;
 	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + (this.screen.getXSize() / 2) - 47, this.screen.getGuiTop() + 17);
+		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
+		this.tradeDisplay.setPosition(screenArea.pos.offset((screenArea.width / 2) - 47, 17));
 		
-		this.buttonCancelPlayerGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 60, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true)));
-		this.buttonCancelStorageGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 85, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false)));
-		
-	}
-
-	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		TextRenderUtil.drawCenteredText(pose, Component.translatable("tooltip.lightmanscurrency.auction.cancel"), this.screen.getGuiLeft() + (this.screen.getXSize() / 2), this.screen.getGuiTop() + 50, 0x404040);
+		this.buttonCancelPlayerGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 60), screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true))
+				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.self"), 160)));
+		this.buttonCancelStorageGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 85) , screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false))
+				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.storage"), 160)));
 		
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
-		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
+		TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.auction.cancel"), (this.screen.getXSize() / 2), 50, 0x404040);
 		
-		if(this.buttonCancelPlayerGive.isMouseOver(mouseX, mouseY))
-			this.screen.renderTooltip(pose, this.font.split(Component.translatable("tooltip.lightmanscurrency.auction.cancel.self"), 160), mouseX, mouseY);
-		if(this.buttonCancelStorageGive.isMouseOver(mouseX, mouseY))
-			this.screen.renderTooltip(pose, this.font.split(Component.translatable("tooltip.lightmanscurrency.auction.cancel.storage"), 160), mouseX, mouseY);
 	}
 	
 	@Override
@@ -75,13 +69,13 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 	}
 	
 	@Override
-	public void receiveServerMessage(CompoundTag message) {
+	public void receiveServerMessage(LazyPacketData message) {
 		if(message.contains("CancelSuccess"))
 			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}

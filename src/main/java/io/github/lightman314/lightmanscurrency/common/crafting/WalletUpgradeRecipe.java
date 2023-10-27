@@ -13,9 +13,13 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
@@ -33,18 +37,23 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		this.isSimple = ingredients.stream().allMatch(Ingredient::isSimple);
 	}
 
+	@Nonnull
 	@Override
-	public @NotNull ResourceLocation getId() { return this.id; }
+	public ResourceLocation getId() {
+		return this.id;
+	}
 
+	@Nonnull
 	@Override
-	public @NotNull RecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<?> getSerializer() {
 		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**
 	 * Recipes with equal group are combined into one button in the recipe book
 	 */
-	public @NotNull String getGroup() {
+	@Nonnull
+	public String getGroup() {
 		return this.group;
 	}
 
@@ -52,13 +61,15 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
 	 * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
 	 */
+	@Nonnull
 	@Override
-	public @NotNull ItemStack getResultItem() {
+	public ItemStack getResultItem() {
 		return this.recipeOutput;
 	}
 
+	@Nonnull
 	@Override
-	public @NotNull NonNullList<Ingredient> getIngredients() {
+	public NonNullList<Ingredient> getIngredients() {
 		return this.ingredients;
 	}
 
@@ -66,36 +77,37 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * Used to check if a recipe matches current crafting inventory
 	 */
 	@Override
-	public boolean matches(CraftingContainer container, @NotNull Level level) {
-	      StackedContents stackedcontents = new StackedContents();
-	      java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
-	      int i = 0;
+	public boolean matches(CraftingContainer container, @Nonnull Level level) {
+		StackedContents stackedcontents = new StackedContents();
+		java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
+		int i = 0;
 
-	      for(int j = 0; j < container.getContainerSize(); ++j) {
-	         ItemStack itemstack = container.getItem(j);
-	         if (!itemstack.isEmpty()) {
-	            ++i;
-	            if (isSimple)
-	            stackedcontents.accountStack(itemstack, 1);
-	            else inputs.add(itemstack);
-	         }
-	      }
+		for(int j = 0; j < container.getContainerSize(); ++j) {
+			ItemStack itemstack = container.getItem(j);
+			if (!itemstack.isEmpty()) {
+				++i;
+				if (isSimple)
+					stackedcontents.accountStack(itemstack, 1);
+				else inputs.add(itemstack);
+			}
+		}
 
-	      return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
-	   }
-	
+		return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
+	}
+
 	/**
 	 * Returns an Item that is the result of this recipe
 	 */
+	@Nonnull
 	@Override
-	public @NotNull ItemStack assemble(@NotNull CraftingContainer inv) {
+	public ItemStack assemble(@Nonnull CraftingContainer inv) {
 		ItemStack output = this.recipeOutput.copy();
 		ItemStack walletStack = this.getWalletStack(inv);
 		if(!walletStack.isEmpty())
 			WalletItem.CopyWalletContents(walletStack, output);
 		return output;
 	}
-	
+
 	private ItemStack getWalletStack(CraftingContainer inv) {
 		for(int i = 0; i < inv.getContainerSize(); i++)
 		{
@@ -108,17 +120,18 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 
 	/**
 	 * Used to determine if this recipe can fit in a grid of the given width/height
-	 */
+	 a	 */
 	@Override
 	public boolean canCraftInDimensions(int width, int height) {
 		return width * height >= this.ingredients.size();
 	}
 
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
-	    
-		
+
+
+		@Nonnull
 		@Override
-		public @NotNull WalletUpgradeRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
+		public WalletUpgradeRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
 			String s = GsonHelper.getAsString(json, "group", "");
 			NonNullList<Ingredient> nonnulllist = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 			if (nonnulllist.isEmpty()) {
@@ -129,7 +142,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 				ItemStack itemstack = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
 				return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);
 			}
-	    }
+		}
 
 		private static NonNullList<Ingredient> readIngredients(JsonArray ingredientArray) {
 			NonNullList<Ingredient> nonnulllist = NonNullList.create();
@@ -145,28 +158,28 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		}
 
 		@Override
-    	public WalletUpgradeRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
-    		String s = buffer.readUtf(32767);
-    		int i = buffer.readVarInt();
-    		NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i, Ingredient.EMPTY);
+		public WalletUpgradeRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+			String s = buffer.readUtf(32767);
+			int i = buffer.readVarInt();
+			NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i, Ingredient.EMPTY);
 
 			nonnulllist.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
 
-    		ItemStack itemstack = buffer.readItem();
-    		return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);
-    	}
+			ItemStack itemstack = buffer.readItem();
+			return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);
+		}
 
-    	@Override
-	    public void toNetwork(FriendlyByteBuf buffer, WalletUpgradeRecipe recipe) {
-	    	
-    		buffer.writeUtf(recipe.group);
-	    	buffer.writeVarInt(recipe.ingredients.size());
+		@Override
+		public void toNetwork(FriendlyByteBuf buffer, WalletUpgradeRecipe recipe) {
 
-	    	for(Ingredient ingredient : recipe.ingredients) {
-	    		ingredient.toNetwork(buffer);
-	    	}
+			buffer.writeUtf(recipe.group);
+			buffer.writeVarInt(recipe.ingredients.size());
 
-	    	buffer.writeItemStack(recipe.recipeOutput, false);
-	    }
+			for(Ingredient ingredient : recipe.ingredients) {
+				ingredient.toNetwork(buffer);
+			}
+
+			buffer.writeItemStack(recipe.recipeOutput, false);
+		}
 	}
 }

@@ -6,8 +6,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public interface IRotatableBlock {
+
+	DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	/**
 	 * Gets the BlockPos of the block to the given blocks right.
@@ -131,7 +135,7 @@ public interface IRotatableBlock {
 	/**
 	 * Gets the rotational direction of the given rotatable block state.
 	 */
-	Direction getFacing(BlockState state);
+	default Direction getFacing(BlockState state) { return state.getValue(FACING); }
 	
 	static Direction getRelativeSide(Direction facing, Direction side)
 	{

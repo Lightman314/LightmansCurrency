@@ -2,17 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.aucti
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -25,10 +21,10 @@ public class AuctionStorageTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionStorageClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new AuctionStorageClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(Player player) { return true; }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
@@ -41,10 +37,8 @@ public class AuctionStorageTab extends TraderStorageTab {
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld) 
 	{
-		TraderData t = this.menu.getTrader();
-		if(t instanceof AuctionHouseTrader)
+		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
 			if(storageSlot >= 0 && storageSlot < storage.getStoredItems().size())
 			{
@@ -90,53 +84,40 @@ public class AuctionStorageTab extends TraderStorageTab {
 			}
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("ClickedSlot", storageSlot);
-				message.putBoolean("HeldShift", isShiftHeld);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setInt("ClickedSlot", storageSlot)
+						.setBoolean("HeldShift", isShiftHeld));
 			}
 		}
 	}
 	
 	public void quickTransfer() {
-		TraderData t = this.menu.getTrader();
-		if(t instanceof AuctionHouseTrader)
+		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
 			storage.collectItems(this.menu.player);
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("QuickTransfer", true);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleFlag("QuickTransfer"));
 		}
 	}
 	
 	public void collectCoins() {
-		TraderData t = this.menu.getTrader();
-		if(t instanceof AuctionHouseTrader)
+		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
 			storage.collectedMoney(this.menu.player);
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("CollectMoney", true);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleFlag("CollectMoney"));
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("ClickedSlot", LazyPacketData.TYPE_INT))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

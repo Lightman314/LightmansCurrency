@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
 public class RegistryObjectBundle<T,L> {
@@ -16,7 +18,7 @@ public class RegistryObjectBundle<T,L> {
 	public RegistryObjectBundle(Comparator<L> sorter) { this.sorter = sorter; }
 
 	private final Map<L,RegistryObject<T>> values = new HashMap<>();
-	
+
 	public void put(L key, RegistryObject<T> value) {
 		if(this.locked)
 		{
@@ -30,21 +32,21 @@ public class RegistryObjectBundle<T,L> {
 		}
 		this.values.put(key,value);
 	}
-	
-	
+
+
 	public RegistryObject<T> getRegistryObject(L key) {
 		if(this.values.containsKey(key))
 			return this.values.get(key);
 		return null;
 	}
-	
+
 	public T get(L key) {
 		RegistryObject<T> obj = this.getRegistryObject(key);
 		if(obj != null)
 			return obj.get();
 		return null;
 	}
-	
+
 	public Collection<RegistryObject<T>> getAllRegistryObjects() { return this.values.values(); }
 	public List<T> getAll() {
 		List<T> values = new ArrayList<>();
@@ -52,6 +54,8 @@ public class RegistryObjectBundle<T,L> {
 			values.add(value.get());
 		return values;
 	}
+	public Set<L> getKeys() { return this.values.keySet(); }
+	public List<ResourceLocation> getAllKeys() { return this.values.values().stream().map(RegistryObject::getId).toList(); }
 
 	@SafeVarargs
 	public final List<T> getSome(L... keys) {
@@ -61,12 +65,20 @@ public class RegistryObjectBundle<T,L> {
 		return values;
 	}
 
-	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
-
-	public List<T> getAllSorted(Comparator<L> sorter)
-	{
-		List<L> keys = new ArrayList<>(this.values.keySet().stream().toList());
+	private final List<L> getKeysSorted() { return this.getKeysSorted(this.sorter); }
+	private final List<L> getKeysSorted(Comparator<L> sorter) {
+		List<L> keys = new ArrayList<>(this.values.keySet());
 		keys.sort(sorter);
+		return keys;
+	}
+
+	public List<T> getAllSorted() { return this.getAllSorted(BundleRequestFilter.ALL); }
+	public List<T> getAllSorted(BundleRequestFilter filter) { return this.getAllSorted(filter, this.sorter); }
+
+	public List<T> getAllSorted(Comparator<L> sorter) { return this.getAllSorted(BundleRequestFilter.ALL, sorter); }
+	public List<T> getAllSorted(BundleRequestFilter filter, Comparator<L> sorter)
+	{
+		List<L> keys = this.getKeysSorted(sorter).stream().filter(filter::filterKey).toList();
 		List<T> result = new ArrayList<>();
 		for(L key : keys)
 		{
@@ -81,5 +93,11 @@ public class RegistryObjectBundle<T,L> {
 			result.add(() -> this.get(key));
 		return result;
 	}
-	
+
+	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) {
+		List<L> keys = this.getKeysSorted(this.sorter);
+		for(L key : keys)
+			consumer.accept(key, this.values.get(key));
+	}
+
 }

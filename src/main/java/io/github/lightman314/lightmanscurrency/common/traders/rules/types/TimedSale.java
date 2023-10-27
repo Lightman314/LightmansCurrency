@@ -1,25 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
-import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TimedSaleTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
-import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -27,16 +22,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class TimedSale extends TradeRule {
+import javax.annotation.Nonnull;
+
+public class TimedSale extends PriceTweakingTradeRule {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "timed_sale");
 	
 	long startTime = 0;
-	boolean timerActive() { return this.startTime != 0; }
+	public void setStartTime(long time) { this.startTime = time; }
+	public boolean timerActive() { return this.startTime != 0; }
 	long duration = 0;
+	public long getDuration() { return this.duration; }
+	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, 1000, Long.MAX_VALUE); }
 	int discount = 10;
-	private double getDiscountMult() { return 1d - ((double)discount/100d); }
-	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
+	public int getDiscount() { return this.discount; }
+	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
 	
 	public TimedSale() { super(TYPE); }
 	
@@ -61,8 +61,8 @@ public class TimedSale extends TradeRule {
 		if(timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
 			switch (event.getTrade().getTradeDirection()) {
-				case SALE -> event.applyCostMultiplier(this.getDiscountMult());
-				case PURCHASE -> event.applyCostMultiplier(this.getIncreaseMult());
+				case SALE -> event.giveDiscount(this.discount);
+				case PURCHASE -> event.hikePrice(this.discount);
 				default -> {} //Nothing if direction is NONE
 			}
 		}
@@ -173,142 +173,11 @@ public class TimedSale extends TradeRule {
 			return new TimeData(this.startTime + this.duration - TimeUtil.getCurrentTime());
 		}
 	}
-	
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_TIMED_SALE; }
-	
+
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-	{
-		return new GUIHandler(screen, rule);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private static class GUIHandler extends TradeRule.GUIHandler
-	{
-		
-		protected final TimedSale getRule()
-		{
-			if(getRuleRaw() instanceof TimedSale)
-				return (TimedSale)getRuleRaw();
-			return null;
-		}
-		
-		GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			super(screen, rule);
-		}
-		
-		EditBox discountInput;
-		
-		Button buttonSetDiscount;
-		Button buttonStartSale;
-		
-		TimeInputWidget durationInput;
-		
-		@Override
-		public void initTab() {
-			
-			
-			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
-			this.discountInput.setMaxLength(2);
-			TimedSale rule = this.getRule();
-			if(rule != null)
-				this.discountInput.setValue(Integer.toString(rule.discount));
-			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
-			
-			this.buttonStartSale = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 45, 156, 20, this.getButtonText(), this::PressStartButton));
-			
-			this.durationInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 75, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
-			this.durationInput.setTime(this.getRule().duration);
-			
-		}
-		
-		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-			
-			if(getRule() == null)
-				return;
-			
-			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
-			
-			Component infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
-			if(this.getRule().timerActive())
-				infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().getShortString(3));
-			
-			this.screen.getFont().draw(matrixStack, infoText.getString(), screen.guiLeft() + 10, screen.guiTop() + 35, 0xFFFFFF);
-			
-			if(this.buttonStartSale.isMouseOver(mouseX, mouseY))
-			{
-				screen.renderTooltip(matrixStack, this.getButtonTooltip(), mouseX, mouseY);
-			}
-			
-		}
-		
-		@Override
-		public void onScreenTick()
-		{
-			this.buttonStartSale.setMessage(getButtonText());
-			TimedSale rule = this.getRule();
-			this.buttonStartSale.active = rule != null && (rule.timerActive() || (rule.duration > 0 && rule.isActive()));
-			TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
-			
-		}
-		
-		private Component getButtonText()
-		{
-			TimedSale rule = this.getRule();
-			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start"));
-		}
-		
-		private Component getButtonTooltip()
-		{
-			TimedSale rule = this.getRule();
-			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start") + ".tooltip");
-		}
-		
-		@Override
-		public void onTabClose() {
-			
-			this.removeCustomWidget(this.discountInput);
-			this.removeCustomWidget(this.buttonSetDiscount);
-			this.removeCustomWidget(this.buttonStartSale);
-			this.durationInput.removeChildren(this::removeCustomWidget);
-			this.removeCustomWidget(this.durationInput);
-		}
-		
-		void PressSetDiscountButton(Button button)
-		{
-			int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
-			TimedSale rule = this.getRule();
-			if(rule != null)
-				rule.discount = discount;
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putInt("Discount", discount);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-		void PressStartButton(Button button)
-		{
-			TimedSale rule = this.getRule();
-			boolean setActive = rule != null && !rule.timerActive();
-			this.getRule().startTime = this.getRule().timerActive() ? 0 : TimeUtil.getCurrentTime();
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putBoolean("StartSale", setActive);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-		public void onTimeSet(TimeData newTime)
-		{
-			TimedSale rule = this.getRule();
-			if(rule != null)
-				rule.duration = newTime.miliseconds;
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putLong("Duration", newTime.miliseconds);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-	}
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new TimedSaleTab(parent); }
 	
 	
 }

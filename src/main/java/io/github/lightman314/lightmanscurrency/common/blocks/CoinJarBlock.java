@@ -1,56 +1,56 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CoinJarBlock extends RotatableBlock implements EntityBlock{
+import javax.annotation.Nonnull;
+import java.util.Collection;
 
-	public CoinJarBlock(Properties properties)
-	{
-		super(properties);
-	}
-	
-	public CoinJarBlock(Properties properties, VoxelShape shape)
-	{
-		super(properties, shape);
-	}
-	
+public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
+
+	public CoinJarBlock(Properties properties) { super(properties); }
+
+	public CoinJarBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
+
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new CoinJarBlockEntity(pos, state);
-	}
-	
+	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_JAR.get()); }
+
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinJarBlockEntity(pos, state); }
+
+	@Override
+	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof CoinJarBlockEntity)
-		{
-			CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
+		if(blockEntity instanceof CoinJarBlockEntity jar)
 			jar.readItemTag(stack);
-		}
 	}
-	
+
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -59,43 +59,63 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CoinJarBlockEntity)
+			if(blockEntity instanceof CoinJarBlockEntity jar)
 			{
-				CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
 				if(jar.addCoin(coinStack))
 					coinStack.shrink(1);
 			}
 		}
 		return InteractionResult.SUCCESS;
 	}
-	
+
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
-		
+
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
 		BlockEntity tileEntity = level.getBlockEntity(pos);
-		if(tileEntity instanceof CoinJarBlockEntity)
+		if(tileEntity instanceof CoinJarBlockEntity jarEntity)
 		{
-			CoinJarBlockEntity jarEntity = (CoinJarBlockEntity)tileEntity;
 			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player) > 0)
 			{
 				//Drop the item for this block, with the JarData in it.
-				@SuppressWarnings("deprecation")
-				ItemStack dropStack = new ItemStack(Item.byBlock(this), 1);
-				if(jarEntity.getStorage().size() > 0)
-					jarEntity.writeItemTag(dropStack);
+				ItemStack dropStack = new ItemStack(this, 1);
+				jarEntity.writeItemTag(dropStack);
+				jarEntity.clearStorage();
 				Block.popResource(level, pos, dropStack);
 			}
-			else
-			{
-				//Only drop the coins within the jar
-				jarEntity.getStorage().forEach(coin -> Block.popResource(level, pos, coin));
-			}
 		}
-		
+
 		super.playerWillDestroy(level, pos, state, player);
-		
+
 	}
-	
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+		if(state.is(newState.getBlock()))
+		{
+			super.onRemove(state, level, pos, newState, flag);
+			return;
+		}
+		//Drop the jars contents
+		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarEntity)
+		{
+			jarEntity.getStorage().forEach(coin -> Block.popResource(level, pos, coin));
+			jarEntity.clearStorage();
+		}
+	}
+
+	@Override
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+		ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarBlock)
+		{
+			if(player.isCreative() && player.isCrouching())
+				jarBlock.writeItemTag(stack);
+			else
+				jarBlock.writeSimpleItemTag(stack);
+		}
+		return stack;
+	}
 }

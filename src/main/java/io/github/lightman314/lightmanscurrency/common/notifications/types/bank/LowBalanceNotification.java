@@ -15,7 +15,7 @@ public class LowBalanceNotification extends Notification{
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank_low_balance");
 	
 	private MutableComponent accountName;
-	private CoinValue value = new CoinValue();
+	private CoinValue value = CoinValue.EMPTY;
 	
 	public LowBalanceNotification(MutableComponent accountName, CoinValue value) {
 		this.accountName = accountName;
@@ -38,25 +38,24 @@ public class LowBalanceNotification extends Notification{
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		compound.putString("Name", Component.Serializer.toJson(this.accountName));
-		this.value.save(compound, "Amount");
+		compound.put("Amount", this.value.save());
 	}
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
 		this.accountName = Component.Serializer.fromJson(compound.getString("Name"));
-		this.value.load(compound, "Amount");
+		this.value = CoinValue.safeLoad(compound, "Amount");
 	}
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof LowBalanceNotification)
+		if(other instanceof LowBalanceNotification lbn)
 		{
-			LowBalanceNotification lbn = (LowBalanceNotification)other;
 			if(!lbn.accountName.getString().equals(this.accountName.getString()))
 				return false;
-			if(lbn.value.getRawValue() != this.value.getRawValue())
+			if(lbn.value.getValueNumber() != this.value.getValueNumber())
 				return false;
-			//Passed all of the checks.
+			//Passed all the checks.
 			return true;
 		}
 		return false;

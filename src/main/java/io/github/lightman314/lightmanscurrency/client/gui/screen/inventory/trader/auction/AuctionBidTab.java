@@ -1,21 +1,23 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.MessageSubmitBid;
+import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
+
+import javax.annotation.Nonnull;
 
 public class AuctionBidTab extends TraderClientTab {
 
@@ -37,9 +39,6 @@ public class AuctionBidTab extends TraderClientTab {
 	}
 	
 	public AuctionBidTab(TraderScreen screen, long auctionHouseID, int tradeIndex) { super(screen); this.auctionHouseID = auctionHouseID; this.tradeIndex = tradeIndex; }
-
-	@Override
-	public boolean blockInventoryClosing() { return false; }
 	
 	//Auction Bid Display
 	TradeButton tradeDisplay;
@@ -48,41 +47,33 @@ public class AuctionBidTab extends TraderClientTab {
 	CoinValueInput bidAmount;
 	
 	//Bid Button
-	Button bidButton;
-	
-	Button closeButton;
+	EasyButton bidButton;
+
+	EasyButton closeButton;
 	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
 		if(this.getTrade() == null)
 			return;
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(() -> this.menu.getContext(this.getAuctionHouse()), this::getTrade, b -> {}));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - this.tradeDisplay.getWidth() / 2, this.screen.getGuiTop() + 5);
+		this.tradeDisplay = this.addChild(new TradeButton(() -> this.menu.getContext(this.getAuctionHouse()), this::getTrade, b -> {}));
+		this.tradeDisplay.setPosition(screenArea.pos.offset(screenArea.width / 2 - this.tradeDisplay.getWidth() / 2, 5));
 		
-		this.bidAmount = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 10 + this.tradeDisplay.getHeight(), Component.translatable("gui.lightmanscurrency.auction.bidamount"), this.getTrade().getMinNextBid(), this.font, v -> {}, this.screen::addRenderableTabWidget));
-		this.bidAmount.init();
+		this.bidAmount = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 10 + this.tradeDisplay.getHeight()), EasyText.translatable("gui.lightmanscurrency.auction.bidamount"), this.getTrade().getMinNextBid(), this.font, v -> {}));
 		this.bidAmount.allowFreeToggle = false;
 		this.bidAmount.drawBG = false;
 		
-		this.bidButton = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + 119, 68, 20, Component.translatable("gui.lightmanscurrency.auction.bid"), this::SubmitBid));
+		this.bidButton = this.addChild(new EasyTextButton(screenArea.pos.offset(22, 119), 68, 20, EasyText.translatable("gui.lightmanscurrency.auction.bid"), this::SubmitBid));
 		
-		this.closeButton = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + this.screen.getXSize() - 25, this.screen.getGuiTop() + 5, 20, 20, Component.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close));
+		this.closeButton = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 25, 5), 20, 20, EasyText.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close));
 		
 		this.tick();
 		
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
-
-	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		
-		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
-		
-	}
+	public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 	
 	@Override
 	public void tick() {
@@ -94,9 +85,9 @@ public class AuctionBidTab extends TraderClientTab {
 		
 		if(this.bidAmount != null)
 		{
-			long bidQuery = this.bidAmount.getCoinValue().getRawValue();
+			long bidQuery = this.bidAmount.getCoinValue().getValueNumber();
 			CoinValue minBid = this.getTrade().getMinNextBid();
-			if(bidQuery < minBid.getRawValue())
+			if(bidQuery < minBid.getValueNumber())
 				this.bidAmount.setCoinValue(this.getTrade().getMinNextBid());
 			this.bidButton.active = this.menu.getContext(this.getAuctionHouse()).getAvailableFunds() >= bidQuery;
 			
@@ -105,10 +96,10 @@ public class AuctionBidTab extends TraderClientTab {
 		
 	}
 	
-	private void SubmitBid(Button button) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCoinValue()));
+	private void SubmitBid(EasyButton button) {
+		new CPacketSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCoinValue()).send();
 		this.screen.closeTab();
 	}
 	
-	private void close(Button button) { this.screen.closeTab(); }
+	private void close(EasyButton button) { this.screen.closeTab(); }
 }

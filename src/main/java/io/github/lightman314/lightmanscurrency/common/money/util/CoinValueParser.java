@@ -28,7 +28,7 @@ public class CoinValueParser {
     }
 
     public static CoinValue parse(StringReader reader) throws CommandSyntaxException {
-        CoinValue value = new CoinValue();
+        CoinValue value = CoinValue.EMPTY;
         StringReader inputReader = new StringReader(readStringUntil(reader, ' '));
         while(inputReader.canRead())
         {
@@ -37,11 +37,11 @@ public class CoinValueParser {
             {
                 int count = NumberUtil.GetIntegerValue(s1, 1);
                 String s2 = readStringUntil(inputReader,',');
-                TryParseCoin(value, inputReader, s2, count);
+                value = TryParseCoin(value, inputReader, s2, count);
             }
             else
             {
-                TryParseCoin(value, inputReader, s1, 1);
+                value = TryParseCoin(value, inputReader, s1, 1);
             }
         }
         if(!value.hasAny())
@@ -77,7 +77,7 @@ public class CoinValueParser {
         return result.toString();
     }
 
-    private static void TryParseCoin(CoinValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
+    private static CoinValue TryParseCoin(CoinValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
     {
         if(ResourceLocation.isValidResourceLocation(coinIDString))
         {
@@ -85,7 +85,7 @@ public class CoinValueParser {
             Item coin = ForgeRegistries.ITEMS.getValue(coinID);
             if(!MoneyUtil.isVisibleCoin(coin))
                 throw NotACoinException(coinIDString, reader);
-            result.addValue(coin, count);
+            return result.plusValue(coin, count);
         }
         else
             throw NotACoinException(coinIDString, reader);

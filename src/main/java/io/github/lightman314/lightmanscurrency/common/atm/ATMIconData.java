@@ -1,22 +1,22 @@
 package io.github.lightman314.lightmanscurrency.common.atm;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SpriteIcon;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public abstract class ATMIconData {
 	
@@ -32,7 +32,6 @@ public abstract class ATMIconData {
 		register(ItemIcon.TYPE);
 		register(SimpleArrowIcon.TYPE);
 		register(SpriteIcon.TYPE);
-		
 	}
 	
 	/**
@@ -83,7 +82,7 @@ public abstract class ATMIconData {
 	protected abstract void saveAdditional(JsonObject data);
 	
 	@OnlyIn(Dist.CLIENT)
-	public abstract void render(ATMConversionButton button, PoseStack pose, boolean isHovered);
+	public abstract void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered);
 	
 	public static ATMIconData parse(JsonObject data) throws Exception {
 		if(data.has("type"))
@@ -113,10 +112,6 @@ public abstract class ATMIconData {
 		
 		public static IconType create(ResourceLocation type, Function<JsonObject,ATMIconData> deserializer) { return new IconType(type, deserializer); }
 		
-	}
-	
-	public static List<ATMIconData> getConvertAllUpDefault() {
-		return Lists.newArrayList();
 	}
 	
 }

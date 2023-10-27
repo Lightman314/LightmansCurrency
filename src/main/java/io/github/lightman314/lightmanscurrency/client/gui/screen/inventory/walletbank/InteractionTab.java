@@ -1,24 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class InteractionTab extends WalletBankTab implements IBankAccountWidget {
 
@@ -33,57 +30,33 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.interact"); }
 
 	@Override
-	public void init() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.accountWidget = new BankAccountWidget(this.screen.getGuiTop(), this, 7);
+		this.accountWidget = this.addChild(new BankAccountWidget(screenArea.y, this, 7, this::addChild));
 		this.accountWidget.allowEmptyDeposits = false;
 		this.accountWidget.getAmountSelection().drawBG = false;
 		
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		Component accountName = Component.literal("ERROR FINDING ACCOUNT");
 		if(this.screen.getMenu().getBankAccount() != null)
 			accountName = this.screen.getMenu().getBankAccount().getName();
-		this.screen.getFont().draw(pose, accountName, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + CoinValueInput.HEIGHT, 0x404040);
-		this.accountWidget.renderInfo(pose);
+		gui.drawString(accountName, 8, CoinValueInput.HEIGHT, 0x404040);
+		this.accountWidget.renderInfo(gui);
 	}
-
-	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) { }
 
 	@Override
 	public void tick() { this.accountWidget.tick(); }
-	
-	@Override
-	public void onClose() { this.accountWidget = null; }
 
 	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
-		if(button instanceof AbstractWidget)
-			this.screen.addRenderableTabWidget((AbstractWidget)button);
-		return button;
-	}
+	public Screen getScreen() { return this.screen; }
 
 	@Override
-	public Font getFont() {
-		return this.screen.getFont();
-	}
+	public BankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
 
 	@Override
-	public Screen getScreen() {
-		return this.screen;
-	}
-
-	@Override
-	public BankAccount getBankAccount() {
-		return this.screen.getMenu().getBankAccount();
-	}
-
-	@Override
-	public Container getCoinAccess() {
-		return this.screen.getMenu().getCoinInput();
-	}
+	public Container getCoinAccess() { return this.screen.getMenu().getCoinInput(); }
 
 }

@@ -1,16 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -24,13 +22,13 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
@@ -41,7 +39,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class WalletItem extends Item{
@@ -71,7 +68,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public int getEnchantmentValue() { return 10; }
+	public int getEnchantmentValue(ItemStack stack) { return 10; }
 	
 	@Override
 	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
@@ -95,10 +92,7 @@ public class WalletItem extends Item{
 	/**
 	 * Determines if the given Item is a WalletItem
 	 */
-	public static boolean isWallet(Item item)
-	{
-		return item instanceof WalletItem;
-	}
+	public static boolean isWallet(Item item) { return item instanceof WalletItem; }
 	
 	/**
 	 * Whether the WalletItem is capable of converting coins to coins of higher value.
@@ -159,30 +153,30 @@ public class WalletItem extends Item{
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
 		}
 		if(CanConvert(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoConvert(stack) ? Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
+				Component onOffText = getAutoConvert(stack) ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
 		}
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 		
-		CoinValue contents = new CoinValue(getWalletInventory(stack));
-		if(contents.getRawValue() > 0)
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.storedmoney", Component.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
+		CoinValue contents = CoinValue.fromInventory(getWalletInventory(stack));
+		if(contents.getValueNumber() > 0)
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney", EasyText.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
 		
 	}
 	
@@ -216,7 +210,7 @@ public class WalletItem extends Item{
 							walletHandler.setWallet(wallet);
 							player.setItemInHand(hand, ItemStack.EMPTY);
 							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
-							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
+							new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()).sendTo(player);
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
 							equippedWallet = true;
@@ -225,7 +219,7 @@ public class WalletItem extends Item{
 					if(equippedWallet)
 						walletSlot = -1;
 				}
-				NetworkHooks.openScreen((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+				WalletMenuBase.SafeOpenWalletMenu((ServerPlayer)player, walletSlot);
 			}
 				
 			else
@@ -310,7 +304,7 @@ public class WalletItem extends Item{
 	private static NonNullList<ItemStack> ConvertCoins(NonNullList<ItemStack> inventory)
 	{
 		
-		inventory = MoneyUtil.ConvertAllCoinsUp(inventory);
+		inventory = MoneyUtil.ExchangeAllCoinsUp(inventory);
 		
 		return MoneyUtil.SortCoins(inventory);
 		
@@ -450,32 +444,32 @@ public class WalletItem extends Item{
 		EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(walletIn), walletOut);
 		
 	}
-	
-	public static class DataWriter implements Consumer<FriendlyByteBuf>
-	{
 
-		private final int slotIndex;
-		
-		public DataWriter(int slotIndex)
+	/*
+	  Automatically collects all coins from the given container into the players equipped wallet.
+	 */
+	public static void QuickCollect(Player player, Container container) { QuickCollect(player, container, false); }
+
+	public static void QuickCollect(Player player, Container container, boolean allowHidden)
+	{
+		ItemStack wallet = LightmansCurrency.getWalletStack(player);
+		if(isWallet(wallet))
 		{
-			this.slotIndex = slotIndex;
+			for(int i = 0; i < container.getContainerSize(); ++i)
+			{
+				ItemStack stack = container.getItem(i);
+				if(MoneyUtil.isCoin(stack, allowHidden))
+				{
+					stack = PickupCoin(wallet, stack);
+					container.setItem(i, stack);
+				}
+			}
 		}
-		
-		@Override
-		public void accept(FriendlyByteBuf buffer) {
-			
-			buffer.writeInt(this.slotIndex);
-			
-		}
-		
 	}
-	
+
 	/**
 	 * The wallets texture. Used to render the wallet on the players hip when equipped.
 	 */
-	public ResourceLocation getModelTexture()
-	{
-		return this.MODEL_TEXTURE;
-	}
+	public ResourceLocation getModelTexture() { return this.MODEL_TEXTURE; }
 	
 }

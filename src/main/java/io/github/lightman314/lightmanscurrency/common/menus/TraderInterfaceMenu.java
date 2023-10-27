@@ -3,35 +3,34 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageInterfaceInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class TraderInterfaceMenu extends AbstractContainerMenu {
+public class TraderInterfaceMenu extends EasyMenu {
 
 	private final TraderInterfaceBlockEntity blockEntity;
 	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
 	
-	public final Player player;
-	
 	public static final int SLOT_OFFSET = 15;
 	
-	private boolean canEditTabs = true;
+	private boolean canEditTabs;
 	Map<Integer,TraderInterfaceTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderInterfaceTab> getAllTabs() { return this.availableTabs; }
 	public void setTab(int key, TraderInterfaceTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
@@ -42,11 +41,14 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
 	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
-		super(ModMenus.TRADER_INTERFACE.get(), windowID);
-		
-		this.player = inventory.player;
+		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
+		this.canEditTabs = true;
+
 		this.blockEntity = blockEntity;
-		
+
+		this.addValidator(BlockEntityValidator.of(this.blockEntity));
+		this.addValidator(this.blockEntity::canAccess);
+
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
@@ -79,10 +81,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
-	
-	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 	}
@@ -92,8 +91,9 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		return this.blockEntity.getTradeContext();
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -187,7 +187,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	public void sendMessage(CompoundTag message) {
 		if(this.isClient())
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageInterfaceInteraction(message));
+			new CPacketInterfaceInteraction(message).send();
 			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
 		}
 	}
@@ -201,13 +201,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		if(message.contains("OnlineModeChange"))
 			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
 		try { this.getCurrentTab().receiveMessage(message); }
-		catch(Throwable t) { }
+		catch(Throwable ignored) { }
 	}
-	
-	public interface IClientMessage {
-		public void selfMessage(CompoundTag message);
-	}
-	
-	
 	
 }

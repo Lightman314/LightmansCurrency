@@ -13,9 +13,7 @@ public abstract class CapacityUpgrade extends UpgradeType {
 	private static final List<String> DATA_TAGS = Lists.newArrayList(CAPACITY);
 
 	@Override
-	protected List<String> getDataTags() {
-		return DATA_TAGS;
-	}
+	protected List<String> getDataTags() { return DATA_TAGS; }
 
 	@Override
 	protected Object defaultTagValue(String tag) {

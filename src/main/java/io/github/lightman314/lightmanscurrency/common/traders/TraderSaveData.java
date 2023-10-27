@@ -17,14 +17,15 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageClearClientTraders;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
-import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketClearClientTraders;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketMessageRemoveClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +42,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
@@ -78,11 +78,7 @@ public class TraderSaveData extends SavedData {
 			ah.setID(traderID);
 			
 			LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
-			this.traderData.put(traderID, ah);
-			this.setDirty();
-			//Send update packet to the connected clients
-			CompoundTag compound = ah.save();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(compound));
+			this.AddTraderInternal(traderID, ah);
 		}
 	}
 	
@@ -118,9 +114,7 @@ public class TraderSaveData extends SavedData {
 				TraderData trader = TraderData.Deserialize(false, traderTag);
 				if(trader != null)
 				{
-					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
-					if(trader instanceof IEasyTickable t)
-						this.tickers.add(t);
+					this.AddTraderInternal(trader.getID(), trader);
 				}
 				else
 					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
@@ -367,6 +361,8 @@ public class TraderSaveData extends SavedData {
 						throw new Exception("Trader has no defined id.");
 					if(loadedIDs.contains(traderID))
 						throw new Exception("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
+					if(traderID.isBlank())
+						throw new Exception("Trader cannot have a blank id!");
 					TraderData data = TraderData.Deserialize(traderTag);
 					
 					//Load the persistent data
@@ -383,10 +379,8 @@ public class TraderSaveData extends SavedData {
 					}
 					//Initialize the persistence (forces creative & terminal access)
 					data.makePersistent(id, traderID);
-					
-					this.traderData.put(id, data.allowMarkingDirty());
-					if(data instanceof IEasyTickable t)
-						this.tickers.add(t);
+
+					this.AddTraderInternal(id, data);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					
@@ -461,7 +455,7 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			tsd.setDirty();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(updateMessage));
+			new SPacketUpdateClientTrader(updateMessage).sendToAll();
 		}
 		
 	}
@@ -478,9 +472,7 @@ public class TraderSaveData extends SavedData {
 					if(trader instanceof AuctionHouseTrader)
 					{
 						long id = trader.getID();
-						newTrader.setID(id);
-						tsd.traderData.put(id, newTrader);
-						MarkTraderDirty(newTrader.save());
+						tsd.AddTraderInternal(id, newTrader);
 						return id;
 					}
 				}
@@ -494,15 +486,29 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			long newID = tsd.getNextID();
-			newTrader.setID(newID);
-			tsd.traderData.put(newID, newTrader.allowMarkingDirty());
-			tsd.setDirty();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(newTrader.save()));
+			tsd.AddTraderInternal(newID, newTrader);
 			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
 				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
 		}
 		return -1;
+	}
+
+	private void AddTraderInternal(long traderID, TraderData trader)
+	{
+		//Set Trader ID
+		trader.setID(traderID);
+		//Add to storage
+		this.traderData.put(traderID, trader.allowMarkingDirty());
+		this.setDirty();
+		//Trigger OnRegisteration listener
+		try{ trader.OnRegisteredToOffice();
+		} catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
+		//Send update packet to all relevant clients
+		new SPacketUpdateClientTrader(trader.save()).sendToAll();
+		//Register tick listeners (if applicable)
+		if(trader instanceof IEasyTickable t)
+			this.tickers.add(t);
 	}
 	
 	public static void DeleteTrader(long traderID) {
@@ -512,17 +518,20 @@ public class TraderSaveData extends SavedData {
 			if(tsd.traderData.containsKey(traderID))
 			{
 				TraderData trader = tsd.traderData.get(traderID);
+				//Delete from appropriate tax entries
+				TaxSaveData.GetAllTaxEntries(false).forEach(e -> e.taxableBlockRemoved(trader));
+				//Remove from the Trader List
 				tsd.traderData.remove(traderID);
 				if(trader instanceof IEasyTickable t)
 					tsd.tickers.remove(t);
 				tsd.setDirty();
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
+				new SPacketMessageRemoveClientTrader(traderID).sendToAll();
 				if(trader.shouldAlwaysShowOnTerminal())
 					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
 			}
 		}
 	}
-	
+
 	public static List<TraderData> GetAllTraders(boolean isClient)
 	{
 		if(isClient)
@@ -624,7 +633,7 @@ public class TraderSaveData extends SavedData {
 									EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
 								} catch(Throwable t) { t.printStackTrace(); }
 							}
-							LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderData.getID()));
+							new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 							return true;
 						}
 						return false;
@@ -669,18 +678,17 @@ public class TraderSaveData extends SavedData {
 			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
 			
 			//Send the clear message
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+			SPacketClearClientTraders.INSTANCE.sendToTarget(target);
 			//Send update message to the newly connected client
-			tsd.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
+			tsd.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save()).sendToTarget(target));
 
 		}
 	}
 	
 	private void resendTraderData()
 	{
-		PacketTarget target = PacketDistributor.ALL.noArg();
-		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
-		this.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
+		SPacketClearClientTraders.INSTANCE.sendToAll();
+		this.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save()).sendToAll());
 	}
 	
 	

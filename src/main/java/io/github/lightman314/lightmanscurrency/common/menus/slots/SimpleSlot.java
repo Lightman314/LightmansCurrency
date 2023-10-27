@@ -10,10 +10,14 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class SimpleSlot extends Slot {
 
 	public boolean active = true;
 	public boolean locked = false;
+
+	private Runnable onChange = () -> {};
 	
 	public SimpleSlot(Container container, int index, int x, int y) { super(container, index, x, y); }
 
@@ -40,7 +44,15 @@ public class SimpleSlot extends Slot {
 			return false;
 		return super.mayPickup(player);
 	}
-	
+
+	public final void setListener(@Nonnull Runnable onChange) { this.onChange = onChange; }
+
+	@Override
+	public void setChanged() {
+		super.setChanged();
+		this.onChange.run();
+	}
+
 	public static void SetActive(AbstractContainerMenu menu) {
 		SetActive(menu, (slot) -> true);
 	}

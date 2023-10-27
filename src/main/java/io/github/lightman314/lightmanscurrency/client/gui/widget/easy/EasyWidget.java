@@ -1,126 +1,139 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.narration.NarratedElementType;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.narration.NarrationThunk;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
-public abstract class EasyWidget extends GuiComponent implements Widget, GuiEventListener, NarratableEntry, ITooltipSource {
+public abstract class EasyWidget extends AbstractWidget {
 
-    private ScreenPosition position = ScreenPosition.ZERO;
-    @NotNull
-    public ScreenPosition getPosition() { return this.position; }
-    public int getPosX() { return this.position.x; }
-    public int getPosY() { return this.position.y; }
-    public void setPosition(@NotNull ScreenPosition position) { this.position = position; }
+    private ScreenArea area;
 
-    private int width;
-    private int height;
-    private final boolean fixedSize;
-    public int getWidth() { return this.width; }
-    public int getHeight() { return this.height; }
-    protected void setWidth(int width) { if(this.fixedSize) return; this.width = width; }
-    protected void setHeight(int height) { if(this.fixedSize) return; this.height = height; }
+    private final List<WidgetAddon> addons = new ArrayList<>();
+    private boolean lockAddons = false;
 
-    private NonNullSupplier<Boolean> visibleCheck;
-    public boolean isVisible() { return this.visibleCheck.get(); }
-    public void setVisible(boolean visible) { this.visibleCheck = () -> visible; }
-    public void setVisible(NonNullSupplier<Boolean> visibleCheck) { this.visibleCheck = visibleCheck == null ? () -> true : visibleCheck; }
+    public final ScreenArea getArea() { return this.area; }
 
-    private NonNullSupplier<Boolean> activeCheck;
+    public final int getX() { return this.area.x; }
+    public final void setX(int x) { this.area = this.area.atPosition(ScreenPosition.of(x, this.area.y)); this.x = this.area.x; }
+    public final int getY() { return this.area.y; }
+    public final void setY(int y) { this.area = this.area.atPosition(ScreenPosition.of(this.area.x, y)); this.y = this.area.y; }
+    public final ScreenPosition getPosition() { return this.area.pos; }
+    public final void setPosition(int x, int y) { this.area = this.area.atPosition(x, y); this.x = this.area.x; this.y = this.area.y; }
+    public final void setPosition(@Nonnull ScreenPosition pos) { this.area = this.area.atPosition(pos); this.x = this.area.x; this.y = this.area.y; }
     @Override
-    public boolean isActive() { return this.isVisible() && this.activeCheck.get(); }
-    public void setActive(boolean active) { this.activeCheck = () -> active; }
-    public void setActive(NonNullSupplier<Boolean> activeCheck) { this.activeCheck = activeCheck == null ? () -> true : activeCheck; }
+    public final int getWidth() { return this.area.width; }
+    @Override
+    public final int getHeight() { return this.area.height; }
+    @Override
+    public final void setWidth(int width) { this.area = this.area.ofSize(width, this.area.height); super.setWidth(width);  }
+    @Override
+    public final void setHeight(int height) { this.area = this.area.ofSize(this.area.width, height); super.setHeight(height); }
+    public final void setSize(int width, int height) { this.area = this.area.ofSize(width, height); super.setWidth(width); super.setHeight(height); }
 
-    private boolean hovered;
-    public boolean isHovered() { return this.hovered && this.isActive(); }
+    public final boolean isVisible() { this.visibleTickInternal(); return this.visible; }
+    public final void setVisible(boolean visible) { this.visible = visible; }
 
-    private Supplier<List<Component>> tooltipSource;
-    public void setTooltipSource(Supplier<List<Component>> tooltipSource) { this.tooltipSource = tooltipSource == null ? () -> null : tooltipSource; }
+    @Override
+    public final boolean isActive() { this.activeTickInternal(); return super.isActive(); }
+    public final void setActive(boolean active) { this.active = active; }
 
-    public final Font font;
+    public final boolean isMouseOver(ScreenPosition mousePos) { return this.isMouseOver(mousePos.x, mousePos.y); }
 
-    protected EasyWidget(IEasyWidgetBuilder builder)
+    protected EasyWidget(int x, int y, int width, int height) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height)); }
+    protected EasyWidget(int x, int y, int width, int height, Component title) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height), title); }
+    protected EasyWidget(ScreenPosition position, int width, int height) { this(ScreenArea.of(position, width, height)); }
+    protected EasyWidget(ScreenPosition position, int width, int height, Component title) { this(ScreenArea.of(position, width, height), title); }
+    protected EasyWidget(ScreenArea area) { this(area, EasyText.empty()); }
+    protected EasyWidget(ScreenArea area, Component title)
     {
-        this.setPosition(builder.getPosition());
-        this.width = builder.getWidth();
-        this.height = builder.getHeight();
-        this.fixedSize = builder.isFixedSize();
-        this.visibleCheck = builder.getVisibilityCheck();
-        this.activeCheck = builder.getActiveCheck();
-        this.tooltipSource = builder.getTooltip();
-        this.font = Minecraft.getInstance().font;
+        super(area.x, area.y, area.width, area.height, title);
+        this.area = area;
     }
 
-    @Override
-    public final void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        if (this.isVisible())
+    /**
+     * Should be overridden with { this.withAddonsInternal(addons); return this; }
+     */
+    public abstract Object withAddons(WidgetAddon... addons);
+
+    protected final void withAddonsInternal(WidgetAddon... addons)
+    {
+        if(this.lockAddons)
+            return;
+        for(WidgetAddon a : addons)
         {
-            this.hovered = this.isMouseOver(mouseX, mouseY);
-            this.renderWidget(pose, mouseX, mouseY, partialTicks);
-        }
-        else
-            LightmansCurrency.LogDebug("Not rendering widget as it is not visible.");
-    }
-
-    protected abstract void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks);
-
-    protected int getYImage() {
-        if (!this.isActive())
-            return 0;
-        else if (this.hovered)
-            return 2;
-        return 1;
-    }
-
-    protected int getFGColor() { return this.isActive() ? 16777215 : 10526880; }
-
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return this.isActive() && ScreenUtil.isMouseOver(mouseX, mouseY, this.position, this.width, this.height); }
-
-    @Nullable
-    @Override
-    public List<Component> getTooltip(int mouseX, int mouseY) {
-        if(this.isMouseOver(mouseX, mouseY))
-            return this.getTooltip();
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public List<Component> getTooltip() { return this.tooltipSource.get(); }
-
-
-    @Override
-    @NotNull
-    public NarratableEntry.NarrationPriority narrationPriority() { return this.isHovered() ? NarrationPriority.HOVERED : NarrationPriority.NONE; }
-
-    @Override
-    public void updateNarration(@NotNull NarrationElementOutput narrator) {
-        if(this.isHovered())
-        {
-            List<Component> tooltips = this.getTooltip();
-            if(tooltips != null)
-                narrator.add(NarratedElementType.HINT, NarrationThunk.from(tooltips));
+            if(a != null && !this.addons.contains(a))
+            {
+                this.addons.add(a);
+                a.attach(this);
+            }
         }
     }
+
+    public final void addAddons(Consumer<WidgetAddon> consumer) {
+        this.lockAddons = true;
+        for(WidgetAddon addon : this.addons)
+            consumer.accept(addon);
+    }
+
+    public void removeAddons(Consumer<WidgetAddon> consumer) {
+        for(WidgetAddon addon : this.addons)
+            consumer.accept(addon);
+    }
+
+    @Override
+    public final void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTick) {
+        this.renderTickInternal();
+        super.render(pose, mouseX, mouseY, partialTick);
+    }
+
+    private void visibleTickInternal() {
+        this.addons.forEach(WidgetAddon::visibleTick);
+    }
+
+    private void activeTickInternal() {
+        this.visibleTickInternal();
+        this.addons.forEach(WidgetAddon::activeTick);
+    }
+
+    private void renderTickInternal() {
+        this.activeTickInternal();
+        this.addons.forEach(WidgetAddon::renderTick);
+        this.renderTick();
+        this.x = this.area.x;
+        this.y = this.area.y;
+        this.width = this.area.width;
+        this.height = this.area.height;
+    }
+
+    protected void renderTick() { }
+
+    @Override
+    public final void renderButton(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+    {
+        this.renderWidget(EasyGuiGraphics.create(pose, mouseX, mouseY, partialTicks).pushOffset(this.getPosition()));
+    }
+
+    protected abstract void renderWidget(@Nonnull EasyGuiGraphics gui);
+
+    @Override
+    protected boolean isValidClickButton(int button) { return false; }
+
+    @Override
+    public void playDownSound(@Nonnull SoundManager manager) { }
+
+    @Override
+    public void updateNarration(@Nonnull NarrationElementOutput narrator) { }
 
 }

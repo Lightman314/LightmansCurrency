@@ -20,11 +20,10 @@
             "conditions": {
                 "items": [
                     {
-                        "tag": "lightmanscurrency:coin"
+                        "tag": "lightmanscurrency:coins"
                     }
                 ]
             }
         }
-    },
-    "rewards": { "function": "lightmanscurrency:give_currency_recipes" }
+    }
 }

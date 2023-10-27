@@ -38,14 +38,14 @@ public class ClientTraderData {
 		{
 			TraderData trader = TraderData.Deserialize(true, compound);
 			if(trader != null)
+			{
 				loadedTraders.put(traderID, trader);
+				trader.OnRegisteredToOffice();
+			}
 		}
 	}
 	
-	public static void RemoveTrader(long traderID)
-	{
-		loadedTraders.remove(traderID);
-	}
+	public static void RemoveTrader(long traderID) { loadedTraders.remove(traderID); }
 	
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {

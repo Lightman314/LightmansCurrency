@@ -1,12 +1,23 @@
+buildscript {
+    dependencies {
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+    }
+}
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.19.2-2.1.0.0h'
+version = '1.19.2-2.1.2.4'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
+
+mixin {
+    add sourceSets.main, "lightmanscurrency.refmap.json"
+    config "lightmanscurrency.mixins.json"
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -26,7 +37,11 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             
             property 'forge.enabledGameTestNamespaces', 'lightmanscurrency'
-			
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             mods {
                 lightmanscurrency {
                     source sourceSets.main
@@ -38,7 +53,13 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
+                        '--existing', file('optional_assets/1.19.2/biomesoplenty'),
+                        '--existing', file('optional_assets/1.19.2/byg')
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 lightmanscurrency {
@@ -65,29 +86,49 @@ repositories {
     	name = "ModMaven"
     	url = "https://modmaven.k-4u.nl"
     }*/
+    //Geckolib
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+    }
 }
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.3'
-   	
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    minecraft 'net.minecraftforge:forge:1.19.2-43.3.0'
+
    	//JEI when actually working on plugin
     //compileOnly fg.deobf("mezz.jei:jei-1.19.3-common-api:12.1.1.8")
     //compileOnly fg.deobf("mezz.jei:jei-1.19.3-forge-api:12.1.1.8")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:3873049")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3873049")
+    implementation fg.deobf("curse.maven:jei-238222:3873049")
     
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:3841962")
-    //Curios Runtime
-    //runtimeOnly fg.deobf("curse.maven:curios-309927:4152930")
 
     //Immersive Engineering API
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4111018')
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660939')
+
+    //FTB Chunks claim purchase compat
+    implementation fg.deobf('curse.maven:ftb-chunks-forge-314906:4727833')
+    implementation fg.deobf('curse.maven:ftb-teams-forge-404468:4611938')
+    implementation fg.deobf('curse.maven:ftb-library-forge-404465:4661834')
+    implementation fg.deobf('curse.maven:architectury-api-419699:4555749')
+
+    //Wood Compatibility
+    //Biomes O' Plenty
+    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4473556")
+    implementation fg.deobf("curse.maven:terrablender-563928:4618490")
+    //BYG
+    implementation fg.deobf("curse.maven:oh-the-biomes-youll-go-247560:4602115")
+    //implementation fg.deobf("curse.maven:terrablender-563928:4618490") //Already included by BOP
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.19:3.1.40")
+    implementation fg.deobf("curse.maven:corgilib-693313:4554111")
     
 }
 

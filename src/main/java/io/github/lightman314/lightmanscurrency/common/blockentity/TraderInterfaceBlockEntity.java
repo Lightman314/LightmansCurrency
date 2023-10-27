@@ -8,13 +8,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -28,12 +30,10 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
+import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceHandlerMessage;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -165,16 +165,16 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public String getOwnerName() { return this.owner.getOwnerName(this.isClient()); }
 	
 	public BankAccount getBankAccount() { 
-		AccountReference reference = this.getAccountReference();
+		BankReference reference = this.getAccountReference();
 		if(reference != null)
 			return reference.get();
 		return null;
 	}
-	public AccountReference getAccountReference() {
-		if(this.getOwner().hasTeam())
-			return BankAccount.GenerateReference(this.isClient(), this.owner.getTeam());
-		if(this.owner != null)
-			return BankAccount.GenerateReference(this.isClient(), this.owner.getPlayer());
+	public BankReference getAccountReference() {
+		if(this.owner.hasTeam())
+			return TeamBankReference.of(this.owner.getTeam()).flagAsClient(this.isClient());
+		if(this.owner.hasPlayer())
+			return PlayerBankReference.of(this.owner.getPlayer()).flagAsClient(this.isClient());
 		return null;
 	}
 	
@@ -283,7 +283,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
 	public TradeContext getTradeContext() {
 		if(this.interaction.trades)
-			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
+			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
 		return TradeContext.createStorageMode(this.getTrader());
 	}
 	
@@ -365,12 +365,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			else
 				this.owner.load(ownerTag);
 		}
-		if(compound.contains("Team"))
-		{
-			Team team = TeamSaveData.GetTeam(false, DataConverter.getNewTeamID(compound.getUUID("Team")));
-			if(team != null)
-				this.owner.SetOwner(team);
-		}
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
@@ -417,7 +411,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public void sendHandlerMessage(ResourceLocation type, CompoundTag message) {
 		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageHandlerMessage(this.worldPosition, type, message));
+			new CPacketInterfaceHandlerMessage(this.worldPosition, type, message).send();
 	}
 	
 	public void receiveHandlerMessage(ResourceLocation type, Player player, CompoundTag message) {
@@ -439,15 +433,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		TradeContext tradeContext = this.getTradeContext();
 		TraderData trader = this.getTrader();
 		if(trader != null)
-			this.lastResult = trader.ExecuteTrade(tradeContext, this.reference.getTradeIndex());
+			this.lastResult = trader.TryExecuteTrade(tradeContext, this.reference.getTradeIndex());
 		else
 			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
-	}
-	
-	protected void trackMoneyInteraction(CoinValue price, boolean isDeposit) {
-		
 	}
 	
 	public boolean isActive() {
@@ -557,15 +547,13 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	protected MenuProvider getMenuProvider() { return new InterfaceMenuProvider(this); }
 	
-	public static class InterfaceMenuProvider implements MenuProvider {
+	public static class InterfaceMenuProvider implements EasyMenuProvider {
 		private final TraderInterfaceBlockEntity blockEntity;
 		public InterfaceMenuProvider(TraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; }
 		@Override
 		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) {
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
-		@Override
-		public @NotNull Component getDisplayName() { return Component.empty(); }
 	}
 	
 	protected int getInteractionDelay() {

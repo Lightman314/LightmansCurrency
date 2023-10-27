@@ -2,16 +2,20 @@ package io.github.lightman314.lightmanscurrency.common.blocks.templates.interfac
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public interface ITallBlock {
+
+	BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 
 	default BlockPos getOtherHeight(BlockPos pos, BlockState state) {
 		if(this.getIsBottom(state))
 			return pos.above();
 		return pos.below();
 	}
-	
-	public boolean getIsBottom(BlockState state);
+
+	default boolean getIsBottom(BlockState state) { return state.getValue(ISBOTTOM); }
 	
 	default boolean getIsTop(BlockState state) { return !this.getIsBottom(state); }
 	

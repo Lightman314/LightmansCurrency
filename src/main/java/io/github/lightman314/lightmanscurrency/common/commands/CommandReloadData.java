@@ -3,14 +3,13 @@ package io.github.lightman314.lightmanscurrency.common.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 
 public class CommandReloadData {
 	
@@ -25,12 +24,12 @@ public class CommandReloadData {
 		
 	}
 	
-	static int execute(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int execute(CommandContext<CommandSourceStack> commandContext) {
 		
 		TraderSaveData.ReloadPersistentTraders();
 		MoneyUtil.reloadMoneyData();
 		ATMData.reloadATMData();
-		commandContext.getSource().sendSuccess(Component.translatable("command.lightmanscurrency.lcreload"), true);
+		EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcreload"), true);
 		return 1;
 		
 	}

@@ -5,49 +5,62 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 import com.google.common.base.Supplier;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public abstract class TradeRule {
 	
 	public final ResourceLocation type;
-	public final MutableComponent getName() { return Component.translatable("traderule." + type.getNamespace() + "." + type.getPath()); }
-	
+	public static MutableComponent nameOfType(ResourceLocation ruleType) { return EasyText.translatable("traderule." + ruleType.getNamespace() + "." + ruleType.getPath());
+	}
+	public final MutableComponent getName() { return nameOfType(this.type); }
+
+	private ITradeRuleHost host = null;
+
 	private boolean isActive = false;
-	public boolean isActive() { return this.isActive; }
+	public boolean isActive() { return this.canActivate(this.host) && this.isActive; }
 	public void setActive(boolean active) { this.isActive = active; }
-	
+
+	protected boolean allowHost(@Nonnull ITradeRuleHost host)
+	{
+		if(this.onlyAllowOnTraders() && !host.isTrader())
+			return false;
+		if(this.onlyAllowOnTrades() && !host.isTrade())
+			return false;
+		return true;
+	}
+	public boolean canActivate() { return this.canActivate(this.host); }
+	protected boolean canActivate(@Nullable ITradeRuleHost host) { return this.allowHost(host); }
+
+	protected boolean onlyAllowOnTraders() { return false; }
+	protected boolean onlyAllowOnTrades() { return false; }
+
 	public void beforeTrade(PreTradeEvent event) {}
 	public void tradeCost(TradeCostEvent event) {}
 	public void afterTrade(PostTradeEvent event) {}
 	
-	protected TradeRule(ResourceLocation type)
-	{
-		this.type = type;
-	}
-	
+	protected TradeRule(ResourceLocation type) { this.type = type; }
+
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
@@ -71,8 +84,6 @@ public abstract class TradeRule {
 	
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
-	
-	public abstract IconData getButtonIcon();
 	
 	public final void receiveUpdateMessage(CompoundTag updateInfo)
 	{
@@ -119,8 +130,11 @@ public abstract class TradeRule {
 		}
 		return ruleData;
 	}
-	
-	public static List<TradeRule> loadRules(CompoundTag compound, String tag)
+
+	@Deprecated(since = "2.1.1.0")
+	public static List<TradeRule> loadRules(CompoundTag compound, String tag) { return loadRules(compound, tag, null); }
+
+	public static List<TradeRule> loadRules(CompoundTag compound, String tag, ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		if(compound.contains(tag, Tag.TAG_LIST))
@@ -131,7 +145,11 @@ public abstract class TradeRule {
 				CompoundTag thisRuleData = ruleData.getCompound(i);
 				TradeRule thisRule = Deserialize(thisRuleData);
 				if(thisRule != null)
+				{
 					rules.add(thisRule);
+					if(host != null)
+						thisRule.host = host;
+				}
 			}
 		}
 		return rules;
@@ -157,8 +175,14 @@ public abstract class TradeRule {
 			}
 		}
 	}
-	
-	public static List<TradeRule> Parse(JsonArray tradeRuleData)
+
+	/**
+	 * @deprecated Use host sensitive version to avoid issues.
+	 */
+	@Deprecated(since = "2.1.1.3")
+	public static List<TradeRule> Parse(JsonArray tradeRuleData) { return Parse(tradeRuleData, null); }
+
+	public static List<TradeRule> Parse(JsonArray tradeRuleData, ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		for(int i = 0; i < tradeRuleData.size(); ++i)
@@ -166,22 +190,40 @@ public abstract class TradeRule {
 			try {
 				JsonObject thisRuleData = tradeRuleData.get(i).getAsJsonObject();
 				TradeRule thisRule = Deserialize(thisRuleData);
+				thisRule.host = host;
 				rules.add(thisRule);
 			}
 			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
 		}
 		return rules;
 	}
-	
-	public static boolean ValidateTradeRuleList(List<TradeRule> rules, Function<TradeRule,Boolean> allowed)
+
+
+
+	public static boolean ValidateTradeRuleList(@Nonnull List<TradeRule> rules, @Nonnull ITradeRuleHost host)
 	{
 		boolean changed = false;
 		for(Supplier<TradeRule> ruleSource : registeredDeserializers.values())
 		{
 			TradeRule rule = ruleSource.get();
-			if(rule != null && allowed.apply(rule) && !HasTradeRule(rules,rule.type))
+			if(rule != null && host.allowTradeRule(rule) && rule.allowHost(host) && !HasTradeRule(rules,rule.type))
 			{
 				rules.add(rule);
+				rule.host = host;
+				changed = true;
+			}
+		}
+		return changed;
+	}
+
+	public static boolean ValidateTradeRuleActiveStates(@Nonnull List<TradeRule> rules)
+	{
+		boolean changed = false;
+		for(TradeRule rule : rules)
+		{
+			if(rule.isActive && !rule.canActivate())
+			{
+				rule.isActive = false;
 				changed = true;
 			}
 		}
@@ -199,48 +241,10 @@ public abstract class TradeRule {
 		}
 		return null;
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
-	public abstract GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule);
-	
-	@OnlyIn(Dist.CLIENT)
-	public static abstract class GUIHandler
-	{
-		
-		protected final TradeRuleScreen screen;
-		private final Supplier<TradeRule> rule;
-		protected final TradeRule getRuleRaw() { return rule.get(); }
-		
-		protected GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			this.screen = screen;
-			this.rule = rule;
-		}
-		
-		public abstract void initTab();
-		
-		public abstract void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
-		
-		public abstract void onTabClose();
-		
-		public void onScreenTick() { }
-		
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
-		{
-			return screen.addCustomRenderable(widget);
-		}
-		
-		public <T extends GuiEventListener & NarratableEntry> T addCustomWidget(T widget)
-		{
-			return screen.addCustomWidget(widget);
-		}
-		
-		public <T extends GuiEventListener> void removeCustomWidget(T widget)
-		{
-			screen.removeCustomWidget(widget);
-		}
-		
-	}
+	@Nonnull
+	public abstract TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent);
 	
 	/**
 	 * Trade Rule Deserialization

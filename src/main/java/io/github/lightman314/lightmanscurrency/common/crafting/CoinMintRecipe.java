@@ -18,15 +18,15 @@ import org.jetbrains.annotations.NotNull;
 public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
-	
-	
+
+
 	public static MintType readType(JsonElement json)
 	{
 		try {
 			return readType(json.getAsString());
 		} catch(Exception e) { e.printStackTrace(); return MintType.OTHER; }
 	}
-	
+
 	public static MintType readType(String typeName)
 	{
 		for(MintType type : MintType.values())
@@ -36,25 +36,27 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		return MintType.OTHER;
 	}
-	
+
 	private final ResourceLocation id;
 	private final MintType type;
+	private final int duration;
 	private final Ingredient ingredient;
 	public final int ingredientCount;
 	private final ItemStack result;
-	
-	public CoinMintRecipe(ResourceLocation id, MintType type, Ingredient ingredient, int ingredientCount, ItemStack result)
+
+	public CoinMintRecipe(ResourceLocation id, MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
 		this.id = id;
 		this.type = type;
+		this.duration = duration;
 		this.ingredient = ingredient;
 		this.ingredientCount = Math.max(ingredientCount,1); //Force count to be > 0
 		this.result = result;
 	}
-	
+
 	public Ingredient getIngredient() { return this.ingredient; }
 	public MintType getMintType() { return this.type; }
-	
+
 	public boolean allowed()
 	{
 		if(this.type == MintType.MINT)
@@ -63,18 +65,14 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		else if(this.type == MintType.MELT)
 		{
-			try {
-				return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getItems()[0].getItem());
+			try { return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getItems()[0].getItem());
 			} catch(Exception e) { return false; }
 		}
 		return true;
 	}
-	
-	public boolean isValid()
-	{
-		return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed();
-	}
-	
+
+	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
+
 	@Override
 	public boolean matches(@NotNull Container inventory, @NotNull Level level) {
 		if(!this.isValid())
@@ -82,17 +80,20 @@ public class CoinMintRecipe implements Recipe<Container>{
 		ItemStack firstStack = inventory.getItem(0);
 		return this.ingredient.test(firstStack);
 	}
-	
+
 	@Override
 	public @NotNull ItemStack assemble(@NotNull Container inventory) {
 		return this.getResultItem();
 	}
-	
+
 	@Override
 	public boolean canCraftInDimensions(int width, int height) { return true; }
 
 	@Override
 	public @NotNull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+
+	public int getInternalDuration() { return this.duration; }
+	public int getDuration() { return this.duration > 0 ? this.duration : Config.SERVER.defaultMintDuration.get(); }
 
 	@Override
 	public @NotNull ResourceLocation getId() { return this.id; }
@@ -101,5 +102,5 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public @NotNull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
 	public @NotNull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
-	
+
 }

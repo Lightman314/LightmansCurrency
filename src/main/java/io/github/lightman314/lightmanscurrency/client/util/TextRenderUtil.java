@@ -3,8 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -25,7 +24,7 @@ public class TextRenderUtil {
 			private final int horiz;
 			private final int vert;
 			
-			private Centering(int horiz, int vert) { this.horiz = horiz; this.vert = vert; }
+			Centering(int horiz, int vert) { this.horiz = horiz; this.vert = vert; }
 			public boolean isTop() { return vert > 0; }
 			public boolean isMiddle() { return vert == 0; }
 			public boolean isBottom() { return vert < 0; }
@@ -101,22 +100,20 @@ public class TextRenderUtil {
 		return Component.literal(text + edge).withStyle(style);
 	}
 	
-	public static void drawCenteredText(PoseStack pose, String string, int centerX, int yPos, int color) { drawCenteredText(pose, Component.literal(string), centerX, yPos, color); }
-	public static void drawCenteredText(PoseStack pose, Component component, int centerX, int yPos, int color) {
-		Font font = getFont();
-		int width = font.width(component);
-		font.draw(pose, component, centerX - (width/2), yPos, color);
+	public static void drawCenteredText(EasyGuiGraphics gui, String string, int centerX, int yPos, int color) { drawCenteredText(gui, Component.literal(string), centerX, yPos, color); }
+	public static void drawCenteredText(EasyGuiGraphics gui, Component component, int centerX, int yPos, int color) {
+		int width = gui.font.width(component);
+		gui.drawString(component, centerX - (width/2), yPos, color);
 	}
 	
-	public static void drawRightEdgeText(PoseStack pose, String string, int rightPos, int yPos, int color) { drawRightEdgeText(pose, Component.literal(string), rightPos, yPos, color); }
-	public static void drawRightEdgeText(PoseStack pose, Component component, int rightPos, int yPos, int color) {
-		Font font = getFont();
-		int width = font.width(component);
-		font.draw(pose, component, rightPos, yPos - width, color);
+	public static void drawRightEdgeText(EasyGuiGraphics gui, String string, int rightPos, int yPos, int color) { drawRightEdgeText(gui, Component.literal(string), rightPos, yPos, color); }
+	public static void drawRightEdgeText(EasyGuiGraphics gui, Component component, int rightPos, int yPos, int color) {
+		int width = gui.font.width(component);
+		gui.drawString(component, rightPos - width, yPos, color);
 	}
 	
-	public static void drawCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(pose, Component.literal(string), leftPos, width, topPos, color); }
-	public static void drawCenteredMultilineText(PoseStack pose, Component component, int leftPos, int width, int topPos, int color) { 
+	public static void drawCenteredMultilineText(EasyGuiGraphics gui, String string, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(gui, Component.literal(string), leftPos, width, topPos, color); }
+	public static void drawCenteredMultilineText(EasyGuiGraphics gui, Component component, int leftPos, int width, int topPos, int color) { 
 		Font font = getFont();
 		List<FormattedCharSequence> lines = font.split(component, width);
 		float centerPos = (float)leftPos + ((float)width / 2f);
@@ -124,12 +121,12 @@ public class TextRenderUtil {
 		{
 			FormattedCharSequence line = lines.get(i);
 			int lineWidth = font.width(line);
-			font.draw(pose, line, centerPos - ((float)lineWidth/2f), topPos + font.lineHeight * i, color);
+			gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), (int)(topPos + font.lineHeight * i), color);
 		}
 	}
 	
-	public static void drawVerticallyCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int height, int color) { drawVerticallyCenteredMultilineText(pose, Component.literal(string), leftPos, width, topPos, height, color); }
-	public static void drawVerticallyCenteredMultilineText(PoseStack pose, Component component, int leftPos, int width, int topPos, int height, int color) {
+	public static void drawVerticallyCenteredMultilineText(EasyGuiGraphics gui, String string, int leftPos, int width, int topPos, int height, int color) { drawVerticallyCenteredMultilineText(gui, Component.literal(string), leftPos, width, topPos, height, color); }
+	public static void drawVerticallyCenteredMultilineText(EasyGuiGraphics gui, Component component, int leftPos, int width, int topPos, int height, int color) {
 		Font font = getFont();
 		List<FormattedCharSequence> lines = font.split(component, width);
 		float centerPos = (float)leftPos + ((float)width / 2f);
@@ -138,13 +135,12 @@ public class TextRenderUtil {
 		{
 			FormattedCharSequence line = lines.get(i);
 			int lineWidth = font.width(line);
-			font.draw(pose, line, centerPos - ((float)lineWidth/2f), startHeight + font.lineHeight * i, color);
+			gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), (int)(startHeight + font.lineHeight * i), color);
 		}
 	}
 	
 	public static MutableComponent changeStyle(Component component, UnaryOperator<Style> styleChanges) {
-		if(component instanceof MutableComponent) {
-			MutableComponent mc = (MutableComponent)component;
+		if(component instanceof MutableComponent mc) {
 			return mc.withStyle(styleChanges);
 		}
 		return Component.empty().append(component).withStyle(component.getStyle()).withStyle(styleChanges);

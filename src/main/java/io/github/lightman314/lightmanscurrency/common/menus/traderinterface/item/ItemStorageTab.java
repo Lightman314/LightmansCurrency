@@ -49,7 +49,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), (Runnable)this::onUpgradeModified);
 			upgradeSlot.active = false;
 			addSlot.apply(upgradeSlot);
 			this.slots.add(upgradeSlot);
@@ -60,8 +60,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
-		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
-			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
 			TraderItemStorage storage = be.getItemBuffer();
 			if(storage.getFittableAmount(stack) > 0)
 			{
@@ -74,9 +73,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
-			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
 			ItemStack heldItem = this.menu.getCarried();
 			if(heldItem.isEmpty())
@@ -91,7 +89,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 					//Assume we're moving a whole stack for now
 					int tempAmount = Math.min(stackToRemove.getMaxStackSize(), stackToRemove.getCount());
 					stackToRemove.setCount(tempAmount);
-					int removedAmount = 0;
+					int removedAmount;
 					
 					//Right-click, attempt to cut the stack in half
 					if(!leftClick)
@@ -223,22 +221,18 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
-			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
 			be.getItemHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
-			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
 			be.getItemHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}
-	
-	
 	
 	@Override
 	public void receiveMessage(CompoundTag message) { 

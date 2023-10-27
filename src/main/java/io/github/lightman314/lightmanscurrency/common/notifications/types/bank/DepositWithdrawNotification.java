@@ -20,7 +20,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 
 	protected MutableComponent accountName;
 	protected boolean isDeposit;
-	protected CoinValue amount = new CoinValue();
+	protected CoinValue amount = CoinValue.EMPTY;
 
 	protected DepositWithdrawNotification(MutableComponent accountName, boolean isDeposit, CoinValue amount) { this.accountName = accountName; this.isDeposit = isDeposit; this.amount = amount; }
 	protected DepositWithdrawNotification() {}
@@ -32,15 +32,14 @@ public abstract class DepositWithdrawNotification extends Notification {
 	protected void saveAdditional(CompoundTag compound) {
 		compound.putString("Name", Component.Serializer.toJson(this.accountName));
 		compound.putBoolean("Deposit", this.isDeposit);
-		this.amount.save(compound, "Amount");
+		compound.put("Amount", this.amount.save());
 	}
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
 		this.accountName = Component.Serializer.fromJson(compound.getString("Name"));
 		this.isDeposit = compound.getBoolean("Deposit");
-		this.amount.load(compound, "Amount");
-		
+		this.amount = CoinValue.safeLoad(compound, "Amount");
 	}
 	
 	protected abstract MutableComponent getName();

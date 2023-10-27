@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
@@ -14,9 +15,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.T
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -25,6 +26,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class PaygateTradeData extends TradeData {
 
@@ -38,15 +41,18 @@ public class PaygateTradeData extends TradeData {
 	public int getTicketColor() { return this.ticketColor; }
 	public boolean isTicketTrade() { return this.ticketID >= -1; }
 	public long getTicketID() { return this.ticketID; }
-	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); }
+	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); this.validateRuleStates(); }
 
+	boolean storeTicketStubs = false;
+	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
+	public void setStoreTicketStubs(boolean value) { this.storeTicketStubs = value; }
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
-	
+
 	public boolean canAfford(TradeContext context) {
 		if(this.isTicketTrade())
-			return context.hasTicket(this.ticketID);
+			return context.hasTicket(this.ticketID) || context.hasPass(this.ticketID);
 		else
 			return context.hasFunds(this.cost);
 	}
@@ -109,7 +115,12 @@ public class PaygateTradeData extends TradeData {
 		
 		compound.putInt("Duration", this.getDuration());
 		if(this.ticketID >= -1)
+		{
 			compound.putLong("TicketID", this.ticketID);
+			compound.putInt("TicketColor", this.ticketColor);
+			compound.putBoolean("StoreTicketStubs", this.storeTicketStubs);
+		}
+
 		
 		return compound;
 	}
@@ -123,9 +134,22 @@ public class PaygateTradeData extends TradeData {
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");
 		else if(compound.contains("Ticket"))
+		{
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
+			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
+		}
 		else
 			this.ticketID = Long.MIN_VALUE;
+
+		if(compound.contains("TicketColor"))
+			this.ticketColor = compound.getInt("TicketColor");
+		else if(this.ticketID >= -1)
+			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
+
+		if(compound.contains("StoreTicketStubs"))
+			this.storeTicketStubs = compound.getBoolean("StoreTicketStubs");
+		else
+			this.storeTicketStubs = false;
 		
 	}
 	
@@ -146,17 +170,6 @@ public class PaygateTradeData extends TradeData {
 		LightmansCurrency.LogWarning("Attempting to get warnings for different paygate trades, but paygate trades do not support this interaction.");
 		return Lists.newArrayList();
 	}
-	
-
-
-
-
-
-
-
-
-
-
 	
 	public static MutableComponent formatDurationShort(int duration) { 
 		
@@ -246,10 +259,10 @@ public class PaygateTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
@@ -261,39 +274,36 @@ public class PaygateTradeData extends TradeData {
 			}
 			else
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 			}
 		}
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 	}
 
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 		
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
 		
 	}
-	
+
+	@Override
+	public boolean isMoneyRelevant() { return !this.isTicketTrade(); }
+
 }

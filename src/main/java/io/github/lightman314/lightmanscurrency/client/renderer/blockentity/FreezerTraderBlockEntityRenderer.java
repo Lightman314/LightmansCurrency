@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.Freeze
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -21,8 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
-
-	//public static final Item doorItem = ModItems.FREEZER_DOOR.get();
 	
 	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
@@ -52,11 +50,10 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 			poseStack.mulPose(rotation);
 
-			//Attempt at rendering the door model without creating a freezer door item.
 			Minecraft mc = Minecraft.getInstance();
 			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 			ItemRenderer itemRenderer = mc.getItemRenderer();
-			itemRenderer.render(new ItemStack(freezerBlock), TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
+			itemRenderer.render(new ItemStack(freezerBlock), ItemTransforms.TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
 
 			poseStack.popPose();
 		}

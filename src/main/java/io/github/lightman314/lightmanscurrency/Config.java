@@ -9,6 +9,8 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
@@ -18,7 +20,6 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -79,7 +80,7 @@ public class Config {
 
 	private static int getMaxDecimal()
 	{
-		double minFraction = MoneyUtil.getData(new CoinValue(1).coinValues.get(0).coin).getDisplayValue() % 1d;
+		double minFraction = MoneyUtil.getData(CoinValue.fromNumber(1).coinValues.get(0).coin).getDisplayValue() % 1d;
 		if(minFraction > 0d)
 		{
 			//-2 to ignore the 0.
@@ -87,16 +88,6 @@ public class Config {
 		}
 		else
 			return 0;
-	}
-
-	@Deprecated
-	public static Item getBaseCoinItem() {
-		return Config.SERVER.valueBaseCoin.get();
-	}
-
-	@Deprecated
-	public static Item getMoneyMendingCoinItem() {
-		return Config.SERVER.moneyMendingCoinCost.get().getTradeItem().getItem();
 	}
 
 	private static Map<String,Item> traderOverrides = new HashMap<>();
@@ -177,10 +168,16 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue pushNotificationsToChat;
 
 		//Inventory Button Options
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonX;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonY;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonXCreative;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonYCreative;
+		public final ScreenPositionConfig notificationAndTeamButtonPosition;
+		public final ScreenPositionConfig notificationAndTeamButtonCreativePosition;
+
+		//Chest Button Options
+		public final ForgeConfigSpec.BooleanValue chestButtonVisible;
+		public final ForgeConfigSpec.BooleanValue chestButtonAllowHidden;
+
+		//Slot Machine Options
+		public final ForgeConfigSpec.IntValue slotMachineAnimationTime;
+		public final ForgeConfigSpec.IntValue slotMachineAnimationRestTime;
 
 		//Sound Options
 		public final ForgeConfigSpec.BooleanValue moneyMendingClink;
@@ -210,15 +207,15 @@ public class Config {
 			builder.comment("Wallet Slot Settings").push("wallet_slot");
 
 			this.walletSlot = ScreenPositionConfig.define(builder
-					.comment("The position that the wallet slot will be placed at in the players inventory.")
+							.comment("The position that the wallet slot will be placed at in the players inventory.")
 					,"slot", ScreenPosition.of(76, 43), SPEC_SUPPLIER);
 
 			this.walletSlotCreative = ScreenPositionConfig.define(builder
-					.comment("The position that the wallet slot will be placed at in the players creative inventory."),
+							.comment("The position that the wallet slot will be placed at in the players creative inventory."),
 					"creativeSlot", ScreenPosition.of(126,19), SPEC_SUPPLIER);
 
 			this.walletButtonOffset = ScreenPositionConfig.define(builder
-					.comment("The offset that the wallet button should be placed at relative to the wallet slot position."),
+							.comment("The offset that the wallet button should be placed at relative to the wallet slot position."),
 					"button", ScreenPosition.of(8,-10), SPEC_SUPPLIER);
 
 			builder.pop();
@@ -245,19 +242,26 @@ public class Config {
 
 			builder.comment("Inventory Button Settings").push("inventory_buttons");
 
-			this.notificationAndTeamButtonX = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
-					.defineInRange("buttonX", 152, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationAndTeamButtonY = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
-					.defineInRange("buttonY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonPosition = ScreenPositionConfig.define(builder
+							.comment("The position that the notification & team manager buttons will be placed at in the players inventory."),
+					"button", ScreenPosition.of(152,3), SPEC_SUPPLIER);
 
-			this.notificationAndTeamButtonXCreative = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players creative inventory.")
-					.defineInRange("buttonCreativeX", 171, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationAndTeamButtonYCreative = builder
-					.comment("The y position that the notification & team manager buttons will be placed at in the players creative inventory.")
-					.defineInRange("buttonCreativeY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonCreativePosition = ScreenPositionConfig.define(builder
+							.comment("The position that the notification & team manager buttons will be placed at in the players creative inventory."),
+					"buttonCreative", ScreenPosition.of(171,3), SPEC_SUPPLIER);
+
+			builder.pop();
+
+			builder.comment("Chest Button Settings").push("chest_buttons");
+
+			this.chestButtonVisible = builder
+					.comment("Whether the 'Move Coins into Wallet' button will appear in the top-right corner of the Chest Screen if there are coins in the chest that can be collected.")
+					.define("enabled", true);
+
+			this.chestButtonAllowHidden = builder
+					.comment("Whether the 'Move Coins into Wallet' button should collect coins flagged as 'hidde'",
+							"By default these would be the coin pile and coin block variants of the coins.")
+					.define("allowHiddenCollection", false);
 
 			builder.pop();
 
@@ -266,6 +270,17 @@ public class Config {
 			this.pushNotificationsToChat = builder
 					.comment("Whether notifications should be posted in your chat when you receive them.")
 					.define("notificationsInChat", true);
+
+			builder.pop();
+
+			builder.comment("Slot Machine Animation Settings").push("slot_machine");
+
+			this.slotMachineAnimationTime = builder.comment("The number of Minecraft ticks the slot machine animation will last.",
+							"Note: 20 ticks = 1 second",
+							"Must be at least 20 ticks (1s) for coding reasons.")
+					.defineInRange("animationDuration", 100, 20, 1200);
+			this.slotMachineAnimationRestTime = builder.comment("The number of Minecraft ticks the slot machine will pause before repeating the animation.")
+					.defineInRange("animationRestDuration", 20, 0, 1200);
 
 			builder.pop();
 
@@ -290,6 +305,12 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue canCraftNetworkTraders;
 		public final ForgeConfigSpec.BooleanValue canCraftTraderInterfaces;
 		public final ForgeConfigSpec.BooleanValue canCraftAuctionStands;
+		public final ForgeConfigSpec.BooleanValue canCraftCoinChest;
+		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeExchange;
+		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeBank;
+		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeMagnet;
+		public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeSecurity;
+		public final ForgeConfigSpec.BooleanValue canCraftTaxBlock;
 
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
@@ -343,7 +364,7 @@ public class Config {
 
 			builder.comment("Common configuration settings").push("common");
 
-			builder.comment("Crafting Settings.").push("crafting");
+			builder.comment("Crafting Settings").push("crafting");
 
 			this.canCraftNetworkTraders = builder.comment("Whether Network Traders can be crafted.",
 							"Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
@@ -361,9 +382,42 @@ public class Config {
 							"/reload required for changes to take effect.")
 					.define("allowAuctionStandCrafting", true);
 
+			this.canCraftTaxBlock = builder.comment("Whether Tax Blocks can be crafted.",
+							"Disabling will not remove any existing Tax Blocks from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowTaxBlockCrafting", true);
+
+			builder.comment("Coin Chest Related Crafting Settings").push("coin_chest");
+
+			this.canCraftCoinChest = builder.comment("Whether the Coin Chest can be crafted.",
+							"Disabling will not remove any existing Coin Chests from the world, nor prevent their use.",
+							"Disabling does NOT disable the recipes of Coin Chest Upgrades.",
+							"/reload required for changes to take effect.")
+					.define("allowChestCrafting", true);
+
+			this.canCraftCoinChestUpgradeExchange = builder.comment("Whether the Coin Chest Exchange Upgrade can be crafted.",
+							"Disabling will not remove any existing Coin Chest Exchange Upgrades from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowExchangeUpgradeCrafting", true);
+
+			//Temporary assignment as I don't want to make a config option for a feature that isn't present yet
+			this.canCraftCoinChestUpgradeBank = this.canCraftCoinChest;
+
+			this.canCraftCoinChestUpgradeMagnet = builder.comment("Whether the Coin Chest Magnet Upgrades can be crafted.",
+							"Disabling will not remove any existing Coin Chest Magnet Upgrades from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowMagnetUpgradeCrafting", true);
+
+			this.canCraftCoinChestUpgradeSecurity = builder.comment("Whether the Coin Chest Security Upgrades can be crafted.",
+							"Disabling will not remove any existing Coin Chest Security Upgrades from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowSecurityUpgradeCrafting", true);
+
 			builder.pop();
 
-			builder.comment("Villager Related Settings.","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
+			builder.pop();
+
+			builder.comment("Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
 
 			this.addCustomWanderingTrades = builder
 					.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
@@ -419,20 +473,20 @@ public class Config {
 					.defineInRange("debugLevel", 0, 0, 3);
 
 			builder.comment("Loot item customization. Accepts item ids (i.e. lightmanscurrency:coin_copper).",
-					"Input 'minecraft:air' to not spawn loot of that tier (so that you can use higher-tier spawn rates without the presence of lower-tier loot).").push("loot_customization");
+					"Leave blank (lootItemT? = \"\") to not spawn loot of that tier (so that you can use higher-tier spawn rates without the presence of lower-tier loot).").push("loot_customization");
 
 			this.lootItem1 = ItemValueConfig.define(builder.comment("T1 loot item. Used for T1-T6 entity & chest loot drops."),
-					"lootItemT1", new ResourceLocation("lightmanscurrency","coin_copper"),SPEC_SUPPLIER);
+					"lootItemT1", "lightmanscurrency:coin_copper",SPEC_SUPPLIER);
 			this.lootItem2 = ItemValueConfig.define(builder.comment("T2 loot item. Used for T2-T6 entity & chest loot drops."),
-					"lootItemT2", new ResourceLocation("lightmanscurrency","coin_iron"),SPEC_SUPPLIER);
+					"lootItemT2", "lightmanscurrency:coin_iron",SPEC_SUPPLIER);
 			this.lootItem3 = ItemValueConfig.define(builder.comment("T3 loot item. Used for T3-T6 entity & chest loot drops."),
-					"lootItemT3", new ResourceLocation("lightmanscurrency","coin_gold"),SPEC_SUPPLIER);
+					"lootItemT3", "lightmanscurrency:coin_gold",SPEC_SUPPLIER);
 			this.lootItem4 = ItemValueConfig.define(builder.comment("T4 loot item. Used for T4-T6 entity & chest loot drops."),
-					"lootItemT4", new ResourceLocation("lightmanscurrency","coin_emerald"),SPEC_SUPPLIER);
+					"lootItemT4", "lightmanscurrency:coin_emerald",SPEC_SUPPLIER);
 			this.lootItem5 = ItemValueConfig.define(builder.comment("T5 loot item. Used for T5-T6 entity & chest loot drops."),
-					"lootItemT5", new ResourceLocation("lightmanscurrency","coin_diamond"),SPEC_SUPPLIER);
+					"lootItemT5", "lightmanscurrency:coin_diamond",SPEC_SUPPLIER);
 			this.lootItem6 = ItemValueConfig.define(builder.comment("T6 loot item. Used for T6 entity & chest loot drops."),
-					"lootItemT6", new ResourceLocation("lightmanscurrency","coin_netherite"),SPEC_SUPPLIER);
+					"lootItemT6", "lightmanscurrency:coin_netherite",SPEC_SUPPLIER);
 
 			builder.pop();
 
@@ -456,47 +510,47 @@ public class Config {
 			//Copper
 			this.entityDropsT1 = builder
 					.comment("Entities that will occasionally drop T1 loot.")
-					.defineList("entityListT1", LootManager.ENTITY_DROPLIST_T1, o -> o instanceof String);
+					.defineList("entityListT1", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T1), o -> o instanceof String);
 			//Iron
 			this.entityDropsT2 = builder
 					.comment("Entities that will occasionally drop T1 -> T2 loot.")
-					.defineList("entityListT2", LootManager.ENTITY_DROPLIST_T2, o -> o instanceof String);
+					.defineList("entityListT2", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T2), o -> o instanceof String);
 			//Gold
 			this.entityDropsT3 = builder
 					.comment("Entities that will occasionally drop T1 -> T3 loot.")
-					.defineList("entityListT3", LootManager.ENTITY_DROPLIST_T3, o -> o instanceof String);
+					.defineList("entityListT3", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T3), o -> o instanceof String);
 			//Emerald
 			this.entityDropsT4 = builder
 					.comment("Entities that will occasionally drop T1 -> T4 loot.")
-					.defineList("entityListT4", LootManager.ENTITY_DROPLIST_T4, o -> o instanceof String);
+					.defineList("entityListT4", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T4), o -> o instanceof String);
 			//Diamond
 			this.entityDropsT5 = builder
 					.comment("Entities that will occasionally drop T1 -> T5 loot.")
-					.defineList("entityListT5", LootManager.ENTITY_DROPLIST_T5, o -> o instanceof String);
+					.defineList("entityListT5", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T5), o -> o instanceof String);
 			//Netherite
 			this.entityDropsT6 = builder
 					.comment("Entities that will occasionally drop T1 -> T6 loot.")
-					.defineList("entityListT6", LootManager.ENTITY_DROPLIST_T6, o -> o instanceof String);
+					.defineList("entityListT6", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T6), o -> o instanceof String);
 
 			//Boss
 			this.bossEntityDropsT1 = builder
 					.comment("Entities that will drop a large amount of T1 loot.")
-					.defineList("bossEntityListT1", LootManager.BOSS_ENTITY_DROPLIST_T1, o -> o instanceof String);
+					.defineList("bossEntityListT1", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T1), o -> o instanceof String);
 			this.bossEntityDropsT2 = builder
 					.comment("Entities that will drop a large amount of T1 -> T2 loot.")
-					.defineList("bossEntityListT2", LootManager.BOSS_ENTITY_DROPLIST_T2, o -> o instanceof String);
+					.defineList("bossEntityListT2", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T2), o -> o instanceof String);
 			this.bossEntityDropsT3 = builder
 					.comment("Entities that will drop a large amount of T1 -> T3 loot.")
-					.defineList("bossEntityListT3", LootManager.BOSS_ENTITY_DROPLIST_T3, o -> o instanceof String);
+					.defineList("bossEntityListT3", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T3), o -> o instanceof String);
 			this.bossEntityDropsT4 = builder
 					.comment("Entities that will drop a large amount of T1 -> T4 loot.")
-					.defineList("bossEntityListT4", LootManager.BOSS_ENTITY_DROPLIST_T4, o -> o instanceof String);
+					.defineList("bossEntityListT4", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T4), o -> o instanceof String);
 			this.bossEntityDropsT5 = builder
 					.comment("Entities that will drop a large amount of T1 -> T5 loot.")
-					.defineList("bossEntityListT5", LootManager.BOSS_ENTITY_DROPLIST_T5, o -> o instanceof String);
+					.defineList("bossEntityListT5", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T5), o -> o instanceof String);
 			this.bossEntityDropsT6 = builder
 					.comment("Entities that will drop a large amount of T1 -> T6 loot.")
-					.defineList("bossEntityListT6", LootManager.BOSS_ENTITY_DROPLIST_T6, o -> o instanceof String);
+					.defineList("bossEntityListT6", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T6), o -> o instanceof String);
 
 			builder.pop();
 
@@ -506,22 +560,22 @@ public class Config {
 					.define("enableChestLoot", true);
 			this.chestDropsT1 = builder
 					.comment("Chests that will occasionally spawn T1 loot.")
-					.defineList("chestListT1", LootManager.CHEST_DROPLIST_T1, o -> o instanceof String);
+					.defineList("chestListT1", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T1), o -> o instanceof String);
 			this.chestDropsT2 = builder
 					.comment("Chests that will occasionally spawn T1 -> T2 loot.")
-					.defineList("chestListT2", LootManager.CHEST_DROPLIST_T2, o -> o instanceof String);
+					.defineList("chestListT2", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T2), o -> o instanceof String);
 			this.chestDropsT3 = builder
 					.comment("Chests that will occasionally spawn T1 -> T3 loot.")
-					.defineList("chestListT3", LootManager.CHEST_DROPLIST_T3, o -> o instanceof String);
+					.defineList("chestListT3", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T3), o -> o instanceof String);
 			this.chestDropsT4 = builder
 					.comment("Chests that will occasionally spawn T1 -> T4 loot.")
-					.defineList("chestListT4", LootManager.CHEST_DROPLIST_T4, o -> o instanceof String);
+					.defineList("chestListT4", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T4), o -> o instanceof String);
 			this.chestDropsT5 = builder
 					.comment("Chests that will occasionally spawn T1 -> T5 loot.")
-					.defineList("chestListT5", LootManager.CHEST_DROPLIST_T5, o -> o instanceof String);
+					.defineList("chestListT5", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T5), o -> o instanceof String);
 			this.chestDropsT6 = builder
 					.comment("Chests that will occasionally spawn T1 -> T6 loot.")
-					.defineList("chestListT6", LootManager.CHEST_DROPLIST_T6, o -> o instanceof String);
+					.defineList("chestListT6", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6), o -> o instanceof String);
 
 			builder.pop();
 
@@ -536,7 +590,6 @@ public class Config {
 		private static final Supplier<ForgeConfigSpec> SPEC_SUPPLIER = () -> Config.serverSpec;
 
 		//Log Limit Option
-		public final ForgeConfigSpec.IntValue logLimit;
 		public final ForgeConfigSpec.IntValue notificationLimit;
 
 		//Ejection Options
@@ -545,6 +598,7 @@ public class Config {
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
 		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
+		public final ForgeConfigSpec.IntValue defaultMintDuration;
 
 		//Specific Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue mintCopper;
@@ -589,10 +643,37 @@ public class Config {
 		public final ForgeConfigSpec.IntValue maxAuctionDuration;
 		public final ForgeConfigSpec.IntValue minAuctionDuration;
 
+		//Terminal Options
+		public final ForgeConfigSpec.BooleanValue moveUnnamedTradersToBottom;
+
+		//Money Chest Upgrade Options
+		public final ForgeConfigSpec.IntValue coinChestMagnetRange1;
+		public final ForgeConfigSpec.IntValue coinChestMagnetRange2;
+		public final ForgeConfigSpec.IntValue coinChestMagnetRange3;
+		public final ForgeConfigSpec.IntValue coinChestMagnetRange4;
+
+		//Player Trade Options
+		public final ForgeConfigSpec.DoubleValue maxPlayerTradingRange;
+
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
 		public final ForgeConfigSpec.BooleanValue limitSearchToNetworkTraders;
+
+		//Player Tax Options
+		public final ForgeConfigSpec.BooleanValue taxMachinesAdminOnly;
+		public final ForgeConfigSpec.IntValue taxMachineMaxRate;
+		public final ForgeConfigSpec.IntValue taxMachineMaxRadius;
+		public final ForgeConfigSpec.IntValue taxMachineMaxHeight;
+		public final ForgeConfigSpec.IntValue taxMachineMaxVertOffset;
+
+		//FTB Chunks Options
+		public final ForgeConfigSpec.BooleanValue ftbChunksAllowClaimPurchase;
+		public final CoinValueConfig ftbChunksClaimPrice;
+		public final ForgeConfigSpec.IntValue ftbChunksMaxClaimCount;
+		public final ForgeConfigSpec.BooleanValue ftbChunksAllowForceloadPurchase;
+		public final CoinValueConfig ftbChunksForceloadPrice;
+		public final ForgeConfigSpec.IntValue ftbChunksMaxForceloadCount;
 
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
@@ -606,11 +687,6 @@ public class Config {
 		{
 
 			builder.comment("Server Config Settings").push("server");
-
-			this.logLimit = builder
-					.comment("The maximum number of text log entries allowed before old entries are deleted.",
-							"Lower if you encounter packet size problems.")
-					.defineInRange("logLimit", 100, 0, Integer.MAX_VALUE);
 
 			this.notificationLimit = builder
 					.comment("The maximum number of notifications each player can have before old entries are deleted.",
@@ -630,6 +706,9 @@ public class Config {
 					.comment("Determines whether or not coins can be melted back into their source material in the Coin Minting Machine.")
 					.translation("lightmanscurrency.configgui.canMeltCoins")
 					.define("canMeltCoins", false);
+			this.defaultMintDuration = builder
+					.comment("Default number of ticks it takes to mint a coin via the Coin Minting Machine.")
+					.defineInRange("defaultMintDuration", 100, 1, 72000);
 
 			builder.comment("Specific Coin Minting Settings.").push("coin_minting");
 			this.mintCopper = builder.comment("Whether copper coins can be minted.")
@@ -699,9 +778,8 @@ public class Config {
 					.defineEnum("coinValueInputType", CoinValue.ValueType.DEFAULT);
 
 			this.valueBaseCoin = ItemValueConfig.define(builder
-							.comment("Coin item defined as 1 value unit for display purposes. Any coins worth less than the base coin will have a decimal value.")
-					,"baseValueCoin", new ResourceLocation("lightmanscurrency","coin_copper"), MoneyUtil::isVisibleCoin,
-					SPEC_SUPPLIER);
+							.comment("Coin item defined as $1.00 for display purposes. Any coins worth less than this base coin will have a decimal value.")
+					,"baseValueCoin", "lightmanscurrency:coin_copper", SPEC_SUPPLIER).withCheck(MoneyUtil::isVisibleCoin);
 
 			this.valueFormat = builder
 					.comment("Value display format. Used to add currency signs to coin value displays.",
@@ -722,10 +800,23 @@ public class Config {
 
 			builder.pop();
 
+			builder.comment("Money Chest Upgrade Settings").push("money_chest_upgrades");
+
+			this.coinChestMagnetRange1 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Copper)'s coin collection.")
+					.defineInRange("magnetRange1", 4, 1, 50);
+			this.coinChestMagnetRange2 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Iron)'s coin collection.")
+					.defineInRange("magnetRange2", 6, 1, 50);
+			this.coinChestMagnetRange3 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Gold)'s coin collection.")
+					.defineInRange("magnetRange3", 8, 1, 50);
+			this.coinChestMagnetRange4 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Emerald)'s coin collection.")
+					.defineInRange("magnetRange4", 10, 1, 50);
+
+			builder.pop();
+
 			builder.comment("Enchantment Settings").push("enchantments");
 
 			this.moneyMendingCoinCost = CoinValueConfig.define(builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
-					,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", new CoinValue(1), SPEC_SUPPLIER);
+					,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", CoinValue.fromNumber(1), SPEC_SUPPLIER);
 
 			this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
 					.defineInRange("coinMagnetRangeBase", 5, 0, 50);
@@ -751,6 +842,64 @@ public class Config {
 
 			this.maxAuctionDuration = builder.comment("The maximum number of days an auction can be carried out.")
 					.defineInRange("maxDuration", 30, 1, Integer.MAX_VALUE);
+
+			builder.pop();
+
+			builder.comment("Network Terminal Settings").push("terminal");
+
+			this.moveUnnamedTradersToBottom = builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
+					.define("sortUnnamedToBottom", false);
+
+			builder.pop();
+
+			builder.comment("Player Trading Options").push("player_trading");
+
+			this.maxPlayerTradingRange = builder.comment("The maximum distance allowed between players in order for a player trade to persist.",
+							"-1 will always allow trading regardless of dimension.",
+							"0 will allow infinite distance but require that both players be in the same dimension.")
+					.defineInRange("maxPlayerDistance", -1d, -1d, Double.MAX_VALUE);
+
+			builder.pop();
+
+			builder.comment("Tax Block").push("taxes");
+
+			this.taxMachinesAdminOnly = builder.comment("Whether Tax Blocks can only be activated by an Admin in LC Admin Mode.",
+							"Will not prevent players from crafting or placing/configuring Tax Blocks.")
+					.define("adminOnlyActivation", false);
+
+			this.taxMachineMaxRate = builder.comment("The maximum tax rate (in %) a Tax Block is allowed to enforce.")
+					.defineInRange("maxTaxRate", 25, 1, 99);
+
+			this.taxMachineMaxRadius = builder.comment("The maximum radius of a Tax Block's area in meters.")
+					.defineInRange("maxRadius", 256, 16, Integer.MAX_VALUE);
+			this.taxMachineMaxHeight = builder.comment("The maximum height of a Tax Block's area in meters.")
+					.defineInRange("maxHeight", 64, 8, Integer.MAX_VALUE);
+			this.taxMachineMaxVertOffset = builder.comment("The maximum vertical offset of a Tax Block's vertical offset in meters.",
+							"Note: Vertical offset can be negative, so this will also enforce the lowest value.")
+					.defineInRange("maxVertOffset", 32, 4, Integer.MAX_VALUE);
+
+			builder.pop();
+
+			builder.comment("FTB Chunks compat settings. Requires FTB Chunks to apply!").push("ftbchunks");
+
+			//Claim Purchase Settings
+			this.ftbChunksAllowClaimPurchase = builder.comment("Whether the '/lcftb buy claims' command will be accesible to players.")
+					.define("allowClaimPurchase", false);
+			this.ftbChunksClaimPrice = CoinValueConfig.define(builder.comment("The price per claim chunk purchased."),
+					"claimPrice", "1-lightmanscurrency:coin_gold", () -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100), SPEC_SUPPLIER);
+			this.ftbChunksMaxClaimCount = builder.comment("The maximum number of extra claim chunks allowed to be purchased with this command.",
+							"Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well.")
+					.defineInRange("maxClaimCount", 1000000, 1, Integer.MAX_VALUE);
+
+			//Forceload Purchase Settings
+			this.ftbChunksAllowForceloadPurchase = builder.comment("Whether the `/lcftb buyForceload` command will be accessible to players.")
+					.define("allowForceloadPurchase", false);
+			this.ftbChunksForceloadPrice = CoinValueConfig.define(builder.comment("The price per forceload chunk purchased."),
+					"forceloadPrice", "10-lightmanscurrency:coin_netherite", () -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 10, 1000000), SPEC_SUPPLIER);
+			this.ftbChunksMaxForceloadCount = builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
+							"Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well.")
+					.defineInRange("maxForceloadCount", 100, 1, Integer.MAX_VALUE);
+
 
 			builder.pop();
 

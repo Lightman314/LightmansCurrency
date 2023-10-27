@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
@@ -18,16 +18,16 @@ public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house_buyer");
 	
-	List<ItemData> items;
-	CoinValue cost = new CoinValue();
+	List<ItemWriteData> items;
+	CoinValue cost = CoinValue.EMPTY;
 	
 	public AuctionHouseBuyerNotification(AuctionTradeData trade) {
 		
-		this.cost = trade.getLastBidAmount().copy();
+		this.cost = trade.getLastBidAmount();
 		
 		this.items = new ArrayList<>();
 		for(int i = 0; i < trade.getAuctionItems().size(); ++i)
-			this.items.add(new ItemData(trade.getAuctionItems().get(i)));
+			this.items.add(new ItemWriteData(trade.getAuctionItems().get(i)));
 		
 	}
 	
@@ -52,10 +52,10 @@ public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 	protected void saveAdditional(CompoundTag compound) {
 		
 		ListTag itemList = new ListTag();
-		for(ItemData item : this.items)
+		for(ItemWriteData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
-		this.cost.save(compound, "Price");
+		compound.put("Price", this.cost.save());
 		
 	}
 
@@ -65,8 +65,9 @@ public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemData(itemList.getCompound(i)));
-		this.cost.load(compound, "Price");
+			this.items.add(new ItemWriteData(itemList.getCompound(i)));
+
+		this.cost = CoinValue.safeLoad(compound, "Price");
 		
 	}
 	

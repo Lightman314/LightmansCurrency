@@ -51,16 +51,15 @@ public class PaygateBlock extends TraderBlockRotatable {
 		{
 			//Get the item in the players hand
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof PaygateBlockEntity)
+			if(tileEntity instanceof PaygateBlockEntity paygate)
 			{
-				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
 				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
 				if(tradeIndex >= 0)
 				{
 					PaygateTraderData trader = paygate.getTraderData();
 					if(trader != null)
 					{
-						trader.ExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
+						trader.TryExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
 						return InteractionResult.SUCCESS;
 					}
 				}

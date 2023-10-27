@@ -1,0 +1,85 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [128, 128],
+	"textures": {
+		"main": "lightmanscurrency:block/slot_machine"
+	},
+	"elements": [
+		{
+			"name": "top light",
+			"from": [1, 29, 2],
+			"to": [15, 30, 3],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [0, 16, 8]},
+			"faces": {
+				"north": {"uv": [6, 3.75, 7.75, 3.875], "texture": "#main"},
+				"east": {"uv": [0.625, 6.875, 0.75, 7], "texture": "#main"},
+				"south": {"uv": [6, 3.875, 7.75, 4], "texture": "#main"},
+				"west": {"uv": [0.75, 6.875, 0.875, 7], "texture": "#main"},
+				"up": {"uv": [8.5, 2.75, 6.75, 2.625], "texture": "#main"},
+				"down": {"uv": [8.5, 2.75, 6.75, 2.875], "texture": "#main"}
+			}
+		},
+		{
+			"name": "left light",
+			"from": [15, 14, 2],
+			"to": [16, 30, 3],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [0, 16, 8]},
+			"faces": {
+				"north": {"uv": [3.875, 6, 4, 8], "texture": "#main"},
+				"east": {"uv": [5.75, 6.75, 5.875, 8.75], "texture": "#main"},
+				"south": {"uv": [5.875, 6.75, 6, 8.75], "texture": "#main"},
+				"west": {"uv": [6, 6.75, 6.125, 8.75], "texture": "#main"},
+				"up": {"uv": [3.875, 6.75, 3.75, 6.625], "texture": "#main"},
+				"down": {"uv": [6.875, 3.5, 6.75, 3.625], "texture": "#main"}
+			}
+		},
+		{
+			"name": "right light",
+			"from": [0, 14, 2],
+			"to": [1, 30, 3],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [0, 16, 8]},
+			"faces": {
+				"north": {"uv": [6.125, 6.75, 6.25, 8.75], "texture": "#main"},
+				"east": {"uv": [6.25, 6.75, 6.375, 8.75], "texture": "#main"},
+				"south": {"uv": [6.375, 6.75, 6.5, 8.75], "texture": "#main"},
+				"west": {"uv": [6.5, 6.75, 6.625, 8.75], "texture": "#main"},
+				"up": {"uv": [6.875, 3.75, 6.75, 3.625], "texture": "#main"},
+				"down": {"uv": [0.625, 6.875, 0.5, 7], "texture": "#main"}
+			}
+		},
+		{
+			"name": "mini right light",
+			"from": [0, 15, 0],
+			"to": [1, 16, 3],
+			"faces": {
+				"north": {"uv": [0.625, 9.75, 0.75, 9.875], "texture": "#main"},
+				"west": {"uv": [0.625, 9.625, 1, 9.75], "texture": "#main"},
+				"up": {"uv": [0.5, 9.625, 0.625, 10], "texture": "#main"},
+				"down": {"uv": [0.375, 9.625, 0.5, 10], "texture": "#main"}
+			}
+		},
+		{
+			"name": "mini left light",
+			"from": [15, 15, 0],
+			"to": [16, 16, 3],
+			"faces": {
+				"north": {"uv": [0.625, 9.125, 0.75, 9.25], "rotation": 90, "texture": "#main"},
+				"east": {"uv": [0.625, 9, 1, 9.125], "texture": "#main"},
+				"up": {"uv": [0.5, 9, 0.625, 9.375], "texture": "#main"},
+				"down": {"uv": [0.375, 9, 0.5, 9.375], "texture": "#main"}
+			}
+		},
+		{
+			"name": "front light",
+			"from": [1, 15, -1],
+			"to": [15, 16, 0],
+			"faces": {
+				"north": {"uv": [0.25, 11.125, 2, 11.25], "texture": "#main"},
+				"east": {"uv": [0.5, 10.75, 0.625, 10.875], "texture": "#main"},
+				"west": {"uv": [0.375, 10.75, 0.5, 10.875], "texture": "#main"},
+				"up": {"uv": [0.25, 10.875, 2, 11], "texture": "#main"},
+				"down": {"uv": [0.25, 11, 2, 11.125], "texture": "#main"}
+			}
+		}
+	]
+}

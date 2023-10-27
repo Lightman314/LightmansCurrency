@@ -9,12 +9,11 @@ import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
 import java.util.Collection;
@@ -96,7 +95,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level.isClientSide)
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), MessagePlayPickupSound.INSTANCE);
+				SPacketPlayPickupSound.INSTANCE.sendTo(player);
 			event.setCanceled(true);
 			
 		}
@@ -201,7 +200,7 @@ public class EventHandler {
 			return;
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
-			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+			new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(target);
 	}
 	
 	//Drop the wallet if keep inventory isn't on.
@@ -227,13 +226,10 @@ public class EventHandler {
 				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise, it always drops the wallet.
 				{
 
-					boolean keepWallet = true;
-					if(!LightmansCurrency.isCuriosValid(livingEntity))
-					{
-						boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
-						GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
-						keepWallet = (keepWalletVal != null && keepWalletVal.get()) || keepInventory;
-					}
+					boolean keepWallet = ModGameRules.safeGetCustomBool(livingEntity.level, ModGameRules.KEEP_WALLET, false);
+					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
+					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+						keepWallet = true;
 
 					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
 					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
@@ -255,7 +251,8 @@ public class EventHandler {
 						walletDrops = e.getDrops();
 
 					}
-					else //Drop the wallet
+					//Drop the wallet (unless curios is installed, upon which curios will handle that)
+					else if(!LightmansCurrency.isCuriosValid(livingEntity))
 					{
 
 						walletDrops.add(getDrop(livingEntity,walletStack));
@@ -292,7 +289,7 @@ public class EventHandler {
 		
 		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
 		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
-		long walletContents = new CoinValue(walletList).getRawValue();
+		long walletContents = MoneyUtil.getValue(walletList);
 		
 		long droppedAmount = (long)((double)walletContents * coinPercentage);
 		if(droppedAmount < 1)
@@ -350,7 +347,7 @@ public class EventHandler {
 			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+				new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget((PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity)));
 				walletHandler.clean();
 			}
 		}

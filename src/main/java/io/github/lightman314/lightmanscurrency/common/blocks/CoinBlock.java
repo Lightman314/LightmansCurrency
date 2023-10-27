@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nonnull;
+
 public class CoinBlock extends FallingBlock{
 	
 	private final Supplier<Item> coinItem;
@@ -33,7 +35,7 @@ public class CoinBlock extends FallingBlock{
 	protected SoundEvent getBreakingSound() { return ModSounds.COINS_CLINKING.get(); }
 	
 	@Override
-	public void onLand(Level level, BlockPos pos, BlockState fallingState, BlockState hitState, FallingBlockEntity fallingBlock) {
+	public void onLand(Level level, @Nonnull BlockPos pos, @Nonnull BlockState fallingState, @Nonnull BlockState hitState, @Nonnull FallingBlockEntity fallingBlock) {
 		
 		if(!level.isClientSide)
 		{

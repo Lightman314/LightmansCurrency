@@ -1,9 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
+import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -19,79 +24,70 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
-import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 
-public class CoinMintBlock extends RotatableBlock implements EntityBlock{
+public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 
 	private static final MutableComponent TITLE = Component.translatable("gui.lightmanscurrency.coinmint.title");
-	
-	public CoinMintBlock(Properties properties)
-	{
-		super(properties, box(1d,0d,1d,15d,16d,15d));
-	}
-	
+
+	public CoinMintBlock(Properties properties) { super(properties, box(1d,0d,1d,15d,16d,15d)); }
+
+	@Override
+	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_MINT.get()); }
+
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new CoinMintBlockEntity(pos, state);
-	}
-	
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinMintBlockEntity(pos, state); }
+
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CoinMintBlockEntity && Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
+			if(tileEntity instanceof CoinMintBlockEntity mint)
 			{
-				NetworkHooks.openScreen((ServerPlayer)player, new CoinMintMenuProvider((CoinMintBlockEntity)tileEntity), pos);
+				NetworkHooks.openScreen((ServerPlayer)player, new CoinMintMenuProvider(mint), pos);
 				return InteractionResult.SUCCESS;
 			}
 		}
-		if(Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
-			return InteractionResult.SUCCESS;
 		return InteractionResult.SUCCESS;
-			
+
 	}
-	
+
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
+	public void onRemove(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof CoinMintBlockEntity)
-		{
-			CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;
+		if(blockEntity instanceof CoinMintBlockEntity mintEntity)
 			mintEntity.dumpContents(level, pos);
-		}
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
-	
+
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.COIN_MINT);
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
-	
-	private static class CoinMintMenuProvider implements MenuProvider
-	{
-		private final CoinMintBlockEntity tileEntity;
-		public CoinMintMenuProvider(CoinMintBlockEntity tileEntity) { this.tileEntity = tileEntity; }
+
+	private record CoinMintMenuProvider(CoinMintBlockEntity blockEntity) implements MenuProvider {
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new MintMenu(id, inventory, this.tileEntity); }
+		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new MintMenu(id, inventory, this.blockEntity); }
+		@Nonnull
 		@Override
 		public Component getDisplayName() { return TITLE; }
 	}
-	
+
 }

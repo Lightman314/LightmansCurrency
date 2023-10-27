@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.SMessageUpdatePlayerTrade;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPacketSyncPlayerTrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -22,17 +22,20 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
+    public static boolean ignoreDimension() { return Config.SERVER.maxPlayerTradingRange.get() < 0d; }
+    public static boolean ignoreDistance() { return Config.SERVER.maxPlayerTradingRange.get() <=0d; }
+    public static double enforceDistance() { return Config.SERVER.maxPlayerTradingRange.get(); }
 
     private boolean stillPending = true;
     public final long creationTime;
@@ -65,12 +68,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         return null;
     }
 
-    private final CoinValue hostMoney = new CoinValue();
+    private CoinValue hostMoney = CoinValue.EMPTY;
     @Override
-    public CoinValue getHostMoney() { return this.hostMoney.copy(); }
-    private final CoinValue guestMoney = new CoinValue();
+    public CoinValue getHostMoney() { return this.hostMoney; }
+    private CoinValue guestMoney = CoinValue.EMPTY;
     @Override
-    public CoinValue getGuestMoney() { return this.guestMoney.copy(); }
+    public CoinValue getGuestMoney() { return this.guestMoney; }
 
     private final SimpleContainer hostItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
     @Override
@@ -115,6 +118,34 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             this.hostState = 0;
             this.guestState = Math.min(this.guestState, 1);
         }
+    }
+
+    private boolean playerDistanceExceeded() {
+        return false;
+    }
+
+    /**
+     Preliminary check on whether the querying guest is in range of the host.
+     Returns the following:
+     0- Pass
+     1- Fail: Host is missing
+     2- Fail: Distance Exceeded
+     3- Fail: Wrong dimension
+     */
+    public int isGuestInRange(ServerPlayer guest) {
+        ServerPlayer host = this.getPlayer(this.hostPlayerID);
+        if(host == null)
+            return 1;
+        if(ignoreDimension())
+            return 0;
+        //Confirm that they're in the same dimension
+        if(!Objects.equals(host.level.dimension().location(),guest.level.dimension().location()))
+            return 3;
+        if(ignoreDistance())
+            return 0;
+        //Confirm that they're within the valid distance radius
+        double distance = host.position().distanceTo(guest.position());
+        return distance <= enforceDistance() ? 0 : 2;
     }
 
     private boolean playerAbandonedTrade(boolean host) {
@@ -211,7 +242,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return false;
         }
         else
-            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false);
+            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false) || this.playerDistanceExceeded();
     }
 
     public void onCancel() {
@@ -232,15 +263,15 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return;
 
         //Confirm that payment can be taken successfully
-        if(MoneyUtil.ProcessPayment(null, host, this.hostMoney.copy()))
+        if(MoneyUtil.ProcessPayment(null, host, this.hostMoney))
         {
-            if(MoneyUtil.ProcessPayment(null, guest, this.guestMoney.copy()))
+            if(MoneyUtil.ProcessPayment(null, guest, this.guestMoney))
             {
                 //Flag trade as completed
                 completed = true;
 
                 //Give money/items to host
-                MoneyUtil.ProcessChange(null, host, this.guestMoney.copy());
+                MoneyUtil.ProcessChange(null, host, this.guestMoney);
                 for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.guestItems.getItem(i);
@@ -249,7 +280,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
                 }
 
                 //Give money/items to guest
-                MoneyUtil.ProcessChange(null, guest, this.hostMoney.copy());
+                MoneyUtil.ProcessChange(null, guest, this.hostMoney);
                 for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.hostItems.getItem(i);
@@ -262,12 +293,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
             }
             else //Refund host money if guest doesn't have enough money
-                MoneyUtil.ProcessChange(null, host, this.hostMoney.copy());
+                MoneyUtil.ProcessChange(null, host, this.hostMoney);
         }
 
     }
 
-    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney.copy(), this.guestMoney.copy(), InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
+    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
 
     public void handleInteraction(Player player, CompoundTag message) {
         if(!this.isHost(player) && !this.isGuest(player))
@@ -296,7 +327,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.hostMoney.load(message,"ChangeMoney");
+                this.hostMoney = CoinValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(true);
             }
         }
@@ -324,7 +355,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.guestMoney.load(message,"ChangeMoney");
+                this.guestMoney = CoinValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(false);
             }
         }
@@ -338,9 +369,9 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         final ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
         final ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
         if(hostPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> hostPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(hostPlayer);
         if(guestPlayer != null)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> guestPlayer), new SMessageUpdatePlayerTrade(data));
+            new SPacketSyncPlayerTrade(data).sendTo(guestPlayer);
 
         this.takeMenuAction(PlayerTradeMenu::onTradeChange);
     }

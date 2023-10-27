@@ -1,94 +1,84 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketMachineMenu;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
+import javax.annotation.Nonnull;
+
 @IPNIgnore
-public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMenu>{
+public class TicketMachineScreen extends EasyMenuScreen<TicketMachineMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
-	
-	private Button buttonCraft;
+
+	public static final Sprite SPRITE_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 176, 0, 24, 16);
+
+	private PlainButton buttonTogglePass;
+
+	private boolean craftPass = false;
 	
 	public TicketMachineScreen(TicketMachineMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.imageHeight = 138;
-		this.imageWidth = 176;
+		this.resize(176,138);
 	}
 	
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
+	protected void renderBG(@Nonnull EasyGuiGraphics gui)
 	{
-		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		
-		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-		
-	}
-	
-	@Override
-	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
-	{
-		this.font.draw(poseStack, this.title, 8.0f, 6.0f, 0x404040);
-		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
-	}
-	
-	@Override
-	protected void init()
-	{
-		super.init();
-		
-		this.buttonCraft = this.addRenderableWidget(new PlainButton(this.leftPos + 79, this.topPos + 21, 24, 16, this::craftTicket, GUI_TEXTURE, this.imageWidth, 0));
-		this.buttonCraft.visible = false;
-		
-	}
-	
-	@Override
-	public void containerTick()
-	{
-		
-		this.buttonCraft.visible = this.menu.validInputs() && this.menu.roomForOutput();
-		
-	}
-	
-	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
-	{
-		this.renderBackground(matrixStack);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderTooltip(matrixStack, mouseX,  mouseY);
-		
-		if(this.buttonCraft != null && this.buttonCraft.active && this.buttonCraft.isMouseOver(mouseX, mouseY))
+
+		gui.renderNormalBackground(GUI_TEXTURE, this);
+
+		gui.drawString(this.title, 8, 6, 0x404040);
+		gui.drawString(this.playerInventoryTitle, 8, (this.getYSize() - 94), 0x404040);
+
+		if(this.buttonTogglePass.visible)
 		{
-			if(this.menu.hasMasterTicket())
-				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
-			else
-				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
+			int textWidth = gui.font.width(EasyText.translatable("gui.button.lightmanscurrency.craft_pass.option"));
+			gui.drawString(EasyText.translatable("gui.button.lightmanscurrency.craft_pass.option"), this.getXSize() - 14 - textWidth, 6, 0x404040);
 		}
 		
 	}
 	
-	private void craftTicket(Button button)
+	@Override
+	protected void initialize(ScreenArea screenArea)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCraftTicket(Screen.hasShiftDown()));
+		this.addChild(new PlainButton(screenArea.x + 79, screenArea.y + 21, this::craftTicket, SPRITE_ARROW)
+				.withAddons(
+						EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.menu.roomForOutput(this.craftPass)),
+						EasyAddonHelper.tooltip(this::getArrowTooltip)
+				));
+
+		this.buttonTogglePass = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.x + screenArea.width - 14, screenArea.y + 5, this::togglePassCraft, () -> this.craftPass)
+				.withAddons(EasyAddonHelper.visibleCheck(this.menu::hasMasterTicket)
+				));
+
 	}
+
+	private Component getArrowTooltip()
+	{
+		if(this.menu.hasMasterTicket())
+			return this.craftPass ? EasyText.translatable("gui.button.lightmanscurrency.craft_pass") : EasyText.translatable("gui.button.lightmanscurrency.craft_ticket");
+		else
+			return EasyText.translatable("gui.button.lightmanscurrency.craft_master_ticket");
+	}
+
+	private void togglePassCraft(EasyButton button) { this.craftPass = !this.craftPass; }
+
+	private void craftTicket(EasyButton button) { this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(), this.craftPass); }
 	
 }

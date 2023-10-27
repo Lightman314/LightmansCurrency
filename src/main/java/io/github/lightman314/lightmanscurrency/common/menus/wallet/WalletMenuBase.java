@@ -1,24 +1,35 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkHooks;
 
-public abstract class WalletMenuBase extends AbstractContainerMenu {
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
+
+public abstract class WalletMenuBase extends EasyMenu {
 
 	private static int maxWalletSlots = 0;
 	public static int getMaxWalletSlots() { return maxWalletSlots; }
@@ -40,24 +51,22 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	}
 	
 	private boolean autoConvert;
-	public boolean canConvert() { return WalletItem.CanConvert(this.walletItem); }
+	public boolean canExchange() { return WalletItem.CanConvert(this.walletItem); }
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
-	public boolean getAutoConvert() { return this.autoConvert; }
-	public void ToggleAutoConvert() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
+	public boolean getAutoExchange() { return this.autoConvert; }
+	public void ToggleAutoExchange() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
 	
 	protected final Container coinInput;
 	
 	protected final WalletItem walletItem;
-	
-	public final Player player;
+
 	public Player getPlayer() { return this.player; }
 	
 	protected WalletMenuBase(MenuType<?> type, int windowID, Inventory inventory, int walletStackIndex) {
-		super(type, windowID);
+		super(type, windowID, inventory);
 		
 		this.inventory = inventory;
-		this.player = this.inventory.player;
 		
 		this.walletStackIndex = walletStackIndex;
 		
@@ -72,6 +81,14 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		
 		this.autoConvert = WalletItem.getAutoConvert(this.getWallet());
 		
+	}
+
+	protected final void addInventorySlot(int x, int y, int index)
+	{
+		if(index == this.walletStackIndex)
+			this.addSlot(new DisplaySlot(this.inventory, index, x, y));
+		else
+			this.addSlot(new BlacklistSlot(this.inventory, index, x, y, this.inventory, this.walletStackIndex));
 	}
 	
 	protected final void addCoinSlots(int yPosition) {
@@ -103,11 +120,24 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
 	
 	@Override
-	public boolean stillValid(Player playerIn) { return this.hasWallet(); }
-	
+	protected void onValidationTick(@Nonnull Player player) { this.validateHasWallet(); }
+
+	public final boolean validateHasWallet() {
+		if(!this.hasWallet())
+		{
+			if(this.walletStackIndex < 0)
+				LightmansCurrency.LogWarning("Forcibly closing the wallet menu, as the player no longer has a wallet equipped!");
+			else
+				LightmansCurrency.LogWarning("Forcibly closing the wallet menu, as the player is no longer holding a wallet in slot " + this.walletStackIndex + "!");
+			this.player.closeContainer();
+			return true;
+		}
+		return false;
+	}
+
 	public final void saveWalletContents()
 	{
-		if(!this.hasWallet())
+		if(this.validateHasWallet())
 			return;
 		//Write the bag contents back into the item stack
 		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
@@ -122,9 +152,9 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		
 	}
 	
-	public final void ConvertCoins()
+	public final void ExchangeCoins()
 	{
-		MoneyUtil.ConvertAllCoinsUp(this.coinInput);
+		MoneyUtil.ExchangeAllCoinsUp(this.coinInput);
 		MoneyUtil.SortCoins(this.coinInput);
 		this.saveWalletContents();
 	}
@@ -151,7 +181,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		}
 		
 		if(this.autoConvert)
-			this.ConvertCoins();
+			this.ExchangeCoins();
 		else
 			this.saveWalletContents();
 		
@@ -162,6 +192,40 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		if(entity instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
 			menu.reloadWalletContents();
 	}
-	
-	
+
+	public static void SafeOpenWalletMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
+
+	public static void SafeOpenWalletBankMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletBankMenuProvider(walletIndex));}
+
+	public static void SafeOpenWallet(@Nonnull ServerPlayer player, int walletIndex, @Nonnull MenuProvider menu) { SafeOpenWallet(player, walletIndex, menu, new WalletDataWriter(walletIndex)); }
+
+	public static void SafeOpenWallet(@Nonnull ServerPlayer player, int walletIndex, @Nonnull MenuProvider menu, @Nonnull Consumer<FriendlyByteBuf> dataWriter) {
+		if (walletIndex < 0)
+		{
+			if(!WalletItem.isWallet(LightmansCurrency.getWalletStack(player)))
+			{
+				player.sendSystemMessage(EasyText.translatable("message.lightmanscurrency.wallet.none_equipped"));
+                return;
+			}
+			NetworkHooks.openScreen(player, menu, dataWriter);
+		}
+        else
+		{
+			Inventory inventory = player.getInventory();
+			if(walletIndex >= inventory.getContainerSize())
+				return;
+			if(!WalletItem.isWallet(inventory.getItem(walletIndex)))
+				return;
+			NetworkHooks.openScreen(player, menu, dataWriter);
+		}
+	}
+
+	public record WalletDataWriter(int walletIndex) implements Consumer<FriendlyByteBuf>
+	{
+		@Override
+		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
+	}
+
+
+
 }

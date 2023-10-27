@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.integration.curios.wallet.CuriosWalletHandler;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
@@ -36,8 +37,21 @@ public class WalletCapability {
 	public static IWalletHandler lazyGetWalletHandler(@Nonnull final Entity entity) {
 		LazyOptional<IWalletHandler> optional = entity.getCapability(CurrencyCapabilities.WALLET);
 		if(optional.isPresent())
-			return optional.orElseGet(() -> { throw new RuntimeException("Unexpected error occurred!"); });
+			return optional.orElseThrow(() -> new RuntimeException("Unexpected error occurred!"));
 		return null;
+	}
+
+	/**
+	 * Gets the Wallet Handler used for wallet rendering.
+	 * Creates a Curios Wallet Handler if curios is installed
+	 * to allow rendering of the wallet on non-player entities
+	 * that have a wallet Curios slot.
+	 */
+	@Nullable
+	public static IWalletHandler getRenderWalletHandler(@Nonnull final Entity entity) {
+		if(LightmansCurrency.isCuriosLoaded() && entity instanceof LivingEntity le)
+			return new CuriosWalletHandler(le);
+		return lazyGetWalletHandler(entity);
 	}
 
 	public static CoinValue getWalletMoney(@Nonnull final Entity entity) {
@@ -116,7 +130,7 @@ public class WalletCapability {
 		public void setVisible(boolean visible) { this.visible = visible; }
 
 		@Override
-		public LivingEntity getEntity() { return this.entity; }
+		public LivingEntity entity() { return this.entity; }
 		
 		@Override
 		public boolean isDirty() {

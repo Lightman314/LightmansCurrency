@@ -1,8 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
+import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.client.gui.components.EditBox;
+
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public class TextInputUtil {
 
@@ -127,7 +131,7 @@ public class TextInputUtil {
 	 */
 	public static void whitelistInteger(EditBox textInput, long minValue, long maxValue)
 	{
-		whitelistText(textInput, INTEGER_WHITELIST);
+		whitelistInteger(textInput);
 		if(textInput.getValue().length() > 0)
 		{
 			long currentValue = getLongValue(textInput);
@@ -164,6 +168,39 @@ public class TextInputUtil {
 			}
 		}
 		textInput.setValue(newText.toString());
+	}
+
+	public static Object CreateInputHandler(@Nonnull EditBox editBox, int startingValue, int minValue, int maxValue, @Nonnull Consumer<Integer> onValueChange) { return new IntegerInputHandler(editBox, startingValue, minValue, maxValue, onValueChange); }
+
+	private static class IntegerInputHandler implements IEasyTickable
+	{
+		private final EditBox editBox;
+		private final int minValue;
+		private final int maxValue;
+		private final Consumer<Integer> onValueChange;
+		private int lastValue;
+		IntegerInputHandler(@Nonnull EditBox editBox, int startingValue, int minValue, int maxValue, @Nonnull Consumer<Integer> onValueChange)
+		{
+			this.editBox = editBox;
+			this.lastValue = startingValue;
+			this.minValue = minValue;
+			this.maxValue = maxValue;
+			this.onValueChange = onValueChange;
+			this.editBox.setValue(Integer.toString(this.lastValue));
+		}
+
+		@Override
+		public void tick() {
+
+			TextInputUtil.whitelistInteger(this.editBox, this.minValue, this.maxValue);
+			int newVal = MathUtil.clamp(TextInputUtil.getIntegerValue(this.editBox), this.minValue, this.maxValue);
+			if(this.lastValue != newVal)
+			{
+				this.onValueChange.accept(newVal);
+				this.lastValue = newVal;
+			}
+		}
+
 	}
 	
 }

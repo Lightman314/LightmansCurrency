@@ -2,18 +2,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -22,11 +25,9 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -34,11 +35,16 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
 
-public class ItemEditWidget extends AbstractWidget implements IScrollable{
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
+
+	private static ItemEditWidget latestInstance = null;
+	private static boolean rebuilding = false;
 
 	private static final List<CreativeModeTab> ITEM_GROUP_BLACKLIST = new ArrayList<>();
 
@@ -62,6 +68,15 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 			ITEM_BLACKLIST.add(itemFilter);
 	}
 
+	public static boolean IsCreativeTabAllowed(CreativeModeTab tab) { return !ITEM_GROUP_BLACKLIST.contains(tab); }
+
+	private static final List<ItemInsertRule> ITEM_ADDITIONS = new ArrayList<>();
+	public static void AddExtraItem(ItemStack item) { ITEM_ADDITIONS.add(ItemInsertRule.atEnd(item)); }
+	public static void AddExtraItemAfter(ItemStack item, @Nonnull Item afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterItem(item, afterItem)); }
+	public static void AddExtraItemAfter(ItemStack item, @Nonnull Predicate<ItemStack> afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterCheck(item, afterItem)); }
+	public static void AddExtraItemBefore(ItemStack item, @Nonnull Item beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeItem(item, beforeItem)); }
+	public static void AddExtraItemBefore(ItemStack item, @Nonnull Predicate<ItemStack> beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeCheck(item, beforeItem)); }
+
 	public static boolean isItemAllowed(ItemStack item) {
 		for(Predicate<ItemStack> blacklist : ITEM_BLACKLIST)
 		{
@@ -84,9 +99,10 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	public int stackSizeOffX;
 	public int stackSizeOffY;
 
-	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
+	private static final List<ItemStack> allItems = new ArrayList<>();
+	private static final Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
 
-	private List<ItemStack> searchResultItems;
+	private List<ItemStack> searchResultItems = new ArrayList<>();
 
 	private String searchString;
 
@@ -96,9 +112,17 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	private final Font font;
 
-	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
-		super(x, y, columns * 18, rows * 18, EasyText.empty());
+	private final ItemEditWidget oldItemEdit;
+	@Nullable
+	private EditBox getOldSearchInput() { return this.oldItemEdit != null ? this.oldItemEdit.searchInput : null; }
+	private String getOldSearchString() { return this.oldItemEdit != null ? this.oldItemEdit.searchString : ""; }
+
+	public ItemEditWidget(ScreenPosition pos, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, oldItemEdit, listener); }
+	public ItemEditWidget(int x, int y, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) {
+		super(x, y, columns * 18, rows * 18);
+		latestInstance = this;
 		this.listener = listener;
+		this.oldItemEdit = oldItemEdit;
 
 		this.columns = columns;
 		this.rows = rows;
@@ -112,36 +136,64 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 
-		//Set the search to the default value to initialize the inventory
-		this.modifySearch("");
+		//Attempt to reload the item list, but using a different thread now :)
+		//Will hopefully not encounter any errors that normally happen during the PlayerLoginEvent call
+		ConfirmItemListLoaded();
 
+		//Set the search to the default value to initialize the inventory
+		this.modifySearch(this.getOldSearchString());
+
+	}
+
+	@Override
+	public ItemEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
+	/**
+	 * Re-initializes the item edit list on a different thread.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void ConfirmItemListLoaded()
+	{
+		if(allItems.size() == 0) //Flag as rebuilding asap if the list is empty
+			rebuilding = true;
+		new Thread(ItemEditWidget::safeInitItemList).start();
+	}
+
+	/**
+	 * Re-initializes the item edit list. Runs on the same thread, so may cause lag if called at an inappropriate time.
+	 * If no changes to the creative items have happened, and any items are cached it will not re-initialize the cached items.
+	 */
+	public static void safeInitItemList()
+	{
+		try { initItemList(); }
+		catch (Throwable t) { LightmansCurrency.LogError("Error occurred while attempting to set up the Item List!\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t); }
+		rebuilding = false;
 	}
 
 	public static void initItemList() {
 
-		if(preFilteredItems.size() > 0)
+		if(allItems.size() > 0)
 			return;
+
+		//Flag as rebuilding
+		rebuilding = true;
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 
-		List<ItemStack> allItems = new ArrayList<>();
-
 		//Go through all the item groups to avoid allowing sales of hidden items
-		for(CreativeModeTab group : CreativeModeTab.TABS)
+		for(CreativeModeTab creativeTab : CreativeModeTab.TABS)
 		{
-			if(!ITEM_GROUP_BLACKLIST.contains(group))
+			if(IsCreativeTabAllowed(creativeTab))
 			{
-				//Get all the items in this group
+				//Get all the items in this creative tab
 				NonNullList<ItemStack> items = NonNullList.create();
-				group.fillItemList(items);
+				creativeTab.fillItemList(items);
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
-
 					if(isItemAllowed(stack))
 					{
-						if(notYetInList(allItems, stack))
-							allItems.add(stack);
+						addToList(stack);
 
 						if(stack.getItem() == Items.ENCHANTED_BOOK)
 						{
@@ -152,8 +204,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 								{
 									ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
 									EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-									if(notYetInList(allItems, newBook))
-										allItems.add(newBook);
+									if(isItemAllowed(newBook))
+										addToList(newBook);
 								}
 							});
 						}
@@ -163,14 +215,58 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 			}
 		}
 
-		preFilteredItems = new HashMap<>();
+		//Add Extra Items with no before or after rules
+		for(ItemInsertRule extraItemRule : ITEM_ADDITIONS)
+		{
+			if(extraItemRule.shouldInsertAtEnd())
+			{
+				ItemStack extraItem = extraItemRule.insertStack.copy();
+				if(isItemAllowed(extraItem) && notYetInList(extraItem))
+					allItems.add(extraItem.copy());
+			}
+		}
 
 		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
 
+		if(latestInstance != null)
+			latestInstance.refreshSearch();
+
 	}
 
-	private static boolean notYetInList(List<ItemStack> allItems, ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
+	private static void addToList(ItemStack stack)
+	{
+		stack = stack.copy();
+		if(notYetInList(stack))
+		{
+			//Add any before rules
+			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
+			{
+				if(insertRule.shouldInsertBefore(stack))
+				{
+					ItemStack extraItem = insertRule.insertStack.copy();
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
+						allItems.add(extraItem);
+				}
+			}
+			//Add the item itself
+			allItems.add(stack);
 
+			//Add any after rules
+			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
+			{
+				if(insertRule.shouldInsertAfter(stack))
+				{
+					ItemStack extraItem = insertRule.insertStack.copy();
+					if(isItemAllowed(extraItem) && notYetInList(extraItem))
+						allItems.add(extraItem);
+				}
+			}
+		}
+	}
+
+	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
+
+	@Nonnull
 	private List<ItemStack> getFilteredItems()
 	{
 		if(this.listener.restrictItemEditItems())
@@ -179,54 +275,35 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 			ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : trade.getRestriction();
 			return getFilteredItems(restriction);
 		}
-		return getFilteredItems(ItemTradeRestriction.NONE);
+		return allItems;
 	}
 
-	private void validateItemList()
-	{
-		if(preFilteredItems == null)
-		{
-			LightmansCurrency.LogWarning("For some odd reason the item list hasn't been collected! Collecting manually.");
-			try{ initItemList();
-			} catch(Throwable ignored) {}
-			if(preFilteredItems == null)
-			{
-				preFilteredItems = new HashMap<>();
-				preFilteredItems.put(ItemTradeRestriction.NO_RESTRICTION_KEY, new ArrayList<>());
-			}
-		}
-	}
-
+	@Nonnull
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
-		this.validateItemList();
+		//If the items are still being collected, don't try to access the lists
+		if(rebuilding)
+			return new ArrayList<>();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
-			return getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
+			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
-		if(preFilteredItems.containsKey(type))
-			return preFilteredItems.get(type);
-		else
+		if(!preFilteredItems.containsKey(type))
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
-			return preFilteredItems.put(type, getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+			preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
 		}
+		return preFilteredItems.get(type);
 	}
 
-	public int getMaxScroll()
-	{
-		return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0);
-	}
+	public int getMaxScroll() { return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0); }
 
 	public void refreshPage()
 	{
 
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
+		this.validateScroll();
 
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 
@@ -245,7 +322,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public void refreshSearch() { this.modifySearch(this.searchString); }
 
-	public void modifySearch(String newSearch)
+	public void modifySearch(@Nonnull String newSearch)
 	{
 		this.searchString = newSearch.toLowerCase();
 
@@ -292,53 +369,55 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
-
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+	@Override
+	public void addChildren() {
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
+		this.searchInput.setResponder(this::modifySearch);
 
-		this.stackScrollListener = addListener.apply(new ScrollListener(this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 18, 18, this::stackCountScroll));
+		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
 	}
 
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	protected void renderTick() {
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
+	}
+
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
 		if(!this.visible)
 			return;
 
-		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
-			this.modifySearch(this.searchInput.getValue());
+		//Removed search check as this is now handled by EditBox.setResponder
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
 		{
-			int yPos = this.y + y * 18;
+			int yPos = y * 18;
 			for(int x = 0; x < this.columns && index < this.searchResultItems.size(); ++x)
 			{
 				//Get the slot position
-				int xPos = this.x + x * 18;
+				int xPos = x * 18;
 				//Render the slot background
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
+				gui.resetColor();
+				gui.blit(GUI_TEXTURE, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
-				ItemRenderUtil.drawItemStack(this, this.font, this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
+				gui.renderItem(this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
 				index++;
 			}
 		}
 
 		//Render the search field
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
+		gui.resetColor();
+		gui.blit(GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
-		this.blit(pose, this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 108, 0, 18, 18);
+		gui.blit(GUI_TEXTURE, this.stackSizeOffX, this.stackSizeOffY, 108, 0, 18, 18);
 
 	}
 
@@ -350,24 +429,24 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return copy;
 	}
 
-	public void renderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY) {
+	@Override
+	public List<Component> getTooltipText(int mouseX, int mouseY) {
 		if(!this.visible)
-			return;
+			return null;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
 		{
 			hoveredSlot += this.scroll * this.columns;
 			if(hoveredSlot < this.searchResultItems.size())
-			{
-				screen.renderComponentTooltip(pose, ItemRenderUtil.getTooltipFromItem(this.searchResultItems.get(hoveredSlot)), mouseX, mouseY);
-			}
+				return EasyScreenHelper.getTooltipFromItem(this.searchResultItems.get(hoveredSlot));
 		}
 		if(this.isMouseOverStackSizeScroll(mouseX,mouseY))
-			screen.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
+			return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"));
+		return null;
 	}
 
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {
-		return mouseX >= this.x + this.stackSizeOffX && mouseX < this.x + this.stackSizeOffX + 18 && mouseY >= this.y + this.stackSizeOffY && mouseY < this.y + this.stackSizeOffY + 18;
+		return mouseX >= this.getX() + this.stackSizeOffX && mouseX < this.getX() + this.stackSizeOffX + 18 && mouseY >= this.getY() + this.stackSizeOffY && mouseY < this.getY() + this.stackSizeOffY + 18;
 	}
 
 	private int isMouseOverSlot(double mouseX, double mouseY) {
@@ -377,12 +456,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
-			if(mouseX >= this.x + x * 18 && mouseX < this.x + (x * 18) + 18)
+			if(mouseX >= this.getX() + x * 18 && mouseX < this.getX() + (x * 18) + 18)
 				foundColumn = x;
 		}
 		for(int y = 0; y < this.rows && foundRow < 0; ++y)
 		{
-			if(mouseY >= this.y + y * 18 && mouseY < this.y + (y * 18) + 18)
+			if(mouseY >= this.getY() + y * 18 && mouseY < this.getY() + (y * 18) + 18)
 				foundRow = y;
 		}
 		if(foundColumn < 0 || foundRow < 0)
@@ -395,10 +474,6 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		boolean restrictItemEditItems();
 		void onItemClicked(ItemStack item);
 	}
-
-
-	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -416,7 +491,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return false;
 	}
 
-	public boolean stackCountScroll(double mouseX, double mouseY, double delta) {
+	public boolean stackCountScroll(double delta) {
 		if(delta > 0)
 		{
 			if(this.stackCount < 64)
@@ -456,6 +531,34 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	public void setScroll(int newScroll) {
 		this.scroll = newScroll;
 		this.refreshPage();
+	}
+
+	private static class ItemInsertRule
+	{
+
+		public final ItemStack insertStack;
+		private final Predicate<ItemStack> afterItemCheck;
+		private final Predicate<ItemStack> beforeItemCheck;
+
+		private final Predicate<ItemStack> NULLCHECK = (s) -> false;
+		private ItemInsertRule(ItemStack insertStack, @Nullable Predicate<ItemStack> afterItemCheck, @Nullable Predicate<ItemStack> beforeItemCheck)
+		{
+			this.insertStack = insertStack;
+			this.afterItemCheck = afterItemCheck == null ? NULLCHECK : afterItemCheck;
+			this.beforeItemCheck = beforeItemCheck == null ? NULLCHECK : beforeItemCheck;
+		}
+
+		public static ItemInsertRule atEnd(ItemStack insertStack) { return new ItemInsertRule(insertStack, null, null); }
+		public static ItemInsertRule afterItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, (s) -> s.getItem() == item, null); }
+		public static ItemInsertRule afterCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, check, null); }
+		public static ItemInsertRule beforeItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, null, (s) -> s.getItem() == item); }
+		public static ItemInsertRule beforeCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, null, check); }
+
+
+		public boolean shouldInsertBefore(ItemStack insertedItem) { return this.beforeItemCheck.test(insertedItem); }
+		public boolean shouldInsertAfter(ItemStack insertedItem) { return this.afterItemCheck.test(insertedItem); }
+		public boolean shouldInsertAtEnd() { return this.afterItemCheck == NULLCHECK && this.beforeItemCheck == null; }
+
 	}
 
 }

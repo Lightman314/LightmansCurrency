@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -17,6 +16,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
@@ -83,7 +84,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	public int getValidTicketTrade(Player player, ItemStack heldItem) {
 		PaygateTraderData trader = this.getTraderData();
-		if(heldItem.getItem() == ModItems.TICKET.get())
+		if(TicketItem.isTicketOrPass(heldItem))
 		{
 			long ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID >= -1)
@@ -103,16 +104,8 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		return -1;
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	protected PaygateTraderData buildNewTrader() { return new PaygateTraderData(this.level, this.worldPosition); }
-
-	@Override @Deprecated
-	protected PaygateTraderData createTraderFromOldData(CompoundTag compound) {
-		PaygateTraderData newTrader = new PaygateTraderData(this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		if(compound.contains("Timer"))
-			this.timer = compound.getInt("Timer");
-		return newTrader;
-	}
 	
 }

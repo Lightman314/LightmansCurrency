@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class LCImmersive {
 
     public static void registerRotationBlacklists() {
-        try{ RotationUtil.blacklist.add(LCImmersive::allowRotation); } catch (Throwable ignored) {}
+        RotationUtil.blacklist.add(LCImmersive::allowRotation);
     }
 
     private static boolean allowRotation(Level level, BlockPos blockPos) {

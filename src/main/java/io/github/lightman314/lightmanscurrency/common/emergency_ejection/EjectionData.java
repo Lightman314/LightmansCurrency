@@ -3,12 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +17,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nonnull;
 
 public class EjectionData implements Container, IClientTracker {
 
@@ -42,7 +40,7 @@ public class EjectionData implements Container, IClientTracker {
 	}
 	
 	public boolean canAccess(Player player) {
-		if(CommandLCAdmin.isAdminPlayer(player))
+		if(LCAdminMode.isAdminPlayer(player))
 			return true;
 		if(this.owner == null)
 			return false;
@@ -58,10 +56,8 @@ public class EjectionData implements Container, IClientTracker {
 		compound.putString("Name", Component.Serializer.toJson(this.traderName));
 		
 		ListTag itemList = new ListTag();
-		for(int i = 0; i < this.items.size(); ++i)
-		{
-			itemList.add(this.items.get(i).save(new CompoundTag()));
-		}
+		for (ItemStack item : this.items)
+			itemList.add(item.save(new CompoundTag()));
 		compound.put("Items", itemList);
 		
 		return compound;
@@ -69,19 +65,7 @@ public class EjectionData implements Container, IClientTracker {
 	
 	public void load(CompoundTag compound) {
 		
-		//Load old owner data
-		if(compound.contains("PlayerOwned"))
-		{
-			if(compound.getBoolean("PlayerOwned"))
-				this.owner.SetOwner(PlayerReference.of(compound.getUUID("Owner"), "UNKNOWN"));
-			else
-			{
-				Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Owner")));
-				if(team != null)
-					this.owner.SetOwner(team);
-			}
-		}
-		else if(compound.contains("Owner"))
+		if(compound.contains("Owner"))
 			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
@@ -135,6 +119,7 @@ public class EjectionData implements Container, IClientTracker {
 		return true;
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack getItem(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -142,6 +127,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItem(int slot, int count) {
 		if(slot >= this.items.size() || slot < 0)
@@ -149,6 +135,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot).split(count);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -159,13 +146,13 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public void setItem(int slot, ItemStack item) {
+	public void setItem(int slot, @Nonnull ItemStack item) {
 		if(slot >= this.items.size() || slot < 0)
 			return;
 		this.items.set(slot, item);
 	}
 	
-	private void clearEmptySlots() { this.items.removeIf(stack -> stack.isEmpty()); }
+	private void clearEmptySlots() { this.items.removeIf(ItemStack::isEmpty); }
 
 	@Override
 	public void setChanged() {
@@ -179,7 +166,7 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@Nonnull Player player) {
 		return this.canAccess(player);
 	}
 	

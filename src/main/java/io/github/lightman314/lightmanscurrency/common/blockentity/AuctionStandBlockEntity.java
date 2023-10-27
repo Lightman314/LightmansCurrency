@@ -7,8 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.auction.SMessageSyncAuctionStandDisplay;
+import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketSyncAuctionStandDisplay;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +19,6 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Random;
@@ -35,20 +33,32 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     @SubscribeEvent(priority = EventPriority.LOWEST) //Set to low priority so that it doesn't run before the coin list is loaded and makes the persistent traders fail to load properly.
     public static void serverStart(ServerStartedEvent event) {
         if(AuctionHouseTrader.isEnabled())
-            RandomizeDisplayItems();
+            AuctionStandBlockEntity.RandomizeDisplayItems();
     }
 
     @SubscribeEvent
     public static void playerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if(AuctionHouseTrader.isEnabled() && event.getEntity() instanceof ServerPlayer sp)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sp), new SMessageSyncAuctionStandDisplay(displayItems));
+            new SPacketSyncAuctionStandDisplay(displayItems).sendTo(sp);
     }
+
+    private static boolean randomizeNextOpportunity = false;
 
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event)
     {
-        if(AuctionHouseTrader.isEnabled() && event.haveTime() && event.getServer().getTickCount() % 1200 == 0)
+        if(AuctionHouseTrader.isEnabled() && event.getServer().getTickCount() % 1200 == 0)
+        {
+            if(event.haveTime())
+                RandomizeDisplayItems();
+            else
+                randomizeNextOpportunity = true;
+        }
+        else if(event.haveTime() && randomizeNextOpportunity)
+        {
+            randomizeNextOpportunity = false;
             RandomizeDisplayItems();
+        }
     }
 
     private static void RandomizeDisplayItems()
@@ -74,12 +84,10 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     private static void setDisplayItems(List<ItemStack> items)
     {
         displayItems = ImmutableList.copyOf(InventoryUtil.copyList(items));
-        LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SMessageSyncAuctionStandDisplay(displayItems));
+        new SPacketSyncAuctionStandDisplay(displayItems).sendToAll();
     }
 
-    public static void syncItemsFromServer(List<ItemStack> items) {
-        displayItems = ImmutableList.copyOf(items);
-    }
+    public static void syncItemsFromServer(List<ItemStack> items) { displayItems = ImmutableList.copyOf(items); }
 
 
 }

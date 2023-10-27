@@ -1,30 +1,33 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
-public class SPacketSyncSelectedBankAccount {
+import javax.annotation.Nonnull;
 
-	final AccountReference selectedAccount;
+public class SPacketSyncSelectedBankAccount extends ServerToClientPacket {
+
+	public static final Handler<SPacketSyncSelectedBankAccount> HANDLER = new H();
+
+	final BankReference selectedAccount;
 	
-	public SPacketSyncSelectedBankAccount(AccountReference selectedAccount) { this.selectedAccount = selectedAccount; }
+	public SPacketSyncSelectedBankAccount(BankReference selectedAccount) { this.selectedAccount = selectedAccount; }
 	
-	public static void encode(SPacketSyncSelectedBankAccount message, FriendlyByteBuf buffer) {
-		message.selectedAccount.writeToBuffer(buffer);
-	}
-	
-	public static SPacketSyncSelectedBankAccount decode(FriendlyByteBuf buffer) {
-		return new SPacketSyncSelectedBankAccount(BankAccount.LoadReference(true, buffer));
-	}
-	
-	public static void handle(SPacketSyncSelectedBankAccount message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount));
-		supplier.get().setPacketHandled(true);
+	public void encode(@Nonnull FriendlyByteBuf buffer) { this.selectedAccount.encode(buffer); }
+
+	private static class H extends Handler<SPacketSyncSelectedBankAccount>
+	{
+		@Nonnull
+		@Override
+		public SPacketSyncSelectedBankAccount decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncSelectedBankAccount(BankReference.decode(buffer).flagAsClient()); }
+		@Override
+		protected void handle(@Nonnull SPacketSyncSelectedBankAccount message, @Nullable ServerPlayer sender) {
+			LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount);
+		}
 	}
 	
 }

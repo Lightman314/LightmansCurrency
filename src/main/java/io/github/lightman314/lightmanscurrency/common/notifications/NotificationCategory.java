@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,8 +20,9 @@ public abstract class NotificationCategory implements ITab
 	public static final ResourceLocation GENERAL_TYPE = new ResourceLocation(LightmansCurrency.MODID, "general");
 	
 	private static final Map<String,Function<CompoundTag,NotificationCategory>> DESERIALIZERS = new HashMap<>();
-	
-	public static final void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
+
+	public static void registerInstance(ResourceLocation type, NotificationCategory instance) { register(type, c -> instance); }
+	public static void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
 		{
@@ -36,7 +37,7 @@ public abstract class NotificationCategory implements ITab
 		DESERIALIZERS.put(t, deserializer);
 	}
 	
-	public static final NotificationCategory deserialize(CompoundTag compound) {
+	public static NotificationCategory deserialize(CompoundTag compound) {
 		if(compound.contains("type"))
 		{
 			String type = compound.getString("type");
@@ -47,19 +48,16 @@ public abstract class NotificationCategory implements ITab
 			else
 			{
 				LightmansCurrency.LogError("Cannot deserialize notification type " + type + " as no deserializer has been registered.");
-				return null;
+				return NotificationCategory.GENERAL;
 			}
 		}
 		else
 		{
 			LightmansCurrency.LogError("Cannot deserialize notification as tag is missing the 'type' tag.");
-			return null;
+			return NotificationCategory.GENERAL;
 		}
 	}
-	
-	/* Obsolete as this is covered by ITab
-	public abstract IconData getIcon();
-	*/
+
 	public final MutableComponent getTooltip() { return this.getName(); }
 	public abstract MutableComponent getName();
 	public final int getColor() { return 0xFFFFFF; }

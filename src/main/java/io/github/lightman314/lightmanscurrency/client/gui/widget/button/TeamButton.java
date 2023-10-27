@@ -3,23 +3,24 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class TeamButton extends Button{
+import java.util.function.Consumer;
+
+public class TeamButton extends EasyButton {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teambutton.png");
-	
 	
 	public enum Size { WIDE(180, 0), NORMAL(156, 1), NARROW(90, 2);
 		public final int width;
@@ -32,38 +33,37 @@ public class TeamButton extends Button{
 	
 	public static final int HEIGHT = 20;
 	public static final int TEXT_COLOR = 0xFFFFFF;
-	
-	private final Font font;
+
 	private final Size size;
 	private final Supplier<Team> teamSource;
 	public Team getTeam() { return this.teamSource.get(); }
 	private final Supplier<Boolean> selectedSource;
 	
-	public TeamButton(int x, int y, Size size, OnPress press, Font font, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
+	public TeamButton(ScreenPosition pos, Size size, Consumer<EasyButton> press, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
 	{
-		super(x, y, size.width, HEIGHT, Component.empty(), press);
-		this.font = font;
+		super(pos, size.width, HEIGHT, press);
 		this.size = size;
 		this.teamSource = teamSource;
 		this.selectedSource = selectedSource;
 	}
-	
+
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public TeamButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
-		if(!this.visible || this.getTeam() == null)
+		if(this.getTeam() == null)
 			return;
 		
 		//Render Background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		
-		this.blit(pose, this.x, this.y, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
+		gui.resetColor();
+		gui.blit(GUI_TEXTURE, 0, 0, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
 		
 		//Render Team Name
-		this.font.draw(pose, TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), this.x + 2, this.y + 2, TEXT_COLOR);
+		gui.drawString(TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), 2, 2, TEXT_COLOR);
 		//Render Owner Name
-		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), this.x + 2, this.y + 10, TEXT_COLOR);
+		gui.drawString(TextRenderUtil.fitString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), 2, 10, TEXT_COLOR);
 		
 	}
 	
