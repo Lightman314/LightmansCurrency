@@ -39,4 +39,4 @@ Lightman's Currency is a forge mod that adds a simple currency system of 6 diffe
 - Creative traders can be enabled while in Admin Mode from the Trader Settings screen. While a trader is creative, it will have infinite stock for all trades carried out, but will not modify the internal coin or item storage of the trader.
 - Universal Trader search feature, usable to find the dimension & coordinates of a Trading Server. Also includes a command to allow for manual deletion of a prohibited or defective universal trader.
 
-For more details on this mods features, check the [wiki](https://github.com/Lightman314/LightmansCurrency/wiki) available on this github or leave a comment in the [Discord group](https://discord.com/invite/uVFWAshgbZ) development section (must self-assign the Development role in #roles to access).
+For more details on this mods features, check the [wiki](https://github.com/Lightman314/LightmansCurrency/wiki) available on this github or leave a comment in the [Discord group](https://discord.com/invite/gRjuugeeUd) development section (must self-assign the Development role in #roles to access).
