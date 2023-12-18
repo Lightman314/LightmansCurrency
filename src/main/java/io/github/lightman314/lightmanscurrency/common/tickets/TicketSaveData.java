@@ -63,6 +63,13 @@ public class TicketSaveData extends SavedData {
         return id;
     }
 
+    public static long peekNextID() {
+        TicketSaveData tsd = get();
+        if(tsd != null)
+            return tsd.nextID;
+        return 0;
+    }
+
     public static long createNextID() {
         TicketSaveData tsd = get();
         if(tsd != null)

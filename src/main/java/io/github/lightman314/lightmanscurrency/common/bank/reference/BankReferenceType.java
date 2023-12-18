@@ -16,7 +16,7 @@ public abstract class BankReferenceType {
     {
         ResourceLocation id = type.id;
         if(TYPES.containsKey(id))
-            LightmansCurrency.LogWarning("Attempted to register the AccountReferenceType '" + id + "' twice!");
+            LightmansCurrency.LogWarning("Attempted to registerNotification the AccountReferenceType '" + id + "' twice!");
         else
         {
             TYPES.put(id, type);

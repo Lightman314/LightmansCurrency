@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -127,9 +127,9 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 			String s = GsonHelper.getAsString(json, "group", "");
 			NonNullList<Ingredient> nonnulllist = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 			if (nonnulllist.isEmpty()) {
-				throw new JsonParseException("No ingredients for shapeless recipe");
+				throw new JsonSyntaxException("No ingredients for shapeless recipe");
 			} else if (nonnulllist.size() > 3 * 3) {
-				throw new JsonParseException("Too many ingredients for shapeless recipe the max is " + (3 * 3));
+				throw new JsonSyntaxException("Too many ingredients for shapeless recipe the max is " + (3 * 3));
 			} else {
 				ItemStack itemstack = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
 				return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);

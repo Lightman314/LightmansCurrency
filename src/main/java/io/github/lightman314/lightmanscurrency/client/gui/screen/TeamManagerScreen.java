@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamBankAccountTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamMemberEditTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamMemberListTab;

@@ -7,7 +7,7 @@ import org.lwjgl.system.NonnullDefault;
 @NonnullDefault
 public class TagUtil {
 
-    public static CompoundTag saveBlockPos( BlockPos pos)
+    public static CompoundTag saveBlockPos(BlockPos pos)
     {
         CompoundTag tag = new CompoundTag();
         tag.putInt("x", pos.getX());

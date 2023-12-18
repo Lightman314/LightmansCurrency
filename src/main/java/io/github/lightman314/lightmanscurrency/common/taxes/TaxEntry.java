@@ -2,15 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.taxes;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
@@ -87,14 +88,14 @@ public class TaxEntry implements IClientTracker {
     public void setRenderMode(int newRenderMode) { this.renderMode = newRenderMode % 3; this.markRenderModeDirty(); }
     public boolean shouldRender(Player player)
     {
-        //Don't render the area if there is no area to draw (because infinite range)
+        //Don't renderBG the area if there is no area to draw (because infinite range)
         if(player == null || this.isInfiniteRange())
             return false;
         if(LCAdminMode.isAdminPlayer(player))
             return true;
         if(this.getRenderMode() == 1)
             return this.canAccess(player);
-        //Don't render for non-members if not active
+        //Don't renderBG for non-members if not active
         return this.getRenderMode() == 2 && this.isActive();
     }
     public int getRenderColor(Player player)
@@ -125,6 +126,7 @@ public class TaxEntry implements IClientTracker {
     public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, Config.SERVER.taxMachineMaxRate.get()); this.markTaxPercentageDirty(); }
 
     private String name = "";
+    public boolean hasCustomName() { return !this.name.isBlank(); }
     public String getCustomName() { return this.name; }
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
     public void setName(String name) { this.name = name; this.markNameDirty(); }
@@ -135,9 +137,9 @@ public class TaxEntry implements IClientTracker {
     public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return true; return this.owner.isMember(player); }
 
     //Stored Money
-    private CoinValue storedMoney = CoinValue.EMPTY;
-    public CoinValue getStoredMoney() { return this.storedMoney; }
-    public void depositMoney(CoinValue amount) {
+    private final MoneyStorage storedMoney = new MoneyStorage(this::markStoredMoneyDirty);
+    public MoneyStorage getStoredMoney() { return this.storedMoney; }
+    public void depositMoney(MoneyValue amount) {
         BankAccount account = this.getBankAccount();
         if(account != null)
         {
@@ -145,16 +147,15 @@ public class TaxEntry implements IClientTracker {
             account.LogInteraction(this, amount);
             return;
         }
-        this.storedMoney = this.storedMoney.plusValue(amount);
-        this.markStoredMoneyDirty();
+        this.storedMoney.addValue(amount);
     }
-    public void clearStoredMoney() { this.storedMoney = CoinValue.EMPTY; }
+    public void clearStoredMoney() { this.storedMoney.clear(); }
 
     @Nonnull
-    public final CoinValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull CoinValue taxableAmount)
+    public final MoneyValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull MoneyValue taxableAmount)
     {
-        CoinValue amountToPay = taxableAmount.percentageOfValue(this.getTaxRate());
-        if(amountToPay.hasAny())
+        MoneyValue amountToPay = taxableAmount.percentageOfValue(this.getTaxRate());
+        if(!amountToPay.isEmpty())
         {
             this.depositMoney(amountToPay);
             this.PushNotification(TaxesCollectedNotification.create(taxable.getName(), amountToPay, new TaxEntryCategory(this.getName(), this.id)));
@@ -403,7 +404,7 @@ public class TaxEntry implements IClientTracker {
         if(tag.contains("Owner"))
             this.owner.load(tag.getCompound("Owner"));
         if(tag.contains("StoredMoney"))
-            this.storedMoney = CoinValue.load(tag.getCompound("StoredMoney"));
+            this.storedMoney.safeLoad(tag, "StoredMoney");
         if(tag.contains("ForceAcceptance"))
             this.forceAcceptance = tag.getBoolean("ForceAcceptance");
         if(tag.contains("IsInfiniteRange"))

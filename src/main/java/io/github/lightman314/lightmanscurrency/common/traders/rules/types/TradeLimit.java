@@ -3,12 +3,14 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TradeLimitTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -19,9 +21,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 
 public class TradeLimit extends TradeRule{
-	
-	public static final ResourceLocation OLD_TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit2");
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "trade_limit");
+
+	public static final TradeRuleType<TradeLimit> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "trade_limit"),TradeLimit::new);
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
@@ -30,7 +31,7 @@ public class TradeLimit extends TradeRule{
 	int count = 0;
 	public void resetCount() { this.count = 0; }
 	
-	public TradeLimit() { super(TYPE); }
+	private TradeLimit() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
@@ -54,7 +55,7 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		compound.putInt("Limit", this.limit);
 		compound.putInt("Count", this.count);
@@ -62,13 +63,13 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public JsonObject saveToJson(JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json) {
 		json.addProperty("Limit", this.limit);
 		return json;
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		
 		if(compound.contains("Limit", Tag.TAG_INT))
 			this.limit = compound.getInt("Limit");
@@ -78,22 +79,18 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public void loadFromJson(JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json) {
 		if(json.has("Limit"))
 			this.limit = json.get("Limit").getAsInt();
 	}
 	
 	@Override
-	public void handleUpdateMessage(CompoundTag updateInfo)
+	public void handleUpdateMessage(@Nonnull LazyPacketData updateInfo)
 	{
 		if(updateInfo.contains("Limit"))
-		{
 			this.limit = updateInfo.getInt("Limit");
-		}
 		else if(updateInfo.contains("ClearMemory"))
-		{
 			this.count = 0;
-		}
 	}
 	
 	@Override

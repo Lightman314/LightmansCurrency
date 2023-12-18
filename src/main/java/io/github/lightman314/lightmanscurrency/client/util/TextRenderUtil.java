@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;

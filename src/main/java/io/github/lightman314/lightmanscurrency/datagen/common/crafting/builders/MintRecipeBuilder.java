@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
-public class MintRecipeBuilder  implements RecipeBuilder {
+public class MintRecipeBuilder implements RecipeBuilder {
 
     private final MintType type;
     private final Item result;

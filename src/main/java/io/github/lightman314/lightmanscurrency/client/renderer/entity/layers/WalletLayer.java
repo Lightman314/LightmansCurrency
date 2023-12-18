@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
 import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 
 import com.mojang.blaze3d.vertex.PoseStack;

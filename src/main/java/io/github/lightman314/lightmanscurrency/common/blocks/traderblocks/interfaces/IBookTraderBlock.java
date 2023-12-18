@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces;
 
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

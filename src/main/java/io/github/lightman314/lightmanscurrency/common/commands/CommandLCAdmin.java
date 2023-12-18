@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandExceptionType;
@@ -12,10 +14,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -23,12 +28,11 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.types.Sim
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
 import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.ChatFormatting;
@@ -36,7 +40,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
@@ -54,8 +57,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
-
 public class CommandLCAdmin {
 
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context)
@@ -70,7 +71,7 @@ public class CommandLCAdmin {
 						.then(Commands.literal("list")
 								.executes(CommandLCAdmin::listTraderData))
 						.then(Commands.literal("search")
-								.then(Commands.argument("searchText", MessageArgument.message())
+								.then(Commands.argument("searchText", StringArgumentType.greedyString())
 										.executes(CommandLCAdmin::searchTraderData)))
 						.then(Commands.literal("delete")
 								.then(Commands.argument("traderID", TraderArgument.trader())
@@ -92,11 +93,26 @@ public class CommandLCAdmin {
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
 												.executes(CommandLCAdmin::replaceWalletSlot)))))
 				.then(Commands.literal("taxes")
+						.then(Commands.literal("list")
+								.executes(CommandLCAdmin::listTaxCollectors))
+						.then(Commands.literal("delete")
+								.then(Commands.argument("taxCollectorID", LongArgumentType.longArg(0))
+										.executes(CommandLCAdmin::deleteTaxCollector)))
 						.then(Commands.literal("openServerTax")
 								.requires(CommandSourceStack::isPlayer)
 								.executes(CommandLCAdmin::openServerTax))
 						.then(Commands.literal("forceDisableTaxCollectors")
-								.executes(CommandLCAdmin::forceDisableTaxCollectors)));
+								.executes(CommandLCAdmin::forceDisableTaxCollectors)))
+				.then(Commands.literal("events")
+						.then(Commands.argument("player", EntityArgument.player())
+								.then(Commands.literal("list")
+										.executes(CommandLCAdmin::listUnlockedEvents))
+								.then(Commands.literal("unlock")
+										.then(Commands.argument("event", StringArgumentType.word())
+											.executes(CommandLCAdmin::unlockEvent)))
+								.then(Commands.literal("lock")
+										.then(Commands.argument("event", StringArgumentType.word())
+											.executes(CommandLCAdmin::lockEvent)))));
 
 		dispatcher.register(lcAdminCommand);
 
@@ -170,13 +186,13 @@ public class CommandLCAdmin {
 		return 1;
 	}
 
-	static int searchTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
+	static int searchTraderData(CommandContext<CommandSourceStack> commandContext) {
 
 		CommandSourceStack source = commandContext.getSource();
 
-		String searchText = MessageArgument.getMessage(commandContext, "searchText").getString();
+		String searchText = StringArgumentType.getString(commandContext,"searchText");
 
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderSearchFilter.CheckFilters(trader, searchText)).toList();
+		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.filterTrader(trader, searchText)).toList();
 		if(results.size() > 0)
 		{
 
@@ -267,6 +283,8 @@ public class CommandLCAdmin {
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 		EasyText.sendCommandSucess(source, EasyText.literal(trader.save().getAsString()), false);
+		if(commandContext.getSource().isPlayer())
+			new SPacketDebugTrader(trader.getID()).sendTo(commandContext.getSource().getPlayerOrException());
 		return 1;
 	}
 
@@ -277,7 +295,7 @@ public class CommandLCAdmin {
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 
-		TradeRule rule = TradeRule.getRule(PlayerWhitelist.TYPE, trader.getRules());
+		TradeRule rule = TradeRule.getRule(PlayerWhitelist.TYPE.type, trader.getRules());
 		if(rule instanceof PlayerWhitelist whitelist)
 		{
 			Collection<ServerPlayer> players = EntityArgument.getPlayers(commandContext, "player");
@@ -350,6 +368,77 @@ public class CommandLCAdmin {
 		return 0;
 	}
 
+	static int listTaxCollectors(CommandContext<CommandSourceStack> commandContext)
+	{
+		CommandSourceStack source = commandContext.getSource();
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.title"), false);
+		for(TaxEntry entry : TaxSaveData.GetAllTaxEntries(false))
+			sendTaxDataFeedback(entry, source);
+		return 1;
+	}
+
+	private static void sendTaxDataFeedback(TaxEntry taxEntry, CommandSourceStack source)
+	{
+		if(taxEntry.isServerEntry())
+			return;
+		//Trader ID
+		String id = String.valueOf(taxEntry.getID());
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.id", EasyText.literal(id).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.id.copytooltip"))))), false);
+
+		//Team / Team ID
+		if(taxEntry.getOwner().hasTeam())
+		{
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.owner.team", taxEntry.getOwner().getTeam().getName(), taxEntry.getOwner().getTeam().getID()), false);
+		}
+		//Owner / Owner ID
+		else if(taxEntry.getOwner().hasPlayer())
+		{
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.owner", taxEntry.getOwner().getPlayer().getName(false), taxEntry.getOwner().getPlayer().id.toString()), false);
+		}
+
+		//Dimension
+		String dimension = taxEntry.getArea().getCenter().getDimension().toString();
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.dimension", dimension), false);
+		//Position
+		BlockPos pos = taxEntry.getArea().getCenter().getPos();
+		String position = pos.getX() + " " + pos.getY() + " " + pos.getZ();
+		String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
+		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.position", EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.position.teleporttooltip"))))), true);
+		//Range
+		if(taxEntry.isInfiniteRange())
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.infinite_range"), false);
+		else
+		{
+			//Radius
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.radius", taxEntry.getRadius()), false);
+			//Height
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.height", taxEntry.getHeight()), false);
+			//Vertical Offset
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.offset", taxEntry.getVertOffset()), false);
+		}
+		if(taxEntry.forcesAcceptance())
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.force_acceptance"), false);
+
+		//Custom Name (if applicable)
+		if(taxEntry.hasCustomName())
+			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.name", taxEntry.getName()), true);
+	}
+
+	static int deleteTaxCollector(CommandContext<CommandSourceStack> commandContext)
+	{
+		long taxCollectorID = LongArgumentType.getLong(commandContext, "taxCollectorID");
+
+		TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollectorID, false);
+		if(entry == null || entry.isServerEntry())
+		{
+			EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.delete.fail"));
+			return 0;
+		}
+		TaxSaveData.RemoveEntry(taxCollectorID);
+		EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.delete.success", entry.getName()), true);
+		return 1;
+	}
+
 	static int forceDisableTaxCollectors(CommandContext<CommandSourceStack> commandContext)
 	{
 		int count = 0;
@@ -368,7 +457,68 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	@Deprecated(since = "2.1.2.4")
-	public static boolean isAdminPlayer(@Nullable Player player) { return LCAdminMode.isAdminPlayer(player); }
+
+	static int listUnlockedEvents(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		Player player = EntityArgument.getPlayer(commandContext, "player");
+
+		IEventUnlocks eventUnlocks = CapabilityEventUnlocks.getCapability(player);
+		if(eventUnlocks != null)
+		{
+			List<String> unlocks = eventUnlocks.getUnlockedList();
+			if(unlocks.size() > 0)
+			{
+				StringBuilder list = new StringBuilder();
+				for(String v : eventUnlocks.getUnlockedList())
+				{
+					if(!list.isEmpty())
+						list.append(", ");
+					list.append(v);
+				}
+				EasyText.sendCommandSucess(commandContext.getSource(), EasyText.literal(list.toString()), false);
+			}
+			else
+				EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.event.list.none"), false);
+			return 1;
+		}
+		else
+			return 0;
+	}
+
+	static int unlockEvent(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		Player player = EntityArgument.getPlayer(commandContext, "player");
+
+		String event = StringArgumentType.getString(commandContext, "event");
+
+		if(CapabilityEventUnlocks.isUnlocked(player, event))
+		{
+			EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.event.unlock.fail", event));
+			return 0;
+		}
+
+		CapabilityEventUnlocks.unlock(player, event);
+		EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.event.unlock.success", event), false);
+
+		return 1;
+	}
+
+	static int lockEvent(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		Player player = EntityArgument.getPlayer(commandContext, "player");
+
+		String event = StringArgumentType.getString(commandContext, "event");
+
+		if(!CapabilityEventUnlocks.isUnlocked(player, event))
+		{
+			EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.event.lock.fail", event));
+			return 0;
+		}
+
+		CapabilityEventUnlocks.lock(player, event);
+		EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcadmin.event.lock.success", event), false);
+
+		return 1;
+	}
 
 }

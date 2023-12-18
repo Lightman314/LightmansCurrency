@@ -1,26 +1,30 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.api.capability.CapabilityMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,6 +34,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -38,7 +43,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class WalletItem extends Item{
 	
@@ -56,21 +60,26 @@ public class WalletItem extends Item{
 		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
-	
 	@Nullable
 	@Override
 	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
 	{
-		if(!LightmansCurrency.isCuriosLoaded())
-			return null;
-		return LCCurios.createWalletProvider(stack);
+		List<ICapabilityProvider> providers = new ArrayList<>();
+		providers.add(CapabilityMoneyViewer.createProvider(stack, s -> MoneyAPI.valueOfContainer(WalletItem.getWalletInventory(s))));
+		if(LightmansCurrency.isCuriosLoaded())
+		{
+			ICapabilityProvider temp = LCCurios.createWalletProvider(stack);
+			if(temp != null)
+				providers.add(temp);
+		}
+		return new MixedCapabilityProvider(providers);
 	}
 	
 	@Override
 	public int getEnchantmentValue(ItemStack stack) { return 10; }
 	
 	@Override
-	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
+	public boolean isEnchantable(@Nonnull ItemStack stack) { return true; }
 	
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
@@ -86,7 +95,7 @@ public class WalletItem extends Item{
 	/**
 	 * Determines if the given ItemStack is a WalletItem
 	 */
-	public static boolean isWallet(ItemStack item) { return isWallet(item.getItem()); }
+	public static boolean isWallet(ItemStack item) { return !item.isEmpty() && isWallet(item.getItem()); }
 	
 	/**
 	 * Determines if the given Item is a WalletItem
@@ -96,11 +105,11 @@ public class WalletItem extends Item{
 	/**
 	 * Whether the WalletItem is capable of converting coins to coins of higher value.
 	 */
-	public static boolean CanConvert(WalletItem wallet)
+	public static boolean CanExchange(WalletItem wallet)
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.SERVER.walletConvertLevel.get() || wallet.level >= Config.SERVER.walletPickupLevel.get();
+		return wallet.level >= Config.SERVER.walletExchangeLevel.get();
 	}
 	
 	/**
@@ -145,42 +154,44 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
 		}
-		if(CanConvert(this))
+		if(CanExchange(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoConvert(stack) ? Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
+				Component onOffText = getAutoExchange(stack) ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
 		}
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
-		
-		CoinValue contents = CoinValue.fromInventory(getWalletInventory(stack));
-		if(contents.getValueNumber() > 0)
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.storedmoney", Component.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
-		
+
+		MoneyView contents = CapabilityMoneyViewer.getContents(stack);
+		tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney").withStyle(ChatFormatting.YELLOW));
+		for(MoneyValue val : contents.allValues())
+			tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+
 	}
 	
+	@Nonnull
 	@Override
-	public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand)
+	public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand hand)
 	{
 		
 		//CurrencyMod.LOGGER.info("Wallet was used.");
@@ -239,15 +250,9 @@ public class WalletItem extends Item{
 	/**
 	 * Whether the Wallet Stacks inventory contents are empty.
 	 */
-	public static boolean isEmpty(ItemStack wallet)
+	public static boolean isEmpty(@Nonnull ItemStack wallet)
 	{
-		NonNullList<ItemStack> inventory = getWalletInventory(wallet);
-		for(ItemStack stack : inventory)
-		{
-			if(!stack.isEmpty())
-				return false;
-		}
-		return true;
+		return getWalletInventory(wallet).isEmpty();
 	}
 	
 	private static int GetWalletSlot(Inventory inventory, ItemStack wallet)
@@ -268,109 +273,60 @@ public class WalletItem extends Item{
 	 */
 	public static ItemStack PickupCoin(ItemStack wallet, ItemStack coins)
 	{
-		
-		ItemStack returnValue = coins.copy();
-		
-		NonNullList<ItemStack> inventory = getWalletInventory(wallet);
-		for(int i = 0; i < inventory.size() && !returnValue.isEmpty(); i++)
-		{
-			ItemStack thisStack = inventory.get(i);
-			if(thisStack.isEmpty())
-			{
-				inventory.set(i, returnValue.copy());
-				returnValue = ItemStack.EMPTY;
-			}
-			else if(thisStack.getItem() == returnValue.getItem())
-			{
-				int amountToAdd = MathUtil.clamp(returnValue.getCount(), 0, thisStack.getMaxStackSize() - thisStack.getCount());
-				thisStack.setCount(thisStack.getCount() + amountToAdd);
-				returnValue.setCount(returnValue.getCount() - amountToAdd);
-			}
-		}
-		
-		if(WalletItem.getAutoConvert(wallet))
-			inventory = WalletItem.ConvertCoins(inventory);
-		else
-			inventory = MoneyUtil.SortCoins(inventory);
+		Container inventory = getWalletInventory(wallet);
+		ItemStack returnValue = InventoryUtil.TryPutItemStack(inventory, coins);
+
+		if(WalletItem.getAutoExchange(wallet))
+			CoinAPI.ExchangeAllCoinsUp(inventory);
+		CoinAPI.SortCoins(inventory);
 		
 		putWalletInventory(wallet, inventory);
 		
 		//Return the coins that could not be picked up
 		return returnValue;
-		
-	}
-	
-	private static NonNullList<ItemStack> ConvertCoins(NonNullList<ItemStack> inventory)
-	{
-		
-		inventory = MoneyUtil.ExchangeAllCoinsUp(inventory);
-		
-		return MoneyUtil.SortCoins(inventory);
-		
 	}
 	
 	/**
 	 * Writes the given wallet inventory contents to the Wallet Stacks compound tag data.
 	 */
-	public static void putWalletInventory(ItemStack wallet, NonNullList<ItemStack> inventory)
+	public static void putWalletInventory(@Nonnull ItemStack wallet, @Nonnull Container inventory)
 	{
 		if(!(wallet.getItem() instanceof WalletItem))
 			return;
-		
-		CompoundTag compound = wallet.getOrCreateTag();
-		ListTag invList = new ListTag();
-		for(int i = 0; i < inventory.size(); i++)
-		{
-			ItemStack thisStack = inventory.get(i);
-			if(!thisStack.isEmpty())
-			{
-				CompoundTag thisItemCompound = thisStack.save(new CompoundTag());
-				thisItemCompound.putByte("Slot", (byte)i);
-				invList.add(thisItemCompound);
-			}
-		}
-		compound.put("Items", invList);
-		//wallet.setTag(compound);
+
+		InventoryUtil.saveAllItems("Items", wallet.getOrCreateTag(), inventory);
 	}
 	
 	/**
 	 * Reads & returns the wallets inventory contents from the ItemStack's compound tag data.
 	 */
-	public static NonNullList<ItemStack> getWalletInventory(ItemStack wallet)
+	@Nonnull
+	public static Container getWalletInventory(@Nonnull ItemStack wallet)
 	{
-		
-		CompoundTag compound = wallet.getOrCreateTag();
-		 if(!(wallet.getItem() instanceof WalletItem))
-			 return NonNullList.withSize(6, ItemStack.EMPTY);
 
-		NonNullList<ItemStack> value = NonNullList.withSize(WalletItem.InventorySize((WalletItem)wallet.getItem()), ItemStack.EMPTY);
+		 if(!(wallet.getItem() instanceof WalletItem))
+			 return new SimpleContainer(1);
+
+		CompoundTag compound = wallet.getOrCreateTag();
+
+
+		int inventorySize =  WalletItem.InventorySize(wallet);
 		if(!compound.contains("Items"))
-			return value;
-		
-		ListTag invList = compound.getList("Items", Tag.TAG_COMPOUND);
-		for(int i = 0; i < invList.size(); i++)
-		{
-			CompoundTag thisCompound = invList.getCompound(i);
-			ItemStack thisStack = ItemStack.of(thisCompound);
-			int j = (int)thisCompound.getByte("Slot") & 255;
-			if(j < value.size())
-				value.set(j, thisStack);
-		}
-		
-		return value;
-		
+			return new SimpleContainer();
+
+		return InventoryUtil.loadAllItems("Items", wallet.getOrCreateTag(), inventorySize);
 	}
 	
 	/**
 	 * Gets the auto-convert state of the given Wallet Stack.
-	 * Returns false if the wallet is not capable of both converting & collecting coins.
+	 * Returns false if the wallet is not capable of both exchanging & collecting coins.
 	 */
-	public static boolean getAutoConvert(ItemStack wallet)
+	public static boolean getAutoExchange(ItemStack wallet)
 	{
 		if(!(wallet.getItem() instanceof WalletItem))
 			return false;
 		
-		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
+		if(!WalletItem.CanExchange((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return false;
 		
 		CompoundTag tag = wallet.getOrCreateTag();
@@ -388,17 +344,17 @@ public class WalletItem extends Item{
 	 * Toggles the auto-convert state of the given Wallet Stack.
 	 * Does nothing if the wallet is not capable of both converting & collecting coins.
 	 */
-	public static void toggleAutoConvert(ItemStack wallet)
+	public static void toggleAutoExchange(ItemStack wallet)
 	{
 		
 		if(!(wallet.getItem() instanceof WalletItem))
 			return;
 		
-		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()))
+		if(!WalletItem.CanExchange((WalletItem)wallet.getItem()))
 			return;
 		
 		CompoundTag tag = wallet.getOrCreateTag();
-		boolean oldValue = WalletItem.getAutoConvert(wallet);
+		boolean oldValue = WalletItem.getAutoExchange(wallet);
 		tag.putBoolean("AutoConvert", !oldValue);
 		
 	}
@@ -415,23 +371,23 @@ public class WalletItem extends Item{
 			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
 			return;
 		}
-		NonNullList<ItemStack> walletInventory1 = getWalletInventory(walletIn);
-		NonNullList<ItemStack> walletInventory2 = getWalletInventory(walletOut);
-		if(walletInventory1.size() > walletInventory2.size())
+		Container walletInventory1 = getWalletInventory(walletIn);
+		Container walletInventory2 = getWalletInventory(walletOut);
+		if(walletInventory1.getContainerSize() > walletInventory2.getContainerSize())
 			LightmansCurrency.LogWarning("WalletItem.CopyWalletContents() -> walletIn has a larger inventory size than walletOut. This may result in a loss of wallet contents.");
 		//Copy over the wallets contents
-		for(int i = 0; i < walletInventory1.size() && i < walletInventory2.size(); i++)
+		for(int i = 0; i < walletInventory1.getContainerSize() && i < walletInventory2.getContainerSize(); i++)
 		{
-			walletInventory2.set(i, walletInventory1.get(i).copy());
+			walletInventory2.setItem(i, walletInventory1.getItem(i).copy());
 		}
 		//Write walletOut's nbt data
 		putWalletInventory(walletOut, walletInventory2);
 		//If both wallets can convert, confirm that the auto-convert setting matches
-		if(CanConvert(walletItemIn) && CanConvert(walletItemOut) && CanPickup(walletItemIn) && CanPickup(walletItemOut))
+		if(CanExchange(walletItemIn) && CanExchange(walletItemOut) && CanPickup(walletItemIn) && CanPickup(walletItemOut))
 		{
-			if(getAutoConvert(walletIn) != getAutoConvert(walletOut))
+			if(getAutoExchange(walletIn) != getAutoExchange(walletOut))
 			{
-				toggleAutoConvert(walletOut);
+				toggleAutoExchange(walletOut);
 			}
 		}
 		
@@ -444,20 +400,19 @@ public class WalletItem extends Item{
 		
 	}
 
-	/*
-	  Automatically collects all coins from the given container into the players equipped wallet.
-	 */
-	public static void QuickCollect(Player player, Container container) { QuickCollect(player, container, false); }
 
-	public static void QuickCollect(Player player, Container container, boolean allowHidden)
+	/**
+	 * Automatically collects all coins from the given container into the players equipped wallet.
+	 */
+	public static void QuickCollect(Player player, Container container, boolean allowSideChain)
 	{
-		ItemStack wallet = LightmansCurrency.getWalletStack(player);
+		ItemStack wallet = CoinAPI.getWalletStack(player);
 		if(isWallet(wallet))
 		{
 			for(int i = 0; i < container.getContainerSize(); ++i)
 			{
 				ItemStack stack = container.getItem(i);
-				if(MoneyUtil.isCoin(stack, allowHidden))
+				if(CoinAPI.isCoin(stack, allowSideChain))
 				{
 					stack = PickupCoin(wallet, stack);
 					container.setItem(i, stack);
@@ -467,7 +422,7 @@ public class WalletItem extends Item{
 	}
 
 	/**
-	 * The wallets texture. Used to render the wallet on the players hip when equipped.
+	 * The wallets texture. Used to renderBG the wallet on the players hip when equipped.
 	 */
 	public ResourceLocation getModelTexture() { return this.MODEL_TEXTURE; }
 	

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -14,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -65,7 +65,7 @@ public class OwnershipTab extends SettingsSubTab {
 
     @Override
     protected void onSubtabClose() {
-        //Reset the selected team & team list to save space
+        //Reset the selected team & team list to saveItem space
         this.selectedTeam = -1;
         this.teamList = Lists.newArrayList();
     }
@@ -89,10 +89,10 @@ public class OwnershipTab extends SettingsSubTab {
         this.teamList = Lists.newArrayList();
         List<Team> allTeams = TeamSaveData.GetAllTeams(true);
         allTeams.forEach(team ->{
-            if(team.isMember(this.menu.player))
+            if(team.isMember(this.menu.getPlayer()))
                 this.teamList.add(team);
         });
-        this.teamList.sort(Team.sorterFor(this.menu.player));
+        this.teamList.sort(Team.sorterFor(this.menu.getPlayer()));
     }
 
     @Override

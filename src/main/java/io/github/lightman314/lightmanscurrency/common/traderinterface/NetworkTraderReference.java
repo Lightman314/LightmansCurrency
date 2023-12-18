@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traderinterface;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.nbt.CompoundTag;
 

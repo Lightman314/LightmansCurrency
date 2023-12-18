@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+
+import javax.annotation.Nonnull;
 
 public class CapacityUpgradeItem extends UpgradeItem{
 
@@ -18,7 +20,7 @@ public class CapacityUpgradeItem extends UpgradeItem{
 	}
 
 	@Override
-	public void fillUpgradeData(UpgradeData data) {
+	public void fillUpgradeData(@Nonnull UpgradeData data) {
 		data.setValue(CapacityUpgrade.CAPACITY, Math.max(this.capacityAmount.get(), 1));
 	}
 	

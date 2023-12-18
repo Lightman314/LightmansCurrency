@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -28,7 +28,8 @@ public class TeamSelectionTab extends TeamTab {
 	
 	public TeamSelectionTab(TeamManagerScreen screen) { super(screen); }
 	
-	@Override
+	@Nonnull
+    @Override
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

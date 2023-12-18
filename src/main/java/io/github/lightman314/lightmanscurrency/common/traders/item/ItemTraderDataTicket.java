@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.TicketKioskRestriction;
 import net.minecraft.core.BlockPos;
@@ -9,9 +10,9 @@ import net.minecraft.world.level.Level;
 
 public class ItemTraderDataTicket extends ItemTraderData {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader_ticket");
+	public static final TraderType<ItemTraderDataTicket> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader_ticket"), ItemTraderDataTicket::new);
 	
-	public ItemTraderDataTicket() { super(TYPE); }
+	private ItemTraderDataTicket() { super(TYPE); }
 	
 	public ItemTraderDataTicket(int tradeCount, Level level, BlockPos pos) { super(TYPE, tradeCount, level, pos); }
 	

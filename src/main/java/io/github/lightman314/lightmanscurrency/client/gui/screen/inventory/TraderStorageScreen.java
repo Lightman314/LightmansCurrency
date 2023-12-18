@@ -3,37 +3,34 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.*;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketStoreCoins;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@IPNIgnore
-public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
+public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> implements ITraderStorageScreen {
 
 	private final Map<Integer,TraderStorageClientTab<?>> availableTabs = new HashMap<>();
 	public TraderStorageClientTab<?> currentTab() { return this.availableTabs.get(this.menu.getCurrentTabIndex()); }
@@ -65,7 +62,6 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 			LightmansCurrency.LogError("No client tabs were created for the Trader Storage Screen!");
 		else
 			LightmansCurrency.LogDebug("Storage Screen created with " + this.availableTabs.size() + " client tabs.");
-		menu.addMessageListener(this::serverMessage);
 		menu.addListener(this::serverMessage);
 	}
 	
@@ -210,12 +206,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		return null;
 	}
 
-	public void changeTab(int newTab) { this.changeTab(newTab, true, (LazyPacketData.Builder)null); }
-
-	@Deprecated(since = "2.1.2.4")
-	public void changeTab(int newTab, boolean sendMessage, @Nullable CompoundTag selfMessage) {
-		this.changeTab(newTab, sendMessage, selfMessage == null ? null : LazyPacketData.simpleTag("OldMessage", selfMessage));
-	}
+	public void changeTab(int newTab) { this.changeTab(newTab, true, null); }
 
 	public void changeTab(int newTab, boolean sendMessage, @Nullable LazyPacketData.Builder selfMessage) {
 
@@ -243,8 +234,6 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		if(selfMessage != null)
 		{
 			LazyPacketData message = selfMessage.build();
-			if(message.contains("OldMessage", LazyPacketData.TYPE_NBT))
-				this.currentTab().receiveSelfMessage(message.getNBT("OldMessage"));
 			this.currentTab().receiveSelfMessage(message);
 		}
 
@@ -256,26 +245,14 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 		
 	}
 
-	@Deprecated(since = "2.1.2.4")
-	public void selfMessage(CompoundTag message) {
-		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
-		if(message.contains("ChangeTab",Tag.TAG_INT))
-			this.changeTab(message.getInt("ChangeTab"), false, message);
-		this.currentTab().receiveSelfMessage(message);
-	}
-
-	public void selfMessage(LazyPacketData.Builder message) {
+	public void selfMessage(@Nonnull LazyPacketData.Builder message) {
 		LazyPacketData bm = message.build();
-		if(bm.contains("OldMessage", LazyPacketData.TYPE_NBT))
-			this.selfMessage(bm.getNBT("OldMessage"));
 		if(bm.contains("ChangeTab", LazyPacketData.TYPE_INT))
 			this.changeTab(bm.getInt("ChangeTab"), false, message);
 		else
 			this.currentTab().receiveSelfMessage(message.build());
 	}
 
-	@Deprecated(since = "2.1.2.4")
-	public void serverMessage(CompoundTag message) { this.currentTab().receiveServerMessage(message); }
 	public void serverMessage(LazyPacketData message) { this.currentTab().receiveServerMessage(message); }
 	
 	private void PressTradesButton(EasyButton button)
@@ -307,9 +284,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 	{
 		if(this.currentTab().getTradeRuleTradeIndex() < 0)
 			return;
-		CompoundTag message = new CompoundTag();
-		message.putInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex());
-		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, message);
+		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, LazyPacketData.simpleInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex()));
 	}
 	
 }

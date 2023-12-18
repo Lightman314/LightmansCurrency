@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -19,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
@@ -78,7 +78,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 			this.validateScroll();
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
-			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
+			AuctionPlayerStorage storage = trader.getStorage(this.screen.getPlayer());
 			if(storage != null)
 			{
 				List<ItemStack> storedItems = storage.getStoredItems();
@@ -108,10 +108,10 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 				this.buttonCollectItems.active = storedItems.size() > 0;
 				
 				//Render the stored money amount
-				if(storage.getStoredCoins().hasAny())
+				if(storage.getStoredCoins().allValues().size() > 0)
 				{
 					this.buttonCollectMoney.active = true;
-					gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.auction.storage.money", storage.getStoredCoins().getString("0")), 50, 118, 0x404040);
+					gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.auction.storage.money", storage.getStoredCoins().getRandomValueText()), 50, 118, 0x404040);
 				}
 				else
 				{
@@ -128,13 +128,13 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
-		if(this.menu.getTrader() instanceof AuctionHouseTrader && this.screen.getMenu().getCarried().isEmpty())
+		if(this.menu.getTrader() instanceof AuctionHouseTrader ah && this.screen.getMenu().getCarried().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
 			if(hoveredSlot >= 0)
 			{
 				hoveredSlot += scroll * COLUMNS;
-				AuctionPlayerStorage storage = ((AuctionHouseTrader)this.menu.getTrader()).getStorage(this.menu.player);
+				AuctionPlayerStorage storage = ah.getStorage(this.screen.getPlayer());
 				if(hoveredSlot < storage.getStoredItems().size())
 				{
 					ItemStack stack = storage.getStoredItems().get(hoveredSlot);
@@ -168,8 +168,8 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	}
 	
 	private int totalStorageSlots() {
-		if(this.menu.getTrader() instanceof AuctionHouseTrader)
-			return ((AuctionHouseTrader)this.menu.getTrader()).getStorage(this.menu.player).getStoredItems().size();
+		if(this.menu.getTrader() instanceof AuctionHouseTrader ah)
+			return ah.getStorage(this.screen.getPlayer()).getStoredItems().size();
 		return 0;
 	}
 	

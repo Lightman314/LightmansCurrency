@@ -7,18 +7,20 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,12 +33,12 @@ import javax.annotation.Nonnull;
 
 public class FreeSample extends PriceTweakingTradeRule {
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
+	public static final TradeRuleType<FreeSample> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "free_sample"),FreeSample::new);
 	
 	List<UUID> memory = new ArrayList<>();
 	public int getSampleCount() { return this.memory.size(); }
 	
-	public FreeSample() { super(TYPE); }
+	private FreeSample() { super(TYPE); }
 
 	@Override
 	protected boolean canActivate(@Nullable ITradeRuleHost host) {
@@ -81,7 +83,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	private boolean givenFreeSample(UUID playerID) { return this.memory.contains(playerID); }
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		ListTag memoryList = new ListTag();
 		for(UUID entry : this.memory)
@@ -94,10 +96,10 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(JsonObject json) { return json; }
+	public JsonObject saveToJson(@Nonnull JsonObject json) { return json; }
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		
 		if(compound.contains("Memory", Tag.TAG_LIST))
 		{
@@ -146,10 +148,10 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(JsonObject json) { }
+	public void loadFromJson(@Nonnull JsonObject json) { }
 	
 	@Override
-	protected void handleUpdateMessage(CompoundTag updateInfo) {
+	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
 		if(updateInfo.contains("ClearData"))
 			this.memory.clear();
 	}

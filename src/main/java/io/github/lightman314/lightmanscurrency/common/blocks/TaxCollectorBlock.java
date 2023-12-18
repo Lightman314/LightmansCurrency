@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -100,7 +100,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     }
 
     @Override
-    public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
+    public boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
         {
             TaxEntry entry = taxBlock.getTaxEntry();
@@ -110,6 +110,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
         return true;
     }
 
+    @Nonnull
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.TAX_BLOCK.get()); }
 

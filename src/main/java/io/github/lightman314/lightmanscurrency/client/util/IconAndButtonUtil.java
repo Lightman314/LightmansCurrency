@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -17,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.ChatFormatting;
@@ -153,15 +155,18 @@ public class IconAndButtonUtil {
 	
 	public static IconButton collectCoinButton(int x, int y, Consumer<EasyButton> pressable, Player player, Supplier<TraderData> traderSource) {
 		return new IconButton(x, y, pressable, ICON_COLLECT_COINS)
-				.withAddons(EasyAddonHelper.toggleTooltip(() -> {
+				.withAddons(EasyAddonHelper.tooltips(() -> {
 					TraderData trader = traderSource.get();
-					return trader == null || trader.getStoredMoney().getValueNumber() <= 0;
-				},EasyText::empty,
-				() -> {
-					TraderData trader = traderSource.get();
-					if(trader != null)
-						return EasyText.translatable(TOOLTIP_COLLECT_COINS, trader.getStoredMoney().getComponent());
-					return EasyText.empty();
+					if(trader != null && !trader.hasBankAccount() && !trader.getStoredMoney().isEmpty())
+					{
+						List<Component> result = new ArrayList<>();
+						result.add(EasyText.translatable(TOOLTIP_COLLECT_COINS));
+						MoneyStorage storage = trader.getStoredMoney();
+						for(MoneyValue value : storage.allValues())
+							result.add(value.getText());
+						return result;
+					}
+					return new ArrayList<>();
 				}),
 				EasyAddonHelper.visibleCheck(() -> {
 					TraderData trader = traderSource.get();
@@ -173,11 +178,25 @@ public class IconAndButtonUtil {
 					TraderData trader = traderSource.get();
 					if(trader == null)
 						return false;
-					return trader.getInternalStoredMoney().getValueNumber() > 0;
+					return !trader.getInternalStoredMoney().isEmpty();
 				}));
 	}
-	public static IconButton collectCoinButtonAlt(int x, int y, Consumer<EasyButton> pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS).withAddons(EasyAddonHelper.additiveTooltip2(TOOLTIP_COLLECT_COINS, storedCoinTextSource)); }
-	public static IconButton collectCoinButtonAlt(ScreenPosition pos, Consumer<EasyButton> pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(pos.x, pos.y, pressable, ICON_COLLECT_COINS).withAddons(EasyAddonHelper.additiveTooltip2(TOOLTIP_COLLECT_COINS, storedCoinTextSource)); }
+	public static IconButton collectCoinButtonAlt(int x, int y, Consumer<EasyButton> pressable, Supplier<MoneyStorage> moneyStorageSource) { return collectCoinButtonAlt(ScreenPosition.of(x,y), pressable, moneyStorageSource); }
+	public static IconButton collectCoinButtonAlt(ScreenPosition pos, Consumer<EasyButton> pressable, Supplier<MoneyStorage> moneyStorageSource) {
+		return new IconButton(pos.x, pos.y, pressable, ICON_COLLECT_COINS)
+				.withAddons(EasyAddonHelper.tooltips(() -> {
+					MoneyStorage storage = moneyStorageSource.get();
+					if(storage != null && !storage.isEmpty())
+					{
+						List<Component> result = new ArrayList<>();
+						result.add(EasyText.translatable(TOOLTIP_COLLECT_COINS));
+						for(MoneyValue value : storage.allValues())
+							result.add(value.getText());
+						return result;
+					}
+					return new ArrayList<>();
+		}));
+	}
 	public static IconButton storeCoinButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORE_COINS)); }
 	
 	public static IconButton leftButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }

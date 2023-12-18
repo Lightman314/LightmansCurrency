@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -14,11 +14,11 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentTrader;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -78,7 +78,7 @@ public class MainTab extends SettingsSubTab {
 
         this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 110), this::SavePersistentTraderData, IconAndButtonUtil.ICON_PERSISTENT_DATA)
                 .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_PERSISTENT_TRADER)));
-        this.buttonSavePersistentTrader.visible = LCAdminMode.isAdminPlayer(this.menu.player);
+        this.buttonSavePersistentTrader.visible = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
 
 
         int idWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"));
@@ -102,7 +102,7 @@ public class MainTab extends SettingsSubTab {
             gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.banklink"), 32, 73, 0x404040);
 
         //Draw current trade count
-        if(LCAdminMode.isAdminPlayer(this.menu.player) && trader != null)
+        if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()) && trader != null)
         {
             String count = String.valueOf(trader.getTradeCount());
             int width = gui.font.width(count);
@@ -134,7 +134,7 @@ public class MainTab extends SettingsSubTab {
         this.buttonResetName.active = trader.hasCustomName();
         this.buttonResetName.visible = canChangeName;
 
-        boolean isAdmin = LCAdminMode.isAdminPlayer(this.menu.player);
+        boolean isAdmin = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
         this.buttonToggleCreative.visible = isAdmin;
         if(this.buttonToggleCreative.visible)
         {

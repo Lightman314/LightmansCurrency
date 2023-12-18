@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.SPacketChatNotification;
 import net.minecraft.nbt.CompoundTag;
@@ -106,13 +108,13 @@ public class NotificationSaveData extends SavedData {
 		}
 	}
 	
-	public static boolean PushNotification(UUID playerID, Notification notification) { return PushNotification(playerID, notification, true); }
+	public static void PushNotification(UUID playerID, Notification notification) { PushNotification(playerID, notification, true); }
 	
-	public static boolean PushNotification(UUID playerID, Notification notification, boolean pushToChat) {
+	public static void PushNotification(UUID playerID, Notification notification, boolean pushToChat) {
 		if(notification == null)
 		{
 			LightmansCurrency.LogError("Cannot push a null notification!");
-			return false;
+			return;
 		}
 		NotificationData data = GetNotifications(playerID);
 		if(data != null)
@@ -120,7 +122,7 @@ public class NotificationSaveData extends SavedData {
 			//Post event to see if we should sent the notification
 			NotificationEvent.NotificationSent.Pre event = new NotificationEvent.NotificationSent.Pre(playerID, data, notification);
 			if(MinecraftForge.EVENT_BUS.post(event))
-				return false;
+				return;
 			//Passed the pre event, add the notification to the notification data
 			data.addNotification(event.getNotification());
 			//Mark the data as dirty
@@ -139,10 +141,7 @@ public class NotificationSaveData extends SavedData {
 						new SPacketChatNotification(notification).sendTo(player);
 				}
 			}
-			
-			return true;
 		}
-		return false;
 	}
 	
 	@SubscribeEvent

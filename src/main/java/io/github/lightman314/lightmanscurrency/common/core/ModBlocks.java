@@ -38,7 +38,7 @@ public class ModBlocks {
 			Item.Properties properties = new Item.Properties();
 			if(fireResistant)
 				properties.fireResistant();
-			return new CoinBlockItem(block, properties);
+			return new BlockItem(block, properties);
 		};
 	}
 	private static Function<Block,Item> getCoinJarGenerator() { return block ->  new CoinJarItem(block, new Item.Properties()); }
@@ -71,18 +71,16 @@ public class ModBlocks {
 
 	//Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE;
-	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_OLDCOLORS;
 
 	//Large Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
-	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
 
 	//Wooden Shelves
 	public static final RegistryObjectBundle<Block,WoodType> SHELF;
 	public static final RegistryObjectBundle<Block,WoodType> SHELF_2x2;
 
 	//Card Shelves
-	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
+	public static final RegistryObjectBiBundle<Block,WoodType,Color> CARD_DISPLAY;
 
 	//Armor Display
 	public static final RegistryObject<Block> ARMOR_DISPLAY;
@@ -307,14 +305,17 @@ public class ModBlocks {
 		);
 		
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", WoodType.Attributes.needsLog, w -> new CardDisplayBlock(
+		CARD_DISPLAY = registerWoodenAndColored("card_display", WoodType.Attributes.needsLog, (w,c) -> new CardDisplayBlock(
 				Block.Properties.of()
 					.mapColor(w.mapColor)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
-					.sound(SoundType.WOOD)
-				)
+					.sound(SoundType.WOOD),
+					w.generateID("block.lightmanscurrency.card_display"),
+					c
+				),
+				Color.RED
 		);
-		
+
 		//Freezer
 		FREEZER = registerColored("freezer", c -> new FreezerBlock(
 				Block.Properties.of()
@@ -436,7 +437,7 @@ public class ModBlocks {
 		);
 		
 		//Ticket Machine
-		TICKET_STATION = register("ticket_machine", () -> new TicketMachineBlock(
+		TICKET_STATION = register("ticket_machine", () -> new TicketStationBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
@@ -492,24 +493,6 @@ public class ModBlocks {
 		AUCTION_STAND = registerWooden("auction_stand", WoodType.Attributes.needsLog, w ->
 			new AuctionStandBlock(BlockBehaviour.Properties.of().mapColor(w.mapColor).strength(2.0f))
 		);
-
-		//Deprecated
-		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", c -> new VendingMachineBlock.ReplaceMe(
-						Block.Properties.of()
-								.mapColor(c.mapColor)
-								.strength(5.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.METAL)
-						,c
-				)
-		);
-		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", c -> new VendingMachineLargeBlock.ReplaceMe(
-						Block.Properties.of()
-								.mapColor(c.mapColor)
-								.strength(5.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.METAL)
-						,c
-				)
-		);
 		
 	}
 	
@@ -528,16 +511,6 @@ public class ModBlocks {
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get()));
 		return block;
-	}
-
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, Function<Color,T> block) {
-		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
-		for(Color color : Color.deprecatedValues())
-		{
-			String thisName = name + "_" + color.getDeprecatedName();
-			bundle.put(color, register(thisName, DeprecatedBlockItem::new, () -> block.apply(color)));
-		}
-		return bundle.lock();
 	}
 
 	// Colored block registration code
@@ -584,21 +557,27 @@ public class ModBlocks {
 	/**
 	 * Wooden and colored block registration code
 	 */
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, BiFunction<Color,WoodType,T> block)
-	{
-		return registerWoodenAndColored(name, getDefaultGenerator(), block);
-	}
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, BiFunction<WoodType,Color,T> block) { return registerWoodenAndColored(name, check, block, null); }
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, BiFunction<WoodType,Color,T> block, @Nullable Color ignoreColor) { return registerWoodenAndColored(name, check, getDefaultGenerator(), block, ignoreColor); }
 
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, BiFunction<Color,WoodType,T> block)
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, Function<Block,Item> itemGenerator, BiFunction<WoodType,Color,T> block) { return registerWoodenAndColored(name, check, itemGenerator, block, null); }
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, Function<Block,Item> itemGenerator, BiFunction<WoodType,Color,T> block, @Nullable Color ignoreColor)
 	{
 		RegistryObjectBiBundle<T,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
 		for(WoodType woodType: WoodType.validValues())
 		{
-			for(Color color : Color.values())
+			if(check.test(woodType.attributes))
 			{
-				String thisName = name + "_" + woodType.id + "_" + color.getResourceSafeName();
-				//Register the block normally
-				bundle.put(woodType, color, register(thisName, itemGenerator, () -> block.apply(color, woodType)));
+				for(Color color : Color.values())
+				{
+					String thisName;
+					if(color == ignoreColor)
+						thisName = woodType.generateID(name);
+					else
+						thisName = woodType.generateID(name) + "_" + color.getResourceSafeName();
+					//Register the block normally
+					bundle.put(woodType, color, register(thisName, itemGenerator, () -> block.apply(woodType, color)));
+				}
 			}
 		}
 		return bundle.lock();

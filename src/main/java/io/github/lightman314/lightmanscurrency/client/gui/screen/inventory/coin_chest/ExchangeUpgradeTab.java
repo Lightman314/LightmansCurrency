@@ -1,19 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.atm.ATMExchangeButtonData;
-import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestExchangeUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import net.minecraft.client.gui.components.Button;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -24,7 +23,12 @@ import java.util.Objects;
 public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 {
 
-    public ExchangeUpgradeTab(CoinChestUpgradeData data, Object screen) { super(data, screen); }
+    private final ATMPageManager exchangeData;
+
+    public ExchangeUpgradeTab(CoinChestUpgradeData data, Object screen) {
+        super(data, screen);
+        this.exchangeData = ATMAPI.getATMPageManager(((CoinChestScreen)screen).getPlayer(), this::addExchangeButton, this::removeExchangeButton, this::SelectNewCommand);
+    }
 
     List<ATMExchangeButton> buttons = new ArrayList<>();
 
@@ -36,11 +40,9 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttons = new ArrayList<>();
+        this.buttons.clear();
 
-        List<ATMExchangeButtonData> buttonData = ATMData.get().getConversionButtons();
-        for(ATMExchangeButtonData data : buttonData)
-            this.buttons.add(this.addChild(new ATMExchangeButton(screenArea.pos, data, this::SelectNewCommand)));
+        this.exchangeData.initialize(screenArea);
 
         this.exchangeWhileOpenButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 124), screenArea.width - 20, 20, this::GetExchangeWhileOpenText, this::ToggleExchangeWhileOpen));
 
@@ -48,10 +50,24 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     }
 
+    private void addExchangeButton(Object child)
+    {
+        if(child instanceof ATMExchangeButton b)
+            this.buttons.add(b);
+        this.addChild(child);
+    }
+
+    private void removeExchangeButton(Object child)
+    {
+        if(child instanceof ATMExchangeButton b)
+            this.buttons.remove(b);
+        this.removeChild(child);
+    }
+
     private void updateSelectedButton()
     {
         CoinChestUpgradeData data = this.getUpgradeData();
-        String currentCommand = data == null ? "" : UpgradeType.COIN_CHEST_EXCHANGE.getExchangeCommand(data);
+        String currentCommand = data == null ? "" : Upgrades.COIN_CHEST_EXCHANGE.getExchangeCommand(data);
         for(ATMExchangeButton button : this.buttons)
             button.selected = Objects.equals(button.data.command, currentCommand);
     }
@@ -78,7 +94,7 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
     {
         CoinChestUpgradeData data = this.getUpgradeData();
         if(data != null)
-            return EasyText.translatable("button.lightmanscurrency.upgrade.coin_chest.exchange.while_open." + (UpgradeType.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? "y" : "n"));
+            return EasyText.translatable("button.lightmanscurrency.upgrade.coin_chest.exchange.while_open." + (Upgrades.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? "y" : "n"));
         return EasyText.empty();
     }
 

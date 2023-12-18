@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
@@ -44,7 +44,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 		BankAccount account = this.getBankAccount();
 		if(account != null)
 			accountName = account.getName();
-		gui.drawString(accountName, 8, 6 + CoinValueInput.HEIGHT, 0x404040);
+		gui.drawString(accountName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
 		this.accountWidget.renderInfo(gui);
 	}
 

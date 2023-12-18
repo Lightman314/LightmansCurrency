@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.taxes;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 
 import javax.annotation.Nonnull;
 import java.util.List;

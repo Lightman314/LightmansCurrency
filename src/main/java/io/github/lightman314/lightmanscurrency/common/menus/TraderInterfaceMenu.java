@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfac
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;

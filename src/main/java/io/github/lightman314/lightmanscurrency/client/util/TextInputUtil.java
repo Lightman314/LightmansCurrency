@@ -96,14 +96,21 @@ public class TextInputUtil {
 	{
 		if(text == null)
 			return false;
-		try {
-			@SuppressWarnings("unused")
-			double d = Double.parseDouble(text);
-		} catch(NumberFormatException nfe)
-		{
-			return false;
-		}
+		try {Double.parseDouble(text);
+		} catch(NumberFormatException nfe) { return false; }
 		return true;
+	}
+
+	public static boolean isPositiveDouble(String text)
+	{
+		if(text == null)
+			return false;
+		if(text.isEmpty())
+			return true;
+		try {
+			double d = Double.parseDouble(text);
+			return d >= 0d;
+		} catch(NumberFormatException nfe) { return false; }
 	}
 	
 	public static double getDoubleValue(EditBox textInput)

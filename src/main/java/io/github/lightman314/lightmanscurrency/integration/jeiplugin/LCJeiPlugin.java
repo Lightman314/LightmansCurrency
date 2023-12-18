@@ -7,9 +7,10 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator.Results;
+import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -30,7 +31,8 @@ public class LCJeiPlugin implements IModPlugin{
 
 	//private static final ResourceLocation COIN_MINT_UID = new ResourceLocation(LightmansCurrency.MODID, "coin_mint");
 	public static final RecipeType<CoinMintRecipe> COIN_MINT_TYPE = RecipeType.create(LightmansCurrency.MODID, "coin_mint", CoinMintRecipe.class);
-	
+	public static final RecipeType<TicketStationRecipe> TICKET_TYPE = RecipeType.create(LightmansCurrency.MODID, "ticket_station", TicketStationRecipe.class);
+
 	@Override
 	public @NotNull ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
 
@@ -39,14 +41,19 @@ public class LCJeiPlugin implements IModPlugin{
 	{
 		IGuiHelper guiHelper = registry.getJeiHelpers().getGuiHelper();
 		registry.addRecipeCategories(new CoinMintCategory(guiHelper));
+		registry.addRecipeCategories(new TicketStationCategory(guiHelper));
 	}
 	
 	@Override
 	public void registerRecipes(IRecipeRegistration registration)
 	{
-		Results recipes = RecipeValidator.getValidRecipes(Minecraft.getInstance().level);
-		registration.addRecipes(COIN_MINT_TYPE, recipes.getCoinMintRecipes());
+		Results<CoinMintRecipe> mintRecipes = RecipeValidator.getValidMintRecipes(Minecraft.getInstance().level);
+		registration.addRecipes(COIN_MINT_TYPE, mintRecipes.getRecipes());
 
+		Results<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
+		registration.addRecipes(TICKET_TYPE, ticketRecipes.getRecipes());
+
+		/* Don't need these anymore due to new TicketStation recipe types
 		ItemStack masterTicket = TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
 		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_master"));
 		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
@@ -58,6 +65,7 @@ public class LCJeiPlugin implements IModPlugin{
 		ItemStack pass = TicketItem.CreatePass(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
 		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket.pass"));
 		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+		*/
 
 		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_stub"));
 		
@@ -73,12 +81,15 @@ public class LCJeiPlugin implements IModPlugin{
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration)
 	{
 		registration.addRecipeCatalyst(new ItemStack(ModBlocks.COIN_MINT.get()), COIN_MINT_TYPE);
+		registration.addRecipeCatalyst(new ItemStack(ModBlocks.TICKET_STATION.get()), TICKET_TYPE);
 	}
 	
 	@Override
 	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
 	{
 		registration.addRecipeTransferHandler(MintMenu.class, ModMenus.MINT.get(), COIN_MINT_TYPE, 0, 1, 2, 36);
+		//TODO registerNotification Ticket Station transfer handler
+		registration.addRecipeTransferHandler(TicketStationMenu.class, ModMenus.TICKET_MACHINE.get(), TICKET_TYPE, 0, 2, 3, 36);
 	}
 	
 }

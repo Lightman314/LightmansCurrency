@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.ChatFormatting;
@@ -111,6 +111,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         super.onRemove(state, level, pos, newState, flag);
     }
 
+    @Nonnull
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return Collections.singleton(ModBlockEntities.COIN_CHEST.get()); }
 
@@ -134,7 +135,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
 
     @Override
-    public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
+    public boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity blockEntity)
             return blockEntity.allowAccess(player);
         return true;

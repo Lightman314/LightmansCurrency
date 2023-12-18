@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -92,7 +92,7 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
                 if(itemIndex >= 0 && itemIndex < entry.items.size())
                 {
                     if(entry.isMoney())
-                        return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.money", entry.getMoneyValue().getComponent("0")));
+                        return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.money", entry.getMoneyValue().getText("0")));
                     else
                     {
                         ItemStack item = entry.items.get(itemIndex);

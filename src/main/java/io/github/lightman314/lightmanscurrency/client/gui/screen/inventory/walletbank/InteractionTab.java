@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -23,7 +23,8 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 
 	BankAccountWidget accountWidget;
 	
-	@Override
+	@Nonnull
+    @Override
 	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 
 	@Override
@@ -43,7 +44,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 		Component accountName = Component.literal("ERROR FINDING ACCOUNT");
 		if(this.screen.getMenu().getBankAccount() != null)
 			accountName = this.screen.getMenu().getBankAccount().getName();
-		gui.drawString(accountName, 8, CoinValueInput.HEIGHT, 0x404040);
+		gui.drawString(accountName, 8, MoneyValueWidget.HEIGHT, 0x404040);
 		this.accountWidget.renderInfo(gui);
 	}
 

@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.notifications;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,7 @@ public class SPacketChatNotification extends ServerToClientPacket {
 	{
 		@Nonnull
 		@Override
-		public SPacketChatNotification decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketChatNotification(Notification.deserialize(buffer.readNbt())); }
+		public SPacketChatNotification decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketChatNotification(NotificationAPI.loadNotification(buffer.readNbt())); }
 		@Override
 		protected void handle(@Nonnull SPacketChatNotification message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.PROXY.receiveNotification(message.notification);

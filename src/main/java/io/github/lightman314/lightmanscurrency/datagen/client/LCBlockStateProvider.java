@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.ITallBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IWideBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -39,6 +40,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.COIN_EMERALD);
         this.registerBasicItem(ModItems.COIN_DIAMOND);
         this.registerBasicItem(ModItems.COIN_NETHERITE);
+        //Chocolate Coins
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_COPPER);
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_IRON);
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_GOLD);
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_EMERALD);
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_DIAMOND);
+        this.registerBasicItem(ModItems.COIN_CHOCOLATE_NETHERITE);
         //Coin Piles
         this.registerCoinPile(ModBlocks.COINPILE_COPPER);
         this.registerCoinPile(ModBlocks.COINPILE_IRON);
@@ -99,11 +107,6 @@ public class LCBlockStateProvider extends BlockStateProvider {
             //Generate the block state
             this.registerTallRotatable(block, topID, bottomID, itemID, false);
         });
-        ModBlocks.VENDING_MACHINE_OLDCOLORS.forEach((color,block) ->
-            this.registerTallRotatable(block,
-                    this.lazyColoredID("vending_machine/", color, "_top"),
-                    this.lazyColoredID("vending_machine/", color, "_bottom"),
-                    this.lazyColoredID("vending_machine/", color, "_item"), false));
 
         //Large Vending Machines
         ModBlocks.VENDING_MACHINE_LARGE.forEach((color,block) -> {
@@ -134,15 +137,6 @@ public class LCBlockStateProvider extends BlockStateProvider {
             //Generate the block state
             this.registerTallWideRotatable(block, topLeftID, topRightID, bottomLeftID, bottomRightID, itemID, false);
         });
-        ModBlocks.VENDING_MACHINE_LARGE_OLDCOLORS.forEach((color,block) ->
-                this.registerTallWideRotatable(block,
-                        this.lazyColoredID("large_vending_machine/", color, "_top_left"),
-                        this.lazyColoredID("large_vending_machine/", color, "_top_right"),
-                        this.lazyColoredID("large_vending_machine/", color, "_bottom_left"),
-                        this.lazyColoredID("large_vending_machine/", color, "_bottom_right"),
-                        this.lazyColoredID("large_vending_machine/", color, "_item"),
-                        false
-                ));
 
         //Shelf
         ModBlocks.SHELF.forEach((type,block) -> {
@@ -178,8 +172,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Card Display
-        ModBlocks.CARD_DISPLAY.forEach((type,block) -> {
-            String modelID = this.lazyWoodenID("block/card_display/", type);
+        ModBlocks.CARD_DISPLAY.forEach((type,color,block) -> {
+            String modelID = this.lazyWoodenID("block/card_display/", type, "/" + color.getResourceSafeName());
             //Collect the WoodData
             WoodData data = type.getData();
             if(data != null)
@@ -188,7 +182,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 this.models().getBuilder(modelID).parent(this.lazyBlockModel("card_display/base", true))
                         .texture("log", data.logSideTexture)
                         .texture("logtop", data.logTopTexture)
-                        .texture("plank", data.plankTexture);
+                        .texture("plank", data.plankTexture)
+                        .texture("wool", ColorHelper.GetWoolTextureOfColor(color));
             }
             //Generate the block state
             this.registerRotatable(block, modelID, false);

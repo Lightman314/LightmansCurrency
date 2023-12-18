@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemT
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

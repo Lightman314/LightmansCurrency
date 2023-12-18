@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +17,7 @@ public class CoinChestUpgradeData {
 
     public static final CoinChestUpgradeData NULL = new CoinChestUpgradeData(ItemStack.EMPTY, new CoinChestUpgrade() {
         @Override
-        public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message) {}
+        public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {}
 
         @Override
         public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { }
@@ -30,7 +30,7 @@ public class CoinChestUpgradeData {
     public Item getItem() { return this.stack.getItem(); }
     public final CoinChestUpgrade upgrade;
     private final Runnable onChange;
-    private CoinChestUpgradeData(ItemStack stack, CoinChestUpgrade upgrade, int slot, Runnable onChange)
+    private CoinChestUpgradeData(@Nonnull ItemStack stack, @Nonnull CoinChestUpgrade upgrade, int slot, @Nonnull Runnable onChange)
     {
         this.stack = stack;
         this.upgrade = upgrade;
@@ -49,7 +49,7 @@ public class CoinChestUpgradeData {
 
     public boolean notNull() { return !this.isNull(); }
 
-    public void copyRelevantData(CoinChestUpgradeData other)
+    public void copyRelevantData(@Nonnull CoinChestUpgradeData other)
     {
         if(other.upgrade == this.upgrade)
             this.tickTimer = other.tickTimer;
@@ -57,24 +57,24 @@ public class CoinChestUpgradeData {
 
     @Nonnull
     public CompoundTag getItemTag() { return this.stack.getOrCreateTag(); }
-    public void setItemTag(CompoundTag tag)
+    public void setItemTag(@Nonnull CompoundTag tag)
     {
         this.stack.setTag(tag);
         this.onChange.run();
     }
 
     @Nonnull
-    public UpgradeType.UpgradeData getUpgradeData() { return UpgradeItem.getUpgradeData(this.stack); }
+    public UpgradeData getUpgradeData() { return UpgradeItem.getUpgradeData(this.stack); }
 
     @Nonnull
-    public static CoinChestUpgradeData forItem(ItemStack stack, int slot, Runnable onChange)
+    public static CoinChestUpgradeData forItem(@Nonnull ItemStack stack, int slot, @Nonnull Runnable onChange)
     {
         if(stack.getItem() instanceof UpgradeItem item && item.getUpgradeType() instanceof CoinChestUpgrade upgrade)
             return new CoinChestUpgradeData(stack, upgrade, slot, onChange);
         return NULL;
     }
 
-    public void tick(CoinChestBlockEntity be) {
+    public void tick(@Nonnull CoinChestBlockEntity be) {
         if(this.ticks && this.upgrade instanceof TickableCoinChestUpgrade tickable)
         {
             if(--this.tickTimer <= 0)

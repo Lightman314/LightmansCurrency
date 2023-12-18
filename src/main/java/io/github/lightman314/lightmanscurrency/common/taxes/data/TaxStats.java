@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.taxes.data;
 
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
@@ -20,8 +21,8 @@ public final class TaxStats {
 
     public void markDirty() { this.entry.markStatsDirty(); }
 
-    private CoinValue totalCollected = CoinValue.EMPTY;
-    public CoinValue getTotalCollected() { return this.totalCollected; }
+    private final MoneyStorage totalCollected = new MoneyStorage(this::markDirty);
+    public MoneyStorage getTotalCollected() { return this.totalCollected; }
 
     private final List<CollectionData> collectionCount = new ArrayList<>();
 
@@ -74,10 +75,10 @@ public final class TaxStats {
         }
     }
 
-    public void OnTaxesCollected(@Nonnull ITaxable taxable, @Nonnull CoinValue collectedAmount)
+    public void OnTaxesCollected(@Nonnull ITaxable taxable, @Nonnull MoneyValue collectedAmount)
     {
         this.removeInvalidDataInternal();
-        this.totalCollected = this.totalCollected.plusValue(collectedAmount);
+        this.totalCollected.addValue(collectedAmount);
         TaxableReference reference = taxable.getReference();
         if(reference != null)
         {
@@ -111,7 +112,7 @@ public final class TaxStats {
 
     public void clear()
     {
-        this.totalCollected = CoinValue.EMPTY;
+        this.totalCollected.clear();
         this.collectionCount.clear();
         this.uniqueTaxableCount = 0;
         this.mostTaxed = null;
@@ -142,7 +143,7 @@ public final class TaxStats {
     public void load(CompoundTag tag)
     {
         if(tag.contains("TotalCollected"))
-            this.totalCollected = CoinValue.load(tag.getCompound("TotalCollected"));
+            this.totalCollected.safeLoad(tag, "TotalCollected");
         if(tag.contains("TaxableInteractions"))
         {
             this.collectionCount.clear();

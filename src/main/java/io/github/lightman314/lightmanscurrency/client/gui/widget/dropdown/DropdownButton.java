@@ -1,24 +1,29 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ILateRender;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class DropdownButton extends EasyButton {
+public class DropdownButton extends EasyWidget implements ILateRender, IMouseListener {
 	
 	private final Component optionText;
+	private final Runnable onPress;
 	
-	public DropdownButton(int x, int y, int width, Component optionText, Consumer<EasyButton> pressable)
+	public DropdownButton(int x, int y, int width, @Nonnull Component optionText, @Nonnull Runnable onPress)
 	{
-		super(x , y, width, DropdownWidget.HEIGHT, pressable);
+		super(x , y, width, DropdownWidget.HEIGHT);
+		this.onPress = onPress;
 		this.optionText = optionText;
 	}
 
@@ -26,28 +31,51 @@ public class DropdownButton extends EasyButton {
 	public DropdownButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui)
-	{
-		//Draw the background
-        int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
-        if(!this.active)
-			gui.setColor(0.5f,0.5f,0.5f);
-		else
+	public void lateRender(@Nonnull EasyGuiGraphics gui) {
+		if(this.isVisible())
+		{
+			gui.pushOffset(this.getPosition());
+			gui.pushPose().TranslateToForeground();
+			//Draw the background
+			int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
+			if(!this.active)
+				gui.setColor(0.5f,0.5f,0.5f);
+			else
+				gui.resetColor();
+			gui.blit(DropdownWidget.GUI_TEXTURE, 0, 0, 0, offset, 2, DropdownWidget.HEIGHT);
+			int xOffset = 0;
+			while(xOffset < this.width - 4)
+			{
+				int xPart = Math.min(this.width - 4 - xOffset, 252);
+				gui.blit(DropdownWidget.GUI_TEXTURE, 2 + xOffset, 0, 2, offset, xPart, DropdownWidget.HEIGHT);
+				xOffset += xPart;
+			}
+			gui.blit(DropdownWidget.GUI_TEXTURE, this.width - 2, 0, 254, offset, 2, DropdownWidget.HEIGHT);
+			//Draw the option text
+			gui.drawString(TextRenderUtil.fitString(this.optionText, this.width - 4), 2, 2, 0x404040);
+
 			gui.resetColor();
-		gui.blit(DropdownWidget.GUI_TEXTURE, 0, 0, 0, offset, 2, DropdownWidget.HEIGHT);
-        int xOffset = 0;
-        while(xOffset < this.width - 4)
-        {
-        	int xPart = Math.min(this.width - 4 - xOffset, 252);
-			gui.blit(DropdownWidget.GUI_TEXTURE, 2 + xOffset, 0, 2, offset, xPart, DropdownWidget.HEIGHT);
-        	xOffset += xPart;
-        }
-		gui.blit(DropdownWidget.GUI_TEXTURE, this.width - 2, 0, 254, offset, 2, DropdownWidget.HEIGHT);
-        //Draw the option text
-		gui.drawString(TextRenderUtil.fitString(this.optionText, this.width - 4), 2, 2, 0x404040);
 
-		gui.resetColor();
-
+			gui.popOffset();
+			gui.popPose();
+		}
 	}
+
+	@Override
+	protected boolean isValidClickButton(int button) { return button == 0; }
+
+	@Override
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+		if(this.isActive() && this.clicked(mouseX, mouseY) && this.isValidClickButton(button))
+		{
+			EasyButton.playClick(Minecraft.getInstance().getSoundManager());
+			this.onPress.run();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {}
 
 }

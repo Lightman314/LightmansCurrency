@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -11,18 +12,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class TraderCategory extends NotificationCategory {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"trader");
+	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"trader"),TraderCategory::new);
 	
 	private final Item trader;
 	private final long traderID;
 	private final MutableComponent traderName;
-	public MutableComponent getTraderName() { return this.traderName; }
 	
 	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID) {
 		this.trader = trader.asItem();
@@ -53,11 +52,13 @@ public class TraderCategory extends NotificationCategory {
 	@Override
 	public IconData getIcon() { return IconData.of(this.trader); }
 	
+	@Nonnull
 	@Override
 	public MutableComponent getName() { return this.traderName; }
 
-	@Override
-	public ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	public NotificationCategoryType<TraderCategory> getType() { return TYPE; }
 	
 	@Override
 	public boolean matches(NotificationCategory other) {

@@ -75,6 +75,13 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_NETHERITE);
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
+                    //Event Coins
+                    ezPop(p, ModItems.COIN_CHOCOLATE_COPPER);
+                    ezPop(p, ModItems.COIN_CHOCOLATE_IRON);
+                    ezPop(p, ModItems.COIN_CHOCOLATE_GOLD);
+                    ezPop(p, ModItems.COIN_CHOCOLATE_EMERALD);
+                    ezPop(p, ModItems.COIN_CHOCOLATE_DIAMOND);
+                    ezPop(p, ModItems.COIN_CHOCOLATE_NETHERITE);
                 }).build()
         );
 
@@ -210,6 +217,7 @@ public class ModCreativeGroups {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
+            event.acceptAll(convertToStack(ModBlocks.CARD_DISPLAY.getAllSorted()));
             if(ModBlocks.SUS_JAR.get().asItem() instanceof DyeableLeatherItem susItem)
             {
                 for(Color c : Color.values())

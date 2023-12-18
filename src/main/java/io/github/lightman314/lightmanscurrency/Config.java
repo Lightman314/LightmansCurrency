@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +8,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
-import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
+import io.github.lightman314.lightmanscurrency.util.config.MoneyValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,9 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -65,29 +62,6 @@ public class Config {
 
 		//If no rule is against it, allow the minting
 		return true;
-	}
-
-	public static String formatValueDisplay(double value)
-	{
-		return Config.SERVER.valueFormat.get().replace("{value}", formatValueOnly(value));
-	}
-	public static String formatValueOnly(double value)
-	{
-		DecimalFormat df = new DecimalFormat();
-		df.setMaximumFractionDigits(getMaxDecimal());
-		return df.format(value);
-	}
-
-	private static int getMaxDecimal()
-	{
-		double minFraction = MoneyUtil.getData(CoinValue.fromNumber(1).coinValues.get(0).coin).getDisplayValue() % 1d;
-		if(minFraction > 0d)
-		{
-			//-2 to ignore the 0.
-			return Double.toString(minFraction).length() - 2;
-		}
-		else
-			return 0;
 	}
 
 	private static Map<String,Item> traderOverrides = new HashMap<>();
@@ -190,7 +164,7 @@ public class Config {
 			builder.comment("Quality Settings").push("quality");
 
 			this.itemRenderLimit = builder
-					.comment("Maximum number of items each Item Trader can render (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
+					.comment("Maximum number of items each Item Trader can renderBG (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
 							"Setting to 0 will disable item rendering entirely, so use with caution.")
 					.defineInRange("itemTraderRenderLimit", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
 
@@ -616,16 +590,9 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue meltNetherite;
 
 		//Wallet Options
-		public final ForgeConfigSpec.IntValue walletConvertLevel;
+		public final ForgeConfigSpec.IntValue walletExchangeLevel;
 		public final ForgeConfigSpec.IntValue walletPickupLevel;
 		public final ForgeConfigSpec.IntValue walletBankLevel;
-
-		//Value Display Options
-		public final ForgeConfigSpec.EnumValue<CoinItem.CoinItemTooltipType> coinTooltipType;
-		public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueType;
-		public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueInputType;
-		public final ItemValueConfig valueBaseCoin;
-		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 
 		//Capacity Upgrade Options
 		public final ForgeConfigSpec.IntValue itemUpgradeCapacity1;
@@ -633,7 +600,7 @@ public class Config {
 		public final ForgeConfigSpec.IntValue itemUpgradeCapacity3;
 
 		//Enchantment Options
-		public final CoinValueConfig moneyMendingCoinCost;
+		public final MoneyValueConfig moneyMendingCoinCost;
 		public final ForgeConfigSpec.IntValue coinMagnetRangeBase;
 		public final ForgeConfigSpec.IntValue coinMagnetRangeLevel;
 
@@ -667,13 +634,18 @@ public class Config {
 		public final ForgeConfigSpec.IntValue taxMachineMaxHeight;
 		public final ForgeConfigSpec.IntValue taxMachineMaxVertOffset;
 
-		//FTB Chunks Options
-		public final ForgeConfigSpec.BooleanValue ftbChunksAllowClaimPurchase;
-		public final CoinValueConfig ftbChunksClaimPrice;
-		public final ForgeConfigSpec.IntValue ftbChunksMaxClaimCount;
-		public final ForgeConfigSpec.BooleanValue ftbChunksAllowForceloadPurchase;
-		public final CoinValueConfig ftbChunksForceloadPrice;
-		public final ForgeConfigSpec.IntValue ftbChunksMaxForceloadCount;
+		//Event Options
+		public final ForgeConfigSpec.BooleanValue chocolateEventCoins;
+		public final ForgeConfigSpec.BooleanValue chocolateCoinEffects;
+		public final ForgeConfigSpec.DoubleValue chocolateCoinDropRate;
+
+		//FTB Chunks & Cadmus Claim Purchase Options
+		public final ForgeConfigSpec.BooleanValue claimingAllowClaimPurchase;
+		public final MoneyValueConfig claimingClaimPrice;
+		public final ForgeConfigSpec.IntValue claimingMaxClaimCount;
+		public final ForgeConfigSpec.BooleanValue claimingAllowForceloadPurchase;
+		public final MoneyValueConfig claimingForceloadPrice;
+		public final ForgeConfigSpec.IntValue claimingMaxForceloadCount;
 
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
@@ -742,50 +714,17 @@ public class Config {
 
 			builder.comment("Wallet Settings.").push("wallet");
 
-			this.walletConvertLevel = builder.comment("The lowest level wallet capable of converting coins in the UI.",
-							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet",
-							"Must be less than or equal to 'pickupLevel'.")
-					.defineInRange("convertLevel", 1, 0, 5);
+			this.walletExchangeLevel = builder.comment("The lowest level wallet capable of exchanging coins in the UI.",
+							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+					.defineInRange("convertLevel", 1, 0, 6);
 
 			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
-							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
-					.defineInRange("pickupLevel", 2, 0, 5);
+							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+					.defineInRange("pickupLevel", 2, 0, 6);
 
 			this.walletBankLevel = builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
-							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
-					.defineInRange("bankLevel", 5, 0, 5);
-
-			builder.pop();
-
-			builder.comment("Coin value display settings.").push("coin_value_display");
-
-			this.coinTooltipType = builder
-					.comment("Tooltip type displayed on coin items.",
-							"DEFAULT: Conversion tooltips, explaining it's value based on the coins it can be converted to/from.",
-							"VALUE: Coins numerical display value as defined by the coinValueType option below. Not recommend if using the DEFAULT coinValueType.")
-					.defineEnum("coinTooltipType", CoinItem.CoinItemTooltipType.DEFAULT);
-
-			this.coinValueType = builder
-					.comment("Value display method used throughout the mod.",
-							"DEFAULT: Coin Count & Icon aglomerate (1n5g for 1 netherite and 5 gold)",
-							"VALUE: Coin numerical display value as defined by the baseValueCoin and valueFormat config options below.")
-					.defineEnum("coinValueType", CoinValue.ValueType.DEFAULT);
-
-			this.coinValueInputType = builder
-					.comment("Input method used for the Coin Value Input.",
-							"DEFAULT: Default coin input with up/down buttons for each coin type.",
-							"VALUE: Text box input for the coins display value.")
-					.defineEnum("coinValueInputType", CoinValue.ValueType.DEFAULT);
-
-			this.valueBaseCoin = ItemValueConfig.define(builder
-							.comment("Coin item defined as $1.00 for display purposes. Any coins worth less than this base coin will have a decimal value.")
-					,"baseValueCoin", "lightmanscurrency:coin_copper", SPEC_SUPPLIER).withCheck(MoneyUtil::isVisibleCoin);
-
-			this.valueFormat = builder
-					.comment("Value display format. Used to add currency signs to coin value displays.",
-							"{value} will be replaced with the coins numerical value. Only 1 should be present at any given time.")
-					.define("valueFormat", "${value}");
-
+							"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+					.defineInRange("bankLevel", 5, 0, 6);
 
 			builder.pop();
 
@@ -815,8 +754,8 @@ public class Config {
 
 			builder.comment("Enchantment Settings").push("enchantments");
 
-			this.moneyMendingCoinCost = CoinValueConfig.define(builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
-					,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", CoinValue.fromNumber(1), SPEC_SUPPLIER);
+			this.moneyMendingCoinCost = MoneyValueConfig.define(builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
+					,"moneyMendingCoinCost", "coin;1-lightmanscurrency:coin_copper", () -> CoinValue.fromNumber("main", 1), SPEC_SUPPLIER);
 
 			this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
 					.defineInRange("coinMagnetRangeBase", 5, 0, 50);
@@ -850,7 +789,6 @@ public class Config {
 			this.moveUnnamedTradersToBottom = builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
 					.define("sortUnnamedToBottom", false);
 
-
 			builder.pop();
 
 			builder.comment("Player Trading Options").push("player_trading");
@@ -881,26 +819,41 @@ public class Config {
 
 			builder.pop();
 
-			builder.comment("FTB Chunks compat settings. Requires FTB Chunks to apply!").push("ftbchunks");
+			builder.comment("Event Coins").push("events");
+
+			this.chocolateEventCoins = builder.comment("Whether the Chocolate Event Coins will be added to the coin data.",
+							"Requires /lcreload for changes to take effect.",
+							"Note: Disabling will not remove any Chocolate Coin items that already exist.")
+					.define("chocolate", true);
+
+			this.chocolateCoinDropRate = builder.comment("The percentage of Chocolate Coins being dropped instead of normal coins while an event is active.",
+							"Note: Will only replace the built-in coins, so if you've modified the loot items to not include the default copper -> netherite coins, the chocolate coins will not drop.")
+							.defineInRange("chocolateRate", 0.1, 0d,1d);
+
+			this.chocolateCoinEffects = builder.comment("Whether the Chocolate Coins will give players custom potion and/or healing effects on consumption.")
+							.define("chocolateEffects", true);
+
+			builder.pop();
+
+			builder.comment("Claim purchasing settings for FTB Chunks & Cadmus. Requires FTB Chunks or Cadmus to apply!").push("claim_purchasing");
 
 			//Claim Purchase Settings
-			this.ftbChunksAllowClaimPurchase = builder.comment("Whether the '/lcftb buyClaim' command will be accesible to players.")
+			this.claimingAllowClaimPurchase = builder.comment("Whether the '/lcclaims buy claim' command will be accessible to players.")
 					.define("allowClaimPurchase", false);
-			this.ftbChunksClaimPrice = CoinValueConfig.define(builder.comment("The price per claim chunk purchased."),
-					"claimPrice", "1-lightmanscurrency:coin_gold", () -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100), SPEC_SUPPLIER);
-			this.ftbChunksMaxClaimCount = builder.comment("The maximum number of extra claim chunks allowed to be purchased with this command.",
-						"Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well.")
+			this.claimingClaimPrice = MoneyValueConfig.define(builder.comment("The price per claim chunk purchased."),
+					"claimPrice", "coin;1-lightmanscurrency:coin_gold", () -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100), SPEC_SUPPLIER);
+			this.claimingMaxClaimCount = builder.comment("The maximum number of extra claim chunks allowed to be purchased with this command.",
+						"Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
 					.defineInRange("maxClaimCount", 1000000, 1, Integer.MAX_VALUE);
 
 			//Forceload Purchase Settings
-			this.ftbChunksAllowForceloadPurchase = builder.comment("Whether the `/lcftb buyForceload` command will be accessible to players.")
+			this.claimingAllowForceloadPurchase = builder.comment("Whether the `/lcclaims buy forceload` or `/lccadmus buy forceload` command will be accessible to players.")
 					.define("allowForceloadPurchase", false);
-			this.ftbChunksForceloadPrice = CoinValueConfig.define(builder.comment("The price per forceload chunk purchased."),
-					"forceloadPrice", "10-lightmanscurrency:coin_netherite", () -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 10, 1000000), SPEC_SUPPLIER);
-			this.ftbChunksMaxForceloadCount = builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
+			this.claimingForceloadPrice = MoneyValueConfig.define(builder.comment("The price per forceload chunk purchased."),
+					"forceloadPrice", "coin;10-lightmanscurrency:coin_netherite", () -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 10, 1000000), SPEC_SUPPLIER);
+			this.claimingMaxForceloadCount = builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
 						"Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well.")
 					.defineInRange("maxForceloadCount", 100, 1, Integer.MAX_VALUE);
-
 
 			builder.pop();
 

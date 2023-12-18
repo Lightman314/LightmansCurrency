@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.refer
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -49,6 +49,7 @@ public class AuctionStandBlock extends Block implements IEasyEntityBlock {
         return InteractionResult.SUCCESS;
     }
 
+    @Nonnull
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return Lists.newArrayList(ModBlockEntities.AUCTION_STAND.get()); }
 

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import net.minecraft.core.BlockPos;
@@ -9,9 +10,9 @@ import net.minecraft.world.level.Level;
 
 public class ItemTraderDataArmor extends ItemTraderData {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader_armor");
+	public static final TraderType<ItemTraderDataArmor> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader_armor"),ItemTraderDataArmor::new);
 	
-	public ItemTraderDataArmor() { super(TYPE); }
+	private ItemTraderDataArmor() { super(TYPE); }
 	public ItemTraderDataArmor(Level level, BlockPos pos) { super(TYPE, 4, level, pos); }
 
 	@Override

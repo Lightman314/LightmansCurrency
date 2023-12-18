@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
@@ -33,6 +35,7 @@ public class LCLanguageProvider extends LanguageProvider {
         //Will only contain newly added wooden blocks on the patch they are made as a reminder
         // to add names for other MC versions that have different wood compats
         //this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s 2x2 Shelf", w -> true);
+        //this.addWoodenAndColoredBlocks(ModBlocks.CARD_DISPLAY, "%1$s Card Display (%2$s)");
 
     }
 
@@ -41,6 +44,11 @@ public class LCLanguageProvider extends LanguageProvider {
     protected void addWoodenBlocks(@Nonnull RegistryObjectBundle<? extends Block, WoodType> block, @Nonnull String format, @Nonnull Predicate<WoodType> generate)
     {
         block.forEach((woodType, b) -> { if(generate.test(woodType)) this.addBlock(b, String.format(format, woodType.displayName)); });
+    }
+
+    protected void addWoodenAndColoredBlocks(@Nonnull RegistryObjectBiBundle<? extends Block,WoodType, Color> block, @Nonnull String format)
+    {
+        block.forEach(((woodType, color, b) -> this.addBlock(b, String.format(format, woodType.displayName, color.getPrettyName()))));
     }
 
 }

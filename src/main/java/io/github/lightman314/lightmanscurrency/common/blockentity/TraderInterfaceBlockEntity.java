@@ -8,12 +8,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates.TraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -23,16 +24,17 @@ import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.NetworkTradeReference;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.SidedHandler;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceHandlerMessage;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
@@ -566,15 +568,15 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
-	public boolean allowUpgrade(UpgradeType type) {
-		return type == UpgradeType.SPEED || (type == UpgradeType.HOPPER && this.allowHopperUpgrade() && !this.hasHopperUpgrade()) || this.allowAdditionalUpgrade(type);
+	public boolean allowUpgrade(@Nonnull UpgradeType type) {
+		return type == Upgrades.SPEED || (type == Upgrades.HOPPER && this.allowHopperUpgrade() && !this.hasHopperUpgrade()) || this.allowAdditionalUpgrade(type);
 	}
 	
 	protected boolean allowHopperUpgrade() { return true; }
 	
 	protected boolean allowAdditionalUpgrade(UpgradeType type) { return false; }
 	
-	protected final boolean hasHopperUpgrade() { return UpgradeType.hasUpgrade(UpgradeType.HOPPER, this.upgradeSlots); }
+	protected final boolean hasHopperUpgrade() { return UpgradeType.hasUpgrade(Upgrades.HOPPER, this.upgradeSlots); }
 	
 	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) { 
 		List<ItemStack> contents = new ArrayList<>();

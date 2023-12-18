@@ -2,21 +2,23 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.aucti
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionTradeCancelClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class AuctionTradeCancelTab extends TraderStorageTab {
 	
-	public AuctionTradeCancelTab(TraderStorageMenu menu) { super(menu); }
+	public AuctionTradeCancelTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -33,7 +35,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, (LazyPacketData.Builder)null));
+				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
 				return null;
 			}
 			return ((AuctionHouseTrader)this.menu.getTrader()).getTrade(this.tradeIndex);
@@ -63,9 +65,9 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 				//Don't run the cancel interaction while on the client
 				return;
 			}
-			if(trade.isOwner(this.menu.player))
+			if(trade.isOwner(this.menu.getPlayer()))
 			{
-				trade.CancelTrade(trader, giveToPlayer, this.menu.player);
+				trade.CancelTrade(trader, giveToPlayer, this.menu.getPlayer());
 				trader.markTradesDirty();
 				trader.markStorageDirty();
 				this.menu.SendMessage(LazyPacketData.simpleBoolean("CancelSuccess", true));

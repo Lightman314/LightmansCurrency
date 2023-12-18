@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
@@ -126,12 +127,27 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateTicket(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
 
+	public static ItemStack CraftTicket(@Nonnull ItemStack master, @Nonnull Item item)
+	{
+		if(isMasterTicket(master))
+			return CreateTicketInternal(item, GetTicketID(master), GetTicketColor(master), 1);
+		return ItemStack.EMPTY;
+	}
+
 	private static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);
+		return ticket;
+	}
+
+	public static ItemStack CreateExampleTicket(@Nonnull Item item, @Nonnull Color color)
+	{
+		ItemStack ticket = new ItemStack(item);
+		CompoundTag tag = ticket.getOrCreateTag();
+		tag.putInt("TicketColor", color.hexColor);
 		return ticket;
 	}
 

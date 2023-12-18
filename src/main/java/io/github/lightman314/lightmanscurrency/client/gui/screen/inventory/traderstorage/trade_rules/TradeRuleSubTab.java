@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,8 +12,8 @@ import javax.annotation.Nullable;
 public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesClientSubTab
 {
 
-    public final ResourceLocation ruleType;
-    public TradeRuleSubTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull ResourceLocation ruleType) { super(parent); this.ruleType = ruleType; }
+    public final TradeRuleType<T> ruleType;
+    public TradeRuleSubTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<T> ruleType) { super(parent); this.ruleType = ruleType; }
 
     @Nullable
     @SuppressWarnings("unchecked")
@@ -23,7 +23,7 @@ public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesCli
         if(host != null)
         {
             try{
-                return (T)host.getRuleOfType(this.ruleType);
+                return (T)host.getRuleOfType(this.ruleType.type);
             } catch(Throwable ignored) { }
         }
         return null;
@@ -39,8 +39,8 @@ public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesCli
     }
 
     @Override
-    public MutableComponent getTooltip() { return TradeRule.nameOfType(this.ruleType); }
+    public MutableComponent getTooltip() { return TradeRule.nameOfType(this.ruleType.type); }
 
-    public void sendUpdateMessage(@Nonnull CompoundTag updateInfo) { this.commonTab.EditTradeRule(this.ruleType, updateInfo); }
+    public void sendUpdateMessage(@Nonnull LazyPacketData.Builder updateInfo) { this.commonTab.EditTradeRule(this.ruleType, updateInfo); }
 
 }

@@ -6,23 +6,24 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.BooleanPermission;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.BooleanPermission;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public abstract class InputTraderData extends TraderData {
 
-	public static MutableComponent getFacingName(Direction side) { return Component.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
+	public static MutableComponent getFacingName(Direction side) { return EasyText.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final Map<Direction,Boolean> inputSides = new HashMap<>();
@@ -43,10 +44,10 @@ public abstract class InputTraderData extends TraderData {
 		defaultValues.put(Permissions.InputTrader.EXTERNAL_INPUTS, 1);
 	}
 	
-	protected InputTraderData(ResourceLocation type) { this(type, ImmutableList.of()); }
-	protected InputTraderData(ResourceLocation type, ImmutableList<Direction> ignoreSides) { super(type); this.ignoreSides = ignoreSides; }
-	protected InputTraderData(ResourceLocation type, Level level, BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
-	protected InputTraderData(ResourceLocation type, Level level, BlockPos pos, ImmutableList<Direction> ignoreSides) {
+	protected InputTraderData(@Nonnull TraderType<?> type) { this(type, ImmutableList.of()); }
+	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull ImmutableList<Direction> ignoreSides) { super(type); this.ignoreSides = ignoreSides; }
+	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
+	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull ImmutableList<Direction> ignoreSides) {
 		super(type, level, pos);
 		this.ignoreSides = ignoreSides;
 	}
@@ -175,27 +176,6 @@ public abstract class InputTraderData extends TraderData {
 	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
 		super.handleSettingsChange(player, message);
 
-		if(message.contains("SetInputSide"))
-		{
-			boolean newValue = message.getBoolean("SetInputSide");
-			Direction side = Direction.from3DDataValue(message.getInt("Side"));
-			this.setInputSide(player, side, newValue);
-		}
-		if(message.contains("SetOutputSide"))
-		{
-			boolean newValue = message.getBoolean("SetOutputSide");
-			Direction side = Direction.from3DDataValue(message.getInt("Side"));
-			this.setOutputSide(player, side, newValue);
-		}
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	@Deprecated(since = "2.1.2.4")
-	public void receiveNetworkMessage(@Nonnull Player player, @Nonnull CompoundTag message)
-	{
-		super.receiveNetworkMessage(player, message);
-		
 		if(message.contains("SetInputSide"))
 		{
 			boolean newValue = message.getBoolean("SetInputSide");

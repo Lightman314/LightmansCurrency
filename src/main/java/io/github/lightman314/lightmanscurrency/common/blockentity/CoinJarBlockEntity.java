@@ -3,12 +3,13 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import org.jetbrains.annotations.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -48,7 +49,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	{
 		if(getCurrentCount() >= COIN_LIMIT)
 			return false;
-		if(!MoneyUtil.isCoin(coin, false))
+		if(!CoinAPI.isCoin(coin, false))
 			return false;
 		
 		boolean foundStack = false;

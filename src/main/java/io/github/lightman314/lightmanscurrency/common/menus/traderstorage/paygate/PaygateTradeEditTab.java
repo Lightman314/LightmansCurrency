@@ -2,14 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.payga
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -17,9 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class PaygateTradeEditTab extends TraderStorageTab {
 
-	public PaygateTradeEditTab(TraderStorageMenu menu) { super(menu); }
+	public PaygateTradeEditTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -55,14 +57,14 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 	
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
-	public void setPrice(CoinValue price) {
+	public void setPrice(MoneyValue price) {
 		PaygateTradeData trade = this.getTrade();
 		if(trade != null)
 		{
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleTag("NewPrice", price.save()));
+				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -112,7 +114,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewPrice"))
 		{
-			this.setPrice(CoinValue.load(message.getNBT("NewPrice")));
+			this.setPrice(message.getMoneyValue("NewPrice"));
 		}
 		else if(message.contains("NewTicket"))
 		{

@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
@@ -17,16 +17,17 @@ public abstract class CoinChestUpgrade extends UpgradeType {
 
     public boolean allowsDuplicates() { return false; }
 
-    public abstract void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message);
+    public abstract void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message);
 
-    public void OnStorageChanged(CoinChestBlockEntity be, CoinChestUpgradeData data) {}
-    public void OnEquip(CoinChestBlockEntity be, CoinChestUpgradeData data) {}
-    public boolean BlockAccess(CoinChestBlockEntity be, CoinChestUpgradeData data, Player player) { return false; }
-    public void OnValidBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) { }
-    public void OnBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) { }
+    public void OnStorageChanged(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {}
+    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {}
+    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nonnull Player player) { return false; }
+    public void OnValidBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { }
+    public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { }
     
     public abstract void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer);
 
+    @Nonnull
     @Override
     protected List<String> getDataTags() { return ImmutableList.of(); }
 

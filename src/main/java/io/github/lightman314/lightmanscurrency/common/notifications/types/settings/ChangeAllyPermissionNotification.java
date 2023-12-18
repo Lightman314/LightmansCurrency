@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
@@ -10,30 +11,35 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class ChangeAllyPermissionNotification extends Notification {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"change_ally_permissions");
+	public static final NotificationType<ChangeAllyPermissionNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"change_ally_permissions"),ChangeAllyPermissionNotification::new);
 	
 	PlayerReference player;
 	String permission;
 	int newValue;
 	int oldValue;
-	
+
+	private ChangeAllyPermissionNotification() {}
+
 	public ChangeAllyPermissionNotification(PlayerReference player, String permission, int newValue, int oldValue) {
 		this.player = player;
 		this.permission = permission;
 		this.newValue = newValue;
 		this.oldValue = oldValue;
 	}
-	
-	public ChangeAllyPermissionNotification(CompoundTag compound) { this.load(compound); }
 
-	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	protected NotificationType<ChangeAllyPermissionNotification> getType() { return TYPE; }
 
+	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
+	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
 		if(this.oldValue == 0)
@@ -43,7 +49,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.putString("Permission", this.permission);
 		compound.putInt("NewValue", this.newValue);
@@ -51,7 +57,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.permission = compound.getString("Permission");
 		this.newValue = compound.getInt("NewValue");
@@ -59,10 +65,9 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected boolean canMerge(Notification other) {
-		if(other instanceof ChangeAllyPermissionNotification)
+	protected boolean canMerge(@Nonnull Notification other) {
+		if(other instanceof ChangeAllyPermissionNotification n)
 		{
-			ChangeAllyPermissionNotification n = (ChangeAllyPermissionNotification)other;
 			return n.player.is(this.player) && n.permission.equals(this.permission) && n.newValue == this.newValue && n.oldValue == this.oldValue;
 		}
 		return false;

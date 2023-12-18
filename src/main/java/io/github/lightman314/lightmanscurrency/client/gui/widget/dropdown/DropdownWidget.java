@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -38,7 +38,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	private final Consumer<Integer> onSelect;
 	private final Function<Integer,Boolean> optionActive;
 	
-	List<EasyButton> optionButtons = new ArrayList<>();
+	List<DropdownButton> optionButtons = new ArrayList<>();
 	
 	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Component... options) {
 		this(pos.x, pos.y, width, selected, onSelect, options);
@@ -84,8 +84,9 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		this.optionButtons = new ArrayList<>();
 		for(int i = 0; i < this.options.size(); ++i)
 		{
+			final int index = i;
 			int yPos = this.getY() + HEIGHT + (i * HEIGHT);
-			DropdownButton button = this.addChild(new DropdownButton(this.getX(), yPos, this.width, this.options.get(i), this::OnSelect));
+			DropdownButton button = this.addChild(new DropdownButton(this.getX(), yPos, this.width, this.options.get(i), () -> this.OnSelect(index)));
 			this.optionButtons.add(button);
 			this.optionButtons.get(i).visible = this.open;
 		}
@@ -147,7 +148,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 
 	private boolean isOverChild(double mouseX, double mouseY)
 	{
-		for(EasyButton b : this.optionButtons)
+		for(DropdownButton b : this.optionButtons)
 		{
 			if(b.isMouseOver(mouseX, mouseY))
 				return true;
@@ -155,9 +156,9 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		return false;
 	}
 
-	private void OnSelect(EasyButton button) {
-		int index = this.optionButtons.indexOf(button);
-		if(index < 0)
+	private void OnSelect(int index)
+	{
+		if(index < 0 || index >= this.optionButtons.size())
 			return;
 		this.currentlySelected = index;
 		this.onSelect.accept(index);

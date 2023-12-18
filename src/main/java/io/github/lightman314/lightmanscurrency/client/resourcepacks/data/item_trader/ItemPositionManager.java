@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -34,7 +34,7 @@ public class ItemPositionManager extends SimpleJsonResourceReloadListener {
             try {
                 ItemPositionData data = ItemPositionData.parse(GsonHelper.convertToJsonObject(json,"top element"));
                 this.itemPositions.put(id,data);
-            } catch (JsonParseException | IllegalArgumentException exception) {
+            } catch (JsonSyntaxException | IllegalArgumentException exception) {
                 LightmansCurrency.LogError("Parsing error loading item position data " + id, exception); }
         });
         LightmansCurrency.LogDebug("Loaded " + this.itemPositions.size() + " Item Position entries!");

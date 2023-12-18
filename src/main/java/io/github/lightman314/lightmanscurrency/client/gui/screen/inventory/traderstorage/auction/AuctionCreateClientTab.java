@@ -1,9 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -19,12 +20,11 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentAuction;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
@@ -48,13 +48,13 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
-	public boolean blockInventoryClosing() { return LCAdminMode.isAdminPlayer(this.screen.getMenu().player); }
+	public boolean blockInventoryClosing() { return LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer()); }
 	
 	AuctionTradeData pendingAuction;
 	
 	TradeButton tradeDisplay;
 	
-	CoinValueInput priceSelect;
+	MoneyValueWidget priceSelect;
 	EasyButton buttonTogglePriceMode;
 	boolean startingBidMode = true;
 
@@ -73,7 +73,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 
 		if(firstOpen)
 		{
-			this.pendingAuction = new AuctionTradeData(this.menu.player);
+			this.pendingAuction = new AuctionTradeData(this.menu.getPlayer());
 			this.locked = false;
 			this.successTime = 0;
 			this.startingBidMode = true;
@@ -83,8 +83,8 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, () -> this.pendingAuction, b -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset(15, 5));
 		
-		this.priceSelect = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 34), EasyText.empty(), CoinValue.EMPTY, this.getFont(), this::onPriceChanged));
-		this.priceSelect.drawBG = this.priceSelect.allowFreeToggle = false;
+		this.priceSelect = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34), firstOpen ? null : this.priceSelect, MoneyValue.empty(), this::onPriceChanged));
+		this.priceSelect.drawBG = this.priceSelect.allowFreeInput = false;
 		
 		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 5), screenArea.width - 119, 20, EasyText.translatable("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()));
 		
@@ -100,12 +100,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		
 		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA)
 				.withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION)));
-		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().player);
+		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		this.buttonSubmitPersistentAuction.active = false;
 		
 		int idWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"));
 		this.persistentAuctionIDInput = this.addChild((new EditBox(this.getFont(), screenArea.x + idWidth + 2, screenArea.y - 40, screenArea.width - idWidth - 2, 18, EasyText.empty())));
-		this.persistentAuctionIDInput.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().player);
+		this.persistentAuctionIDInput.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		
 	}
 	
@@ -128,15 +128,15 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		if(this.locked && this.successTime != 0)
 			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
-		if(LCAdminMode.isAdminPlayer(this.screen.getMenu().player))
+		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))
 			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"), 0, -35, 0xFFFFFF);
 		
 	}
 	
 	@Override
 	public void tick() {
-		this.priceSelect.locked = this.locked;
-		this.priceSelect.tick();
+		if(this.locked && !this.priceSelect.isLocked())
+			this.priceSelect.lock();
 		if(this.locked && this.successTime != 0)
 		{
 			if(TimeUtil.compareTime(CLOSE_DELAY, this.successTime))
@@ -156,7 +156,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
-		if(LCAdminMode.isAdminPlayer(this.screen.getMenu().player))
+		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))
 		{
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = !this.locked;
 			this.buttonSubmitPersistentAuction.active = this.pendingAuction.isValid();
@@ -171,7 +171,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.pendingAuction.setAuctionItems(this.commonTab.getAuctionItems());
 	}
 	
-	private void onPriceChanged(CoinValue newPrice) {
+	private void onPriceChanged(MoneyValue newPrice) {
 		if(this.startingBidMode)
 			this.pendingAuction.setStartingBid(newPrice);
 		else
@@ -182,9 +182,9 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.startingBidMode = !this.startingBidMode;
 		this.buttonTogglePriceMode.setMessage(EasyText.translatable(this.startingBidMode ? "button.lightmanscurrency.auction.toggleprice.startingbid" : "button.lightmanscurrency.auction.toggleprice.mindeltabid"));
 		if(this.startingBidMode)
-			this.priceSelect.setCoinValue(this.pendingAuction.getLastBidAmount());
+			this.priceSelect.changeValue(this.pendingAuction.getLastBidAmount());
 		else
-			this.priceSelect.setCoinValue(this.pendingAuction.getMinBidDifference());
+			this.priceSelect.changeValue(this.pendingAuction.getMinBidDifference());
 	}
 	
 	

@@ -1,18 +1,22 @@
 package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WalletDisplayOverlay implements IGuiOverlay {
@@ -40,8 +44,9 @@ public class WalletDisplayOverlay implements IGuiOverlay {
             currentPosition = currentPosition.offset(ScreenPosition.of(0, -16));
 
         //Draw the wallet
-        ItemStack wallet = LightmansCurrency.getWalletStack(fgui.getMinecraft().player);
-        if(!wallet.isEmpty())
+        IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(fgui.getMinecraft().player);
+        ItemStack wallet = walletHandler.getWallet();
+        if(WalletItem.isWallet(wallet))
         {
             //Draw the wallet
             gui.renderItem(wallet, currentPosition.x, currentPosition.y);
@@ -50,15 +55,20 @@ public class WalletDisplayOverlay implements IGuiOverlay {
             else
                 currentPosition = currentPosition.offset(ScreenPosition.of(17,0));
 
-            CoinValue walletValue = MoneyUtil.getCoinValue(WalletItem.getWalletInventory(wallet));
+            MoneyView contents = walletHandler.getStoredMoney();
 
             //Draw the stored money
             switch(Config.CLIENT.walletOverlayType.get())
             {
                 case ITEMS_NARROW,ITEMS_WIDE -> {
                     int offsetAmount = Config.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
-                    List<ItemStack> contents = walletValue.getAsItemList();
-                    for(ItemStack coin : contents)
+                    List<ItemStack> walletContents;
+                    MoneyValue randomValue = contents.getRandomValue();
+                    if(randomValue instanceof CoinValue coinValue)
+                        walletContents = coinValue.getAsItemList();
+                    else
+                        walletContents = new ArrayList<>();
+                    for(ItemStack coin : walletContents)
                     {
                         gui.renderItem(coin, currentPosition.x, currentPosition.y);
                         if(corner.isRightSide)
@@ -68,11 +78,11 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                     }
                 }
                 case TEXT -> {
-                    String valueString = walletValue.getString();
+                    Component walletText = contents.getRandomValueText();
                     if(corner.isRightSide)
-                        gui.drawString(valueString, currentPosition.offset(-1 * gui.font.width(valueString), 3), 0xFFFFFF);
+                        gui.drawString(walletText, currentPosition.offset(-1 * gui.font.width(walletText), 3), 0xFFFFFF);
                     else
-                        gui.drawString(valueString, currentPosition.offset(0,3), 0xFFFFFF);
+                        gui.drawString(walletText, currentPosition.offset(0,3), 0xFFFFFF);
                 }
             }
 

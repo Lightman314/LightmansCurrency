@@ -66,7 +66,7 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
                         results.add(rl);
                 }
                 this.data.put(id, results);
-            } catch (JsonParseException | IllegalArgumentException | ResourceLocationException exception) {
+            } catch (JsonSyntaxException | IllegalArgumentException | ResourceLocationException exception) {
                 LightmansCurrency.LogError("Parsing error loading item position data " + id, exception); }
         });
         LightmansCurrency.LogDebug("Loaded " + this.data.size() + " Item Position Block entries!");

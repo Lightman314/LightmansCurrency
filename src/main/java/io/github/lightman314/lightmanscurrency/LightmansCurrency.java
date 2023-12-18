@@ -1,9 +1,19 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
+import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -12,45 +22,39 @@ import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.Taxa
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCadmusIntegration;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
-import io.github.lightman314.lightmanscurrency.integration.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
-import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.VillagerTradeManager;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
-import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.common.notifications.*;
+import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.*;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.*;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.*;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -123,9 +127,7 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(PROXY);
 
 		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
-
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, null);
-
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
         
     }
@@ -134,73 +136,80 @@ public class LightmansCurrency {
 
 	private void commonSetupWork(FMLCommonSetupEvent event) {
 
+		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
+		IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);
+
+		//Setup Money System
+		CoinAPI.Setup();
+		//Register built-in Currency Types
+		MoneyAPI.registerCurrencyType(CoinCurrencyType.INSTANCE);
+		MoneyAPI.registerCurrencyType(NullCurrencyType.INSTANCE);
+
 		LightmansCurrencyPacketHandler.init();
 
 		//Register Crafting Conditions
 		LCCraftingConditions.register();
 
 		//Initialize the TraderData deserializers
-		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
-		TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
-		TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
-		TraderData.register(ItemTraderDataBook.TYPE, ItemTraderDataBook::new);
-		TraderData.register(SlotMachineTraderData.TYPE, SlotMachineTraderData::new);
-		TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
-		TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
+		TraderAPI.registerTrader(ItemTraderData.TYPE);
+		TraderAPI.registerTrader(ItemTraderDataArmor.TYPE);
+		TraderAPI.registerTrader(ItemTraderDataTicket.TYPE);
+		TraderAPI.registerTrader(ItemTraderDataBook.TYPE);
+		TraderAPI.registerTrader(SlotMachineTraderData.TYPE);
+		TraderAPI.registerTrader(PaygateTraderData.TYPE);
+		TraderAPI.registerTrader(AuctionHouseTrader.TYPE);
 
 		//Register the custom game rules
 		ModGameRules.registerRules();
 
 		//Initialize the Trade Rule deserializers
-		TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist::new);
-		TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist::new);
-		TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit::new);
-		TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, PlayerTradeLimit::new, true);
-		TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, PlayerDiscounts::new);
-		TradeRule.RegisterDeserializer(TimedSale.TYPE, TimedSale::new);
-		TradeRule.RegisterDeserializer(TradeLimit.TYPE, TradeLimit::new);
-		TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, TradeLimit::new, true);
-		TradeRule.RegisterDeserializer(FreeSample.TYPE, FreeSample::new);
-		TradeRule.RegisterDeserializer(PriceFluctuation.TYPE, PriceFluctuation::new);
+		TraderAPI.registerTradeRule(PlayerWhitelist.TYPE);
+		TraderAPI.registerTradeRule(PlayerBlacklist.TYPE);
+		TraderAPI.registerTradeRule(PlayerTradeLimit.TYPE);
+		TraderAPI.registerTradeRule(PlayerDiscounts.TYPE);
+		TraderAPI.registerTradeRule(TimedSale.TYPE);
+		TraderAPI.registerTradeRule(TradeLimit.TYPE);
+		TraderAPI.registerTradeRule(FreeSample.TYPE);
+		TraderAPI.registerTradeRule(PriceFluctuation.TYPE);
 
 		//Initialize the Notification deserializers
-		Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
-		Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
-		Notification.register(SlotMachineTradeNotification.TYPE, SlotMachineTradeNotification::new);
-		Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
-		Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
-		Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);
-		Notification.register(AuctionHouseBuyerNotification.TYPE, AuctionHouseBuyerNotification::new);
-		Notification.register(AuctionHouseSellerNobidNotification.TYPE, AuctionHouseSellerNobidNotification::new);
-		Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
-		Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
-		Notification.register(TextNotification.TYPE, TextNotification::new);
-		Notification.register(AddRemoveAllyNotification.TYPE, AddRemoveAllyNotification::new);
-		Notification.register(AddRemoveTradeNotification.TYPE, AddRemoveTradeNotification::new);
-		Notification.register(ChangeAllyPermissionNotification.TYPE, ChangeAllyPermissionNotification::new);
-		Notification.register(ChangeCreativeNotification.TYPE, ChangeCreativeNotification::new);
-		Notification.register(ChangeNameNotification.TYPE, ChangeNameNotification::new);
-		Notification.register(ChangeOwnerNotification.TYPE, ChangeOwnerNotification::new);
-		Notification.register(ChangeSettingNotification.SIMPLE_TYPE, ChangeSettingNotification.Simple::new);
-		Notification.register(ChangeSettingNotification.ADVANCED_TYPE, ChangeSettingNotification.Advanced::new);
-		Notification.register(DepositWithdrawNotification.PLAYER_TYPE, DepositWithdrawNotification.Player::new);
-		Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
-		Notification.register(DepositWithdrawNotification.SERVER_TYPE, DepositWithdrawNotification.Server::new);
-		Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
-		Notification.register(TaxesCollectedNotification.TYPE, TaxesCollectedNotification::new);
-		Notification.register(TaxesPaidNotification.TYPE, TaxesPaidNotification::new);
+		NotificationAPI.registerNotification(ItemTradeNotification.TYPE);
+		NotificationAPI.registerNotification(PaygateNotification.TYPE);
+		NotificationAPI.registerNotification(SlotMachineTradeNotification.TYPE);
+		NotificationAPI.registerNotification(OutOfStockNotification.TYPE);
+		NotificationAPI.registerNotification(LowBalanceNotification.TYPE);
+		NotificationAPI.registerNotification(AuctionHouseSellerNotification.TYPE);
+		NotificationAPI.registerNotification(AuctionHouseBuyerNotification.TYPE);
+		NotificationAPI.registerNotification(AuctionHouseSellerNobidNotification.TYPE);
+		NotificationAPI.registerNotification(AuctionHouseBidNotification.TYPE);
+		NotificationAPI.registerNotification(AuctionHouseCancelNotification.TYPE);
+		NotificationAPI.registerNotification(TextNotification.TYPE);
+		NotificationAPI.registerNotification(AddRemoveAllyNotification.TYPE);
+		NotificationAPI.registerNotification(AddRemoveTradeNotification.TYPE);
+		NotificationAPI.registerNotification(ChangeAllyPermissionNotification.TYPE);
+		NotificationAPI.registerNotification(ChangeCreativeNotification.TYPE);
+		NotificationAPI.registerNotification(ChangeNameNotification.TYPE);
+		NotificationAPI.registerNotification(ChangeOwnerNotification.TYPE);
+		NotificationAPI.registerNotification(ChangeSettingNotification.SIMPLE_TYPE);
+		NotificationAPI.registerNotification(ChangeSettingNotification.ADVANCED_TYPE);
+		NotificationAPI.registerNotification(DepositWithdrawNotification.PLAYER_TYPE);
+		NotificationAPI.registerNotification(DepositWithdrawNotification.TRADER_TYPE);
+		NotificationAPI.registerNotification(DepositWithdrawNotification.SERVER_TYPE);
+		NotificationAPI.registerNotification(BankTransferNotification.TYPE);
+		NotificationAPI.registerNotification(TaxesCollectedNotification.TYPE);
+		NotificationAPI.registerNotification(TaxesPaidNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
-		NotificationCategory.registerInstance(NotificationCategory.GENERAL_TYPE, NotificationCategory.GENERAL);
-		NotificationCategory.registerInstance(NullCategory.TYPE, NullCategory.INSTANCE);
-		NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
-		NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
-		NotificationCategory.registerInstance(AuctionHouseCategory.TYPE, AuctionHouseCategory.INSTANCE);
-		NotificationCategory.register(TaxEntryCategory.TYPE, TaxEntryCategory::new);
+		NotificationAPI.registerCategory(NotificationCategory.GENERAL_TYPE);
+		NotificationAPI.registerCategory(NullCategory.TYPE);
+		NotificationAPI.registerCategory(TraderCategory.TYPE);
+		NotificationAPI.registerCategory(BankCategory.TYPE);
+		NotificationAPI.registerCategory(AuctionHouseCategory.TYPE);
+		NotificationAPI.registerCategory(TaxEntryCategory.TYPE);
 
 		//Register Trader Search Filters
-		TraderSearchFilter.addFilter(new BasicSearchFilter());
-		TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
+		TraderAPI.registerSearchFilter(new BasicSearchFilter());
+		TraderAPI.registerSearchFilter(new ItemTraderSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxReferenceType.register(TaxableTraderReference.TYPE);
@@ -214,17 +223,18 @@ public class LightmansCurrency {
 		MenuValidatorType.register(BlockEntityValidator.TYPE);
 		MenuValidatorType.register(BlockValidator.TYPE);
 
-		//Register Upgrade Types
-		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());
-
-		ATMIconData.init();
-
 		//Initialize the Item Trade Restrictions
 		ItemTradeRestriction.init();
 
 		//Villager Trades
 		VillagerTradeManager.registerDefaultTrades();
 		ItemListingSerializer.registerDefaultSerializers();
+
+		//Register Loot Modifiers
+		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
+
+		//Register Advancement Triggers
+		LCAdvancementTriggers.setup();
 
 	}
     
@@ -239,13 +249,15 @@ public class LightmansCurrency {
     		LootManager.debugLootConfigs();
 
 			//Only reload villager overrides on the initial load, as it's impossible to change the values after the villager trades have been loaded.
-			Config.reloadVillagerOverrides();
+			if(event instanceof ModConfigEvent.Loading)
+				Config.reloadVillagerOverrides();
     	}
     }
     
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {
     	event.register(IWalletHandler.class);
+    	event.register(IMoneyViewer.class);
     	event.register(ISpawnTracker.class);
     }
     
@@ -264,26 +276,14 @@ public class LightmansCurrency {
      * Easy public access to the equipped wallet.
      * Also confirms that the equipped wallet is either empty or a valid WalletItem.
      * Returns an empty stack if no wallet is equipped, or if the equipped item is not a valid wallet.
+	 * @deprecated Use {@link CoinAPI#getWalletStack(Player)} instead
      */
+	@Deprecated(since = "2.2.0.0")
     public static ItemStack getWalletStack(Player player)
     {
-
 		if(player == null)
 			return ItemStack.EMPTY;
-
-    	ItemStack wallet = ItemStack.EMPTY;
-    	
-    	IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
-    	if(walletHandler != null)
-    		wallet = walletHandler.getWallet();
-    	//Safety check to confirm that the Item Stack found is a valid wallet
-    	if(!WalletItem.validWalletStack(wallet))
-    	{
-    		LightmansCurrency.LogDebug(player.getName().getString() + "'s equipped wallet is not a valid WalletItem.");
-    		LightmansCurrency.LogDebug("Equipped wallet is of type " + wallet.getItem().getClass().getName());
-			return ItemStack.EMPTY;
-    	}
-    	return wallet;
+    	return CoinAPI.getWalletStack(player);
     }
 
     public static void LogDebug(String message) { LOGGER.debug(message); }

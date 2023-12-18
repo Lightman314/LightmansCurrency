@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
@@ -18,8 +18,8 @@ public interface IPlayerTrade {
     Component getHostName();
     Component getGuestName();
 
-    CoinValue getHostMoney();
-    CoinValue getGuestMoney();
+    MoneyValue getHostMoney();
+    MoneyValue getGuestMoney();
 
     Container getHostItems();
     Container getGuestItems();

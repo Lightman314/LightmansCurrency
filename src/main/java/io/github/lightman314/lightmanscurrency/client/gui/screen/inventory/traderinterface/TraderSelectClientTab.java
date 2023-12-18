@@ -6,27 +6,26 @@ import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.sorting.TerminalSorter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -188,7 +187,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())
@@ -214,20 +213,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public void setScroll(int newScroll) {
 		this.scroll = Math.min(newScroll, this.getMaxScroll());
 		this.updateTraderButtons();
-	}
-	
-	private boolean onMouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.scroll < this.getMaxScroll())
-				this.setScroll(this.scroll + 1);
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				this.setScroll(this.scroll - 1);
-		}
-		return false;
 	}
 	
 }

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Quaternionf;
@@ -80,7 +80,7 @@ public abstract class RotationHandler
     {
         if(ROTATION_HANDLERS.containsKey(typeName))
         {
-            LightmansCurrency.LogWarning("Could not register duplicate rotation handler '" + typeName + "'!");
+            LightmansCurrency.LogWarning("Could not registerNotification duplicate rotation handler '" + typeName + "'!");
             return;
         }
         ROTATION_HANDLERS.put(typeName, handler);

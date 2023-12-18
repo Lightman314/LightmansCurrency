@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -14,9 +13,9 @@ import net.minecraft.world.level.Level;
 
 public class RecipeValidator {
 	
-	public static Results getValidRecipes(Level level)
+	public static Results<CoinMintRecipe> getValidMintRecipes(Level level)
 	{
-		Results results = new Results();
+		Results<CoinMintRecipe> results = new Results<>();
 		RecipeManager recipeManager = level.getRecipeManager();
 		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT.get()))
 		{
@@ -24,9 +23,21 @@ public class RecipeValidator {
 			{
 				if(mintRecipe.isValid())
 				{
-					results.coinMintRecipes.add(mintRecipe);
+					results.recipes.add(mintRecipe);
 				}
 			}
+		}
+		return results;
+	}
+
+	public static Results<TicketStationRecipe> getValidTicketStationRecipes(Level level)
+	{
+		Results<TicketStationRecipe> results = new Results<>();
+		RecipeManager recipeManager = level.getRecipeManager();
+		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.TICKET.get()))
+		{
+			if(recipe instanceof TicketStationRecipe tmr)
+				results.recipes.add(tmr);
 		}
 		return results;
 	}
@@ -36,12 +47,10 @@ public class RecipeValidator {
 		return recipeManager.getRecipes().stream().filter(recipe -> recipe.getType() == recipeType).collect(Collectors.toSet());
 	}
 	
-	public static class Results
+	public static class Results<T extends Recipe<?>>
 	{
-		private final List<CoinMintRecipe> coinMintRecipes = Lists.newArrayList();
-		
-		
-		public List<CoinMintRecipe> getCoinMintRecipes() { return this.coinMintRecipes; }
+		private final List<T> recipes = new ArrayList<>();
+		public List<T> getRecipes() { return this.recipes; }
 	}
 	
 }

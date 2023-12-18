@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.tax_collector;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 

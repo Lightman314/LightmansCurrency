@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -166,6 +166,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 		//Set the search to the default value to initialize the inventory
 		this.modifySearch(this.getOldSearchString());
+		if(this.oldItemEdit != null)
+			this.setScroll(this.oldItemEdit.scroll);
 
 	}
 
@@ -331,7 +333,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
-			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
+			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease registerNotification during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
 			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
 		if(!preFilteredItems.containsKey(type))
@@ -433,11 +435,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-
-		if(!this.visible)
-			return;
-
-		//Removed search check as this is now handled by EditBox.setResponder
+		//Removed search check as this is now handled by EditBox#setResponder
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
@@ -465,8 +463,6 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	}
 
-	public void tick() { this.searchInput.tick(); }
-
 	private ItemStack getQuantityFixedStack(ItemStack stack) {
 		ItemStack copy = stack.copy();
 		copy.setCount(Math.min(stack.getMaxStackSize(), this.stackCount));
@@ -475,7 +471,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public List<Component> getTooltipText(int mouseX, int mouseY) {
-		if(!this.visible)
+		if(!this.isVisible())
 			return null;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
@@ -494,6 +490,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	private int isMouseOverSlot(double mouseX, double mouseY) {
+		if(!this.isVisible())
+			return -1;
 
 		int foundColumn = -1;
 		int foundRow = -1;

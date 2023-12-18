@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.notific
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.function.Consumer;

@@ -10,6 +10,8 @@ import com.google.common.base.Suppliers;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -23,16 +25,12 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferen
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
-import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -85,7 +83,7 @@ public class ClientProxy extends CommonProxy{
 
     	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
     	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
-    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
+    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketStationScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
@@ -104,7 +102,7 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
-		//BlockEntityRenderers.register(ModBlockEntities.TAX_BLOCK.get(), TaxBlockRenderer::new);
+		//BlockEntityRenderers.registerNotification(ModBlockEntities.TAX_BLOCK.get(), TaxBlockRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
@@ -264,11 +262,8 @@ public class ClientProxy extends CommonProxy{
 	//Add coin value tooltips to non CoinItem coins.
 	public void onItemTooltip(ItemTooltipEvent event) {
 		Item item = event.getItemStack().getItem();
-		CoinData coinData = MoneyUtil.getData(item);
-		if(coinData != null && !(item instanceof CoinItem || item instanceof CoinBlockItem))
-		{
-			CoinItem.addCoinTooltips(event.getItemStack(), event.getToolTip());
-		}
+		if(CoinAPI.isCoin(item, true))
+			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 	}
 	
 	@Override

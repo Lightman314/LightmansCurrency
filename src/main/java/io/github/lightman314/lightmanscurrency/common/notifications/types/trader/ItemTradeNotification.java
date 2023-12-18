@@ -4,40 +4,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
 public class ItemTradeNotification extends TaxableNotification {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trade");
+	public static final NotificationType<ItemTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trade"),ItemTradeNotification::new);
 	
 	TraderCategory traderData;
 	
 	ItemTradeType tradeType;
 	List<ItemWriteData> items;
-	CoinValue cost = CoinValue.EMPTY;
+	MoneyValue cost = MoneyValue.empty();
 	
 	String customer;
-	
-	public ItemTradeNotification(ItemTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) {
+
+	private ItemTradeNotification(){}
+
+	public ItemTradeNotification(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) {
 
 		super(taxesPaid);
 
@@ -63,13 +65,13 @@ public class ItemTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(ItemTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory trader, CoinValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
+	public static NonNullSupplier<Notification> create(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory trader, MoneyValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
 	
-	public ItemTradeNotification(CompoundTag compound) { this.load(compound); }
-	
+	@Nonnull
 	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	protected NotificationType<ItemTradeNotification> getType() { return TYPE; }
 
+	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
@@ -89,7 +91,7 @@ public class ItemTradeNotification extends TaxableNotification {
 			itemText = ItemWriteData.getItemNames(this.items.get(2), this.items.get(3));
 		}
 		else
-			cost = this.cost.getComponent("0");
+			cost = this.cost.getText("0");
 
 		//Create log from stored data
 		return EasyText.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
@@ -121,13 +123,13 @@ public class ItemTradeNotification extends TaxableNotification {
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemWriteData(itemList.getCompound(i)));
 		if(this.tradeType != ItemTradeType.BARTER)
-			this.cost = CoinValue.safeLoad(compound, "Price");
+			this.cost = MoneyValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}
 
 	@Override
-	protected boolean canMerge(Notification other) {
+	protected boolean canMerge(@Nonnull Notification other) {
 		if(other instanceof ItemTradeNotification itn)
 		{
 			if(!itn.traderData.matches(this.traderData))
@@ -145,7 +147,7 @@ public class ItemTradeNotification extends TaxableNotification {
 				if(i1.count != i2.count)
 					return false;
 			}
-			if(itn.cost.getValueNumber() != this.cost.getValueNumber())
+			if(itn.cost.equals(this.cost))
 				return false;
 			if(!itn.customer.equals(this.customer))
 				return false;
@@ -153,17 +155,6 @@ public class ItemTradeNotification extends TaxableNotification {
 			return this.TaxesMatch(itn);
 		}
 		return false;
-	}
-
-	@Deprecated(since = "v2.1.1.5")
-	public static class ItemData extends ItemWriteData {
-
-		public ItemData(ItemStack item) { super(item); }
-
-		public ItemData(ItemStack item, String customName) { super(item, customName); }
-
-		public ItemData(CompoundTag compound) { super(compound); }
-
 	}
 	
 }

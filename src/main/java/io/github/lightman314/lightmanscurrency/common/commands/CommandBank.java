@@ -7,13 +7,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.common.commands.arguments.CoinValueArgument;
+import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.secrets.Secret;
@@ -34,33 +34,33 @@ public class CommandBank {
                 .requires(stack -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
                 .then(Commands.literal("give")
                         .then(Commands.literal("allPlayers")
-                                .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                         .executes(CommandBank::giveAllPlayers)))
                         .then(Commands.literal("allTeams")
-                                .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                         .executes(CommandBank::giveAllTeams)))
                         .then(Commands.literal("players")
                                 .then(Commands.argument("players", EntityArgument.players())
-                                        .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                        .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                                 .executes(CommandBank::givePlayers))))
                         .then(Commands.literal("team")
                                 .then(Commands.argument("teamID", LongArgumentType.longArg(0))
-                                        .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                        .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                                 .executes(CommandBank::giveTeam)))))
                 .then(Commands.literal("take")
                         .then(Commands.literal("allPlayers")
-                                .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                         .executes(CommandBank::takeAllPlayers)))
                         .then(Commands.literal("allTeams")
-                                .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                         .executes(CommandBank::takeAllTeams)))
                         .then(Commands.literal("players")
                                 .then(Commands.argument("players", EntityArgument.players())
-                                        .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                        .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                                 .executes(CommandBank::takePlayers))))
                         .then(Commands.literal("team")
                                 .then(Commands.argument("teamID", LongArgumentType.longArg(0))
-                                        .then(Commands.argument("amount", CoinValueArgument.argument(context))
+                                        .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                                 .executes(CommandBank::takeTeam)))));
 
         dispatcher.register(bankCommand);
@@ -69,26 +69,26 @@ public class CommandBank {
 
     static int giveAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
         return giveTo(commandContext.getSource(), BankSaveData.GetPlayerBankAccounts(), amount);
     }
 
     static int giveAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
         return giveTo(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getBankReference).toList(), amount);
     }
 
     static int givePlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         return giveTo(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(PlayerBankReference::of).toList(), amount);
     }
 
     static int giveTeam(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
         Team team = TeamSaveData.GetTeam(false, teamID);
         if(team == null)
@@ -104,7 +104,7 @@ public class CommandBank {
         return giveTo(source, Lists.newArrayList(team.getBankReference()), amount);
     }
 
-    static int giveTo(CommandSourceStack source, List<BankReference> accounts, CoinValue amount)
+    static int giveTo(CommandSourceStack source, List<BankReference> accounts, MoneyValue amount)
     {
         int count = 0;
         Component bankName = null;
@@ -123,35 +123,35 @@ public class CommandBank {
         else
         {
             if(count == 1)
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success.single", amount.getComponent("NULL"), bankName), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success.single", amount.getText("NULL"), bankName), true);
             else
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success", amount.getComponent("NULL"), count), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.give.success", amount.getText("NULL"), count), true);
         }
         return count;
     }
 
     static int takeAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
         return takeFrom(commandContext.getSource(), BankSaveData.GetPlayerBankAccounts(), amount);
     }
 
     static int takeAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
         return takeFrom(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getBankReference).toList(), amount);
     }
 
     static int takePlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         return takeFrom(commandContext.getSource(), EntityArgument.getPlayers(commandContext, "players").stream().map(PlayerBankReference::of).toList(), amount);
     }
 
     static int takeTeam(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
-        CoinValue amount = CoinValueArgument.getCoinValue(commandContext, "amount");
+        MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
         Team team = TeamSaveData.GetTeam(false, teamID);
         if(team == null)
@@ -167,20 +167,20 @@ public class CommandBank {
         return takeFrom(commandContext.getSource(), Lists.newArrayList(team.getBankReference()), amount);
     }
 
-    static int takeFrom(CommandSourceStack source, List<BankReference> accounts, CoinValue amount)
+    static int takeFrom(CommandSourceStack source, List<BankReference> accounts, MoneyValue amount)
     {
         int count = 0;
         Component bankName = null;
-        CoinValue largestAmount = CoinValue.EMPTY;
+        MoneyValue largestAmount = MoneyValue.empty();
         for(BankReference account : accounts)
         {
-            Pair<Boolean,CoinValue> result = BankAccount.ServerTakeCoins(account.get(), amount);
+            Pair<Boolean, io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue> result = BankAccount.ServerTakeCoins(account.get(), amount);
             if(result.getFirst())
             {
                 count++;
                 if(count == 1)
                     bankName = account.get().getName();
-                if(result.getSecond().getValueNumber() > largestAmount.getValueNumber())
+                if(result.getSecond().getCoreValue() > largestAmount.getCoreValue())
                     largestAmount = result.getSecond();
             }
         }
@@ -189,9 +189,9 @@ public class CommandBank {
         else
         {
             if(count == 1)
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success.single", largestAmount.getComponent("NULL"), bankName), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success.single", largestAmount.getText("NULL"), bankName), true);
             else
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success", largestAmount.getComponent("NULL"), count), true);
+                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbank.take.success", largestAmount.getText("NULL"), count), true);
         }
         return count;
     }

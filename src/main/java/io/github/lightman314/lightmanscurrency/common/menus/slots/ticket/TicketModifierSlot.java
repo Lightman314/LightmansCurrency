@@ -3,15 +3,14 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots.ticket;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -21,12 +20,12 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
 
     public static final ResourceLocation EMPTY_DYE_SLOT =  new ResourceLocation(LightmansCurrency.MODID, "item/empty_dye_slot");
 
-    public TicketModifierSlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
+    private final TicketStationMenu menu;
+
+    public TicketModifierSlot(TicketStationMenu menu, Container inventory, int index, int x, int y) { super(inventory, index, x, y); this.menu = menu; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
-        return stack.getItem() == ModItems.TICKET_MASTER.get() || InventoryUtil.ItemHasTag(stack, Tags.Items.DYES);
-    }
+    public boolean mayPlace(@NotNull ItemStack stack) { return this.menu.getAllRecipes().stream().anyMatch(r -> r.validModifier(stack)); }
 
     @Override
     protected List<Pair<ResourceLocation, ResourceLocation>> getPossibleNoItemIcons() {

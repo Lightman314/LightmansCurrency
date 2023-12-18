@@ -8,21 +8,22 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
-import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
+import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.SpawnTrackerCapability;
+import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -47,6 +48,13 @@ public class LootManager {
 
 	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
 
+	private static final List<ILootModifier> LOOT_MODIFIERS = new ArrayList<>();
+
+	public static void addLootModifier(@Nonnull ILootModifier modifier)
+	{
+		if(!LOOT_MODIFIERS.contains(modifier))
+			LOOT_MODIFIERS.add(modifier);
+	}
 
 	public static void registerDroplistListeners()
 	{
@@ -320,15 +328,20 @@ public class LootManager {
 		if(table == null)
 			return results;
 		//Filter results
-		return safelyGetLoot(table, context);
+		List<ItemStack> loot = safelyGetLoot(table, context);
+		//Attempt to replace with event coins
+		checkForEventReplacements(server, loot);
+		return loot;
 	}
 
-	private static ItemStack replaceItem(@Nonnull ItemStack stack, @Nonnull Item replacement)
+	public static void checkForEventReplacements(@Nonnull MinecraftServer server, @Nonnull List<ItemStack> loot)
 	{
-		ItemStack newStack = new ItemStack(replacement, stack.getCount());
-		if(stack.hasTag())
-			newStack.setTag(stack.getTag().copy());
-		return newStack;
+		RandomSource random = server.overworld().getRandom();
+		for(ILootModifier modifier : LOOT_MODIFIERS)
+		{
+			if(modifier.tryModifyLoot(random, loot))
+				return;
+		}
 	}
 
 	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull EntityPoolLevel coinPool)

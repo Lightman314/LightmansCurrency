@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -17,8 +18,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventor
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TeamManagerButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.EjectionMenuButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.wallet.WalletButton;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
@@ -74,12 +75,12 @@ public class ClientEvents {
 			{
 				
 				new CPacketOpenWallet(-1).send();
-				
-				if(!LightmansCurrency.getWalletStack(player).isEmpty())
+
+				ItemStack wallet = CoinAPI.getWalletStack(player);
+				if(!wallet.isEmpty())
 				{
 					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level().random.nextFloat() * 0.5f, 0.75f));
-					
-					ItemStack wallet = LightmansCurrency.getWalletStack(player);
+
 					if(!WalletItem.isEmpty(wallet))
 						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 				}
@@ -189,7 +190,7 @@ public class ClientEvents {
 		{
 			AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>)event.getScreen();
 			
-			if(!screen.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
+			if(!screen.getMenu().getCarried().isEmpty()) //Don't renderBG tooltips if the held item isn't empty
 				return;
 			
 			if(screen instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())

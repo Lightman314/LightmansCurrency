@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -20,9 +21,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class ItemStorageTab extends TraderStorageTab{
 
-	public ItemStorageTab(TraderStorageMenu menu) { super(menu); }
+	public ItemStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -39,9 +42,10 @@ public class ItemStorageTab extends TraderStorageTab{
 		//Upgrade Slots
 		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
 		{
-			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
+			Container upgrades = trader.getUpgrades();
+			for(int i = 0; i < upgrades.getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
+				SimpleSlot upgradeSlot = new UpgradeInputSlot(upgrades, i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
@@ -104,7 +108,7 @@ public class ItemStorageTab extends TraderStorageTab{
 					if(isShiftHeld)
 					{
 						//Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
-						this.menu.player.getInventory().add(stackToRemove);
+						this.menu.getPlayer().getInventory().add(stackToRemove);
 						//Determine the amount actually added to the players inventory
 						removedAmount = tempAmount - stackToRemove.getCount();
 					}
@@ -165,7 +169,7 @@ public class ItemStorageTab extends TraderStorageTab{
 			if(trader.isPersistent())
 				return;
 			TraderItemStorage storage = trader.getStorage();
-			Inventory inv = this.menu.player.getInventory();
+			Inventory inv = this.menu.getPlayer().getInventory();
 			boolean changed = false;
 			if(type == 0)
 			{

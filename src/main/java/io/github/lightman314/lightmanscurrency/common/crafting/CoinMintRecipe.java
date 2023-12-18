@@ -2,17 +2,18 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import com.google.gson.JsonElement;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -20,8 +21,7 @@ import javax.annotation.Nonnull;
 public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
-	
-	
+
 	public static MintType readType(JsonElement json)
 	{
 		try {
@@ -84,9 +84,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	@Override
-	public @Nonnull ItemStack assemble(@Nonnull Container inventory, @Nonnull RegistryAccess registryAccess) {
-		return this.getResultItem(registryAccess);
-	}
+	public @Nonnull ItemStack assemble(@Nonnull Container inventory, @Nonnull RegistryAccess registryAccess) { return this.getResultItem(registryAccess); }
 	
 	@Override
 	public boolean canCraftInDimensions(int width, int height) { return true; }
@@ -106,5 +104,46 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
 	public @Nonnull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
+
+	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
+
+		@Nonnull
+		@Override
+		public CoinMintRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
+			Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
+			int ingredientCount = GsonHelper.getAsInt(json, "count", 1);
+
+			ItemStack result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
+			if(result.isEmpty())
+				throw new JsonSyntaxException("Result is empty.");
+			MintType type = MintType.OTHER;
+			if(json.has("mintType"))
+				type = CoinMintRecipe.readType(json.get("mintType"));
+
+			int duration = GsonHelper.getAsInt(json, "duration", 0);
+
+			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+		}
+
+		@Override
+		public CoinMintRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+			CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
+			Ingredient ingredient = Ingredient.fromNetwork(buffer);
+			int ingredientCount = buffer.readInt();
+			ItemStack result = buffer.readItem();
+			int duration = buffer.readInt();
+			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+		}
+
+		@Override
+		public void toNetwork(FriendlyByteBuf buffer, CoinMintRecipe recipe) {
+			buffer.writeUtf(recipe.getMintType().name());
+			recipe.getIngredient().toNetwork(buffer);
+			buffer.writeInt(recipe.ingredientCount);
+			buffer.writeItemStack(recipe.getOutputItem(), false);
+			buffer.writeInt(recipe.getInternalDuration());
+		}
+
+	}
 	
 }

@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,9 +15,9 @@ public class CPacketBankInteraction extends ClientToServerPacket {
 	public static final Handler<CPacketBankInteraction> HANDLER = new H();
 
 	boolean isDeposit;
-	CoinValue amount;
+	MoneyValue amount;
 	
-	public CPacketBankInteraction(boolean isDeposit, CoinValue amount) {
+	public CPacketBankInteraction(boolean isDeposit, MoneyValue amount) {
 		this.isDeposit = isDeposit;
 		this.amount = amount;
 	}
@@ -31,7 +31,7 @@ public class CPacketBankInteraction extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketBankInteraction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankInteraction(buffer.readBoolean(), CoinValue.decode(buffer)); }
+		public CPacketBankInteraction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankInteraction(buffer.readBoolean(), MoneyValue.decode(buffer)); }
 		@Override
 		protected void handle(@Nonnull CPacketBankInteraction message, @Nullable ServerPlayer sender) {
 			if(sender != null)

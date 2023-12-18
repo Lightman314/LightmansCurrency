@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
@@ -13,12 +14,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house_canceled");
+	public static final NotificationType<AuctionHouseCancelNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house_canceled"),AuctionHouseCancelNotification::new);
 	
 	List<ItemWriteData> items;
-	
+
+	private AuctionHouseCancelNotification() {}
+
 	public AuctionHouseCancelNotification(AuctionTradeData trade) {
 		
 		this.items = new ArrayList<>();
@@ -27,11 +32,11 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 		
 	}
 	
-	public AuctionHouseCancelNotification(CompoundTag compound) { this.load(compound); }
-	
-	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	protected NotificationType<AuctionHouseCancelNotification> getType() { return TYPE; }
 
+	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
 		
@@ -43,7 +48,7 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		ListTag itemList = new ListTag();
 		for(ItemWriteData item : this.items)
@@ -53,7 +58,7 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();

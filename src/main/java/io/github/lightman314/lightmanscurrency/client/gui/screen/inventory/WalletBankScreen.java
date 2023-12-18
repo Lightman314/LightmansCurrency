@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
 
@@ -29,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-@IPNIgnore
 public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_bank.png");
@@ -138,7 +136,8 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 		}
 	}
 	
-	public Font getFont() { return this.font; }
+	@Nonnull
+    public Font getFont() { return this.font; }
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }

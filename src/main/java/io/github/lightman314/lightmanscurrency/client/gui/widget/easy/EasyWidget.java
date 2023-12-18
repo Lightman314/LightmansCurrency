@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -49,6 +49,16 @@ public abstract class EasyWidget extends AbstractWidget {
 
     public final boolean isVisible() { this.visibleTickInternal(); return this.visible; }
     public final void setVisible(boolean visible) { this.visible = visible; }
+
+    public boolean hideFromMouse() { return false; }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        if(this.hideFromMouse())
+            return false;
+        this.activeTickInternal();
+        return super.isMouseOver(mouseX, mouseY);
+    }
 
     @Override
     public final boolean isActive() { this.activeTickInternal(); return super.isActive(); }

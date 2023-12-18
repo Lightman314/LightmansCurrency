@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.TaxInfoClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 
@@ -34,7 +35,7 @@ public class TaxInfoTab extends TraderStorageTab {
     public void AcceptTaxes(long taxCollector)
     {
         TraderData trader = this.menu.getTrader();
-        if(trader != null && trader.hasPermission(this.menu.player, Permissions.EDIT_SETTINGS))
+        if(trader != null && trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_SETTINGS))
         {
             TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
             if(entry != null && entry.IsInArea(trader))
@@ -51,7 +52,7 @@ public class TaxInfoTab extends TraderStorageTab {
         {
             TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
             if(entry != null && entry.IsInArea(trader))
-                trader.FlagTaxEntryToIgnore(entry, this.menu.player);
+                trader.FlagTaxEntryToIgnore(entry, this.menu.getPlayer());
             if(this.menu.isClient())
                 this.menu.SendMessage(LazyPacketData.simpleLong("ForceIgnoreTaxCollector", taxCollector));
         }
@@ -60,7 +61,7 @@ public class TaxInfoTab extends TraderStorageTab {
     public void PardonIgnoredTaxCollector(long taxCollector)
     {
         TraderData trader = this.menu.getTrader();
-        if(trader != null && trader.hasPermission(this.menu.player, Permissions.EDIT_SETTINGS))
+        if(trader != null && trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_SETTINGS))
         {
             TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
             if(entry != null && entry.IsInArea(trader))

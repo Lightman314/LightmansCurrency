@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
@@ -50,8 +51,8 @@ public class TimeInputWidget extends EasyWidgetWithChildren {
 		{
 			final TimeUnit unit = this.relevantUnits.get(i);
 			int xPos = this.getX() + ((20 + this.spacing) * i);
-			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY(), b -> this.addTime(unit), CoinValueInput.SPRITE_UP_ARROW)));
-			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY() + 23, b -> this.removeTime(unit), CoinValueInput.SPRITE_DOWN_ARROW)));
+			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY(), b -> this.addTime(unit), MoneyValueWidget.SPRITE_UP_ARROW)));
+			this.buttons.add(this.addChild(new PlainButton(xPos, this.getY() + 23, b -> this.removeTime(unit), MoneyValueWidget.SPRITE_DOWN_ARROW)));
 		}
 	}
 

@@ -8,14 +8,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerDiscountTab;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -27,7 +29,7 @@ import javax.annotation.Nonnull;
 
 public class PlayerDiscounts extends PriceTweakingTradeRule {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "discount_list");
+	public static final TradeRuleType<PlayerDiscounts> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "discount_list"),PlayerDiscounts::new);
 	
 	List<PlayerReference> playerList = new ArrayList<>();
 	public ImmutableList<PlayerReference> getPlayerList() { return ImmutableList.copyOf(this.playerList); }
@@ -35,7 +37,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	public int getDiscount() { return this.discount; }
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 0, 100); }
 	
-	public PlayerDiscounts() { super(TYPE); }
+	private PlayerDiscounts() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event)
@@ -69,7 +71,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	public boolean isOnList(PlayerReference player)  { return PlayerReference.isInList(this.playerList, player); }
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		//Save player names
 		PlayerReference.saveList(compound, this.playerList, "Players");
 		//Save discount
@@ -77,14 +79,14 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	public JsonObject saveToJson(JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json) {
 		json.add("Players", PlayerReference.saveJsonList(this.playerList));
 		json.addProperty("discounrd", this.discount);
 		return json;
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		//Load player names
 		this.playerList = PlayerReference.loadList(compound, "Players");
 		//Load discount
@@ -94,7 +96,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json) {
 		if(json.has("Players"))
 		{
 			this.playerList.clear();
@@ -110,11 +112,11 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void handleUpdateMessage(CompoundTag updateInfo)
+	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo)
 	{
 		if(updateInfo.contains("Discount"))
 			this.discount = updateInfo.getInt("Discount");
-		else
+		else if(updateInfo.contains("Add"))
 		{
 			boolean add = updateInfo.getBoolean("Add");
 			String name = updateInfo.getString("Name");

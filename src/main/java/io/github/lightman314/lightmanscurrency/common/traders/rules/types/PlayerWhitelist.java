@@ -7,15 +7,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerWhitelistTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -25,14 +25,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class PlayerWhitelist extends TradeRule{
+public class PlayerWhitelist extends TradeRule {
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
+	public static final TradeRuleType<PlayerWhitelist> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "whitelist"),PlayerWhitelist::new);
 	
 	List<PlayerReference> whitelistedPlayers = new ArrayList<>();
 	public ImmutableList<PlayerReference> getWhitelistedPlayers() { return ImmutableList.copyOf(this.whitelistedPlayers); }
 	
-	public PlayerWhitelist() { super(TYPE); }
+	private PlayerWhitelist() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
@@ -58,16 +58,16 @@ public class PlayerWhitelist extends TradeRule{
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		//Save player names
 		PlayerReference.saveList(compound, this.whitelistedPlayers, "WhitelistedPlayers");
 	}
 	
 	@Override
-	public JsonObject saveToJson(JsonObject json) { return json; }
+	public JsonObject saveToJson(@Nonnull JsonObject json) { return json; }
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		
 		//Load whitelisted players
 		if(compound.contains("WhitelistedPlayers", Tag.TAG_LIST))
@@ -76,23 +76,26 @@ public class PlayerWhitelist extends TradeRule{
 	}
 	
 	@Override
-	public void loadFromJson(JsonObject json) {}
+	public void loadFromJson(@Nonnull JsonObject json) {}
 	
 	@Override
-	public void handleUpdateMessage(CompoundTag updateInfo)
+	public void handleUpdateMessage(@Nonnull LazyPacketData updateInfo)
 	{
-		boolean add = updateInfo.getBoolean("Add");
-		String name = updateInfo.getString("Name");
-		PlayerReference player = PlayerReference.of(false, name);
-		if(player == null)
-			return;
-		if(add && !this.isWhitelisted(player))
+		if(updateInfo.contains("Add"))
 		{
-			this.whitelistedPlayers.add(player);
-		}
-		else if(!add && this.isWhitelisted(player))
-		{
-			PlayerReference.removeFromList(this.whitelistedPlayers, player);
+			boolean add = updateInfo.getBoolean("Add");
+			String name = updateInfo.getString("Name");
+			PlayerReference player = PlayerReference.of(false, name);
+			if(player == null)
+				return;
+			if(add && !this.isWhitelisted(player))
+			{
+				this.whitelistedPlayers.add(player);
+			}
+			else if(!add && this.isWhitelisted(player))
+			{
+				PlayerReference.removeFromList(this.whitelistedPlayers, player);
+			}
 		}
 	}
 	
@@ -104,8 +107,6 @@ public class PlayerWhitelist extends TradeRule{
 	}
 	@Override
 	public void loadPersistentData(CompoundTag data) { this.loadAdditional(data); }
-	
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_WHITELIST; }
 
 	@Nonnull
 	@Override

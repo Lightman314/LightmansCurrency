@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -16,8 +16,8 @@ public abstract class TradeRulesClientSubTab extends EasyTab {
 
     public final TradeRulesClientTab<?> parent;
     public final TradeRulesTab commonTab;
-    public final TraderStorageScreen screen;
-    public final TraderStorageMenu menu;
+    public final ITraderStorageScreen screen;
+    public final ITraderStorageMenu menu;
 
     private final List<Object> children = new ArrayList<>();
 

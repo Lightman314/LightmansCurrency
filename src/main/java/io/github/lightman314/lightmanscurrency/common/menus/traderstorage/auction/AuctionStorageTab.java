@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.aucti
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -15,9 +15,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class AuctionStorageTab extends TraderStorageTab {
 
-	public AuctionStorageTab(TraderStorageMenu menu) { super(menu); }
+	public AuctionStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -39,7 +41,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	{
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
+			AuctionPlayerStorage storage = trader.getStorage(this.menu.getPlayer());
 			if(storageSlot >= 0 && storageSlot < storage.getStoredItems().size())
 			{
 				ItemStack storedItem = storage.getStoredItems().get(storageSlot);
@@ -54,7 +56,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 					if(isShiftHeld)
 					{
 						//Move as much of the stored item from the slot into the players inventory
-						this.menu.player.getInventory().add(storedItem);
+						this.menu.getPlayer().getInventory().add(storedItem);
 						if(storedItem.isEmpty())
 							storage.getStoredItems().remove(storageSlot);
 						trader.markStorageDirty();
@@ -94,8 +96,8 @@ public class AuctionStorageTab extends TraderStorageTab {
 	public void quickTransfer() {
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
-			storage.collectItems(this.menu.player);
+			AuctionPlayerStorage storage = trader.getStorage(this.menu.getPlayer());
+			storage.collectItems(this.menu.getPlayer());
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())
@@ -106,8 +108,8 @@ public class AuctionStorageTab extends TraderStorageTab {
 	public void collectCoins() {
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionPlayerStorage storage = trader.getStorage(this.menu.player);
-			storage.collectedMoney(this.menu.player);
+			AuctionPlayerStorage storage = trader.getStorage(this.menu.getPlayer());
+			storage.collectedMoney(this.menu.getPlayer());
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())

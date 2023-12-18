@@ -141,15 +141,17 @@ dependencies {
     //Immersive Engineering API
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")
 
-    compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:4591814')
-
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
     //FTB Chunks claim purchase compat
-    implementation fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
-    implementation fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
-    implementation fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
-    implementation fg.deobf('curse.maven:architectury-api-419699:4663010')
+    compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
+    compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
+    compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
+    compileOnly fg.deobf('curse.maven:architectury-api-419699:4663010')
+
+    //Cadmus claim purchase compat
+    compileOnly fg.deobf('curse.maven:cadmus-845832:4718413')
+    compileOnly fg.deobf('curse.maven:resourceful-lib-570073:4927082')
 
     //Wood Compatibility
     //Biomes O' Plenty

@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -16,13 +16,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
 public class SlotMachineEntryTab extends TraderStorageTab {
 
-    public SlotMachineEntryTab(TraderStorageMenu menu) { super(menu); }
+    public SlotMachineEntryTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -87,7 +88,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
         {
-            Permissions.PermissionWarning(this.menu.player, "edit slot machine trade", Permissions.EDIT_TRADES);
+            Permissions.PermissionWarning(this.menu.getPlayer(), "edit slot machine trade", Permissions.EDIT_TRADES);
             return;
         }
         SlotMachineEntry entry = this.getEntry(entryIndex);
@@ -110,7 +111,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
         {
-            Permissions.PermissionWarning(this.menu.player, "edit slot machine trade", Permissions.EDIT_TRADES);
+            Permissions.PermissionWarning(this.menu.getPlayer(), "edit slot machine trade", Permissions.EDIT_TRADES);
             return;
         }
         if(item.isEmpty())
@@ -140,7 +141,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
         {
-            Permissions.PermissionWarning(this.menu.player, "edit slot machine trade", Permissions.EDIT_TRADES);
+            Permissions.PermissionWarning(this.menu.getPlayer(), "edit slot machine trade", Permissions.EDIT_TRADES);
             return;
         }
         SlotMachineEntry entry = this.getEntry(entryIndex);
@@ -164,7 +165,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
         {
-            Permissions.PermissionWarning(this.menu.player, "edit slot machine trade", Permissions.EDIT_TRADES);
+            Permissions.PermissionWarning(this.menu.getPlayer(), "edit slot machine trade", Permissions.EDIT_TRADES);
             return;
         }
         SlotMachineEntry entry = this.getEntry(entryIndex);

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,7 +19,7 @@ public class CPacketChestQuickCollect extends ClientToServerPacket {
 
 	private CPacketChestQuickCollect(boolean allowHidden) { this.allowHidden = allowHidden; }
 
-	public static void sendToServer() { new CPacketChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get()); }
+	public static void sendToServer() { new CPacketChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get()).send(); }
 
 	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.allowHidden); }
 

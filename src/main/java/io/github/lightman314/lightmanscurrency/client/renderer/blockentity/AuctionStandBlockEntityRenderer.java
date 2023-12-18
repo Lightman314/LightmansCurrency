@@ -51,7 +51,7 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
 
         if(displayItems.size() < 2)
         {
-            //Only render 1 item
+            //Only renderBG 1 item
             this.itemRenderer.renderStatic(displayItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
         }
         else

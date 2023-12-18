@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.bank.reference;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BankReference {
+public abstract class BankReference extends IMoneyHolder.Slave {
 
     private boolean isClient = false;
     public boolean isClient() { return this.isClient; }
@@ -79,5 +80,9 @@ public abstract class BankReference {
             LightmansCurrency.LogWarning("No Bank Reference Type '" + type + "' could be decoded.");
         return null;
     }
+
+    @Override
+    @Nullable
+    protected IMoneyHolder getParent() { return this.get(); }
 
 }

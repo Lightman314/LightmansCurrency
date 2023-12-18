@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;

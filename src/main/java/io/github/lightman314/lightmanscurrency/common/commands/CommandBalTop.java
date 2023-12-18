@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
@@ -76,7 +77,7 @@ public class CommandBalTop {
 			try {
 				BankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
-				String amount = account.getCoinStorage().getString("0");
+				Component amount = account.getMoneyStorage().getAllValueText();
 				EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
 			} catch(Exception ignored) { }
 		}
@@ -100,8 +101,12 @@ public class CommandBalTop {
 				return 1;
 			if(o2 == null)
 				return -1;
-			long bal1 = a1.getCoinStorage().getValueNumber();
-			long bal2 = a2.getCoinStorage().getValueNumber();
+			long bal1 = 0;
+			for(MoneyValue val : a1.getMoneyStorage().allValues())
+				bal1 += val.getCoreValue();
+			long bal2 = 0;
+			for(MoneyValue val : a2.getMoneyStorage().allValues())
+				bal1 += val.getCoreValue();
 			
 			if(bal1 > bal2)
 				return -1;

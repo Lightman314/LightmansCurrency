@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.network.message.notifications;
 
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,7 +26,7 @@ public class CPacketFlagNotificationsSeen extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketFlagNotificationsSeen decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketFlagNotificationsSeen(NotificationCategory.deserialize(buffer.readAnySizeNbt())); }
+		public CPacketFlagNotificationsSeen decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketFlagNotificationsSeen(NotificationAPI.loadCategory(buffer.readAnySizeNbt())); }
 		@Override
 		protected void handle(@Nonnull CPacketFlagNotificationsSeen message, @Nullable ServerPlayer sender) {
 			if(sender != null)

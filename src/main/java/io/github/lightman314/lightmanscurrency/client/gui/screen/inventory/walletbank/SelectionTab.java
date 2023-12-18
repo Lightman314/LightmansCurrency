@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
@@ -33,7 +33,8 @@ public class SelectionTab extends WalletBankTab {
 	EasyButton buttonPersonalAccount;
 	TeamSelectWidget teamSelection;
 	
-	@Override
+	@Nonnull
+    @Override
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

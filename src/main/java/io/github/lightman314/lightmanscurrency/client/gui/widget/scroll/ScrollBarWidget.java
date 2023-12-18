@@ -4,13 +4,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreRender {
 
@@ -77,7 +79,7 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 	}
 
 	@Override
-	public void preRender(EasyGuiGraphics gui) {
+	public void preRender(@Nonnull EasyGuiGraphics gui) {
 		if(this.isDragging)
 			this.dragKnob(gui.mousePos.y);
 	}

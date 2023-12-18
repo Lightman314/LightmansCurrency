@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,6 +33,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 	
 	public CoinJarBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
+	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_JAR.get()); }
 
@@ -55,7 +56,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		if(!level.isClientSide)
 		{
 			ItemStack coinStack = player.getItemInHand(hand);
-			if(!MoneyUtil.isCoin(coinStack, false))
+			if(!CoinAPI.isCoin(coinStack, false))
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);

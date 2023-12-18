@@ -7,24 +7,23 @@ import java.util.function.Consumer;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.IBarterTrade;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -433,7 +432,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getBarterItem(0), this.getBarterItem(1), otherItemTrade.getBarterItem(0), otherItemTrade.getBarterItem(1)));
 			//Compare prices
 			if(!this.isBarter())
-				result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
+				result.comparePrices(this.getCost(), otherTrade.getCost());
 			//Compare types
 			result.setTypeResult(this.tradeType == otherItemTrade.tradeType);
 		}
@@ -505,30 +504,31 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		//Price check
 		if(!differences.PriceMatches())
 		{
-			//Price difference (intended - actual = difference)
-			long difference = differences.priceDifference();
-			if(difference < 0) //More expensive
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+			if(differences.PriceIncompatible())
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.different").withStyle(ChatFormatting.RED));
+			//Price difference
+			if(differences.isPriceExpensive()) //More expensive
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
 		}
 		for(int i = 0; i < differences.getProductResultCount(); ++i)
 		{
-			Component slotName = Component.translatable("gui.lightmanscurrency.interface.item.difference.product." + i);
+			Component slotName = EasyText.translatable("gui.lightmanscurrency.interface.item.difference.product." + i);
 			ProductComparisonResult productCheck = differences.getProductResult(i);
 			if(!productCheck.SameProductType())
-				list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT()) //Don't announce changes in NBT if the item is also different
-					list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
 				else if(!productCheck.SameProductQuantity()) //Don't announce changes in quantity if the item or nbt is also different
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference < 0) //More items
-						list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
 					else //Less items
-						list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));	
+						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));	
 				}
 			}
 		}
@@ -709,7 +709,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	protected void collectRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots, List<Integer> results) {
+	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) {
 		if(this.isPurchase())
 		{
 			//Highlight purchase items

@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
@@ -54,7 +55,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		return Lists.newArrayList();
 	}
 	
-	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidRecipes(level).getCoinMintRecipes(); }
+	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidMintRecipes(level).getRecipes(); }
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
 	

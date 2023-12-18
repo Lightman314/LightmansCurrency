@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
-import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +21,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
 	
@@ -54,6 +57,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	@Override
 	public boolean isSingleTrader() { return false; }
 	
+	@Nonnull
 	@Override
 	public @NotNull List<TraderData> getTraders() {
 		List<TraderData> traders = new ArrayList<>();

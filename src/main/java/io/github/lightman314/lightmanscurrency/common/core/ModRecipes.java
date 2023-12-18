@@ -15,11 +15,17 @@ public class ModRecipes {
 		
 		WALLET_UPGRADE = ModRegistries.RECIPE_SERIALIZERS.register("crafting_wallet_upgrade", WalletUpgradeRecipe.Serializer::new);
 		
-		COIN_MINT = ModRegistries.RECIPE_SERIALIZERS.register("coin_mint", CoinMintRecipeSerializer::new);
-		
+		COIN_MINT = ModRegistries.RECIPE_SERIALIZERS.register("coin_mint", CoinMintRecipe.Serializer::new);
+
+		TICKET = ModRegistries.RECIPE_SERIALIZERS.register("ticket", TicketRecipe.Serializer::new);
+		TICKET_MASTER = ModRegistries.RECIPE_SERIALIZERS.register("ticket_master", MasterTicketRecipe.Serializer::new);
+
 	}
 	
 	public static final RegistryObject<RecipeSerializer<WalletUpgradeRecipe>> WALLET_UPGRADE;
 	public static final RegistryObject<RecipeSerializer<CoinMintRecipe>> COIN_MINT;
-	
+
+	public static final RegistryObject<RecipeSerializer<TicketRecipe>> TICKET;
+	public static final RegistryObject<RecipeSerializer<MasterTicketRecipe>> TICKET_MASTER;
+
 }

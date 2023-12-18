@@ -1,16 +1,17 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,10 +36,10 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
-    public TradeButton.DisplayData inputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(1, 1, 34, 16); }
+    public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
     @Override
-    public List<TradeButton.DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getLastBidAmount(), this.getBidInfo(), true)); }
+    public List<DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.of(this.trade.getLastBidAmount(), this.getBidInfo(), true)); }
 
     private List<Component> getBidInfo() {
         List<Component> bidInfo = new ArrayList<>();
@@ -60,14 +61,14 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     }
 
     @Override
-    public TradeButton.DisplayData outputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(58, 1, 34, 16); }
+    public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(58, 1, 34, 16); }
 
     @Override
-    public List<TradeButton.DisplayEntry> getOutputDisplays(TradeContext context) {
-        List<TradeButton.DisplayEntry> entries = new ArrayList<>();
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) {
+        List<DisplayEntry> entries = new ArrayList<>();
         for (ItemStack item : this.trade.getAuctionItems()) {
             if (!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), Screen.getTooltipFromItem(Minecraft.getInstance(), item)));
+                entries.add(DisplayEntry.of(item, item.getCount(), Screen.getTooltipFromItem(Minecraft.getInstance(), item)));
         }
         return entries;
     }

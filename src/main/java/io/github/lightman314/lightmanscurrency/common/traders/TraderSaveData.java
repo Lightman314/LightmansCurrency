@@ -11,8 +11,10 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
@@ -21,12 +23,13 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.events.TraderEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketClearClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketMessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -69,7 +72,7 @@ public class TraderSaveData extends SavedData {
 		if(!hasAuctionHouse.get())
 		{
 			//Create the auction house manually
-			AuctionHouseTrader ah = new AuctionHouseTrader();
+			AuctionHouseTrader ah = AuctionHouseTrader.TYPE.create();
 			ah.setCreative(null, true);
 			
 			//Generate a trader ID
@@ -90,7 +93,7 @@ public class TraderSaveData extends SavedData {
 		this.setDirty();
 		return id;
 	}
-	private final Map<Long,TraderData> traderData = new HashMap<>();
+	private final Map<Long, TraderData> traderData = new HashMap<>();
 	
 	//Persistent Data
 	private final Map<String,PersistentData> persistentTraderData = new HashMap<>();
@@ -271,7 +274,7 @@ public class TraderSaveData extends SavedData {
 				LightmansCurrency.LogError("Error loading modified Persistent Trader Data. Ignoring request.", e);
 				return;
 			}
-			//Now that it's safely loaded, set the data and save to file
+			//Now that it's safely loaded, set the data and saveItem to file
 			tsd.persistentTraderJson = newData;
 			tsd.savePersistentTraderJson(ptf);
 			tsd.resendTraderData();
@@ -323,7 +326,7 @@ public class TraderSaveData extends SavedData {
 		return fileData;
 	}
 	
-	private void loadPersistentTrader(JsonObject fileData) throws Exception {
+	private void loadPersistentTrader(JsonObject fileData) throws JsonSyntaxException, ResourceLocationException {
 		boolean hadNone = true;
 		if(fileData.has(PERSISTENT_TRADER_SECTION))
 		{
@@ -341,7 +344,8 @@ public class TraderSaveData extends SavedData {
 					removeTraderList.add(id);
 				}
 			});
-			
+
+			//Don't need to remove from tickers as this is done in the forEach call
 			for(long id : removeTraderList)
 				this.traderData.remove(id);
 			
@@ -352,18 +356,12 @@ public class TraderSaveData extends SavedData {
 				try {
 					
 					//Load the trader
-					JsonObject traderTag = traderList.get(i).getAsJsonObject();
-					String traderID;
-					if(traderTag.has("ID"))
-						traderID = traderTag.get("ID").getAsString();
-					else if(traderTag.has("id"))
-						traderID = traderTag.get("id").getAsString();
-					else
-						throw new Exception("Trader has no defined id.");
+					JsonObject traderTag = GsonHelper.convertToJsonObject(traderList.get(i), PERSISTENT_TRADER_SECTION + "[" + i + "]");
+					String traderID = GsonHelper.getAsString(traderTag, "id", GsonHelper.getAsString(traderTag, "ID"));
 					if(loadedIDs.contains(traderID))
-						throw new Exception("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
+						throw new JsonSyntaxException("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
 					if(traderID.isBlank())
-						throw new Exception("Trader cannot have a blank id!");
+						throw new JsonSyntaxException("Trader cannot have a blank id!");
 					TraderData data = TraderData.Deserialize(traderTag);
 					
 					//Load the persistent data
@@ -385,7 +383,7 @@ public class TraderSaveData extends SavedData {
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					
-				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
+				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
 			}
 		}
 		if(fileData.has(PERSISTENT_AUCTION_SECTION))
@@ -402,7 +400,7 @@ public class TraderSaveData extends SavedData {
 					JsonObject auctionTag = auctionList.get(i).getAsJsonObject();
 					PersistentAuctionData data = PersistentAuctionData.load(auctionTag);
 					if(loadedIDs.contains(data.id))
-						throw new Exception("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
+						throw new JsonSyntaxException("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
 					else
 						loadedIDs.add(data.id);
 					
@@ -410,13 +408,13 @@ public class TraderSaveData extends SavedData {
 					
 					LightmansCurrency.LogInfo("Successfully loaded persistent auction '" + data.id + "'");
 					
-				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Auction at index " + i, e); }
+				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error loading Persistent Auction at index " + i, e); }
 				
 			}
 			
 		}
 		if(hadNone)
-			throw new Exception("Json Data has no 'Traders' or 'Auctions' entry.");
+			throw new JsonSyntaxException("Json Data has no 'Traders' or 'Auctions' entry.");
 	}
 	
 	private void savePersistentTraderJson(File ptf) {

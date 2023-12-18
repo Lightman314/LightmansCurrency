@@ -30,7 +30,7 @@ public class EntityAddonLoot implements LootTableSubProvider {
         LootPool.Builder t5 = GenerateEntityCoinPool(ConfigItemTier.T5, 1, 3, 0.05f);
         LootPool.Builder t6 = GenerateEntityCoinPool(ConfigItemTier.T6, 1, 3, 0.025F);
 
-        //And now combine the pools and save
+        //And now combine the pools and saveItem
         consumer.accept(LCLootTables.ENTITY_DROPS_T1, LootTable.lootTable().setParamSet(LootContextParamSets.ENTITY).withPool(t1));
         consumer.accept(LCLootTables.ENTITY_DROPS_T2, LootTable.lootTable().withPool(t1).withPool(t2));
         consumer.accept(LCLootTables.ENTITY_DROPS_T3, LootTable.lootTable().withPool(t1).withPool(t2).withPool(t3));
@@ -38,7 +38,7 @@ public class EntityAddonLoot implements LootTableSubProvider {
         consumer.accept(LCLootTables.ENTITY_DROPS_T5, LootTable.lootTable().withPool(t1).withPool(t2).withPool(t3).withPool(t4).withPool(t5));
         consumer.accept(LCLootTables.ENTITY_DROPS_T6, LootTable.lootTable().withPool(t1).withPool(t2).withPool(t3).withPool(t4).withPool(t5).withPool(t6));
 
-        //Generate and save Boss Tables
+        //Generate and saveItem Boss Tables
         consumer.accept(LCLootTables.BOSS_DROPS_T1, LootTable.lootTable().withPool(BossPool(ConfigItemTier.T1)));
         consumer.accept(LCLootTables.BOSS_DROPS_T2, LootTable.lootTable().withPool(BossPool(ConfigItemTier.T1)).withPool(BossPool(ConfigItemTier.T2)));
         consumer.accept(LCLootTables.BOSS_DROPS_T3, LootTable.lootTable().withPool(BossPool(ConfigItemTier.T1)).withPool(BossPool(ConfigItemTier.T2)).withPool(BossPool(ConfigItemTier.T3)));

@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPacketSyncPlayerTrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -68,12 +68,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         return null;
     }
 
-    private CoinValue hostMoney = CoinValue.EMPTY;
+    private MoneyValue hostMoney = MoneyValue.empty();
     @Override
-    public CoinValue getHostMoney() { return this.hostMoney; }
-    private CoinValue guestMoney = CoinValue.EMPTY;
+    public MoneyValue getHostMoney() { return this.hostMoney; }
+    private MoneyValue guestMoney = MoneyValue.empty();
     @Override
-    public CoinValue getGuestMoney() { return this.guestMoney; }
+    public MoneyValue getGuestMoney() { return this.guestMoney; }
 
     private final SimpleContainer hostItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
     @Override
@@ -263,15 +263,15 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return;
 
         //Confirm that payment can be taken successfully
-        if(MoneyUtil.ProcessPayment(null, host, this.hostMoney))
+        if(MoneyAPI.takeMoneyFromPlayer(host, this.hostMoney))
         {
-            if(MoneyUtil.ProcessPayment(null, guest, this.guestMoney))
+            if(MoneyAPI.takeMoneyFromPlayer(guest, this.guestMoney))
             {
                 //Flag trade as completed
                 completed = true;
 
                 //Give money/items to host
-                MoneyUtil.ProcessChange(null, host, this.guestMoney);
+                MoneyAPI.giveMoneyToPlayer(host, this.guestMoney);
                 for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.guestItems.getItem(i);
@@ -280,7 +280,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
                 }
 
                 //Give money/items to guest
-                MoneyUtil.ProcessChange(null, guest, this.hostMoney);
+                MoneyAPI.giveMoneyToPlayer(guest, this.hostMoney);
                 for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.hostItems.getItem(i);
@@ -293,7 +293,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
             }
             else //Refund host money if guest doesn't have enough money
-                MoneyUtil.ProcessChange(null, host, this.hostMoney);
+                MoneyAPI.giveMoneyToPlayer(host, this.hostMoney);
         }
 
     }
@@ -327,7 +327,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.hostMoney = CoinValue.load(message.getCompound("ChangeMoney"));
+                this.hostMoney = MoneyValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(true);
             }
         }
@@ -355,7 +355,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.guestMoney = CoinValue.load(message.getCompound("ChangeMoney"));
+                this.guestMoney = MoneyValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(false);
             }
         }

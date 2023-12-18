@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.taxes;
 
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
 import net.minecraft.network.chat.MutableComponent;

@@ -23,7 +23,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -56,11 +55,13 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 		return this.cachedArrows.getUnchecked(mintTime);
 	}
 	
+	@Nonnull
 	@Override
-	public @NotNull RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
+	public RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
 
+	@Nonnull
 	@Override
-	public @NotNull IDrawable getBackground() { return this.background; }
+	public IDrawable getBackground() { return this.background; }
 
 	@Override
 	public void draw(@Nonnull CoinMintRecipe recipe, @Nonnull IRecipeSlotsView recipeSlotsView, @Nonnull GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -69,14 +70,16 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 		arrow.draw(guiGraphics, 25, 5);
 	}
 
+	@Nonnull
 	@Override
-	public @NotNull IDrawable getIcon() { return this.icon; }
+	public IDrawable getIcon() { return this.icon; }
 
+	@Nonnull
 	@Override
-	public @NotNull Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
+	public Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
 	
 	@Override
-	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @NotNull IFocusGroup focus) {
+	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @Nonnull IFocusGroup focus) {
 		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
 		inputSlot.addIngredients(VanillaTypes.ITEM_STACK, Lists.newArrayList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
 		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);

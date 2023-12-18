@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
@@ -19,15 +20,14 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client.AuctionTradeButtonRenderer;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
+import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -63,26 +63,32 @@ public class AuctionTradeData extends TradeData {
 	
 	private String persistentID = "";
 	public boolean isPersistentID(String id) { return this.persistentID.equals(id); }
-	
-	CoinValue lastBidAmount = CoinValue.EMPTY;
-	public CoinValue getLastBidAmount() { return this.lastBidAmount; }
+
+	MoneyValue lastBidAmount = MoneyValue.empty();
+	public MoneyValue getLastBidAmount() { return this.lastBidAmount; }
 	PlayerReference lastBidPlayer = null;
 	public PlayerReference getLastBidPlayer() { return this.lastBidPlayer; }
 	
-	public void setStartingBid(CoinValue amount) {
+	public void setStartingBid(@Nonnull MoneyValue amount) {
 		if(this.isActive())
 			return;
 		this.lastBidAmount = amount;
 	}
-	
-	CoinValue minBidDifference = CoinValue.fromNumber(1);
-	public CoinValue getMinBidDifference() { return this.minBidDifference; }
-	public void setMinBidDifferent(CoinValue amount) {
+
+	MoneyValue minBidDifference = null;
+	public MoneyValue getMinBidDifference() {
+		if(this.minBidDifference == null || !this.lastBidAmount.sameType(this.minBidDifference))
+			return this.lastBidAmount.getSmallestValue();
+		return this.minBidDifference;
+	}
+	public void setMinBidDifferent(@Nonnull MoneyValue amount) {
 		if(this.isActive())
 			return;
+		if(!this.lastBidAmount.sameType(amount))
+			return;
 		this.minBidDifference = amount;
-		if(this.minBidDifference.getValueNumber() <= 0)
-			this.minBidDifference = CoinValue.fromNumber(1);
+		if(this.minBidDifference.isEmpty())
+			this.minBidDifference = this.minBidDifference.getSmallestValue();
 	}
 	PlayerReference tradeOwner;
 	public PlayerReference getOwner() { return this.tradeOwner; }
@@ -138,9 +144,9 @@ public class AuctionTradeData extends TradeData {
 			return false;
 		if(this.isActive() && this.hasExpired(TimeUtil.getCurrentTime()))
 			return false;
-		if(this.minBidDifference.getValueNumber() <= 0)
+		if(this.getMinBidDifference().isEmpty())
 			return false;
-		return this.lastBidAmount.getValueNumber() > 0;
+		return !this.lastBidAmount.isEmpty();
 	}
 	
 	public void startTimer() {
@@ -160,7 +166,7 @@ public class AuctionTradeData extends TradeData {
 		return false;
 	}
 	
-	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, CoinValue amount) {
+	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, MoneyValue amount) {
 		if(!validateBidAmount(amount))
 			return false;
 		
@@ -184,16 +190,16 @@ public class AuctionTradeData extends TradeData {
 		return true;
 	}
 	
-	public boolean validateBidAmount(CoinValue amount) {
-		CoinValue minAmount = this.getMinNextBid();
-		return amount.getValueNumber() >= minAmount.getValueNumber();
+	public boolean validateBidAmount(@Nonnull MoneyValue amount) {
+		MoneyValue minAmount = this.getMinNextBid();
+		return minAmount.containsValue(amount);
 	}
 	
-	public CoinValue getMinNextBid() {
+	public MoneyValue getMinNextBid() {
 		if(this.lastBidPlayer == null)
 			return this.lastBidAmount;
 		else
-			return this.lastBidAmount.plusValue(this.minBidDifference);
+			return this.lastBidAmount.addValue(this.minBidDifference);
 	}
 	
 	public void ExecuteTrade(AuctionHouseTrader trader) {
@@ -280,7 +286,7 @@ public class AuctionTradeData extends TradeData {
 	
 	@Override
 	public CompoundTag getAsNBT() {
-		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
+		//Do not run super.getAsNBT() as we don't need to saveItem the price or trade rules.
 		CompoundTag compound = new CompoundTag();
 		ListTag itemList = new ListTag();
 		for (ItemStack auctionItem : this.auctionItems) {
@@ -323,7 +329,7 @@ public class AuctionTradeData extends TradeData {
 	
 	@Override
 	public void loadFromNBT(CompoundTag compound) {
-		//Do not run super.loadFromNBT() as we didn't save the default data in the first place
+		//Do not run super.loadFromNBT() as we didn't saveItem the default data in the first place
 		ListTag itemList = compound.getList("SellItems", Tag.TAG_COMPOUND);
 		this.auctionItems.clear();
 		for(int i = 0; i < itemList.size(); ++i)
@@ -332,13 +338,13 @@ public class AuctionTradeData extends TradeData {
 			if(!stack.isEmpty())
 				this.auctionItems.add(stack);
 		}
-		this.lastBidAmount = CoinValue.safeLoad(compound, "LastBid");
+		this.lastBidAmount = MoneyValue.safeLoad(compound, "LastBid");
 		if(compound.contains("LastBidPlayer"))
 			this.lastBidPlayer = PlayerReference.load(compound.getCompound("LastBidPlayer"));
 		else
 			this.lastBidPlayer = null;
 
-		this.minBidDifference = CoinValue.safeLoad(compound, "MinBid");
+		this.minBidDifference = MoneyValue.safeLoad(compound, "MinBid");
 		
 		this.startTime = compound.getLong("StartTime");
 		this.duration = compound.getLong("Duration");

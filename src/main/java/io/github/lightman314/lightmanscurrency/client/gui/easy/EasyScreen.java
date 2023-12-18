@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.easy;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -26,14 +26,17 @@ import java.util.List;
 public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     private final List<IPreRender> preRenders = new ArrayList<>();
+    private final List<ILateRender> lateRenders = new ArrayList<>();
     private final List<IEasyTickable> guiTickers = new ArrayList<>();
     private final List<ITooltipSource> tooltipSources = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
 
 
+    @Nonnull
     @Override
     public final Font getFont() { return this.font; }
+    @Nonnull
     @Override
     public final Player getPlayer() { return this.minecraft.player; }
 
@@ -45,10 +48,12 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     @Override
     public boolean isPauseScreen() { return false; }
 
+    @Nonnull
     @Override
     public final ScreenArea getArea() { return this.screenArea; }
     public final int getGuiLeft() { return this.screenArea.x; }
     public final  int getGuiTop() { return this.screenArea.y; }
+    @Nonnull
     public final  ScreenPosition getCorner() { return this.screenArea.pos; }
     public final  int getXSize() { return this.screenArea.width; }
     public final  int getYSize() { return this.screenArea.height; }
@@ -58,6 +63,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     @Override
     protected final void init() {
         this.preRenders.clear();
+        this.lateRenders.clear();
         this.guiTickers.clear();
         this.tooltipSources.clear();
         this.scrollListeners.clear();
@@ -84,6 +90,9 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         this.renderBG(gui);
         //Render Widgets
         super.render(mcgui, mouseX, mouseY, partialTicks);
+        //Render Late Renders
+        for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
+            r.lateRender(gui);
         //Render After Widgets
         this.renderAfterWidgets(gui);
         //Render Tooltips
@@ -123,6 +132,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.scrollListeners.add(l);
         if(child instanceof IPreRender r && !this.preRenders.contains(r))
             this.preRenders.add(r);
+        if(child instanceof ILateRender r && !this.lateRenders.contains(r))
+            this.lateRenders.add(r);
         if(child instanceof EasyWidget w)
             w.addAddons(this::addChild);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
@@ -148,6 +159,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             w.removeAddons(this::removeChild);
         if(child instanceof IPreRender r)
             this.preRenders.remove(r);
+        if(child instanceof ILateRender r)
+            this.lateRenders.remove(r);
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
     }

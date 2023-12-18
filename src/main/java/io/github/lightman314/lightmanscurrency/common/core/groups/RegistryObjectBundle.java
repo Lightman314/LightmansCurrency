@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
+
 public class RegistryObjectBundle<T,L> {
 
 	private final Comparator<L> sorter;
@@ -15,7 +17,7 @@ public class RegistryObjectBundle<T,L> {
 	private boolean locked = false;
 	public RegistryObjectBundle<T,L> lock() { this.locked = true; return this; }
 
-	public RegistryObjectBundle(Comparator<L> sorter) { this.sorter = sorter; }
+	public RegistryObjectBundle(@Nonnull Comparator<L> sorter) { this.sorter = sorter; }
 
 	private final Map<L,RegistryObject<T>> values = new HashMap<>();
 	

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.SecurityUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -12,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
 
     @Override
-    public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message) {
+    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
         if(message.contains("SetTeamOwner"))
         {
             Team team = TeamSaveData.GetTeam(false, message.getLong("SetTeamOwner"));
@@ -97,20 +98,20 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public boolean BlockAccess(CoinChestBlockEntity be, CoinChestUpgradeData data, Player player) { return !this.isMember(be, data, player); }
+    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nonnull Player player) { return !this.isMember(be, data, player); }
 
     @Override
-    public void OnEquip(CoinChestBlockEntity be, CoinChestUpgradeData data) { data.getItemTag().remove("BreakIsValid"); }
+    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { data.getItemTag().remove("BreakIsValid"); }
 
     @Override
-    public void OnValidBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) {
+    public void OnValidBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         CompoundTag compound = data.getItemTag();
         compound.putBoolean("BreakIsValid", true);
         data.setItemTag(compound);
     }
 
     @Override
-    public void OnBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) {
+    public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         if(data.getItemTag().getBoolean("BreakIsValid"))
             return;
         OwnerData owner = this.parseOwnerData(be, data);
@@ -125,10 +126,11 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     @Override
     public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { consumer.accept(new SecurityUpgradeTab(data,screen)); }
 
+    @Nonnull
     @Override
-    public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.1"),EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.2")); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.1"),EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.2")); }
 
     @Override
-    public boolean clearDataFromStack(CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }
+    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }
 
 }

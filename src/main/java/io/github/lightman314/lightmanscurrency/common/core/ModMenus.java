@@ -45,9 +45,9 @@ public class ModMenus {
 		
 		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> CreateType((IContainerFactory<WalletBankMenu>)(id, inventory, data) -> new WalletBankMenu(id, inventory, data.readInt())));
 		
-		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketMachineMenu>)(id, inventory, data)->{
-			TicketMachineBlockEntity blockEntity = (TicketMachineBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
-			return new TicketMachineMenu(id, inventory, blockEntity);
+		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketStationMenu>)(id, inventory, data)->{
+			TicketStationBlockEntity blockEntity = (TicketStationBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
+			return new TicketStationMenu(id, inventory, blockEntity);
 		}));
 		
 		TRADER_INTERFACE = ModRegistries.MENUS.register("trader_interface", () -> CreateType((IContainerFactory<TraderInterfaceMenu>)(id, inventory, data) ->{
@@ -89,7 +89,7 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
 	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;
 	
-	public static final RegistryObject<MenuType<TicketMachineMenu>> TICKET_MACHINE;
+	public static final RegistryObject<MenuType<TicketStationMenu>> TICKET_MACHINE;
 	
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	

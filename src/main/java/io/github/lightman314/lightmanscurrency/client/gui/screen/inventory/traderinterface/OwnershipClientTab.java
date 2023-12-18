@@ -3,9 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -155,7 +153,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 
 	@Override
 	public void closeAction() {
-		//Reset the selected team & team list to save space
+		//Reset the selected team & team list to saveItem space
 		this.selectedTeam = -1;
 		this.teamList = new ArrayList<>();
 	}

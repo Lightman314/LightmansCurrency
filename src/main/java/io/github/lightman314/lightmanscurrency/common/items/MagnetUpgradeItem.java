@@ -1,9 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestMagnetUpgrade;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class MagnetUpgradeItem extends UpgradeItem{
@@ -12,11 +13,11 @@ public class MagnetUpgradeItem extends UpgradeItem{
 
 	public MagnetUpgradeItem(Supplier<Integer> radius, Properties properties)
 	{
-		super(UpgradeType.COIN_CHEST_MAGNET, properties);
+		super(Upgrades.COIN_CHEST_MAGNET, properties);
 		this.radius = radius;
 	}
 
 	@Override
-	public void fillUpgradeData(UpgradeData data) { data.setValue(CoinChestMagnetUpgrade.RANGE, Math.max(this.radius.get(), 1)); }
+	public void fillUpgradeData(@Nonnull UpgradeData data) { data.setValue(CoinChestMagnetUpgrade.RANGE, Math.max(this.radius.get(), 1)); }
 	
 }

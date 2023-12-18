@@ -1,28 +1,31 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class BankTransferNotification extends Notification {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank_transfer");
+	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_transfer"),BankTransferNotification::new);
 	
 	PlayerReference player;
-	CoinValue amount = CoinValue.EMPTY;
+	MoneyValue amount = MoneyValue.empty();
 	MutableComponent accountName;
 	MutableComponent otherAccount;
 	boolean wasReceived;
 	
-	public BankTransferNotification(CompoundTag compound) { this.load(compound); }
-	public BankTransferNotification(PlayerReference player, CoinValue amount, MutableComponent accountName, MutableComponent otherAccount, boolean wasReceived) {
+	private BankTransferNotification() { }
+	public BankTransferNotification(PlayerReference player, MoneyValue amount, MutableComponent accountName, MutableComponent otherAccount, boolean wasReceived) {
 		this.player = player;
 		this.amount = amount;
 		this.accountName = accountName;
@@ -30,19 +33,22 @@ public class BankTransferNotification extends Notification {
 		this.wasReceived = wasReceived;
 	}
 	
-	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	protected NotificationType<BankTransferNotification> getType() { return TYPE; }
 
+	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return new BankCategory(this.accountName); }
 
+	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.bank.transfer", this.player.getName(true), this.amount.getComponent(), Component.translatable(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
+		return Component.translatable("log.bank.transfer", this.player.getName(true), this.amount.getText(), Component.translatable(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.put("Amount", this.amount.save());
 		compound.putString("Account", Component.Serializer.toJson(this.accountName));
@@ -51,16 +57,16 @@ public class BankTransferNotification extends Notification {
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.amount = CoinValue.safeLoad(compound, "Amount");
+		this.amount = MoneyValue.safeLoad(compound, "Amount");
 		this.accountName = Component.Serializer.fromJson(compound.getString("Account"));
 		this.otherAccount = Component.Serializer.fromJson(compound.getString("Other"));
 		this.wasReceived = compound.getBoolean("Received");
 	}
 
 	@Override
-	protected boolean canMerge(Notification other) {
+	protected boolean canMerge(@Nonnull Notification other) {
 		if(other instanceof BankTransferNotification n)
 		{
 			return n.player.is(this.player) && n.amount.equals(this.amount) && n.accountName.equals(this.accountName) && n.otherAccount.equals(this.otherAccount) && n.wasReceived == this.wasReceived;

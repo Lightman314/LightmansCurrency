@@ -21,7 +21,7 @@ public abstract class TaxReferenceType {
     public static void register(TaxReferenceType type) {
         ResourceLocation id = type.typeID;
         if(types.containsKey(id))
-            LightmansCurrency.LogWarning("Attempted to register the TaxReferenceType '" + id + "' twice!");
+            LightmansCurrency.LogWarning("Attempted to registerNotification the TaxReferenceType '" + id + "' twice!");
         else
         {
             types.put(id, type);
