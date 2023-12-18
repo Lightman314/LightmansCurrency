@@ -22,20 +22,20 @@ public abstract class LazyMessageMenu extends EasyMenu {
             this.SendMessageToClient(message);
     }
 
-    public void SendMessageToServer(LazyPacketData.Builder message)
+    public void SendMessageToServer(@Nonnull LazyPacketData.Builder message)
     {
         if(this.isServer())
             return;
         new CPacketLazyMenu(message).send();
     }
 
-    public void SendMessageToClient(LazyPacketData.Builder message)
+    public void SendMessageToClient(@Nonnull LazyPacketData.Builder message)
     {
         if(this.isClient())
             return;
         new SPacketLazyMenu(message).sendTo(this.player);
     }
 
-    public abstract void HandleMessage(LazyPacketData message);
+    public abstract void HandleMessage(@Nonnull LazyPacketData message);
 
 }

@@ -149,7 +149,7 @@ public class CoinChestMenu extends LazyMessageMenu {
     public final void AddExtraHandler(@Nonnull Consumer<LazyPacketData> extraHandler) { this.extraHandler = extraHandler; }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         this.extraHandler.accept(message);
         for(CoinChestUpgradeData data : this.be.getChestUpgrades())
             data.upgrade.HandleMenuMessage(this, data, message);

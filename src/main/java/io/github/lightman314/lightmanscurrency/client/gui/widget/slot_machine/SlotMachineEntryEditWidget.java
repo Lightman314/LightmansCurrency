@@ -97,7 +97,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
             if(entry != null)
             {
                 int entryIndex = this.entryIndex.get();
-                ItemStack heldItem = this.tab.menu.getCarried();
+                ItemStack heldItem = this.tab.menu.getHeldItem();
                 if(mouseY >= this.getY() + ITEM_POSY && mouseY < this.getY() + ITEM_POSY + 16)
                 {
                     int itemIndex = getItemSlotIndex(mouseX);

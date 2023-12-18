@@ -133,7 +133,7 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
     @Override
     public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 
-        if(this.menu.getTrader() instanceof SlotMachineTraderData trader && this.screen.getMenu().getCarried().isEmpty())
+        if(this.menu.getTrader() instanceof SlotMachineTraderData trader && this.screen.getMenu().getHeldItem().isEmpty())
         {
             int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
             if(hoveredSlot >= 0)

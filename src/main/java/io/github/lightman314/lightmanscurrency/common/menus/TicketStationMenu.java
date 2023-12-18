@@ -201,7 +201,7 @@ public class TicketStationMenu extends LazyMessageMenu{
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("CraftTickets"))
 			this.craftTickets(message.getBoolean("CraftTickets"), message.getResourceLocation("Recipe"));
 	}

@@ -23,7 +23,7 @@ public interface ITraderMenu extends IClientTracker {
     @Nonnull
     List<Slot> getSlots();
     @Nonnull
-    ItemStack getCarried();
-    void setCarried(@Nonnull ItemStack stack);
+    ItemStack getHeldItem();
+    void setHeldItem(@Nonnull ItemStack stack);
 
 }

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage;
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;

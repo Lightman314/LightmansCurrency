@@ -52,7 +52,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 				}
 				else
 				{
-					ItemStack heldItem = this.menu.getCarried();
+					ItemStack heldItem = this.menu.getHeldItem();
 					if(isShiftHeld)
 					{
 						//Move as much of the stored item from the slot into the players inventory
@@ -63,7 +63,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 					}
 					else if(heldItem.isEmpty())
 					{
-						this.menu.setCarried(storedItem);
+						this.menu.setHeldItem(storedItem);
 						storage.getStoredItems().remove(storageSlot);
 						trader.markStorageDirty();
 					}
@@ -74,7 +74,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 						{
 							//Add to the held item
 							heldItem.grow(transferCount);
-							this.menu.setCarried(heldItem);
+							this.menu.setHeldItem(heldItem);
 							//Shrink the storage count
 							storedItem.shrink(transferCount);
 							if(storedItem.isEmpty())

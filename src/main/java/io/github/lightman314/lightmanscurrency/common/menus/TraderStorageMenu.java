@@ -76,6 +76,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		else
 			LightmansCurrency.LogError("Attempted to clear the tab in " + key + " but the tabs have been locked.");
 	}
+
 	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
@@ -96,7 +97,13 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		}
 		return this.context;
 	}
-	
+
+	@Override
+	@Nonnull
+	public ItemStack getHeldItem() { return this.getCarried(); }
+	@Override
+	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
+
 	public boolean isClient() { return this.player.level().isClientSide; }
 
 	private final MenuValidator validator;
@@ -303,7 +310,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		//Change Tab
 		if(message.contains("ChangeTab", LazyPacketData.TYPE_INT))
 			this.changeTab(message.getInt("ChangeTab"));

@@ -167,7 +167,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
 			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
 		if(message.contains("NotificationValueChange"))

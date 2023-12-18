@@ -82,7 +82,7 @@ public class ItemStorageTab extends TraderStorageTab{
 			if(trader.isPersistent())
 				return;
 			TraderItemStorage storage = trader.getStorage();
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.getHeldItem();
 			if(heldItem.isEmpty())
 			{
 				//Move item out of storage
@@ -115,7 +115,7 @@ public class ItemStorageTab extends TraderStorageTab{
 					else
 					{
 						//Put the item into the players hand
-						this.menu.setCarried(stackToRemove);
+						this.menu.setHeldItem(stackToRemove);
 						removedAmount = tempAmount;
 					}
 					//Remove the correct amount from storage
@@ -146,7 +146,7 @@ public class ItemStorageTab extends TraderStorageTab{
 					{
 						heldItem.shrink(1);
 						if(heldItem.isEmpty())
-							this.menu.setCarried(ItemStack.EMPTY);
+							this.menu.setHeldItem(ItemStack.EMPTY);
 					}
 					//Mark the storage dirty
 					trader.markStorageDirty();

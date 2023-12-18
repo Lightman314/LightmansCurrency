@@ -242,7 +242,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("ExecuteTrade"))
         {
             if(this.rewards.size() > 0)

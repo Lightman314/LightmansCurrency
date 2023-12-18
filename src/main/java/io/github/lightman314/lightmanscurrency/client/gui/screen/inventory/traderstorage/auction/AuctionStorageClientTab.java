@@ -128,7 +128,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
-		if(this.menu.getTrader() instanceof AuctionHouseTrader ah && this.screen.getMenu().getCarried().isEmpty())
+		if(this.menu.getTrader() instanceof AuctionHouseTrader ah && this.screen.getMenu().getHeldItem().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
 			if(hoveredSlot >= 0)

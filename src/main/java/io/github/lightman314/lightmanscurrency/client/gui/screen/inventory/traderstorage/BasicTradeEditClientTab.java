@@ -80,7 +80,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+			trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getHeldItem());
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
@@ -88,13 +88,13 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getCarried());
+			trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, mouseButton, this.menu.getHeldItem());
 	}
 	
 	@Override
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+			trade.OnInteraction(this.commonTab, this.screen::selfMessage, localMouseX, localMouseY, mouseButton, this.menu.getHeldItem());
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}

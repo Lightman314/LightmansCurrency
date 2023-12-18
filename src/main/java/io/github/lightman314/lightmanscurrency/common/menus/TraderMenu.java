@@ -51,6 +51,12 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu 
 	@Override
 	public List<Slot> getSlots() { return ImmutableList.copyOf(this.slots); }
 
+	@Nonnull
+	@Override
+	public ItemStack getHeldItem() { return this.getCarried(); }
+	@Override
+	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
+
 	private final Map<Long,TradeContext> contextCache = new HashMap<>();
 	
 	public static final int SLOT_OFFSET = 15;

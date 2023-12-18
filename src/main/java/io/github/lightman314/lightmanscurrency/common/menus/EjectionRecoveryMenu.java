@@ -84,7 +84,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
 	}

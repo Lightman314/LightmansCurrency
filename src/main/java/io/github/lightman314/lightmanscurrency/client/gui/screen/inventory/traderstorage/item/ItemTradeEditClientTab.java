@@ -190,7 +190,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof ItemTradeData t)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.getHeldItem();
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -215,7 +215,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof ItemTradeData t)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.getHeldItem();
 			if(t.isSale() || t.isBarter())
 			{
 				if(this.selection != index && heldItem.isEmpty())

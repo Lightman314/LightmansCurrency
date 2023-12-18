@@ -116,8 +116,8 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof PaygateTradeData t)
 		{
-			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER.get())
-				this.commonTab.setTicket(this.menu.getCarried());
+			if(this.menu.getHeldItem().getItem() == ModItems.TICKET_MASTER.get())
+				this.commonTab.setTicket(this.menu.getHeldItem());
 			else if(t.isTicketTrade())
 				this.commonTab.setTicket(ItemStack.EMPTY);
 		}

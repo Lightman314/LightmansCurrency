@@ -31,8 +31,8 @@ public interface ITraderStorageMenu extends IClientTracker {
     Player getPlayer();
 
     @Nonnull
-    ItemStack getCarried();
-    void setCarried(@Nonnull ItemStack stack);
+    ItemStack getHeldItem();
+    void setHeldItem(@Nonnull ItemStack stack);
     void clearContainer(@Nonnull Container container);
 
     void SetCoinSlotsActive(boolean active);

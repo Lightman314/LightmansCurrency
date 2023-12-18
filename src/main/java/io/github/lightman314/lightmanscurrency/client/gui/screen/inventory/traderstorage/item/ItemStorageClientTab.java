@@ -127,7 +127,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
-		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getCarried().isEmpty())
+		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getHeldItem().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
 			if(hoveredSlot >= 0)

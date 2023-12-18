@@ -125,7 +125,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
     public boolean isAdmin() { return LCAdminMode.isAdminPlayer(this.player); }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("ChangeTab"))
             this.ChangeTab(message.getInt("ChangeTab"), false);
         else if(message.contains("CollectStoredMoney"))
