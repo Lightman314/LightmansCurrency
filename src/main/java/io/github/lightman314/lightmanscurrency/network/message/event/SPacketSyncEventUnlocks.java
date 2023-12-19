@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.event;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
@@ -41,10 +42,7 @@ public class SPacketSyncEventUnlocks extends ServerToClientPacket {
 
         @Override
         protected void handle(@Nonnull SPacketSyncEventUnlocks message, @Nullable ServerPlayer sender) {
-            Minecraft mc = Minecraft.getInstance();
-            IEventUnlocks unlocks = CapabilityEventUnlocks.getCapability(mc.player);
-            if(unlocks != null)
-                unlocks.sync(message.unlocks);
+            LightmansCurrency.PROXY.syncEventUnlocks(message.unlocks);
         }
 
     }

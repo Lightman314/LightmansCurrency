@@ -33,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -73,7 +72,6 @@ public final class CoinAPI {
         setup = true;
         MinecraftForge.EVENT_BUS.addListener(CoinAPI::onServerStart);
         MinecraftForge.EVENT_BUS.addListener(CoinAPI::onJoinServer);
-        MinecraftForge.EVENT_BUS.addListener(CoinAPI::onLeaveServer);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CoinAPI::generateDefaultCoins);
         ValueDisplayAPI.Setup();
         ATMAPI.Setup();
@@ -504,7 +502,6 @@ public final class CoinAPI {
         confirmCoinDataLoaded();
         syncDataWith(LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
     }
-    private static void onLeaveServer(@Nonnull ClientPlayerNetworkEvent.LoggingOut event) { LOADED_CHAINS = null; }
     public static void syncDataWith(@Nonnull PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(LOADED_CHAINS)).sendToTarget(target); }
     public static void handleSyncPacket(@Nonnull SPacketSyncCoinData packet) { loadMoneyDataFromJson(packet.getJson()); }
 

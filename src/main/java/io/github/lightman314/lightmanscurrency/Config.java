@@ -847,12 +847,12 @@ public class Config {
 					.defineInRange("maxClaimCount", 1000000, 1, Integer.MAX_VALUE);
 
 			//Forceload Purchase Settings
-			this.claimingAllowForceloadPurchase = builder.comment("Whether the `/lcclaims buy forceload` or `/lccadmus buy forceload` command will be accessible to players.")
+			this.claimingAllowForceloadPurchase = builder.comment("Whether the `/lcclaims buy forceload` command will be accessible to players.")
 					.define("allowForceloadPurchase", false);
 			this.claimingForceloadPrice = MoneyValueConfig.define(builder.comment("The price per forceload chunk purchased."),
 					"forceloadPrice", "coin;10-lightmanscurrency:coin_netherite", () -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 10, 1000000), SPEC_SUPPLIER);
 			this.claimingMaxForceloadCount = builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
-						"Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well.")
+						"Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
 					.defineInRange("maxForceloadCount", 100, 1, Integer.MAX_VALUE);
 
 			builder.pop();

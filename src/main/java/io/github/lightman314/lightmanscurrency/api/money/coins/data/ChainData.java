@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.client.CoinInputTypeHelper;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.MainCoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.SideBaseCoinEntry;
@@ -415,7 +416,7 @@ public class ChainData {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Object getInputHandler() { return this.inputType.createInputHandler(this); }
+    public Object getInputHandler() { return CoinInputTypeHelper.getHandler(this.inputType, this); }
 
     private static void validateNoDuplicateCoins(@Nonnull CoinEntry newEntry, @Nonnull List<CoinEntry> existingEntries)
     {

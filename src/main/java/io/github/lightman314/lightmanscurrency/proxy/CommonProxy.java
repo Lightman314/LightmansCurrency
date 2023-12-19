@@ -78,5 +78,7 @@ public class CommonProxy {
 	}
 
 	public void loadPlayerTrade(ClientPlayerTrade trade) { }
+
+	public void syncEventUnlocks(@Nonnull List<String> unlocks) {}
 	
 }

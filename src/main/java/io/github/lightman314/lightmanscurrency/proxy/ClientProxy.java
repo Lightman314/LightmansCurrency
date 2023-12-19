@@ -24,6 +24,8 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -295,5 +297,12 @@ public class ClientProxy extends CommonProxy{
 		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)
 			menu.reloadTrade(trade);
 	}
-	
+
+	@Override
+	public void syncEventUnlocks(@Nonnull List<String> unlocksList) {
+		Minecraft mc = Minecraft.getInstance();
+		IEventUnlocks unlocks = CapabilityEventUnlocks.getCapability(mc.player);
+		if(unlocks != null)
+			unlocks.sync(unlocksList);
+	}
 }
