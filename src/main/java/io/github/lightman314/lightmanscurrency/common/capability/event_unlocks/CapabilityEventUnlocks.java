@@ -56,6 +56,7 @@ public class CapabilityEventUnlocks {
     {
 
         final Player player;
+        private boolean changed = false;
         private EventUnlocks(@Nonnull Player entity) { this.player = entity; }
 
         private final List<String> unlocked = new ArrayList<>();
@@ -72,7 +73,7 @@ public class CapabilityEventUnlocks {
             if(!this.unlocked.contains(eventChain))
             {
                 this.unlocked.add(eventChain);
-                this.onChange();
+                this.changed = true;
             }
         }
 
@@ -81,18 +82,15 @@ public class CapabilityEventUnlocks {
             if(this.unlocked.contains(eventChain))
             {
                 this.unlocked.remove(eventChain);
-                this.onChange();
+                this.changed = true;
             }
          }
 
-         private void onChange()
-         {
-             if(!this.player.level().isClientSide)
-             {
-                 //If changed on the server, send sync packet to the player
-                 new SPacketSyncEventUnlocks(this.unlocked).sendTo(this.player);
-             }
-         }
+        @Override
+        public boolean isDirty() { return this.changed; }
+
+        @Override
+        public void clean() { this.changed = false; }
 
         @Override
         public CompoundTag save() {
@@ -119,6 +117,7 @@ public class CapabilityEventUnlocks {
         public void sync(@Nonnull List<String> list) {
             this.unlocked.clear();
             this.unlocked.addAll(list);
+            this.changed = true;
         }
 
     }

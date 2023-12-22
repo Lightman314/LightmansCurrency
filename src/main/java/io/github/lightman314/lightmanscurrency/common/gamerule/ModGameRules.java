@@ -40,16 +40,16 @@ public class ModGameRules {
 	{
 		GameRules.BooleanValue ruleVal = getCustomValue(level, ruleKey);
 		if(ruleVal != null)
-			return defaultValue;
-		return ruleVal.get();
+			return ruleVal.get();
+		return defaultValue;
 	}
 
 	public static int safeGetCustomInt(@Nonnull Level level, @Nullable GameRules.Key<GameRules.IntegerValue> ruleKey, int defaultValue)
 	{
 		GameRules.IntegerValue ruleVal = getCustomValue(level, ruleKey);
 		if(ruleVal != null)
-			return defaultValue;
-		return ruleVal.get();
+			return ruleVal.get();
+		return defaultValue;
 	}
 	
 	public static void registerRules()

@@ -1,0 +1,15 @@
+{
+    "criteria": {
+        "has_coins": {
+            "trigger": "minecraft:inventory_changed",
+			"conditions":{
+				"items": [
+                    {
+                        "tag": "lightmanscurrency:event_coins/chocolate"
+                    }
+                ]
+			}
+        }
+    },
+	"rewards":{ "function":"lightmanscurrency:events/unlock_chocolate" }
+}

@@ -13,6 +13,9 @@ public interface IEventUnlocks {
     void unlock(@Nonnull String eventChain);
     void lock(@Nonnull String eventChain);
 
+    boolean isDirty();
+    void clean();
+
     /**
      * Save the nbt data to file
      */

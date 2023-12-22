@@ -46,7 +46,7 @@ public class WalletDropEvent extends PlayerEvent {
 		this.walletInventory = WalletItem.getWalletInventory(this.walletStack);
 	}
 	public final DamageSource source;
-	private List<ItemStack> walletDrops;
+	private List<ItemStack> walletDrops = new ArrayList<>();
 	@Nonnull
 	public List<ItemStack> getDrops() { return this.walletDrops; }
 	public void setDrops(@Nonnull List<ItemStack> drops) { this.walletDrops = new ArrayList<>(drops); }

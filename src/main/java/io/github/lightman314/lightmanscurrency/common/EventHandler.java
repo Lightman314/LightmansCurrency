@@ -159,9 +159,7 @@ public class EventHandler {
 		if(event.getEntity().level().isClientSide)
 			return;
 		sendWalletUpdatePacket(event.getEntity(), LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
-		IEventUnlocks eventUnlocks = CapabilityEventUnlocks.getCapability(event.getEntity());
-		if(eventUnlocks != null)
-			new SPacketSyncEventUnlocks(eventUnlocks.getUnlockedList()).sendTo(event.getEntity());
+		sendEventUpdatePacket(event.getEntity());
 	}
 	
 	//Sync wallet contents for newly loaded entities
@@ -190,7 +188,12 @@ public class EventHandler {
 			newHandler.setWallet(oldHandler.getWallet());
 			newHandler.setVisible(oldHandler.visible());
 		}
-		
+
+		IEventUnlocks oldEventHandler = CapabilityEventUnlocks.getCapability(oldPlayer);
+		IEventUnlocks newEventHandler = CapabilityEventUnlocks.getCapability(event.getEntity());
+		if(oldEventHandler != null && newEventHandler != null)
+			newEventHandler.sync(oldEventHandler.getUnlockedList());
+
 		//Invalidate the capabilities now that the reason is no longer needed
 		oldPlayer.invalidateCaps();
 		
@@ -202,6 +205,7 @@ public class EventHandler {
 		if(player.level().isClientSide)
 			return;
 		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
+		sendEventUpdatePacket(player);
 	}
 	
 	private static void sendWalletUpdatePacket(Entity entity, PacketTarget target) {
@@ -210,6 +214,15 @@ public class EventHandler {
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
 			new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(target);
+	}
+
+	private static void sendEventUpdatePacket(Player player)
+	{
+		if(player.level().isClientSide)
+			return;
+		IEventUnlocks eventUnlocks = CapabilityEventUnlocks.getCapability(player);
+		if(eventUnlocks != null)
+			new SPacketSyncEventUnlocks(eventUnlocks.getUnlockedList()).sendTo(player);
 	}
 	
 	//Drop the wallet if keep inventory isn't on.
@@ -242,9 +255,6 @@ public class EventHandler {
 
 					int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
 
-					if(keepWallet && coinDropPercent <= 0)
-						return;
-
 					//Get the wallet inventory
 					Container walletInventory = WalletItem.getWalletInventory(walletStack);
 
@@ -271,6 +281,8 @@ public class EventHandler {
 
 	private static List<ItemEntity> turnIntoEntities(@Nonnull LivingEntity entity, @Nonnull List<ItemStack> list)
 	{
+		if(list == null)
+			return new ArrayList<>();
 		List<ItemEntity> result = new ArrayList<>();
 		for(ItemStack stack : list)
 			result.add(new ItemEntity(entity.level(), entity.position().x, entity.position().y, entity.position().z, stack));
@@ -293,9 +305,11 @@ public class EventHandler {
 			event.setWalletStack(ItemStack.EMPTY);
 		}
 	}
-	
+
 	private static List<ItemStack> getWalletDrops(@Nonnull WalletDropEvent event, int coinDropPercent)
 	{
+		if(coinDropPercent <= 0)
+			return new ArrayList<>();
 
 		Container walletInventory = event.getWalletInventory();
 		MoneyView walletFunds = MoneyAPI.valueOfContainer(event.getWalletInventory());
@@ -337,6 +351,15 @@ public class EventHandler {
 			{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
 				walletHandler.clean();
+			}
+		}
+		if(livingEntity instanceof Player player)
+		{
+			IEventUnlocks eventHandler = CapabilityEventUnlocks.getCapability(player);
+			if(eventHandler != null && eventHandler.isDirty())
+			{
+				sendEventUpdatePacket(player);
+				eventHandler.clean();
 			}
 		}
 	}
