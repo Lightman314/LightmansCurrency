@@ -18,7 +18,7 @@ public class CPacketChestQuickCollect extends ClientToServerPacket {
 
 	private CPacketChestQuickCollect(boolean allowHidden) { this.allowHidden = allowHidden; }
 
-	public static void sendToServer() { new CPacketChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get()); }
+	public static void sendToServer() { new CPacketChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get()).send(); }
 
 	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.allowHidden); }
 

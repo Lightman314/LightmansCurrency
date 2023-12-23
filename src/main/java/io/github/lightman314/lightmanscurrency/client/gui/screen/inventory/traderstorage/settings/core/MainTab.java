@@ -67,7 +67,7 @@ public class MainTab extends SettingsSubTab {
         this.buttonResetName = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 50), 74, 20, EasyText.translatable("gui.lightmanscurrency.resetname"), this::ResetName));
 
         //Creative Toggle
-        this.buttonToggleCreative = this.addChild(IconAndButtonUtil.creativeToggleButton(screenArea.pos.offset(176, 110), this::ToggleCreative, () -> this.menu.getTrader().isCreative()));
+        this.buttonToggleCreative = this.addChild(IconAndButtonUtil.creativeToggleButton(screenArea.pos.offset(176, 110), this::ToggleCreative, this::isCreative));
         this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(166, 110), this::AddTrade)
                 .withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.trader.creative.addTrade"))));
         this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(166, 120), this::RemoveTrade)
@@ -89,6 +89,12 @@ public class MainTab extends SettingsSubTab {
 
         this.tick();
 
+    }
+
+    private boolean isCreative()
+    {
+        TraderData trader = this.menu.getTrader();
+        return trader != null && trader.isCreative();
     }
 
     @Override

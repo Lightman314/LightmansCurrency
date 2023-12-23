@@ -124,7 +124,7 @@ public class ModGameRules {
 	public static boolean safeGetCustomBool(@Nonnull Level level, @Nullable GameRules.Key<GameRules.BooleanValue> ruleKey, boolean defaultValue)
 	{
 		GameRules.BooleanValue ruleVal = getCustomValue(level, ruleKey);
-		if(ruleVal != null)
+		if(ruleVal == null)
 			return defaultValue;
 		return ruleVal.get();
 	}
@@ -132,7 +132,7 @@ public class ModGameRules {
 	public static int safeGetCustomInt(@Nonnull Level level, @Nullable GameRules.Key<GameRules.IntegerValue> ruleKey, int defaultValue)
 	{
 		GameRules.IntegerValue ruleVal = getCustomValue(level, ruleKey);
-		if(ruleVal != null)
+		if(ruleVal == null)
 			return defaultValue;
 		return ruleVal.get();
 	}
