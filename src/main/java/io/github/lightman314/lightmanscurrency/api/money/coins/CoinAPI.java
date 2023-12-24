@@ -346,14 +346,17 @@ public final class CoinAPI {
     }
 
     @Nonnull
-    public static List<ChainData> getAllChainData() { return ImmutableList.copyOf(LOADED_CHAINS.values()); }
+    public static List<ChainData> getAllChainData() {
+        if(LOADED_CHAINS == null) //Return empty list if chain data is not yet loaded.
+            return ImmutableList.of();
+        return ImmutableList.copyOf(LOADED_CHAINS.values()); }
 
     @Nullable
     public static ChainData chainForCoin(@Nonnull ItemStack coin) { return chainForCoin(coin.getItem()); }
     public static ChainData chainForCoin(@Nonnull Item coin)
     {
         confirmCoinDataLoaded();
-        for(ChainData chain : LOADED_CHAINS.values())
+        for(ChainData chain : getAllChainData())
         {
             if(chain.containsEntry(coin))
                 return chain;
