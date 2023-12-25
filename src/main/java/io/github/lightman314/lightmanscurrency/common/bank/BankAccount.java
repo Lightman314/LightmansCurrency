@@ -201,7 +201,7 @@ public class BankAccount extends IMoneyHolder.Slave {
 			account.depositCoins(withdrawnAmount);
 			return;
 		}
-		MoneyAPI.addMoneyToContainer(coinOutput, player, amount);
+		MoneyAPI.addMoneyToContainer(coinOutput, player, withdrawnAmount);
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 	
