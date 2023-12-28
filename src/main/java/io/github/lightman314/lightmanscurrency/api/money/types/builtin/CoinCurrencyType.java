@@ -194,7 +194,7 @@ public class CoinCurrencyType extends CurrencyType {
             ChainData chainData = CoinAPI.getChainData(valueToTake.getChain());
             if(chainData == null)
                 return value;
-            List<CoinEntry> coinList = chainData.getAllEntries(false);
+            List<CoinEntry> coinList = chainData.getAllEntries(true);
             coinList.sort(ChainData.SORT_HIGHEST_VALUE_FIRST);
             //Remove objects from the inventory.
             for(CoinEntry coinEntry : coinList)

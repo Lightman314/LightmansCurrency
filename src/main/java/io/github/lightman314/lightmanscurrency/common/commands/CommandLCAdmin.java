@@ -347,7 +347,7 @@ public class CommandLCAdmin {
 				{
 					ItemStack oldWallet = walletHandler.getWallet();
 					if(WalletItem.isWallet(oldWallet))
-						WalletItem.CopyWalletContents(oldWallet, newWallet);
+						newWallet.setTag(oldWallet.getOrCreateTag().copy());
 				}
 				walletHandler.setWallet(newWallet);
 			}

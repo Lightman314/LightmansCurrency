@@ -31,21 +31,12 @@ public class ATMData {
 		this.chain = chain;
 		
 		List<ATMExchangeButtonData> temp = new ArrayList<>();
-		if(jsonData.has("ConversionButtons") || jsonData.has("ExchangeButtons"))
+		JsonArray exchangeButtonDataList = GsonHelper.getAsJsonArray(jsonData,"ConversionButtons", GsonHelper.getAsJsonArray(jsonData,"ExchangeButtons"));
+		for(int i = 0; i < exchangeButtonDataList.size(); ++i)
 		{
-			JsonArray exchangeButtonDataList;
-			if(jsonData.has("ConversionButtons"))
-				exchangeButtonDataList = GsonHelper.getAsJsonArray(jsonData,"ConversionButtons");
-			else
-				exchangeButtonDataList = GsonHelper.getAsJsonArray(jsonData,"ExchangeButtons");
-			for(int i = 0; i < exchangeButtonDataList.size(); ++i)
-			{
-				try { temp.add(ATMExchangeButtonData.parse(exchangeButtonDataList.get(i).getAsJsonObject()));
-				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing Exchange Button #" + (i + 1) + ".", e); }
-			}
+			try { temp.add(ATMExchangeButtonData.parse(exchangeButtonDataList.get(i).getAsJsonObject()));
+			} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing Exchange Button #" + (i + 1) + ".", e); }
 		}
-		else
-			throw new JsonSyntaxException("ATM Data has no 'ExchangeButtons' list entry!");
 		this.exchangeButtons = ImmutableList.copyOf(temp);
 	}
 	

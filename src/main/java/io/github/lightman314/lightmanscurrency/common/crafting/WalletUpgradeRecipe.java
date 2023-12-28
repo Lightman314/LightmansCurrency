@@ -95,7 +95,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		ItemStack output = this.recipeOutput.copy();
 		ItemStack walletStack = this.getWalletStack(inv);
 		if(!walletStack.isEmpty())
-			WalletItem.CopyWalletContents(walletStack, output);
+			output.setTag(walletStack.getOrCreateTag().copy());
 		return output;
 	}
 	

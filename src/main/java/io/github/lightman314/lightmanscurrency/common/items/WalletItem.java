@@ -358,47 +358,6 @@ public class WalletItem extends Item{
 		tag.putBoolean("AutoConvert", !oldValue);
 		
 	}
-	
-	/**
-	 * Used to copy a wallets inventory contents to a newly crafted one. Also copies over any auto-conversion settings, custom names, and enchantments.
-	 * @param walletIn The wallet inventory being copied.
-	 * @param walletOut The wallet whose inventory will be filled
-	 */
-	public static void CopyWalletContents(ItemStack walletIn, ItemStack walletOut)
-	{
-		if(!(walletIn.getItem() instanceof WalletItem walletItemIn && walletOut.getItem() instanceof WalletItem walletItemOut))
-		{
-			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
-			return;
-		}
-		Container walletInventory1 = getWalletInventory(walletIn);
-		Container walletInventory2 = getWalletInventory(walletOut);
-		if(walletInventory1.getContainerSize() > walletInventory2.getContainerSize())
-			LightmansCurrency.LogWarning("WalletItem.CopyWalletContents() -> walletIn has a larger inventory size than walletOut. This may result in a loss of wallet contents.");
-		//Copy over the wallets contents
-		for(int i = 0; i < walletInventory1.getContainerSize() && i < walletInventory2.getContainerSize(); i++)
-		{
-			walletInventory2.setItem(i, walletInventory1.getItem(i).copy());
-		}
-		//Write walletOut's nbt data
-		putWalletInventory(walletOut, walletInventory2);
-		//If both wallets can convert, confirm that the auto-convert setting matches
-		if(CanExchange(walletItemIn) && CanExchange(walletItemOut) && CanPickup(walletItemIn) && CanPickup(walletItemOut))
-		{
-			if(getAutoExchange(walletIn) != getAutoExchange(walletOut))
-			{
-				toggleAutoExchange(walletOut);
-			}
-		}
-		
-		//Copy custom name
-		if(walletIn.hasCustomHoverName())
-			walletOut.setHoverName(walletIn.getHoverName());
-		
-		//Copy enchantments
-		EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(walletIn), walletOut);
-		
-	}
 
 
 	/**

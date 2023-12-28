@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
@@ -81,7 +82,7 @@ public class BankAccountWidget implements IEasyTickable {
 		}
 		else
 		{
-			this.buttonDeposit.active = MoneyAPI.valueOfContainer(this.parent.getCoinAccess()).allValues().size() > 0 && (this.allowEmptyDeposits || !this.amountSelection.getCurrentValue().isEmpty());
+			this.buttonDeposit.active = !this.parent.getCoinAccess().getStoredMoney().isEmpty() && (this.allowEmptyDeposits || !this.amountSelection.getCurrentValue().isEmpty());
 			this.buttonWithdraw.active = !this.amountSelection.getCurrentValue().isEmpty();
 		}
 		
@@ -104,7 +105,7 @@ public class BankAccountWidget implements IEasyTickable {
 		Font getFont();
 		Screen getScreen();
 		BankAccount getBankAccount();
-		Container getCoinAccess();
+		MoneyContainer getCoinAccess();
 	}
 	
 }

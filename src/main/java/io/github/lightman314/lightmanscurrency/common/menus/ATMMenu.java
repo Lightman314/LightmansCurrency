@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
@@ -29,8 +30,8 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public Player getPlayer() { return this.player; }
 	
-	private final Container coinInput = new SimpleContainer(9);
-	public Container getCoinInput() { return this.coinInput; }
+	private final MoneyContainer coinInput = new MoneyContainer(this.player, 9);
+	public MoneyContainer getCoinInput() { return this.coinInput; }
 	
 	private MutableComponent transferMessage = null;
 	
