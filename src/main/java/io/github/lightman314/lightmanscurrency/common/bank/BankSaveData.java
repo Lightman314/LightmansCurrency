@@ -10,16 +10,15 @@ import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferen
 import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketInitializeClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketClearClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketUpdateClientBank;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketUpdateClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketSyncSelectedBankAccount;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -135,10 +134,8 @@ public class BankSaveData extends SavedData {
 		{
 			bsd.setDirty();
 			//Send update packet to all connected clients
-			BankAccount bankAccount = GetBankAccount(false, player);
-			CompoundTag compound = bankAccount.save();
-			compound.putUUID("Player", player);
-			new SPacketUpdateClientBank(compound).sendToAll();
+			BankAccount bankAccount = GetBankAccount(false, player);;
+			new SPacketUpdateClientBank(player, bankAccount.save()).sendToAll();
 		}
 	}
 	
@@ -217,16 +214,9 @@ public class BankSaveData extends SavedData {
 		
 		//Confirm the presence of the loading players bank account
 		GetBankAccount(event.getEntity());
-		
-		CompoundTag compound = new CompoundTag();
-		ListTag bankList = new ListTag();
-		bsd.playerBankData.forEach((id, data) -> {
-			CompoundTag tag = data.getFirst().save();
-			tag.putUUID("Player", id);
-			bankList.add(tag);
-		});
-		compound.put("BankAccounts", bankList);
-		new SPacketInitializeClientBank(compound).sendToTarget(target);
+
+		SPacketClearClientBank.INSTANCE.sendToTarget(target);
+		bsd.playerBankData.forEach((id, data) -> new SPacketUpdateClientBank(id, data.getFirst().save()).sendToTarget(target));
 		
 		//Update to let them know their selected bank account
 		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());

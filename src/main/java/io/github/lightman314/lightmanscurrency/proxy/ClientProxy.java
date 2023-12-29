@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -23,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.*;
@@ -40,8 +37,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -150,28 +145,10 @@ public class ClientProxy extends CommonProxy{
 	public void removeTeam(long teamID) { ClientTeamData.RemoveTeam(teamID); }
 	
 	@Override
-	public void initializeBankAccounts(CompoundTag compound)
-	{
-		if(compound.contains("BankAccounts", Tag.TAG_LIST))
-		{
-			Map<UUID,BankAccount> bank = new HashMap<>();
-			ListTag bankList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
-			for(int i = 0; i < bankList.size(); ++i)
-			{
-				CompoundTag tag = bankList.getCompound(i);
-				UUID id = tag.getUUID("Player");
-				BankAccount bankAccount = new BankAccount(tag);
-				bank.put(id,bankAccount);
-			}
-			ClientBankData.InitBankAccounts(bank);
-		}
-	}
+	public void clearBankAccounts() { ClientBankData.ClearBankAccounts(); }
 	
 	@Override
-	public void updateBankAccount(CompoundTag compound)
-	{
-		ClientBankData.UpdateBankAccount(compound);
-	}
+	public void updateBankAccount(UUID player, CompoundTag compound) { ClientBankData.UpdateBankAccount(player, compound); }
 	
 	@Override
 	public void receiveEmergencyEjectionData(CompoundTag compound)

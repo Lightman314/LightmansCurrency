@@ -5,6 +5,9 @@ import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.team.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.event.*;
@@ -55,7 +58,7 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketOpenATM.class, CPacketOpenATM.HANDLER);
 		register(CPacketSelectBankAccount.class, CPacketSelectBankAccount.HANDLER);
 		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
-		register(SPacketInitializeClientBank.class, SPacketInitializeClientBank.HANDLER);
+		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
 		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
 		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
 		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);

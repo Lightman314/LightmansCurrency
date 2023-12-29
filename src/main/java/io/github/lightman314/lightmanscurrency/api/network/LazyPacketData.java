@@ -263,7 +263,7 @@ public final class LazyPacketData {
             if(type == TYPE_TEXT)
                 return ofText(Component.Serializer.fromJson(buffer.readUtf()));
             if(type == TYPE_NBT)
-                return ofNBT(buffer.readNbt());
+                return ofNBT(buffer.readAnySizeNbt());
             throw new RuntimeException("Could not decode entry of type " + type + "as it is not a valid data entry type!");
         }
 

@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.network.message.data;
+package io.github.lightman314.lightmanscurrency.network.message.data.team;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
@@ -25,7 +25,7 @@ public class SPacketUpdateClientTeam extends ServerToClientPacket {
 	{
 		@Nonnull
 		@Override
-		public SPacketUpdateClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketUpdateClientTeam(buffer.readNbt()); }
+		public SPacketUpdateClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketUpdateClientTeam(buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientTeam message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.PROXY.updateTeam(message.traderData);

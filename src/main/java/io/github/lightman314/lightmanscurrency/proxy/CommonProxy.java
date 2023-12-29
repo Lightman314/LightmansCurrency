@@ -31,9 +31,9 @@ public class CommonProxy {
 	
 	public void removeTeam(long teamID) {}
 	
-	public void initializeBankAccounts(CompoundTag compound) {}
+	public void clearBankAccounts() {}
 	
-	public void updateBankAccount(CompoundTag compound) {}
+	public void updateBankAccount(UUID player, CompoundTag compound) {}
 	
 	public void receiveEmergencyEjectionData(CompoundTag compound) {}
 	

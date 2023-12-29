@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.network.message.teams;
+package io.github.lightman314.lightmanscurrency.network.message.data.team;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;

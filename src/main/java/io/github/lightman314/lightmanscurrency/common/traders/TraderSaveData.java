@@ -25,9 +25,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.Persistent
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.data.SPacketClearClientTraders;
-import io.github.lightman314.lightmanscurrency.network.message.data.SPacketMessageRemoveClientTrader;
-import io.github.lightman314.lightmanscurrency.network.message.data.SPacketUpdateClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.trader.SPacketClearClientTraders;
+import io.github.lightman314.lightmanscurrency.network.message.data.trader.SPacketMessageRemoveClientTrader;
+import io.github.lightman314.lightmanscurrency.network.message.data.trader.SPacketUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;

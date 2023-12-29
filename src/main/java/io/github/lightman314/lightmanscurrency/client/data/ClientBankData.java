@@ -28,19 +28,14 @@ public class ClientBankData {
 		return new BankAccount();
 	}
 	
-	public static void InitBankAccounts(Map<UUID,BankAccount> bankAccounts)
-	{
-		loadedBankAccounts.clear();
-		loadedBankAccounts.putAll(bankAccounts);
-	}
+	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
 	
-	public static void UpdateBankAccount(CompoundTag compound)
+	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {
-			UUID owner = compound.getUUID("Player");
 			BankAccount account = new BankAccount(compound);
-			if(owner != null && account != null)
-				loadedBankAccounts.put(owner, account);
+			if(player != null && account != null)
+				loadedBankAccounts.put(player, account);
 		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
