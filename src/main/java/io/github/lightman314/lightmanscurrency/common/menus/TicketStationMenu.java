@@ -5,8 +5,6 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -23,7 +21,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class TicketStationMenu extends LazyMessageMenu{
@@ -170,29 +167,6 @@ public class TicketStationMenu extends LazyMessageMenu{
 			}
 		}
 		return true;
-	}
-	
-	public long getTicketID()
-	{
-		ItemStack masterTicket = this.blockEntity.getStorage().getItem(0);
-		if(TicketItem.isMasterTicket(masterTicket))
-			return TicketItem.GetTicketID(masterTicket);
-		return Long.MIN_VALUE;
-	}
-
-	public int getTicketColor()
-	{
-		ItemStack stack = this.blockEntity.getStorage().getItem(0);
-		if(TicketItem.isMasterTicket(stack))
-			return TicketItem.GetTicketColor(stack);
-		return 0xFFFFFF;
-	}
-
-	@Nullable
-	public Color getDyeColor()
-	{
-		ItemStack stack = this.blockEntity.getStorage().getItem(0);
-		return TicketModifierSlot.getColorFromDye(stack);
 	}
 
 	public void SendCraftTicketsMessage(boolean fullStack, @Nonnull ResourceLocation recipe)

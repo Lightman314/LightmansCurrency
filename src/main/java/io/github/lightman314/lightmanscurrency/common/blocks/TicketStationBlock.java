@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketStationBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;

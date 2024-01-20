@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketChestQuickCollect;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public class ChestCoinCollectButton extends IconButton {
 
     private boolean shouldBeVisible()
     {
-        if(!Config.CLIENT.chestButtonVisible.get())
+        if(!LCConfig.CLIENT.chestButtonVisible.get())
             return false;
         Minecraft mc = Minecraft.getInstance();
         if(mc != null)
@@ -44,12 +44,12 @@ public class ChestCoinCollectButton extends IconButton {
             ItemStack wallet = CoinAPI.getWalletStack(mc.player);
             if(WalletItem.isWallet(wallet))
             {
-                final boolean allowHidden = Config.CLIENT.chestButtonAllowHidden.get();
+                final boolean allowSideChains = LCConfig.CLIENT.chestButtonAllowSideChains.get();
                 //Check menu inventory for coins
                 Container container = this.screen.getMenu().getContainer();
                 for(int i = 0; i < container.getContainerSize(); ++i)
                 {
-                    if(CoinAPI.isCoin(container.getItem(i), allowHidden))
+                    if(CoinAPI.isCoin(container.getItem(i), allowSideChains))
                         return true;
                 }
             }

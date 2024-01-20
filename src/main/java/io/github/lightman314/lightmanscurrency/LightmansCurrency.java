@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
@@ -7,18 +10,16 @@ import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurre
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReferenceType;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxReferenceType;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
@@ -64,10 +65,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -106,13 +104,11 @@ public class LightmansCurrency {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
 
         //Register configs
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.commonSpec);
-		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
+		LCConfig.init();
+		LootManager.init();
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -212,11 +208,11 @@ public class LightmansCurrency {
 		TraderAPI.registerSearchFilter(new ItemTraderSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
-		TaxReferenceType.register(TaxableTraderReference.TYPE);
+		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
 
 		//Register Bank Account Reference Types
-		BankReferenceType.register(PlayerBankReference.TYPE);
-		BankReferenceType.register(TeamBankReference.TYPE);
+		BankAPI.registerType(PlayerBankReference.TYPE);
+		BankAPI.registerType(TeamBankReference.TYPE);
 
 		//Register Menu Validator Types
 		MenuValidatorType.register(SimpleValidator.TYPE);
@@ -239,20 +235,6 @@ public class LightmansCurrency {
 	}
     
     private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
-    
-    private void onConfigLoad(ModConfigEvent event)
-    {
-    	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
-    	{
-    		//Have the loot manager validate the entity loot contents
-    		LootManager.validateEntityDropList();
-    		LootManager.debugLootConfigs();
-
-			//Only reload villager overrides on the initial load, as it's impossible to change the values after the villager trades have been loaded.
-			if(event instanceof ModConfigEvent.Loading)
-				Config.reloadVillagerOverrides();
-    	}
-    }
     
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {
@@ -291,7 +273,7 @@ public class LightmansCurrency {
 
     public static void LogInfo(String message)
     {
-    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
+    	if(LCConfig.COMMON.debugLevel.get() > 0)
     		LOGGER.debug("INFO: " + message);
     	else
     		LOGGER.info(message);
@@ -299,7 +281,7 @@ public class LightmansCurrency {
 
 	public static void LogInfo(String message, Object... objects)
 	{
-		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
+		if(LCConfig.COMMON.debugLevel.get() > 0)
 			LOGGER.debug("INFO: " + message, objects);
 		else
 			LOGGER.info(message, objects);
@@ -307,7 +289,7 @@ public class LightmansCurrency {
     
     public static void LogWarning(String message)
     {
-    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 1)
+    	if(LCConfig.COMMON.debugLevel.get() > 1)
     		LOGGER.debug("WARN: " + message);
     	else
     		LOGGER.warn(message);
@@ -315,7 +297,7 @@ public class LightmansCurrency {
 
 	public static void LogWarning(String message, Object... objects)
 	{
-		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 1)
+		if(LCConfig.COMMON.debugLevel.get() > 1)
 			LOGGER.debug("WARN: " + message, objects);
 		else
 			LOGGER.warn(message, objects);
@@ -323,7 +305,7 @@ public class LightmansCurrency {
 
     public static void LogError(String message)
     {
-    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
+    	if(LCConfig.COMMON.debugLevel.get() > 2)
     		LOGGER.debug("ERROR: " + message);
     	else
     		LOGGER.error(message);
@@ -331,7 +313,7 @@ public class LightmansCurrency {
 
 	public static void LogError(String message, Object... objects)
 	{
-		if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
+		if(LCConfig.COMMON.debugLevel.get() > 2)
 			LOGGER.debug("ERROR: " + message, objects);
 		else
 			LOGGER.error(message, objects);

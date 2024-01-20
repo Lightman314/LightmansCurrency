@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -17,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;

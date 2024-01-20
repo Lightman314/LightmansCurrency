@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionBlockManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;

@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
@@ -10,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import org.lwjgl.glfw.GLFW;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
@@ -27,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpe
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketSetVisible;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketWalletInteraction;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.Config;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -201,6 +203,7 @@ public class ClientEvents {
 			//Render notification & team manager button tooltips
 			NotificationButton.tryRenderTooltip(gui);
 			TeamManagerButton.tryRenderTooltip(gui);
+			EjectionMenuButton.tryRenderTooltip(gui);
 			
 			Minecraft mc = Minecraft.getInstance();
 			if(LightmansCurrency.isCuriosValid(mc.player))
@@ -296,6 +299,11 @@ public class ClientEvents {
 		return mc.player;
 	}
 	
-	public static ScreenPosition getWalletSlotPosition(boolean isCreative) { return isCreative ? Config.CLIENT.walletSlotCreative.get() : Config.CLIENT.walletSlot.get(); }
-	
+	public static ScreenPosition getWalletSlotPosition(boolean isCreative) { return isCreative ? LCConfig.CLIENT.walletSlotCreative.get() : LCConfig.CLIENT.walletSlot.get(); }
+
+	@SubscribeEvent
+	public static void playerLeavesServer(ClientPlayerNetworkEvent.LoggingOut event) {
+		SyncedConfigFile.onClientLeavesServer();
+	}
+
 }

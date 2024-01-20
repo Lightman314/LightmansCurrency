@@ -22,7 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.I
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;

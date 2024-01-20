@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
@@ -8,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidg
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -41,7 +41,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		Component accountName = Component.literal("ERROR FINDING ACCOUNT");
-		BankAccount ba = this.screen.getMenu().getBankAccount();
+		IBankAccount ba = this.screen.getMenu().getBankAccount();
 		if(ba != null)
 			accountName = ba.getName();
 		gui.drawString(accountName, 8, MoneyValueWidget.HEIGHT, 0x404040);
@@ -55,7 +55,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	public Screen getScreen() { return this.screen; }
 
 	@Override
-	public BankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
+	public IBankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
 
 	@Override
 	public MoneyContainer getCoinAccess() { return this.screen.getMenu().getCoinInput(); }

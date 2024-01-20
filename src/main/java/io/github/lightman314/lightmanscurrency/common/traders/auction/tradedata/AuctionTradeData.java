@@ -6,16 +6,16 @@ import java.util.function.Consumer;
 
 import com.google.gson.JsonObject;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
@@ -47,13 +47,13 @@ import javax.annotation.Nonnull;
 public class AuctionTradeData extends TradeData {
 
 	public static long GetMinimumDuration() {
-		if(Config.SERVER.minAuctionDuration.get() > 0)
-			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
+		if(LCConfig.SERVER.auctionHouseDurationMin.get() > 0)
+			return TimeUtil.DURATION_DAY * LCConfig.SERVER.auctionHouseDurationMin.get();
 		return TimeUtil.DURATION_HOUR;
 	}
 	public static long GetDefaultDuration() {
-		if(Config.SERVER.minAuctionDuration.get() > 0)
-			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
+		if(LCConfig.SERVER.auctionHouseDurationMin.get() > 0)
+			return TimeUtil.DURATION_DAY * LCConfig.SERVER.auctionHouseDurationMin.get();
 		return TimeUtil.DURATION_DAY;
 	}
 	
@@ -73,12 +73,15 @@ public class AuctionTradeData extends TradeData {
 		if(this.isActive())
 			return;
 		this.lastBidAmount = amount;
+		//Validate the min bid difference
+		if(!this.minBidDifference.sameType(this.lastBidAmount))
+			this.minBidDifference = this.lastBidAmount.getSmallestValue();
 	}
 
-	MoneyValue minBidDifference = null;
+	MoneyValue minBidDifference = MoneyValue.empty();
 	public MoneyValue getMinBidDifference() {
 		if(this.minBidDifference == null || !this.lastBidAmount.sameType(this.minBidDifference))
-			return this.lastBidAmount.getSmallestValue();
+			return this.minBidDifference = this.lastBidAmount.getSmallestValue();
 		return this.minBidDifference;
 	}
 	public void setMinBidDifferent(@Nonnull MoneyValue amount) {
@@ -88,7 +91,7 @@ public class AuctionTradeData extends TradeData {
 			return;
 		this.minBidDifference = amount;
 		if(this.minBidDifference.isEmpty())
-			this.minBidDifference = this.minBidDifference.getSmallestValue();
+			this.minBidDifference = this.lastBidAmount.getSmallestValue();
 	}
 	PlayerReference tradeOwner;
 	public PlayerReference getOwner() { return this.tradeOwner; }
@@ -123,7 +126,7 @@ public class AuctionTradeData extends TradeData {
 	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
 	
 	/**
-	 * Used to create an auction trade from persistent auction data
+	 * Used to createTrue an auction trade from persistent auction data
 	 */
 	public AuctionTradeData(PersistentAuctionData data) {
 		super(false);
@@ -286,7 +289,7 @@ public class AuctionTradeData extends TradeData {
 	
 	@Override
 	public CompoundTag getAsNBT() {
-		//Do not run super.getAsNBT() as we don't need to saveItem the price or trade rules.
+		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
 		CompoundTag compound = new CompoundTag();
 		ListTag itemList = new ListTag();
 		for (ItemStack auctionItem : this.auctionItems) {
@@ -297,7 +300,8 @@ public class AuctionTradeData extends TradeData {
 		if(this.lastBidPlayer != null)
 			compound.put("LastBidPlayer", this.lastBidPlayer.save());
 
-		compound.put("MinBid", this.minBidDifference.save());
+		if(this.minBidDifference != null)
+			compound.put("MinBid", this.minBidDifference.save());
 		
 		compound.putLong("StartTime", this.startTime);
 		compound.putLong("Duration", this.duration);

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
@@ -21,7 +20,7 @@ public class NotificationAPI {
         String t = type.type.toString();
         if(notificationRegistry.containsKey(t))
         {
-            LightmansCurrency.LogWarning("Attempted to register duplicate NotificationType '" + t + "'!");
+            LightmansCurrency.LogWarning("Attempted to registerType duplicate NotificationType '" + t + "'!");
             return;
         }
         notificationRegistry.put(t, type);
@@ -33,7 +32,7 @@ public class NotificationAPI {
         String t = type.type.toString();
         if(categoryRegistry.containsKey(t))
         {
-            LightmansCurrency.LogWarning("Attempted to register duplicate NotificationCategoryType '" + t + "'!");
+            LightmansCurrency.LogWarning("Attempted to registerType duplicate NotificationCategoryType '" + t + "'!");
             return;
         }
         categoryRegistry.put(t, type);

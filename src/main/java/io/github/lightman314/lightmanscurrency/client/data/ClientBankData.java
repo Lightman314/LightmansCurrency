@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;

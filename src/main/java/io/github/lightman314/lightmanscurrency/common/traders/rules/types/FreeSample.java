@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;

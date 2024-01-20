@@ -40,8 +40,12 @@ public class PersistentAuctionData {
 	public AuctionTradeData createAuction() { return new AuctionTradeData(this); }
 	
 	public static PersistentAuctionData load(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-	
-		String id = GsonHelper.getAsString(json, "id", GsonHelper.getAsString(json, "ID"));
+
+		String id;
+		if(json.has("id"))
+			id = GsonHelper.getAsString(json, "id");
+		else
+			id = GsonHelper.getAsString(json, "ID");
 		
 		List<ItemStack> items = new ArrayList<>();
 		if(json.has("Item1"))
@@ -53,14 +57,14 @@ public class PersistentAuctionData {
 			throw new JsonSyntaxException("Auction has no 'Item1' or 'Item2' entry!");
 		
 		long duration = Math.max(GsonHelper.getAsLong(json, "Duration", AuctionTradeData.GetDefaultDuration()), AuctionTradeData.GetMinimumDuration());
-		
-		MoneyValue startingBid = MoneyValue.loadFromJson(GsonHelper.getAsJsonObject(json, "StartingBid"));
-		if(startingBid.isEmpty() ||startingBid.isFree())
+
+		MoneyValue startingBid = MoneyValue.loadFromJson(GsonHelper.getNonNull(json, "StartingBid"));
+		if(startingBid.isEmpty() || startingBid.isFree())
 			throw new JsonSyntaxException("StartingBid cannot be empty and/or free!");
 
 		MoneyValue minimumBid = startingBid.getSmallestValue();
 		if(json.has("MinimumBid"))
-			minimumBid = MoneyValue.loadFromJson(GsonHelper.getAsJsonObject(json, "MinimumBid"));
+			minimumBid = MoneyValue.loadFromJson(GsonHelper.getNonNull(json, "MinimumBid"));
 
 		if(!startingBid.getUniqueName().equals(minimumBid.getUniqueName()))
 			throw new JsonSyntaxException("StartingBid and MinimumBid are not compatible money values!");

@@ -2,15 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.traders.blockentity;
 
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxManager;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import net.minecraft.network.chat.Component;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -119,8 +119,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
 		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
-		List<TaxEntry> taxes = TaxManager.GetPossibleTaxesForTrader(newTrader);
-		taxes.forEach(e -> e.acceptTaxes(newTrader));
+		List<ITaxCollector> taxes = TaxAPI.GetPossibleTaxCollectorsFor(newTrader);
+		taxes.forEach(e -> e.AcceptTaxable(newTrader));
 		if(taxes.size() > 0)
 		{
 			Component firstMessage = EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.1");

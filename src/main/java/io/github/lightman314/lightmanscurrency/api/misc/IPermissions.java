@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.misc;
 
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;

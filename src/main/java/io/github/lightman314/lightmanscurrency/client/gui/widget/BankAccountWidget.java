@@ -1,20 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankInteraction;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -64,7 +62,7 @@ public class BankAccountWidget implements IEasyTickable {
 	{
 
 		int screenMiddle = this.parent.getScreen().width / 2;
-		BankAccount ba = this.parent.getBankAccount();
+		IBankAccount ba = this.parent.getBankAccount();
 		Component balanceComponent = ba == null ? EasyText.translatable("gui.lightmanscurrency.bank.null") : EasyText.translatable("gui.lightmanscurrency.bank.balance", ba.getMoneyStorage().getRandomValueText());
 		int offset = gui.font.width(balanceComponent.getString()) / 2;
 		gui.pushOffsetZero().drawString(balanceComponent, screenMiddle - offset, this.y + MoneyValueWidget.HEIGHT + 30 + spacing + yOffset, 0x404040);
@@ -104,7 +102,7 @@ public class BankAccountWidget implements IEasyTickable {
 	{
 		Font getFont();
 		Screen getScreen();
-		BankAccount getBankAccount();
+		IBankAccount getBankAccount();
 		MoneyContainer getCoinAccess();
 	}
 	

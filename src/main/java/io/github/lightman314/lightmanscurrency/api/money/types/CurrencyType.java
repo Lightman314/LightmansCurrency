@@ -127,7 +127,7 @@ public abstract class CurrencyType {
      */
     public abstract MoneyValue loadMoneyValueJson(@Nonnull JsonObject json);
 
-    @Nullable
+    @Nonnull
     public abstract MoneyValueParser getValueParser();
 
     /**

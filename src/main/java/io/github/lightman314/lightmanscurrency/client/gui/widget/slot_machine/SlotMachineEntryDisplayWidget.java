@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import net.minecraft.network.chat.Component;

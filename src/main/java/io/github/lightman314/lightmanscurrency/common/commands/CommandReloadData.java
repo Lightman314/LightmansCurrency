@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

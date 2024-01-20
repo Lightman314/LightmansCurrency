@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value.holder;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;

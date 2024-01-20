@@ -7,7 +7,7 @@ import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketUpdateClientTeam;

@@ -21,8 +21,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;

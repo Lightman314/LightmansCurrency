@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common;
 
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -45,6 +47,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -160,6 +163,8 @@ public class EventHandler {
 			return;
 		sendWalletUpdatePacket(event.getEntity(), LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
 		sendEventUpdatePacket(event.getEntity());
+		if(event.getEntity() instanceof ServerPlayer player)
+			SyncedConfigFile.playerJoined(player);
 	}
 	
 	//Sync wallet contents for newly loaded entities
@@ -362,6 +367,11 @@ public class EventHandler {
 				eventHandler.clean();
 			}
 		}
+	}
+
+	@SubscribeEvent
+	public static void serverStart(ServerStartedEvent event) {
+		ConfigFile.reloadFiles();
 	}
 
 	@SubscribeEvent

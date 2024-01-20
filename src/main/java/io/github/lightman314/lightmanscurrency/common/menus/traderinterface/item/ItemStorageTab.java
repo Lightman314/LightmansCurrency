@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlo
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

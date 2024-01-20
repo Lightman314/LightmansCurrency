@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.BasicSettingsTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
@@ -134,7 +134,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
 
     private boolean canActiveToggle() {
         TaxEntry entry = this.getEntry();
-        return entry != null && (!Config.SERVER.taxMachinesAdminOnly.get() || this.menu.isAdmin() || entry.isActive());
+        return entry != null && (!LCConfig.SERVER.taxCollectorAdminOnly.get() || this.menu.isAdmin() || entry.isActive());
     }
 
     private boolean showAreaButtons = true;

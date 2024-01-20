@@ -43,7 +43,7 @@ public class ATMAPI {
             if(registeredIcons.get(type) == iconType)
                 LightmansCurrency.LogWarning("ATM Icon Type '" + type + "' was registered twice.");
             else
-                LightmansCurrency.LogWarning("Attempted to register an ATM Icon Type of type '" + type + "', but an ATM Icon of that type is already registered.");
+                LightmansCurrency.LogWarning("Attempted to registerType an ATM Icon Type of type '" + type + "', but an ATM Icon of that type is already registered.");
         }
         registeredIcons.put(type, iconType);
         LightmansCurrency.LogInfo("ATM Icon Type '" + type + "' has been registered successfully.");

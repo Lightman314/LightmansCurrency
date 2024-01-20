@@ -12,11 +12,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
@@ -59,7 +59,7 @@ public class TraderSaveData extends SavedData {
 	public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
 	
 	private void validateAuctionHouse() {
-		if(!Config.SERVER.enableAuctionHouse.get())
+		if(!LCConfig.SERVER.auctionHouseEnabled.get())
 		{
 			LightmansCurrency.LogInfo("Will not create or validate the auction house as the auction house is disabled.");
 			return;
@@ -518,7 +518,7 @@ public class TraderSaveData extends SavedData {
 			{
 				TraderData trader = tsd.traderData.get(traderID);
 				//Delete from appropriate tax entries
-				TaxSaveData.GetAllTaxEntries(false).forEach(e -> e.taxableBlockRemoved(trader));
+				TaxSaveData.GetAllTaxEntries(false).forEach(e -> e.TaxableWasRemoved(trader));
 				//Remove from the Trader List
 				tsd.traderData.remove(traderID);
 				if(trader instanceof IEasyTickable t)
@@ -623,7 +623,7 @@ public class TraderSaveData extends SavedData {
 						{
 							if(traderData instanceof IEasyTickable t)
 								tsd.tickers.remove(t);
-							if(Config.SERVER.safelyEjectIllegalBreaks.get())
+							if(LCConfig.SERVER.safelyEjectMachineContents.get())
 							{
 								try {
 									Level level = server.getLevel(traderData.getLevel());

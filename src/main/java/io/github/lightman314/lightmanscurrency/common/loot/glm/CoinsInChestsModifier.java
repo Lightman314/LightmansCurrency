@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
@@ -28,7 +28,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 	public ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
-		if(!Config.COMMON.enableChestLoot.get())
+		if(!LCConfig.COMMON.enableChestLoot.get())
 			return generatedLoot;
 		
 		String lootTable = context.getQueriedLootTableId().toString();

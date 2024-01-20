@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;

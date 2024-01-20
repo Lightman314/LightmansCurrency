@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;

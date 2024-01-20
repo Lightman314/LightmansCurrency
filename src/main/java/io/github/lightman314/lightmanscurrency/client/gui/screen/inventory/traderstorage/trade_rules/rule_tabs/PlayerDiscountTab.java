@@ -12,8 +12,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;

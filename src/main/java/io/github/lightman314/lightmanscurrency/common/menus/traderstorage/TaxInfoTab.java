@@ -39,7 +39,7 @@ public class TaxInfoTab extends TraderStorageTab {
         {
             TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
             if(entry != null && entry.IsInArea(trader))
-                entry.acceptTaxes(trader);
+                entry.AcceptTaxable(trader);
             if(this.menu.isClient())
                 this.menu.SendMessage(LazyPacketData.simpleLong("AcceptTaxCollector", taxCollector));
         }

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.events;
 
-import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.world.entity.player.Player;

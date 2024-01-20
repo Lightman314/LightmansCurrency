@@ -16,10 +16,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;

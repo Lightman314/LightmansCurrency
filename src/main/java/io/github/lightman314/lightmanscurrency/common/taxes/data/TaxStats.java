@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.taxes.data;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
-import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinC
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;

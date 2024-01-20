@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
-import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
@@ -31,10 +31,8 @@ public final class SlotMachineRenderer implements IEasyTickable {
     private SlotMachineTraderData getTrader() { return this.menu.getTrader(); }
     private RandomSource getRandom() { return this.menu.player.level().random; }
 
-    //public static final int ANIMATION_TIME = 100;
-    public static int GetAnimationTime() { return Math.max(Config.CLIENT.slotMachineAnimationTime.get(), 20); }
-    //public static final int REST_TIME = 20;
-    public static int GetRestTime() { return Math.max(Config.CLIENT.slotMachineAnimationRestTime.get(), 1); }
+    public static int GetAnimationTime() { return Math.max(LCConfig.CLIENT.slotMachineAnimationTime.get(), 20); }
+    public static int GetRestTime() { return Math.max(LCConfig.CLIENT.slotMachineAnimationRestTime.get(), 1); }
 
     private int animationTick = 0;
     private int restTick = 0;

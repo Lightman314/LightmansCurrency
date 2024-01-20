@@ -3,10 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringListOption;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.SpawnTrackerCapability;
@@ -26,7 +25,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -49,6 +47,12 @@ public class LootManager {
 	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
 
 	private static final List<ILootModifier> LOOT_MODIFIERS = new ArrayList<>();
+
+	public static void init()
+	{
+		//Have the loot manager validate the entity loot contents
+		LCConfig.COMMON.addListener(LootManager::debugLootConfigs);
+	}
 
 	public static void addLootModifier(@Nonnull ILootModifier modifier)
 	{
@@ -162,9 +166,9 @@ public class LootManager {
 	}
 
 
-	private static String getValueList(ConfigValue<List<? extends String>> config) {
+	private static String getValueList(StringListOption config) {
 		StringBuilder buffer = new StringBuilder();
-		List<? extends String> list = config.get();
+		List<String> list = config.get();
 		for(String value : list)
 		{
 			if(buffer.length() > 0)
@@ -178,28 +182,28 @@ public class LootManager {
 
 		LightmansCurrency.LogDebug("Lightman's Currency common configs have been loaded. Coin loot values are as follows.");
 		//Chests
-		LightmansCurrency.LogDebug("Chest T1: " + getValueList(Config.COMMON.chestDropsT1));
-		LightmansCurrency.LogDebug("Chest T2: " + getValueList(Config.COMMON.chestDropsT2));
-		LightmansCurrency.LogDebug("Chest T3: " + getValueList(Config.COMMON.chestDropsT3));
-		LightmansCurrency.LogDebug("Chest T4: " + getValueList(Config.COMMON.chestDropsT4));
-		LightmansCurrency.LogDebug("Chest T5: " + getValueList(Config.COMMON.chestDropsT5));
-		LightmansCurrency.LogDebug("Chest T6: " + getValueList(Config.COMMON.chestDropsT6));
+		LightmansCurrency.LogDebug("Chest T1: " + getValueList(LCConfig.COMMON.chestDropsT1));
+		LightmansCurrency.LogDebug("Chest T2: " + getValueList(LCConfig.COMMON.chestDropsT2));
+		LightmansCurrency.LogDebug("Chest T3: " + getValueList(LCConfig.COMMON.chestDropsT3));
+		LightmansCurrency.LogDebug("Chest T4: " + getValueList(LCConfig.COMMON.chestDropsT4));
+		LightmansCurrency.LogDebug("Chest T5: " + getValueList(LCConfig.COMMON.chestDropsT5));
+		LightmansCurrency.LogDebug("Chest T6: " + getValueList(LCConfig.COMMON.chestDropsT6));
 
 		//Entity (normal)
-		LightmansCurrency.LogDebug("Entity T1: " + getValueList(Config.COMMON.entityDropsT1));
-		LightmansCurrency.LogDebug("Entity T2: " + getValueList(Config.COMMON.entityDropsT2));
-		LightmansCurrency.LogDebug("Entity T3: " + getValueList(Config.COMMON.entityDropsT3));
-		LightmansCurrency.LogDebug("Entity T4: " + getValueList(Config.COMMON.entityDropsT4));
-		LightmansCurrency.LogDebug("Entity T5: " + getValueList(Config.COMMON.entityDropsT5));
-		LightmansCurrency.LogDebug("Entity T6: " + getValueList(Config.COMMON.entityDropsT6));
+		LightmansCurrency.LogDebug("Entity T1: " + getValueList(LCConfig.COMMON.entityDropsT1));
+		LightmansCurrency.LogDebug("Entity T2: " + getValueList(LCConfig.COMMON.entityDropsT2));
+		LightmansCurrency.LogDebug("Entity T3: " + getValueList(LCConfig.COMMON.entityDropsT3));
+		LightmansCurrency.LogDebug("Entity T4: " + getValueList(LCConfig.COMMON.entityDropsT4));
+		LightmansCurrency.LogDebug("Entity T5: " + getValueList(LCConfig.COMMON.entityDropsT5));
+		LightmansCurrency.LogDebug("Entity T6: " + getValueList(LCConfig.COMMON.entityDropsT6));
 
 		//Entity (boss)
-		LightmansCurrency.LogDebug("Boss Entity T1: " + getValueList(Config.COMMON.bossEntityDropsT1));
-		LightmansCurrency.LogDebug("Entity Iron (Boss): " + getValueList(Config.COMMON.bossEntityDropsT2));
-		LightmansCurrency.LogDebug("Entity Gold (Boss): " + getValueList(Config.COMMON.bossEntityDropsT3));
-		LightmansCurrency.LogDebug("Entity Emerald (Boss): " + getValueList(Config.COMMON.bossEntityDropsT4));
-		LightmansCurrency.LogDebug("Entity Diamond (Boss): " + getValueList(Config.COMMON.bossEntityDropsT5));
-		LightmansCurrency.LogDebug("Entity Netherite (Boss): " + getValueList(Config.COMMON.bossEntityDropsT6));
+		LightmansCurrency.LogDebug("Boss Entity T1: " + getValueList(LCConfig.COMMON.bossEntityDropsT1));
+		LightmansCurrency.LogDebug("Boss Entity T2: " + getValueList(LCConfig.COMMON.bossEntityDropsT2));
+		LightmansCurrency.LogDebug("Boss Entity T3: " + getValueList(LCConfig.COMMON.bossEntityDropsT3));
+		LightmansCurrency.LogDebug("Boss Entity T4: " + getValueList(LCConfig.COMMON.bossEntityDropsT4));
+		LightmansCurrency.LogDebug("Boss Entity T5: " + getValueList(LCConfig.COMMON.bossEntityDropsT5));
+		LightmansCurrency.LogDebug("Boss Entity T6: " + getValueList(LCConfig.COMMON.bossEntityDropsT6));
 
 	}
 
@@ -235,7 +239,7 @@ public class LootManager {
 		if(entity.level().isClientSide)
 			return;
 
-		if(!Config.COMMON.enableSpawnerEntityDrops.get())
+		if(!LCConfig.COMMON.allowSpawnerEntityDrops.get())
 		{
 			//Spawner drops aren't allowed. Check if the entity was spawner-spawned
 			ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(entity);
@@ -251,7 +255,7 @@ public class LootManager {
 		{
 			player = event.getSource().getDirectEntity() instanceof Player p ? p : (Player)event.getSource().getEntity();
 			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
-			if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
+			if(player instanceof FakePlayer && !LCConfig.COMMON.allowFakePlayerCoinDrops.get())
 				return;
 		}
 
@@ -259,48 +263,6 @@ public class LootManager {
 		if(poolLevel != null)
 			DropEntityLoot(entity, player, poolLevel);
 
-	}
-
-	public static void validateEntityDropList()
-	{
-		validateDropList(Config.COMMON.entityDropsT1);
-		validateDropList(Config.COMMON.entityDropsT2);
-		validateDropList(Config.COMMON.entityDropsT3);
-		validateDropList(Config.COMMON.entityDropsT4);
-		validateDropList(Config.COMMON.entityDropsT5);
-		validateDropList(Config.COMMON.entityDropsT6);
-		validateDropList(Config.COMMON.bossEntityDropsT1);
-		validateDropList(Config.COMMON.bossEntityDropsT2);
-		validateDropList(Config.COMMON.bossEntityDropsT3);
-		validateDropList(Config.COMMON.bossEntityDropsT4);
-		validateDropList(Config.COMMON.bossEntityDropsT5);
-		validateDropList(Config.COMMON.bossEntityDropsT6);
-	}
-
-	private static void validateDropList(ConfigValue<List<? extends String>> config)
-	{
-		List<? extends String> configList = config.get();
-		List<String> list = Lists.newArrayList();
-		list.addAll(configList);
-		boolean modified = false;
-		for(int i = 0; i < list.size(); ++i)
-		{
-			String value = list.get(i);
-			if(value.contains("entities/"))
-			{
-				value = value.replace("entities/", "");
-				list.set(i, value);
-				modified = true;
-			}
-			if(value.contains("entities\\"))
-			{
-				value = value.replace("entities\\", "");
-				list.set(i, value);
-				modified = true;
-			}
-		}
-		if(modified)
-			config.set(list);
 	}
 
 	private static String getSafeId(@Nonnull Entity entity) {
@@ -347,7 +309,7 @@ public class LootManager {
 	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull EntityPoolLevel coinPool)
 	{
 
-		if(!Config.COMMON.enableEntityDrops.get())
+		if(!LCConfig.COMMON.enableEntityDrops.get())
 			return;
 
 		if(!coinPool.isBoss && player == null)
@@ -374,17 +336,17 @@ public class LootManager {
 
 	@Nullable
 	public static ChestPoolLevel GetChestPoolLevel(@Nonnull String lootTable) {
-		if(Config.COMMON.chestDropsT1.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT1.get().contains(lootTable))
 			return ChestPoolLevel.T1;
-		if(Config.COMMON.chestDropsT2.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT2.get().contains(lootTable))
 			return ChestPoolLevel.T2;
-		if(Config.COMMON.chestDropsT3.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT3.get().contains(lootTable))
 			return ChestPoolLevel.T3;
-		if(Config.COMMON.chestDropsT4.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT4.get().contains(lootTable))
 			return ChestPoolLevel.T4;
-		if(Config.COMMON.chestDropsT5.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT5.get().contains(lootTable))
 			return ChestPoolLevel.T5;
-		if(Config.COMMON.chestDropsT6.get().contains(lootTable))
+		if(LCConfig.COMMON.chestDropsT6.get().contains(lootTable))
 			return ChestPoolLevel.T6;
 		return null;
 	}
@@ -395,29 +357,29 @@ public class LootManager {
 		if(entityID == null)
 			return null;
 		String id = entityID.toString();
-		if(Config.COMMON.entityDropsT1.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT1.get().contains(id))
 			return EntityPoolLevel.T1;
-		if(Config.COMMON.entityDropsT2.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT2.get().contains(id))
 			return EntityPoolLevel.T2;
-		if(Config.COMMON.entityDropsT3.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT3.get().contains(id))
 			return EntityPoolLevel.T3;
-		if(Config.COMMON.entityDropsT4.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT4.get().contains(id))
 			return EntityPoolLevel.T4;
-		if(Config.COMMON.entityDropsT5.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT5.get().contains(id))
 			return EntityPoolLevel.T5;
-		if(Config.COMMON.entityDropsT6.get().contains(id))
+		if(LCConfig.COMMON.entityDropsT6.get().contains(id))
 			return EntityPoolLevel.T6;
-		if(Config.COMMON.bossEntityDropsT1.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT1.get().contains(id))
 			return EntityPoolLevel.BOSS_T1;
-		if(Config.COMMON.bossEntityDropsT2.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT2.get().contains(id))
 			return EntityPoolLevel.BOSS_T2;
-		if(Config.COMMON.bossEntityDropsT3.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT3.get().contains(id))
 			return EntityPoolLevel.BOSS_T3;
-		if(Config.COMMON.bossEntityDropsT4.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT4.get().contains(id))
 			return EntityPoolLevel.BOSS_T4;
-		if(Config.COMMON.bossEntityDropsT5.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT5.get().contains(id))
 			return EntityPoolLevel.BOSS_T5;
-		if(Config.COMMON.bossEntityDropsT6.get().contains(id))
+		if(LCConfig.COMMON.bossEntityDropsT6.get().contains(id))
 			return EntityPoolLevel.BOSS_T6;
 		return null;
 	}

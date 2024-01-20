@@ -6,13 +6,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.InfoTab;
-import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 

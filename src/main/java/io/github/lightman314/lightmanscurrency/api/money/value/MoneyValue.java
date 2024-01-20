@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurre
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.EmptyPriceEntry;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -405,7 +405,6 @@ public abstract class MoneyValue {
         @Nonnull
         @Override
         public MoneyValue getSmallestValue() { return this; }
-
         @Nonnull
         @Override
         public DisplayEntry getDisplayEntry(@Nullable List<Component> tooltips, boolean tooltipOverride) { return new EmptyPriceEntry(this, tooltips); }

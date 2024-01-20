@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenEjectionMenu;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -32,14 +32,14 @@ public class EjectionMenuButton extends InventoryButton {
 	}
 
 	@Override
-	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? Config.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : Config.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
+	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
 	@Override
 	protected boolean canShow() { return EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0; }
 
-	public static void tryRenderTooltip(EasyGuiGraphics gui, int mouseX, int mouseY) {
-		if(lastButton != null && lastButton.isMouseOver(mouseX, mouseY))
-			gui.renderTooltip(EasyText.translatable("tooltip.button.team_manager"), mouseX, mouseY);
+	public static void tryRenderTooltip(EasyGuiGraphics gui) {
+		if(lastButton != null && lastButton.isMouseOver(gui.mousePos.x, gui.mousePos.y))
+			gui.renderTooltip(EasyText.translatable("tooltip.button.team_manager"));
 	}
 
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import net.minecraft.network.chat.MutableComponent;

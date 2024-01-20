@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

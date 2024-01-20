@@ -6,9 +6,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
-import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator.Results;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import mezz.jei.api.IModPlugin;
@@ -25,6 +24,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 @JeiPlugin
 public class LCJeiPlugin implements IModPlugin{
@@ -47,11 +48,11 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerRecipes(IRecipeRegistration registration)
 	{
-		Results<CoinMintRecipe> mintRecipes = RecipeValidator.getValidMintRecipes(Minecraft.getInstance().level);
-		registration.addRecipes(COIN_MINT_TYPE, mintRecipes.getRecipes());
+		List<CoinMintRecipe> mintRecipes = RecipeValidator.getValidMintRecipes(Minecraft.getInstance().level);
+		registration.addRecipes(COIN_MINT_TYPE, mintRecipes);
 
-		Results<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
-		registration.addRecipes(TICKET_TYPE, ticketRecipes.getRecipes());
+		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
+		registration.addRecipes(TICKET_TYPE, ticketRecipes);
 
 		/* Don't need these anymore due to new TicketStation recipe types
 		ItemStack masterTicket = TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);

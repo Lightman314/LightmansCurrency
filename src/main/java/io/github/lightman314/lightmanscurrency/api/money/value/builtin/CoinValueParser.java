@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
@@ -53,6 +53,26 @@ public class CoinValueParser extends MoneyValueParser {
         return value;
     }
 
+    @Nullable
+    @Override
+    protected String writeValueArgument(@Nonnull MoneyValue value) {
+        if(value instanceof CoinValue coinValue)
+        {
+            StringBuilder builder = new StringBuilder();
+            boolean comma = false;
+            for(CoinValuePair pair : coinValue.getEntries())
+            {
+                if(comma)
+                    builder.append(',');
+                else
+                    comma = true;
+                builder.append(pair.amount).append('-').append(ForgeRegistries.ITEMS.getKey(pair.coin).toString());
+            }
+            return builder.toString();
+        }
+        return null;
+    }
+
     private static MoneyValue TryParseCoin(MoneyValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
     {
         if(ResourceLocation.isValidResourceLocation(coinIDString))
@@ -93,7 +113,7 @@ public class CoinValueParser extends MoneyValueParser {
                 previousParts.append(parts[i]);
             }
             try{
-                MoneyValueParser.parse(new StringReader(previousParts.toString()));
+                MoneyValueParser.parse(new StringReader(previousParts.toString()), true);
             } catch (CommandSyntaxException ignored) {
                 //Failed to parse the previous parts, don't suggest anything as existing input is invalid
                 return Suggestions.empty();

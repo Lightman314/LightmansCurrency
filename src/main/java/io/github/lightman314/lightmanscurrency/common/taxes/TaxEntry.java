@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.taxes;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -14,15 +17,14 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
-import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
-import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldArea;
-import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -40,16 +42,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class TaxEntry implements IClientTracker {
+public class TaxEntry implements ITaxCollector {
 
     public static int minRadius() { return 5; }
-    public static int maxRadius() { return Config.SERVER.taxMachineMaxRadius.get(); }
+    public static int maxRadius() { return LCConfig.SERVER.taxCollectorMaxRadius.get(); }
     public static int minHeight() { return 2; }
-    public static int maxHeight() { return Config.SERVER.taxMachineMaxHeight.get(); }
+    public static int maxHeight() { return LCConfig.SERVER.taxCollectorMaxHeight.get(); }
     public static int minVertOffset() { return -maxVertOffset(); }
-    public static int maxVertOffset() { return Config.SERVER.taxMachineMaxVertOffset.get(); }
+    public static int maxVertOffset() { return LCConfig.SERVER.taxCollectorMaxVertOffset.get(); }
 
-    public static int maxTaxRate() { return Config.SERVER.taxMachineMaxRate.get(); }
+    public static int maxTaxRate() { return LCConfig.SERVER.taxCollectorMaxRate.get(); }
 
     public final TaxStats stats = new TaxStats(this);
 
@@ -65,6 +67,8 @@ public class TaxEntry implements IClientTracker {
     private WorldPosition center = WorldPosition.VOID;
     public WorldPosition getCenter() { return this.center; }
     public void moveCenter(@Nonnull WorldPosition newPosition) { if(this.center.equals(newPosition)) return; this.center = newPosition; this.markCenterDirty(); }
+    @Override
+    @Nonnull
     public WorldArea getArea() { return this.isInfiniteRange() ? WorldArea.ofInfiniteRange(this.center) : this.center.getArea(this.getRadius(), this.getHeight(), this.getVertOffset()); }
 
     private int radius = 10;
@@ -122,17 +126,21 @@ public class TaxEntry implements IClientTracker {
 
 
     private int taxRate = 1;
-    public int getTaxRate() { return MathUtil.clamp(this.taxRate, 0, Config.SERVER.taxMachineMaxRate.get()); }
-    public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, Config.SERVER.taxMachineMaxRate.get()); this.markTaxPercentageDirty(); }
+    public int getTaxRate() { return MathUtil.clamp(this.taxRate, 0, maxTaxRate()); }
+    public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, maxTaxRate()); this.markTaxPercentageDirty(); }
 
     private String name = "";
     public boolean hasCustomName() { return !this.name.isBlank(); }
     public String getCustomName() { return this.name; }
+    @Override
+    @Nonnull
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
     public void setName(String name) { this.name = name; this.markNameDirty(); }
     protected MutableComponent getDefaultName() { return EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name", this.isServerEntry() ? EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name.server") : this.owner.getOwnerName()); }
 
     private final OwnerData owner = new OwnerData(this, o -> this.markOwnerDirty());
+    @Override
+    @Nonnull
     public OwnerData getOwner() { return this.owner; }
     public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return true; return this.owner.isMember(player); }
 
@@ -140,11 +148,12 @@ public class TaxEntry implements IClientTracker {
     private final MoneyStorage storedMoney = new MoneyStorage(this::markStoredMoneyDirty);
     public MoneyStorage getStoredMoney() { return this.storedMoney; }
     public void depositMoney(MoneyValue amount) {
-        BankAccount account = this.getBankAccount();
+        IBankAccount account = this.getBankAccount();
         if(account != null)
         {
-            account.depositCoins(amount);
-            account.LogInteraction(this, amount);
+            account.depositMoney(amount);
+            if(account instanceof BankAccount ba)
+                ba.LogInteraction(this, amount);
             return;
         }
         this.storedMoney.addValue(amount);
@@ -168,7 +177,7 @@ public class TaxEntry implements IClientTracker {
     private boolean linkToBank = false;
     public void setLinkedToBank(boolean newState) { this.linkToBank = newState; this.markBankStateDirty(); }
     public boolean isLinkedToBank() { return this.linkToBank && !this.isServerEntry(); }
-    public final BankAccount getBankAccount()
+    public final IBankAccount getBankAccount()
     {
         if(!this.linkToBank)
             return null;
@@ -199,7 +208,7 @@ public class TaxEntry implements IClientTracker {
     //Ignored if this is an Admin Tax
     private final List<TaxableReference> acceptedEntries = new ArrayList<>();
     public final List<TaxableReference> getAcceptedEntries() { return ImmutableList.copyOf(this.acceptedEntries); }
-    public final void acceptTaxes(@Nonnull ITaxable entry) {
+    public final void AcceptTaxable(@Nonnull ITaxable entry) {
         TaxableReference reference = entry.getReference();
         if(!this.acceptedEntries.contains(reference) && reference != null)
         {
@@ -207,7 +216,7 @@ public class TaxEntry implements IClientTracker {
             this.markAcceptedEntriesDirty();
         }
     }
-    public final void taxableBlockRemoved(@Nonnull ITaxable entry)
+    public final void TaxableWasRemoved(@Nonnull ITaxable entry)
     {
         TaxableReference reference = entry.getReference();
         if(this.acceptedEntries.contains(reference))
@@ -229,7 +238,7 @@ public class TaxEntry implements IClientTracker {
     public void setActive(boolean newState, @Nullable Player player) {
         if(this.active == newState)
             return;
-        if(Config.SERVER.taxMachinesAdminOnly.get() && !LCAdminMode.isAdminPlayer(player) && !this.active)
+        if(LCConfig.SERVER.taxCollectorAdminOnly.get() && !LCAdminMode.isAdminPlayer(player) && !this.active)
         {
             Permissions.PermissionWarning(player, "activate a tax entry", Permissions.ADMIN_MODE);
             return;

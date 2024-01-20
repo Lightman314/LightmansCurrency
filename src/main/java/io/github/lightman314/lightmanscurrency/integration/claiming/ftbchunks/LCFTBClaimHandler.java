@@ -13,6 +13,8 @@ public class LCFTBClaimHandler implements IClaimPurchaseHandler {
 
     public static final IClaimPurchaseHandler INSTANCE = new LCFTBClaimHandler();
 
+    private LCFTBClaimHandler() {}
+
     @Override
     public boolean canBuyClaims(@Nonnull ServerPlayer player) { return IClaimPurchaseHandler.super.canBuyClaims(player) && FTBChunksAPI.api().getManager().getPersonalData(player.getUUID()) != null; }
     @Override

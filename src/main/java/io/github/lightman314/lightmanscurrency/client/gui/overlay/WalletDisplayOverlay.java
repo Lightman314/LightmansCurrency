@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -32,14 +32,14 @@ public class WalletDisplayOverlay implements IGuiOverlay {
 
     @Override
     public void render(ForgeGui fgui, GuiGraphics mcgui, float partialTick, int screenWidth, int screenHeight) {
-        if(!Config.CLIENT.walletOverlayEnabled.get())
+        if(!LCConfig.CLIENT.walletOverlayEnabled.get())
             return;
 
         try {
             EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, fgui.getFont(), 0, 0, partialTick);
 
-            ScreenCorner corner = Config.CLIENT.walletOverlayCorner.get();
-            ScreenPosition offset = Config.CLIENT.walletOverlayPosition.get();
+            ScreenCorner corner = LCConfig.CLIENT.walletOverlayCorner.get();
+            ScreenPosition offset = LCConfig.CLIENT.walletOverlayPosition.get();
 
             ScreenPosition currentPosition = corner.getCorner(screenWidth, screenHeight).offset(offset);
             if(corner.isRightSide)
@@ -62,10 +62,10 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                 MoneyView contents = walletHandler.getStoredMoney();
 
                 //Draw the stored money
-                switch(Config.CLIENT.walletOverlayType.get())
+                switch(LCConfig.CLIENT.walletOverlayType.get())
                 {
                     case ITEMS_NARROW,ITEMS_WIDE -> {
-                        int offsetAmount = Config.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
+                        int offsetAmount = LCConfig.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
                         List<ItemStack> walletContents;
                         MoneyValue randomValue = contents.getRandomValue();
                         if(randomValue instanceof CoinValue coinValue)

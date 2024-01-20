@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

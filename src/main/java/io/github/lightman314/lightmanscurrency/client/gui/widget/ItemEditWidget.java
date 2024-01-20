@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -211,14 +211,12 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		RegistryAccess lookup = mc.player.level().registryAccess();
 
 		//Force Creative Tab content rebuild
-		try{
-			if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && allItems.size() > 0)
-			{
-				//Ignore if we have existing results, and the tab contents have not been changed.
-				LightmansCurrency.LogDebug("Creative Tab Contents have not changed. Used existing filtered results.");
-				return;
-			}
-		} catch (Throwable t) { throw new RuntimeException("Error building the Creative Tab Contents during Player Log-In event!", t); }
+		if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && allItems.size() > 0)
+		{
+			//Ignore if we have existing results, and the tab contents have not been changed.
+			LightmansCurrency.LogDebug("Creative Tab Contents have not changed. Used existing filtered results.");
+			return;
+		}
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 		//Flag as rebuilding

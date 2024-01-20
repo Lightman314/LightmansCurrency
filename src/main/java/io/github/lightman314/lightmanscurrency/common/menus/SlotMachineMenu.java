@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
+public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, IMoneyCollectionMenu {
 
     private final long traderID;
 
@@ -174,25 +174,12 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
         return builder.build();
     }
 
-    public void CollectCoinStorage() {
+    @Override
+    public void CollectStoredMoney() {
         if(this.getTrader() != null)
         {
             TraderData trader = this.getTrader();
-            if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
-            {
-                MoneyStorage storedMoney = trader.getInternalStoredMoney();
-                if(!storedMoney.isEmpty())
-                {
-                    TradeContext tempContext = this.getContext();
-                    if(!tempContext.hasPaymentMethod())
-                        return;
-                    for(MoneyValue value : storedMoney.allValues())
-                        tempContext.givePayment(value);
-                    trader.clearStoredMoney();
-                }
-            }
-            else
-                Permissions.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+            trader.CollectStoredMoney(this.player, this.coins);
         }
     }
 

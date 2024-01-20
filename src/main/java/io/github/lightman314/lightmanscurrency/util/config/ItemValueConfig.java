@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -13,7 +14,7 @@ import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ItemValueConfig implements Supplier<Item> {
+public class ItemValueConfig implements Supplier<ItemLike> {
 
     private final ForgeConfigSpec.ConfigValue<String> baseConfig;
     private final Supplier<Item> defaultSupplier;

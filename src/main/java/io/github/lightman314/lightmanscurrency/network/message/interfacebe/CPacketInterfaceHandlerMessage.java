@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

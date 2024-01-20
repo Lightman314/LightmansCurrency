@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -37,9 +37,9 @@ public class ChocolateCoinItem extends Item {
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
-        if(!Config.serverSpec.isLoaded())
+        if(level == null)
             return;
-        if(Config.SERVER.chocolateCoinEffects.get())
+        if(LCConfig.SERVER.chocolateCoinEffects.get())
         {
             if(this.healing > 0)
                 tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.chocolate_coin.healing", (int)this.healing).withStyle(ChatFormatting.BLUE));
@@ -51,7 +51,7 @@ public class ChocolateCoinItem extends Item {
     @Nonnull
     @Override
     public ItemStack finishUsingItem(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity) {
-        if(Config.SERVER.chocolateCoinEffects.get())
+        if(LCConfig.SERVER.chocolateCoinEffects.get())
         {
             if(this.healing > 0f)
                 entity.heal(this.healing);

@@ -1159,6 +1159,7 @@
 	"command.lightmanscurrency.lcadmin.taxdata.delete.fail": "No Tax Collector with that ID exists.",
 	"command.lightmanscurrency.lcadmin.taxdata.delete.success": "Successfully deleted the Tax Collector '%s'",
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
+	"command.lightmanscurrency.lcconfig.reload": "Reloading config files.",
     "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
 	"command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
 	"command.lightmanscurrency.lcadmin.openServerTax.error": "An error occurred accessing the server tax entry!",
@@ -1205,6 +1206,7 @@
     "command.trader.block.notfound": "No trader block at the given position.",
 	"command.argument.coinvalue.notacoin": "'%s' is not a valid coin!",
 	"command.argument.coinvalue.novalue": "Value parsed had no value!",
+	"command.argument.coinvalue.not_free_or_empty": "Input is not 'free' or 'empty'!",
     
     "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Station using a printed Master Ticket and a valid ticket material.",
     "lightmanscurrency.jei.info.ticket.pass": "Crafted in the Ticket Station using a printed Master Ticket and a valid ticket material. Will not be consumed by Paygates.",

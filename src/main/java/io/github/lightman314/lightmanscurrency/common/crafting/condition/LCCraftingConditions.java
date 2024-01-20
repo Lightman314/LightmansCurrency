@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.crafting.condition;
 
 import com.google.gson.JsonObject;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -14,7 +14,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "network_trader_craftable");
 		public static final NetworkTrader INSTANCE = new NetworkTrader();
 		public static final IConditionSerializer<NetworkTrader> SERIALIZER = new Serializer();
-		private NetworkTrader() { super(TYPE, Config.COMMON.canCraftNetworkTraders); }
+		private NetworkTrader() { super(TYPE, LCConfig.COMMON.canCraftNetworkTraders); }
 		private static class Serializer implements IConditionSerializer<NetworkTrader> {
 			@Override
 			public void write(JsonObject json, NetworkTrader value) {}
@@ -29,7 +29,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "trader_interface_craftable");
 		public static final TraderInterface INSTANCE = new TraderInterface();
 		public static final IConditionSerializer<TraderInterface> SERIALIZER = new Serializer();
-		private TraderInterface() { super(TYPE, Config.COMMON.canCraftTraderInterfaces); }
+		private TraderInterface() { super(TYPE, LCConfig.COMMON.canCraftTraderInterfaces); }
 		private static class Serializer implements IConditionSerializer<TraderInterface> {
 			@Override
 			public void write(JsonObject json, TraderInterface value) {}
@@ -44,7 +44,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand_craftable");
 		public static final AuctionStand INSTANCE = new AuctionStand();
 		public static final IConditionSerializer<AuctionStand> SERIALIZER = new Serializer();
-		private AuctionStand() { super(TYPE, Config.COMMON.canCraftAuctionStands); }
+		private AuctionStand() { super(TYPE, LCConfig.COMMON.canCraftAuctionStands); }
 		private static class Serializer implements IConditionSerializer<AuctionStand> {
 			@Override
 			public void write(JsonObject json, AuctionStand value) {}
@@ -59,7 +59,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_craftable");
 		public static final CoinChest INSTANCE = new CoinChest();
 		public static final IConditionSerializer<CoinChest> SERIALIZER = new Serializer();
-		private CoinChest() { super(TYPE, Config.COMMON.canCraftCoinChest); }
+		private CoinChest() { super(TYPE, LCConfig.COMMON.canCraftCoinChest); }
 		private static class Serializer implements IConditionSerializer<CoinChest> {
 			@Override
 			public void write(JsonObject json, CoinChest value) {}
@@ -74,7 +74,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_exchange_craftable");
 		public static final CoinChestUpgradeExchange INSTANCE = new CoinChestUpgradeExchange();
 		public static final IConditionSerializer<CoinChestUpgradeExchange> SERIALIZER = new Serializer();
-		private CoinChestUpgradeExchange() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeExchange); }
+		private CoinChestUpgradeExchange() { super(TYPE, LCConfig.COMMON.canCraftCoinChestUpgradeExchange); }
 		private static class Serializer implements IConditionSerializer<CoinChestUpgradeExchange> {
 			@Override
 			public void write(JsonObject json, CoinChestUpgradeExchange value) {}
@@ -89,7 +89,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_magnet_craftable");
 		public static final CoinChestUpgradeMagnet INSTANCE = new CoinChestUpgradeMagnet();
 		public static final IConditionSerializer<CoinChestUpgradeMagnet> SERIALIZER = new Serializer();
-		private CoinChestUpgradeMagnet() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeMagnet); }
+		private CoinChestUpgradeMagnet() { super(TYPE, LCConfig.COMMON.canCraftCoinChestUpgradeMagnet); }
 		private static class Serializer implements IConditionSerializer<CoinChestUpgradeMagnet> {
 			@Override
 			public void write(JsonObject json, CoinChestUpgradeMagnet value) {}
@@ -104,7 +104,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_security_craftable");
 		public static final CoinChestUpgradeSecurity INSTANCE = new CoinChestUpgradeSecurity();
 		public static final IConditionSerializer<CoinChestUpgradeSecurity> SERIALIZER = new Serializer();
-		private CoinChestUpgradeSecurity() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeSecurity); }
+		private CoinChestUpgradeSecurity() { super(TYPE, LCConfig.COMMON.canCraftCoinChestUpgradeSecurity); }
 		private static class Serializer implements IConditionSerializer<CoinChestUpgradeSecurity> {
 			@Override
 			public void write(JsonObject json, CoinChestUpgradeSecurity value) {}
@@ -119,7 +119,7 @@ public class LCCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tax_collector_craftable");
 		public static final TaxCollector INSTANCE = new TaxCollector();
 		public static final IConditionSerializer<TaxCollector> SERIALIZER = new Serializer();
-		private TaxCollector() { super(TYPE, Config.COMMON.canCraftTaxBlock); }
+		private TaxCollector() { super(TYPE, LCConfig.COMMON.canCraftTaxBlock); }
 		private static class Serializer implements IConditionSerializer<TaxCollector> {
 			@Override
 			public void write(JsonObject json, TaxCollector value) { }

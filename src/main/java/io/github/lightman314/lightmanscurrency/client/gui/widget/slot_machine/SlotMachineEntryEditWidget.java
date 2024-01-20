@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;

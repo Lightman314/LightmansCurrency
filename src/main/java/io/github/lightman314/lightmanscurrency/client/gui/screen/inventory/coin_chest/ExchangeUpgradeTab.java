@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATME
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;

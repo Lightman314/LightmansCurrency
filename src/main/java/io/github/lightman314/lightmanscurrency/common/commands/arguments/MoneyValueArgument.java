@@ -39,7 +39,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
     }
 
     @Override
-    public MoneyValue parse(StringReader reader) throws CommandSyntaxException { return MoneyValueParser.parse(reader); }
+    public MoneyValue parse(StringReader reader) throws CommandSyntaxException { return MoneyValueParser.parse(reader, false); }
 
     @Nonnull
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {

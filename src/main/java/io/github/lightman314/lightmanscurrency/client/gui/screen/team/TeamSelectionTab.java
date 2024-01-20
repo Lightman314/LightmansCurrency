@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.teams.CPacketCreateTeam;
@@ -57,7 +57,7 @@ public class TeamSelectionTab extends TeamTab {
 		this.newTeamName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 140, 160, 20, Component.empty()));
 		this.newTeamName.setMaxLength(32);
 		
-		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam));
+		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.createTrue"), this::createTeam));
 		this.buttonCreateTeam.active = false;
 		
 	}
@@ -85,7 +85,7 @@ public class TeamSelectionTab extends TeamTab {
 		
 		//Render the text
 		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.select"), 20, 10, 0x404040);
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.create"), 20, 130, 0x404040);
+		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.createTrue"), 20, 130, 0x404040);
 		
 	}
 

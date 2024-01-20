@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 
@@ -24,7 +24,7 @@ public class TerminalSorter {
         public SortingOptions withAuctionHousePriority(boolean priority) { this.auctionHouseAtTop = priority; return this; }
         public SortingOptions withEmptyLowPriority(boolean priority) { this.emptyAtBottom = priority; return this; }
         public SortingOptions withUnnamedLowPriority(boolean priority) { this.unnamedAtBottom = priority; return this; }
-        public SortingOptions withUnnamedLowPriorityFromConfig() { return this.withUnnamedLowPriority(Config.SERVER.moveUnnamedTradersToBottom.get()); }
+        public SortingOptions withUnnamedLowPriorityFromConfig() { return this.withUnnamedLowPriority(LCConfig.SERVER.moveUnnamedTradersToBottom.get()); }
     }
 
     @Nonnull

@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -36,7 +36,7 @@ public class TeamBankAccountTab extends TeamTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
+		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.createTrue"), this::createBankAccount));
 		
 		this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, EasyText.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();

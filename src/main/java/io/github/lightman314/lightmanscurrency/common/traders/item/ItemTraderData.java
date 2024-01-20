@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;

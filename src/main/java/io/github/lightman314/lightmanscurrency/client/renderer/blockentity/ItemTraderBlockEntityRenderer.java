@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
@@ -60,7 +60,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				return;
 			ItemPositionData positionData = blockEntity.GetRenderData();
 			final int maxIndex = positionData.isEmpty() ? blockEntity.maxRenderIndex() : positionData.getEntryCount();
-			final int renderLimit = Config.CLIENT.itemRenderLimit.get();
+			final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
 			BlockState state = blockEntity.getBlockState();
 			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < maxIndex; tradeSlot++)

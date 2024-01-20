@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.resources.ResourceLocation;

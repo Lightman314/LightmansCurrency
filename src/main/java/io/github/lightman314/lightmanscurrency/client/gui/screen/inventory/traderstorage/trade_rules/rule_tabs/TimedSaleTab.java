@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;

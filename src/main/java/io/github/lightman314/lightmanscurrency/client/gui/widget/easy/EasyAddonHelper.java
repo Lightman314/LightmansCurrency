@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullSupplier;

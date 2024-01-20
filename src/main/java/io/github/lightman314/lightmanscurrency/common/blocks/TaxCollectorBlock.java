@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -121,7 +121,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
         TooltipItem.addTooltip(tooltips, LCTooltips.TAX_COLLECTOR);
-        if(Config.SERVER.taxMachinesAdminOnly.get())
+        if(LCConfig.SERVER.taxCollectorAdminOnly.get())
             tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.tax_collector.admin_only").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
     }
 }

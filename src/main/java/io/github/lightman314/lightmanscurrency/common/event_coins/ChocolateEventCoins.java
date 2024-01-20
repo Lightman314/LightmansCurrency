@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.event_coins;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DatePredicate;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
 import net.minecraft.util.RandomSource;
@@ -57,7 +57,7 @@ public final class ChocolateEventCoins {
     }
     @SubscribeEvent
     public static void registerChain(@Nonnull ChainDataReloadedEvent.Pre event) {
-        if(Config.SERVER.chocolateEventCoins.get())
+        if(LCConfig.SERVER.chocolateEventCoins.get())
             event.addEntry(getChainData(),true);
     }
 
@@ -67,7 +67,7 @@ public final class ChocolateEventCoins {
         @Override
         protected boolean isEnabled() { return isEventActive(); }
         @Override
-        protected double getSuccessChance() { return Config.SERVER.chocolateCoinDropRate.get(); }
+        protected double getSuccessChance() { return LCConfig.SERVER.chocolateCoinDropRate.get(); }
         @Override
         public void replaceLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot) {
             this.replaceRandomItems(random, loot, ModItems.COIN_COPPER.get(), ModItems.COIN_CHOCOLATE_COPPER.get());

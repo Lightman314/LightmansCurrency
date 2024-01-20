@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.items.tooltips;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -20,9 +20,9 @@ public class LCTooltips {
 
 	public static final NonNullSupplier<List<Component>> COIN_MINT = () -> {
 		List<Component> result = new ArrayList<>();
-		if(Config.SERVER.allowCoinMinting.get())
+		if(LCConfig.SERVER.coinMintCanMint.get())
 			result.add(EasyText.translatable("tooltip.lightmanscurrency.coinmint.mintable").withStyle(TooltipItem.DEFAULT_STYLE));
-		if(Config.SERVER.allowCoinMelting.get())
+		if(LCConfig.SERVER.coinMintCanMelt.get())
 			result.add(EasyText.translatable("tooltip.lightmanscurrency.coinmint.meltable").withStyle(TooltipItem.DEFAULT_STYLE));
 		return result;
 	};

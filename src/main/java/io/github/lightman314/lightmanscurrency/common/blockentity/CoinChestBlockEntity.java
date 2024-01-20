@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;

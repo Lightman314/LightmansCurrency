@@ -15,10 +15,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;

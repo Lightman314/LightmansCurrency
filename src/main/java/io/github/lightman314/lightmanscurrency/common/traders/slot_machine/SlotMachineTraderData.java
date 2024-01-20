@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_m
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
-import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;

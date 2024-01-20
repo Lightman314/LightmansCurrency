@@ -149,7 +149,7 @@ public final class SlotMachineEntry {
         if(trader.isCreative())
             return true;
         if(this.isMoney())
-            return trader.getStoredMoney().containsValue(this.getMoneyValue());
+            return trader.getStoredMoney().getStoredMoney().containsValue(this.getMoneyValue());
         for(ItemStack item : InventoryUtil.combineQueryItems(this.items))
         {
             if(!trader.getStorage().hasItem(item))

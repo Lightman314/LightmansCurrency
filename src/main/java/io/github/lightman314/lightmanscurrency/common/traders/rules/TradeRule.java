@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
@@ -257,7 +257,7 @@ public abstract class TradeRule {
 		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(type);
 		if(ruleType != null)
 			return ruleType.createNew();
-		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to create the Trade Rule.");
+		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to createTrue the Trade Rule.");
 		return null;
 	}
 

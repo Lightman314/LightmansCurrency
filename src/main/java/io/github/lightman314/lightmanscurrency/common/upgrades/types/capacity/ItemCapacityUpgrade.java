@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;

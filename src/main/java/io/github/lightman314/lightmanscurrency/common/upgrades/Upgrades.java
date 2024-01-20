@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades;
 
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.ItemCapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestExchangeUpgrade;

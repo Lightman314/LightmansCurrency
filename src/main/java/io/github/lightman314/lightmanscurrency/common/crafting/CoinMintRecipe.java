@@ -1,10 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import com.google.gson.JsonElement;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,13 +19,6 @@ import javax.annotation.Nonnull;
 public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
-
-	public static MintType readType(JsonElement json)
-	{
-		try {
-			return readType(json.getAsString());
-		} catch(Exception e) { e.printStackTrace(); return MintType.OTHER; }
-	}
 	
 	public static MintType readType(String typeName)
 	{
@@ -61,16 +52,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	
 	public boolean allowed()
 	{
-		if(this.type == MintType.MINT)
-		{
-			return Config.SERVER.allowCoinMinting.get() && Config.canMint(this.result.getItem());
-		}
-		else if(this.type == MintType.MELT)
-		{
-			try { return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getItems()[0].getItem());
-			} catch(Throwable e) { return false; }
-		}
-		return true;
+		return LCConfig.SERVER.allowCoinMintRecipe(this);
 	}
 	
 	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
@@ -95,7 +77,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	public int getInternalDuration() { return this.duration; }
-	public int getDuration() { return this.duration > 0 ? this.duration : Config.SERVER.defaultMintDuration.get(); }
+	public int getDuration() { return this.duration > 0 ? this.duration : LCConfig.SERVER.coinMintDefaultDuration.get(); }
 
 	@Override
 	public @Nonnull ResourceLocation getId() { return this.id; }
@@ -118,7 +100,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 				throw new JsonSyntaxException("Result is empty.");
 			MintType type = MintType.OTHER;
 			if(json.has("mintType"))
-				type = CoinMintRecipe.readType(json.get("mintType"));
+				type = CoinMintRecipe.readType(GsonHelper.getAsString(json, "mintType", "OTHER"));
 
 			int duration = GsonHelper.getAsInt(json, "duration", 0);
 

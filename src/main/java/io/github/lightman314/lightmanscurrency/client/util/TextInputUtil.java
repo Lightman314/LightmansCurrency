@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.client.gui.components.EditBox;

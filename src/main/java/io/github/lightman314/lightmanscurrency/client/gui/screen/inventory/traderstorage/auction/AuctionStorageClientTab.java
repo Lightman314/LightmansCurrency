@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;

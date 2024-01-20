@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.wallet;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.InventoryButton;
@@ -22,7 +22,7 @@ public class WalletButton extends InventoryButton {
 	}
 
 	@Override
-	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return ClientEvents.getWalletSlotPosition(isCreativeScreen).offset(Config.CLIENT.walletButtonOffset.get()); }
+	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return ClientEvents.getWalletSlotPosition(isCreativeScreen).offset(LCConfig.CLIENT.walletButtonOffset.get()); }
 
 	@Override
 	protected boolean canShow() {

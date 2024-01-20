@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -33,9 +33,9 @@ import java.util.function.Consumer;
 
 public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
-    public static boolean ignoreDimension() { return Config.SERVER.maxPlayerTradingRange.get() < 0d; }
-    public static boolean ignoreDistance() { return Config.SERVER.maxPlayerTradingRange.get() <=0d; }
-    public static double enforceDistance() { return Config.SERVER.maxPlayerTradingRange.get(); }
+    public static boolean ignoreDimension() { return LCConfig.SERVER.playerTradingRange.get() < 0d; }
+    public static boolean ignoreDistance() { return LCConfig.SERVER.playerTradingRange.get() <= 0d; }
+    public static double enforceDistance() { return LCConfig.SERVER.playerTradingRange.get(); }
 
     private boolean stillPending = true;
     public final long creationTime;

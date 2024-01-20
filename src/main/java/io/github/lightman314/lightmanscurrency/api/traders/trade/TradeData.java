@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
@@ -57,8 +57,24 @@ public abstract class TradeData implements ITradeRuleHost {
 	public boolean isValid() { return validCost(); }
 	
 	public MoneyValue getCost() { return this.cost; }
-	
-	public MoneyValue getCost(@Nonnull TradeContext context) { return context.getTradesCost(this); }
+
+	private TradeCostCache cachedCost = TradeCostCache.EMPTY;
+
+	protected void flagPriceAsChanged() { this.cachedCost = TradeCostCache.EMPTY; }
+
+	/**
+	 * Standard method of obtaining the cost of a trade given a context.
+	 * Will run the {@link TradeCostEvent} to calculate any price changes,
+	 * and will cache the results to save framerate for client-side displays.
+	 */
+	public final MoneyValue getCost(@Nonnull TradeContext context) {
+		if(!context.hasPlayerReference() || !context.hasTrader())
+			return this.getCost();
+		TradeCostEvent event = context.getTrader().runTradeCostEvent(context.getPlayerReference(), this);
+		if(!this.cachedCost.matches(event))
+			this.cachedCost = TradeCostCache.cache(event);
+		return this.cachedCost.getPrice();
+	}
 
 	/**
 	 * Gets the cost after all taxes are applied.
@@ -68,7 +84,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	{
 		MoneyValue cost = this.getCost();
 		MoneyValue taxAmount = MoneyValue.empty();
-		for(TaxEntry entry : trader.getApplicableTaxes())
+		for(ITaxCollector entry : trader.getApplicableTaxes())
 			taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
 		return cost.addValue(taxAmount);
 	}
@@ -79,14 +95,14 @@ public abstract class TradeData implements ITradeRuleHost {
 		{
 			TraderData trader = context.getTrader();
 			MoneyValue taxAmount = MoneyValue.empty();
-			for(TaxEntry entry : trader.getApplicableTaxes())
+			for(ITaxCollector entry : trader.getApplicableTaxes())
 				taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
 			return cost.addValue(taxAmount);
 		}
 		return cost;
 	}
 	
-	public void setCost(MoneyValue value) { this.cost = value; }
+	public void setCost(MoneyValue value) { this.cost = value; this.flagPriceAsChanged(); }
 
 	public final int stockCountOfCost(TraderData trader)
 	{
@@ -94,7 +110,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			return 1;
 		if(!this.getCost().isValidPrice())
 			return 0;
-		MoneyValue storedMoney = trader.getStoredMoney().valueOf(this.getCost().getUniqueName());
+		MoneyValue storedMoney = trader.getStoredMoney().getStoredMoney().valueOf(this.getCost().getUniqueName());
 		MoneyValue price = this.getCostWithTaxes(trader);
 		return (int)(storedMoney.getCoreValue() / price.getCoreValue());
 	}
@@ -109,7 +125,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			return 1;
 		if(!this.getCost().isValidPrice())
 			return 0;
-		MoneyValue storedMoney = trader.getStoredMoney().valueOf(this.getCost().getUniqueName());
+		MoneyValue storedMoney = trader.getStoredMoney().getStoredMoney().valueOf(this.getCost().getUniqueName());
 		MoneyValue price = this.getCostWithTaxes(context);
 		return (int) MathUtil.SafeDivide(storedMoney.getCoreValue(), price.getCoreValue(), 1);
 	}
@@ -134,9 +150,13 @@ public abstract class TradeData implements ITradeRuleHost {
 	protected void loadFromNBT(CompoundTag nbt)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
+		this.flagPriceAsChanged();
 		//Set whether it's free or not
 		if(nbt.contains("IsFree") && nbt.getBoolean("IsFree"))
+		{
 			this.cost = MoneyValue.free();
+			this.flagPriceAsChanged();
+		}
 		
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
@@ -254,5 +274,31 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 
 	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) { }
+
+	private static class TradeCostCache {
+		private final boolean free;
+		private final int percentage;
+		private final MoneyValue price;
+		public MoneyValue getPrice() { return this.free ? MoneyValue.free() : price; }
+		private TradeCostCache(boolean free, int percentage, MoneyValue price) {
+			this.free = free;
+			this.percentage = percentage;
+			this.price = price;
+
+		}
+		public static final TradeCostCache EMPTY = new TradeCostCache(true,0,MoneyValue.free());
+
+		public static TradeCostCache cache(@Nonnull TradeCostEvent event) {
+			boolean free = event.forcedFree() || event.getPricePercentage() <= 0;
+			return new TradeCostCache(free, event.getPricePercentage(), event.getCostResult());
+		}
+
+		public boolean matches(@Nonnull TradeCostEvent event) {
+			if(this.free && (event.forcedFree() || event.getPricePercentage() <= 0))
+				return true;
+			return this.percentage == event.getPricePercentage();
+		}
+
+	}
 
 }

@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;

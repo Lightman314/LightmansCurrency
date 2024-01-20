@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import net.minecraft.network.chat.MutableComponent;

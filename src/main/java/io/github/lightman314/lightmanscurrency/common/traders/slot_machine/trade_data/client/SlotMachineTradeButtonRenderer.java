@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Al
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;

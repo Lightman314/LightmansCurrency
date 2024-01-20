@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
+import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.*;
@@ -157,6 +158,10 @@ public class LightmansCurrencyPacketHandler {
 
 		//Event Tracker Syncing
 		register(SPacketSyncEventUnlocks.class, SPacketSyncEventUnlocks.HANDLER);
+
+		//Config System
+		register(SPacketSyncConfig.class, SPacketSyncConfig.HANDLER);
+		register(SPacketReloadConfig.class, SPacketReloadConfig.HANDLER);
 
 
 	}

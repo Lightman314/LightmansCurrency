@@ -18,9 +18,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;

@@ -251,7 +251,7 @@ public class CoinCurrencyType extends CurrencyType {
         return valueToTake.getCoreValue();
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public MoneyValueParser getValueParser() { return CoinValueParser.INSTANCE; }
 

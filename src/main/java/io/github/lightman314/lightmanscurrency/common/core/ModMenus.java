@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.menus.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;

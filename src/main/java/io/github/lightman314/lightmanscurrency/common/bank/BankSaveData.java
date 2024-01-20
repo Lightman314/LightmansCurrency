@@ -6,9 +6,9 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketClearClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
@@ -134,7 +134,7 @@ public class BankSaveData extends SavedData {
 		{
 			bsd.setDirty();
 			//Send update packet to all connected clients
-			BankAccount bankAccount = GetBankAccount(false, player);;
+			BankAccount bankAccount = GetBankAccount(false, player);
 			new SPacketUpdateClientBank(player, bankAccount.save()).sendToAll();
 		}
 	}

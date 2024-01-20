@@ -9,16 +9,16 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -26,12 +27,8 @@ public class CPacketCollectCoins extends ClientToServerPacket.Simple {
 		protected void handle(@Nonnull CPacketCollectCoins message, @Nullable ServerPlayer sender) {
 			if(sender != null)
 			{
-				if(sender.containerMenu instanceof TraderMenu menu)
-					menu.CollectCoinStorage();
-				else if(sender.containerMenu instanceof TraderStorageMenu menu)
-					menu.CollectCoinStorage();
-				else if(sender.containerMenu instanceof SlotMachineMenu menu)
-					menu.CollectCoinStorage();
+				if(sender.containerMenu instanceof IMoneyCollectionMenu menu)
+					menu.CollectStoredMoney();
 			}
 		}
 	}

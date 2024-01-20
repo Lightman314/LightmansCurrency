@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -7,8 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.Component;
@@ -52,8 +52,8 @@ public class NotificationTab extends ATMTab {
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		this.hideCoinSlots(gui);
-		
-		BankAccount account = this.screen.getMenu().getBankAccount();
+
+		IBankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
 			TextRenderUtil.drawCenteredMultilineText(gui, this.getRandomNotificationLevelText(), 5, this.screen.getXSize() - 10, 70, 0x404040);
 		
@@ -62,15 +62,15 @@ public class NotificationTab extends ATMTab {
 	@Nonnull
 	private MutableComponent getRandomNotificationLevelText()
 	{
-		BankAccount account = this.screen.getMenu().getBankAccount();
+		IBankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
 		{
-			Map<String,MoneyValue> limits = account.getNotificationValues();
+			Map<String,MoneyValue> limits = account.getNotificationLevels();
 			if(limits.isEmpty())
 				return EasyText.translatable("gui.lightmanscurrency.notification.disabled");
 			List<MoneyValue> values = limits.values().stream().toList();
 			int displayIndex = (int)(TimeUtil.getCurrentTime() / 2000 % values.size());
-			return EasyText.translatable("gui.lightmanscurrency.notification.details", values.get(displayIndex));
+			return EasyText.translatable("gui.lightmanscurrency.notification.details", values.get(displayIndex).getText());
 		}
 		return EasyText.literal("ERROR!");
 
@@ -91,7 +91,7 @@ public class NotificationTab extends ATMTab {
 
 	public void onValueTypeChanged(@Nonnull MoneyValueWidget widget)
 	{
-		BankAccount account = this.screen.getMenu().getBankAccount();
+		IBankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
 		{
 			String type = widget.getCurrentHandlerType();

@@ -9,15 +9,20 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -25,12 +30,11 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxManager;
-import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.types.TaxableTraderReference;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -53,7 +57,7 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveAllyNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeAllyPermissionNotification;
@@ -61,8 +65,8 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeNameNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeOwnerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -268,7 +272,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	public abstract IconData getIcon();
-	
+
+	@Override
+	@Nonnull
 	public MutableComponent getName() {
 		if(this.hasCustomName())
 			return EasyText.literal(this.customName);
@@ -289,9 +295,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	private final MoneyStorage storedMoney = new MoneyStorage(() -> this.markDirty(this::saveStoredMoney));
-	public MoneyStorage getStoredMoney()
+	public IMoneyHolder getStoredMoney()
 	{
-		BankAccount ba = this.getBankAccount();
+		IBankAccount ba = this.getBankAccount();
 		if(ba != null)
 			return ba.getMoneyStorage();
 		return this.getInternalStoredMoney();
@@ -318,11 +324,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 					return taxesPaid;
 			}
 		}
-		BankAccount ba = this.getBankAccount();
+		IBankAccount ba = this.getBankAccount();
 		if(ba != null)
 		{
-			ba.depositCoins(amount);
-			ba.LogInteraction(this, amount, true);
+			ba.depositMoney(amount);
+			if(ba instanceof BankAccount ba2)
+				ba2.LogInteraction(this, amount, true);
 			return taxesPaid;
 		}
 		this.storedMoney.addValue(amount);
@@ -337,21 +344,44 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			if(!taxesPaid.isEmpty())
 				amount = amount.addValue(taxesPaid);
 		}
-		BankAccount ba = this.getBankAccount();
+		IBankAccount ba = this.getBankAccount();
 		if(ba != null) {
-			ba.withdrawCoins(amount);
-			ba.LogInteraction(this, amount, false);
+			ba.withdrawMoney(amount);
+			if(ba instanceof BankAccount ba2)
+				ba2.LogInteraction(this, amount, false);
 			return taxesPaid;
 		}
 		this.storedMoney.removeValue(amount);
 		return taxesPaid;
 	}
-	public void clearStoredMoney() { this.storedMoney.clear(); }
+	public void CollectStoredMoney(@Nonnull Player player, @Nullable MoneyContainer coinSlots)
+	{
+		if(this.hasPermission(player, Permissions.COLLECT_COINS))
+		{
+			MoneyStorage storedMoney = this.getInternalStoredMoney();
+			if(storedMoney.isEmpty())
+				return;
+			TradeContext.Builder b = TradeContext.create(this, player);
+			if(coinSlots != null)
+				b.withCoinSlots(coinSlots);
+			TradeContext context = b.build();
+			List<MoneyValue> change = new ArrayList<>();
+			for(MoneyValue v : storedMoney.allValues())
+			{
+				if(!context.givePayment(v))
+					change.add(v);
+			}
+			storedMoney.clear();
+			storedMoney.addValues(change);
+		}
+		else
+			Permissions.PermissionWarning(player, "collect stored coins", Permissions.COLLECT_COINS);
+	}
 
 	public final MoneyValue payTaxesOn(MoneyValue amount)
 	{
 		MoneyValue paidCache = MoneyValue.empty();
-		for(TaxEntry tax : this.getApplicableTaxes())
+		for(ITaxCollector tax : this.getApplicableTaxes())
 		{
 			//Obey ignored tax settings
 			if(!this.ShouldIgnoreTaxEntry(tax))
@@ -374,11 +404,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.linkedToBank = linkedToBank;
 			if(this.linkedToBank)
 			{
-				BankAccount account = this.getBankAccount();
+				IBankAccount account = this.getBankAccount();
 				if(account != null)
 				{
 					for(MoneyValue value : this.storedMoney.allValues())
-						account.depositCoins(value);
+						account.depositMoney(value);
 					this.storedMoney.clear();
 				}
 				else
@@ -392,7 +422,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	public boolean hasBankAccount() { return this.getBankAccount() != null; }
-	public BankAccount getBankAccount() {
+	public IBankAccount getBankAccount() {
 		
 		if(this.linkedToBank)
 		{
@@ -455,7 +485,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	private final List<Long> ignoredTaxCollectors = new ArrayList<>();
 	private boolean ignoreAllTaxes = false;
 	public boolean ShouldIgnoreAllTaxes() { return this.ignoreAllTaxes; }
-	public boolean ShouldIgnoreTaxEntryOnly(@Nonnull TaxEntry entry) { return this.ignoredTaxCollectors.contains(entry.getID()); }
+	public boolean ShouldIgnoreTaxEntryOnly(@Nonnull ITaxCollector entry) { return this.ignoredTaxCollectors.contains(entry.getID()); }
 	public void FlagTaxEntryToIgnore(@Nonnull TaxEntry entry, @Nonnull Player player) {
 		if(this.ignoredTaxCollectors.contains(entry.getID()))
 			return;
@@ -475,26 +505,28 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.markDirty(this::saveTaxSettings);
 		}
 	}
-	private boolean AllowTaxEntry(@Nonnull TaxEntry entry) { return !this.ShouldIgnoreTaxEntry(entry); }
-	public boolean ShouldIgnoreTaxEntry(@Nonnull TaxEntry entry) { return this.ShouldIgnoreAllTaxes() || this.ShouldIgnoreTaxEntryOnly(entry); }
+	private boolean AllowTaxEntry(@Nonnull ITaxCollector entry) { return !this.ShouldIgnoreTaxEntry(entry); }
+	public boolean ShouldIgnoreTaxEntry(@Nonnull ITaxCollector entry) { return this.ShouldIgnoreAllTaxes() || this.ShouldIgnoreTaxEntryOnly(entry); }
 
 	private WorldPosition worldPosition = WorldPosition.VOID;
 	public ResourceKey<Level> getLevel() { return this.worldPosition.getDimension(); }
 	public BlockPos getPos() { return this.worldPosition.getPos(); }
 
+	@Nonnull
 	@Override
 	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
 
+	@Nonnull
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
 
-	public final List<TaxEntry> getApplicableTaxes() { return TaxManager.GetTaxesForTrader(this).stream().filter(this::AllowTaxEntry).toList(); }
-	public final List<TaxEntry> getPossibleTaxes() { return TaxManager.GetPossibleTaxesForTrader(this); }
+	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.GetActiveTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
+	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.GetPossibleTaxCollectorsFor(this); }
 	public final int getTotalTaxPercentage()
 	{
-		List<TaxEntry> entries = this.getApplicableTaxes();
+		List<? extends ITaxCollector> entries = this.getApplicableTaxes();
 		int taxPercentage = 0;
-		for(TaxEntry entry : entries)
+		for(ITaxCollector entry : entries)
 			taxPercentage += entry.getTaxRate();
 		return taxPercentage;
 	}
@@ -1319,7 +1351,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.markDirty(this::saveLogger);
 	}
 	
-	public final void pushNotification(NonNullSupplier<Notification> notificationSource) {
+	public final void pushNotification(@Nonnull NonNullSupplier<Notification> notificationSource) {
 		//Notifications are disabled
 		if(this.isClient)
 			return;

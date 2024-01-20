@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.ExchangeUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;

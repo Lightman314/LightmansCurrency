@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.enchantments;
 
 import java.util.Map.Entry;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -35,7 +35,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
 	
-	public static MoneyValue getRepairCost() { return Config.SERVER.moneyMendingCoinCost.get(); }
+	public static MoneyValue getRepairCost() { return LCConfig.SERVER.moneyMendingRepairCost.get(); }
 	
 	public static void runEntityTick(Player player)
 	{

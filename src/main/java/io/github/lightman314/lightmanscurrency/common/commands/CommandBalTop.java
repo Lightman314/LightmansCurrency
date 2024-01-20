@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -8,11 +9,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.ChatFormatting;
@@ -58,6 +59,12 @@ public class CommandBalTop {
 		//Remove any accidental null entries from the list
 		while(allAccounts.remove(null));
 		//Sort the bank account by balance (and name if balance is tied).
+		allAccounts = new ArrayList<>(allAccounts.stream().filter(bar -> {
+			IBankAccount ba = bar.get();
+			if(ba == null)
+				return true;
+			return ba.getMoneyStorage().isEmpty();
+		}).toList());
 		allAccounts.sort(new AccountSorter());
 		
 		
@@ -75,7 +82,7 @@ public class CommandBalTop {
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
-				BankAccount account = allAccounts.get(i).get();
+				IBankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
 				Component amount = account.getMoneyStorage().getAllValueText();
 				EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
@@ -93,8 +100,8 @@ public class CommandBalTop {
 
 		@Override
 		public int compare(BankReference o1, BankReference o2) {
-			BankAccount a1 = o1 == null ? null : o1.get();
-			BankAccount a2 = o2 == null ? null : o2.get();
+			IBankAccount a1 = o1 == null ? null : o1.get();
+			IBankAccount a2 = o2 == null ? null : o2.get();
 			if(o1 == o2)
 				return 0;
 			if(o1 == null)

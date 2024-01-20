@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -19,13 +19,14 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
@@ -44,12 +45,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
@@ -61,6 +60,9 @@ public class ClientProxy extends CommonProxy{
 	private long timeOffset = 0;
 
 	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
+
+	@Override
+	public boolean isClient() { return true; }
 
 	@Override
 	public void setupClient() {
@@ -103,8 +105,7 @@ public class ClientProxy extends CommonProxy{
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
-		ItemEditWidget.BlacklistItem(ModItems.TICKET);
-		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
+		ItemEditWidget.BlacklistItem(s -> s.getItem() instanceof TicketItem);
 		//Add written book to Item Edit item list (for purchase/barter possibilities with NBT enforcement turned off)
 		ItemEditWidget.AddExtraItemAfter(new ItemStack(Items.WRITTEN_BOOK), Items.WRITABLE_BOOK);
 
@@ -171,7 +172,7 @@ public class ClientProxy extends CommonProxy{
 		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)))
 			return;
 		
-		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
+		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
 			mc.gui.getChat().addMessage(notification.getChatMessage());
 		
 	}
@@ -240,6 +241,8 @@ public class ClientProxy extends CommonProxy{
 	@SubscribeEvent
 	//Add coin value tooltips to non CoinItem coins.
 	public void onItemTooltip(ItemTooltipEvent event) {
+		if(event.getEntity() == null)
+			return;
 		Item item = event.getItemStack().getItem();
 		if(CoinAPI.isCoin(item, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
@@ -247,15 +250,12 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void playCoinSound() {
-		if(Config.CLIENT.moneyMendingClink.get())
+		if(LCConfig.CLIENT.moneyMendingClink.get())
 		{
 			Minecraft minecraft = Minecraft.getInstance();
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 		}
 	}
-	
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event) { ItemEditWidget.ConfirmItemListLoaded(); }
 
 	@Override
 	@Nonnull

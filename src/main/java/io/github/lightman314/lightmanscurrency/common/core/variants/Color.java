@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;

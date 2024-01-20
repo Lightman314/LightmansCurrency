@@ -9,7 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 
@@ -30,6 +30,17 @@ public abstract class MoneyValueParser {
 
     protected abstract MoneyValue parseValueArgument(@Nonnull StringReader reader) throws CommandSyntaxException;
 
+    @Nullable
+    protected final String tryWrite(@Nonnull MoneyValue value)
+    {
+        String sub = this.writeValueArgument(value);
+        if(sub != null)
+            return this.prefix + ";" + sub;
+        return null;
+    }
+
+    protected abstract String writeValueArgument(@Nonnull MoneyValue value);
+
     @Nonnull
     public <S> CompletableFuture<Suggestions> listSuggestions(final @Nonnull CommandContext<S> context, final @Nonnull SuggestionsBuilder builder, @Nonnull String trail, @Nonnull HolderLookup<Item> items) { return Suggestions.empty(); }
 
@@ -42,9 +53,9 @@ public abstract class MoneyValueParser {
     @Nonnull
     public static MoneyValue ParseConfigString(String string, Supplier<MoneyValue> defaultValue) {
         try{
-            return parse(new StringReader(string));
+            return parse(new StringReader(string), true);
         } catch(CommandSyntaxException exception) {
-            LightmansCurrency.LogError("Error parsing Coin Value config input.", exception);
+            LightmansCurrency.LogError("Error parsing Money Value config input.", exception);
             return defaultValue.get();
         }
     }
@@ -55,7 +66,7 @@ public abstract class MoneyValueParser {
      * and by {@link #ParseConfigString(String, Supplier)} for Config Values.
      */
     @Nonnull
-    public static MoneyValue parse(StringReader reader) throws CommandSyntaxException {
+    public static MoneyValue parse(StringReader reader, boolean allowEmpty) throws CommandSyntaxException {
         StringReader inputReader = new StringReader(readStringUntil(reader, ' '));
         String prefix;
         if(inputReader.getString().contains(";"))
@@ -70,6 +81,8 @@ public abstract class MoneyValueParser {
                 StringReader readerCopy = new StringReader(inputReader);
                 MoneyValue value = parser.parseValueArgument(readerCopy);
                 if (value != null) {
+                    if(allowEmpty)
+                        return value;
                     if (value.isEmpty() || value.isFree())
                         throw NoValueException(reader);
                     return value;
@@ -77,6 +90,21 @@ public abstract class MoneyValueParser {
             }
         }
         throw NoValueException(inputReader);
+    }
+
+    @Nonnull
+    public static String writeParsable(@Nonnull MoneyValue value) {
+        for(CurrencyType type : MoneyAPI.getAllCurrencyTypes())
+        {
+            MoneyValueParser parser = type.getValueParser();
+            if(parser != null)
+            {
+                String result = parser.tryWrite(value);
+                if(result != null)
+                    return result;
+            }
+        }
+        return "ERROR";
     }
 
     public static String readStringUntil(StringReader reader, char... t) throws CommandSyntaxException {

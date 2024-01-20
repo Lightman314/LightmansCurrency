@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.notifications;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -65,7 +65,7 @@ public class NotificationData {
 	
 	private void validateListSize()
 	{
-		int limit = Config.SERVER.notificationLimit.get();
+		int limit = LCConfig.SERVER.notificationLimit.get();
 		while(this.notifications.size() > limit)
 			this.notifications.remove(this.notifications.size() - 1);
 	}

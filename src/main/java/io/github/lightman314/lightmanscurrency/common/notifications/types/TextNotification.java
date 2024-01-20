@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;

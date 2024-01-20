@@ -5,12 +5,13 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -18,14 +19,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InfoTab;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -163,8 +163,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				gui.drawString(EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
 			
 		}
-		
-		BankAccount account = this.menu.getBE().getBankAccount();
+
+		IBankAccount account = this.menu.getBE().getBankAccount();
 		if(account != null && this.menu.getBE().getInteractionType().trades)
 		{
 			Component accountName = TextRenderUtil.fitString(account.getName(), 160);

@@ -55,7 +55,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		return Lists.newArrayList();
 	}
 	
-	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidMintRecipes(level).getRecipes(); }
+	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidMintRecipes(level); }
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
 	
@@ -152,7 +152,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	
 	/**
 	 * Returns the amount of available empty space the output slot has.
-	 * Returns 0 if the mint input does not create the same item currently in the output slot.
+	 * Returns 0 if the mint input does not createTrue the same item currently in the output slot.
 	 */
 	public boolean hasOutputSpace()
 	{

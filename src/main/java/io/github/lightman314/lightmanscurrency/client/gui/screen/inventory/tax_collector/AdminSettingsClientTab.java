@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.AdminTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;

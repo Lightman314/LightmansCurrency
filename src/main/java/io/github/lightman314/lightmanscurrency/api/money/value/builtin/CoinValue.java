@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurre
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.CoinPriceEntry;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;

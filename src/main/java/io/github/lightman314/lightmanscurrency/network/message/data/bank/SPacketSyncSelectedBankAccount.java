@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network.message.data.bank;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.enchantments;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -91,7 +91,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		enchantLevel -= 1;
 		if(enchantLevel < 0)
 			return 0f;
-		return Config.SERVER.coinMagnetRangeBase.get() + (Config.SERVER.coinMagnetRangeLevel.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
+		return LCConfig.SERVER.coinMagnetBaseRange.get() + (LCConfig.SERVER.coinMagnetLeveledRange.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
 	}
 	
 	public static Component getCollectionRangeDisplay(int enchantLevel) {

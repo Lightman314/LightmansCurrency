@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplaySerializer;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

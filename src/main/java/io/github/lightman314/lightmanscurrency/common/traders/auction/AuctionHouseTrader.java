@@ -5,19 +5,19 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
@@ -54,8 +54,8 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
 
-	public static boolean isEnabled() { return Config.SERVER.enableAuctionHouse.get(); }
-	public static boolean shouldShowOnTerminal() { return isEnabled() && Config.SERVER.auctionHouseOnTerminal.get(); }
+	public static boolean isEnabled() { return LCConfig.SERVER.auctionHouseEnabled.get(); }
+	public static boolean shouldShowOnTerminal() { return isEnabled() && LCConfig.SERVER.auctionHouseOnTerminal.get(); }
 
 	@Override
 	public boolean showOnTerminal() { return shouldShowOnTerminal(); }
@@ -67,7 +67,8 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		this.getOwner().SetCustomOwner(EasyText.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
 	}
 	
-	@Override
+	@Nonnull
+    @Override
 	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override

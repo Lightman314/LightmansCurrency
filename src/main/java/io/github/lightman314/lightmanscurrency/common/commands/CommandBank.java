@@ -7,13 +7,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.secrets.Secret;
@@ -110,7 +110,7 @@ public class CommandBank {
         Component bankName = null;
         for(BankReference account : accounts)
         {
-            if(BankAccount.ServerGiveCoins(account.get(), amount))
+            if(BankAPI.ServerGiveCoins(account.get(), amount))
             {
                 count++;
                 if(count == 1)
@@ -174,7 +174,7 @@ public class CommandBank {
         MoneyValue largestAmount = MoneyValue.empty();
         for(BankReference account : accounts)
         {
-            Pair<Boolean, io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue> result = BankAccount.ServerTakeCoins(account.get(), amount);
+            Pair<Boolean, MoneyValue> result = BankAPI.ServerTakeCoins(account.get(), amount);
             if(result.getFirst())
             {
                 count++;

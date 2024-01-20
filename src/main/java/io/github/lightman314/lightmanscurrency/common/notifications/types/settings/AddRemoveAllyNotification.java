@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

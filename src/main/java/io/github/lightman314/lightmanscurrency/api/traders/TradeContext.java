@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -15,10 +13,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
@@ -688,39 +685,5 @@ public class TradeContext {
 		public TradeContext build() { return new TradeContext(this); }
 		
 	}
-
-	private final List<TradeCostCache> tradeEventCache = new ArrayList<>();
-
-	@Nonnull
-	public MoneyValue getTradesCost(@Nonnull TradeData trade)
-	{
-		if(this.trader == null || this.playerReference == null)
-			return trade.getCost();
-		TradeEvent.TradeCostEvent event = this.trader.runTradeCostEvent(this.playerReference, trade);
-		for(TradeCostCache data : this.tradeEventCache)
-		{
-			if(data.event.matches(trade))
-			{
-				if(!data.event.matches(event))
-				{
-					data.event = event;
-					data.cost = event.getCostResult();
-				}
-				return data.cost;
-			}
-		}
-		TradeCostCache data = new TradeCostCache();
-		data.event = event;
-		data.cost = event.getCostResult();
-		this.tradeEventCache.add(data);
-		return data.cost;
-	}
-
-	private static class TradeCostCache
-	{
-		TradeEvent.TradeCostEvent event;
-		MoneyValue cost;
-	}
-
 	
 }

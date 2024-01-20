@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;

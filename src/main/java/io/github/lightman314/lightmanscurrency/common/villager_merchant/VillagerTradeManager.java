@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -23,7 +23,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -38,7 +37,8 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
@@ -299,7 +299,7 @@ public class VillagerTradeManager {
 		if(event.getType() == CustomProfessions.BANKER.get())
 		{
 			
-			if(!Config.COMMON.addBankerVillager.get())
+			if(!LCConfig.COMMON.addBankerVillager.get())
 				return;
 			
 			LightmansCurrency.LogInfo("Registering banker trades.");
@@ -319,7 +319,7 @@ public class VillagerTradeManager {
 		else if(event.getType() == CustomProfessions.CASHIER.get())
 		{
 			
-			if(!Config.COMMON.addCashierVillager.get())
+			if(!LCConfig.COMMON.addCashierVillager.get())
 				return;
 			
 			LightmansCurrency.LogInfo("Registering cashier trades.");
@@ -343,12 +343,12 @@ public class VillagerTradeManager {
 			assert type != null;
 			if(type.getNamespace().equals("minecraft"))
 			{
-				if(!Config.COMMON.changeVanillaTrades.get())
+				if(!LCConfig.COMMON.changeVanillaTrades.get())
 					return;
 				LightmansCurrency.LogInfo("Replacing Emeralds for villager type '" + type + "'.");
 				replaceExistingTrades(type.toString(), event.getTrades());
 			}
-			else if(Config.COMMON.changeModdedTrades.get())
+			else if(LCConfig.COMMON.changeModdedTrades.get())
 			{
 				LightmansCurrency.LogInfo("Replacing Emeralds for villager type '" + type + "'.");
 				replaceExistingTrades(type.toString(), event.getTrades());
@@ -360,7 +360,7 @@ public class VillagerTradeManager {
 	
 	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
 		
-		Supplier<Item> replacementSupplier = () -> Config.getEmeraldReplacementItem(trader);
+		Supplier<ItemLike> replacementSupplier = () -> LCConfig.COMMON.getEmeraldReplacementItem(trader);
 		
 		for(int i = 1; i <= 5; ++i)
 		{
@@ -385,7 +385,7 @@ public class VillagerTradeManager {
 	{
 		
 		//Replace the existing trades before adding my own custom ones
-		if(Config.COMMON.changeWanderingTrades.get())
+		if(LCConfig.COMMON.changeWanderingTrades.get())
 		{
 			
 			replaceExistingTrades(event.getGenericTrades());
@@ -394,7 +394,7 @@ public class VillagerTradeManager {
 		}
 		
 		//Add my own custom trades
-		if(Config.COMMON.addCustomWanderingTrades.get())
+		if(LCConfig.COMMON.addCustomWanderingTrades.get())
 		{
 			var pair = CustomVillagerTradeData.getWanderingTraderData();
 			event.getGenericTrades().addAll(pair.getFirst());
@@ -405,11 +405,10 @@ public class VillagerTradeManager {
 	
 	private static void replaceExistingTrades(List<ItemListing> tradeList) {
 
-		
 		for(int i = 0; i < tradeList.size(); ++i)
 		{
 			if(tradeList.get(i) != null)
-				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, Config.COMMON.defaultTraderCoin));
+				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, LCConfig.COMMON.defaultVillagerReplacementCoin));
 		}
 	}
 	
@@ -418,7 +417,7 @@ public class VillagerTradeManager {
 
 		final ItemListing tradeSource;
 		final ItemLike oldItem;
-		final Supplier<Item> newItem;
+		final Supplier<? extends ItemLike> newItem;
 
 		/**
 		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
@@ -428,22 +427,20 @@ public class VillagerTradeManager {
 		 * @param oldItem The Item to replace.
 		 * @param newItem The Item to replace the oldItem with.
 		 */
-		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Supplier<Item> newItem) {
+		public ConvertedTrade(@Nonnull ItemListing tradeSource, @Nonnull ItemLike oldItem, @Nonnull Supplier<? extends ItemLike> newItem) {
 			this.tradeSource = tradeSource;
 			this.oldItem = oldItem;
 			this.newItem = newItem;
 		}
 		
 		@Override
-		public MerchantOffer getOffer(@NotNull Entity trader, @NotNull RandomSource random) {
+		public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource random) {
 			try {
 				int attempts = 0;
 				MerchantOffer offer;
-				do
-				{
+				do {
 					offer = this.tradeSource.getOffer(trader, random);
 				} while(offer == null && attempts++ < 100);
-					
 				
 				if(attempts > 1)
 				{

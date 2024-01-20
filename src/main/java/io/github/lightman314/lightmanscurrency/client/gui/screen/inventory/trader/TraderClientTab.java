@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITrader
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;

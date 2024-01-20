@@ -19,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletH
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
@@ -35,7 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -258,7 +258,7 @@ public final class CoinAPI {
 
                 FileUtil.writeStringToFile(mcl, GSON.toJson(json));
 
-            } catch(IOException e) { LightmansCurrency.LogError("Error attempting to create 'MasterCoinList.json' file.", e); }
+            } catch(IOException e) { LightmansCurrency.LogError("Error attempting to createTrue 'MasterCoinList.json' file.", e); }
         }
     }
 
@@ -499,7 +499,7 @@ public final class CoinAPI {
     }
 
     //Reload
-    private static void onServerStart(@Nonnull ServerStartingEvent event) { reloadMoneyDataFromFile(); }
+    private static void onServerStart(@Nonnull ServerAboutToStartEvent event) { reloadMoneyDataFromFile(); }
     private static void onJoinServer(@Nonnull PlayerEvent.PlayerLoggedInEvent event)
     {
         confirmCoinDataLoaded();

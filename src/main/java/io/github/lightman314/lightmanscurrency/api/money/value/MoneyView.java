@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.MutableComponent;
 

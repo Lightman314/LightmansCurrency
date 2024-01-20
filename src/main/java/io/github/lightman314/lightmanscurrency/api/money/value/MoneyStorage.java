@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

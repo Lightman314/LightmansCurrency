@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.OwnershipTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;

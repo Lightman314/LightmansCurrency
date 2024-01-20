@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;

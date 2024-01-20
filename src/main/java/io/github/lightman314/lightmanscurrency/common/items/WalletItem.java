@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -22,7 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCa
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -40,7 +40,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
@@ -109,7 +108,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.SERVER.walletExchangeLevel.get();
+		return wallet.level >= LCConfig.SERVER.walletExchangeLevel.get();
 	}
 	
 	/**
@@ -119,7 +118,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.SERVER.walletPickupLevel.get();
+		return wallet.level >= LCConfig.SERVER.walletPickupLevel.get();
 	}
 	
 	/**
@@ -129,7 +128,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.SERVER.walletBankLevel.get();
+		return wallet.level >= LCConfig.SERVER.walletBankLevel.get();
 	}
 	
 	/**

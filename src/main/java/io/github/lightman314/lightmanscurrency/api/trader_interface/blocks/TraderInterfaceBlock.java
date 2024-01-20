@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;

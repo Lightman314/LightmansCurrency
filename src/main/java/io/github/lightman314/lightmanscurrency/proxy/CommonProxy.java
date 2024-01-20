@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.proxy;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
@@ -16,7 +16,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CommonProxy {
-	
+
+	public boolean isClient() { return false; }
+
 	public void setupClient() {}
 	
 	public void clearClientTraders() {}

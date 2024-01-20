@@ -9,9 +9,8 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interf
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;

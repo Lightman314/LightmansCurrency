@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.money.value.holder;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -13,13 +14,13 @@ import java.util.List;
 public interface IMoneyHolder extends IMoneyViewer {
 
     /**
-     * Sorting priority.
+     * Sorting priority.<br>
      * Higher values are given to last, but taken from first.
      */
     default int priority() { return 0; }
 
     /**
-     * Inverted value of the Sorting Priority.
+     * Inverted value of the Sorting Priority.<br>
      * Defaults to {@link #priority()} * -1
      */
     default int inversePriority() { return this.priority() * -1; }
@@ -40,7 +41,7 @@ public interface IMoneyHolder extends IMoneyViewer {
 
     /**
      * Adds text to the tooltip detailing the contents of this money holder.<br>
-     * Typically formatted as:<code><br>Title<br>Contents 1<br>Contents 2<br>etc.</code>
+     * Typically formatted as:<code><br>Title<br>Contents 1<br>Contents 2<br>etc.</code><br>
      */
     default void formatTooltip(@Nonnull List<Component> tooltip)
     {
@@ -60,7 +61,7 @@ public interface IMoneyHolder extends IMoneyViewer {
 
     /**
      * Easy implementation of {@link IMoneyHolder} that simply points to another parent money holder.
-     * Typically used by things such as {@link io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference}, etc.
+     * Typically used by things such as {@link BankReference}, etc.
      */
     abstract class Slave implements IMoneyHolder
     {
