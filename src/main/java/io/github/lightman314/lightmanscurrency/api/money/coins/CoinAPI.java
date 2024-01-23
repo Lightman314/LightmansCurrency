@@ -71,7 +71,7 @@ public final class CoinAPI {
             return;
         setup = true;
         MinecraftForge.EVENT_BUS.addListener(CoinAPI::onServerStart);
-        MinecraftForge.EVENT_BUS.addListener(CoinAPI::onJoinServer);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CoinAPI::onJoinServer);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CoinAPI::generateDefaultCoins);
         ValueDisplayAPI.Setup();
         ATMAPI.Setup();
