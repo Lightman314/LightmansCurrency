@@ -1087,7 +1087,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
 
-	public final TradeResult TryExecuteTrade(TradeContext context, int tradeIndex)
+	public final TradeResult TryExecuteTrade(@Nonnull TradeContext context, int tradeIndex)
 	{
 		if(this.exceedsAcceptableTaxRate())
 			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
@@ -1097,8 +1097,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	/**
 	 * Should not be called directly. Call TryExecuteTrade when possible!
 	 */
-	@Deprecated
-	public abstract TradeResult ExecuteTrade(TradeContext context, int tradeIndex);
+	protected abstract TradeResult ExecuteTrade(TradeContext context, int tradeIndex);
 	
 	public void addInteractionSlots(@Nonnull List<InteractionSlotData> interactionSlots) {}
 	

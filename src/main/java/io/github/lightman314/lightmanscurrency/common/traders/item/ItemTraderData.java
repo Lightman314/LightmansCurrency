@@ -466,19 +466,19 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
+	protected TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
 		ItemTradeData trade = this.getTrade(tradeIndex);
 		//Abort if the trade is null
 		if(trade == null)
 		{
-			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
+			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
 		//Abort if the trade is not valid
 		if(!trade.isValid())
 		{
-			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
@@ -507,7 +507,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
 			{
-				LightmansCurrency.LogInfo("Not enough room for the output item. Aborting trade!");
+				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
 			}
 			

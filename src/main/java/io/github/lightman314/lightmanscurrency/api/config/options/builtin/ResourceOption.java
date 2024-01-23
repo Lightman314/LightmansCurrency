@@ -31,11 +31,11 @@ public class ResourceOption extends ConfigOption<ResourceLocation> {
         public ResourceLocation tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
             String s = StringOption.PARSER.tryParse(cleanLine);
             try { return new ResourceLocation(s);
-            } catch (ResourceLocationException e) { throw new ConfigParsingException(s + " is not a valid Resource Location!"); }
+            } catch (ResourceLocationException e) { throw new ConfigParsingException(s + " is not a valid Resource Location!", e); }
         }
 
         @Nonnull
         @Override
-        public String write(@Nonnull ResourceLocation value) { return StringOption.PARSER.write(value.toString()); }
+        public String write(@Nonnull ResourceLocation value) { return value.toString(); }
     }
 }

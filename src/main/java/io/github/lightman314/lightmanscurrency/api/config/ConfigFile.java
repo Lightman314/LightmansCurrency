@@ -27,7 +27,6 @@ public abstract class ConfigFile {
         if(file.isClientOnly() && !LightmansCurrency.PROXY.isClient())
             return;
         loadableFiles.add(file);
-        //LightmansCurrency.LogDebug("Built config " + file.getFilePath() + " with " + file.sections.size() + " sections and a total of " + file.getAllOptions().size() + " config options!");
     }
 
     public static void reloadFiles()
@@ -66,12 +65,21 @@ public abstract class ConfigFile {
     }
 
     protected final void forEach(@Nonnull Consumer<ConfigOption<?>> action) { this.confirmSetup(); this.root.forEach(action); }
+    @Nonnull
     protected final Map<String,ConfigOption<?>> getAllOptions()
     {
         this.confirmSetup();
         Map<String,ConfigOption<?>> results = new HashMap<>();
-        //TODO collect options
+        this.collectOptionsFrom(this.root, results);
         return ImmutableMap.copyOf(results);
+    }
+
+    private void collectOptionsFrom(@Nonnull ConfigSection section, @Nonnull Map<String,ConfigOption<?>> resultMap)
+    {
+        //Collect options from this section
+        section.options.forEach((key,option) -> resultMap.put(section.fullNameOfChild(key),option));
+        //Collect options from child sections
+        section.sectionsInOrder.forEach(s -> collectOptionsFrom(s, resultMap));
     }
 
     @Nullable

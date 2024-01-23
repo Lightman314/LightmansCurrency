@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
@@ -340,7 +339,12 @@ public final class LCConfig {
                     "Set to false to help prevent autmated coin farming.")
                     .add("allowFakePlayerDrops", this.allowFakePlayerCoinDrops);
 
-            builder.comment("Entity Drop Lists").push("lists");
+            builder.comment("Entity Drop Lists. Accepts the following inputs:",
+                            "Entity IDs. e.g. \"minecraft:cow\"",
+                            "Entity Tags. e.g. \"#minecraft:skeletons\"",
+                            "Every entity provided by a mod. e.g. \"minecraft:*\"",
+                            "Note: If an entity meets multiple criteria, it will drop the lowest tier loot that matches (starting with normal T1 -> T6 then boss T1 -> T6)")
+                    .push("lists");
 
             builder.comment("List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier1\" loot table.","Requires a player kill to trigger coin drops.")
                     .add("T1", this.entityDropsT1);

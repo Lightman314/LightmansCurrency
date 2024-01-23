@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public abstract class DroplistConfigGenerator {
             try { listener.accept(generator);
             } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default entity drops.", t); }
         }
-        return debugEntries(generator.collectEntries(), "Collected Default Entity drops of type '" + level.toString() + "'!\n_VALUE_");
+        return debugEntries(generator.getEntries(), "Collected Default Entity drops of type '" + level.toString() + "'!\n_VALUE_");
     }
 
     public static List<String> CollectDefaultChestDrops(ChestPoolLevel level)
@@ -42,7 +44,7 @@ public abstract class DroplistConfigGenerator {
             try { listener.accept(generator);
             } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default chest drops.", t); }
         }
-        return debugEntries(generator.collectEntries(), "Collected Default Chest drops of type '" + level.toString() + "'!\n_VALUE_");
+        return debugEntries(generator.getEntries(), "Collected Default Chest drops of type '" + level.toString() + "'!\n_VALUE_");
     }
 
     private static List<String> debugEntries(List<String> results, String message)
@@ -65,9 +67,8 @@ public abstract class DroplistConfigGenerator {
     public final void setDefaultNamespace(@Nonnull String namespace) { this.defaultNamespace = namespace; }
     public final String getDefaultNamespace() { return this.defaultNamespace; }
 
-    private final List<ResourceLocation> entries = new ArrayList<>();
-    public final ImmutableList<ResourceLocation> getEntries() { return ImmutableList.copyOf(this.entries); }
-    protected final List<String> collectEntries() { return this.entries.stream().map(ResourceLocation::toString).toList(); }
+    private final List<String> entries = new ArrayList<>();
+    public final ImmutableList<String> getEntries() { return ImmutableList.copyOf(this.entries); }
 
     protected DroplistConfigGenerator() { }
 
@@ -90,13 +91,16 @@ public abstract class DroplistConfigGenerator {
     public final void addEntry(String modid, String entry) throws ResourceLocationException { this.forceAddEntry(this.createEntry(modid, entry)); }
 
     /**
-     * Adds entry with the given entry name, and the default namespace defined in DroplistConfigEvent.setDefaultNamespace(String)
+     * Adds entry with the given entry name, and the default namespace defined in {@link #setDefaultNamespace(String)}
      * Entry may be modified by the event if the resource used generally is in a sub-folder.
      * (Example: input of "minecraft","zombie" would be turned into the resource location "minecraft:chests/zombie" for the Chest variant of this event)
      * If you don't want the resource to be modified, use DroplistConfigEvent.forceAddEntry(ResourceLocation) instead.
      */
     public final void addEntry(String entry) throws ResourceLocationException { this.addEntry(this.defaultNamespace, entry); }
-    public final void forceAddEntry(ResourceLocation entry) {
+
+    public final void forceAddEntry(@Nonnull ResourceLocation entry) { this.forceAdd(entry.toString()); }
+
+    protected final void forceAdd(@Nonnull String entry) {
         if(!this.entries.contains(entry))
             this.entries.add(entry);
     }
@@ -105,7 +109,7 @@ public abstract class DroplistConfigGenerator {
      * Forcibly removes the defined entry from the entry list.
      * Should generally only be useful for adventure map makers that want to define their own coin drop rules, or for other mods overriding my own default values for their mods entities.
      */
-    public final void removeEntry(ResourceLocation entry) { this.entries.remove(entry); }
+    public final void removeEntry(@Nonnull ResourceLocation entry) { this.entries.remove(entry); }
 
     public static class Chest extends DroplistConfigGenerator
     {
@@ -130,6 +134,10 @@ public abstract class DroplistConfigGenerator {
 
         @Override
         protected ResourceLocation createEntry(String modid, String entry) { return new ResourceLocation(modid, entry); }
+
+        public final void forceAddTag(@Nonnull TagKey<EntityType<?>> tag) { this.forceAdd("#" + tag.location()); }
+        public final void forceAddTag(@Nonnull ResourceLocation tag) { this.forceAdd("#" + tag); }
+        public final void addTag(@Nonnull String tagID) throws ResourceLocationException { this.forceAddTag(new ResourceLocation(this.getDefaultNamespace(), tagID)); }
 
     }
 

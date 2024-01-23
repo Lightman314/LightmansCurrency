@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.config.options;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -66,6 +67,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
                 if(c == ',')
                 {
                     sections.add(temp.toString());
+                    temp = new StringBuilder();
                     continue;
                 }
                 temp.append(c);
@@ -74,15 +76,13 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
                 sections.add(temp.toString());
             if(sections.size() == 0)
                 return new ArrayList<>();
-            List<ConfigParsingException> exceptions = new ArrayList<>();
             List<T> results = new ArrayList<>();
-            for(String section : sections)
+            for(int s = 0; s < sections.size(); ++s)
             {
+                String section = sections.get(s);
                 try { results.add(this.parser.tryParse(section));
-                } catch (ConfigParsingException e) { exceptions.add(e); }
+                } catch (ConfigParsingException e) { LightmansCurrency.LogWarning("Failed to parse List Config entry #" + (s + 1), e); }
             }
-            if(results.size() == 0)
-                throw new ConfigParsingException("No list entries could be parsed as intended!", exceptions.get(0));
             return results;
         }
 

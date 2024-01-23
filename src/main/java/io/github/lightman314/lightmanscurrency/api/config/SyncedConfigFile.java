@@ -44,19 +44,13 @@ public abstract class SyncedConfigFile extends ConfigFile {
     @Override
     protected void afterReload() { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
 
-    public final void clearSyncedData()
-    {
-        for(ConfigOption<?> option : this.getAllOptions().values())
-            option.clearSyncedData();
-    }
+    public final void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
 
     @Nonnull
     private Map<String,String> getSyncData()
     {
         Map<String,String> map = new HashMap<>();
-        this.getAllOptions().forEach((id, option) -> {
-            map.put(id, option.write());
-        });
+        this.getAllOptions().forEach((id, option) -> map.put(id, option.write()));
         return ImmutableMap.copyOf(map);
     }
 

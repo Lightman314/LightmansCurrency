@@ -38,7 +38,7 @@ public class CommandConfig {
             result++;
         }
         if(result > 0)
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig"), involveAdmins);
+            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.reload"), involveAdmins);
         return result;
     }
 

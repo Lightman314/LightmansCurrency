@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -14,17 +15,17 @@ import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifie
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -111,7 +112,6 @@ public class LootManager {
 				event.addVanillaEntry("phantom");
 				event.addVanillaEntry("blaze");
 				event.addVanillaEntry("ghast");
-				event.addVanillaEntry("witch");
 				event.addVanillaEntry("hoglin");
 				event.addVanillaEntry("piglin_brute");
 				event.addVanillaEntry("piglin");
@@ -119,11 +119,8 @@ public class LootManager {
 			}
 			case T4 -> {
 				event.addVanillaEntry("enderman");
-				event.addVanillaEntry("evoker");
-				event.addVanillaEntry("vindicator");
-				event.addVanillaEntry("pillager");
-				event.addVanillaEntry("ravager");
 				event.addVanillaEntry("shulker");
+				event.addTag("raiders");
 			}
 			case T5 -> event.addVanillaEntry("wither_skeleton");
 			case BOSS_T4 -> event.addVanillaEntry("warden");
@@ -259,7 +256,7 @@ public class LootManager {
 				return;
 		}
 
-		EntityPoolLevel poolLevel = GetEntityPoolLevel(entity);
+		EntityPoolLevel poolLevel = GetEntityPoolLevel(entity.getType());
 		if(poolLevel != null)
 			DropEntityLoot(entity, player, poolLevel);
 
@@ -352,36 +349,66 @@ public class LootManager {
 	}
 
 	@Nullable
-	public static EntityPoolLevel GetEntityPoolLevel(@Nonnull Entity entity) {
-		ResourceLocation entityID = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
-		if(entityID == null)
-			return null;
-		String id = entityID.toString();
-		if(LCConfig.COMMON.entityDropsT1.get().contains(id))
+	public static EntityPoolLevel GetEntityPoolLevel(@Nonnull EntityType<?> entity) {
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT1, entity))
 			return EntityPoolLevel.T1;
-		if(LCConfig.COMMON.entityDropsT2.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT2, entity))
 			return EntityPoolLevel.T2;
-		if(LCConfig.COMMON.entityDropsT3.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT3, entity))
 			return EntityPoolLevel.T3;
-		if(LCConfig.COMMON.entityDropsT4.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT4, entity))
 			return EntityPoolLevel.T4;
-		if(LCConfig.COMMON.entityDropsT5.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT5, entity))
 			return EntityPoolLevel.T5;
-		if(LCConfig.COMMON.entityDropsT6.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.entityDropsT6, entity))
 			return EntityPoolLevel.T6;
-		if(LCConfig.COMMON.bossEntityDropsT1.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT1, entity))
 			return EntityPoolLevel.BOSS_T1;
-		if(LCConfig.COMMON.bossEntityDropsT2.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT2, entity))
 			return EntityPoolLevel.BOSS_T2;
-		if(LCConfig.COMMON.bossEntityDropsT3.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT3, entity))
 			return EntityPoolLevel.BOSS_T3;
-		if(LCConfig.COMMON.bossEntityDropsT4.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT4, entity))
 			return EntityPoolLevel.BOSS_T4;
-		if(LCConfig.COMMON.bossEntityDropsT5.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT5, entity))
 			return EntityPoolLevel.BOSS_T5;
-		if(LCConfig.COMMON.bossEntityDropsT6.get().contains(id))
+		if(ConfigContainsEntity(LCConfig.COMMON.bossEntityDropsT6, entity))
 			return EntityPoolLevel.BOSS_T6;
 		return null;
+	}
+
+	public static boolean ConfigContainsEntity(@Nonnull StringListOption configOption, @Nonnull EntityType<?> entityType)
+	{
+		ResourceLocation entityID = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+		if(entityID == null)
+			return false;
+		Stream<TagKey<EntityType<?>>> entityTags = entityType.getTags();
+		for(String option : configOption.get())
+		{
+			try {
+				//Check entity tags
+				if(option.startsWith("#"))
+				{
+					ResourceLocation tagKey = new ResourceLocation(option.substring(1));
+					if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
+						return true;
+				}
+				else
+				{
+					//Check namespace only
+					if(option.endsWith(":*"))
+					{
+						//Only check the namespace of the id
+						if(new ResourceLocation(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
+							return true;
+					}
+					//Check entire entity id
+					else if(new ResourceLocation(option).equals(entityID))
+						return true;
+				}
+			} catch (ResourceLocationException ignored) {}
+		}
+		return false;
 	}
 
 }
