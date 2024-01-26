@@ -370,9 +370,7 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	public static void serverStart(ServerStartedEvent event) {
-		ConfigFile.reloadFiles();
-	}
+	public static void serverStart(ServerStartedEvent event) { ConfigFile.reloadServerFiles(); }
 
 	@SubscribeEvent
 	public static void serverTick(TickEvent.ServerTickEvent event)

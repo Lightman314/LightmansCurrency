@@ -22,18 +22,17 @@ public abstract class ConfigFile {
 
     private static final List<ConfigFile> loadableFiles = new ArrayList<>();
 
-    private static void registerConfig(@Nonnull ConfigFile file)
-    {
-        if(file.isClientOnly() && !LightmansCurrency.PROXY.isClient())
-            return;
-        loadableFiles.add(file);
-    }
+    private static void registerConfig(@Nonnull ConfigFile file) { loadableFiles.add(file); }
 
-    public static void reloadFiles()
+    public static void reloadClientFiles() { reloadFiles(true); }
+    public static void reloadServerFiles() { reloadFiles(false); }
+    private static void reloadFiles(boolean logicalClient)
     {
         for(ConfigFile file : loadableFiles)
         {
-            try { file.reload();
+            try {
+                if(file.shouldReload(logicalClient))
+                    file.reload();
             } catch (IllegalArgumentException e) { LightmansCurrency.LogError("Error setting up config file!", e); }
         }
     }
@@ -105,11 +104,27 @@ public abstract class ConfigFile {
 
 
     protected boolean isClientOnly() { return false; }
+    protected boolean isServerOnly() { return false; }
 
     protected abstract void setup(@Nonnull ConfigBuilder builder);
 
+    public boolean shouldReload(boolean isLogicalClient) {
+        if(this.isClientOnly() && !isLogicalClient)
+            return false;
+        if(this.isServerOnly() && isLogicalClient)
+            return false;
+        return true;
+    }
+
+    private boolean reloading = false;
+
     public final void reload()
     {
+
+        if(this.reloading)
+            return;
+
+        this.reloading = true;
 
         LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
 
@@ -171,6 +186,8 @@ public abstract class ConfigFile {
 
         for(Runnable l : this.reloadListeners)
             l.run();
+
+        this.reloading = false;
 
     }
 

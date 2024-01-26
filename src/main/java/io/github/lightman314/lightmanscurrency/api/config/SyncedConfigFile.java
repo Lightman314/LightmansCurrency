@@ -16,6 +16,9 @@ public abstract class SyncedConfigFile extends ConfigFile {
 
     private static final Map<ResourceLocation,SyncedConfigFile> fileMap = new HashMap<>();
 
+    @Override
+    protected boolean isServerOnly() { return true; }
+
     public static void playerJoined(@Nonnull ServerPlayer player) {
         PacketDistributor.PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
         fileMap.values().forEach(c -> c.sendSyncPacket(target));

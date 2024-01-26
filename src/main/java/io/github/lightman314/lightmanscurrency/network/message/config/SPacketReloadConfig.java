@@ -18,7 +18,7 @@ public class SPacketReloadConfig extends ServerToClientPacket.Simple {
     {
         protected H() { super(INSTANCE); }
         @Override
-        protected void handle(@Nonnull SPacketReloadConfig message, @Nullable ServerPlayer sender) { ConfigFile.reloadFiles(); }
+        protected void handle(@Nonnull SPacketReloadConfig message, @Nullable ServerPlayer sender) { ConfigFile.reloadClientFiles(); }
     }
 
 }

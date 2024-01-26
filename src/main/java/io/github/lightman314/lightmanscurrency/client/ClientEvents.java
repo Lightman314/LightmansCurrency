@@ -304,7 +304,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void playerJoinsServer(ClientPlayerNetworkEvent.LoggingIn event) {
-		ConfigFile.reloadFiles();
+		ConfigFile.reloadClientFiles();
 	}
 
 	@SubscribeEvent
