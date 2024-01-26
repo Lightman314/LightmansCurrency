@@ -796,6 +796,8 @@ public final class LCConfig {
             {
                 case OTHER: return true;
                 case MINT: {
+                    if(!this.coinMintCanMint.get())
+                        return false;
                     Item resultItem = recipe.getOutputItem().getItem();
                     if(resultItem == ModItems.COIN_COPPER.get())
                         return this.coinMintMintableCopper.get();
@@ -811,6 +813,8 @@ public final class LCConfig {
                         return this.coinMintMintableNetherite.get();
                 }
                 case MELT: {
+                    if(!this.coinMintCanMelt.get())
+                        return false;
                     Item resultItem = recipe.getOutputItem().getItem();
                     if(resultItem == Items.COPPER_INGOT)
                         return this.coinMintMeltableCopper.get();

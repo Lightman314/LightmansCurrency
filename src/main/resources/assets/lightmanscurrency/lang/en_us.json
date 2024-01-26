@@ -1185,6 +1185,7 @@
     "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",
     "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
     "command.lightmanscurrency.lcbaltop.error.page": "Page is too large",
+	"command.lightmanscurrency.lcbaltop.no_results": "No Bank Accounts found.",
 	
 	"command.lightmanscurrency.lcclaims.invalid_price": "INVALID",
 	"command.lightmanscurrency.lcclaims.fail.invalid_price": "Could not process the purchase as the configured price is invalid!",

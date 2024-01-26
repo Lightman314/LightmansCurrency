@@ -22,7 +22,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 public class CommandBalTop {
-	
+
+	public static final Comparator<BankReference> SORTER = new AccountSorter();
+
 	public static final int ENTRIES_PER_PAGE = 10;
 	
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
@@ -57,16 +59,21 @@ public class CommandBalTop {
 				allAccounts.add(team.getBankReference());
 		}
 		//Remove any accidental null entries from the list
-		while(allAccounts.remove(null));
-		//Sort the bank account by balance (and name if balance is tied).
-		allAccounts = new ArrayList<>(allAccounts.stream().filter(bar -> {
-			IBankAccount ba = bar.get();
+		allAccounts.removeIf(br -> {
+			if(br == null)
+				return true;
+			IBankAccount ba = br.get();
 			if(ba == null)
 				return true;
 			return ba.getMoneyStorage().isEmpty();
-		}).toList());
-		allAccounts.sort(new AccountSorter());
-		
+		});
+		if(allAccounts.size() == 0)
+		{
+			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.no_results"));
+			return 0;
+		}
+
+		allAccounts.sort(SORTER);
 		
 		int startIndex = (page - 1) * ENTRIES_PER_PAGE;
 		
@@ -95,7 +102,7 @@ public class CommandBalTop {
 	private static int getMaxPage(int listSize) {
 		return ((listSize - 1) / ENTRIES_PER_PAGE) + 1;
 	}
-	
+
 	private static class AccountSorter implements Comparator<BankReference> {
 
 		@Override
@@ -113,7 +120,7 @@ public class CommandBalTop {
 				bal1 += val.getCoreValue();
 			long bal2 = 0;
 			for(MoneyValue val : a2.getMoneyStorage().allValues())
-				bal1 += val.getCoreValue();
+				bal2 += val.getCoreValue();
 			
 			if(bal1 > bal2)
 				return -1;
