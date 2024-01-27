@@ -43,6 +43,7 @@ public class SlotMachineTrade extends TradeData {
     @Override
     public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return ImmutableList.of(); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
     public TradeRenderManager<?> getButtonRenderer() { return new SlotMachineTradeButtonRenderer(this); }

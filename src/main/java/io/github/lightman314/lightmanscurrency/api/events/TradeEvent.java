@@ -106,7 +106,8 @@ public abstract class TradeEvent extends Event{
 
 		MoneyValue baseCost;
 		public MoneyValue getBaseCost() { return this.baseCost; }
-		public MoneyValue getCostResult() { return this.forceFree ? MoneyValue.free() : this.baseCost.percentageOfValue(this.pricePercentage); }
+		public boolean getCostResultIsFree() { return this.forceFree || this.pricePercentage <= 0; }
+		public MoneyValue getCostResult() { return this.getCostResultIsFree() ? MoneyValue.free() : this.baseCost.percentageOfValue(this.pricePercentage); }
 		
 		public TradeCostEvent(@Nonnull PlayerReference player, @Nonnull TradeData trade, @Nonnull TraderData trader)
 		{

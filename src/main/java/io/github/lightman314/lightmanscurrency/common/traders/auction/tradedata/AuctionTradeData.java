@@ -363,7 +363,8 @@ public class AuctionTradeData extends TradeData {
 		
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 

@@ -535,7 +535,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return list;
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 

@@ -254,7 +254,8 @@ public class PaygateTradeData extends TradeData {
 		return result;
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 

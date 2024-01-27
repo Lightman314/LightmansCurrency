@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -72,7 +73,11 @@ public abstract class TradeData implements ITradeRuleHost {
 			return this.getCost();
 		TradeCostEvent event = context.getTrader().runTradeCostEvent(context.getPlayerReference(), this);
 		if(!this.cachedCost.matches(event))
+		{
+			if(this.cachedCost != TradeCostCache.EMPTY)
+				LightmansCurrency.LogDebug("New price cached for a trade. Event results must have changed!");
 			this.cachedCost = TradeCostCache.cache(event);
+		}
 		return this.cachedCost.getPrice();
 	}
 
@@ -225,6 +230,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
 	
 	@OnlyIn(Dist.CLIENT)
+	@Nonnull
 	public abstract TradeRenderManager<?> getButtonRenderer();
 
 	/**
@@ -289,12 +295,11 @@ public abstract class TradeData implements ITradeRuleHost {
 		public static final TradeCostCache EMPTY = new TradeCostCache(true,0,MoneyValue.free());
 
 		public static TradeCostCache cache(@Nonnull TradeCostEvent event) {
-			boolean free = event.forcedFree() || event.getPricePercentage() <= 0;
-			return new TradeCostCache(free, event.getPricePercentage(), event.getCostResult());
+			return new TradeCostCache(event.getCostResultIsFree(), event.getPricePercentage(), event.getCostResult());
 		}
 
 		public boolean matches(@Nonnull TradeCostEvent event) {
-			if(this.free && (event.forcedFree() || event.getPricePercentage() <= 0))
+			if(event.getCostResultIsFree() && this.free)
 				return true;
 			return this.percentage == event.getPricePercentage();
 		}

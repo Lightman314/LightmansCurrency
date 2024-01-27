@@ -319,7 +319,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : trade.getRestriction();
 			return getFilteredItems(restriction);
 		}
-		return allItems;
+		return new ArrayList<>(allItems);
 	}
 
 	@Nonnull
@@ -332,12 +332,12 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease registerNotification during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
-			return allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
+			return new ArrayList<>(allItems).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
 		if(!preFilteredItems.containsKey(type))
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
-			preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+			preFilteredItems.put(type, new ArrayList<>(allItems).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
 		}
 		return preFilteredItems.get(type);
 	}
@@ -374,8 +374,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		if(this.searchString.length() > 0)
 		{
 			this.searchResultItems = new ArrayList<>();
-			List<ItemStack> validItems = this.getFilteredItems();
-			for(ItemStack stack : validItems)
+			for(ItemStack stack : this.getFilteredItems())
 			{
 				//Search the display name
 				if(stack.getHoverName().getString().toLowerCase().contains(this.searchString))

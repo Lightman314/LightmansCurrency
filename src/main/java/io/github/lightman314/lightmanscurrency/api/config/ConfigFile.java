@@ -33,7 +33,7 @@ public abstract class ConfigFile {
             try {
                 if(file.shouldReload(logicalClient))
                     file.reload();
-            } catch (IllegalArgumentException e) { LightmansCurrency.LogError("Error setting up config file!", e); }
+            } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error setting up config file!", e); }
         }
     }
 
