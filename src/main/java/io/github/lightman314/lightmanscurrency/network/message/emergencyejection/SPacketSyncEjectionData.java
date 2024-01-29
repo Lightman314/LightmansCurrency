@@ -17,7 +17,7 @@ public class SPacketSyncEjectionData extends ServerToClientPacket {
 	
 	public SPacketSyncEjectionData(CompoundTag data) { this.data = data; }
 	
-	public void encode(FriendlyByteBuf buffer) { buffer.writeNbt(this.data); }
+	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeNbt(this.data); }
 
 	private static class H extends Handler<SPacketSyncEjectionData>
 	{

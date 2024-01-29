@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 public abstract class ClientConfigFile extends ConfigFile {
     protected ClientConfigFile(@Nonnull String fileName) { super(fileName); }
+    protected ClientConfigFile(@Nonnull String fileName, boolean loadEarly) { super(fileName, loadEarly); }
     @Override
-    protected boolean isClientOnly() { return true; }
+    public boolean isClientOnly() { return true; }
 }

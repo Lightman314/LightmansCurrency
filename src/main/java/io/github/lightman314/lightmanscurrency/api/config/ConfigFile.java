@@ -21,11 +21,30 @@ import java.util.function.Consumer;
 public abstract class ConfigFile {
 
     private static final List<ConfigFile> loadableFiles = new ArrayList<>();
+    public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles); }
 
-    private static void registerConfig(@Nonnull ConfigFile file) { loadableFiles.add(file); }
+    public static <T extends ConfigFile> T registerConfig(@Nonnull T file) { loadableFiles.add(file); return file; }
 
+    //Used to load client & common files when connecting to a server
+    public static void loadClientFiles() { loadFiles(true, false); }
+    //Used to load early-load client files during the common setup
+    public static void loadEarlyClientFiles() { loadFiles(true, true); }
+    //Used to load server & common files when the server finished loading
+    public static void loadServerFiles() { loadFiles(false, false); }
+    //Used to load server & common files suring the common setup.
+    public static void loadEarlyServerFiles() { loadFiles(false, true); }
+    public static void loadFiles(boolean logicalClient, boolean earlyLoaders) {
+        for(ConfigFile file : loadableFiles)
+        {
+            try {
+                if(!file.isLoaded() && file.shouldReload(logicalClient) && file.loadEarly == earlyLoaders)
+                    file.reload();
+            } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
+        }
+    }
     public static void reloadClientFiles() { reloadFiles(true); }
     public static void reloadServerFiles() { reloadFiles(false); }
+
     private static void reloadFiles(boolean logicalClient)
     {
         for(ConfigFile file : loadableFiles)
@@ -33,7 +52,7 @@ public abstract class ConfigFile {
             try {
                 if(file.shouldReload(logicalClient))
                     file.reload();
-            } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error setting up config file!", e); }
+            } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
         }
     }
 
@@ -41,6 +60,8 @@ public abstract class ConfigFile {
     protected String getConfigFolder() { return "config"; }
 
     private final String fileName;
+    @Nonnull
+    public String getFileName() { return this.fileName; }
 
     private final List<Runnable> reloadListeners = new ArrayList<>();
     public final void addListener(@Nonnull Runnable listener) {
@@ -54,6 +75,7 @@ public abstract class ConfigFile {
     protected final File getFile() { return new File(this.getFilePath()); }
 
     private ConfigSection root = null;
+    public final boolean loadEarly;
     private void confirmSetup() {
         if(this.root == null)
         {
@@ -65,7 +87,7 @@ public abstract class ConfigFile {
 
     protected final void forEach(@Nonnull Consumer<ConfigOption<?>> action) { this.confirmSetup(); this.root.forEach(action); }
     @Nonnull
-    protected final Map<String,ConfigOption<?>> getAllOptions()
+    public final Map<String,ConfigOption<?>> getAllOptions()
     {
         this.confirmSetup();
         Map<String,ConfigOption<?>> results = new HashMap<>();
@@ -96,15 +118,12 @@ public abstract class ConfigFile {
         return currentSection;
     }
 
-    protected ConfigFile(@Nonnull String fileName) {
-        this.fileName = fileName;
-        //Build config on first use
-        registerConfig(this);
-    }
+    protected ConfigFile(@Nonnull String fileName) { this.fileName = fileName; this.loadEarly = false; }
+    protected ConfigFile(@Nonnull String fileName, boolean loadEarly) { this.fileName = fileName; this.loadEarly = loadEarly; }
 
 
-    protected boolean isClientOnly() { return false; }
-    protected boolean isServerOnly() { return false; }
+    public boolean isClientOnly() { return false; }
+    public boolean isServerOnly() { return false; }
 
     protected abstract void setup(@Nonnull ConfigBuilder builder);
 
@@ -117,7 +136,10 @@ public abstract class ConfigFile {
     }
 
     private boolean reloading = false;
+    private boolean loaded = false;
+    public final boolean isLoaded() { return this.loaded; }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     public final void reload()
     {
 
@@ -126,66 +148,77 @@ public abstract class ConfigFile {
 
         this.reloading = true;
 
-        LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
+        try {
+            LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
 
-        this.confirmSetup();
+            this.confirmSetup();
 
-        List<String> lines = this.readLines();
+            List<String> lines = this.readLines();
 
-        //Clear local files
-        this.forEach(ConfigOption::clear);
+            //Clear local files
+            this.forEach(ConfigOption::clear);
 
-        ConfigSection currentSection = this.root;
+            ConfigSection currentSection = this.root;
 
-        for(String line : lines)
-        {
-            String cleanLine = cleanStartingWhitespace(line);
-            if(cleanLine.startsWith("#")) //Ignore Comments
-                continue;
-            int equalIndex = cleanLine.indexOf('=');
-            if(equalIndex > 0)
+            for(String line : lines)
             {
-                String optionName = cleanLine.substring(0, equalIndex);
-                String optionValue = "";
-                if(equalIndex < cleanLine.length() - 1)
-                    optionValue = cleanLine.substring(equalIndex + 1);
-                if(currentSection.options.containsKey(optionName))
-                    currentSection.options.get(optionName).load(currentSection.fullNameOfChild(optionName), optionValue, false);
-                else
-                    LightmansCurrency.LogWarning("Option " + currentSection.fullName() + "." + optionName + " found in the file, but is not present in the config setup!");
-                continue;
-            }
-            if(cleanLine.startsWith("["))
-            {
-                String fullyCleaned = ConfigOption.cleanWhitespace(cleanLine);
-                if(fullyCleaned.endsWith("]"))
+                String cleanLine = cleanStartingWhitespace(line);
+                if(cleanLine.startsWith("#")) //Ignore Comments
+                    continue;
+                int equalIndex = cleanLine.indexOf('=');
+                if(equalIndex > 0)
                 {
-                    String section = fullyCleaned.substring(1,fullyCleaned.length() - 1);
-                    ConfigSection query = this.findSection(section);
-                    if(query != null)
-                        currentSection = query;
+                    String optionName = cleanLine.substring(0, equalIndex);
+                    String optionValue = "";
+                    if(equalIndex < cleanLine.length() - 1)
+                        optionValue = cleanLine.substring(equalIndex + 1);
+                    if(currentSection.options.containsKey(optionName))
+                        currentSection.options.get(optionName).load(currentSection.fullNameOfChild(optionName), optionValue, ConfigOption.LoadSource.FILE);
                     else
-                    {
-                        LightmansCurrency.LogWarning("Line " + (lines.indexOf(line) + 1) + " of " + this.fileName + " contained a section (" + section + ") that is not present in this config!");
-                        currentSection = this.root;
-                    }
+                        LightmansCurrency.LogWarning("Option " + currentSection.fullName() + "." + optionName + " found in the file, but is not present in the config setup!");
+                    continue;
                 }
-                else
-                    LightmansCurrency.LogWarning("Line " + (lines.indexOf(line) + 1) + " of config '" + this.fileName + "' is missing the ']' for the section label!");
+                if(cleanLine.startsWith("["))
+                {
+                    String fullyCleaned = ConfigOption.cleanWhitespace(cleanLine);
+                    if(fullyCleaned.endsWith("]"))
+                    {
+                        String section = fullyCleaned.substring(1,fullyCleaned.length() - 1);
+                        ConfigSection query = this.findSection(section);
+                        if(query != null)
+                            currentSection = query;
+                        else
+                        {
+                            LightmansCurrency.LogWarning("Line " + (lines.indexOf(line) + 1) + " of " + this.fileName + " contained a section (" + section + ") that is not present in this config!");
+                            currentSection = this.root;
+                        }
+                    }
+                    else
+                        LightmansCurrency.LogWarning("Line " + (lines.indexOf(line) + 1) + " of config '" + this.fileName + "' is missing the ']' for the section label!");
+                }
             }
+
+            this.getAllOptions().forEach((id,option) -> {
+                if(!option.isLoaded())
+                {
+                    option.loadDefault();
+                    LightmansCurrency.LogWarning("Option " + id + " was missing from the config. Default value will be used instead.");
+                }
+            });
+
+            this.loaded = true;
+
+            this.writeToFile();
+
+            this.afterReload();
+
+            for(Runnable l : this.reloadListeners)
+                l.run();
+        } catch (Throwable e) {
+            //Flag as no longer reloading if an error is thrown while reloading
+            this.reloading = false;
+            throw e;
         }
-
-        this.getAllOptions().forEach((id,option) -> {
-            if(!option.isLoaded())
-                LightmansCurrency.LogWarning("Option " + id + " was missing from the config. Default value will be used instead.");
-        });
-
-        this.writeToFile();
-
-        this.afterReload();
-
-        for(Runnable l : this.reloadListeners)
-            l.run();
 
         this.reloading = false;
 
@@ -219,6 +252,12 @@ public abstract class ConfigFile {
             LightmansCurrency.LogError("Error loading config file '" + file.getPath() + "'!",e);
             return new ArrayList<>();
         }
+    }
+
+    public final void onOptionChanged(@Nonnull ConfigOption<?> option)
+    {
+        this.writeToFile();
+        this.afterOptionChanged(option);
     }
 
     public final void writeToFile() {
@@ -276,6 +315,8 @@ public abstract class ConfigFile {
     }
 
     protected void afterReload() {}
+
+    protected void afterOptionChanged(@Nonnull ConfigOption<?> option) {}
 
     @ParametersAreNonnullByDefault
     @MethodsReturnNonnullByDefault
@@ -426,4 +467,5 @@ public abstract class ConfigFile {
         }
         private ConfigSection build(@Nullable ConfigSection parent, @Nonnull ConfigFile file) { return new ConfigSection(this, parent, file); }
     }
+
 }

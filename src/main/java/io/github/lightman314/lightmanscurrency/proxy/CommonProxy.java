@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -82,5 +83,7 @@ public class CommonProxy {
 	public void loadPlayerTrade(ClientPlayerTrade trade) { }
 
 	public void syncEventUnlocks(@Nonnull List<String> unlocks) {}
+
+	public void sendClientMessage(@Nonnull Component message) {}
 	
 }

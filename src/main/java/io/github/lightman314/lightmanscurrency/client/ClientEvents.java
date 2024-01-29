@@ -303,9 +303,7 @@ public class ClientEvents {
 	public static ScreenPosition getWalletSlotPosition(boolean isCreative) { return isCreative ? LCConfig.CLIENT.walletSlotCreative.get() : LCConfig.CLIENT.walletSlot.get(); }
 
 	@SubscribeEvent
-	public static void playerJoinsServer(ClientPlayerNetworkEvent.LoggingIn event) {
-		ConfigFile.reloadClientFiles();
-	}
+	public static void playerJoinsServer(ClientPlayerNetworkEvent.LoggingIn event) { ConfigFile.loadClientFiles(); }
 
 	@SubscribeEvent
 	public static void playerLeavesServer(ClientPlayerNetworkEvent.LoggingOut event) {

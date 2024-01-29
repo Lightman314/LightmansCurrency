@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
@@ -131,6 +132,9 @@ public class LightmansCurrency {
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
 	private void commonSetupWork(FMLCommonSetupEvent event) {
+
+		//Manually load common config for villager edit purposes
+		ConfigFile.loadEarlyServerFiles();
 
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
 		IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);

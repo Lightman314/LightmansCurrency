@@ -41,7 +41,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		return json;
 	}
 	
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
 		buffer.writeNbt(this.auctionData);
 		buffer.writeUtf(this.id);
 	}

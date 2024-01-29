@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.input.templates;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -7,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
@@ -33,6 +35,11 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         int postfixWidth = this.getFont().width(this.postfix);
         if(postfixWidth > 0)
             postfixWidth += 2;
+        if(prefixWidth + postfixWidth > widgetArea.width + 40)
+        {
+            LightmansCurrency.LogError("Prefix & Postfix are too long. Cannot setup display!\nPrefix: " + this.prefix.getString() + "\nPostfix: " + this.postfix.getString());
+            return;
+        }
         this.input = this.addChild(new EditBox(this.getFont(), widgetArea.x + 10 + prefixWidth, widgetArea.y + 22, MoneyValueWidget.WIDTH - 20 - prefixWidth - postfixWidth, 20, EasyText.empty()));
         this.input.setResponder(this::onValueTextChanges);
         this.input.setMaxLength(this.maxLength());
@@ -44,13 +51,24 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
 
     @Override
     public void renderTick() {
+        if(this.input == null)
+            return;
         this.input.visible = this.isVisible();
         this.input.active = !this.isFree() && !this.isLocked();
     }
 
+    protected Component getErrorText() { return EasyText.literal("DISPLAY FORMAT TOO LONG"); }
+
     @Override
     protected void renderBG(@Nonnull ScreenArea widgetArea, @Nonnull EasyGuiGraphics gui) {
         super.renderBG(widgetArea, gui);
+        if(this.input == null)
+        {
+            TextRenderUtil.drawCenteredText(gui, this.getErrorText(), widgetArea.width / 2, (widgetArea.height / 2) - 10, 0xFF0000);
+            Component formatText = EasyText.empty().append(this.prefix).append(EasyText.literal("###")).append(this.postfix);
+            TextRenderUtil.drawCenteredText(gui, formatText, widgetArea.width / 2, (widgetArea.height / 2), 0xFF0000);
+            return;
+        }
         if(this.isFree())
             this.input.setValue("");
         if(!this.prefix.getString().isEmpty())
@@ -83,7 +101,8 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
             text = String.valueOf((long)valueNumber);
         else
             text = String.valueOf(valueNumber);
-        this.input.setValue(text);
+        if(this.input != null)
+            this.input.setValue(text);
     }
 
     @Nonnull

@@ -17,6 +17,13 @@ import java.util.function.Supplier;
 
 public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T> {
 
+    public enum LoadSource {
+        FILE, COMMAND, SYNC(true);
+        final boolean isSync;
+        LoadSource() { this(false); }
+        LoadSource(boolean isSync) { this.isSync = isSync; }
+    }
+
     private List<String> comments = new ArrayList<>();
     public final void setComments(@Nonnull List<String> comments) {
         if(this.comments instanceof ArrayList<String>)
@@ -53,22 +60,26 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
     @Nonnull
     protected abstract ConfigParser<T> getParser();
 
-    public final void load(@Nonnull String optionID, @Nonnull String line, boolean syncPacket) {
+    @Nullable
+    public final ConfigParsingException load(@Nonnull String optionID, @Nonnull String line, @Nonnull LoadSource source) {
         line = cleanWhitespace(line);
         try {
             T val = this.getParser().tryParse(line);
-            if(syncPacket)
+            if(source.isSync)
                 this.syncedValue = val;
             else
                 this.currentValue = val;
+            return null;
         } catch (ConfigParsingException e) {
             LightmansCurrency.LogError("Error parsing " + optionID + "!", e);
             this.currentValue = this.defaultValue.get();
+            return e;
         }
     }
 
     public final void clear() { this.currentValue = null; }
     public final boolean isLoaded() { return this.currentValue != null; }
+    public final void loadDefault() { this.currentValue = this.getDefaultValue(); }
     public final void clearSyncedData() { this.syncedValue = null; }
 
     @Nonnull
@@ -110,7 +121,7 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
 
     @Override
     @Nonnull
-    public T get() {
+    public final T get() {
         if(this.syncedValue != null)
             return this.syncedValue;
         return this.getCurrentValue();
@@ -118,18 +129,24 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
 
     public void set(@Nonnull T newValue)
     {
-        if(this.currentValue == newValue)
+        if(this.currentValue != null && this.currentValue.equals(newValue))
             return;
         this.currentValue = Objects.requireNonNull(newValue);
         if(this.parent != null)
-            this.parent.writeToFile();
+            this.parent.onOptionChanged(this);
     }
 
     @Nonnull
     protected final T getCurrentValue() {
         if(this.currentValue == null)
-            return this.defaultValue.get();
+        {
+            LightmansCurrency.LogDebug("Attempted to access a config value before the config was loaded!");
+            return this.getDefaultValue();
+        }
         return this.currentValue;
     }
+
+    @Nonnull
+    protected T getDefaultValue() { return this.defaultValue.get(); }
 
 }

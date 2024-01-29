@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyn
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
     private static final Map<ResourceLocation,SyncedConfigFile> fileMap = new HashMap<>();
 
     @Override
-    protected boolean isServerOnly() { return true; }
+    public boolean isServerOnly() { return true; }
 
     public static void playerJoined(@Nonnull ServerPlayer player) {
         PacketDistributor.PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
@@ -46,6 +47,8 @@ public abstract class SyncedConfigFile extends ConfigFile {
 
     @Override
     protected void afterReload() { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
+    @Override
+    protected void afterOptionChanged(@Nonnull ConfigOption<?> option) { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
 
     public final void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
 
@@ -57,14 +60,18 @@ public abstract class SyncedConfigFile extends ConfigFile {
         return ImmutableMap.copyOf(map);
     }
 
-    private void sendSyncPacket(@Nonnull PacketDistributor.PacketTarget target) { new SPacketSyncConfig(this.id, this.getSyncData()).sendToTarget(target); }
+    private void sendSyncPacket(@Nonnull PacketDistributor.PacketTarget target) {
+        if(ServerLifecycleHooks.getCurrentServer() != null)
+            new SPacketSyncConfig(this.id, this.getSyncData()).sendToTarget(target);
+    }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private void loadSyncData(@Nonnull Map<String,String> syncData)
     {
         LightmansCurrency.LogInfo("Received config data for '" + this.id + "' from the server!");
         this.getAllOptions().forEach((id, option) -> {
             if(syncData.containsKey(id))
-                option.load(id, syncData.get(id), true);
+                option.load(id, syncData.get(id), ConfigOption.LoadSource.SYNC);
             else
                 LightmansCurrency.LogWarning("Received data for config option '" + id + "' but it is not present on the client!");
         });

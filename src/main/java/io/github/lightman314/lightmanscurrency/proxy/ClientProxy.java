@@ -8,6 +8,7 @@ import com.google.common.base.Suppliers;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
@@ -38,6 +39,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -66,7 +68,9 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void setupClient() {
-    	
+
+		ConfigFile.loadEarlyClientFiles();
+
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
     	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
@@ -282,4 +286,11 @@ public class ClientProxy extends CommonProxy{
 		if(unlocks != null)
 			unlocks.sync(unlocksList);
 	}
+
+	@Override
+	public void sendClientMessage(@Nonnull Component message)
+	{
+		Minecraft.getInstance().getChatListener().handleSystemMessage(message, false);
+	}
+
 }

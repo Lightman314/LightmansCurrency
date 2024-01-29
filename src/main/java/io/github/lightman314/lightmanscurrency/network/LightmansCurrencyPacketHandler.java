@@ -162,6 +162,7 @@ public class LightmansCurrencyPacketHandler {
 		//Config System
 		register(SPacketSyncConfig.class, SPacketSyncConfig.HANDLER);
 		register(SPacketReloadConfig.class, SPacketReloadConfig.HANDLER);
+		register(SPacketEditConfig.class, SPacketEditConfig.HANDLER);
 
 
 	}
