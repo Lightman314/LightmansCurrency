@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.config.options;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
@@ -17,12 +18,7 @@ import java.util.function.Supplier;
 
 public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T> {
 
-    public enum LoadSource {
-        FILE, COMMAND, SYNC(true);
-        final boolean isSync;
-        LoadSource() { this(false); }
-        LoadSource(boolean isSync) { this.isSync = isSync; }
-    }
+    public enum LoadSource { FILE, COMMAND, SYNC }
 
     private List<String> comments = new ArrayList<>();
     public final void setComments(@Nonnull List<String> comments) {
@@ -32,9 +28,17 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
             LightmansCurrency.LogWarning("Attempted to define an options comments twice!");
     }
     private ConfigFile parent = null;
-    public final void setParent(@Nonnull ConfigFile parent) {
+    private String name = "null";
+    @Nonnull
+    public String getName() { return this.name; }
+    private String optionID = "null.null";
+    public final void init(@Nonnull ConfigFile parent, @Nonnull String name, @Nonnull String optionID) {
         if(this.parent == null)
+        {
             this.parent = parent;
+            this.name = name;
+            this.optionID = optionID;
+        }
         else
             LightmansCurrency.LogWarning("Attempted to define an options parent twice!");
     }
@@ -61,24 +65,28 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
     protected abstract ConfigParser<T> getParser();
 
     @Nullable
-    public final ConfigParsingException load(@Nonnull String optionID, @Nonnull String line, @Nonnull LoadSource source) {
+    public final Pair<Boolean,ConfigParsingException> load(@Nonnull String line, @Nonnull LoadSource source) {
         line = cleanWhitespace(line);
         try {
             T val = this.getParser().tryParse(line);
-            if(source.isSync)
+            if(source == LoadSource.SYNC)
                 this.syncedValue = val;
             else
                 this.currentValue = val;
-            return null;
+            //Trigger on changed code if loaded from command.
+            if(source == LoadSource.COMMAND && this.parent != null)
+                this.parent.onOptionChanged(this);
+            return Pair.of(true,null);
         } catch (ConfigParsingException e) {
-            LightmansCurrency.LogError("Error parsing " + optionID + "!", e);
+            LightmansCurrency.LogError("Error parsing " + this.optionID + "!", e);
             this.currentValue = this.defaultValue.get();
-            return e;
+            return Pair.of(false,e);
         }
     }
 
     public final void clear() { this.currentValue = null; }
     public final boolean isLoaded() { return this.currentValue != null; }
+    public final void setToDefault() { this.set(this.getDefaultValue()); }
     public final void loadDefault() { this.currentValue = this.getDefaultValue(); }
     public final void clearSyncedData() { this.syncedValue = null; }
 
@@ -140,7 +148,7 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
     protected final T getCurrentValue() {
         if(this.currentValue == null)
         {
-            LightmansCurrency.LogDebug("Attempted to access a config value before the config was loaded!");
+            LightmansCurrency.LogDebug("Attempted to access the value of '" + this.optionID + "' before the config was loaded!");
             return this.getDefaultValue();
         }
         return this.currentValue;

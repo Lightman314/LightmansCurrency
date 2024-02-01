@@ -54,20 +54,6 @@ public class LCJeiPlugin implements IModPlugin{
 		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(TICKET_TYPE, ticketRecipes);
 
-		/* Don't need these anymore due to new TicketStation recipe types
-		ItemStack masterTicket = TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_master"));
-		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-
-		ItemStack ticket = TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(ticket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket"));
-		registration.addIngredientInfo(ticket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-
-		ItemStack pass = TicketItem.CreatePass(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket.pass"));
-		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-		*/
-
 		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_stub"));
 		
 	}
@@ -89,7 +75,7 @@ public class LCJeiPlugin implements IModPlugin{
 	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
 	{
 		registration.addRecipeTransferHandler(MintMenu.class, ModMenus.MINT.get(), COIN_MINT_TYPE, 0, 1, 2, 36);
-		//TODO registerNotification Ticket Station transfer handler
+		//TODO register Ticket Station transfer handler
 		registration.addRecipeTransferHandler(TicketStationMenu.class, ModMenus.TICKET_MACHINE.get(), TICKET_TYPE, 0, 2, 3, 36);
 	}
 	

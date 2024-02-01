@@ -40,6 +40,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -69,7 +70,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void setupClient() {
 
-		ConfigFile.loadEarlyClientFiles();
+		ConfigFile.loadClientFiles(ConfigFile.LoadPhase.SETUP);
 
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
@@ -290,7 +291,9 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void sendClientMessage(@Nonnull Component message)
 	{
-		Minecraft.getInstance().getChatListener().handleSystemMessage(message, false);
+		Player player = Minecraft.getInstance().player;
+		if(player != null)
+			player.sendSystemMessage(message);
 	}
 
 }

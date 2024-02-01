@@ -12,10 +12,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 public abstract class ConfigFile {
@@ -23,21 +20,39 @@ public abstract class ConfigFile {
     private static final List<ConfigFile> loadableFiles = new ArrayList<>();
     public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles); }
 
-    public static <T extends ConfigFile> T registerConfig(@Nonnull T file) { loadableFiles.add(file); return file; }
+    private static void registerConfig(@Nonnull ConfigFile file) { loadableFiles.add(file); }
 
-    //Used to load client & common files when connecting to a server
-    public static void loadClientFiles() { loadFiles(true, false); }
-    //Used to load early-load client files during the common setup
-    public static void loadEarlyClientFiles() { loadFiles(true, true); }
-    //Used to load server & common files when the server finished loading
-    public static void loadServerFiles() { loadFiles(false, false); }
-    //Used to load server & common files suring the common setup.
-    public static void loadEarlyServerFiles() { loadFiles(false, true); }
-    public static void loadFiles(boolean logicalClient, boolean earlyLoaders) {
+    /**
+     * Load flag to ensure the configs are loaded at the correct times.
+     * It is up to the config file provider to ensure that all relevant data will be loaded by the time the config gets built.
+     */
+    public enum LoadPhase {
+        /**
+         * File will not be loaded automatically.
+         * Use for manually called instant reloads.
+         */
+        NULL,
+        /**
+         * File will be loaded during the {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent FMLCommonSetupEvent},<br>
+         * or the {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent FMLClientSetupEvent} (if flagged as client-only)
+         */
+        SETUP,
+        /**
+         * File will be loaded during the {@link net.minecraftforge.event.server.ServerStartedEvent ServerStartedEvent},<br>
+         * or the {@link net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn ClientPlayerNetworkEvent.LoggingIn} (if flagged as client-only)
+         */
+        GAME_START
+    }
+
+    //Used to load client & common files
+    public static void loadClientFiles(@Nonnull LoadPhase phase) { loadFiles(true, phase); }
+    //Used to load server & common files
+    public static void loadServerFiles(@Nonnull LoadPhase phase) { loadFiles(false, phase); }
+    public static void loadFiles(boolean logicalClient, @Nonnull LoadPhase phase) {
         for(ConfigFile file : loadableFiles)
         {
             try {
-                if(!file.isLoaded() && file.shouldReload(logicalClient) && file.loadEarly == earlyLoaders)
+                if(!file.isLoaded() && file.shouldReload(logicalClient) && file.loadPhase == phase)
                     file.reload();
             } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
         }
@@ -75,8 +90,8 @@ public abstract class ConfigFile {
     protected final File getFile() { return new File(this.getFilePath()); }
 
     private ConfigSection root = null;
-    public final boolean loadEarly;
-    private void confirmSetup() {
+    public final LoadPhase loadPhase;
+    public final void confirmSetup() {
         if(this.root == null)
         {
             ConfigBuilder builder = new ConfigBuilder();
@@ -118,8 +133,12 @@ public abstract class ConfigFile {
         return currentSection;
     }
 
-    protected ConfigFile(@Nonnull String fileName) { this.fileName = fileName; this.loadEarly = false; }
-    protected ConfigFile(@Nonnull String fileName, boolean loadEarly) { this.fileName = fileName; this.loadEarly = loadEarly; }
+    protected ConfigFile(@Nonnull String fileName) { this(fileName, LoadPhase.SETUP); }
+    protected ConfigFile(@Nonnull String fileName, @Nonnull LoadPhase loadPhase) {
+        this.fileName = fileName;
+        this.loadPhase = loadPhase;
+        registerConfig(this);
+    }
 
 
     public boolean isClientOnly() { return false; }
@@ -127,19 +146,20 @@ public abstract class ConfigFile {
 
     protected abstract void setup(@Nonnull ConfigBuilder builder);
 
-    public boolean shouldReload(boolean isLogicalClient) {
+    public final boolean shouldReload(boolean isLogicalClient) {
         if(this.isClientOnly() && !isLogicalClient)
             return false;
         if(this.isServerOnly() && isLogicalClient)
             return false;
-        return true;
+        return this.canReload(isLogicalClient);
     }
+
+    protected boolean canReload(boolean isLogicalClient) { return true; }
 
     private boolean reloading = false;
     private boolean loaded = false;
     public final boolean isLoaded() { return this.loaded; }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     public final void reload()
     {
 
@@ -173,7 +193,7 @@ public abstract class ConfigFile {
                     if(equalIndex < cleanLine.length() - 1)
                         optionValue = cleanLine.substring(equalIndex + 1);
                     if(currentSection.options.containsKey(optionName))
-                        currentSection.options.get(optionName).load(currentSection.fullNameOfChild(optionName), optionValue, ConfigOption.LoadSource.FILE);
+                        currentSection.options.get(optionName).load(optionValue, ConfigOption.LoadSource.FILE);
                     else
                         LightmansCurrency.LogWarning("Option " + currentSection.fullName() + "." + optionName + " found in the file, but is not present in the config setup!");
                     continue;
@@ -419,7 +439,7 @@ public abstract class ConfigFile {
             this.comments = ImmutableList.copyOf(builder.comments);
             this.optionsInOrder = ImmutableList.copyOf(builder.optionsInOrder);
             this.options = ImmutableMap.copyOf(builder.options);
-            this.optionsInOrder.forEach(o -> o.getSecond().setParent(file));
+            this.options.forEach((key,option) -> option.init(file, key, this.fullNameOfChild(key)));
             List<ConfigSection> temp1 = new ArrayList<>();
             builder.sectionsInOrder.forEach(b -> temp1.add(b.build(this,file)));
             this.sectionsInOrder = ImmutableList.copyOf(temp1);

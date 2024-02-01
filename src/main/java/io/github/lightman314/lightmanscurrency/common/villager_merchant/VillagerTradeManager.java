@@ -357,27 +357,24 @@ public class VillagerTradeManager {
 			
 		}
 	}
-	
-	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
-		
+
+	/**
+	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getEmeraldReplacementItem(String)}
+	 * Should check {@link LCConfig.Common#changeVanillaTrades} or {@link LCConfig.Common#changeModdedTrades} first before applying.
+	 */
+	public static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
+		trades.forEach((i,list) -> replaceExistingTrades(trader, list));
+	}
+
+	/**
+	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getEmeraldReplacementItem(String)}
+	 * Should check {@link LCConfig.Common#changeVanillaTrades} or {@link LCConfig.Common#changeModdedTrades} first before applying.
+	 */
+	public static void replaceExistingTrades(String trader, List<ItemListing> trades) {
+
 		Supplier<ItemLike> replacementSupplier = () -> LCConfig.COMMON.getEmeraldReplacementItem(trader);
-		
-		for(int i = 1; i <= 5; ++i)
-		{
-			List<ItemListing> tradeList = trades.get(i);
-			
-			List<ItemListing> newList = new ArrayList<>();
-			
-			for(ItemListing trade : tradeList)
-			{
-				if(trade != null)
-					newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementSupplier));
-			}	
-			
-			trades.put(i, newList);
-			
-		}
-		
+		trades.replaceAll(t -> new ConvertedTrade(t, Items.EMERALD, replacementSupplier));
+
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)

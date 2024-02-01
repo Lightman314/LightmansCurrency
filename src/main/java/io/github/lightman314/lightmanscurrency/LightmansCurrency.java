@@ -27,12 +27,14 @@ import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCust
 import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCadmusIntegration;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
+import net.mehvahdjukaar.supplementaries.Supplementaries;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -126,6 +128,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
+		IntegrationUtil.SafeRunIfLoaded("supplementaries", LCSupplementaries::setup, null);
         
     }
     
@@ -134,7 +137,7 @@ public class LightmansCurrency {
 	private void commonSetupWork(FMLCommonSetupEvent event) {
 
 		//Manually load common config for villager edit purposes
-		ConfigFile.loadEarlyServerFiles();
+		ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
 
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
 		IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);

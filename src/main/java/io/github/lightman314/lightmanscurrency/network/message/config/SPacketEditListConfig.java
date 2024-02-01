@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
+import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
@@ -15,19 +16,24 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class SPacketEditConfig extends ServerToClientPacket {
+public class SPacketEditListConfig extends ServerToClientPacket {
 
-    public static final Handler<SPacketEditConfig> HANDLER = new H();
+    public static final Handler<SPacketEditListConfig> HANDLER = new H();
+
 
     private final String fileName;
     private final String option;
     private final String input;
+    private final int listIndex;
+    private final boolean isEdit;
 
-    public SPacketEditConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input)
+    public SPacketEditListConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input, int listIndex, boolean isEdit)
     {
         this.fileName = fileName;
         this.option = option;
         this.input = input;
+        this.listIndex = listIndex;
+        this.isEdit = isEdit;
     }
 
     @Override
@@ -36,41 +42,46 @@ public class SPacketEditConfig extends ServerToClientPacket {
         buffer.writeUtf(this.option);
         buffer.writeInt(this.input.length());
         buffer.writeUtf(this.input, this.input.length());
+        buffer.writeInt(this.listIndex);
+        buffer.writeBoolean(this.isEdit);
     }
 
-    private static class H extends Handler<SPacketEditConfig>
+    private static class H extends Handler<SPacketEditListConfig>
     {
 
         @Nonnull
         @Override
-        public SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketEditListConfig decode(@Nonnull FriendlyByteBuf buffer) {
             String fileName = buffer.readUtf();
             String option = buffer.readUtf();
             int inputLength = buffer.readInt();
-            return new SPacketEditConfig(fileName, option, buffer.readUtf(inputLength));
+            return new SPacketEditListConfig(fileName, option, buffer.readUtf(inputLength), buffer.readInt(), buffer.readBoolean());
         }
 
         @Override
-        protected void handle(@Nonnull SPacketEditConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(@Nonnull SPacketEditListConfig message, @Nullable ServerPlayer sender) {
             for(ConfigFile file : ConfigFile.getAvailableFiles())
             {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
                 {
                     Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
-                    if(optionMap.containsKey(message.option))
+                    if(optionMap.containsKey(message.option) && optionMap.get(message.option) instanceof ListOption<?> option)
                     {
-                        ConfigOption<?> option = optionMap.get(message.option);
-                        Pair<Boolean,ConfigParsingException> result = option.load(message.input, ConfigOption.LoadSource.COMMAND);
+                        Pair<Boolean,ConfigParsingException> result = option.editList(message.input, message.listIndex, message.isEdit);
                         if(!result.getFirst())
                         {
                             LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.parse", result.getSecond().getMessage()).withStyle(ChatFormatting.RED));
                             return;
                         }
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", message.option, message.input));
+                        if(!message.isEdit)
+                            LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.list.remove.success", message.option + "[" + message.listIndex + "]"));
+                        int listIndex = message.listIndex;
+                        if(listIndex < 0)
+                            listIndex = option.get().size() - 1;
+                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", message.option + "[" + listIndex + "]", message.input));
                         return;
                     }
-                    else
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing").withStyle(ChatFormatting.RED));
+                    LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing").withStyle(ChatFormatting.RED));
                 }
             }
         }

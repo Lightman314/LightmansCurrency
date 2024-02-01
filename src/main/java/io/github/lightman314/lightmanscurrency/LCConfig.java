@@ -27,11 +27,15 @@ public final class LCConfig {
 
     private LCConfig() {}
 
-    public static void init() {}
+    public static final Client CLIENT = new Client();
+    public static final Common COMMON = new Common();
+    public static final Server SERVER = new Server();
 
-    public static final Client CLIENT = ConfigFile.registerConfig(new Client());
-    public static final Common COMMON = ConfigFile.registerConfig(new Common());
-    public static final Server SERVER = ConfigFile.registerConfig(new Server());
+    public static void init() {
+        CLIENT.confirmSetup();
+        COMMON.confirmSetup();
+        SERVER.confirmSetup();
+    }
 
     public static final class Client extends ClientConfigFile
     {
@@ -163,7 +167,7 @@ public final class LCConfig {
 
     public static final class Common extends ConfigFile
     {
-        private Common() { super("lightmanscurrency-common", true); }
+        private Common() { super("lightmanscurrency-common", LoadPhase.SETUP); }
 
         //Debug Level (in root)
         public final IntOption debugLevel = IntOption.create(0,0,3);

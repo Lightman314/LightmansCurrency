@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.config.options;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
@@ -21,6 +22,44 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
     protected ConfigParser<List<T>> getParser() { return makeParser(this.getPartialParser()); }
 
     protected abstract ConfigParser<T> getPartialParser();
+
+    public final Pair<Boolean,ConfigParsingException> editList(String value, int index, boolean isEdit) {
+        if(index < 0 && isEdit)
+        {
+            //Add value
+            try {
+                T newValue = this.getPartialParser().tryParse(cleanWhitespace(value));
+                List<T> currentValue = this.getCurrentValue();
+                currentValue.add(newValue);
+                this.set(currentValue);
+                return Pair.of(true,null);
+            } catch (ConfigParsingException e) { return Pair.of(false,e); }
+        }
+        if(index >= 0)
+        {
+            List<T> currentValue = this.getCurrentValue();
+            if(index >= currentValue.size())
+                return Pair.of(false, new ConfigParsingException("Invalid index. Maximum is " + (currentValue.size() - 1) + "!"));
+            if(isEdit)
+            {
+                //Replace action
+                try {
+                    T newValue = this.getPartialParser().tryParse(cleanWhitespace(value));
+                    currentValue.set(index, newValue);
+                    this.set(currentValue);
+                    return Pair.of(true,null);
+                } catch (ConfigParsingException e) { return Pair.of(false, e); }
+            }
+            else
+            {
+                //Remove action
+                currentValue.remove(index);
+                this.set(currentValue);
+                return Pair.of(true,null);
+            }
+        }
+        return Pair.of(false, new ConfigParsingException("Invalid edit action. Cannot have an index of " + index + " without the isEdit flag!"));
+    }
 
     private static class ListParser<T> implements ConfigParser<List<T>>
     {

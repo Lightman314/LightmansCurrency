@@ -15,43 +15,38 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class SPacketEditConfig extends ServerToClientPacket {
+public class SPacketViewConfig extends ServerToClientPacket {
 
-    public static final Handler<SPacketEditConfig> HANDLER = new H();
+    public static final Handler<SPacketViewConfig> HANDLER = new H();
 
     private final String fileName;
     private final String option;
-    private final String input;
 
-    public SPacketEditConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input)
+    public SPacketViewConfig(@Nonnull String fileName, @Nonnull String option)
     {
         this.fileName = fileName;
         this.option = option;
-        this.input = input;
     }
 
     @Override
     public void encode(@Nonnull FriendlyByteBuf buffer) {
         buffer.writeUtf(this.fileName);
         buffer.writeUtf(this.option);
-        buffer.writeInt(this.input.length());
-        buffer.writeUtf(this.input, this.input.length());
     }
 
-    private static class H extends Handler<SPacketEditConfig>
+    private static class H extends Handler<SPacketViewConfig>
     {
 
         @Nonnull
         @Override
-        public SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) {
             String fileName = buffer.readUtf();
             String option = buffer.readUtf();
-            int inputLength = buffer.readInt();
-            return new SPacketEditConfig(fileName, option, buffer.readUtf(inputLength));
+            return new SPacketViewConfig(fileName, option);
         }
 
         @Override
-        protected void handle(@Nonnull SPacketEditConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(@Nonnull SPacketViewConfig message, @Nullable ServerPlayer sender) {
             for(ConfigFile file : ConfigFile.getAvailableFiles())
             {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
@@ -60,17 +55,11 @@ public class SPacketEditConfig extends ServerToClientPacket {
                     if(optionMap.containsKey(message.option))
                     {
                         ConfigOption<?> option = optionMap.get(message.option);
-                        Pair<Boolean,ConfigParsingException> result = option.load(message.input, ConfigOption.LoadSource.COMMAND);
-                        if(!result.getFirst())
-                        {
-                            LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.parse", result.getSecond().getMessage()).withStyle(ChatFormatting.RED));
-                            return;
-                        }
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", message.option, message.input));
-                        return;
+                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.view", option.getName()));
+                        LightmansCurrency.PROXY.sendClientMessage(EasyText.literal(option.write()));
                     }
                     else
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing").withStyle(ChatFormatting.RED));
+                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.view.missing").withStyle(ChatFormatting.RED));
                 }
             }
         }

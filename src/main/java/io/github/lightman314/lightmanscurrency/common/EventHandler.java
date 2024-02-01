@@ -370,7 +370,7 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	public static void serverStart(ServerStartedEvent event) { ConfigFile.loadServerFiles(); }
+	public static void serverStart(ServerStartedEvent event) { ConfigFile.loadServerFiles(ConfigFile.LoadPhase.GAME_START); }
 
 	@SubscribeEvent
 	public static void serverTick(TickEvent.ServerTickEvent event)

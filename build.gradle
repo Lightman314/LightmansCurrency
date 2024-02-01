@@ -158,6 +158,10 @@ dependencies {
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
     implementation fg.deobf("curse.maven:terrablender-563928:4647094")
 
+    //Supplementaries RedMerchant compat
+    compileOnly fg.deobf("curse.maven:supplementaries-412082:5068158")
+    compileOnly fg.deobf("curse.maven:selene-499980:5068161")
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -38,7 +38,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
     protected final ResourceLocation id;
 
     protected SyncedConfigFile(@Nonnull String fileName, @Nonnull ResourceLocation id) {
-        super(fileName);
+        super(fileName, LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
         this.id = id;
         if(fileMap.containsKey(this.id))
             throw new IllegalArgumentException("Synced Config " + this.id + " already exists!");
@@ -65,13 +65,12 @@ public abstract class SyncedConfigFile extends ConfigFile {
             new SPacketSyncConfig(this.id, this.getSyncData()).sendToTarget(target);
     }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     private void loadSyncData(@Nonnull Map<String,String> syncData)
     {
         LightmansCurrency.LogInfo("Received config data for '" + this.id + "' from the server!");
         this.getAllOptions().forEach((id, option) -> {
             if(syncData.containsKey(id))
-                option.load(id, syncData.get(id), ConfigOption.LoadSource.SYNC);
+                option.load(syncData.get(id), ConfigOption.LoadSource.SYNC);
             else
                 LightmansCurrency.LogWarning("Received data for config option '" + id + "' but it is not present on the client!");
         });
