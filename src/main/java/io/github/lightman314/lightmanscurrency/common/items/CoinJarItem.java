@@ -6,9 +6,11 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -18,15 +20,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 public class CoinJarItem extends BlockItem {
-
+	
 	public CoinJarItem(Block block, Properties properties) { super(block, properties); }
-
+	
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<ItemStack> jarStorage = readJarData(stack);
-
+		
 		if(jarStorage.size() > 0)
 		{
 			if(Screen.hasShiftDown())
@@ -45,7 +47,7 @@ public class CoinJarItem extends BlockItem {
 		}
 
 	}
-
+	
 	private static List<ItemStack> readJarData(ItemStack stack)
 	{
 		List<ItemStack> storage = new ArrayList<>();
@@ -79,6 +81,19 @@ public class CoinJarItem extends BlockItem {
 		public int getColor(ItemStack stack) {
 			CompoundTag compoundtag = stack.getTagElement("display");
 			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
+		}
+
+		@Override
+		public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> list) {
+			if(this.allowedIn(tab))
+			{
+				for(Color c : Color.values())
+				{
+					ItemStack stack = new ItemStack(this);
+					this.setColor(stack, c.hexColor);
+					list.add(stack);
+				}
+			}
 		}
 	}
 

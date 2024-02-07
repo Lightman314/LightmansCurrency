@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -26,18 +26,18 @@ public class ClientPlayerTrade implements IPlayerTrade {
     @Override
     public Component getGuestName() { return this.guestName; }
 
-    private final CoinValue hostMoney;
+    private final MoneyValue hostMoney;
     @Override
-    public CoinValue getHostMoney() { return this.hostMoney; }
-    private final CoinValue guestMoney;
+    public MoneyValue getHostMoney() { return this.hostMoney; }
+    private final MoneyValue guestMoney;
     @Override
-    public CoinValue getGuestMoney() { return this.guestMoney; }
+    public MoneyValue getGuestMoney() { return this.guestMoney; }
 
-    private Container hostItems;
+    private final Container hostItems;
     @Override
     public Container getHostItems() { return this.hostItems; }
 
-    private Container guestItems;
+    private final Container guestItems;
     @Override
     public Container getGuestItems() { return this.guestItems; }
 
@@ -48,7 +48,7 @@ public class ClientPlayerTrade implements IPlayerTrade {
     @Override
     public int getGuestState() { return this.guestState; }
 
-    public ClientPlayerTrade(UUID hostID, Component hostName, Component guestName, CoinValue hostMoney, CoinValue guestMoney, Container hostItems, Container guestItems, int hostState, int guestState) {
+    public ClientPlayerTrade(UUID hostID, Component hostName, Component guestName, MoneyValue hostMoney, MoneyValue guestMoney, Container hostItems, Container guestItems, int hostState, int guestState) {
         this.hostID = hostID;
         this.hostName = hostName;
         this.guestName = guestName;
@@ -76,8 +76,8 @@ public class ClientPlayerTrade implements IPlayerTrade {
         UUID hostID = data.readUUID();
         Component hostName = data.readComponent();
         Component guestName = data.readComponent();
-        CoinValue hostMoney = CoinValue.decode(data);
-        CoinValue guestMoney = CoinValue.decode(data);
+        MoneyValue hostMoney = MoneyValue.decode(data);
+        MoneyValue guestMoney = MoneyValue.decode(data);
         Container hostItems = InventoryUtil.decodeItems(data);
         Container guestItems = InventoryUtil.decodeItems(data);
         int hostState = data.readInt();

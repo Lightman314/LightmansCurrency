@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector.OwnershipClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
 public class OwnershipTab extends TaxCollectorTab {
 

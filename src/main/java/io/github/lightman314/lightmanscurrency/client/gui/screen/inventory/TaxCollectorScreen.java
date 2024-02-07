@@ -1,15 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.*;
+import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -80,13 +82,19 @@ public class TaxCollectorScreen extends EasyMenuScreen<TaxCollectorMenu> {
         this.tickTabButtons();
 
         //Money Collection Button
-        this.addChild(IconAndButtonUtil.collectCoinButtonAlt(screenArea.pos.offset(screenArea.width, 0), b -> this.menu.CollectStoredMoney(), this::storedMoneyText)
+        this.addChild(IconAndButtonUtil.collectCoinButtonAlt(screenArea.pos.offset(screenArea.width, 0), b -> this.menu.CollectStoredMoney(), this::getMoneyStorage)
                 .withAddons(EasyAddonHelper.visibleCheck(this::storedMoneyVisible), EasyAddonHelper.activeCheck(this::storedMoneyActive)));
 
         try{ this.getCurrentTab().onOpen(); } catch (Throwable ignored) {}
 
+    }
 
-
+    private MoneyStorage getMoneyStorage()
+    {
+        TaxEntry entry = this.menu.getEntry();
+        if(entry != null)
+            return entry.getStoredMoney();
+        return null;
     }
 
     private void tickTabButtons()
@@ -132,8 +140,8 @@ public class TaxCollectorScreen extends EasyMenuScreen<TaxCollectorMenu> {
     @Override
     protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
         //Render the Tab
-        try { this.getCurrentTab().renderAfterWidgets(gui);
-        } catch (Throwable t) { LightmansCurrency.LogError("Error rendering tab Tooltips!", t); }
+         try { this.getCurrentTab().renderAfterWidgets(gui);
+         } catch (Throwable t) { LightmansCurrency.LogError("Error rendering tab Tooltips!", t); }
     }
 
     @Override
@@ -148,15 +156,8 @@ public class TaxCollectorScreen extends EasyMenuScreen<TaxCollectorMenu> {
         } catch (Throwable t) { LightmansCurrency.LogError("Error ticking tab!", t); }
     }
 
-    private boolean storedMoneyVisible() { TaxEntry entry = this.getEntry(); return entry != null && (entry.getStoredMoney().hasAny() || !entry.isLinkedToBank()); }
-    private boolean storedMoneyActive() { TaxEntry entry = this.getEntry(); return entry != null && entry.getStoredMoney().hasAny(); }
-    private Object storedMoneyText()
-    {
-        TaxEntry entry = this.getEntry();
-        if(entry != null)
-            return entry.getStoredMoney().getString("0");
-        return "NULL";
-    }
+    private boolean storedMoneyVisible() { TaxEntry entry = this.getEntry(); return entry != null && (!entry.getStoredMoney().isEmpty() || !entry.isLinkedToBank()); }
+    private boolean storedMoneyActive() { TaxEntry entry = this.getEntry(); return entry != null && !entry.getStoredMoney().isEmpty(); }
 
     private void TabButtonClick(EasyButton button) {
         if(button instanceof TabButton)

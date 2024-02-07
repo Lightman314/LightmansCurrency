@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.menus.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -13,47 +14,47 @@ import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModMenus {
-
+	
 	/**
 	 * Placeholder function to force the static class loading
 	 */
 	public static void init() { }
-
+	
 	static {
 
 		ATM = ModRegistries.MENUS.register("atm", () -> CreateType((IContainerFactory<ATMMenu>)(id, inventory, data) -> new ATMMenu(id, inventory, MenuValidator.decode(data))));
-
+		
 		MINT = ModRegistries.MENUS.register("coinmint", () -> CreateType((IContainerFactory<MintMenu>)(id, inventory, data)->{
 			CoinMintBlockEntity blockEntity = (CoinMintBlockEntity)inventory.player.level.getBlockEntity(data.readBlockPos());
 			return new MintMenu(id, inventory, blockEntity);
 		}));
 
 		NETWORK_TERMINAL = ModRegistries.MENUS.register("network_terminal", () -> CreateType((IContainerFactory<TerminalMenu>)(id,inventory,data) -> new TerminalMenu(id, inventory, MenuValidator.decode(data))));
-
+		
 		TRADER = ModRegistries.MENUS.register("trader", () -> CreateType((IContainerFactory<TraderMenu>)(id, inventory,data) -> new TraderMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-
+		
 		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> CreateType((IContainerFactory<TraderMenuBlockSource>)(id, inventory, data) -> new TraderMenuBlockSource(id, inventory, data.readBlockPos(), MenuValidator.decode(data))));
-
+		
 		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> CreateType((IContainerFactory<TraderMenuAllNetwork>)(id, inventory,data) -> new TraderMenuAllNetwork(id, inventory, MenuValidator.decode(data))));
 
 		SLOT_MACHINE = ModRegistries.MENUS.register("slot_machine", () -> CreateType((IContainerFactory<SlotMachineMenu>)(id, inventory, data) -> new SlotMachineMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
 
 		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> CreateType((IContainerFactory<TraderStorageMenu>)(id, inventory,data) -> new TraderStorageMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-
+		
 		WALLET = ModRegistries.MENUS.register("wallet", () -> CreateType((IContainerFactory<WalletMenu>)(id, inventory, data) -> new WalletMenu(id, inventory, data.readInt())));
-
+		
 		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> CreateType((IContainerFactory<WalletBankMenu>)(id, inventory, data) -> new WalletBankMenu(id, inventory, data.readInt())));
-
-		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketMachineMenu>)(id, inventory, data)->{
-			TicketMachineBlockEntity blockEntity = (TicketMachineBlockEntity)inventory.player.level.getBlockEntity(data.readBlockPos());
-			return new TicketMachineMenu(id, inventory, blockEntity);
+		
+		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketStationMenu>)(id, inventory, data)->{
+			TicketStationBlockEntity blockEntity = (TicketStationBlockEntity)inventory.player.level.getBlockEntity(data.readBlockPos());
+			return new TicketStationMenu(id, inventory, blockEntity);
 		}));
-
+		
 		TRADER_INTERFACE = ModRegistries.MENUS.register("trader_interface", () -> CreateType((IContainerFactory<TraderInterfaceMenu>)(id, inventory, data) ->{
 			TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)inventory.player.level.getBlockEntity(data.readBlockPos());
 			return new TraderInterfaceMenu(id, inventory, blockEntity);
 		}));
-
+		
 		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> CreateType((IContainerFactory<EjectionRecoveryMenu>)(id, inventory, data) -> new EjectionRecoveryMenu(id, inventory)));
 
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> CreateType((IContainerFactory<PlayerTradeMenu>)(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data))));
@@ -67,13 +68,13 @@ public class ModMenus {
 
 
 	}
-
+	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
-
+	
 	public static final RegistryObject<MenuType<MintMenu>> MINT;
 
 	public static final RegistryObject<MenuType<TerminalMenu>> NETWORK_TERMINAL;
-
+	
 	//Any Trader
 	public static final RegistryObject<MenuType<TraderMenu>> TRADER;
 	public static final RegistryObject<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
@@ -81,17 +82,17 @@ public class ModMenus {
 
 	//Slot Machine
 	public static final RegistryObject<MenuType<SlotMachineMenu>> SLOT_MACHINE;
-
+	
 	//Any Trader Storage
 	public static final RegistryObject<MenuType<TraderStorageMenu>> TRADER_STORAGE;
-
+	
 	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
 	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;
-
-	public static final RegistryObject<MenuType<TicketMachineMenu>> TICKET_MACHINE;
-
+	
+	public static final RegistryObject<MenuType<TicketStationMenu>> TICKET_MACHINE;
+	
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
-
+	
 	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> TRADER_RECOVERY;
 
 	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;

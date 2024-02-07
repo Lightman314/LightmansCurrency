@@ -2,15 +2,17 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item;
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemTradeEditClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -18,9 +20,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class ItemTradeEditTab extends TraderStorageTab{
 
-	public ItemTradeEditTab(TraderStorageMenu menu) { super(menu); }
+	public ItemTradeEditTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -82,14 +86,15 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		}
 	}
 	
-	public void setPrice(CoinValue price) {
+	public void setPrice(MoneyValue price) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
 		{
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
+			LightmansCurrency.LogDebug("Setting price on the " + DebugUtil.getSideText(this.menu) + " as " + price.getText("Empty").getString());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleCoinValue("NewPrice", price));
+				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -162,7 +167,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		}
 		else if(message.contains("NewPrice"))
 		{
-			this.setPrice(message.getCoinValue("NewPrice"));
+			this.setPrice(message.getMoneyValue("NewPrice"));
 		}
 		else if(message.contains("NewType"))
 		{
@@ -175,5 +180,5 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.defaultInteraction(index, ItemStack.of(message.getNBT("Item")), button);
 		}
 	}
-	
+
 }

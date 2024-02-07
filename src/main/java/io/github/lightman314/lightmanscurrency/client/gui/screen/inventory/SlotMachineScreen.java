@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine.SlotMachineRenderer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -18,17 +18,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -170,7 +169,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
 
         //Coin Value Text
-        String valueText = MoneyUtil.getStringOfValue(this.menu.getContext(null).getAvailableFunds());
+        Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueText();
         gui.drawString(valueText, 170 - gui.font.width(valueText) - 10, this.getYSize() - 94, 0x404040);
 
     }

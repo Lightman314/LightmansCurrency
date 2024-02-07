@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
@@ -11,11 +12,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -97,9 +97,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             rule.setDiscount(discount);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putInt("Discount", discount);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleInt("Discount", discount));
     }
 
     void PressStartButton(EasyButton button)
@@ -108,9 +106,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         boolean setActive = rule != null && !rule.timerActive();
         if(rule != null)
             rule.setStartTime(rule.timerActive() ? 0 : TimeUtil.getCurrentTime());
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putBoolean("StartSale", setActive);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleBoolean("StartSale", setActive));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)
@@ -118,9 +114,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             rule.setDuration(newTime.miliseconds);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putLong("Duration", newTime.miliseconds);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleLong("Duration", newTime.miliseconds));
     }
 
 }

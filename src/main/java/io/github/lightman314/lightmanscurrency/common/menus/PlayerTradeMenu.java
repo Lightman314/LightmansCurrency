@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.playertrading.IPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -42,8 +42,8 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
 
         this.trade = trade;
 
-        this.hostItems = new SuppliedContainer(() -> this.trade.getHostItems());
-        this.guestItems = new SuppliedContainer(() -> this.trade.getGuestItems());
+        this.hostItems = new SuppliedContainer(() -> this.getTradeData().getHostItems());
+        this.guestItems = new SuppliedContainer(() -> this.getTradeData().getGuestItems());
 
         Container leftSideContainer = this.isHost() ? this.hostItems : this.guestItems;
         Container rightSideContainer = this.isHost() ? this.guestItems : this.hostItems;
@@ -119,7 +119,7 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
         this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 
-    public CoinValue getAvailableFunds() { return WalletCapability.getWalletMoney(this.player); }
+    public MoneyView getAvailableFunds() { return WalletCapability.getWalletMoney(this.player); }
 
     public void onTradeChange() { }
 

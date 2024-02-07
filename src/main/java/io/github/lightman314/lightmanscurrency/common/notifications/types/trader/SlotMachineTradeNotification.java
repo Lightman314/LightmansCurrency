@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -26,17 +27,19 @@ import java.util.List;
 
 public class SlotMachineTradeNotification extends TaxableNotification {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trade");
+    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trade"),SlotMachineTradeNotification::new);
 
     TraderCategory traderData;
 
     List<ItemWriteData> items;
-    CoinValue cost = CoinValue.EMPTY;
-    CoinValue money = CoinValue.EMPTY;
+    MoneyValue cost = MoneyValue.empty();
+    MoneyValue money = MoneyValue.empty();
 
     String customer;
 
-    protected SlotMachineTradeNotification(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid)
+    private SlotMachineTradeNotification() {}
+
+    protected SlotMachineTradeNotification(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid)
     {
         super(taxesPaid);
         this.traderData = traderData;
@@ -53,14 +56,14 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         this.customer = customer.getName(false);
     }
 
-    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
-
-    public SlotMachineTradeNotification(CompoundTag compound) { super(); this.load(compound); }
+    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
 
 
+    @Nonnull
     @Override
-    protected ResourceLocation getType() { return TYPE; }
+    protected NotificationType<SlotMachineTradeNotification> getType() { return TYPE; }
 
+    @Nonnull
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
 
@@ -68,8 +71,8 @@ public class SlotMachineTradeNotification extends TaxableNotification {
     @Override
     public MutableComponent getNormalMessage() {
         Component rewardText;
-        if(this.money.hasAny())
-            rewardText = this.money.getComponent("0");
+        if(!this.money.isEmpty())
+            rewardText = this.money.getText("0");
         else
             rewardText = ItemWriteData.getItemNames(this.items);
 
@@ -98,14 +101,14 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         this.items = new ArrayList<>();
         for(int i = 0; i < itemList.size(); ++i)
             this.items.add(new ItemWriteData(itemList.getCompound(i)));
-        this.money = CoinValue.safeLoad(compound,"Money");
-        this.cost = CoinValue.safeLoad(compound, "Price");
+        this.money = MoneyValue.safeLoad(compound,"Money");
+        this.cost = MoneyValue.safeLoad(compound, "Price");
         this.customer = compound.getString("Customer");
 
     }
 
     @Override
-    protected boolean canMerge(Notification other) {
+    protected boolean canMerge(@Nonnull Notification other) {
         if(other instanceof SlotMachineTradeNotification smtn)
         {
             if(!smtn.traderData.matches(this.traderData))
@@ -121,9 +124,9 @@ public class SlotMachineTradeNotification extends TaxableNotification {
                 if(i1.count != i2.count)
                     return false;
             }
-            if(smtn.money.getValueNumber() != this.money.getValueNumber())
+            if(!smtn.money.equals(this.money))
                 return false;
-            if(smtn.cost.getValueNumber() != this.cost.getValueNumber())
+            if(!smtn.cost.equals(this.cost))
                 return false;
             if(!smtn.customer.equals(this.customer))
                 return false;

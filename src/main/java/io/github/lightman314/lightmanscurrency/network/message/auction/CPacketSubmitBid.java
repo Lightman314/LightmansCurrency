@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,9 +18,9 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 
 	final long auctionHouseID;
 	final int tradeIndex;
-	final CoinValue bidAmount;
+	final MoneyValue bidAmount;
 	
-	public CPacketSubmitBid(long auctionHouseID, int tradeIndex, CoinValue bidAmount) {
+	public CPacketSubmitBid(long auctionHouseID, int tradeIndex, MoneyValue bidAmount) {
 		this.auctionHouseID = auctionHouseID;
 		this.tradeIndex = tradeIndex;
 		this.bidAmount = bidAmount;
@@ -36,7 +36,7 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketSubmitBid decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(), CoinValue.decode(buffer)); }
+		public CPacketSubmitBid decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(), MoneyValue.decode(buffer)); }
 		@Override
 		protected void handle(@Nonnull CPacketSubmitBid message, @Nullable ServerPlayer sender) {
 			if(sender != null && sender.containerMenu instanceof TraderMenu menu)

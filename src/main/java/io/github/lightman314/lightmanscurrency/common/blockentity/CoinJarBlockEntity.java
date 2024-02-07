@@ -3,12 +3,13 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import org.jetbrains.annotations.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
 
 public class CoinJarBlockEntity extends EasyBlockEntity
 {
-
+	
 	public static final int COIN_LIMIT = 64;
 
 	private int color = -1;
@@ -36,21 +37,21 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	List<ItemStack> storage = new ArrayList<>();
 	public List<ItemStack> getStorage() { return this.storage; }
 	public void clearStorage() { this.storage.clear(); }
-
+	
 	private final ItemViewer viewer = new ItemViewer(this);
-
+	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.COIN_JAR.get(), pos, state);
 	}
-
+	
 	public boolean addCoin(ItemStack coin)
 	{
 		if(getCurrentCount() >= COIN_LIMIT)
 			return false;
-		if(!MoneyUtil.isCoin(coin, false))
+		if(!CoinAPI.isCoin(coin, false))
 			return false;
-
+		
 		boolean foundStack = false;
 		for(int i = 0; i < storage.size() && !foundStack; i++)
 		{
@@ -69,14 +70,14 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			newCoin.setCount(1);
 			this.storage.add(newCoin);
 		}
-
+		
 		if(!this.level.isClientSide)
 		{
 			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag()));
 		}
 		return true;
 	}
-
+	
 	protected int getCurrentCount()
 	{
 		int count = 0;
@@ -84,7 +85,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			count += stack.getCount();
 		return count;
 	}
-
+	
 	@Override
 	public void saveAdditional(@Nonnull CompoundTag compound)
 	{
@@ -92,24 +93,24 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 
 		if(this.color >= 0)
 			compound.putInt("Color", this.color);
-
+		
 		super.saveAdditional(compound);
 	}
-
+	
 	protected CompoundTag writeStorage(CompoundTag compound)
 	{
 		ListTag storageList = new ListTag();
 		for (ItemStack stack : this.storage)
 			storageList.add(stack.save(new CompoundTag()));
 		compound.put("Coins", storageList);
-
+		
 		return compound;
 	}
-
+	
 	@Override
 	public void load(CompoundTag compound)
 	{
-
+		
 		if(compound.contains("Coins"))
 		{
 			storage = new ArrayList<>();
@@ -123,9 +124,9 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 
 		if(compound.contains("Color"))
 			this.color = compound.getInt("Color");
-
+		
 		super.load(compound);
-
+		
 	}
 
 	@Override
@@ -136,7 +137,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			BlockEntityUtil.requestUpdatePacket(this);
 		}
 	}
-
+	
 	//For reading/writing the storage when silk touched.
 	public void writeItemTag(ItemStack item)
 	{
@@ -156,7 +157,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			compound.put(DyeableLeatherItem.TAG_DISPLAY, displayTag);
 		}
 	}
-
+	
 	public void readItemTag(ItemStack item)
 	{
 		if(item.hasTag())
@@ -181,10 +182,10 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			this.setChanged();
 		}
 	}
-
+	
 	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    @Nonnull
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
 		if(cap == ForgeCapabilities.ITEM_HANDLER)
 			return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.viewer));
 		return super.getCapability(cap, side);
@@ -221,5 +222,5 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 		@Override
 		public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return false; }
 	}
-
+	
 }

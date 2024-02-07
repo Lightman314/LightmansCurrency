@@ -1,23 +1,23 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -27,26 +27,23 @@ import javax.annotation.Nonnull;
 
 public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu {
 
-	private final Player player;
 	public Player getPlayer() { return this.player; }
-
-	private final Container coinInput = new SimpleContainer(9);
-	public Container getCoinInput() { return this.coinInput; }
-
+	
+	private final MoneyContainer coinInput = new MoneyContainer(this.player, 9);
+	public MoneyContainer getCoinInput() { return this.coinInput; }
+	
 	private MutableComponent transferMessage = null;
-
+	
 	public ATMMenu(int windowId, Inventory inventory, MenuValidator validator)
 	{
 		super(ModMenus.ATM.get(), windowId, inventory, validator);
-
-		this.player = inventory.player;
-
+		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false));
 		}
-
+		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -83,16 +80,16 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			}
 		}
 	}
-
+	
 	@Nonnull
 	@Override
 	public ItemStack quickMoveStack(@Nonnull Player player, int index)
 	{
-
+		
 		ItemStack clickedStack = ItemStack.EMPTY;
-
+		
 		Slot slot = this.slots.get(index);
-
+		
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -110,7 +107,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			{
 				return ItemStack.EMPTY;
 			}
-
+			
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -120,9 +117,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 				slot.setChanged();
 			}
 		}
-
+		
 		return clickedStack;
-
+		
 	}
 
 	public void SendCoinExchangeMessage(String command) {
@@ -131,53 +128,53 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public void ExchangeCoins(String command)
 	{
-		ATMUtil.ExecuteATMExchangeCommand(this.coinInput, command);
+		ATMAPI.ExecuteATMExchangeCommand(this.coinInput, command);
 	}
 
-
+	
 	public MutableComponent SetPlayerAccount(String playerName) {
-
+		
 		if(LCAdminMode.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(accountPlayer));
-				return EasyText.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
+				return Component.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else
-				return EasyText.translatable("gui.bank.transfer.error.null.to");
+				return Component.translatable("gui.bank.transfer.error.null.to");
 		}
-		return EasyText.literal("ERROR");
-
+		return Component.literal("ERROR");
+		
 	}
-
+	
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
-
+	
 	public MutableComponent getTransferMessage() { return this.transferMessage; }
-
+	
 	@Override
 	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
-
+	
 	public void clearMessage() { this.transferMessage = null; }
 
-	public void SetNotificationValueAndUpdate(CoinValue newValue)
+	public void SetNotificationValueAndUpdate(@Nonnull String type, @Nonnull MoneyValue newValue)
 	{
-		BankAccount ba = this.getBankAccount();
+		IBankAccount ba = this.getBankAccount();
 		if(ba != null)
-			ba.setNotificationValue(newValue);
-		this.SendMessageToServer(LazyPacketData.builder().setCoinValue("NotificationValueChange", newValue));
+			ba.setNotificationLevel(type, newValue);
+		this.SendMessageToServer(LazyPacketData.builder().setString("NotificationValueType", type).setMoneyValue("NotificationValueChange", newValue));
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
 			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
 		if(message.contains("NotificationValueChange"))
 		{
-			BankAccount ba = this.getBankAccount();
+			IBankAccount ba = this.getBankAccount();
 			if(ba != null)
-				ba.setNotificationValue(message.getCoinValue("NotificationValueChange"));
+				ba.setNotificationLevel(message.getString("NotificationValueType"), message.getMoneyValue("NotificationValueChange"));
 		}
 	}
 

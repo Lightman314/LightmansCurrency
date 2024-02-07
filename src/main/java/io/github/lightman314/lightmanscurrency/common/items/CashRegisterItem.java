@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -104,7 +104,7 @@ public class CashRegisterItem extends BlockItem{
 		//Get the tag
 		CompoundTag tag = stack.getOrCreateTag();
 		
-		//If the tag contains the TraderPos list, get it, otherwise create a new list
+		//If the tag contains the TraderPos list, get it, otherwise createTrue a new list
 		ListTag storageList;
 		if(tag.contains("TraderPos"))
 			storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);

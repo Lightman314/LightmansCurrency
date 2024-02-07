@@ -4,39 +4,43 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineEntryTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachinePriceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import net.minecraft.ChatFormatting;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -55,12 +59,12 @@ import java.util.Random;
 
 public class SlotMachineTraderData extends TraderData implements TraderItemStorage.ITraderItemFilter {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader");
+    public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader"),SlotMachineTraderData::new);
 
-    private CoinValue price = CoinValue.EMPTY;
-    public final CoinValue getPrice() { return this.price; }
-    public void setPrice(CoinValue newValue) { this.price = newValue; this.markPriceDirty(); }
-    public final boolean isPriceValid() { return this.price.isValid(); }
+    private MoneyValue price = MoneyValue.empty();
+    public final MoneyValue getPrice() { return this.price; }
+    public void setPrice(MoneyValue newValue) { this.price = newValue; this.markPriceDirty(); }
+    public final boolean isPriceValid() { return this.price.isFree() || !this.price.isEmpty(); }
 
     private List<ItemStack> lastReward = new ArrayList<>();
     public List<ItemStack> getLastRewards() { return ImmutableList.copyOf(this.lastReward); }
@@ -141,8 +145,8 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     private final TraderItemStorage storage = new TraderItemStorage(this);
     public final TraderItemStorage getStorage() { return this.storage; }
 
-    public SlotMachineTraderData() { super(TYPE); }
-    public SlotMachineTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
+    private SlotMachineTraderData() { super(TYPE); }
+    public SlotMachineTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
 
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
 
@@ -150,7 +154,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER_ALT; }
 
     @Override
-    protected boolean allowAdditionalUpgradeType(UpgradeType type) { return type == UpgradeType.ITEM_CAPACITY; }
+    protected boolean allowAdditionalUpgradeType(UpgradeType type) { return type == Upgrades.ITEM_CAPACITY; }
 
     @Override
     public int getTradeCount() { return 1; }
@@ -249,7 +253,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.entriesChanged = true;
         }
         if(compound.contains("Price"))
-            this.price = CoinValue.safeLoad(compound, "Price");
+            this.price = MoneyValue.safeLoad(compound, "Price");
     }
 
     @Override
@@ -267,27 +271,23 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     @Override
-    protected void loadAdditionalFromJson(JsonObject json) throws Exception {
+    protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 
         if(json.has("Price"))
-            this.price = CoinValue.Parse(json.get("Price"));
+            this.price = MoneyValue.loadFromJson(json.get("Price"));
         else
-            throw new RuntimeException("Slot Machine Trader has no 'Price' entry!");
+            throw new JsonSyntaxException("Expected a 'Price' entry!");
 
         this.entries.clear();
-        if(json.has("Entries"))
+        JsonArray entryList = GsonHelper.getAsJsonArray(json, "Entries");
+        for(int i = 0; i < entryList.size(); ++i)
         {
-            JsonArray entryList = new JsonArray();
-            for(int i = 0; i < entryList.size(); ++i)
-            {
-                try{ this.entries.add(SlotMachineEntry.parse(entryList.get(i).getAsJsonObject()));
-                } catch(Throwable t) { LightmansCurrency.LogError("Error parsing Slot Machine Trader Entry #" + (i + 1), t); }
-            }
-            if(this.entries.size() == 0)
-                throw new RuntimeException("Slot Machine Trader had no valid Entries!");
+            try{
+                this.entries.add(SlotMachineEntry.parse(GsonHelper.convertToJsonObject(entryList.get(i), "Entries[" + i + "]")));
+            } catch(JsonSyntaxException | ResourceLocationException t) { LightmansCurrency.LogError("Error parsing Slot Machine Trader Entry #" + (i + 1), t); }
         }
-        else
-            throw new RuntimeException("Slot Machine Trader has no 'Entries' entry!");
+        if(this.entries.size() == 0)
+            throw new JsonSyntaxException("Slot Machine Trader had no valid Entries!");
 
     }
 
@@ -353,7 +353,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
         //Get the cost of the trade
-        CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+        MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
         //Get the Result Items
         SlotMachineEntry loot = this.getRandomizedEntry(context);
@@ -380,7 +380,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.lastReward = loot.getDisplayItems();
             this.markLastRewardDirty();
 
-            CoinValue taxesPaid = CoinValue.EMPTY;
+            MoneyValue taxesPaid = MoneyValue.empty();
 
             //Ignore editing internal storage if this is flagged as creative.
             if(!this.isCreative())
@@ -407,13 +407,10 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     @Override
-    public void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
-
-    @Override
     public boolean canMakePersistent() { return true; }
 
     @Override
-    public void initStorageTabs(TraderStorageMenu menu) {
+    public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
 
         //Set basic tab to Entry Edit Tab
         menu.setTab(TraderStorageTab.TAB_TRADE_BASIC, new SlotMachineEntryTab(menu));

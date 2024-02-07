@@ -3,16 +3,19 @@ package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-public class ItemTraderSearchFilter extends TraderSearchFilter{
+import javax.annotation.Nonnull;
+
+public class ItemTraderSearchFilter implements ITraderSearchFilter {
 
 	@Override
-	public boolean filter(TraderData data, String searchText) {
+	public boolean filter(@Nonnull TraderData data, @Nonnull String searchText) {
 		
 		//Search the items being sold
 		if(data instanceof ItemTraderData trader)

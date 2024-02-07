@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.interfaces.IBankAccountAdvancedMenu;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
@@ -18,9 +19,9 @@ public class CPacketBankTransferTeam extends ClientToServerPacket {
 	public static final Handler<CPacketBankTransferTeam> HANDLER = new H();
 
 	long teamID;
-	CoinValue amount;
+	MoneyValue amount;
 	
-	public CPacketBankTransferTeam(long teamID, CoinValue amount) {
+	public CPacketBankTransferTeam(long teamID, MoneyValue amount) {
 		this.teamID = teamID;
 		this.amount = amount;
 	}
@@ -34,7 +35,7 @@ public class CPacketBankTransferTeam extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketBankTransferTeam decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankTransferTeam(buffer.readLong(), CoinValue.decode(buffer)); }
+		public CPacketBankTransferTeam decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankTransferTeam(buffer.readLong(), MoneyValue.decode(buffer)); }
 		@Override
 		protected void handle(@Nonnull CPacketBankTransferTeam message, @Nullable ServerPlayer sender) {
 			if(sender != null)
@@ -42,7 +43,7 @@ public class CPacketBankTransferTeam extends ClientToServerPacket {
 				if(sender.containerMenu instanceof IBankAccountAdvancedMenu menu)
 				{
 					BankReference destination = TeamBankReference.of(message.teamID);
-					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
+					MutableComponent response = BankAPI.TransferCoins(menu, message.amount, destination);
 					if(response != null)
 						new SPacketBankTransferResponse(response).sendTo(sender);
 				}

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.inter
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

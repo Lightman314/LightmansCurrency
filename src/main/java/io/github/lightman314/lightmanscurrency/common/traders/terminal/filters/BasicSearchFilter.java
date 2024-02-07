@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 
-public class BasicSearchFilter extends TraderSearchFilter {
+public class BasicSearchFilter implements ITraderSearchFilter {
 
 	@Override
 	public boolean filter(TraderData data, String searchText) {

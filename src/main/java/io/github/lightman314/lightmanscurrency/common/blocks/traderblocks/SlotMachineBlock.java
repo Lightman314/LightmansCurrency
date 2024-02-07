@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
-import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;

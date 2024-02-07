@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -10,11 +11,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeLimit;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 
@@ -64,9 +64,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.setLimit(limit);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putInt("Limit", limit);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleInt("Limit", limit));
     }
 
     void PressClearMemoryButton(EasyButton button)
@@ -74,9 +72,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.resetCount();
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putBoolean("ClearMemory", true);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleFlag("ClearMemory"));
     }
 
 }

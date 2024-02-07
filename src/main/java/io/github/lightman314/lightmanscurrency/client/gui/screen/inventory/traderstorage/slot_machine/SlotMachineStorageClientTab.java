@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -13,10 +13,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -133,7 +133,7 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
     @Override
     public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 
-        if(this.menu.getTrader() instanceof SlotMachineTraderData trader && this.screen.getMenu().getCarried().isEmpty())
+        if(this.menu.getTrader() instanceof SlotMachineTraderData trader && this.screen.getMenu().getHeldItem().isEmpty())
         {
             int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
             if(hoveredSlot >= 0)

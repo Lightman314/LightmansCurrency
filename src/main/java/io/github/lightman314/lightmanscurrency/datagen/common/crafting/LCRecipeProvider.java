@@ -10,7 +10,9 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
+import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MasterTicketRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MintRecipeBuilder;
+import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.TicketRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
@@ -273,17 +275,17 @@ public class LCRecipeProvider extends RecipeProvider {
 
         });
 
-        //Card Display
-        ModBlocks.CARD_DISPLAY.forEach((woodType,card_display) -> {
+        //Card Display Crafting
+        ModBlocks.CARD_DISPLAY.forEach((woodType,color,card_display) -> {
             ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
             Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
             WoodData data = woodType.getData();
             ItemLike log = data == null ? null : data.getLog();
             if(log != null)
             {
-                ResourceLocation id = WoodID("traders/card_display/", woodType);
-                ShapedRecipeBuilder.shaped(ModBlocks.CARD_DISPLAY.get(woodType))
-                        .group("card_display_trader")
+                ResourceLocation id = ColoredWoodID("traders/card_display/", woodType, color);
+                ShapedRecipeBuilder.shaped(card_display.get())
+                        .group("card_display_trader_" + woodType.id)
                         .unlockedBy("money", MoneyKnowledge())
                         .unlockedBy("trader", TraderKnowledge())
                         .pattern("  w")
@@ -291,7 +293,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         .pattern("llc")
                         .define('x', ModItems.TRADING_CORE.get())
                         .define('l', log)
-                        .define('w', Items.RED_WOOL)
+                        .define('w', ColorHelper.GetWoolOfColor(color))
                         .define('c', Tags.Items.CHESTS_WOODEN)
                         .save(c, id);
                 if(tempConditional != null)
@@ -734,6 +736,21 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("jar", LazyTrigger(LCTags.Items.COIN_JAR_ALL))
                 .save(consumer, ItemID("coin_jar/", ModBlocks.SUS_JAR));
 
+        //2.2.0.0
+        //Ticket Station crafting as an actual recipe
+        MasterTicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL)
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.TICKET_MASTER));
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL, ModItems.TICKET.get())
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.TICKET));
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL, ModItems.TICKET_PASS.get())
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.TICKET_PASS));
+
     }
 
     private static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, RegistryObject<? extends ItemLike>>> ingredientWalletPairs)
@@ -888,6 +905,8 @@ public class LCRecipeProvider extends RecipeProvider {
     private static ResourceLocation ItemID(RegistryObject<? extends ItemLike> item) { return ID(ItemPath(item)); }
     private static ResourceLocation ItemID(String prefix, RegistryObject<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
     private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(prefix + (woodType.isModded() ? woodType.getModID() + "/" : "") + woodType.id); }
+    private static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
+    private static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
     private static ResourceLocation ID(String path) { return new ResourceLocation(LightmansCurrency.MODID, path); }
 
     private static ResourceLocation AddPrefix(ResourceLocation id, String prefix) { return new ResourceLocation(id.getNamespace(), prefix + id.getPath()); }

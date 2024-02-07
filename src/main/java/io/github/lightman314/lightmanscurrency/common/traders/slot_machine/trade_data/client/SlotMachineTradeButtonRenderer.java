@@ -3,14 +3,15 @@ package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trad
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -30,13 +31,13 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
-    public TradeButton.DisplayData inputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(1, 1, 34, 16); }
+    public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
     @Override
-    public List<TradeButton.DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context))); }
+    public List<DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context))); }
 
     @Override
-    public TradeButton.DisplayData outputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(59, 1, 68, 16); }
+    public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(59, 1, 68, 16); }
 
     private SlotMachineEntry getTimedEntry()
     {
@@ -47,14 +48,14 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     }
 
     @Override
-    public List<TradeButton.DisplayEntry> getOutputDisplays(TradeContext context) {
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) {
         SlotMachineEntry entry = this.getTimedEntry();
         if(entry == null)
             return new ArrayList<>();
-        List<TradeButton.DisplayEntry> entries = new ArrayList<>();
+        List<DisplayEntry> entries = new ArrayList<>();
         String odds = this.trade.trader.getOdds(entry.getWeight());
         for(ItemStack item : entry.items)
-            entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getTooltip(item, entry.getWeight(), odds)));
+            entries.add(DisplayEntry.of(item, item.getCount(), this.getTooltip(item, entry.getWeight(), odds)));
         return entries;
     }
 

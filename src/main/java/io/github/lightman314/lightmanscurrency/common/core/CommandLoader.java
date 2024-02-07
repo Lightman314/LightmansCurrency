@@ -12,11 +12,11 @@ public class CommandLoader {
 	public static void onCommandLoading(RegisterCommandsEvent event)
 	{
 		CommandLCAdmin.register(event.getDispatcher(), event.getBuildContext());
-		CommandReloadData.register(event.getDispatcher());
 		CommandBalTop.register(event.getDispatcher());
 		CommandPlayerTrading.register(event.getDispatcher());
 		CommandTicket.register(event.getDispatcher());
 		CommandBank.register(event.getDispatcher(), event.getBuildContext());
+		CommandConfig.register(event.getDispatcher());
 	}
 	
 }

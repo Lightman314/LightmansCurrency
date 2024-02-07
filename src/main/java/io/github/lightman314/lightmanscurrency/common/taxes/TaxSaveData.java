@@ -146,6 +146,7 @@ public class TaxSaveData extends SavedData {
         if(data != null && data.entries.containsKey(id))
         {
             data.entries.remove(id);
+            data.setDirty();
             new SPacketRemoveTax(id).sendToAll();
         }
     }

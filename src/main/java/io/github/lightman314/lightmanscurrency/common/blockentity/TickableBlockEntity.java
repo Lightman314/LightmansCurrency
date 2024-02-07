@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IClientTicker;
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;

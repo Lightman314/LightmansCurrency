@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.ExchangeUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
@@ -20,7 +21,7 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
 
 
     @Override
-    public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message)
+    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message)
     {
         if(message.contains("SetExchangeWhileOpen"))
         {
@@ -39,13 +40,13 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public void OnStorageChanged(CoinChestBlockEntity be, CoinChestUpgradeData data)
+    public void OnStorageChanged(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data)
     {
         ExecuteExchangeCommand(be, data);
     }
 
     @Override
-    public void OnEquip(CoinChestBlockEntity be, CoinChestUpgradeData data) { ExecuteExchangeCommand(be, data); }
+    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { ExecuteExchangeCommand(be, data); }
 
     public boolean getExchangeWhileOpen(CoinChestUpgradeData data)
     {
@@ -85,8 +86,8 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
             String command = this.getExchangeCommand(data);
             if(command != null && !command.isBlank())
             {
-                if(ATMUtil.ExecuteATMExchangeCommand(be.getStorage(), command))
-                    MoneyUtil.SortCoins(be.getStorage());
+                if(ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
+                    CoinAPI.SortCoins(be.getStorage());
             }
         }
     }
@@ -94,10 +95,11 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
     @Override
     public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { consumer.accept(new ExchangeUpgradeTab(data, screen)); }
 
+    @Nonnull
     @Override
-    public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.exchange")); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.exchange")); }
 
     @Override
-    public boolean clearDataFromStack(CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }
+    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }
 
 }

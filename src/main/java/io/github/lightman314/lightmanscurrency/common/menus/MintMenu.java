@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -43,13 +42,16 @@ public class MintMenu extends EasyMenu {
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 114));
 		}
 	}
-
+	
 	@Override
-	public void removed(@Nonnull Player playerIn) { super.removed(playerIn); }
+	public void removed(@Nonnull Player playerIn)
+	{
+		super.removed(playerIn);
+	}
 	
 	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -85,4 +87,5 @@ public class MintMenu extends EasyMenu {
 		return clickedStack;
 		
 	}
+
 }

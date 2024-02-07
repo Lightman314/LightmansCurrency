@@ -57,13 +57,13 @@ public class BlockEntityUtil
         	LightmansCurrency.LogWarning("Cannot send Tile Entity Update Packet from a client.");
         }
     }
-
+    
     public static void requestUpdatePacket(BlockEntity be) { if(be != null) requestUpdatePacket(be.getLevel(), be.getBlockPos()); }
     
     public static void requestUpdatePacket(Level level, BlockPos pos)
     {
     	if(level.isClientSide)
-            new CPacketRequestNBT(pos).send();
+    		new CPacketRequestNBT(pos).send();
     }
     
 }

@@ -7,9 +7,11 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+
+import javax.annotation.Nonnull;
 
 public class LazyWidgetPositioner implements IPreRender {
 
@@ -51,7 +53,7 @@ public class LazyWidgetPositioner implements IPreRender {
 	}
 
 	@Override
-	public void preRender(EasyGuiGraphics gui) {
+	public void preRender(@Nonnull EasyGuiGraphics gui) {
 		this.posIndex = 0;
 		for (EasyWidget w : this.widgetList) {
 			if (w.isVisible()) {

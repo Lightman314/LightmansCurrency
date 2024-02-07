@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.core.BlockPos;
@@ -30,23 +30,24 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 
 public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 
 	private static final MutableComponent TITLE = Component.translatable("gui.lightmanscurrency.coinmint.title");
-
+	
 	public CoinMintBlock(Properties properties) { super(properties, box(1d,0d,1d,15d,16d,15d)); }
 
+	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_MINT.get()); }
 
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinMintBlockEntity(pos, state); }
-
+	
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
@@ -62,9 +63,9 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 			}
 		}
 		return InteractionResult.SUCCESS;
-
+			
 	}
-
+	
 	@Override
 	@SuppressWarnings("deprecation")
 	public void onRemove(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving)
@@ -74,7 +75,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 			mintEntity.dumpContents(level, pos);
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
-
+	
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{

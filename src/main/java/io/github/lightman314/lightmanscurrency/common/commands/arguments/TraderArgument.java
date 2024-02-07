@@ -12,7 +12,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -30,7 +30,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	public static TraderArgument trader() { return new TraderArgument(false); }
 	public static TraderArgument traderWithPersistent() { return new TraderArgument(true); }
 	
-	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
+	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException{
 		return commandContext.getArgument(name, TraderData.class);
 	}
 	

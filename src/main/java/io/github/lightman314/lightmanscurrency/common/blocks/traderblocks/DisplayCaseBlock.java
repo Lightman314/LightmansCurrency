@@ -6,8 +6,8 @@ import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockBase;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;

@@ -7,28 +7,28 @@ import java.util.function.Supplier;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
@@ -50,7 +50,7 @@ import javax.annotation.Nonnull;
 
 public class PaygateTraderData extends TraderData {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "paygate");
+	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "paygate"),PaygateTraderData::new);
 	
 	public static final int DURATION_MIN = 1;
 	public static final int DURATION_MAX = 1200;
@@ -93,8 +93,8 @@ public class PaygateTraderData extends TraderData {
 	
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
 	
-	public PaygateTraderData() { super(TYPE); }
-	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
+	private PaygateTraderData() { super(TYPE); }
+	public PaygateTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
 
 	public int getTradeCount() { return this.trades.size(); }
 	
@@ -243,9 +243,9 @@ public class PaygateTraderData extends TraderData {
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
-		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
-		CoinValue taxesPaid = CoinValue.EMPTY;
+		MoneyValue taxesPaid = MoneyValue.empty();
 
 		//Process a ticket trade
 		if(trade.isTicketTrade())
@@ -302,7 +302,7 @@ public class PaygateTraderData extends TraderData {
 			
 			//We have collected the payment, activate the paygate
 			this.activate(trade.getDuration());
-			
+
 			//Don't store money if the trader is creative
 			if(!this.isCreative())
 			{
@@ -367,13 +367,10 @@ public class PaygateTraderData extends TraderData {
 	protected void getAdditionalContents(List<ItemStack> results) { }
 
 	@Override
-	public void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
-
-	@Override
 	public boolean canMakePersistent() { return false; }
 
 	@Override
-	public void initStorageTabs(TraderStorageMenu menu) {
+	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new PaygateTradeEditTab(menu));
 	}
 

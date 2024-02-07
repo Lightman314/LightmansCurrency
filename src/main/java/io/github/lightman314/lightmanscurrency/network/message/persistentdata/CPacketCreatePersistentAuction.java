@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
@@ -41,7 +41,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		return json;
 	}
 	
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
 		buffer.writeNbt(this.auctionData);
 		buffer.writeUtf(this.id);
 	}

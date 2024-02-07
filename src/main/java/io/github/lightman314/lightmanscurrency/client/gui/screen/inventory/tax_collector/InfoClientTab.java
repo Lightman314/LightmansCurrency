@@ -1,19 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.InfoTab;
-import io.github.lightman314.lightmanscurrency.common.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
-import io.github.lightman314.lightmanscurrency.common.taxes.reference.TaxableReference;
-import net.minecraft.ChatFormatting;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +50,7 @@ public class InfoClientTab extends TaxCollectorClientTab<InfoTab> {
 
             //Total Money Collected
             gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.total_collected"), 10, 35, 0x404040);
-            gui.drawString(stats.getTotalCollected().getComponent("0"), 10, 45, 0x404040);
+            gui.drawString(stats.getTotalCollected().getRandomValueText(), 10, 45, 0x404040);
 
             //Unique Machines Taxed
             gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.unique_taxables", stats.getUniqueTaxableCount()), 10, 65, 0x404040);

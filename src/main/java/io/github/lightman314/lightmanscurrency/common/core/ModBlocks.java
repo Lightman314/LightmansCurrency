@@ -47,7 +47,7 @@ public class ModBlocks {
 	private static Item.Properties FireResistant(Item.Properties properties, boolean fireResistant) { if(fireResistant) return properties.fireResistant(); return properties; }
 
 	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() { return (block, tab) ->  new BlockItem(block, PropertiesForTab(tab)); }
-	private static BiFunction<Block,CreativeModeTab,Item> getCoinGenerator(boolean fireResistant) { return (block, tab) ->  new CoinBlockItem(block, FireResistant(PropertiesForTab(tab), fireResistant)); }
+	private static BiFunction<Block,CreativeModeTab,Item> getCoinGenerator(boolean fireResistant) { return (block, tab) ->  new BlockItem(block, FireResistant(PropertiesForTab(tab), fireResistant)); }
 	private static BiFunction<Block,CreativeModeTab,Item> getCoinJarGenerator() { return (block, tab) ->  new CoinJarItem(block, PropertiesForTab(tab)); }
 	private static BiFunction<Block,CreativeModeTab,Item> getColoredCoinJarGenerator() { return (block, tab) ->  new CoinJarItem.Colored(block, PropertiesForTab(tab)); }
 	private static BiFunction<Block,CreativeModeTab,Item> getCustomRendererGenerator() { return (block,tab) ->  new CustomBlockModelItem(block, PropertiesForTab(tab)); }
@@ -79,18 +79,16 @@ public class ModBlocks {
 
 	//Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE;
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_OLDCOLORS;
 
 	//Large Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_LARGE_OLDCOLORS;
 
 	//Wooden Shelves
 	public static final RegistryObjectBundle<Block, WoodType> SHELF;
 	public static final RegistryObjectBundle<Block, WoodType> SHELF_2x2;
 
 	//Card Shelves
-	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
+	public static final RegistryObjectBiBundle<Block,WoodType,Color> CARD_DISPLAY;
 
 	//Armor Display
 	public static final RegistryObject<Block> ARMOR_DISPLAY;
@@ -324,12 +322,15 @@ public class ModBlocks {
 		);
 
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", WoodType.Attributes.needsLog, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), w -> new CardDisplayBlock(
+		CARD_DISPLAY = registerWoodenAndColored("card_display", WoodType.Attributes.needsLog, ModCreativeGroups.getExtraOr(ModCreativeGroups::getTradingGroup), (w,c) -> new CardDisplayBlock(
 						Block.Properties.of(Material.WOOD)
 								.color(w.mapColor)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.WOOD)
-				)
+								.sound(SoundType.WOOD),
+						w.generateID("block.lightmanscurrency.card_display"),
+						c
+				),
+				Color.RED
 		);
 
 		//Freezer
@@ -452,7 +453,7 @@ public class ModBlocks {
 		);
 
 		//Ticket Machine
-		TICKET_STATION = register("ticket_machine", ModCreativeGroups::getMachineGroup, () -> new TicketMachineBlock(
+		TICKET_STATION = register("ticket_machine", ModCreativeGroups::getMachineGroup, () -> new TicketStationBlock(
 						Block.Properties.of(Material.METAL)
 								.color(MaterialColor.METAL)
 								.strength(3.0f, 6.0f)
@@ -510,23 +511,6 @@ public class ModBlocks {
 				new AuctionStandBlock(Block.Properties.of(Material.WOOD).color(w.mapColor).strength(2.0f))
 		);
 
-		//Deprecated
-		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", c -> new VendingMachineBlock.ReplaceMe(
-						Block.Properties.of(Material.METAL)
-								.color(c.mapColor)
-								.strength(5.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.METAL)
-						,c
-				)
-		);
-		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", c -> new VendingMachineLargeBlock.ReplaceMe(
-						Block.Properties.of(Material.METAL)
-								.color(c.mapColor)
-								.strength(5.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.METAL)
-						,c
-				)
-		);
 
 	}
 
@@ -545,17 +529,6 @@ public class ModBlocks {
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get(), itemGroup != null ? itemGroup.get() : null));
 		return block;
-	}
-
-	// Colored block registration code
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, Function<Color,T> block) {
-		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
-		for(Color color : Color.deprecatedValues())
-		{
-			String thisName = name + "_" + color.getDeprecatedName();
-			bundle.put(color, register(thisName, null, (b,t) -> new DeprecatedBlockItem(b), () -> block.apply(color)));
-		}
-		return bundle.lock();
 	}
 
 	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Function<Color,T> block, @Nullable Color dontNameThisColor)
@@ -602,21 +575,25 @@ public class ModBlocks {
 	/**
 	 * Wooden and colored block registration code
 	 */
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> block)
-	{
-		return registerWoodenAndColored(name, itemGroup, getDefaultGenerator(), block);
-	}
-
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> block)
-	{
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, NonNullFunction<WoodType,CreativeModeTab> itemGroup, BiFunction<WoodType,Color,T> block) { return registerWoodenAndColored(name, check, itemGroup, block, null); }
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, NonNullFunction<WoodType,CreativeModeTab> itemGroup, BiFunction<WoodType,Color,T> block, @Nullable Color ignoreColor) { return registerWoodenAndColored(name, check, getDefaultGenerator(), itemGroup, block, ignoreColor); }
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, BiFunction<Block,CreativeModeTab,Item> itemGenerator, NonNullFunction<WoodType,CreativeModeTab> itemGroup, BiFunction<WoodType,Color,T> block) { return registerWoodenAndColored(name, check, itemGenerator, itemGroup, block, null); }
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Predicate<WoodType.Attributes> check, BiFunction<Block,CreativeModeTab,Item> itemGenerator, NonNullFunction<WoodType,CreativeModeTab> itemGroup, BiFunction<WoodType,Color,T> block, @Nullable Color ignoreColor) {
 		RegistryObjectBiBundle<T,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
-		for(WoodType woodType: WoodType.validValues())
+		for(WoodType woodType : WoodType.validValues())
 		{
-			for(Color color : Color.values())
+			if(check.test(woodType.attributes))
 			{
-				String thisName = name + "_" + woodType.id + "_" + color.getResourceSafeName();
-				//Register the block normally
-				bundle.put(woodType, color, register(thisName, itemGroup, itemGenerator, block));
+				for(Color color : Color.values())
+				{
+					String thisName;
+					if(color == ignoreColor)
+						thisName = woodType.generateID(name);
+					else
+						thisName = woodType.generateID(name) + "_" + color.getResourceSafeName();
+					//Register the block normally
+					bundle.put(woodType, color, register(thisName, () -> itemGroup.apply(woodType), itemGenerator, () -> block.apply(woodType, color)));
+				}
 			}
 		}
 		return bundle.lock();

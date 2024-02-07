@@ -1,21 +1,22 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValueHolder;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -34,14 +35,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
+public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, IMoneyCollectionMenu {
 
     private final long traderID;
 
     @Nullable
     public final SlotMachineTraderData getTrader() { if(TraderSaveData.GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
 
-    Container coins = new SimpleContainer(5);
+    private final MoneyContainer coins;
 
     List<Slot> coinSlots = new ArrayList<>();
 
@@ -66,6 +67,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
         super(ModMenus.SLOT_MACHINE.get(), windowID, inventory);
         this.validator = validator;
         this.traderID = traderID;
+        this.coins = new MoneyContainer(inventory.player, 5);
 
         this.addValidator(this.validator);
         this.addValidator(() -> this.getTrader() != null);
@@ -172,18 +174,12 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
         return builder.build();
     }
 
-    public void CollectCoinStorage() {
+    @Override
+    public void CollectStoredMoney() {
         if(this.getTrader() != null)
         {
             TraderData trader = this.getTrader();
-            if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
-            {
-                CoinValue payment = trader.getInternalStoredMoney();
-                if(this.getContext(null).givePayment(payment))
-                    trader.clearStoredMoney();
-            }
-            else
-                Permissions.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+            trader.CollectStoredMoney(this.player, this.coins);
         }
     }
 
@@ -200,7 +196,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
                 RewardCache holder = new RewardCache();
                 if(trader.TryExecuteTrade(this.getContext(holder), 0).isSuccess())
                 {
-                    if(holder.itemHolder.isEmpty() && holder.moneyHolder.getValue().getValueNumber() <= 0)
+                    if(holder.itemHolder.isEmpty() && holder.moneyHolder.isEmpty())
                         LightmansCurrency.LogError("Successful Slot Machine Trade executed, but no items or money were received!");
                     else
                         this.rewards.add(holder);
@@ -233,7 +229,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("ExecuteTrade"))
         {
             if(this.rewards.size() > 0)
@@ -259,26 +255,38 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
         }
     }
 
-    public final RewardCache loadReward(CompoundTag tag) { return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), CoinValue.safeLoad(tag, "Money")); }
+    public final RewardCache loadReward(CompoundTag tag) {
+        MoneyStorage storage = new MoneyStorage(() -> {});
+        storage.load(tag.getList("Money", Tag.TAG_COMPOUND));
+        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), storage); }
 
     public final class RewardCache
     {
         public final Container itemHolder;
-        public final CoinValueHolder moneyHolder = new CoinValueHolder();
+        public final MoneyStorage moneyHolder = new MoneyStorage(() -> {});
         public RewardCache() { this.itemHolder = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT); }
-        public RewardCache(Container itemHolder, CoinValue money) { this.itemHolder = itemHolder; this.moneyHolder.setValue(money); }
+        public RewardCache(Container itemHolder, MoneyStorage money) { this.itemHolder = itemHolder; this.moneyHolder.addValues(money.allValues()); }
         public void giveToPlayer()
         {
             SlotMachineMenu.this.clearContainer(this.itemHolder);
             this.itemHolder.clearContent();
-            MoneyUtil.ProcessChange(SlotMachineMenu.this.coins, SlotMachineMenu.this.player, this.moneyHolder.getValue());
-            this.moneyHolder.setValue(CoinValue.EMPTY);
+            for(MoneyValue value : this.moneyHolder.allValues())
+                MoneyAPI.giveMoneyToPlayer(SlotMachineMenu.this.player, value);
+            this.moneyHolder.clear();
         }
 
         public List<ItemStack> getDisplayItems()
         {
-            if(this.moneyHolder.getValue().hasAny())
-                return MoneyUtil.getCoinsOfValue(this.moneyHolder.getValue());
+            if(!this.moneyHolder.isEmpty())
+            {
+                List<ItemStack> items = new ArrayList<>();
+                for(MoneyValue value : this.moneyHolder.allValues())
+                {
+                    if(value instanceof CoinValue coinValue)
+                        items.addAll(coinValue.getAsSeperatedItemList());
+                }
+                return items;
+            }
             else
             {
                 List<ItemStack> items = new ArrayList<>();
@@ -296,7 +304,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu {
         {
             CompoundTag tag = new CompoundTag();
             InventoryUtil.saveAllItems("Items", tag, this.itemHolder);
-            tag.put("Money", this.moneyHolder.getValue().save());
+            tag.put("Money", this.moneyHolder.save());
             return tag;
         }
 

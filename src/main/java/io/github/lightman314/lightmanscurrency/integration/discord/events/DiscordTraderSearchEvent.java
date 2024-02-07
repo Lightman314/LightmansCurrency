@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.integration.discord.events;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.integration.discord.listeners.CurrencyListener;
 import net.minecraftforge.eventbus.api.Event;
 

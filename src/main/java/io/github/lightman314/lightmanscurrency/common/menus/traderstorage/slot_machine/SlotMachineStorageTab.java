@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,9 +20,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class SlotMachineStorageTab extends TraderStorageTab{
 
-    public SlotMachineStorageTab(TraderStorageMenu menu) { super(menu); }
+    public SlotMachineStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -78,7 +80,7 @@ public class SlotMachineStorageTab extends TraderStorageTab{
             if(trader.isPersistent())
                 return;
             TraderItemStorage storage = trader.getStorage();
-            ItemStack heldItem = this.menu.getCarried();
+            ItemStack heldItem = this.menu.getHeldItem();
             if(heldItem.isEmpty())
             {
                 //Move item out of storage
@@ -104,14 +106,14 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                     if(isShiftHeld)
                     {
                         //Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
-                        this.menu.player.getInventory().add(stackToRemove);
+                        this.menu.getPlayer().getInventory().add(stackToRemove);
                         //Determine the amount actually added to the players inventory
                         removedAmount = tempAmount - stackToRemove.getCount();
                     }
                     else
                     {
                         //Put the item into the players hand
-                        this.menu.setCarried(stackToRemove);
+                        this.menu.setHeldItem(stackToRemove);
                         removedAmount = tempAmount;
                     }
                     //Remove the correct amount from storage
@@ -142,7 +144,7 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                     {
                         heldItem.shrink(1);
                         if(heldItem.isEmpty())
-                            this.menu.setCarried(ItemStack.EMPTY);
+                            this.menu.setHeldItem(ItemStack.EMPTY);
                     }
                     //Mark the storage dirty
                     trader.markStorageDirty();
@@ -165,7 +167,7 @@ public class SlotMachineStorageTab extends TraderStorageTab{
             if(trader.isPersistent())
                 return;
             TraderItemStorage storage = trader.getStorage();
-            Inventory inv = this.menu.player.getInventory();
+            Inventory inv = this.menu.getPlayer().getInventory();
             boolean changed = false;
             if(type == 0)
             {

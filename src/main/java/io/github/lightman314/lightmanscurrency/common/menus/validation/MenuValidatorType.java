@@ -17,7 +17,7 @@ public abstract class MenuValidatorType {
     {
         if(TYPES.containsKey(validator.type))
         {
-            LightmansCurrency.LogWarning("Attempted to register duplicate validator type '" + validator.type + "'!");
+            LightmansCurrency.LogWarning("Attempted to registerNotification duplicate validator type '" + validator.type + "'!");
             return;
         }
         TYPES.put(validator.type, validator);

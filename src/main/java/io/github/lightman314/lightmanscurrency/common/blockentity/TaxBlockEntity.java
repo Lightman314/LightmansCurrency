@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
-import io.github.lightman314.lightmanscurrency.common.taxes.data.WorldPosition;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -48,7 +49,13 @@ public class TaxBlockEntity extends EasyBlockEntity {
         TaxEntry entry = this.getTaxEntry();
         if(entry != null)
         {
-            drops.addAll(MoneyUtil.getCoinsOfValue(entry.getStoredMoney()));
+            //Add stored money
+            for(MoneyValue value : entry.getStoredMoney().allValues())
+            {
+                List<ItemStack> items = value.onBlockBroken(this.level, entry.getOwner());
+                if(items != null)
+                    drops.addAll(items);
+            }
             entry.clearStoredMoney();
         }
         return drops;

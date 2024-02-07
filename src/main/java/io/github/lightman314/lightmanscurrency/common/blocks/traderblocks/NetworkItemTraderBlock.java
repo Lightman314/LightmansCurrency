@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;

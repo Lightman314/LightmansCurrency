@@ -23,6 +23,8 @@ public class LCTags {
 
         //Coin Tag for MyFirstPenny advancement
         public static final TagKey<Item> COINS = tag("coins");
+        public static final TagKey<Item> EVENT_COINS = tag("event_coins");
+        public static final TagKey<Item> EVENT_COIN_CHOCOLATE = tag("event_coins/chocolate");
         public static final TagKey<Item> COIN_MINTING_MATERIAL = tag("coin_minting_material");
         //Wallet Tag for Wallet Advancement
         public static final TagKey<Item> WALLET = tag("wallet");

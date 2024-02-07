@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.taxes;
 
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -10,9 +11,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -26,11 +26,11 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     public static final int HEIGHT = 30;
     public static final int WIDTH = 176;
 
-    private final Supplier<TaxEntry> entrySource;
+    private final Supplier<ITaxCollector> entrySource;
     private final ITaxInfoInteractable parent;
 
-    public TaxInfoWidget(@Nonnull ScreenPosition pos, @Nonnull Supplier<TaxEntry> entry, @Nonnull ITaxInfoInteractable parent) { this(pos.x, pos.y, entry, parent); }
-    public TaxInfoWidget(int x, int y, @Nonnull Supplier<TaxEntry> entry, @Nonnull ITaxInfoInteractable parent) {
+    public TaxInfoWidget(@Nonnull ScreenPosition pos, @Nonnull Supplier<ITaxCollector> entry, @Nonnull ITaxInfoInteractable parent) { this(pos.x, pos.y, entry, parent); }
+    public TaxInfoWidget(int x, int y, @Nonnull Supplier<ITaxCollector> entry, @Nonnull ITaxInfoInteractable parent) {
         super(x, y, WIDTH, HEIGHT);
         this.entrySource = entry;
         this.parent = parent;
@@ -42,7 +42,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     @Override
     protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
-        TaxEntry entry = this.entrySource.get();
+        ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)
         {
@@ -71,7 +71,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     }
 
     private boolean shouldAcceptBeVisible() {
-        TaxEntry entry = this.entrySource.get();
+        ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)
             return entry.IsInArea(trader) && !entry.ShouldTax(trader);
@@ -79,7 +79,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     }
 
     private boolean isCurrentlyIgnored() {
-        TaxEntry entry = this.entrySource.get();
+        ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)
             return trader.ShouldIgnoreTaxEntryOnly(entry);
@@ -92,14 +92,14 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     private void AcceptTaxCollector(EasyButton button)
     {
-        TaxEntry entry = this.entrySource.get();
+        ITaxCollector entry = this.entrySource.get();
         if(entry != null)
             this.parent.AcceptTaxCollector(entry.getID());
     }
 
     private void ToggleIgnoreState(EasyButton button)
     {
-        TaxEntry entry = this.entrySource.get();
+        ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)
         {

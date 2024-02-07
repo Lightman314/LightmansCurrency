@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
@@ -106,7 +106,7 @@ public class EjectionSaveData extends SavedData {
 			return;
 		Objects.requireNonNull(data);
 		
-		if(Config.SERVER.safelyEjectIllegalBreaks.get())
+		if(LCConfig.SERVER.safelyEjectMachineContents.get())
 		{
 			EjectionSaveData esd = get();
 			if(esd != null)

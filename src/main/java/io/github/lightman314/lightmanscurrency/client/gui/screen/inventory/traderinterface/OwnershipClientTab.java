@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.OwnershipTab;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
@@ -144,8 +144,6 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	public void tick() {
 		this.refreshTeamList();
 		
-		this.newOwnerInput.tick();
-		
 		this.buttonSetOwner.visible = this.newOwnerInput.visible = this.playerMode;
 		this.buttonSetTeamOwner.visible = this.teamSelection.visible = !this.playerMode;
 		
@@ -155,7 +153,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 
 	@Override
 	public void closeAction() {
-		//Reset the selected team & team list to save space
+		//Reset the selected team & team list to saveItem space
 		this.selectedTeam = -1;
 		this.teamList = new ArrayList<>();
 	}

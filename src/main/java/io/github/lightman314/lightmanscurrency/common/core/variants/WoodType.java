@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core.variants;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.MaterialColor;
 
 import javax.annotation.Nonnull;
@@ -27,7 +28,11 @@ public class WoodType implements IOptionalKey {
     public static final WoodType ACACIA = vb("acacia").ofName("Acacia").ofColor(MaterialColor.COLOR_ORANGE).build();
 
     public static final WoodType DARK_OAK = vb("dark_oak").ofName("Dark Oak").ofColor(MaterialColor.COLOR_BROWN).build();
+    //1.19+
     public static final WoodType MANGROVE = vb("mangrove").ofName("Mangrove").ofColor(MaterialColor.COLOR_RED).build();
+    //1.20+
+    //public static final WoodType CHERRY = vb("cherry").ofName("Cherry").ofColor(MaterialColor.TERRACOTTA_WHITE).build();
+    //public static final WoodType BAMBOO = vb("bamboo").ofName("Bamboo").ofColor(MaterialColor.COLOR_YELLOW).build();
     public static final WoodType CRIMSON = vb("crimson").ofName("Crimson").ofColor(MaterialColor.CRIMSON_STEM).build();
     public static final WoodType WARPED = vb("warped").ofName("Warped").ofColor(MaterialColor.WARPED_STEM).build();
 
@@ -108,6 +113,9 @@ public class WoodType implements IOptionalKey {
         }
         return null;
     }
+
+    @Override
+    public int hashCode() { return new ResourceLocation(this.modid, this.id).hashCode(); }
 
     private static Builder vb(@Nonnull String id) { return new Builder(id); }
     public static Builder builder(@Nonnull String id, @Nonnull String modid) { return new Builder(id, modid); }
@@ -197,7 +205,6 @@ public class WoodType implements IOptionalKey {
         public static final Predicate<Attributes> needsPlanks = a -> a.hasCustomPlanks;
         public static final Predicate<Attributes> needsPlanksAndSlab = a -> a.hasCustomPlanks && a.hasCustomSlab;
         public static final Predicate<Attributes> needsSlab = a -> a.hasCustomSlab;
-
 
     }
 

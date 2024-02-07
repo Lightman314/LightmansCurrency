@@ -1,15 +1,20 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -19,20 +24,13 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
-import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -40,10 +38,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -68,8 +65,13 @@ public class ClientProxy extends CommonProxy{
 	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
 
 	@Override
+	public boolean isClient() { return true; }
+
+	@Override
 	public void setupClient() {
-		
+
+		ConfigFile.loadClientFiles(ConfigFile.LoadPhase.SETUP);
+
 		//Set Render Layers
 		//Done in the model themselves since 1.19-41.0.64
     	
@@ -89,7 +91,7 @@ public class ClientProxy extends CommonProxy{
 
     	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
     	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
-    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
+    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketStationScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
@@ -151,30 +153,12 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void removeTeam(long teamID) { ClientTeamData.RemoveTeam(teamID); }
-	
+
 	@Override
-	public void initializeBankAccounts(CompoundTag compound)
-	{
-		if(compound.contains("BankAccounts", Tag.TAG_LIST))
-		{
-			Map<UUID,BankAccount> bank = new HashMap<>();
-			ListTag bankList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
-			for(int i = 0; i < bankList.size(); ++i)
-			{
-				CompoundTag tag = bankList.getCompound(i);
-				UUID id = tag.getUUID("Player");
-				BankAccount bankAccount = new BankAccount(tag);
-				bank.put(id,bankAccount);
-			}
-			ClientBankData.InitBankAccounts(bank);
-		}
-	}
-	
+	public void clearBankAccounts() { ClientBankData.ClearBankAccounts(); }
+
 	@Override
-	public void updateBankAccount(CompoundTag compound)
-	{
-		ClientBankData.UpdateBankAccount(compound);
-	}
+	public void updateBankAccount(UUID player, CompoundTag compound) { ClientBankData.UpdateBankAccount(player, compound); }
 	
 	@Override
 	public void receiveEmergencyEjectionData(CompoundTag compound)
@@ -197,7 +181,7 @@ public class ClientProxy extends CommonProxy{
 		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)))
 			return;
 		
-		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
+		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
 			mc.gui.getChat().addMessage(notification.getChatMessage());
 		
 	}
@@ -266,17 +250,15 @@ public class ClientProxy extends CommonProxy{
 	@SubscribeEvent
 	//Add coin value tooltips to non CoinItem coins.
 	public void onItemTooltip(ItemTooltipEvent event) {
-		Item item = event.getItemStack().getItem();
-		CoinData coinData = MoneyUtil.getData(item);
-		if(coinData != null && !(item instanceof CoinItem || item instanceof CoinBlockItem))
-		{
-			CoinItem.addCoinTooltips(event.getItemStack(), event.getToolTip());
-		}
+		if(event.getEntity() == null || CoinAPI.DataNotReady())
+			return;
+		if(CoinAPI.isCoin(event.getItemStack(), true))
+			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 	}
 	
 	@Override
 	public void playCoinSound() {
-		if(Config.CLIENT.moneyMendingClink.get())
+		if(LCConfig.CLIENT.moneyMendingClink.get())
 		{
 			Minecraft minecraft = Minecraft.getInstance();
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
@@ -302,6 +284,22 @@ public class ClientProxy extends CommonProxy{
 		Minecraft mc = Minecraft.getInstance();
 		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)
 			menu.reloadTrade(trade);
+	}
+
+	@Override
+	public void syncEventUnlocks(@Nonnull List<String> unlocksList) {
+		Minecraft mc = Minecraft.getInstance();
+		IEventUnlocks unlocks = CapabilityEventUnlocks.getCapability(mc.player);
+		if(unlocks != null)
+			unlocks.sync(unlocksList);
+	}
+
+	@Override
+	public void sendClientMessage(@Nonnull Component message)
+	{
+		Player player = Minecraft.getInstance().player;
+		if(player != null)
+			player.sendSystemMessage(message);
 	}
 	
 }

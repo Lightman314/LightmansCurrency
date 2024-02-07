@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 import com.google.common.collect.ImmutableList;
 import com.mojang.math.Quaternion;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.world.level.block.state.BlockState;
 

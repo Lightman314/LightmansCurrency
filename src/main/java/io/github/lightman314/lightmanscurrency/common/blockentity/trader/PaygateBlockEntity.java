@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;

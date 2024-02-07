@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.BookTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IBookTraderBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -31,7 +31,6 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
 
     @Override
     protected BlockEntityType<?> traderType() { return ModBlockEntities.BOOK_TRADER.get(); }
-
 
     @Override
     public Vector3f GetBookRenderPos(int tradeSlot, BlockState state) {

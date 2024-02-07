@@ -1,30 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicReference;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.network.message.enchantments.SPacketMoneyMendingClink;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
@@ -45,66 +35,42 @@ public class MoneyMendingEnchantment extends Enchantment {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
 	
-	public static long getRepairCost() { return Config.SERVER.moneyMendingCoinCost.get().getValueNumber(); }
+	public static MoneyValue getRepairCost() { return LCConfig.SERVER.moneyMendingRepairCost.get(); }
 	
-	public static void runEntityTick(@Nonnull IWalletHandler walletHandler, LivingEntity entity)
+	public static void runEntityTick(Player player)
 	{
-		ItemStack wallet = walletHandler.getWallet();
-		if(WalletItem.isWallet(wallet))
+		MoneyValue repairCost = MoneyMendingEnchantment.getRepairCost();
+		if(!MoneyAPI.canPlayerAfford(player, repairCost))
+			return;
+		//Go through the players inventory searching for items with the money mending enchantment
+		Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING.get(), player, ItemStack::isDamaged);
+		ItemStack item;
+		if(entry == null)
 		{
-			NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(wallet);
-			long currentWalletValue = MoneyUtil.getValue(walletInventory);
-			final long repairCost = MoneyMendingEnchantment.getRepairCost();
-			if(repairCost > currentWalletValue)
-				return;
-			//Go through the players inventory searching for items with the money mending enchantment
-			Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING.get(), entity, ItemStack::isDamaged);
-			ItemStack item = null;
-			if(entry == null)
-			{
-				if(LightmansCurrency.isCuriosValid(entity))
-					item = LCCurios.getMoneyMendingItem(entity);
-			}
+			if(LightmansCurrency.isCuriosValid(player))
+				item = LCCurios.getMoneyMendingItem(player);
 			else
-				item = entry.getValue();
-			if(entry != null)
+				item = null;
+		}
+		else
+			item = entry.getValue();
+		if(item != null)
+		{
+			//Repair the item
+			MoneyValue nextCost = repairCost;
+			MoneyValue finalCost = MoneyValue.empty();
+			int currentDamage = item.getDamageValue();
+			int repairAmount = 0;
+			while (MoneyAPI.canPlayerAfford(player, nextCost) && repairAmount < currentDamage) {
+				repairAmount++;
+				finalCost = nextCost;
+				nextCost = nextCost.addValue(repairCost);
+			}
+			//Take the payment from the player
+			if (MoneyAPI.takeMoneyFromPlayer(player, finalCost))
 			{
-				//Repair the item
-				int currentDamage = item.getDamageValue();
-				long repairAmount = Math.min(currentDamage, currentWalletValue / repairCost);
-				item.setDamageValue(currentDamage - (int)repairAmount);
-				currentWalletValue -= repairAmount * repairCost;
-				//Remove the coins from the players inventory
-				SimpleContainer newWalletInventory = new SimpleContainer(walletInventory.size());
-				for(ItemStack coinStack : MoneyUtil.getCoinsOfValue(currentWalletValue))
-				{
-					AtomicReference<ItemStack> leftovers = new AtomicReference<>(InventoryUtil.TryPutItemStack(newWalletInventory, coinStack));
-					if(!leftovers.get().isEmpty())
-					{
-						if(entity instanceof Player player)
-						{
-							//Force the extra coins into the players inventory
-							ItemHandlerHelper.giveItemToPlayer(player, leftovers.get());
-						}
-						else
-						{
-							//Put the extra coins in the entities inventory
-							entity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(entityInventory -> leftovers.set(ItemHandlerHelper.insertItemStacked(entityInventory, leftovers.get(), false)));
-							//If no inventory, or not enough room, force the extra coins into the world
-							if(!leftovers.get().isEmpty())
-								InventoryUtil.dumpContents(entity.level, entity.blockPosition(), leftovers.get());
-						}
-					}
-
-				}
-				WalletItem.putWalletInventory(wallet, InventoryUtil.buildList(newWalletInventory));
-				walletHandler.setWallet(wallet);
-				//Reload the wallets contents if the wallet menu is open.
-				WalletMenuBase.OnWalletUpdated(entity);
-				if(entity instanceof Player player)
-				{
-					SPacketMoneyMendingClink.INSTANCE.sendTo(player);
-				}
+				//If payment was successful, repair the item
+				item.setDamageValue(currentDamage - repairAmount);
 			}
 		}
 	}

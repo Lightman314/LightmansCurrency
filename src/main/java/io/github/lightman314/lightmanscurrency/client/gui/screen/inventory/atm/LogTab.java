@@ -3,13 +3,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -41,7 +41,7 @@ public class LogTab extends ATMTab{
 	}
 	
 	private List<Notification> getNotifications() {
-		BankAccount ba = this.screen.getMenu().getBankAccount();
+		IBankAccount ba = this.screen.getMenu().getBankAccount();
 		if(ba != null)
 			return ba.getNotifications();
 		return new ArrayList<>();

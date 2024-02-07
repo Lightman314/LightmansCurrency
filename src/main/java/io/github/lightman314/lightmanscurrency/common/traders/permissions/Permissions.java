@@ -21,8 +21,7 @@ public class Permissions {
 	public static final String INTERACTION_LINK = "interactionLink";
 	public static final String TRANSFER_OWNERSHIP = "transferOwnership";
 	
-	public static class InputTrader
-	{
+	public static class InputTrader {
 		public static final String EXTERNAL_INPUTS = "changeExternalInputs";
 	}
 	

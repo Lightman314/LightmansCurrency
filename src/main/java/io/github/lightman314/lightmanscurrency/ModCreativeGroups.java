@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.groups.BundleRequestFilter;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.enchantments.LCEnchantmentCategories;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -52,8 +53,11 @@ public class ModCreativeGroups {
                 ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.WALLET_GOLD,
                 ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE,
                 //Trading Core
-                ModItems.TRADING_CORE
-        ).build();
+                ModItems.TRADING_CORE,
+                //Event Coins
+                ModItems.COIN_CHOCOLATE_COPPER, ModItems.COIN_CHOCOLATE_IRON, ModItems.COIN_CHOCOLATE_GOLD,
+                ModItems.COIN_CHOCOLATE_EMERALD, ModItems.COIN_CHOCOLATE_DIAMOND, ModItems.COIN_CHOCOLATE_NETHERITE
+        );
 
         MACHINE_GROUP.startInit().add(
                 //Coin Mint
@@ -70,7 +74,7 @@ public class ModCreativeGroups {
                 //Tax Collector
                 ModBlocks.TAX_COLLECTOR,
                 //Auction Stands
-                ModBlocks.AUCTION_STAND,
+                ModBlocks.AUCTION_STAND.getAllSorted(BundleRequestFilter.VANILLA),
                 //Ticket Machine
                 ModBlocks.TICKET_STATION,
                 //Tickets
@@ -88,10 +92,10 @@ public class ModCreativeGroups {
 
         TRADING_GROUP.startInit().add(
                 //Item Traders (normal)
-                ModBlocks.SHELF,
-                ModBlocks.SHELF_2x2,
+                ModBlocks.SHELF.getAllSorted(BundleRequestFilter.VANILLA),
+                ModBlocks.SHELF_2x2.getAllSorted(BundleRequestFilter.VANILLA),
                 ModBlocks.DISPLAY_CASE,
-                ModBlocks.CARD_DISPLAY,
+                ModBlocks.CARD_DISPLAY.getAllSorted(BundleRequestFilter.VANILLA),
                 ModBlocks.VENDING_MACHINE,
                 ModBlocks.FREEZER,
                 ModBlocks.VENDING_MACHINE_LARGE,
@@ -123,10 +127,10 @@ public class ModCreativeGroups {
         if(EXTRA_GROUP != null)
         {
             EXTRA_GROUP.startInit().add(
-                    ModBlocks.AUCTION_STAND,
-                    ModBlocks.SHELF,
-                    ModBlocks.CARD_DISPLAY,
-                    ModBlocks.BOOKSHELF_TRADER
+                    ModBlocks.AUCTION_STAND.getAllSorted(BundleRequestFilter.MODDED),
+                    ModBlocks.SHELF.getAllSorted(BundleRequestFilter.MODDED),
+                    ModBlocks.CARD_DISPLAY.getAllSorted(BundleRequestFilter.MODDED),
+                    ModBlocks.BOOKSHELF_TRADER.getAllSorted(BundleRequestFilter.MODDED)
             ).build();
         }
 

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network.message.menu;
 
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;

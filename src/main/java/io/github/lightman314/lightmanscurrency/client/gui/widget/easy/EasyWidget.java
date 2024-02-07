@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
@@ -50,6 +50,12 @@ public abstract class EasyWidget extends AbstractWidget {
     public final void setActive(boolean active) { this.active = active; }
 
     public final boolean isMouseOver(ScreenPosition mousePos) { return this.isMouseOver(mousePos.x, mousePos.y); }
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        if(this.hideFromMouse())
+            return false;
+        return super.isMouseOver(mouseX, mouseY);
+    }
 
     protected EasyWidget(int x, int y, int width, int height) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height)); }
     protected EasyWidget(int x, int y, int width, int height, Component title) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height), title); }
@@ -135,5 +141,7 @@ public abstract class EasyWidget extends AbstractWidget {
 
     @Override
     public void updateNarration(@Nonnull NarrationElementOutput narrator) { }
+
+    public boolean hideFromMouse() { return false; }
 
 }

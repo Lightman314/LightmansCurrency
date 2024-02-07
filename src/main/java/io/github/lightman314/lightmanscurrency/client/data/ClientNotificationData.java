@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.data;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;

@@ -4,24 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionCreateClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class AuctionCreateTab extends TraderStorageTab {
 	
-	public AuctionCreateTab(TraderStorageMenu menu) { super(menu); }
+	public AuctionCreateTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -62,7 +64,9 @@ public class AuctionCreateTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void onMenuClose() { this.menu.clearContainer(this.auctionItems); }
+	public void onMenuClose() {
+		this.menu.clearContainer(this.auctionItems);
+	}
 	
 	public void createAuction(AuctionTradeData trade) {
 		TraderData t = this.menu.getTrader();
@@ -79,7 +83,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			{
 				//Send failure message to the client.
 				this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", false));
-				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
+				//LightmansCurrency.LogInfo("Failed to createTrue the auction as the auction is not valid.");
 				return;
 			}
 			trader.addTrade(trade, false);
@@ -91,15 +95,14 @@ public class AuctionCreateTab extends TraderStorageTab {
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}
 	}
-	
+
 	@Override
-	public void receiveMessage(LazyPacketData message)
-	{
+	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("CreateAuction"))
 		{
 			//LightmansCurrency.LogInfo("Received Auction from the client.\n" + message.getCompound("CreateAuction").getAsString());
 			this.createAuction(new AuctionTradeData(message.getNBT("CreateAuction")));
 		}
 	}
-	
+
 }

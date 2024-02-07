@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
@@ -11,11 +12,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -92,10 +92,9 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            CompoundTag updateInfo = new CompoundTag();
-            updateInfo.putBoolean("Add", true);
-            updateInfo.putString("Name", name);
-            this.sendUpdateMessage(updateInfo);
+            this.sendUpdateMessage(LazyPacketData.builder()
+                    .setBoolean("Add", true)
+                    .setString("Name", name));
         }
     }
 
@@ -105,10 +104,9 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            CompoundTag updateInfo = new CompoundTag();
-            updateInfo.putBoolean("Add", false);
-            updateInfo.putString("Name", name);
-            this.sendUpdateMessage(updateInfo);
+            this.sendUpdateMessage(LazyPacketData.builder()
+                    .setBoolean("Add", false)
+                    .setString("Name", name));
         }
     }
 
@@ -118,9 +116,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             rule.setDiscount(discount);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putInt("Discount", discount);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleInt("Discount", discount));
     }
 
 }

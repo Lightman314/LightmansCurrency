@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IClientTicker;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;

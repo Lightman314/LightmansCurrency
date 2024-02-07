@@ -14,15 +14,15 @@ public class LCRenderTypes extends RenderStateShard {
     private LCRenderTypes() { super(null, null, null); }
 
     private static final RenderType OUTLINE_TRANSLUCENT = RenderType.create(LightmansCurrency.MODID + ":" + "outline_translucent",
-            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
-                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-                    .setTextureState(new RenderStateShard.TextureStateShard(BLANK_TEXTURE, false, false))
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setCullState(NO_CULL)
-                    .setLightmapState(LIGHTMAP)
-                    .setOverlayState(OVERLAY)
-                    .setWriteMaskState(COLOR_WRITE)
-                    .createCompositeState(false));
+    DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(BLANK_TEXTURE, false, false))
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setCullState(NO_CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .setOverlayState(OVERLAY)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .createCompositeState(false));
 
     public static RenderType getOutlineTranslucent() { return OUTLINE_TRANSLUCENT; }
 

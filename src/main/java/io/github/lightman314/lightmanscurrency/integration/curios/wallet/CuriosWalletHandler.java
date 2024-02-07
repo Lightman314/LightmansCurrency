@@ -1,10 +1,14 @@
 package io.github.lightman314.lightmanscurrency.integration.curios.wallet;
 
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
 
 public record CuriosWalletHandler(LivingEntity entity) implements IWalletHandler {
 
@@ -37,5 +41,17 @@ public record CuriosWalletHandler(LivingEntity entity) implements IWalletHandler
 
     @Override
     public void load(CompoundTag tag) { }
+
+    @Nonnull
+    @Override
+    public MoneyView getStoredMoney() { return MoneyView.empty(); }
+
+    public boolean hasStoredMoneyChanged(@Nullable Object context) { return false; }
+
+    @Override
+    public void flagAsKnown(@Nullable Object context) {}
+
+    @Override
+    public void forgetContext(@Nonnull Object context) { }
 
 }

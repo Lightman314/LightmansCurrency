@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -33,9 +33,9 @@ public class FileUtil {
 		return json;
 	}
 	
-	public static ItemStack parseItemStack(JsonObject json) {
-		String id = json.get("ID").getAsString();
-		int count = json.has("Count") ? json.get("Count").getAsInt() : 1;
+	public static ItemStack parseItemStack(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+		String id = GsonHelper.getAsString(json, "ID");
+		int count = GsonHelper.getAsInt(json, "Count", 1);
 		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);
 		try {
 			if(json.has("Tag"))
@@ -53,7 +53,7 @@ public class FileUtil {
 					result.setTag(compound);
 				}
 			}
-		} catch(Exception e) { LightmansCurrency.LogError("Error parsing tag data.", e); }
+		} catch(JsonSyntaxException | ResourceLocationException | CommandSyntaxException e) { LightmansCurrency.LogError("Error parsing tag data.", e); }
 		return result;
 	}
 	

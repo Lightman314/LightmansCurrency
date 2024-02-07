@@ -17,4 +17,5 @@ public class ListUtil {
             list.add(val);
         return list;
     }
+
 }

@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules;
 
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -37,19 +37,16 @@ public abstract class TradeRulesTab extends TraderStorageTab {
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
-    public void EditTradeRule(@Nonnull ResourceLocation type, @Nonnull CompoundTag updateMessage)
+    public void EditTradeRule(@Nonnull TradeRuleType<?> type, @Nonnull LazyPacketData.Builder updateMessage) { EditTradeRule(type.type, updateMessage); }
+    public void EditTradeRule(@Nonnull ResourceLocation type, @Nonnull LazyPacketData.Builder updateMessage)
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADE_RULES))
             return;
         ITradeRuleHost host = this.getHost();
         if(host != null)
-            host.HandleRuleUpdate(type, updateMessage);
+            host.HandleRuleUpdate(type, updateMessage.build());
         if(this.menu.isClient())
-        {
-            this.menu.SendMessage(LazyPacketData.builder()
-                    .setString("TradeRuleEdit", type.toString())
-                    .setCompound("UpdateMessage", updateMessage));
-        }
+            this.menu.SendMessage(updateMessage.setString("TradeRuleEdit", type.toString()));
     }
 
     @Override
@@ -57,15 +54,13 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         if(message.contains("TradeRuleEdit"))
         {
             ResourceLocation type = new ResourceLocation(message.getString("TradeRuleEdit"));
-            CompoundTag updateMessage = message.getNBT("UpdateMessage");
-            this.EditTradeRule(type, updateMessage);
+            this.EditTradeRule(type, message.copyToBuilder());
         }
     }
 
     public static class Trader extends TradeRulesTab {
 
         public Trader(TraderStorageMenu menu) { super(menu); }
-
 
         @Override
         @OnlyIn(Dist.CLIENT)

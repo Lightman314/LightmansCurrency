@@ -5,10 +5,10 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlock
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -149,7 +149,7 @@ public class CoinChestMenu extends LazyMessageMenu {
     public final void AddExtraHandler(@Nonnull Consumer<LazyPacketData> extraHandler) { this.extraHandler = extraHandler; }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         this.extraHandler.accept(message);
         for(CoinChestUpgradeData data : this.be.getChestUpgrades())
             data.upgrade.HandleMenuMessage(this, data, message);

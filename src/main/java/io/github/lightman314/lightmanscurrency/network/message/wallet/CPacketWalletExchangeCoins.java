@@ -24,7 +24,7 @@ public class CPacketWalletExchangeCoins extends ClientToServerPacket.Simple {
 			if(sender != null)
 			{
 				if(sender.containerMenu instanceof WalletMenuBase menu)
-					menu.ExchangeCoins();
+					menu.ExchangeCoints();
 			}
 		}
 	}

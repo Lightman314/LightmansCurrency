@@ -5,8 +5,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;

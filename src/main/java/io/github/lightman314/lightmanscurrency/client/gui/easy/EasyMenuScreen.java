@@ -4,13 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -28,14 +28,17 @@ import java.util.List;
 public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements IEasyScreen {
 
     private final List<IPreRender> preRenders = new ArrayList<>();
+    private final List<ILateRender> lateRenders = new ArrayList<>();
     private final List<IEasyTickable> guiTickers = new ArrayList<>();
     private final List<ITooltipSource> tooltipSources = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
 
 
+    @Nonnull
     @Override
     public Font getFont() { return this.font; }
+    @Nonnull
     @Override
     public Player getPlayer() { return this.minecraft.player; }
 
@@ -43,10 +46,12 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     protected EasyMenuScreen(T menu, Inventory inventory) { this(menu, inventory, EasyText.empty()); }
     protected EasyMenuScreen(T menu, Inventory inventory, Component title) { super(menu, inventory, title); }
+    @Nonnull
     @Override
     public final ScreenArea getArea() { return this.screenArea; }
     public final int getGuiLeft() { return this.screenArea.x; }
     public final  int getGuiTop() { return this.screenArea.y; }
+    @Nonnull
     public final  ScreenPosition getCorner() { return this.screenArea.pos; }
     public final  int getXSize() { return this.screenArea.width; }
     public final  int getYSize() { return this.screenArea.height; }
@@ -67,6 +72,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     @Override
     protected final void init() {
         this.preRenders.clear();
+        this.lateRenders.clear();
         this.guiTickers.clear();
         this.tooltipSources.clear();
         this.scrollListeners.clear();
@@ -92,6 +98,9 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         this.renderBG(gui);
         //Render Widgets, Slots, etc.
         super.render(pose, mouseX, mouseY, partialTicks);
+        //Render Late Renders
+        for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
+            r.lateRender(gui);
         //Render After Widgets
         this.renderAfterWidgets(gui);
         //Render Tooltips
@@ -104,12 +113,12 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     protected void renderTick() {}
 
     @Override
-    protected final void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY) { }
+    protected final void renderBg(@Nonnull PoseStack gui, float partialTicks, int mouseX, int mouseY) { }
     protected abstract void renderBG(@Nonnull EasyGuiGraphics gui);
 
-    //Don't render labels using the vanilla method
+    //Don't renderBG labels using the vanilla method
     @Override
-    protected final void renderLabels(@Nonnull PoseStack pose, int mouseX, int mouseY) { }
+    protected final void renderLabels(@Nonnull PoseStack gui, int mouseX, int mouseY) { }
 
     protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {}
 
@@ -138,6 +147,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.scrollListeners.add(l);
         if(child instanceof IPreRender r && !this.preRenders.contains(r))
             this.preRenders.add(r);
+        if(child instanceof ILateRender r && !this.lateRenders.contains(r))
+            this.lateRenders.add(r);
         if(child instanceof EasyWidget w)
             w.addAddons(this::addChild);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
@@ -163,6 +174,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             w.removeAddons(this::removeChild);
         if(child instanceof IPreRender r)
             this.preRenders.remove(r);
+        if(child instanceof ILateRender r)
+            this.lateRenders.remove(r);
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
     }

@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,15 +30,16 @@ import java.util.Collection;
 public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 
 	public CoinJarBlock(Properties properties) { super(properties); }
-
+	
 	public CoinJarBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
+	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_JAR.get()); }
 
 	@Override
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinJarBlockEntity(pos, state); }
-
+	
 	@Override
 	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
@@ -46,7 +47,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		if(blockEntity instanceof CoinJarBlockEntity jar)
 			jar.readItemTag(stack);
 	}
-
+	
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
@@ -55,7 +56,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		if(!level.isClientSide)
 		{
 			ItemStack coinStack = player.getItemInHand(hand);
-			if(!MoneyUtil.isCoin(coinStack, false))
+			if(!CoinAPI.isCoin(coinStack, false))
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -67,11 +68,11 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		}
 		return InteractionResult.SUCCESS;
 	}
-
+	
 	@Override
 	public void playerWillDestroy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
-
+		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
 		BlockEntity tileEntity = level.getBlockEntity(pos);
 		if(tileEntity instanceof CoinJarBlockEntity jarEntity)
@@ -85,9 +86,9 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 				Block.popResource(level, pos, dropStack);
 			}
 		}
-
+		
 		super.playerWillDestroy(level, pos, state, player);
-
+		
 	}
 
 	@Override

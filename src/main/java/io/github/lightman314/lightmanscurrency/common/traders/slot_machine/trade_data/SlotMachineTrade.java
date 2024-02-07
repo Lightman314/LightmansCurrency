@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client.SlotMachineTradeButtonRenderer;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +26,7 @@ public class SlotMachineTrade extends TradeData {
     public SlotMachineTrade(SlotMachineTraderData trader) { super(false); this.trader = trader; }
 
     @Override
-    public CoinValue getCost() { return this.trader.getPrice(); }
+    public MoneyValue getCost() { return this.trader.getPrice(); }
 
     @Override
     public boolean isValid() { return this.trader.hasValidTrade(); }
@@ -43,6 +43,7 @@ public class SlotMachineTrade extends TradeData {
     @Override
     public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return ImmutableList.of(); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
     public TradeRenderManager<?> getButtonRenderer() { return new SlotMachineTradeButtonRenderer(this); }

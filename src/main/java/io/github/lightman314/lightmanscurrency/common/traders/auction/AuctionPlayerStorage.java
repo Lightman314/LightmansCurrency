@@ -3,9 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.traders.auction;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -13,14 +14,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import javax.annotation.Nonnull;
+
 public class AuctionPlayerStorage {
 
 	PlayerReference owner;
 	public PlayerReference getOwner() { return this.owner; }
 	
-	CoinValue storedCoins = CoinValue.EMPTY;
-	public CoinValue getStoredCoins() { return this.storedCoins; }
-	List<ItemStack> storedItems = new ArrayList<>();
+	private final MoneyStorage storedCoins = new MoneyStorage(() -> {});
+	public MoneyStorage getStoredCoins() { return this.storedCoins; }
+	private final List<ItemStack> storedItems = new ArrayList<>();
 	public List<ItemStack> getStoredItems() { return this.storedItems; }
 	
 	public AuctionPlayerStorage(PlayerReference player) { this.owner = player; }
@@ -44,7 +47,7 @@ public class AuctionPlayerStorage {
 		
 		this.owner = PlayerReference.load(compound.getCompound("Owner"));
 
-		this.storedCoins = CoinValue.safeLoad(compound, "StoredMoney");
+		this.storedCoins.safeLoad(compound, "StoredMoney");
 		
 		this.storedItems.clear();
 		ListTag itemList = compound.getList("StoredItems", Tag.TAG_COMPOUND);
@@ -57,11 +60,12 @@ public class AuctionPlayerStorage {
 		
 	}
 	
-	public void giveMoney(CoinValue amount) { this.storedCoins = this.storedCoins.plusValue(amount); }
+	public void giveMoney(@Nonnull MoneyValue amount) { this.storedCoins.addValue(amount); }
 	
 	public void collectedMoney(Player player) {
-		MoneyUtil.ProcessChange(null, player, this.storedCoins);
-		this.storedCoins = CoinValue.EMPTY;
+		for(MoneyValue value : this.storedCoins.allValues())
+			MoneyAPI.giveMoneyToPlayer(player, value);
+		this.storedCoins.clear();
 	}
 	
 	public void giveItem(ItemStack item) {
@@ -81,7 +85,7 @@ public class AuctionPlayerStorage {
 	
 	public void collectItems(Player player) {
 		for(ItemStack stack : this.storedItems) ItemHandlerHelper.giveItemToPlayer(player, stack);
-		this.storedItems = new ArrayList<>();
+		this.storedItems.clear();
 	}
 	
 }

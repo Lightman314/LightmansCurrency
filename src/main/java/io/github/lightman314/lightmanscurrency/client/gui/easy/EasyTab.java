@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import net.minecraft.client.gui.Font;
 
 import javax.annotation.Nonnull;

@@ -19,8 +19,9 @@ public class PortableTerminalItem extends TooltipItem {
 		super(properties.stacksTo(1), LCTooltips.TERMINAL);
 	}
 	
+	@Nonnull
 	@Override
-	public @Nonnull InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand)
+	public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand)
 	{
 		if(player instanceof ServerPlayer sp)
 			TerminalMenuProvider.OpenMenu(sp, SimpleValidator.NULL);

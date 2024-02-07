@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.CustomPointsOfInterest;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.PoiTypeTagsProvider;
 import net.minecraft.tags.PoiTypeTags;

@@ -7,11 +7,11 @@ import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.data.SPacketRemoveClientTeam;
-import io.github.lightman314.lightmanscurrency.network.message.data.SPacketUpdateClientTeam;
-import io.github.lightman314.lightmanscurrency.network.message.teams.SPacketClearClientTeams;
+import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketRemoveClientTeam;
+import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketUpdateClientTeam;
+import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketClearClientTeams;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -39,13 +39,13 @@ public class TeamSaveData extends SavedData {
 		return id;
 	}
 	private final Map<Long, Team> teams = new HashMap<>();
-
-
+	
+	
 	private TeamSaveData() {}
 	private TeamSaveData(CompoundTag compound) {
-
+		
 		this.nextID = compound.getLong("NextID");
-
+		
 		ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
 		for(int i = 0; i < teamList.size(); ++i)
 		{
@@ -53,24 +53,24 @@ public class TeamSaveData extends SavedData {
 			if(team != null)
 				this.teams.put(team.getID(), team);
 		}
-
+		
 	}
-
+	
 	@Nonnull
 	public CompoundTag save(CompoundTag compound) {
-
+		
 		compound.putLong("NextID", this.nextID);
-
+		
 		ListTag teamList = new ListTag();
 		this.teams.forEach((teamID, team) ->{
 			if(team != null)
 				teamList.add(team.save());
 		});
 		compound.put("Teams", teamList);
-
+		
 		return compound;
 	}
-
+	
 	private static TeamSaveData get() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -81,7 +81,7 @@ public class TeamSaveData extends SavedData {
 		}
 		return null;
 	}
-
+	
 	public static List<Team> GetAllTeams(boolean isClient)
 	{
 		if(isClient)
@@ -96,7 +96,7 @@ public class TeamSaveData extends SavedData {
 			return new ArrayList<>();
 		}
 	}
-
+	
 	public static Team GetTeam(boolean isClient, long teamID)
 	{
 		if(isClient)
@@ -114,7 +114,7 @@ public class TeamSaveData extends SavedData {
 			return null;
 		}
 	}
-
+	
 	public static void MarkTeamDirty(long teamID)
 	{
 		TeamSaveData tsd = get();
@@ -130,7 +130,7 @@ public class TeamSaveData extends SavedData {
 			}
 		}
 	}
-
+	
 	public static Team RegisterTeam(Player owner, String teamName)
 	{
 		TeamSaveData tsd = get();
@@ -139,14 +139,14 @@ public class TeamSaveData extends SavedData {
 			long teamID = tsd.getNextID();
 			Team newTeam = Team.of(teamID, PlayerReference.of(owner), teamName);
 			tsd.teams.put(teamID, newTeam);
-
+			
 			MarkTeamDirty(teamID);
-
+			
 			return newTeam;
 		}
 		return null;
 	}
-
+	
 	public static void RemoveTeam(long teamID)
 	{
 		TeamSaveData tsd = get();
@@ -156,24 +156,25 @@ public class TeamSaveData extends SavedData {
 			{
 				tsd.teams.remove(teamID);
 				tsd.setDirty();
-
+				
 				//Send update packet to the connected clients
 				new SPacketRemoveClientTeam(teamID).sendToAll();
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public static void OnPlayerLogin(PlayerLoggedInEvent event)
 	{
-
+		
 		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
 		TeamSaveData tsd = get();
 
 		SPacketClearClientTeams.INSTANCE.sendToTarget(target);
 
 		tsd.teams.forEach((id, team) -> new SPacketUpdateClientTeam(team.save()).sendToTarget(target));
-
+		
 	}
-
+	
+	
 }

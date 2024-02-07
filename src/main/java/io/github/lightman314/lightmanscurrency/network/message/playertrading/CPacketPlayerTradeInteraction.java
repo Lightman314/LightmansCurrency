@@ -19,7 +19,7 @@ public class CPacketPlayerTradeInteraction extends ClientToServerPacket {
 
     public CPacketPlayerTradeInteraction(int tradeID, CompoundTag message) { this.tradeID = tradeID; this.message = message; }
 
-    public void encode(FriendlyByteBuf buffer) {
+    public void encode(@Nonnull FriendlyByteBuf buffer) {
         buffer.writeInt(this.tradeID);
         buffer.writeNbt(this.message);
     }

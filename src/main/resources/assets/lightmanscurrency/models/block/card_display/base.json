@@ -1,10 +1,7 @@
 {
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/block",
-	"textures": {
-		"wool": "minecraft:block/red_wool",
-		"particle": "#log"
-	},
+	"textures": { "particle": "#log" },
 	"elements": [
 		{
 			"name": "base",

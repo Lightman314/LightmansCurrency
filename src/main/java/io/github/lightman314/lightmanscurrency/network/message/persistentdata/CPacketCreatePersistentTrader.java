@@ -7,9 +7,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,7 +34,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 	
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(@Nonnull FriendlyByteBuf buffer) {
 		buffer.writeLong(this.traderID);
 		buffer.writeUtf(this.id);
 		buffer.writeUtf(this.owner);

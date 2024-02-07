@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.CPacketPlayerTradeInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,7 +23,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
 
     public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading.png");
 
-    private CoinValueInput valueInput;
+    private MoneyValueWidget valueInput;
 
     private EasyButton buttonPropose;
     private EasyButton buttonAccept;
@@ -37,7 +38,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
 
     public PlayerTradeScreen(PlayerTradeMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.resize(176, 222 + CoinValueInput.HEIGHT);
+        this.resize(176, 222 + MoneyValueWidget.HEIGHT);
     }
 
     @Override
@@ -46,29 +47,29 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
         gui.resetColor();
 
         //Render BG
-        gui.blit(GUI_TEXTURE, 0, CoinValueInput.HEIGHT, 0, 0, this.getXSize(), this.getYSize() - CoinValueInput.HEIGHT);
+        gui.blit(GUI_TEXTURE, 0, MoneyValueWidget.HEIGHT, 0, 0, this.getXSize(), this.getYSize() - MoneyValueWidget.HEIGHT);
 
         //Render my arrow
         this.setShaderColorForState(gui, this.menu.myState());
-        gui.blit(GUI_TEXTURE, 77, CoinValueInput.HEIGHT + 50, this.getXSize(), 0, 22, 15);
+        gui.blit(GUI_TEXTURE, 77, MoneyValueWidget.HEIGHT + 50, this.getXSize(), 0, 22, 15);
 
         //Render their arrow
         this.setShaderColorForState(gui, this.menu.otherState());
-        gui.blit(GUI_TEXTURE, 77, CoinValueInput.HEIGHT + 65, this.getXSize(), 15, 22, 15);
+        gui.blit(GUI_TEXTURE, 77, MoneyValueWidget.HEIGHT + 65, this.getXSize(), 15, 22, 15);
 
         gui.resetColor();
 
         //Draw names
         Component leftName = this.menu.isHost() ? this.menu.getTradeData().getHostName() : this.menu.getTradeData().getGuestName();
         Component rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestName() : this.menu.getTradeData().getHostName();
-        gui.drawString(leftName, 8, 6 + CoinValueInput.HEIGHT, 0x404040);
-        gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 6 + CoinValueInput.HEIGHT, 0x404040);
+        gui.drawString(leftName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
+        gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 6 + MoneyValueWidget.HEIGHT, 0x404040);
 
         //Draw money values
-        leftName = this.menu.isHost() ? this.menu.getTradeData().getHostMoney().getComponent() : this.menu.getTradeData().getGuestMoney().getComponent();
-        rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestMoney().getComponent() : this.menu.getTradeData().getHostMoney().getComponent();
-        gui.drawString(leftName, 8, 16 + CoinValueInput.HEIGHT, 0x404040);
-        gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 16 + CoinValueInput.HEIGHT, 0x404040);
+        leftName = this.menu.isHost() ? this.menu.getTradeData().getHostMoney().getText() : this.menu.getTradeData().getGuestMoney().getText();
+        rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestMoney().getText() : this.menu.getTradeData().getHostMoney().getText();
+        gui.drawString(leftName, 8, 16 + MoneyValueWidget.HEIGHT, 0x404040);
+        gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 16 + MoneyValueWidget.HEIGHT, 0x404040);
 
 
     }
@@ -76,12 +77,12 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.valueInput = this.addChild(new CoinValueInput(screenArea.pos, Component.empty(), CoinValue.EMPTY, this.font, this::onValueChanged));
-        this.valueInput.allowFreeToggle = false;
+        this.valueInput = this.addChild(new MoneyValueWidget(screenArea.pos, this.valueInput, MoneyValue.empty(), this::onValueChanged));
+        this.valueInput.allowFreeInput = false;
 
-        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110 + CoinValueInput.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
+        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110 + MoneyValueWidget.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
 
-        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110 + CoinValueInput.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
+        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110 + MoneyValueWidget.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
         this.buttonAccept.active = false;
 
     }
@@ -102,13 +103,13 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
 
     }
 
-    private void onValueChanged(CoinValue newValue) {
+    private void onValueChanged(MoneyValue newValue) {
         CompoundTag message = new CompoundTag();
-        CoinValue availableFunds = this.menu.getAvailableFunds();
-        if(newValue.getValueNumber() > availableFunds.getValueNumber())
+        MoneyView availableFunds = this.menu.getAvailableFunds();
+        if(!availableFunds.containsValue(newValue))
         {
-            newValue = availableFunds;
-            this.valueInput.setCoinValue(newValue);
+            newValue = availableFunds.valueOf(newValue.getUniqueName());
+            this.valueInput.changeValue(newValue);
         }
         message.put("ChangeMoney", newValue.save());
         new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();

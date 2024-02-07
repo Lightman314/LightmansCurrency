@@ -13,7 +13,7 @@ public class ScrollListener implements IScrollListener {
 	public ScreenArea area;
 	private final Function<Double,Boolean> listener;
 	private final IScrollListener deprecatedListener;
-
+	
 	public boolean active = true;
 
 	private static Function<Double,Boolean> convertConsumer(Consumer<Double> consumer) { return d -> { consumer.accept(d); return false; }; }
@@ -44,7 +44,7 @@ public class ScrollListener implements IScrollListener {
 		this.deprecatedListener = listener;
 		this.listener = d -> this.deprecatedListener.mouseScrolled(0d,0d,d);
 	}
-
+	
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
 	{

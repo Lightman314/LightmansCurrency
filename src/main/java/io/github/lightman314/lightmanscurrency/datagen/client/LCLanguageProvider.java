@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
@@ -17,7 +19,7 @@ public class LCLanguageProvider extends LanguageProvider {
     protected final String modid;
     protected final String locale;
 
-    public LCLanguageProvider(DataGenerator output) { this(output, LightmansCurrency.MODID, "gener"); }
+    public LCLanguageProvider(DataGenerator output) { this(output, LightmansCurrency.MODID, "generated"); }
     public LCLanguageProvider(DataGenerator output, String locale) { this(output, LightmansCurrency.MODID, locale); }
 
     protected LCLanguageProvider(DataGenerator output, String modid, String locale) {
@@ -29,9 +31,15 @@ public class LCLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
 
+        Predicate<WoodType> currentTest = w -> w.isMod("quark");
+
         //Will only contain newly added wooden blocks on the patch they are made as a reminder
         // to add names for other MC versions that have different wood compats
-        //this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s 2x2 Shelf", WoodType::isModded);
+        //this.addWoodenBlocks(ModBlocks.AUCTION_STAND, "%s Auction Stand", currentTest);
+        //this.addWoodenBlocks(ModBlocks.SHELF, "%s Shelf", currentTest);
+        //this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s Shelf", currentTest);
+        //this.addWoodenBlocks(ModBlocks.CARD_DISPLAY, "%s Card Display", currentTest);
+        //this.addWoodenBlocks(ModBlocks.BOOKSHELF_TRADER, "%s Bookshelf Trader", currentTest);
 
     }
 
@@ -41,5 +49,15 @@ public class LCLanguageProvider extends LanguageProvider {
     {
         block.forEach((woodType, b) -> { if(generate.test(woodType)) this.addBlock(b, String.format(format, woodType.displayName)); });
     }
+
+    protected void addWoodenBlocks(@Nonnull RegistryObjectBiBundle<? extends Block,WoodType,Color> block, @Nonnull String format, @Nonnull Predicate<WoodType> generate)
+    {
+        block.forEachKey1(w -> {
+            if(generate.test(w))
+                this.addBlock(() -> block.get(w,Color.RED), String.format(format, w.displayName));
+        });
+    }
+
+
 
 }

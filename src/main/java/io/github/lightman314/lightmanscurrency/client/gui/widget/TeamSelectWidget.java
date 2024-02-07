@@ -6,16 +6,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +62,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 		for(TeamButton b : this.teamButtons)
 			b.setVisible(this.visible);
 	}
-
+	
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
@@ -142,5 +140,11 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			return;
 		this.onPress.accept(this.scroll + index);
 	}
+
+	@Override
+	protected boolean isValidClickButton(int button) { return false; }
+	
+	@Override
+	public void playDownSound(@NotNull SoundManager soundManager) { }
 	
 }

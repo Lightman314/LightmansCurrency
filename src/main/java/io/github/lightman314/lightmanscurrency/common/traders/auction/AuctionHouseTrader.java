@@ -5,33 +5,32 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.AuctionBidEvent;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionBidEvent;
+import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -47,7 +46,7 @@ import javax.annotation.Nonnull;
 
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house");
+	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house"),AuctionHouseTrader::new);
 	
 	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
 	
@@ -55,20 +54,21 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
 
-	public static boolean isEnabled() { return Config.SERVER.enableAuctionHouse.get(); }
-	public static boolean shouldShowOnTerminal() { return isEnabled() && Config.SERVER.auctionHouseOnTerminal.get(); }
+	public static boolean isEnabled() { return LCConfig.SERVER.auctionHouseEnabled.get(); }
+	public static boolean shouldShowOnTerminal() { return isEnabled() && LCConfig.SERVER.auctionHouseOnTerminal.get(); }
 
 	@Override
 	public boolean showOnTerminal() { return shouldShowOnTerminal(); }
 	@Override
 	public boolean isCreative() { return true; }
 	
-	public AuctionHouseTrader() {
+	private AuctionHouseTrader() {
 		super(TYPE);
 		this.getOwner().SetCustomOwner(EasyText.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
 	}
 	
-	@Override
+	@Nonnull
+    @Override
 	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override
@@ -93,7 +93,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		return this.trades.indexOf(trade);
 	}
 	
-	//@Override
+	@Override
 	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
 	public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
@@ -252,7 +252,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		}
 	}
 	
-	public void makeBid(Player player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
+	public void makeBid(Player player, TraderMenu menu, int tradeIndex, MoneyValue bidAmount) {
 		
 		AuctionTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null)
@@ -265,17 +265,16 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			return;
 		
 		bidAmount = e1.getBidAmount();
-		
-		ItemStack wallet = LightmansCurrency.getWalletStack(player);
-		long inventoryValue = MoneyUtil.getValue(menu.getCoinInventory());
-		if(!wallet.isEmpty())
-			inventoryValue += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
-    	if(inventoryValue < bidAmount.getValueNumber())
-    		return;
-		if(trade.tryMakeBid(this, player, bidAmount))
+
+		TradeContext tradeContext = menu.getContext(this);
+
+		MoneyView funds = tradeContext.getAvailableFunds();
+
+
+		if(funds.containsValue(bidAmount) && trade.tryMakeBid(this, player, bidAmount))
 		{
 			//Take money from the coin slots & players wallet second
-			MoneyUtil.ProcessPayment(menu.getCoinInventory(), player, bidAmount);
+			tradeContext.getPayment(bidAmount);
 			//Mark storage & trades dirty
 			this.markDirty(this::saveTrades);
 			this.markDirty(this::saveStorage);
@@ -303,18 +302,24 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public void loadAdditionalPersistentData(CompoundTag data) { }
 
 	@Override
-	public Function<TradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) {
-		return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.player) && at.isValid();
+	public Function<TradeData,Boolean> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) {
+		return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid();
 	}
 	
 	@Override
-	public void initStorageTabs(TraderStorageMenu menu) {
+	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
 		//Storage Tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new AuctionStorageTab(menu));
 		//Cancel Trade tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new AuctionTradeCancelTab(menu));
 		//Create Trade tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_MISC, new AuctionCreateTab(menu));
+		//Clear unwanted tabs
+		menu.clearTab(TraderStorageTab.TAB_TRADER_LOGS);
+		menu.clearTab(TraderStorageTab.TAB_TRADER_SETTINGS);
+		menu.clearTab(TraderStorageTab.TAB_TAX_INFO);
+		menu.clearTab(TraderStorageTab.TAB_RULES_TRADER);
+		menu.clearTab(TraderStorageTab.TAB_RULES_TRADE);
 	}
 	
 	@Override
@@ -334,9 +339,6 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	protected void loadAdditionalFromJson(JsonObject json) {}
-
-	@Override
-	public void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
 
 	@Override
 	protected boolean allowAdditionalUpgradeType(UpgradeType type) { return false; }

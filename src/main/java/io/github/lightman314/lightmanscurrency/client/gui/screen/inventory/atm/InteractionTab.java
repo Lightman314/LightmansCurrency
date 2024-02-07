@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.Container;
 
 import javax.annotation.Nonnull;
 
@@ -41,10 +41,10 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		Component accountName = EasyText.literal("ERROR FINDING ACCOUNT");
-		BankAccount account = this.getBankAccount();
+		IBankAccount account = this.getBankAccount();
 		if(account != null)
 			accountName = account.getName();
-		gui.drawString(accountName, 8, 6 + CoinValueInput.HEIGHT, 0x404040);
+		gui.drawString(accountName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
 		this.accountWidget.renderInfo(gui);
 	}
 
@@ -52,9 +52,9 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public Screen getScreen() { return this.screen; }
 
 	@Override
-	public BankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
+	public IBankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
 
 	@Override
-	public Container getCoinAccess() { return this.screen.getMenu().getCoinInput(); }
+	public MoneyContainer getCoinAccess() { return this.screen.getMenu().getCoinInput(); }
 
 }

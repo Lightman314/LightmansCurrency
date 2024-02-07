@@ -1,8 +1,11 @@
 package io.github.lightman314.lightmanscurrency.datagen.util;
 
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+
+import javax.annotation.Nonnull;
 
 public class ColorHelper {
 
@@ -27,4 +30,28 @@ public class ColorHelper {
             default -> Items.WHITE_CONCRETE_POWDER;
         };
     }
+
+    public static Item GetWoolOfColor(Color color)
+    {
+        return switch (color) {
+            case LIGHT_GRAY -> Items.LIGHT_GRAY_WOOL;
+            case GRAY -> Items.GRAY_WOOL;
+            case BLACK -> Items.BLACK_WOOL;
+            case BROWN -> Items.BROWN_WOOL;
+            case RED -> Items.RED_WOOL;
+            case ORANGE -> Items.ORANGE_WOOL;
+            case YELLOW -> Items.YELLOW_WOOL;
+            case LIME -> Items.LIME_WOOL;
+            case GREEN -> Items.GREEN_WOOL;
+            case CYAN -> Items.CYAN_WOOL;
+            case LIGHT_BLUE -> Items.LIGHT_BLUE_WOOL;
+            case BLUE -> Items.BLUE_WOOL;
+            case PURPLE -> Items.PURPLE_WOOL;
+            case MAGENTA -> Items.MAGENTA_WOOL;
+            case PINK -> Items.PINK_WOOL;
+            default -> Items.WHITE_WOOL;
+        };
+    }
+
+    public static ResourceLocation GetWoolTextureOfColor(@Nonnull Color color) { return new ResourceLocation("block/" + color.getResourceSafeName() + "_wool"); }
 }

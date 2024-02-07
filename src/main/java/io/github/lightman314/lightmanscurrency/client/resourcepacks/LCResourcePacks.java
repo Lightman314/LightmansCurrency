@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.resourcepacks;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionBlockManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
@@ -29,7 +29,7 @@ public class LCResourcePacks {
 
     private static final List<CustomResourcePack> packList = new ArrayList<>();
 
-    public static final CustomResourcePack RUPEE_PACK = registerPack(LightmansCurrency.MODID, "RupeePack",EasyText.translatable("resourcepack.lightmanscurrency.rupees"));
+    public static final CustomResourcePack RUPEE_PACK = registerPack(LightmansCurrency.MODID, "RupeePack", EasyText.translatable("resourcepack.lightmanscurrency.rupees"));
     public static final CustomResourcePack FANCY_ITEMS_PACK = registerPack(LightmansCurrency.MODID, "CloserItemsPack",EasyText.translatable("resourcepack.lightmanscurrency.closer_items"));
 
     @Nonnull

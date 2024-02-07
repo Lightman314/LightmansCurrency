@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_c
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
 public class InfoTab extends TaxCollectorTab {
 

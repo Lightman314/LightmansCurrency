@@ -1,25 +1,24 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWalletBank;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletExchangeCoins;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletQuickCollect;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletToggleAutoExchange;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWalletBank;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletExchangeCoins;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletQuickCollect;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletToggleAutoExchange;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +27,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 import javax.annotation.Nonnull;
 
-@IPNIgnore
 public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 	private final int BASEHEIGHT = 114;

@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;

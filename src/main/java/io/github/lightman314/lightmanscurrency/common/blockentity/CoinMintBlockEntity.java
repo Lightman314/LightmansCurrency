@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
@@ -43,27 +44,27 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	public int getMintTime() { return this.mintTime; }
 	public float getMintProgress() { return (float)this.mintTime/(float)this.getExpectedMintTime(); }
 	public int getExpectedMintTime() { if(this.lastRelevantRecipe != null) return this.lastRelevantRecipe.getDuration(); return -1; }
-
+	
 	private final MintItemCapability itemHandler = new MintItemCapability(this);
 	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> this.itemHandler);
-
+	
 	private List<CoinMintRecipe> getCoinMintRecipes()
 	{
 		if(this.level != null)
 			return getCoinMintRecipes(this.level);
 		return Lists.newArrayList();
 	}
-
-	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidRecipes(level).getCoinMintRecipes(); }
-
+	
+	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidMintRecipes(level); }
+	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
-
+	
 	protected CoinMintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
 		this.storage.addListener(this::onInventoryChanged);
 	}
-
+	
 	@Override
 	public void saveAdditional(@NotNull CompoundTag compound)
 	{
@@ -71,12 +72,12 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		compound.putInt("MintTime", this.mintTime);
 		super.saveAdditional(compound);
 	}
-
+	
 	@Override
 	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
-
+		
 		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
 		this.storage.addListener(this::onInventoryChanged);
 
@@ -135,7 +136,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	}
 
 	public void dumpContents(Level world, BlockPos pos) { InventoryUtil.dumpContents(world, pos, this.storage); }
-
+	
 	//Coin Minting Functions
 	public boolean validMintInput(ItemStack item)
 	{
@@ -148,10 +149,10 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns the amount of available empty space the output slot has.
-	 * Returns 0 if the mint input does not create the same item currently in the output slot.
+	 * Returns 0 if the mint input does not createTrue the same item currently in the output slot.
 	 */
 	public boolean hasOutputSpace()
 	{
@@ -164,7 +165,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			return true;
 		else if(!InventoryUtil.ItemMatches(currentOutputSlot, mintOutput))
 			return false;
-		return currentOutputSlot.getMaxStackSize() - currentOutputSlot.getCount() >= this.lastRelevantRecipe.getResultItem().getCount();
+		return currentOutputSlot.getMaxStackSize() - currentOutputSlot.getCount() >= this.lastRelevantRecipe.getOutputItem().getCount();
 	}
 
 	@Nullable
@@ -180,7 +181,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		}
 		return null;
 	}
-
+	
 	public void mintCoin()
 	{
 		this.lastRelevantRecipe = this.getRelevantRecipe();
@@ -190,7 +191,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		//Ignore if no valid input is present
 		if(mintOutput.isEmpty())
 			return;
-
+		
 		//Confirm that the output slot has enough room for the expected outputs
 		if(!this.hasOutputSpace())
 			return;
@@ -198,7 +199,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		//Confirm that we have the required inputs
 		if(this.storage.getItem(0).getCount() < this.lastRelevantRecipe.ingredientCount)
 			return;
-
+		
 		//Place the output item(s)
 		if(this.getStorage().getItem(1).isEmpty())
 		{
@@ -208,40 +209,40 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		{
 			this.getStorage().getItem(1).grow(mintOutput.getCount());
 		}
-
+		
 		//Remove the input item(s)
 		this.getStorage().removeItem(0, mintOutput.getCount());
-
+		
 		//Job is done!
 		this.setChanged();
-
+		
 	}
-
+	
 	//Item capability for hopper and item automation
 	@Nonnull
 	@Override
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) { return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, this.inventoryHandlerLazyOptional); }
-
+	
 	@Override
 	public void invalidateCaps()
 	{
 		super.invalidateCaps();
 		this.inventoryHandlerLazyOptional.invalidate();
 	}
-
+	
 	public static class MintItemCapability implements IItemHandler
 	{
 
 		final CoinMintBlockEntity mint;
 		public MintItemCapability(CoinMintBlockEntity tileEntity) { this.mint = tileEntity; }
-
+		
 		@Override
 		public int getSlots() { return this.mint.getStorage().getContainerSize(); }
 
 		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) { return this.mint.getStorage().getItem(slot); }
-
+		
 		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
@@ -270,7 +271,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 						this.mint.getStorage().setItem(0, stack.copy());
 					return ItemStack.EMPTY;
 				}
-
+				
 			}
 			else if(InventoryUtil.ItemMatches(currentStack, stack))
 			{
@@ -295,17 +296,17 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			//Can only extract from slot 1
 			if(slot != 1)
 				return ItemStack.EMPTY;
-
+			
 			//LightmansCurrency.LogInfo("Attempting to extract " + amount + " items from the coin mint.");
 			//Limit request amount to 1 stack
 			amount = MathUtil.clamp(amount, 0, 64);
 			//Copy so that the simulation doesn't cause problems
 			ItemStack currentStack = this.mint.getStorage().getItem(1).copy();
-
+			
 			//No items to output even after attempting to mint
 			if(currentStack.isEmpty())
 				return ItemStack.EMPTY;
-
+			
 			ItemStack outputStack = currentStack.copy();
 			//Get the output stack
 			if(outputStack.getCount() > amount)
@@ -327,7 +328,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 
 		@Override
 		public boolean isItemValid(int slot, @NotNull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
-
+		
 	}
-
+	
 }

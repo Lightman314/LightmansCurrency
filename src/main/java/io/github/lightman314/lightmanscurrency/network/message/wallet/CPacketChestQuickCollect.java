@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,13 +14,13 @@ public class CPacketChestQuickCollect extends ClientToServerPacket {
 
 	public static final Handler<CPacketChestQuickCollect> HANDLER = new H();
 
-	private final boolean allowHidden;
+	private final boolean allowSideChains;
 
-	private CPacketChestQuickCollect(boolean allowHidden) { this.allowHidden = allowHidden; }
+	private CPacketChestQuickCollect(boolean allowSideChains) { this.allowSideChains = allowSideChains; }
 
-	public static void sendToServer() { new CPacketChestQuickCollect(Config.CLIENT.chestButtonAllowHidden.get()).send(); }
+	public static void sendToServer() { new CPacketChestQuickCollect(LCConfig.CLIENT.chestButtonAllowSideChains.get()).send(); }
 
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.allowHidden); }
+	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.allowSideChains); }
 
 	private static class H extends Handler<CPacketChestQuickCollect>
 	{
@@ -32,7 +32,7 @@ public class CPacketChestQuickCollect extends ClientToServerPacket {
 			if(sender != null)
 			{
 				if(sender.containerMenu instanceof ChestMenu menu)
-					WalletItem.QuickCollect(sender, menu.getContainer(), message.allowHidden);
+					WalletItem.QuickCollect(sender, menu.getContainer(), message.allowSideChains);
 			}
 		}
 	}

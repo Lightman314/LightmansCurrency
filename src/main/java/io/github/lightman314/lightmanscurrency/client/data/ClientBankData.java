@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -28,19 +28,14 @@ public class ClientBankData {
 		return new BankAccount();
 	}
 	
-	public static void InitBankAccounts(Map<UUID,BankAccount> bankAccounts)
-	{
-		loadedBankAccounts.clear();
-		loadedBankAccounts.putAll(bankAccounts);
-	}
+	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
 	
-	public static void UpdateBankAccount(CompoundTag compound)
+	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {
-			UUID owner = compound.getUUID("Player");
 			BankAccount account = new BankAccount(compound);
-			if(owner != null && account != null)
-				loadedBankAccounts.put(owner, account);
+			if(player != null && account != null)
+				loadedBankAccounts.put(player, account);
 		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
@@ -48,7 +43,9 @@ public class ClientBankData {
 		lastSelectedAccount = reference;
 	}
 	
-	public static BankReference GetLastSelectedAccount() { return lastSelectedAccount; }
+	public static BankReference GetLastSelectedAccount() {
+		return lastSelectedAccount;
+	}
 	
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {

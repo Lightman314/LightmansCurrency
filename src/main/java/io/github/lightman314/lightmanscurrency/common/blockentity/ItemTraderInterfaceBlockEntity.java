@@ -4,22 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -395,7 +397,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public boolean allowAdditionalUpgrade(UpgradeType type) { return type == UpgradeType.ITEM_CAPACITY; }
+	public boolean allowAdditionalUpgrade(UpgradeType type) { return type == Upgrades.ITEM_CAPACITY; }
 
 	@Override
 	public void getAdditionalContents(List<ItemStack> contents) {

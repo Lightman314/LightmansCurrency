@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -30,8 +31,7 @@ public class EasyScreenHelper {
             tooltipSource.renderTooltip(gui);
     }
 
-    public static List<Component> getTooltipFromItem(ItemStack item)
-    {
+    public static List<Component> getTooltipFromItem(ItemStack item) {
         Minecraft mc = Minecraft.getInstance();
         return item.getTooltipLines(mc.player, mc.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
     }

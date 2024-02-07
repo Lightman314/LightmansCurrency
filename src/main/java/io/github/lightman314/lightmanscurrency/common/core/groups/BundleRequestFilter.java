@@ -11,4 +11,5 @@ public enum BundleRequestFilter {
     private final Function<Object,Boolean> filter;
     BundleRequestFilter(Function<Object,Boolean> filter) { this.filter = filter; }
     public final boolean filterKey(Object key) { return this.filter.apply(key); }
+
 }

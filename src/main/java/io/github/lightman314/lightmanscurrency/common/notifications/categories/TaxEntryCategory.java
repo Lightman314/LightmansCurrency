@@ -1,9 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -13,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class TaxEntryCategory extends NotificationCategory {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"tax_entry");
+    public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"tax_entry"),TaxEntryCategory::new);
 
     private final long entryID;
     private final MutableComponent entryName;
@@ -37,11 +38,13 @@ public class TaxEntryCategory extends NotificationCategory {
     @Override
     public IconData getIcon() { return IconData.of(ModBlocks.TAX_COLLECTOR); }
 
+    @Nonnull
     @Override
     public MutableComponent getName() { return this.getEntryName(); }
 
+    @Nonnull
     @Override
-    protected ResourceLocation getType() { return TYPE; }
+    protected NotificationCategoryType<TaxEntryCategory> getType() { return TYPE; }
 
     @Override
     public boolean matches(NotificationCategory other) {

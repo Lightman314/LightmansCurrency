@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -97,7 +97,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
             if(entry != null)
             {
                 int entryIndex = this.entryIndex.get();
-                ItemStack heldItem = this.tab.menu.getCarried();
+                ItemStack heldItem = this.tab.menu.getHeldItem();
                 if(mouseY >= this.getY() + ITEM_POSY && mouseY < this.getY() + ITEM_POSY + 16)
                 {
                     int itemIndex = getItemSlotIndex(mouseX);
@@ -108,7 +108,11 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                             if(!heldItem.isEmpty())
                             {
                                 if(rightClick) //If right-click, set as 1
-                                    this.tab.commonTab.AddEntryItem(entryIndex, InventoryUtil.copyWithCount(heldItem,1));
+                                {
+                                    ItemStack copy = heldItem.copy();
+                                    copy.setCount(1);
+                                    this.tab.commonTab.AddEntryItem(entryIndex, copy);
+                                }
                                 else //Otherwise add whole stack
                                     this.tab.commonTab.AddEntryItem(entryIndex, heldItem);
                                 return true;
@@ -142,7 +146,11 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                                     this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, newStack);
                                 }
                                 else
-                                    this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, InventoryUtil.copyWithCount(heldItem,1));
+                                {
+                                    ItemStack copy = heldItem.copy();
+                                    copy.setCount(1);
+                                    this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, copy);
+                                }
                                 return true;
                             }
                             else //Replace with new held item
@@ -212,5 +220,4 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
         }
         return null;
     }
-
 }

@@ -2,18 +2,21 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.*;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.money.util.CoinContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
@@ -44,7 +47,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CoinChestBlockEntity extends EasyBlockEntity implements UpgradeType.IUpgradeable, IClientTicker, IServerTicker, LidBlockEntity {
+public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeable, IClientTicker, IServerTicker, LidBlockEntity {
 
     private final ChestLidController chestLidController = new ChestLidController();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
@@ -270,7 +273,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements UpgradeType
     }
 
     @Override
-    public boolean allowUpgrade(UpgradeType type) { return type instanceof CoinChestUpgrade upgrade && (upgrade.allowsDuplicates() || !this.hasChestUpgradeOfType(upgrade)); }
+    public boolean allowUpgrade(@Nonnull UpgradeType type) { return type instanceof CoinChestUpgrade upgrade && (upgrade.allowsDuplicates() || !this.hasChestUpgradeOfType(upgrade)); }
 
     public boolean allowAccess(Player player)
     {
@@ -311,7 +314,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements UpgradeType
         private final CoinChestBlockEntity blockEntity;
         public ItemHandler(CoinChestBlockEntity blockEntity) { super(blockEntity.storage); this.blockEntity = blockEntity; }
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return MoneyUtil.isCoin(stack); }
+        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.isCoin(stack, false); }
         @Override
         public Container getInv() { return this.blockEntity.storage; }
     }

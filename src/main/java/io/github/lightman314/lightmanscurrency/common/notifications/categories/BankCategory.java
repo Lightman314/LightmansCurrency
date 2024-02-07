@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -10,9 +11,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class BankCategory extends NotificationCategory {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank");
+	public static final NotificationCategoryType<BankCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID, "bank"),BankCategory::new);
 	
 	private final MutableComponent name;
 	
@@ -22,20 +25,22 @@ public class BankCategory extends NotificationCategory {
 		this.name = Component.Serializer.fromJson(compound.getString("Name"));
 	}
 
+	@Nonnull
 	@Override
 	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.ATM); }
 
+	@Nonnull
 	@Override
 	public MutableComponent getName() { return this.name; }
 
-	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	protected NotificationCategoryType<BankCategory> getType() { return TYPE; }
 
 	@Override
 	public boolean matches(NotificationCategory other) {
-		if(other instanceof BankCategory)
+		if(other instanceof BankCategory bc)
 		{
-			BankCategory bc = (BankCategory)other;
 			return bc.name.getString().equals(this.name.getString());
 		}
 		return false;

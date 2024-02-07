@@ -14,20 +14,20 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -206,7 +206,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public void renderTick() { this.validateScroll(); }
 
 	@Override
-	public void tick() {
+	public void tick()
+	{
 		if(this.allButtons.size() < this.requiredButtons())
 		{
 			//If we need to add more lines, recreate the buttons
@@ -321,7 +322,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public List<Component> getTooltipText(int mouseX, int mouseY) {
-		//Don't need to render button tooltips as that's handled by the button itself now
+		//Don't need to renderBG button tooltips as that's handled by the button itself now
 		if(this.hasTitlePosition)
 		{
 			if(this.titlePosition.isMouseInArea(mouseX, mouseY, this.titleWidth, this.font.lineHeight))

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
@@ -12,12 +13,11 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -76,9 +76,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
         PlayerTradeLimit rule = this.getRule();
         if(rule != null)
             rule.setLimit(limit);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putInt("Limit", limit);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleInt("Limit", limit));
     }
 
     void PressClearMemoryButton(EasyButton button)
@@ -86,9 +84,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
         PlayerTradeLimit rule = this.getRule();
         if(rule != null)
             rule.resetMemory();
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putBoolean("ClearMemory", true);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleFlag("Limit"));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime) {
@@ -96,9 +92,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
         PlayerTradeLimit rule = this.getRule();
         if(rule != null)
             rule.setTimeLimit(timeLimit);
-        CompoundTag updateInfo = new CompoundTag();
-        updateInfo.putLong("TimeLimit", timeLimit);
-        this.sendUpdateMessage(updateInfo);
+        this.sendUpdateMessage(LazyPacketData.simpleLong("TimeLimit", timeLimit));
     }
 
 }

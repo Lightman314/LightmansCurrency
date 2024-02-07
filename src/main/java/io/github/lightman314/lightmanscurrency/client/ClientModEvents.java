@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.CoinChestRenderer;

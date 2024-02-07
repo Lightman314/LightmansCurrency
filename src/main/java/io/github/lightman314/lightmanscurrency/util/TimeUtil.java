@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,7 +23,7 @@ public class TimeUtil {
 	 */
 	public static long getCurrentTime() { return System.currentTimeMillis() + LightmansCurrency.PROXY.getTimeDesync(); }
 
-	public static String formatTime(long timeStamp) { return new SimpleDateFormat(Config.CLIENT.timeFormat.get()).format(new Date(timeStamp - LightmansCurrency.PROXY.getTimeDesync())); }
+	public static String formatTime(long timeStamp) { return new SimpleDateFormat(LCConfig.CLIENT.timeFormat.get()).format(new Date(timeStamp - LightmansCurrency.PROXY.getTimeDesync())); }
 
 	/**
 	 * Calculates if the compareTime is less than the duration before the current time.

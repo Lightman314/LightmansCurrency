@@ -3,18 +3,21 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -126,12 +129,27 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateTicket(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
 
+	public static ItemStack CraftTicket(@Nonnull ItemStack master, @Nonnull Item item)
+	{
+		if(isMasterTicket(master))
+			return CreateTicketInternal(item, GetTicketID(master), GetTicketColor(master), 1);
+		return ItemStack.EMPTY;
+	}
+
 	private static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);
+		return ticket;
+	}
+
+	public static ItemStack CreateExampleTicket(@Nonnull Item item, @Nonnull Color color)
+	{
+		ItemStack ticket = new ItemStack(item);
+		CompoundTag tag = ticket.getOrCreateTag();
+		tag.putInt("TicketColor", color.hexColor);
 		return ticket;
 	}
 
@@ -154,5 +172,10 @@ public class TicketItem extends Item{
 		
 		return list;
 	}
-	
+
+	@Override
+	public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> list) {
+		if(this.allowedIn(tab))
+			list.add(CreateTicketInternal(this, CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR, 1));
+	}
 }

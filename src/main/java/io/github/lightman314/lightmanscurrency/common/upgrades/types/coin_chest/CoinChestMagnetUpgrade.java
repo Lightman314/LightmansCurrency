@@ -2,14 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.math.Vector3f;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +27,7 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
     public static final String RANGE = "magnet_range";
 
     @Override
-    public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message) { }
+    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) { }
 
     @Override
     public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { }
@@ -35,13 +35,12 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
     public int getRadius(CoinChestUpgradeData data) { return data.getUpgradeData().getIntValue(RANGE); }
 
     @Override
-    public void OnServerTick(CoinChestBlockEntity be, CoinChestUpgradeData data) {
+    public void OnServerTick(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         int radius = this.getRadius(data);
-        BlockPos blockPos = be.getBlockPos();
-        Vector3f pos = new Vector3f(blockPos.getX() + 0.5f, blockPos.getY() + 0.5f, blockPos.getZ() + 0.5f);
+        Vector3f pos = new Vector3f(be.getBlockPos().getX() + 0.5f, be.getBlockPos().getY() + 0.5f, be.getBlockPos().getZ() + 0.5f);
         AABB searchBox = new AABB(pos.x() - radius, pos.y() - radius, pos.z() - radius, pos.x() + radius, pos.y() + radius, pos.z() + radius);
         boolean playSound = false;
-        for(Entity e : be.getLevel().getEntities((Entity)null, searchBox, e -> e instanceof ItemEntity item && MoneyUtil.isCoin(item.getItem(), true)))
+        for(Entity e : be.getLevel().getEntities((Entity)null, searchBox, e -> e instanceof ItemEntity item && CoinAPI.isCoin(item.getItem(), true)))
         {
             ItemEntity ie = (ItemEntity)e;
             ItemStack coinStack = ie.getItem();
@@ -59,6 +58,7 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
             be.getLevel().playSound(null, be.getBlockPos(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
     }
 
+    @Nonnull
     @Override
     protected List<String> getDataTags() { return ImmutableList.of(RANGE); }
 
@@ -69,7 +69,8 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
         return null;
     }
 
+    @Nonnull
     @Override
-    public List<Component> getTooltip(UpgradeData data) { return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.magnet", data.getIntValue(RANGE))); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) { return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.magnet", data.getIntValue(RANGE))); }
 
 }

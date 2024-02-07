@@ -2,16 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
@@ -21,14 +19,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
-@IPNIgnore
-public class TraderScreen extends EasyMenuScreen<TraderMenu> {
+public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderScreen {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
@@ -45,6 +43,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 	IconButton buttonOpenTerminal;
 	
 	TraderClientTab currentTab = DEFAULT_TAB;
+	@Override
 	public void setTab(@Nonnull TraderClientTab tab) {
 		//Close the old tab
 		this.currentTab.onClose();
@@ -91,9 +90,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 		
 	}
 	
-	private boolean showTerminalButton() {
-		return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); 
-	}
+	private boolean showTerminalButton() { return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); }
 
 	@Override
 	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
@@ -120,7 +117,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> {
 		gui.drawString(this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 
 		//Moved to underneath the coin slots
-		String valueText = MoneyUtil.getStringOfValue(this.menu.getContext(null).getAvailableFunds());
+		Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueText();
 		gui.drawString(valueText, TraderMenu.SLOT_OFFSET + 170 - gui.font.width(valueText) - 10, this.imageHeight - 94, 0x404040);
 
 	}

@@ -1,23 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.bank;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketClearClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketInitializeClientBank;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketUpdateClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketUpdateClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketSyncSelectedBankAccount;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,7 +27,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class BankSaveData extends SavedData {
@@ -53,7 +50,8 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public @NotNull CompoundTag save(CompoundTag compound) {
+	@Nonnull
+	public CompoundTag save(CompoundTag compound) {
 		
 		ListTag bankData = new ListTag();
 		this.playerBankData.forEach((player,data) -> {
@@ -137,9 +135,7 @@ public class BankSaveData extends SavedData {
 			bsd.setDirty();
 			//Send update packet to all connected clients
 			BankAccount bankAccount = GetBankAccount(false, player);
-			CompoundTag compound = bankAccount.save();
-			compound.putUUID("Player", player);
-			new SPacketUpdateClientBank(compound).sendToAll();
+			new SPacketUpdateClientBank(player, bankAccount.save()).sendToAll();
 		}
 	}
 	
@@ -218,16 +214,9 @@ public class BankSaveData extends SavedData {
 		
 		//Confirm the presence of the loading players bank account
 		GetBankAccount(event.getEntity());
-		
-		CompoundTag compound = new CompoundTag();
-		ListTag bankList = new ListTag();
-		bsd.playerBankData.forEach((id, data) -> {
-			CompoundTag tag = data.getFirst().save();
-			tag.putUUID("Player", id);
-			bankList.add(tag);
-		});
-		compound.put("BankAccounts", bankList);
-		new SPacketInitializeClientBank(compound).sendToTarget(target);
+
+		SPacketClearClientBank.INSTANCE.sendToTarget(target);
+		bsd.playerBankData.forEach((id, data) -> new SPacketUpdateClientBank(id, data.getFirst().save()).sendToTarget(target));
 		
 		//Update to let them know their selected bank account
 		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());

@@ -3,15 +3,15 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TimedSaleTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 
 public class TimedSale extends PriceTweakingTradeRule {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "timed_sale");
+	public static final TradeRuleType<TimedSale> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "timed_sale"),TimedSale::new);
 	
 	long startTime = 0;
 	public void setStartTime(long time) { this.startTime = time; }
@@ -38,7 +38,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	public int getDiscount() { return this.discount; }
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
 	
-	public TimedSale() { super(TYPE); }
+	private TimedSale() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event)
@@ -88,7 +88,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		//Write start time
 		compound.putLong("startTime", this.startTime);
@@ -99,7 +99,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json) {
 		
 		json.addProperty("duration", this.duration);
 		json.addProperty("discount", this.discount);
@@ -108,7 +108,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		
 		//Load start time
 		if(compound.contains("startTime", Tag.TAG_LONG))
@@ -123,7 +123,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json) {
 		if(json.has("duration"))
 			this.duration = json.get("duration").getAsLong();
 		if(json.has("discount"))
@@ -131,7 +131,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void handleUpdateMessage(CompoundTag updateInfo) {
+	public void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
 		if(updateInfo.contains("Discount"))
 		{
 			this.discount = updateInfo.getInt("Discount");

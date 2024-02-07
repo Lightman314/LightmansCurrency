@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -29,26 +29,26 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleWaterloggedBlock{
-
+	
 	private final VoxelShape shape;
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-
+	
 	public CoinpileBlock(Properties properties, Supplier<Item> coinItem)
 	{
 		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
 	}
-
+	
 	public CoinpileBlock(Properties properties, Supplier<Item> coinItem, VoxelShape shape)
 	{
 		super(properties, coinItem);
 		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;
 		this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
 	}
-
+	
 	@Override
 	protected int getCoinCount() { return 9; }
-
+	
 	@Nullable
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		BlockPos blockpos = context.getClickedPos();
@@ -60,15 +60,15 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	@Nonnull
 	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
-
+	
 	@Override
-	protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
-	{
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
+    {
 		super.createBlockStateDefinition(builder);
-		builder.add(FACING);
-		builder.add(WATERLOGGED);
-	}
-
+        builder.add(FACING);
+        builder.add(WATERLOGGED);
+    }
+	
 	@Nonnull
 	public BlockState updateShape(BlockState p_56381_, @Nonnull Direction p_56382_, @Nonnull BlockState p_56383_, @Nonnull LevelAccessor p_56384_, @Nonnull BlockPos p_56385_, @Nonnull BlockPos p_56386_) {
 		if (p_56381_.getValue(WATERLOGGED)) {
@@ -77,7 +77,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 
 		return super.updateShape(p_56381_, p_56382_, p_56383_, p_56384_, p_56385_, p_56386_);
 	}
-
+	
 	@Override
 	@Nonnull
 	@SuppressWarnings("deprecation")
@@ -89,7 +89,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	public FluidState getFluidState(BlockState state) {
 		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
-
+	
 	@Override
 	@SuppressWarnings("deprecation")
 	public boolean isPathfindable(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull PathComputationType type) {
@@ -98,5 +98,5 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 		}
 		return false;
 	}
-
+	
 }

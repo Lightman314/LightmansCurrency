@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings;
 
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
@@ -15,8 +15,8 @@ public abstract class SettingsSubTab extends EasyTab {
 
     public final TraderSettingsClientTab parent;
     public final TraderSettingsTab commonTab;
-    public final TraderStorageScreen screen;
-    public final TraderStorageMenu menu;
+    public final ITraderStorageScreen screen;
+    public final ITraderStorageMenu menu;
 
     private final List<Object> children = new ArrayList<>();
 

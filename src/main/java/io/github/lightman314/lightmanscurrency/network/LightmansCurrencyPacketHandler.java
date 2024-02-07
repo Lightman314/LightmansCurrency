@@ -4,13 +4,18 @@ import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
+import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.team.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
+import io.github.lightman314.lightmanscurrency.network.message.event.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.tax.*;
@@ -18,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
+import io.github.lightman314.lightmanscurrency.network.message.time.*;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,9 +34,7 @@ import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyData;
-import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
+
 
 import javax.annotation.Nonnull;
 
@@ -55,7 +59,7 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketOpenATM.class, CPacketOpenATM.HANDLER);
 		register(CPacketSelectBankAccount.class, CPacketSelectBankAccount.HANDLER);
 		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
-		register(SPacketInitializeClientBank.class, SPacketInitializeClientBank.HANDLER);
+		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
 		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
 		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
 		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
@@ -134,11 +138,8 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketSyncAdminList.class, SPacketSyncAdminList.HANDLER);
 		register(SPacketDebugTrader.class, SPacketDebugTrader.HANDLER);
 		
-		//Money Data
-		register(MoneyData.class, MoneyData.PACKET_HANDLER);
-		
-		//ATM Data
-		register(ATMData.class, ATMData.PACKET_HANDLER);
+		//Coin Data
+		register(SPacketSyncCoinData.class, SPacketSyncCoinData.HANDLER);
 		
 		//Enchantments
 		register(SPacketMoneyMendingClink.class, SPacketMoneyMendingClink.HANDLER);
@@ -154,6 +155,17 @@ public class LightmansCurrencyPacketHandler {
 		//Player Trading
 		register(SPacketSyncPlayerTrade.class, SPacketSyncPlayerTrade.HANDLER);
 		register(CPacketPlayerTradeInteraction.class, CPacketPlayerTradeInteraction.HANDLER);
+
+		//Event Tracker Syncing
+		register(SPacketSyncEventUnlocks.class, SPacketSyncEventUnlocks.HANDLER);
+
+		//Config System
+		register(SPacketSyncConfig.class, SPacketSyncConfig.HANDLER);
+		register(SPacketReloadConfig.class, SPacketReloadConfig.HANDLER);
+		register(SPacketEditConfig.class, SPacketEditConfig.HANDLER);
+		register(SPacketEditListConfig.class, SPacketEditListConfig.HANDLER);
+		register(SPacketResetConfig.class, SPacketResetConfig.HANDLER);
+		register(SPacketViewConfig.class, SPacketViewConfig.HANDLER);
 
 
 	}

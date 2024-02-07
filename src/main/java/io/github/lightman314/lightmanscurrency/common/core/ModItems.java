@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.items.*;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.RegistryObject;
@@ -18,12 +20,37 @@ public class ModItems {
 	//Register the items
 	static {
 		//Coins
-		COIN_COPPER = ModRegistries.ITEMS.register("coin_copper", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
-		COIN_IRON = ModRegistries.ITEMS.register("coin_iron", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
-		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
-		COIN_EMERALD = ModRegistries.ITEMS.register("coin_emerald", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
-		COIN_DIAMOND = ModRegistries.ITEMS.register("coin_diamond", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
-		COIN_NETHERITE = ModRegistries.ITEMS.register("coin_netherite", () -> new CoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup()).fireResistant()));
+		COIN_COPPER = ModRegistries.ITEMS.register("coin_copper", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
+		COIN_IRON = ModRegistries.ITEMS.register("coin_iron", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
+		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
+		COIN_EMERALD = ModRegistries.ITEMS.register("coin_emerald", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
+		COIN_DIAMOND = ModRegistries.ITEMS.register("coin_diamond", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
+		COIN_NETHERITE = ModRegistries.ITEMS.register("coin_netherite", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup()).fireResistant()));
+
+		//Chocolate Coins
+		COIN_CHOCOLATE_COPPER = ModRegistries.ITEMS.register("coin_chocolate_copper", () -> new ChocolateCoinItem(new Item.Properties().tab(ModCreativeGroups.getCoinGroup()), 1f));
+		COIN_CHOCOLATE_IRON = ModRegistries.ITEMS.register("coin_chocolate_iron", () -> new ChocolateCoinItem(
+				new Item.Properties().tab(ModCreativeGroups.getCoinGroup()),
+				new MobEffectInstance(MobEffects.DIG_SPEED, 600)
+		));
+		COIN_CHOCOLATE_GOLD = ModRegistries.ITEMS.register("coin_chocolate_gold", () -> new ChocolateCoinItem(
+				new Item.Properties().tab(ModCreativeGroups.getCoinGroup()),
+				new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 800)
+		));
+		COIN_CHOCOLATE_EMERALD = ModRegistries.ITEMS.register("coin_chocolate_emerald", () -> new ChocolateCoinItem(
+				new Item.Properties().tab(ModCreativeGroups.getCoinGroup()),
+				new MobEffectInstance(MobEffects.LUCK, 1000)
+		));
+		COIN_CHOCOLATE_DIAMOND = ModRegistries.ITEMS.register("coin_chocolate_diamond", () -> new ChocolateCoinItem(
+				new Item.Properties().tab(ModCreativeGroups.getCoinGroup()),
+				new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1200)
+		));
+		COIN_CHOCOLATE_NETHERITE = ModRegistries.ITEMS.register("coin_chocolate_netherite", () -> new ChocolateCoinItem(
+				new Item.Properties().tab(ModCreativeGroups.getCoinGroup()).fireResistant(),
+				new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 2400),
+				new MobEffectInstance(MobEffects.ABSORPTION, 2400, 4),
+				new MobEffectInstance(MobEffects.REGENERATION, 100, 1)
+		));
 
 		//Misc
 		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
@@ -48,9 +75,9 @@ public class ModItems {
 		PORTABLE_ATM = ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup())));
 
 		//Item Capacity Upgrades
-		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade1, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade2, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade3, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
 
 		//Speed Upgrades
 		SPEED_UPGRADE_1 = ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
@@ -60,18 +87,18 @@ public class ModItems {
 		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
 
 		//Network Upgrade
-		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(UpgradeType.NETWORK, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(Upgrades.NETWORK, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
 
 		//Hopper Upgrade
-		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(UpgradeType.HOPPER, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(Upgrades.HOPPER, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
 
 		//Coin Chest Upgrades
-		COIN_CHEST_EXCHANGE_UPGRADE = ModRegistries.ITEMS.register("coin_chest_exchange_upgrade", () -> new UpgradeItem.Simple(UpgradeType.COIN_CHEST_EXCHANGE, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		COIN_CHEST_MAGNET_UPGRADE_1 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_1", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange1, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		COIN_CHEST_MAGNET_UPGRADE_2 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_2", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange2, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		COIN_CHEST_MAGNET_UPGRADE_3 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_3", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange3, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange4, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
-		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(UpgradeType.COIN_CHEST_SECURITY, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_EXCHANGE_UPGRADE = ModRegistries.ITEMS.register("coin_chest_exchange_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_EXCHANGE, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_MAGNET_UPGRADE_1 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_1", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange1, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_MAGNET_UPGRADE_2 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_2", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange2, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_MAGNET_UPGRADE_3 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_3", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange3, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange4, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
+		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties().tab(ModCreativeGroups.getUpgradeGroup())));
 
 	}
 
@@ -82,6 +109,13 @@ public class ModItems {
 	public static final RegistryObject<Item> COIN_EMERALD;
 	public static final RegistryObject<Item> COIN_DIAMOND;
 	public static final RegistryObject<Item> COIN_NETHERITE;
+
+	public static final RegistryObject<Item> COIN_CHOCOLATE_COPPER;
+	public static final RegistryObject<Item> COIN_CHOCOLATE_IRON;
+	public static final RegistryObject<Item> COIN_CHOCOLATE_GOLD;
+	public static final RegistryObject<Item> COIN_CHOCOLATE_EMERALD;
+	public static final RegistryObject<Item> COIN_CHOCOLATE_DIAMOND;
+	public static final RegistryObject<Item> COIN_CHOCOLATE_NETHERITE;
 
 	public static final RegistryObject<Item> TRADING_CORE;
 	public static final RegistryObject<Item> TICKET;

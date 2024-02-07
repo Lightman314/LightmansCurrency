@@ -9,9 +9,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.IUpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeItem;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class UpgradeItem extends Item implements IUpgradeItem{
 
@@ -65,9 +64,11 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	protected final void ignoreTooltips() { this.addTooltips = false; }
 	protected final void setCustomTooltips(Function<UpgradeData,List<Component>> customTooltips) { this.customTooltips = customTooltips; }
 
+	@Nonnull
 	@Override
 	public UpgradeType getUpgradeType() { return this.upgradeType; }
 	
+	@Nonnull
 	@Override
 	public UpgradeData getDefaultUpgradeData()
 	{
@@ -107,7 +108,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			tag.put("UpgradeData", data.writeToNBT());
 		}
 	}
-
+	
 	public static List<Component> getUpgradeTooltip(ItemStack stack)
 	{
 		try {
@@ -132,7 +133,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		//Add upgrade tooltips
 		List<Component> upgradeTooltips = getUpgradeTooltip(stack);

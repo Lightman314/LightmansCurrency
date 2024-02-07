@@ -3,6 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 
 import com.google.common.collect.Lists;
@@ -16,28 +20,27 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -46,6 +49,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -59,11 +63,11 @@ import javax.annotation.Nonnull;
 
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter {
 
-	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ITEM_CAPACITY);
+	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(Upgrades.ITEM_CAPACITY);
 	
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
+	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader"), ItemTraderData::new);
 	
 	TraderItemHandler itemHandler = new TraderItemHandler(this);
 	
@@ -77,17 +81,17 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	@Override
 	public boolean allowAdditionalUpgradeType(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
-	
-	public ItemTraderData(){ this(TYPE); }
-	protected ItemTraderData(ResourceLocation type) {
+
+	private ItemTraderData(){ this(TYPE); }
+	protected ItemTraderData(@Nonnull TraderType<?> type) {
 		super(type);
 		this.trades = ItemTradeData.listOfSize(1, true);
 		this.validateTradeRestrictions();
 	}
 	
-	public ItemTraderData(int tradeCount, Level level, BlockPos pos) { this(TYPE, tradeCount, level, pos); }
+	public ItemTraderData(int tradeCount, @Nonnull Level level, @Nonnull BlockPos pos) { this(TYPE, tradeCount, level, pos); }
 	
-	protected ItemTraderData(ResourceLocation type, int tradeCount, Level level, BlockPos pos)
+	protected ItemTraderData(@Nonnull TraderType<?> type, int tradeCount, @Nonnull Level level, @Nonnull BlockPos pos)
 	{
 		super(type, level, pos);
 		this.trades = ItemTradeData.listOfSize(tradeCount, true);
@@ -341,12 +345,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws Exception {
-		
-		if(!json.has("Trades"))
-			throw new Exception("Item Trader must have a trade list.");
-		
-		JsonArray trades = json.get("Trades").getAsJsonArray();
+	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+
+		JsonArray trades = GsonHelper.getAsJsonArray(json, "Trades");
 		this.trades = new ArrayList<>();
 		for(int i = 0; i < trades.size() && this.trades.size() < TraderData.GLOBAL_TRADE_LIMIT; ++i)
 		{
@@ -355,32 +356,32 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				
 				ItemTradeData newTrade = new ItemTradeData(false);
 				//Sell Item
-				newTrade.setItem(FileUtil.parseItemStack(tradeData.get("SellItem").getAsJsonObject()), 0);
+				newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem")), 0);
 				if(tradeData.has("SellItem2"))
-					newTrade.setItem(FileUtil.parseItemStack(tradeData.get("SellItem2").getAsJsonObject()), 1);
+					newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem2")), 1);
 				//Trade Type
 				if(tradeData.has("TradeType"))
-					newTrade.setTradeType(ItemTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
+					newTrade.setTradeType(ItemTradeData.loadTradeType(GsonHelper.getAsString(tradeData, "TradeType")));
 				//Trade Price
 				if(tradeData.has("Price"))
 				{
 					if(newTrade.isBarter())
 						LightmansCurrency.LogWarning("Price is being defined for a barter trade. Price will be ignored.");
 					else
-						newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+						newTrade.setCost(MoneyValue.loadFromJson(tradeData.get("Price")));
 				}
 				else if(!newTrade.isBarter())
 				{
 					LightmansCurrency.LogWarning("Price is not defined on a non-barter trade. Price will be assumed to be free.");
-					newTrade.setCost(CoinValue.FREE);
+					newTrade.setCost(MoneyValue.free());
 				}
 				if(tradeData.has("BarterItem"))
 				{
 					if(newTrade.isBarter())
 					{
-						newTrade.setItem(FileUtil.parseItemStack(tradeData.get("BarterItem").getAsJsonObject()), 2);
+						newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem")), 2);
 						if(tradeData.has("BarterItem2"))
-							newTrade.setItem(FileUtil.parseItemStack(tradeData.get("BarterItem2").getAsJsonObject()), 3);
+							newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem2")), 3);
 					}
 					else
 					{
@@ -388,14 +389,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					}
 				}
 				if(tradeData.has("DisplayName"))
-					newTrade.setCustomName(0, tradeData.get("DisplayName").getAsString());
+					newTrade.setCustomName(0, GsonHelper.getAsString(tradeData, "DisplayName"));
 				if(tradeData.has("DisplayName2"))
-					newTrade.setCustomName(1, tradeData.get("DisplayName2").getAsString());
+					newTrade.setCustomName(1, GsonHelper.getAsString(tradeData, "DisplayName2"));
 				if(tradeData.has("Rules"))
-					newTrade.setRules(TradeRule.Parse(tradeData.get("Rules").getAsJsonArray(), newTrade));
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "Rules"), newTrade));
 				if(tradeData.has("IgnoreNBT"))
 				{
-					JsonArray ignoreNBTData = tradeData.getAsJsonArray("IgnoreNBT");
+					JsonArray ignoreNBTData = GsonHelper.getAsJsonArray(tradeData,"IgnoreNBT");
 					for(int j = 0; j < ignoreNBTData.size(); ++j)
 					{
 						int slot = ignoreNBTData.get(j).getAsInt();
@@ -409,7 +410,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		}
 		
 		if(this.trades.size() == 0)
-			throw new Exception("Trader has no valid trades!");
+			throw new JsonSyntaxException("Trader has no valid trades!");
 
 		List<ItemStack> storage = new ArrayList<>();
 		if(json.has("RelevantStorage"))
@@ -420,7 +421,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				try{
 					ItemStack item = FileUtil.parseItemStack(storageData.get(i).getAsJsonObject());
 					storage.add(item);
-				} catch(Exception e) { LightmansCurrency.LogError("Error parsing storage item at index " + i, e); }
+				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing storage item at index " + i, e); }
 			}
 		}
 
@@ -465,19 +466,19 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
+	protected TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
 		ItemTradeData trade = this.getTrade(tradeIndex);
 		//Abort if the trade is null
 		if(trade == null)
 		{
-			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
+			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
 		//Abort if the trade is not valid
 		if(!trade.isValid())
 		{
-			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
@@ -489,7 +490,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
-		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 		
 		//Process a sale
 		if(trade.isSale())
@@ -506,14 +507,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
 			{
-				LightmansCurrency.LogInfo("Not enough room for the output item. Aborting trade!");
+				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
 			}
 			
 			if(!context.getPayment(price))
 			{
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
-						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + CoinValue.fromNumber(context.getAvailableFunds()).getString("0"));
+						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + context.getAvailableFunds().getString());
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
@@ -534,7 +535,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 			}
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
+			MoneyValue taxesPaid = MoneyValue.empty();
 
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
@@ -548,12 +549,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				//Push out of stock notification
 				if(!trade.hasStock(this))
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
-				
 			}
 
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
-			
+
 			//Push the post-trade event
 			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 			
@@ -588,8 +588,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Put the payment in the purchasers' wallet, coin slot, etc.
 			context.givePayment(price);
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
-
+			MoneyValue taxesPaid = MoneyValue.empty();
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
 			{
@@ -666,9 +666,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					return TradeResult.FAIL_NO_OUTPUT_SPACE;
 				}
 			}
-
+			
 			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), CoinValue.EMPTY));
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), MoneyValue.empty()));
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
@@ -687,7 +687,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			}
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, CoinValue.EMPTY);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, MoneyValue.empty());
 			
 			return TradeResult.SUCCESS;
 			
@@ -697,13 +697,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	public void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
-
-	@Override
 	public boolean canMakePersistent() { return true; }
 
 	@Override
-	public void initStorageTabs(TraderStorageMenu menu) {
+	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new ItemStorageTab(menu));
 		//Item Trade interaction tab

@@ -63,6 +63,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
                 .addTag(LCTags.Blocks.OWNER_PROTECTED)
                 .add(ModBlocks.ATM)
+                .add(ModBlocks.CASH_REGISTER)
                 .add(ModBlocks.AUCTION_STAND);
 
         ///VANILLA TAGS
@@ -172,6 +173,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                         else
                             this.add(block);
                     }
+                    else
+                        this.add(block);
                 }
                 else if(key2 instanceof IOptionalKey ok2)
                 {

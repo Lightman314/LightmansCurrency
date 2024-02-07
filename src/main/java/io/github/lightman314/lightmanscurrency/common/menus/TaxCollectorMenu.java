@@ -2,16 +2,17 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -79,10 +80,11 @@ public class TaxCollectorMenu extends LazyMessageMenu {
         TaxEntry entry = this.getEntry();
         if(entry != null && this.hasAccess())
         {
-            CoinValue amountToGive = entry.getStoredMoney();
-            if(amountToGive.hasAny())
+            MoneyStorage amountToGive = entry.getStoredMoney();
+            if(!amountToGive.isEmpty())
             {
-                MoneyUtil.ProcessChange(null, this.player, amountToGive);
+                for(MoneyValue value : amountToGive.allValues())
+                    MoneyAPI.giveMoneyToPlayer(this.player, value);
                 entry.clearStoredMoney();
             }
             if(this.isClient())
@@ -123,7 +125,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
     public boolean isAdmin() { return LCAdminMode.isAdminPlayer(this.player); }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("ChangeTab"))
             this.ChangeTab(message.getInt("ChangeTab"), false);
         else if(message.contains("CollectStoredMoney"))

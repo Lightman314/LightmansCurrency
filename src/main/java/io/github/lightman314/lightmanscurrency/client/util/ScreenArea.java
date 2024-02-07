@@ -25,6 +25,8 @@ public final class ScreenArea {
 
     public ScreenArea atPosition(int x, int y) { return of(x, y, this.width, this.height); }
     public ScreenArea atPosition(ScreenPosition newPos) { return of(newPos, this.width, this.height); }
+    public ScreenArea offsetPosition(int x, int y) { return of(this.pos.offset(x,y), this.width, this.height); }
+    public ScreenArea offsetPosition(ScreenPosition offset) { return of(this.pos.offset(offset), this.width, this.height); }
     public ScreenArea ofSize(int width, int height) { return of(this.pos, width, height); }
 
 

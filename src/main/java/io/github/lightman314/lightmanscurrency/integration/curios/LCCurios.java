@@ -180,9 +180,7 @@ public class LCCurios {
 				public boolean canSync(SlotContext context) { return true; }
 
 				@Override
-				public boolean canEquip(SlotContext context) {
-					return context.entity() instanceof Player;
-				}
+				public boolean canEquip(SlotContext context) { return true; }
 
 				@Override
 				public boolean canUnequip(SlotContext context) {

@@ -13,26 +13,24 @@ import java.util.function.Function;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.*;
+import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
+import io.github.lightman314.lightmanscurrency.api.events.TraderEvent.CreateNetworkTraderEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.IBarterTrade;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.integration.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.integration.discord.data.CurrencyBotData;
 import io.github.lightman314.lightmanscurrency.integration.discord.data.CurrencyBotSaveData;
 import io.github.lightman314.lightmanscurrency.integration.discord.events.DiscordTraderSearchEvent;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
-import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
-import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.common.events.TraderEvent.CreateNetworkTraderEvent;
 import io.github.lightman314.lightmansdiscord.LightmansDiscordIntegration;
 import io.github.lightman314.lightmansdiscord.api.jda.data.SafeMemberReference;
 import io.github.lightman314.lightmansdiscord.api.jda.data.SafeUserReference;
@@ -87,7 +85,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 
 		//Run command
 		String input = message.getDisplay();
-		String prefix = Config.SERVER.currencyCommandPrefix.get();
+		String prefix = LCConfig.SERVER.ldiCurrencyCommandPrefix.get();
 		if(input.startsWith(prefix))
 		{
 			String command = input.substring(prefix.length());
@@ -210,7 +208,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				final String searchText = text;
 
 				List<String> output = new ArrayList<>();
-				List<TraderData> traderList = Config.SERVER.limitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
+				List<TraderData> traderList = LCConfig.SERVER.ldiLimitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
 				traderList.forEach(trader -> {
 					try {
 						if(searchType.acceptTrader(trader, searchText))
@@ -381,9 +379,9 @@ public class CurrencyListener extends SafeSingleChannelListener {
 
 	@SubscribeEvent
 	public void onAuctionCreated(CreateAuctionEvent.Post event) {
-		if(!Config.SERVER.auctionHouseCreateNotifications.get())
+		if(!LCConfig.SERVER.ldiAuctionCreateNotification.get())
 			return;
-		if(event.isPersistent() && !Config.SERVER.auctionHouseCreatePersistentNotifications.get())
+		if(event.isPersistent() && !LCConfig.SERVER.ldiAuctionPersistentCreateNotification.get())
 			return;
 
 		AuctionTradeData auction = event.getAuction();
@@ -408,7 +406,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 	@SubscribeEvent
 	public void onAuctionCanceled(CancelAuctionEvent event) {
 
-		if(!Config.SERVER.auctionHouseCancelNotifications.get())
+		if(!LCConfig.SERVER.ldiAuctionCancelNotification.get())
 			return;
 
 		this.sendMessage(CurrencyMessages.M_CANCELAUCTION.format(event.getPlayer().getDisplayName().getString(), getItemNamesAndCounts(event.getAuction().getAuctionItems())));
@@ -417,7 +415,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onAuctionCompleted(AuctionCompletedEvent event) {
-		if(!Config.SERVER.auctionHouseWinNotifications.get() || !event.hadBidder())
+		if(!LCConfig.SERVER.ldiAuctionWinNotification.get() || !event.hadBidder())
 			return;
 
 		AuctionTradeData auction = event.getAuction();
@@ -462,7 +460,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 	@SubscribeEvent
 	public void onUniversalTraderRegistered(CreateNetworkTraderEvent event)
 	{
-		if(!Config.SERVER.traderCreationNotifications.get())
+		if(!LCConfig.SERVER.ldiNetworkTraderNotification.get())
 			return;
 		//Announce the creation of the trader 60s later
 		new Timer().schedule(new AnnouncementTask(this, event), ANNOUCEMENT_DELAY);

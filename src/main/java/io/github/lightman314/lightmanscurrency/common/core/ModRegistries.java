@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
-import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.CustomPointsOfInterest;
-import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.CustomProfessions;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.common.loot.LootModifiers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Registry;
@@ -73,6 +73,9 @@ public class ModRegistries {
 		COMMAND_ARGUMENT_TYPES.register(bus);
 		ModCommandArguments.init();
 
+		//CREATIVE_TABS.register(bus);
+		//ModCreativeGroups.init();
+
 		//Loot Pool Entry Types
 		LOOT_POOL_ENTRY_TYPES.register(bus);
 		ModLootPoolEntryTypes.init();
@@ -99,6 +102,8 @@ public class ModRegistries {
     public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, LightmansCurrency.MODID);
     
     public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(ForgeRegistries.Keys.COMMAND_ARGUMENT_TYPES, LightmansCurrency.MODID);
+
+    //public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registry.LOOT_ENTRY_REGISTRY, LightmansCurrency.MODID);
 

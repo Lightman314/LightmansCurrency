@@ -5,12 +5,13 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.ChatFormatting;
@@ -40,13 +41,13 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
-    public TradeButton.DisplayData inputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(1, 1, 34, 16); }
+    public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
     @Override
-    public List<TradeButton.DisplayEntry> getInputDisplays(TradeContext context) {
+    public List<DisplayEntry> getInputDisplays(TradeContext context) {
         //If this is a sale, this is the price
         if(this.trade.isSale())
-            return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
         if(this.trade.isPurchase())
             return this.getSaleItemEntries(context);
         if(this.trade.isBarter())
@@ -56,27 +57,27 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
 
     @Override
-    public TradeButton.DisplayData outputDisplayArea(TradeContext context) { return new TradeButton.DisplayData(59, 1, 34, 16); }
+    public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(59, 1, 34, 16); }
 
     @Override
-    public List<TradeButton.DisplayEntry> getOutputDisplays(TradeContext context) {
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) {
         if(this.trade.isSale() || this.trade.isBarter())
             return this.getSaleItemEntries(context);
         if(this.trade.isPurchase())
-            return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context)));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context)));
         return new ArrayList<>();
     }
 
-    private List<TradeButton.DisplayEntry> getSaleItemEntries(TradeContext context) {
+    private List<DisplayEntry> getSaleItemEntries(TradeContext context) {
 
-        List<TradeButton.DisplayEntry> entries = new ArrayList<>();
+        List<DisplayEntry> entries = new ArrayList<>();
         for(int i = 0; i < 2; ++i)
         {
             ItemStack item = this.trade.getSellItem(i);
             if(!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
+                entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
-                entries.add(TradeButton.DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
+                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
         }
         return entries;
     }
@@ -120,15 +121,15 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     }
 
-    private List<TradeButton.DisplayEntry> getBarterItemEntries(TradeContext context) {
-        List<TradeButton.DisplayEntry> entries = new ArrayList<>();
+    private List<DisplayEntry> getBarterItemEntries(TradeContext context) {
+        List<DisplayEntry> entries = new ArrayList<>();
         for(int i = 0; i < 2; ++i)
         {
             ItemStack item = this.trade.getBarterItem(i);
             if(!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getTooltipFromItem(item, true, this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
+                entries.add(DisplayEntry.of(item, item.getCount(), this.getTooltipFromItem(item, true, this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
-                entries.add(TradeButton.DisplayEntry.of(EasySlot.BACKGROUND, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
+                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
         }
         return entries;
     }

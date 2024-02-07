@@ -21,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
+
 public class InventoryUtil {
 
 	
@@ -350,7 +352,6 @@ public class InventoryUtil {
     public static ItemStack TryPutItemStack(Container inventory, ItemStack stack)
     {
     	int amountToMerge = stack.getCount();
-		Item mergeItem = stack.getItem();
 		//First pass, looking for stacks to add to
     	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
@@ -374,9 +375,8 @@ public class InventoryUtil {
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, stack.getMaxStackSize());
 				//Place a new stack in the empty slot
-				ItemStack newStack = new ItemStack(mergeItem, amountToPlace);
-				if(stack.hasTag())
-					newStack.setTag(stack.getTag().copy());
+				ItemStack newStack = stack.copy();
+				newStack.setCount(amountToPlace);
 				inventory.setItem(i, newStack);
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
@@ -599,6 +599,22 @@ public class InventoryUtil {
     		return ItemStackHelper.TagEquals(stack1, stack2);
     	return false;
     }
+
+	public static boolean ItemsFullyMatch(ItemStack stack1, ItemStack stack2) { return ItemMatches(stack1, stack2) && stack1.getCount() == stack2.getCount(); }
+
+	public static boolean ContainerMatches(@Nonnull Container container1, @Nonnull Container container2)
+	{
+		if(container1 == container2)
+			return true;
+		if(container1.getContainerSize() != container2.getContainerSize())
+			return false;
+		for(int i = 0; i < container1.getContainerSize(); ++i)
+		{
+			if(!ItemsFullyMatch(container1.getItem(i), container2.getItem(i)))
+				return false;
+		}
+		return true;
+	}
     
     public static boolean ItemHasTag(ItemStack item, TagKey<Item> tag) { return item.getTags().anyMatch(t -> t.equals(tag)); }
     
@@ -630,12 +646,5 @@ public class InventoryUtil {
      	else
      		return 0;
     }
-
-	public static ItemStack copyWithCount(ItemStack stack, int newCount)
-	{
-		ItemStack copy = stack.copy();
-		copy.setCount(newCount);
-		return copy;
-	}
     
 }

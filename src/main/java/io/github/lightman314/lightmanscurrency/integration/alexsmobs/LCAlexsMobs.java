@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.alexsmobs;
 
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
 import net.minecraftforge.fml.ModList;
 
 /**

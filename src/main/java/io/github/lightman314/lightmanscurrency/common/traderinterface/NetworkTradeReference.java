@@ -4,8 +4,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
@@ -69,16 +69,16 @@ public class NetworkTradeReference extends NetworkTraderReference{
 	
 	public void load(CompoundTag compound) {
 		super.load(compound);
-		//Load old trade index save
+		//Load old trade index saveItem
 		if(compound.contains("tradeIndex", Tag.TAG_INT))
 			this.tradeIndex = compound.getInt("tradeIndex");
-		//Load new trade index save
+		//Load new trade index saveItem
 		if(compound.contains("TradeIndex", Tag.TAG_INT))
 			this.tradeIndex = compound.getInt("TradeIndex");
-		//Load old trade save
+		//Load old trade saveItem
 		if(compound.contains("trade", Tag.TAG_COMPOUND))
 			this.tradeData = this.tradeDeserializer.apply(compound.getCompound("trade"));
-		//Load new trade save
+		//Load new trade saveItem
 		else if(compound.contains("Trade", Tag.TAG_COMPOUND))
 			this.tradeData = this.tradeDeserializer.apply(compound.getCompound("Trade"));
 	}

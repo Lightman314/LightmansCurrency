@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class NotificationButton extends InventoryButton {
@@ -29,7 +29,7 @@ public class NotificationButton extends InventoryButton {
 	}
 
 	@Override
-	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? Config.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : Config.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
+	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
 	private static Sprite getSprite() { return ClientNotificationData.GetNotifications().unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
 	

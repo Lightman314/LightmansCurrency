@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.nbt.CompoundTag;
@@ -12,15 +13,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class ChangeOwnerNotification extends Notification {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "change_ownership");
+	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_ownership"),ChangeOwnerNotification::new);
 	
 	PlayerReference player;
 	OwnershipData newOwner;
 	OwnershipData oldOwner;
 	
-	public ChangeOwnerNotification(CompoundTag compound) { this.load(compound); }
+	private ChangeOwnerNotification() { }
 	
 	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, PlayerReference oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
 	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, Team oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
@@ -33,12 +36,15 @@ public class ChangeOwnerNotification extends Notification {
 		this.oldOwner = oldOwner;
 	}
 	
-	@Override
-	protected ResourceLocation getType() { return TYPE; }
+	@Nonnull
+    @Override
+	protected NotificationType<ChangeOwnerNotification> getType() { return TYPE; }
 
+	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
+	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
 		if(newOwner.is(this.player))
@@ -50,29 +56,27 @@ public class ChangeOwnerNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.put("NewOwner", this.newOwner.save());
 		compound.put("OldOwner", this.oldOwner.save());
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.newOwner = OwnershipData.load(compound.getCompound("NewOwner"));
 		this.oldOwner = OwnershipData.load(compound.getCompound("OldOwner"));
 	}
 
 	@Override
-	protected boolean canMerge(Notification other) {
-		if(other instanceof ChangeOwnerNotification)
+	protected boolean canMerge(@Nonnull Notification other) {
+		if(other instanceof ChangeOwnerNotification n)
 		{
-			ChangeOwnerNotification n = (ChangeOwnerNotification)other;
 			return n.player.is(this.player) && n.newOwner.is(this.newOwner) && n.oldOwner.is(this.oldOwner);
 		}
 		return false;
 	}
-	
 	
 	
 	private static class OwnershipData {

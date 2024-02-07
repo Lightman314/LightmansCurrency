@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;

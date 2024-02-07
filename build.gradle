@@ -10,7 +10,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.19.2-2.1.2.5'
+version = '1.19.2-2.2.0.3'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -55,7 +55,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
                         '--existing', file('optional_assets/1.19.2/biomesoplenty'),
-                        '--existing', file('optional_assets/1.19.2/byg')
+                        '--existing', file('optional_assets/1.19.2/byg'),
+                        '--existing', file('optional_assets/1.19.2/quark')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -115,10 +116,12 @@ dependencies {
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660939')
 
     //FTB Chunks claim purchase compat
-    implementation fg.deobf('curse.maven:ftb-chunks-forge-314906:4727833')
-    implementation fg.deobf('curse.maven:ftb-teams-forge-404468:4611938')
-    implementation fg.deobf('curse.maven:ftb-library-forge-404465:4661834')
-    implementation fg.deobf('curse.maven:architectury-api-419699:4555749')
+    compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727833')
+    compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4611938')
+    compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4661834')
+    compileOnly fg.deobf('curse.maven:architectury-api-419699:4555749')
+    //Flan claim purchase compat
+    compileOnly fg.deobf("curse.maven:flan-forge-493246:4432476")
 
     //Wood Compatibility
     //Biomes O' Plenty
@@ -129,6 +132,9 @@ dependencies {
     //implementation fg.deobf("curse.maven:terrablender-563928:4618490") //Already included by BOP
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.19:3.1.40")
     implementation fg.deobf("curse.maven:corgilib-693313:4554111")
+    //Quark
+    implementation fg.deobf("curse.maven:quark-243121:4812006")
+    implementation fg.deobf("curse.maven:autoreglib-250363:4100299")
     
 }
 

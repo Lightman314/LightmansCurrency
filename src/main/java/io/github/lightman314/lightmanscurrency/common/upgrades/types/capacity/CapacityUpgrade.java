@@ -5,14 +5,17 @@ import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+
+import javax.annotation.Nonnull;
 
 public abstract class CapacityUpgrade extends UpgradeType {
 
 	public static String CAPACITY = "capacity"; 
 	private static final List<String> DATA_TAGS = Lists.newArrayList(CAPACITY);
 
-	@Override
+	@Nonnull
+    @Override
 	protected List<String> getDataTags() { return DATA_TAGS; }
 
 	@Override

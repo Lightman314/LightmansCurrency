@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
@@ -25,18 +25,18 @@ import javax.annotation.Nonnull;
 public class EjectionRecoveryMenu extends LazyMessageMenu {
 
 	public static final MenuProvider PROVIDER = new Provider();
-
+	
 	public EjectionRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.TRADER_RECOVERY.get(), menuID, inventory); }
-
+	
 	public boolean isClient() { return this.player.level.isClientSide; }
-
+	
 	public List<EjectionData> getValidEjectionData() {
 		return EjectionSaveData.GetValidEjectionData(this.isClient(), this.player);
 	}
-
+	
 	private int selectedIndex = 0;
 	public int getSelectedIndex() { return this.selectedIndex; }
-	public EjectionData getSelectedData() {
+	public EjectionData getSelectedData() { 
 		List<EjectionData> data = this.getValidEjectionData();
 		if(data.size() > 0 && this.selectedIndex >= 0 && this.selectedIndex < data.size())
 			return data.get(this.selectedIndex);
@@ -44,8 +44,8 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	}
 
 	private final Container dummyContainer = new SimpleContainer(54);
-
-	private Container getSelectedContainer() {
+	
+	private Container getSelectedContainer() { 
 		//Get valid data
 		List<EjectionData> data = this.getValidEjectionData();
 		//Refresh selection, just in case it's no longer valid.
@@ -54,21 +54,21 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 			return data.get(this.selectedIndex);
 		return this.dummyContainer;
 	}
-
+	
 	protected EjectionRecoveryMenu(MenuType<?> type, int menuID, Inventory inventory) {
 		super(type, menuID, inventory);
-
+		
 		Container ejectionContainer = new SuppliedContainer(this::getSelectedContainer);
-
+		
 		//Menu slots
 		for(int y = 0; y < 6; ++y)
 		{
 			for(int x = 0; x < 9; ++x)
 			{
-				this.addSlot(new OutputSlot(ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18));
+				 this.addSlot(new OutputSlot(ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18));
 			}
 		}
-
+		
 		//Player's Inventory
 		for(int y = 0; y < 3; ++y) {
 			for(int x = 0; x < 9; ++x) {
@@ -80,40 +80,40 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		for(int x = 0; x < 9; ++x) {
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 198));
 		}
-
+		
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
 	}
 
 	@Nonnull
 	public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
-		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(slotIndex);
-		if (slot != null && slot.hasItem()) {
-			ItemStack itemstack1 = slot.getItem();
-			itemstack = itemstack1.copy();
-			if (slotIndex < 54) {
-				if (!this.moveItemStackTo(itemstack1, 54, this.slots.size(), true)) {
-					return ItemStack.EMPTY;
-				}
-			} else if (!this.moveItemStackTo(itemstack1, 0, 54, false)) {
-				return ItemStack.EMPTY;
-			}
+	      ItemStack itemstack = ItemStack.EMPTY;
+	      Slot slot = this.slots.get(slotIndex);
+	      if (slot != null && slot.hasItem()) {
+	         ItemStack itemstack1 = slot.getItem();
+	         itemstack = itemstack1.copy();
+	         if (slotIndex < 54) {
+	            if (!this.moveItemStackTo(itemstack1, 54, this.slots.size(), true)) {
+	               return ItemStack.EMPTY;
+	            }
+	         } else if (!this.moveItemStackTo(itemstack1, 0, 54, false)) {
+	            return ItemStack.EMPTY;
+	         }
 
-			if (itemstack1.isEmpty()) {
-				slot.set(ItemStack.EMPTY);
-			} else {
-				slot.setChanged();
-			}
-		}
+	         if (itemstack1.isEmpty()) {
+	            slot.set(ItemStack.EMPTY);
+	         } else {
+	            slot.setChanged();
+	         }
+	      }
 
-		return itemstack;
-	}
-
+	      return itemstack;
+   }
+	
 	@Override
 	public void removed(@Nonnull Player player) {
 		super.removed(player);
@@ -124,7 +124,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	public void changeSelection(int newSelection) {
 		this.changeSelection(newSelection, this.getValidEjectionData().size());
 	}
-
+	
 	private void changeSelection(int newSelection, int dataSize) {
 		if(this.isClient())
 		{
@@ -139,7 +139,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 			this.SendMessage(LazyPacketData.simpleInt("ChangeSelection", this.selectedIndex));
 		}
 	}
-
+	
 	private static class Provider implements MenuProvider {
 
 		@Override
@@ -148,7 +148,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		@Nonnull
 		@Override
 		public Component getDisplayName() { return Component.empty(); }
-
+		
 	}
-
+	
 }

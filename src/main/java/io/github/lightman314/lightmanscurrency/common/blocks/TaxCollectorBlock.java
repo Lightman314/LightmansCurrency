@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -41,6 +41,10 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
 
     public TaxCollectorBlock(Properties properties) { super(properties); }
 
+    @Nonnull
+    @Override
+    public PushReaction getPistonPushReaction(@Nonnull BlockState state) { return PushReaction.BLOCK; }
+
     @Override
     public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock && entity instanceof Player player)
@@ -65,11 +69,6 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
         }
         super.playerWillDestroy(level, pos, state, player);
     }
-
-    @Nonnull
-    @Override
-    @SuppressWarnings("deprecation")
-    public PushReaction getPistonPushReaction(@Nonnull BlockState state) { return PushReaction.BLOCK; }
 
     @Override
     @SuppressWarnings("deprecation")
@@ -105,7 +104,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     }
 
     @Override
-    public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
+    public boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
         {
             TaxEntry entry = taxBlock.getTaxEntry();
@@ -115,6 +114,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
         return true;
     }
 
+    @Nonnull
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.TAX_BLOCK.get()); }
 
@@ -125,7 +125,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
         TooltipItem.addTooltip(tooltips, LCTooltips.TAX_COLLECTOR);
-        if(Config.SERVER.taxMachinesAdminOnly.get())
+        if(LCConfig.SERVER.taxCollectorAdminOnly.get())
             tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.tax_collector.admin_only").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
     }
 }

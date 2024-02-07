@@ -37,7 +37,7 @@ public class ModBlockEntities {
 		
 		COIN_MINT = ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.COIN_MINT.get()).build(null));
 		
-		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_STATION.get()).build(null));
+		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketStationBlockEntity::new, ModBlocks.TICKET_STATION.get()).build(null));
 		
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 
@@ -76,7 +76,7 @@ public class ModBlockEntities {
 	//Coin Mint
 	public static final RegistryObject<BlockEntityType<CoinMintBlockEntity>> COIN_MINT;
 	//Ticket Machine
-	public static final RegistryObject<BlockEntityType<TicketMachineBlockEntity>> TICKET_MACHINE;
+	public static final RegistryObject<BlockEntityType<TicketStationBlockEntity>> TICKET_MACHINE;
 	
 	//Paygate
 	public static final RegistryObject<BlockEntityType<PaygateBlockEntity>> PAYGATE;
@@ -91,6 +91,8 @@ public class ModBlockEntities {
 	public static final RegistryObject<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
 
 	public static final RegistryObject<BlockEntityType<CoinChestBlockEntity>> COIN_CHEST;
+
+
 	
 	
 }

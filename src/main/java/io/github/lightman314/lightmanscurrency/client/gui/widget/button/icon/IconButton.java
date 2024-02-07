@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,6 +61,7 @@ public class IconButton extends EasyButton {
 		} else if (this.isHoveredOrFocused()) {
 			i = 2;
 		}
+
 		return i;
 	}
 

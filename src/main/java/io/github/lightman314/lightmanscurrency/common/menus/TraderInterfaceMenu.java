@@ -7,14 +7,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -42,9 +42,8 @@ public class TraderInterfaceMenu extends EasyMenu {
 	
 	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
-		this.canEditTabs = true;
-
 		this.blockEntity = blockEntity;
+		this.canEditTabs = true;
 
 		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		this.addValidator(this.blockEntity::canAccess);
@@ -79,7 +78,7 @@ public class TraderInterfaceMenu extends EasyMenu {
 		} catch(Throwable t) { t.printStackTrace(); }
 		
 	}
-
+	
 	@Override
 	public void removed(@Nonnull Player player) {
 		super.removed(player);

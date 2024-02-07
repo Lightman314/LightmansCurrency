@@ -6,65 +6,66 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.common.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.reference.types.TeamBankReference;
+import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.Range;
 
-public class Team {
+public class Team implements ITeam {
 
 	public static final int MAX_NAME_LENGTH = 32;
-
+	
 	private final long id;
+	@Override
 	public long getID() { return this.id; }
 	PlayerReference owner;
+	@Override
+	@Nonnull
 	public PlayerReference getOwner() { return this.owner; }
 	String teamName;
+	@Override
+	@Nonnull
 	public String getName() { return this.teamName; }
-
+	
 	private boolean isClient = false;
 	public Team flagAsClient() { this.isClient = true; return this; }
-
+	
 	List<PlayerReference> admins = new ArrayList<>();
-	/**
-	 * List of the teams admins.
-	 * Does not included the owner.
-	 */
-	public List<PlayerReference> getAdmins() { return this.admins; }
+	@Override
+	@Nonnull
+	public List<PlayerReference> getAdmins() { return ImmutableList.copyOf(this.admins); }
 	List<PlayerReference> members = new ArrayList<>();
-	/**
-	 * List of the teams members.
-	 * Does not include admins or the owner.
-	 */
-	public List<PlayerReference> getMembers() { return this.members; }
+	@Override
+	@Nonnull
+	public List<PlayerReference> getMembers() { return ImmutableList.copyOf(this.members); }
+	
 
-	/**
-	 * List of the teams members, admins, and the owner.
-	 */
-	public List<PlayerReference> getAllMembers() {
-		List<PlayerReference> result = new ArrayList<>();
-		result.addAll(this.members);
-		result.addAll(this.admins);
-		result.add(this.owner);
-		return result;
-	}
-
+	
 	//0 for members, 1 for admins, 2 for owners only
 	int bankAccountLimit = 2;
+	@Range(from = 0, to = 2)
 	public int getBankLimit() { return this.bankAccountLimit; }
 	BankAccount bankAccount = null;
+	@Override
+
 	public boolean hasBankAccount() { return this.bankAccount != null; }
-	public boolean canAccessBankAccount(Player player) {
+	@Override
+	public boolean canAccessBankAccount(@Nonnull Player player) {
 		if(this.bankAccountLimit < 1)
 			return this.isMember(player);
 		else if(this.bankAccountLimit < 2)
@@ -72,37 +73,26 @@ public class Team {
 		else
 			return this.isOwner(player);
 	}
-	public BankAccount getBankAccount() { return this.bankAccount; }
+	@Override
+	@Nullable
+	public IBankAccount getBankAccount() { return this.bankAccount; }
 	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
+	
 
-	/**
-	 * Determines if the given player is the owner of this team.
-	 * Also returns true if the player is in admin mode.
-	 */
-	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
-	/**
-	 * Determines if the given player is the owner of this team.
-	 */
-	public boolean isOwner(UUID playerID) { return this.owner != null && this.owner.is(playerID); }
-	/**
-	 * Determines if the given player is an admin or owner of this team.
-	 * Also returns true if the player is in admin mode.
-	 */
-	public boolean isAdmin(Player player) { return PlayerReference.isInList(this.admins, player.getUUID()) || this.isOwner(player); }
-	/**
-	 * Determines if the given player is an admin or owner of this team.
-	 */
-	public boolean isAdmin(UUID playerID) { return PlayerReference.isInList(this.admins, playerID) || this.isOwner(playerID); }
-	/**
-	 * Determines if the given player is a member, admin, or owner of this team.
-	 * Also returns true if the player is in admin mode.
-	 */
-	public boolean isMember(Player player) { return PlayerReference.isInList(this.members, player.getUUID()) || this.isAdmin(player); }
-	/**
-	 * Determines if the given player is a member, admin, or owner of this team.
-	 */
-	public boolean isMember(UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
+	@Override
+	public boolean isOwner(@Nonnull Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
+	@Override
+	public boolean isOwner(@Nonnull UUID playerID) { return this.owner != null && this.owner.is(playerID); }
+	@Override
+	public boolean isAdmin(@Nonnull Player player) { return PlayerReference.isInList(this.admins, player) || this.isOwner(player); }
+	@Override
+	public boolean isAdmin(@Nonnull UUID playerID) { return PlayerReference.isInList(this.admins, playerID) || this.isOwner(playerID); }
 
+	@Override
+	public boolean isMember(@Nonnull Player player) { return PlayerReference.isInList(this.members, player) || this.isAdmin(player); }
+	@Override
+	public boolean isMember(@Nonnull UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
+	
 	public void changeAddMember(Player requestor, String name) {
 		if(!this.isAdmin(requestor))
 			return;
@@ -197,7 +187,7 @@ public class Team {
 		PlayerReference.removeFromList(this.members, player);
 		this.markDirty();
 	}
-
+	
 	public void changeName(Player requestor, String newName)
 	{
 		if(this.isAdmin(requestor))
@@ -208,7 +198,7 @@ public class Team {
 			this.markDirty();
 		}
 	}
-
+	
 	public void createBankAccount(Player requestor)
 	{
 		if(this.hasBankAccount() || !isOwner(requestor))
@@ -218,7 +208,7 @@ public class Team {
 		this.bankAccount.setNotificationConsumer(this::notificationSender);
 		this.markDirty();
 	}
-
+	
 	private void notificationSender(NonNullSupplier<Notification> notification) {
 		List<PlayerReference> sendTo = new ArrayList<>();
 		if(this.bankAccountLimit < 1)
@@ -234,7 +224,7 @@ public class Team {
 			}
 		}
 	}
-
+	
 	public void changeBankLimit(Player requestor, int newLimit)
 	{
 		if(isOwner(requestor) && this.bankAccountLimit != newLimit)
@@ -243,7 +233,7 @@ public class Team {
 			this.markDirty();
 		}
 	}
-
+	
 	public static int NextBankLimit(int currentLimit)
 	{
 		int result = currentLimit - 1;
@@ -271,20 +261,21 @@ public class Team {
 		if(request.contains("ChangeBankLimit", LazyPacketData.TYPE_INT))
 			this.changeBankLimit(requestor, request.getInt("ChangeBankLimit"));
 	}
-
+	
 	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		this.id = teamID;
 		this.owner = owner;
 		this.teamName = name;
 	}
-
+	
 	public void markDirty()
 	{
 		if(!this.isClient)
 			TeamSaveData.MarkTeamDirty(this.id);
 	}
 
+	@Nonnull
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
@@ -296,17 +287,17 @@ public class Team {
 		PlayerReference.saveList(compound, this.members, "Members");
 
 		PlayerReference.saveList(compound, this.admins, "Admins");
-
+		
 		//Bank Account
 		if(this.bankAccount != null)
 		{
 			compound.put("BankAccount", this.bankAccount.save());
 			compound.putInt("BankLimit", this.bankAccountLimit);
 		}
-
+		
 		return compound;
 	}
-
+	
 	public static Team load(@Nonnull CompoundTag compound)
 	{
 		PlayerReference owner = null;
@@ -316,7 +307,7 @@ public class Team {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			owner = PlayerReference.load(compound.getCompound("Owner"));
 		String name = compound.getString("Name");
-
+		
 		if(owner != null)
 		{
 			Team team = of(id, owner, name);
@@ -324,7 +315,7 @@ public class Team {
 			team.admins = PlayerReference.loadList(compound, "Admins");
 
 			team.members = PlayerReference.loadList(compound, "Members");
-
+			
 			if(compound.contains("BankAccount", Tag.TAG_COMPOUND))
 			{
 				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"));
@@ -333,38 +324,38 @@ public class Team {
 				team.bankAccount.updateOwnersName(team.teamName);
 				team.bankAccount.setNotificationConsumer(team::notificationSender);
 			}
-
+			
 			return team;
-
+			
 		}
 		return null;
 	}
-
+	
 	public static Team of(long id, @Nonnull PlayerReference owner, @Nonnull String name) { return new Team(id, owner, name); }
+	
+	public static Comparator<ITeam> sorterFor(Player player) { return new TeamSorter(player); }
 
-	public static Comparator<Team> sorterFor(Player player) { return new TeamSorter(player); }
-
-	private record TeamSorter(Player player) implements Comparator<Team>
+	private record TeamSorter(Player player) implements Comparator<ITeam>
 	{
 
 		@Override
-		public int compare(Team o1, Team o2)
+		public int compare(ITeam o1, ITeam o2)
 		{
 
-			if (o1.isOwner(player) && !o2.isOwner(player))
+			if (o1.isOwner(this.player) && !o2.isOwner(this.player))
 				return -1;
-			if (!o1.isOwner(player) && o2.isOwner(player))
+			if (!o1.isOwner(this.player) && o2.isOwner(this.player))
 				return 1;
 
-			if (o1.isAdmin(player) && !o2.isAdmin(player))
+			if (o1.isAdmin(this.player) && !o2.isAdmin(this.player))
 				return -1;
-			if (!o1.isAdmin(player) && o2.isAdmin(player))
+			if (!o1.isAdmin(this.player) && o2.isAdmin(this.player))
 				return 1;
 
-			return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+			return o1.getName().compareToIgnoreCase(o2.getName());
 
 		}
 
 	}
-
+	
 }

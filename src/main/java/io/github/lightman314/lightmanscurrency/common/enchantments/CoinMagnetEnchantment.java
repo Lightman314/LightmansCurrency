@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.enchantments;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -63,7 +64,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			ItemEntity ie = (ItemEntity)e;
 			ItemStack coinStack = ie.getItem();
 			ItemStack leftovers = WalletItem.PickupCoin(wallet, coinStack);
-			if(leftovers.getCount() != coinStack.getCount())
+			if(!InventoryUtil.ItemsFullyMatch(leftovers, coinStack))
 			{
 				updateWallet = true;
 				if(leftovers.isEmpty())
@@ -82,7 +83,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	public static boolean coinMagnetEntityFilter(Entity entity) {
 		if(entity instanceof ItemEntity item)
-			return !item.hasPickUpDelay() && MoneyUtil.isCoin(item.getItem(), false);
+			return CoinAPI.isCoin(item.getItem(), false);
 		return false;
 	}
 	
@@ -90,7 +91,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		enchantLevel -= 1;
 		if(enchantLevel < 0)
 			return 0f;
-		return Config.SERVER.coinMagnetRangeBase.get() + (Config.SERVER.coinMagnetRangeLevel.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
+		return LCConfig.SERVER.coinMagnetBaseRange.get() + (LCConfig.SERVER.coinMagnetLeveledRange.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
 	}
 	
 	public static Component getCollectionRangeDisplay(int enchantLevel) {

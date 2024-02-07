@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
+
 public class RegistryObjectBundle<T,L> {
 
 	private final Comparator<L> sorter;
@@ -15,10 +17,10 @@ public class RegistryObjectBundle<T,L> {
 	private boolean locked = false;
 	public RegistryObjectBundle<T,L> lock() { this.locked = true; return this; }
 
-	public RegistryObjectBundle(Comparator<L> sorter) { this.sorter = sorter; }
+	public RegistryObjectBundle(@Nonnull Comparator<L> sorter) { this.sorter = sorter; }
 
 	private final Map<L,RegistryObject<T>> values = new HashMap<>();
-
+	
 	public void put(L key, RegistryObject<T> value) {
 		if(this.locked)
 		{
@@ -32,21 +34,21 @@ public class RegistryObjectBundle<T,L> {
 		}
 		this.values.put(key,value);
 	}
-
-
+	
+	
 	public RegistryObject<T> getRegistryObject(L key) {
 		if(this.values.containsKey(key))
 			return this.values.get(key);
 		return null;
 	}
-
+	
 	public T get(L key) {
 		RegistryObject<T> obj = this.getRegistryObject(key);
 		if(obj != null)
 			return obj.get();
 		return null;
 	}
-
+	
 	public Collection<RegistryObject<T>> getAllRegistryObjects() { return this.values.values(); }
 	public List<T> getAll() {
 		List<T> values = new ArrayList<>();
@@ -54,7 +56,6 @@ public class RegistryObjectBundle<T,L> {
 			values.add(value.get());
 		return values;
 	}
-	public Set<L> getKeys() { return this.values.keySet(); }
 	public List<ResourceLocation> getAllKeys() { return this.values.values().stream().map(RegistryObject::getId).toList(); }
 
 	@SafeVarargs
@@ -99,5 +100,5 @@ public class RegistryObjectBundle<T,L> {
 		for(L key : keys)
 			consumer.accept(key, this.values.get(key));
 	}
-
+	
 }

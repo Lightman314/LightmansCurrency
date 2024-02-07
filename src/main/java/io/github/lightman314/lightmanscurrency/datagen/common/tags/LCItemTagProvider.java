@@ -22,6 +22,9 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 public class LCItemTagProvider extends ItemTagsProvider {
 
 
@@ -36,12 +39,25 @@ public class LCItemTagProvider extends ItemTagsProvider {
         ///LIGHTMANS CURRENCY TAGS
         //Coin Tag
         this.cTag(LCTags.Items.COINS)
+                .addTag(LCTags.Items.EVENT_COINS)
                 .add(ModItems.COIN_COPPER)
                 .add(ModItems.COIN_IRON)
                 .add(ModItems.COIN_GOLD)
                 .add(ModItems.COIN_EMERALD)
                 .add(ModItems.COIN_DIAMOND)
                 .add(ModItems.COIN_NETHERITE);
+
+        //Event Coins
+        this.cTag(LCTags.Items.EVENT_COINS)
+                .addTag(LCTags.Items.EVENT_COIN_CHOCOLATE);
+        //Chocolate
+        this.cTag(LCTags.Items.EVENT_COIN_CHOCOLATE)
+                .add(ModItems.COIN_CHOCOLATE_COPPER)
+                .add(ModItems.COIN_CHOCOLATE_IRON)
+                .add(ModItems.COIN_CHOCOLATE_GOLD)
+                .add(ModItems.COIN_CHOCOLATE_EMERALD)
+                .add(ModItems.COIN_CHOCOLATE_DIAMOND)
+                .add(ModItems.COIN_CHOCOLATE_NETHERITE);
 
         //Coin Mint Material Tag for Coin Mint Recipe
         this.cTag(LCTags.Items.COIN_MINTING_MATERIAL)
@@ -198,6 +214,35 @@ public class LCItemTagProvider extends ItemTagsProvider {
             });
             return this;
         }
+        public <T> CustomTagAppender add(RegistryObjectBiBundle<? extends ItemLike,T,?> bundle, @Nonnull T key) {
+            bundle.forEach((key1,key2,item) -> {
+                if(key1 == key)
+                {
+                    if(key1 instanceof IOptionalKey ok1)
+                    {
+                        if(ok1.isModded())
+                            this.addOptional(item);
+                        else if(key2 instanceof IOptionalKey ok2)
+                        {
+                            if(ok2.isModded())
+                                this.addOptional(item);
+                            else
+                                this.add(item);
+                        }
+                    }
+                    else if(key2 instanceof IOptionalKey ok2)
+                    {
+                        if(ok2.isModded())
+                            this.addOptional(item);
+                        else
+                            this.add(item);
+                    }
+                    else
+                        this.add(item);
+                }
+            });
+            return this;
+        }
         public CustomTagAppender add(RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) {
             bundle.forEach((key1,key2,item) -> {
                 if(key1 instanceof IOptionalKey ok1)
@@ -211,6 +256,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
                         else
                             this.add(item);
                     }
+                    else
+                        this.add(item);
                 }
                 else if(key2 instanceof IOptionalKey ok2)
                 {
@@ -225,6 +272,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
             return this;
         }
         public CustomTagAppender addTag(TagKey<Item> tag) { this.appender.addTag(tag); return this; }
+        public CustomTagAppender addTags(List<TagKey<Item>> tags) { for(TagKey<Item> tag : tags) this.addTag(tag); return this; }
 
     }
 }
