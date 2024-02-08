@@ -2,7 +2,7 @@
 name: Feature Request
 about: Suggest an idea for this mod
 title: 'Feature Request: {insert description here}'
-labels: enhancement
+labels: Enhancement
 assignees: Lightman314
 
 ---
