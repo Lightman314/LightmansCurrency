@@ -25,8 +25,10 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCadmusIntegration;
+import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
@@ -118,6 +120,7 @@ public class LightmansCurrency {
 
 		//Setup Wood Compatibilities before registering blocks/items
 		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+		IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -127,6 +130,7 @@ public class LightmansCurrency {
 
 		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, null);
+		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("supplementaries", LCSupplementaries::setup, null);
         

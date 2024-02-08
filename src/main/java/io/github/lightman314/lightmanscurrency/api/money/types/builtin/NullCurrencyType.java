@@ -39,7 +39,7 @@ public final class NullCurrencyType extends CurrencyType {
     @Override
     public void giveMoneyToPlayer(@Nonnull Player player, @Nonnull MoneyValue value) { }
     @Override
-    public boolean takeMoneyFromPlayer(@Nonnull Player player, @Nonnull MoneyValue value) { return false; }
+    public boolean takeMoneyFromPlayer(@Nonnull Player player, @Nonnull MoneyValue value) { return true; }
     @Override
     public MoneyValue loadMoneyValue(@Nonnull CompoundTag valueTag) {
         if(valueTag.contains("Free", Tag.TAG_BYTE) && valueTag.getBoolean("Free"))

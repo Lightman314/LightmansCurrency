@@ -63,6 +63,8 @@ public final class CoinAPI {
 
     private static Map<String, ChainData> LOADED_CHAINS = null;
 
+    public static boolean DataNotReady() { return LOADED_CHAINS == null; }
+
     private static boolean setup = false;
 
     public static void Setup()
@@ -75,12 +77,6 @@ public final class CoinAPI {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, CoinAPI::generateDefaultCoins);
         ValueDisplayAPI.Setup();
         ATMAPI.Setup();
-    }
-
-    public static void confirmCoinDataLoaded()
-    {
-        if(LOADED_CHAINS == null)
-            reloadMoneyDataFromFile();
     }
 
     public static void reloadMoneyDataFromFile()
@@ -340,7 +336,7 @@ public final class CoinAPI {
     @Nullable
     public static ChainData getChainData(@Nonnull String chain)
     {
-        if(LOADED_CHAINS == null)
+        if(DataNotReady())
             return null;
         return  LOADED_CHAINS.get(chain);
     }
@@ -353,9 +349,11 @@ public final class CoinAPI {
 
     @Nullable
     public static ChainData chainForCoin(@Nonnull ItemStack coin) { return chainForCoin(coin.getItem()); }
+    @Nullable
     public static ChainData chainForCoin(@Nonnull Item coin)
     {
-        confirmCoinDataLoaded();
+        if(DataNotReady())
+            return null;
         for(ChainData chain : getAllChainData())
         {
             if(chain.containsEntry(coin))
@@ -391,7 +389,8 @@ public final class CoinAPI {
      */
     public static void ExchangeAllCoinsUp(@Nonnull Container container)
     {
-        confirmCoinDataLoaded();
+        if(DataNotReady())
+            return;
         for(ChainData chain : getAllChainData())
         {
             List<CoinEntry> entryList = chain.getAllEntries(false, ChainData.SORT_LOWEST_VALUE_FIRST);
@@ -407,7 +406,8 @@ public final class CoinAPI {
      */
     public static void ExchangeCoinsUp(@Nonnull Container container, @Nonnull Item smallCoin)
     {
-        confirmCoinDataLoaded();
+        if(DataNotReady())
+            return;
         ChainData chain = chainForCoin(smallCoin);
         if(chain == null)
             return;
@@ -434,7 +434,8 @@ public final class CoinAPI {
 
     public static void ExchangeAllCoinsDown(@Nonnull Container container)
     {
-        confirmCoinDataLoaded();
+        if(LOADED_CHAINS == null)
+            return;
         for(ChainData chain : getAllChainData())
         {
             List<CoinEntry> entryList = chain.getAllEntries(false, ChainData.SORT_LOWEST_VALUE_FIRST);
@@ -447,7 +448,8 @@ public final class CoinAPI {
 
     public static void ExchangeCoinsDown(@Nonnull Container container, @Nonnull Item largeCoin)
     {
-        confirmCoinDataLoaded();
+        if(LOADED_CHAINS == null)
+            return;
         ChainData chain = chainForCoin(largeCoin);
         if(chain == null)
             return;
@@ -502,7 +504,8 @@ public final class CoinAPI {
     private static void onServerStart(@Nonnull ServerAboutToStartEvent event) { reloadMoneyDataFromFile(); }
     private static void onJoinServer(@Nonnull PlayerEvent.PlayerLoggedInEvent event)
     {
-        confirmCoinDataLoaded();
+        if(LOADED_CHAINS == null)
+            reloadMoneyDataFromFile();
         syncDataWith(LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
     }
     public static void syncDataWith(@Nonnull PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(LOADED_CHAINS)).sendToTarget(target); }

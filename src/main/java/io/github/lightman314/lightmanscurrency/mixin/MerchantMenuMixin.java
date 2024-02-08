@@ -199,9 +199,9 @@ public abstract class MerchantMenuMixin {
                     if(!leftovers.isEmpty())
                         ItemHandlerHelper.giveItemToPlayer(player, leftovers);
                     if(noUpdate)
-                        tradeContainer.removeItemNoUpdate(0);
+                        tradeContainer.removeItemNoUpdate(1);
                     else
-                        tradeContainer.setItem(0, ItemStack.EMPTY);
+                        tradeContainer.setItem(1, ItemStack.EMPTY);
                 }
             }
         }

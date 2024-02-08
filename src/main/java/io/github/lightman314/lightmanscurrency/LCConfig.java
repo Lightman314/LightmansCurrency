@@ -75,14 +75,14 @@ public final class LCConfig {
 
             builder.comment("Maximum number of items each Item Trader can renderBG (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
                             "Setting to 0 will disable item rendering entirely, so use with caution.")
-                            .add("itemTraderRenderLimit", this.itemRenderLimit);
+                    .add("itemTraderRenderLimit", this.itemRenderLimit);
 
             builder.pop();
 
             builder.comment("Time Formatting Settings").push("time");
 
             builder.comment("How Notification Timestamps are displayed.","Follows SimpleDateFormat formatting: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html")
-                            .add("timeFormatting", this.timeFormat);
+                    .add("timeFormatting", this.timeFormat);
 
             builder.pop();
 
@@ -131,7 +131,7 @@ public final class LCConfig {
                     .add("enabled", this.chestButtonVisible);
 
             builder.comment("Whether the 'Move Coins into Wallet' button should collect coins from a side-chain.",
-                    "By default these would be the coin pile and coin block variants of the coins.")
+                            "By default these would be the coin pile and coin block variants of the coins.")
                     .add("allowSideChainCollection", this.chestButtonAllowSideChains);
 
             builder.pop();
@@ -146,8 +146,8 @@ public final class LCConfig {
             builder.comment("Slot Machine Animation Settings").push("slot_machine");
 
             builder.comment("The number of Minecraft ticks the slot machine animation will last.",
-                    "Note: 20 ticks = 1 second",
-                    "Must be at least 20 ticks (1s) for coding reasons.")
+                            "Note: 20 ticks = 1 second",
+                            "Must be at least 20 ticks (1s) for coding reasons.")
                     .add("animationDuration", this.slotMachineAnimationTime);
 
             builder.comment("The number of Minecraft ticks the slot machine will pause before repeating the animation.")
@@ -237,6 +237,10 @@ public final class LCConfig {
         public final StringListOption chestDropsT5 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T5));
         public final StringListOption chestDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6));
 
+        //Event Options
+        public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
+        public final DoubleOption chocolateCoinDropRate = DoubleOption.create(0.1d,0d,1d);
+
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -246,43 +250,54 @@ public final class LCConfig {
             builder.comment("Crafting Settings","/reload required for any changes made to take effect.").push("crafting");
 
             builder.comment("Whether Network Traders can be crafted.",
-                    "Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
-                    "Disabling does NOT disable the recipes of Network Upgrades or the Trading Terminals.")
+                            "Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
+                            "Disabling does NOT disable the recipes of Network Upgrades or the Trading Terminals.")
                     .add("canCraftNetworkTrader", this.canCraftNetworkTraders);
 
             builder.comment("Whether Trader Interface blocks can be crafted.",
-                    "Disabling will not remove any existing Trader Interfaces from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Trader Interfaces from the world, nor prevent their use.")
                     .add("canCraftTraderInterface", this.canCraftTraderInterfaces);
 
             builder.comment("Whether Auction Stand blocks can be crafted.",
-                    "Disabling will not remove any existing Auction Stands from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Auction Stands from the world, nor prevent their use.")
                     .add("canCraftAuctionStand", this.canCraftAuctionStands);
 
             builder.comment("Whether Tax Blocks can be crafted.",
-                    "Disabling will not remove any existing Tax Blocks from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Tax Blocks from the world, nor prevent their use.")
                     .add("canCraftTaxCollector", this.canCraftTaxBlock);
 
             builder.comment("Money Chest Crafting").push("money_chest");
 
             builder.comment("Whether the Money Chest can be crafted.",
-                    "Disabling will not remove any existing Money Chests from the world, nor prevent their use.",
-                    "Disabling does NOT disable the recipes of Money Chest Upgrades.")
+                            "Disabling will not remove any existing Money Chests from the world, nor prevent their use.",
+                            "Disabling does NOT disable the recipes of Money Chest Upgrades.")
                     .add("canCraftCoinChest", this.canCraftCoinChest);
 
             builder.comment("Whether the Money Chest Exchange Upgrade can be crafted.",
-                    "Disabling will not remove any existing Money Chest Exchange Upgrades from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Money Chest Exchange Upgrades from the world, nor prevent their use.")
                     .add("canCraftExchangeUpgrade", this.canCraftCoinChestUpgradeExchange);
 
             builder.comment("Whether the Money Chest Magnet Upgrades can be crafted.",
-                    "Disabling will not remove any existing Money Chest Magnet Upgrades from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Money Chest Magnet Upgrades from the world, nor prevent their use.")
                     .add("canCraftMagnetUpgrade", this.canCraftCoinChestUpgradeMagnet);
 
             builder.comment("Whether the Money Chest Security Upgrades can be crafted.",
-                    "Disabling will not remove any existing Money Chest Security Upgrades from the world, nor prevent their use.")
+                            "Disabling will not remove any existing Money Chest Security Upgrades from the world, nor prevent their use.")
                     .add("canCraftSecurityUpgrade", this.canCraftCoinChestUpgradeSecurity);
 
             //Pop money_chest -> crafting
             builder.pop().pop();
+
+            builder.comment("Event Settings").push("events");
+
+            builder.comment("Whether the Chocolate Event Coins will be added to the coin data.",
+                            "Note: Disabling will not remove any Chocolate Coin items that already exist.")
+                    .add("chocolate", this.chocolateEventCoins);
+
+            builder.comment("The percentage of Chocolate Coins being dropped instead of normal coins while an event is active.")
+                    .add("chocolateRate", this.chocolateCoinDropRate);
+
+            builder.pop();
 
             builder.comment("Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
 
@@ -310,8 +325,8 @@ public final class LCConfig {
                     .add("defaultReplacementCoin", this.defaultVillagerReplacementCoin);
 
             builder.comment("List of replacement coin overrides.",
-                    "Each entry must be formatted as follows: \"mod:some_trader_type-lightmanscurrency:some_coin\"",
-                    "Every trader not on this list will use the default trader coin defined above.")
+                            "Each entry must be formatted as follows: \"mod:some_trader_type-lightmanscurrency:some_coin\"",
+                            "Every trader not on this list will use the default trader coin defined above.")
                     .add("replacementCoinOverrides", this.villagerReplacementCoinOverrides);
 
             builder.pop().pop();
@@ -340,7 +355,7 @@ public final class LCConfig {
                     .add("allowSpawnedDrops", this.allowSpawnerEntityDrops);
 
             builder.comment("Whether modded machines that emulate player behaviour can trigger coin drops from entities.",
-                    "Set to false to help prevent autmated coin farming.")
+                            "Set to false to help prevent autmated coin farming.")
                     .add("allowFakePlayerDrops", this.allowFakePlayerCoinDrops);
 
             builder.comment("Entity Drop Lists. Accepts the following inputs:",
@@ -521,9 +536,7 @@ public final class LCConfig {
         public final IntOption taxCollectorMaxHeight = IntOption.create(64,8);
         public final IntOption taxCollectorMaxVertOffset = IntOption.create(32,4);
 
-        //Event Options
-        public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
-        public final DoubleOption chocolateCoinDropRate = DoubleOption.create(0.1d,0d,1d);
+        //Chocolate Coin Options
         public final BooleanOption chocolateCoinEffects = BooleanOption.createTrue();
 
         //Claim Purchasing
@@ -534,6 +547,7 @@ public final class LCConfig {
         public final BooleanOption claimingAllowForceloadPurchase = BooleanOption.createFalse();
         public final MoneyValueOption claimingForceloadPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 1000000));
         public final IntOption claimingMaxForceloadCount = IntOption.create(100,1);
+        public final IntOption flanClaimingBlocksPerChunk = IntOption.create(64, 1, 64);
 
         //LDI Settings
         public final StringOption ldiCurrencyChannel = StringOption.create("000000000000000000");
@@ -564,15 +578,15 @@ public final class LCConfig {
             builder.comment("Coin Mint Settings").push("coin_mint");
 
             builder.comment("Whether or not Coin Mint recipes of mintType \"MINT\" will function.",
-                    "Defaults to the built-in recipes that turn resources into coins.")
+                            "Defaults to the built-in recipes that turn resources into coins.")
                     .add("canMint", this.coinMintCanMint);
 
             builder.comment("Whether or not Coin Mint recipes of mintType \"MELT\" will function.",
-                    "Defaults to the built-in recipes that turn coins back into resources.")
+                            "Defaults to the built-in recipes that turn coins back into resources.")
                     .add("canMelt", this.coinMintCanMelt);
 
             builder.comment("Default number of ticks it takes to process a Coin Mint recipe.",
-                    "Does not apply to Coin Mint recipes with a defined \"duration\" input.")
+                            "Does not apply to Coin Mint recipes with a defined \"duration\" input.")
                     .add("defaultMintDuration", this.coinMintDefaultDuration);
 
             builder.comment("Default Recipes").push("recipes").comment("Minting").push("mint");
@@ -611,15 +625,15 @@ public final class LCConfig {
             builder.comment("Wallet Settings").push("wallet");
 
             builder.comment("The lowest level wallet capable of exchanging coins.",
-                    "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
                     .add("exchangeLevel", this.walletExchangeLevel);
 
             builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
-                    "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
                     .add("pickupLevel", this.walletPickupLevel);
 
             builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
-                    "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
                     .add("bankLevel", this.walletBankLevel);
 
             builder.pop();
@@ -662,16 +676,16 @@ public final class LCConfig {
             builder.comment("Auction House Settings").push("auction_house");
 
             builder.comment("Whether the Auction House will be automatically generated and accessible.",
-                    "If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.",
-                    "If disabled, it is highly recommended that you also disable the 'crafting.allowAuctionStandCrafting' option in the common config.")
+                            "If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.",
+                            "If disabled, it is highly recommended that you also disable the 'crafting.allowAuctionStandCrafting' option in the common config.")
                     .add("enabled", this.auctionHouseEnabled);
 
             builder.comment("Whether the Auction House will appear in the trading terminal.",
-                    "If false, you will only be able to access the Auction House from an Auction Stand.")
+                            "If false, you will only be able to access the Auction House from an Auction Stand.")
                     .add("visibleOnTerminal", this.auctionHouseOnTerminal);
 
             builder.comment("The minimum number of days an auction can have its duration set to.",
-                    "If given a 0 day minimum, the minimum auction duration will be 1 hour.")
+                            "If given a 0 day minimum, the minimum auction duration will be 1 hour.")
                     .add("minimumDuration", this.auctionHouseDurationMin);
 
             builder.comment("The maxumim number of day an auction can have its duration set to.")
@@ -689,8 +703,8 @@ public final class LCConfig {
             builder.comment("Player <-> Player Trading Options").push("player_trading");
 
             builder.comment("The maximum distance allowed between players in order for a player trade to persist.",
-                    "-1 will always allow trading regardless of dimension.",
-                    "0 will allow infinite distance but require that both players be in the same dimension.")
+                            "-1 will always allow trading regardless of dimension.",
+                            "0 will allow infinite distance but require that both players be in the same dimension.")
                     .add("maxPlayerDistance", this.playerTradingRange);
 
             builder.pop();
@@ -698,7 +712,7 @@ public final class LCConfig {
             builder.comment("Tax Settings").push("taxes");
 
             builder.comment("Whether Tax Collectors can only be activated by an Admin in LC Admin Mode.",
-                    "Will not prevent players from crafting, placing, or configuring Tax Collectors.")
+                            "Will not prevent players from crafting, placing, or configuring Tax Collectors.")
                     .add("adminOnlyActivation", this.taxCollectorAdminOnly);
 
             builder.comment("The maximum tax rate (in %) a Tax Collector is allowed to enforce.",
@@ -711,21 +725,12 @@ public final class LCConfig {
             builder.comment("The maximum height of a Tax Collectors area in meters.")
                     .add("maxHeight", this.taxCollectorMaxHeight);
             builder.comment("The maximum vertical offset of a Tax Collectors area in meters.",
-                    "Note: Vertical offset can be negative, so this will also enforce the lowest value.")
+                            "Note: Vertical offset can be negative, so this will also enforce the lowest value.")
                     .add("maxVertOffset", this.taxCollectorMaxVertOffset);
 
             builder.pop();
 
-            builder.comment("Event Settings").push("events");
-
-            builder.comment("Whether the Chocolate Event Coins will be added to the coin data.",
-                    "Requires /lcreload for changes to take effect.",
-                    "Note: Disabling will not remove any Chocolate Coin items that already exist.")
-                    .add("chocolate", this.chocolateEventCoins);
-
-            builder.comment("The percentage of Chocolate Coins being dropped instead of normal coins while an event is active.",
-                    "Note: Will only replace the built-in coins, so if you've modified the loot items to not include the default copper -> netherite coins, the chocolate coins will not drop.")
-                    .add("chocolateRate", this.chocolateCoinDropRate);
+            builder.comment("Chocolate Coin Settings").push("chocolate_coins");
 
             builder.comment("Whether the Chocolate Coins will give players custom potion and/or healing effects on consumption.")
                     .add("chocolateEffects", this.chocolateCoinEffects);
@@ -734,7 +739,7 @@ public final class LCConfig {
 
             builder.comment("Mod Compat Options").push("compat");
 
-            builder.comment("Claim Purchasing Settings for FTB Chunks & Cadmus").push("claim_purchasing");
+            builder.comment("Claim Purchasing Settings for FTB Chunks, Cadmus, & Flan").push("claim_purchasing");
 
             builder.comment("Whether the '/lcclaims buy claim' command will be accessible to players.")
                     .add("allowClaimPurchase", this.claimingAllowClaimPurchase);
@@ -743,7 +748,7 @@ public final class LCConfig {
                     .add("claimPrice", this.claimingClaimPrice);
 
             builder.comment("The maximum number of extra claim chunks allowed to be purchased with this command.",
-                    "Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
+                            "Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
                     .add("maxClaimCount", this.claimingMaxClaimCount);
 
             builder.comment("Whether the `/lcclaims buy forceload` command will be accessible to players.")
@@ -753,10 +758,16 @@ public final class LCConfig {
                     .add("forceloadPrice", this.claimingForceloadPrice);
 
             builder.comment("The maximum number of extra forceload chunks allowed to be purchased with this command.",
-                    "Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
+                            "Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well (if applicable).")
                     .add("maxForceloadCount", this.claimingMaxForceloadCount);
 
-            builder.pop();
+            builder.comment("Flan Settings").push("flan");
+
+            builder.comment("Blocks that will be added with each 'claim' purchased")
+                    .add("blocksPerChunk", this.flanClaimingBlocksPerChunk);
+
+            //Pop flan -> claim_purchasing
+            builder.pop().pop();
 
             builder.comment("Lightman's Discord Compat Settings.").push("ldi");
 
@@ -770,14 +781,14 @@ public final class LCConfig {
             builder.comment("Currency Bot Notification Options").push("notifications");
 
             builder.comment("Whether a notification will appear in the currency bot channel when a Network Trader is created.",
-                    "Notification will have a 60 second delay to allow them time to customize the traders name, etc.")
+                            "Notification will have a 60 second delay to allow them time to customize the traders name, etc.")
                     .add("networkTraderBuilt", this.ldiNetworkTraderNotification);
 
             builder.comment("Whether a notification will appear in the currency bot channel when a player starts an auction.")
                     .add("auctionCreated", this.ldiAuctionCreateNotification);
 
             builder.comment("Whether a notification will appear in the currency bot channel when a Persistent Auction is created automatically.",
-                    "Requires that auction house creation notifications also be enabled.")
+                            "Requires that auction house creation notifications also be enabled.")
                     .add("auctionPersistentCreations", this.ldiAuctionPersistentCreateNotification);
 
             builder.comment("Whether a notification will appear in the currency bot channel when an Auction is cancelled in the Auction House.")

@@ -57,7 +57,7 @@ public final class ChocolateEventCoins {
     }
     @SubscribeEvent
     public static void registerChain(@Nonnull ChainDataReloadedEvent.Pre event) {
-        if(LCConfig.SERVER.chocolateEventCoins.get())
+        if(LCConfig.COMMON.chocolateEventCoins.get())
             event.addEntry(getChainData(),true);
     }
 
@@ -67,15 +67,15 @@ public final class ChocolateEventCoins {
         @Override
         protected boolean isEnabled() { return isEventActive(); }
         @Override
-        protected double getSuccessChance() { return LCConfig.SERVER.chocolateCoinDropRate.get(); }
+        protected double getSuccessChance() { return LCConfig.COMMON.chocolateCoinDropRate.get(); }
         @Override
         public void replaceLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot) {
-            this.replaceRandomItems(random, loot, ModItems.COIN_COPPER.get(), ModItems.COIN_CHOCOLATE_COPPER.get());
-            this.replaceRandomItems(random, loot, ModItems.COIN_IRON.get(), ModItems.COIN_CHOCOLATE_IRON.get());
-            this.replaceRandomItems(random, loot, ModItems.COIN_GOLD.get(), ModItems.COIN_CHOCOLATE_GOLD.get());
-            this.replaceRandomItems(random, loot, ModItems.COIN_EMERALD.get(), ModItems.COIN_CHOCOLATE_EMERALD.get());
-            this.replaceRandomItems(random, loot, ModItems.COIN_DIAMOND.get(), ModItems.COIN_CHOCOLATE_DIAMOND.get());
-            this.replaceRandomItems(random, loot, ModItems.COIN_NETHERITE.get(), ModItems.COIN_CHOCOLATE_NETHERITE.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem1.get(), ModItems.COIN_CHOCOLATE_COPPER.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem2.get(), ModItems.COIN_CHOCOLATE_IRON.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem3.get(), ModItems.COIN_CHOCOLATE_GOLD.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem4.get(), ModItems.COIN_CHOCOLATE_EMERALD.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem5.get(), ModItems.COIN_CHOCOLATE_DIAMOND.get());
+            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem6.get(), ModItems.COIN_CHOCOLATE_NETHERITE.get());
         }
 
     }

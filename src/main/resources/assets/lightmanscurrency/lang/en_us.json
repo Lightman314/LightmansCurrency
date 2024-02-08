@@ -200,6 +200,10 @@
 	"block.lightmanscurrency.shelf_byg_witch_hazel": "Witch Hazel Shelf",
 	"block.lightmanscurrency.shelf_byg_zelkova": "Zelkova Shelf",
 	
+	"block.lightmanscurrency.shelf_quark_ancient": "Ancient Shelf",
+	"block.lightmanscurrency.shelf_quark_azalea": "Azalea Shelf",
+	"block.lightmanscurrency.shelf_quark_blossom": "Blossom Shelf",
+	
 	"block.lightmanscurrency.shelf_2x2_oak": "Oak 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_spruce": "Spruce 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_birch": "Birch 2x2 Shelf",
@@ -253,6 +257,10 @@
 	"block.lightmanscurrency.shelf_2x2_byg_willow": "Willow 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_byg_witch_hazel": "Witch Hazel 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_byg_zelkova": "Zelkova 2x2 Shelf",
+	
+	"block.lightmanscurrency.shelf_2x2_quark_ancient": "Ancient Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_azalea": "Azalea Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_blossom": "Blossom Shelf",
 	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
 	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
@@ -314,6 +322,10 @@
 	"block.lightmanscurrency.card_display_byg_witch_hazel": "Witch Hazel Card Display",
 	"block.lightmanscurrency.card_display_byg_withering_oak": "Withering Oak Card Display",
 	"block.lightmanscurrency.card_display_byg_zelkova": "Zelkova Card Display",
+	
+	"block.lightmanscurrency.card_display_quark_ancient": "Ancient Card Display",
+	"block.lightmanscurrency.card_display_quark_azalea": "Azalea Card Display",
+	"block.lightmanscurrency.card_display_quark_blossom": "Blossom Card Display",
    
     "block.lightmanscurrency.ticket_machine": "Ticket Station",
     "block.lightmanscurrency.paygate": "Paygate",
@@ -391,6 +403,10 @@
 	"block.lightmanscurrency.bookshelf_trader_byg_witch_hazel": "Witch Hazel Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_byg_zelkova": "Zelkova Bookshelf Trader",
 	
+	"block.lightmanscurrency.bookshelf_trader_quark_ancient": "Ancient Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_quark_azalea": "Azalea Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_quark_blossom": "Blossom Bookshelf Trader",
+	
 	"block.lightmanscurrency.slot_machine": "Slot Machine",
 	
     "block.lightmanscurrency.terminal": "Trading Terminal",
@@ -465,6 +481,10 @@
 	"block.lightmanscurrency.auction_stand_byg_witch_hazel": "Witch Hazel Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_withering_oak": "Withering Oak Auction Stand",
 	"block.lightmanscurrency.auction_stand_byg_zelkova": "Zelkova Auction Stand",
+	
+	"block.lightmanscurrency.auction_stand_quark_ancient": "Ancient Auction Stand",
+	"block.lightmanscurrency.auction_stand_quark_azalea": "Azalea Auction Stand",
+	"block.lightmanscurrency.auction_stand_quark_blossom": "Blossom Auction Stand",
 	
     "block.lightmanscurrency.coin_chest": "Money Chest",
 	"block.lightmanscurrency.tax_block": "Tax Collector",
@@ -1260,7 +1280,11 @@
     "advancements.lightmanscurrency.jar_of_sus.title": "Sus Bank Check",
     "advancements.lightmanscurrency.jar_of_sus.description": "WHY DID IT HAVE TO BE SOUP!?",
 	
+    "advancements.lightmanscurrency.event.chocolate.title": "Chocolate Wonders",
+    "advancements.lightmanscurrency.event.chocolate.description": "Play during a special holiday! Unlocks the ability to use chocolate coins as money.",
     "advancements.lightmanscurrency.event.christmas.title": "A Christmas Shopping Spree!",
-    "advancements.lightmanscurrency.event.christmas.description": "Played during a very jolly time!"
+    "advancements.lightmanscurrency.event.christmas.description": "Played during a very jolly time!",
+	"advancements.lightmanscurrency.event.valentines.title": "Love is in your wallet!",
+    "advancements.lightmanscurrency.event.valentines.description": "Played during the celebration of love."
     
 }

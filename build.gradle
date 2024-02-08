@@ -90,7 +90,8 @@ minecraft {
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
-                    '--existing', file('optional_assets/1.20/biomesoplenty')
+                    '--existing', file('optional_assets/1.20/biomesoplenty'),
+                    '--existing', file('optional_assets/1.20/quark')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -153,10 +154,16 @@ dependencies {
     compileOnly fg.deobf('curse.maven:cadmus-845832:4718413')
     compileOnly fg.deobf('curse.maven:resourceful-lib-570073:4927082')
 
+    //Flan claim purchase compat
+    compileOnly fg.deobf("curse.maven:flan-forge-493246:4920923")
+
     //Wood Compatibility
     //Biomes O' Plenty
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
     implementation fg.deobf("curse.maven:terrablender-563928:4647094")
+    //Quark
+    implementation fg.deobf("curse.maven:quark-243121:5084013")
+    implementation fg.deobf("curse.maven:zeta-968868:5078215")
 
     //Supplementaries RedMerchant compat
     compileOnly fg.deobf("curse.maven:supplementaries-412082:5068158")

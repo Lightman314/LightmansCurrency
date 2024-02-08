@@ -2,13 +2,13 @@
     "parent": "lightmanscurrency:currency/events/chocolate_coins",
     "display": {
         "icon": {
-            "item": "lightmanscurrency:coin_chocolate_gold"
+            "item": "lightmanscurrency:coin_chocolate_diamond"
         },
         "title": {
-            "translate": "advancements.lightmanscurrency.event.christmas.title"
+            "translate": "advancements.lightmanscurrency.event.valentines.title"
         },
         "description": {
-            "translate": "advancements.lightmanscurrency.event.christmas.description"
+            "translate": "advancements.lightmanscurrency.event.valentines.description"
         },
 		"hidden": true
     },
@@ -17,12 +17,12 @@
             "trigger": "lightmanscurrency:date_range",
 			"conditions":{
 				"start":{
-					"month":12,
-					"day":1
+					"month":2,
+					"day":13
 				},
 				"end":{
-					"month":12,
-					"day":31
+					"month":2,
+					"day":15
 				}
 			}
         }
