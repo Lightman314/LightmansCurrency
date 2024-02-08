@@ -2,7 +2,7 @@
 name: Translation Upload
 about: Request this mod to be translated
 title: Translation Request
-labels: translation
+labels: Translation
 assignees: Lightman314
 
 ---
