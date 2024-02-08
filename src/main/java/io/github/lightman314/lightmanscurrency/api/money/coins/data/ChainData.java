@@ -532,7 +532,7 @@ public class ChainData {
         ChainData chain = CoinAPI.chainForCoin(stack);
         if(chain != null)
         {
-            if(player == null || chain.isVisibleTo(player))
+            if(player == null || flag.isAdvanced() || chain.isVisibleTo(player))
                 chain.formatCoinTooltip(stack, tooltip, flag);
         }
     }
