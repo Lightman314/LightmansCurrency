@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import org.jetbrains.annotations.NotNull;
@@ -109,7 +111,7 @@ public class ItemListingSerializer {
         JsonObject serializeInternal(JsonObject json, ItemListing trade);
     }
 
-    public interface IItemListingDeserializer { ItemListing deserialize(JsonObject json) throws Exception; }
+    public interface IItemListingDeserializer { ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException; }
 
 
     public static void registerDefaultSerializers() {

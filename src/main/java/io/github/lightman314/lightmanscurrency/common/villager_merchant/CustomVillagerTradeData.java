@@ -87,7 +87,7 @@ public class CustomVillagerTradeData {
     }
 
     public static @Nonnull File getVillagerDataFile(@Nonnull ResourceLocation villager) {
-        String filePath = "config/" + villager.getNamespace() + "/custom_" + villager.getPath() + "_trades.json";
+        String filePath = "config/trades/" + villager.getNamespace() + "/custom_" + villager.getPath() + "_trades.json";
         return new File(filePath);
     }
 

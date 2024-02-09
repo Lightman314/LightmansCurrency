@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -8,7 +9,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
@@ -110,12 +113,12 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
-            Item baseCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.get("Coin").getAsString()));
-            int baseCoinCount = json.get("StartCoinCount").getAsInt();
-            int maxTrades = json.get("MaxTrades").getAsInt();
-            int xp = json.get("XP").getAsInt();
-            float priceMult = json.get("PriceMult").getAsFloat();
+        public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+            Item baseCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json,"Coin")));
+            int baseCoinCount = GsonHelper.getAsInt(json,"StartCoinCount");
+            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
+            int xp = GsonHelper.getAsInt(json,"XP");
+            float priceMult = GsonHelper.getAsFloat(json,"PriceMult");
             return new EnchantedBookForCoinsTrade(baseCoin, baseCoinCount, maxTrades, xp, priceMult);
         }
     }

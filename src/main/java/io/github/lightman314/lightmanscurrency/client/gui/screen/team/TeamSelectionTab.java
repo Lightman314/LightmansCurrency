@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -39,7 +40,7 @@ public class TeamSelectionTab extends TeamTab {
 	public boolean allowViewing(Player player, Team team) { return true; }
 
 	TeamSelectWidget teamSelection;
-	List<Team> teamList = Lists.newArrayList();
+	List<Team> teamList = new ArrayList<>();
 	
 	EditBox newTeamName;
 	EasyButton buttonCreateTeam;
@@ -57,7 +58,7 @@ public class TeamSelectionTab extends TeamTab {
 		this.newTeamName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 140, 160, 20, Component.empty()));
 		this.newTeamName.setMaxLength(32);
 		
-		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.createTrue"), this::createTeam));
+		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam));
 		this.buttonCreateTeam.active = false;
 		
 	}
@@ -71,7 +72,7 @@ public class TeamSelectionTab extends TeamTab {
 	
 	private void refreshTeamList()
 	{
-		this.teamList = Lists.newArrayList();
+		this.teamList = new ArrayList<>();
 		List<Team> allTeams = TeamSaveData.GetAllTeams(true);
 		allTeams.forEach(team ->{
 			if(team.isMember(this.getPlayer()))
@@ -85,7 +86,7 @@ public class TeamSelectionTab extends TeamTab {
 		
 		//Render the text
 		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.select"), 20, 10, 0x404040);
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.createTrue"), 20, 130, 0x404040);
+		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.create"), 20, 130, 0x404040);
 		
 	}
 

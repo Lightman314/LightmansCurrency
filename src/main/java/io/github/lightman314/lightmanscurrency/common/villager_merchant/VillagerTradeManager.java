@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -9,11 +8,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.resources.ResourceLocation;
@@ -52,8 +52,10 @@ public class VillagerTradeManager {
 				ImmutableList.of(
 						//Sell Coin Mint
 						new SimpleTrade(2, ModItems.COIN_IRON.get(), 5, ModBlocks.COIN_MINT.get()),
+						//Sell Terminal
+						RandomTrade.build(new ItemStack(ModItems.COIN_GOLD.get()), LCTags.Items.NETWORK_TERMINAL, 12, 1, 0.05f),
 						//Sell ATM
-						new SimpleTrade(2, ModItems.COIN_GOLD.get(), 1, ModBlocks.ATM.get()),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 8), LCTags.Items.ATM, 12, 1, 0.05f),
 						//Sell Cash Register
 						new SimpleTrade(1, ModItems.COIN_IRON.get(), 5, ModBlocks.CASH_REGISTER.get()),
 						//Sell Trading Core
@@ -61,19 +63,22 @@ public class VillagerTradeManager {
 				),
 				2,
 				ImmutableList.of(
-						//Sell first 4 shelves
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), ModBlocks.SHELF.getSome(WoodType.OAK, WoodType.BIRCH, WoodType.SPRUCE, WoodType.JUNGLE), 12, 5, 0.05f),
-						//Sell 4 "rare" shelves
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), ModBlocks.SHELF.getSome(WoodType.ACACIA, WoodType.DARK_OAK, WoodType.MANGROVE, WoodType.CRIMSON, WoodType.WARPED), 12, 5, 0.05f),
+						//Sell shelves
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), LCTags.Items.TRADER_SHELF, 12, 5, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 14), LCTags.Items.TRADER_SHELF_2x2, 12, 5, 0.05f),
+						//Sell Coin Chest
+						new SimpleTrade(5, ModItems.COIN_IRON.get(), 15, ModBlocks.COIN_CHEST.get()),
 						//Sell display case
 						new SimpleTrade(5, ModItems.COIN_IRON.get(), 10, ModBlocks.DISPLAY_CASE.get())
 				),
 				3,
 				ImmutableList.of(
-						//Sell first 4 card displays
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 15), ModBlocks.CARD_DISPLAY.getAll(), 12, 10, 0.05f),
+						//Sell card displays
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 15), LCTags.Items.TRADER_CARD_DISPLAY, 12, 10, 0.05f),
 						//Sell armor display
 						new SimpleTrade(10, ModItems.COIN_IRON.get(), 20, ModBlocks.ARMOR_DISPLAY.get()),
+						//Sell ticket kiosk
+						new SimpleTrade(10, ModItems.COIN_IRON.get(), 20, ModBlocks.TICKET_KIOSK.get()),
 						//Sell small trader server
 						new SimpleTrade(10, ModItems.COIN_IRON.get(), 15, ModBlocks.ITEM_NETWORK_TRADER_1.get()),
 						//Sell Terminal
@@ -82,22 +87,28 @@ public class VillagerTradeManager {
 				4,
 				ImmutableList.of(
 						//Sell Vending Machines
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 25), ModBlocks.VENDING_MACHINE.getAll(), 12, 15, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 25), LCTags.Items.TRADER_VENDING_MACHINE, 12, 15, 0.05f),
 						//Sell medium trader server
 						new SimpleTrade(15, ModItems.COIN_IRON.get(), 30, ModBlocks.ITEM_NETWORK_TRADER_2.get()),
 						//Sell Freezer
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), ModBlocks.FREEZER.getAll(), 12, 20, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), LCTags.Items.TRADER_FREEZER, 12, 20, 0.05f),
+						//Sell Bookshelf trader
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), LCTags.Items.TRADER_SPECIALTY_BOOKSHELF, 12, 20, 0.05f),
 						//Sell Money Mending book
 						new SimpleTrade(20, ModItems.COIN_DIAMOND.get(), 15, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
 				),
 				5,
 				ImmutableList.of(
 						//Sell Large Vending Machines
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 25), ModBlocks.VENDING_MACHINE_LARGE.getAll(), 12, 30, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 25), LCTags.Items.TRADER_LARGE_VENDING_MACHINE, 12, 30, 0.05f),
 						//Sell large trader server
 						new SimpleTrade(30, ModItems.COIN_GOLD.get(), 6, ModBlocks.ITEM_NETWORK_TRADER_3.get()),
 						//Sell extra-large trader server
 						new SimpleTrade(30, ModItems.COIN_GOLD.get(), 10, ModBlocks.ITEM_NETWORK_TRADER_4.get()),
+						//Sell slot machine
+						new SimpleTrade(30, ModItems.COIN_GOLD.get(), 10, ModBlocks.SLOT_MACHINE.get()),
+						//Sell trader interface
+						RandomTrade.build(new ItemStack(ModItems.COIN_EMERALD.get(), 5), LCTags.Items.TRADER_INTERFACE, 12, 30, 0.05f),
 						//Sell Money Mending book
 						new SimpleTrade(30, ModItems.COIN_DIAMOND.get(), 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
 				)

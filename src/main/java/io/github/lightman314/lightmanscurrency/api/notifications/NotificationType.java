@@ -6,7 +6,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
-public final class NotificationType<T extends Notification> {
+public class NotificationType<T extends Notification> {
 
     public final ResourceLocation type;
     private final NonNullSupplier<T> generator;
@@ -22,6 +22,6 @@ public final class NotificationType<T extends Notification> {
     }
 
     @Override
-    public String toString() { return this.type.toString(); }
+    public final String toString() { return this.type.toString(); }
 
 }

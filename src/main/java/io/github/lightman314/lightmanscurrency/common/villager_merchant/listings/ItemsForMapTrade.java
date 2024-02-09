@@ -1,16 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
@@ -99,15 +102,15 @@ public class ItemsForMapTrade implements ItemListing
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
-            ItemStack price1 = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
-            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, new ResourceLocation(json.get("Destination").getAsString()));
-            String displayName = json.get("MapName").getAsString();
-            MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(json.get("Decoration").getAsString(), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
-            int maxTrades = json.get("MaxTrades").getAsInt();
-            int xp = json.get("XP").getAsInt();
-            float priceMult = json.get("PriceMult").getAsFloat();
+        public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+            ItemStack price1 = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"));
+            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2")) : ItemStack.EMPTY;
+            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, new ResourceLocation(GsonHelper.getAsString(json,"Destination")));
+            String displayName = GsonHelper.getAsString(json,"MapName");
+            MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(GsonHelper.getAsString(json,"Decoration"), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
+            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
+            int xp = GsonHelper.getAsInt(json,"XP");
+            float priceMult = GsonHelper.getAsFloat(json,"PriceMult");
             return new ItemsForMapTrade(price1, price2, destination, displayName, mapDecorationType, maxTrades, xp, priceMult);
         }
     }
