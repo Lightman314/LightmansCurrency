@@ -43,7 +43,7 @@ public class NotificationAPI {
     public static Notification loadNotification(@Nonnull CompoundTag compound) {
         if(compound.contains("Type") || compound.contains("type"))
         {
-            String type = compound.getString("type");
+            String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
             if(notificationRegistry.containsKey(type))
                 return notificationRegistry.get(type).load(compound);
             else

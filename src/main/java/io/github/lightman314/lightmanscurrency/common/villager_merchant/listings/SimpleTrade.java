@@ -1,10 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -124,14 +127,13 @@ public class SimpleTrade implements VillagerTrades.ItemListing
             }
             return null;
         }
-        @Override
-        public VillagerTrades.ItemListing deserialize(JsonObject json) throws Exception {
-            ItemStack price = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
-            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
-            ItemStack forSale = FileUtil.parseItemStack(json.get("Sell").getAsJsonObject());
-            int maxTrades = json.get("MaxTrades").getAsInt();
-            int xp = json.get("XP").getAsInt();
-            float priceMult = json.get("PriceMult").getAsFloat();
+        public VillagerTrades.ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+            ItemStack price = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"));
+            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2")) : ItemStack.EMPTY;
+            ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"));
+            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
+            int xp = GsonHelper.getAsInt(json,"XP");
+            float priceMult = GsonHelper.getAsFloat(json, "PriceMult");
             return new SimpleTrade(price, price2, forSale, maxTrades, xp, priceMult);
         }
     }

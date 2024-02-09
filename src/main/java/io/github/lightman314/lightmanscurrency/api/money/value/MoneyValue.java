@@ -33,6 +33,7 @@ import java.util.Objects;
 
 /**
  * Class made to store and reference values of Money.
+ * To use my built-in implementation of this, see {@link CoinValue}
  */
 public abstract class MoneyValue {
 
