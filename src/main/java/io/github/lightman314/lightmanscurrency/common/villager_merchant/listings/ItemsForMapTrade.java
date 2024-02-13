@@ -23,7 +23,8 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ItemsForMapTrade implements ItemListing
 {
@@ -58,9 +59,9 @@ public class ItemsForMapTrade implements ItemListing
     }
 
     @Override
-    public MerchantOffer getOffer(Entity trader, @NotNull RandomSource rand) {
+    public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
 
-        if(!(trader.level() instanceof ServerLevel serverworld))
+        if(trader == null || !(trader.level() instanceof ServerLevel serverworld))
             return null;
         else
         {

@@ -277,17 +277,6 @@ public class ChainData {
     }
 
     @Nullable
-    public CoinEntry findMatchingEntry(@Nonnull CompoundTag entryTag)
-    {
-        for(CoinEntry e : this.getAllEntries(true))
-        {
-            if(e.matches(entryTag))
-                return e;
-        }
-        return null;
-    }
-
-    @Nullable
     public CoinEntry findEntry(@Nonnull ItemStack item) { return this.findEntry(item.getItem()); }
     public CoinEntry findEntry(@Nonnull Item item)
     {

@@ -143,23 +143,24 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		}
 	}
 	
-	public final OwnerData owner = new OwnerData(this, o -> BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()))));
+	public final OwnerData owner = new OwnerData(this, o -> this.OnOwnerChanged());
 	public void initOwner(Entity owner) { if(!this.owner.hasOwner()) this.owner.SetOwner(PlayerReference.of(owner)); }
 	public void setOwner(String name) {
 		PlayerReference newOwner = PlayerReference.of(this.isClient(), name);
 		if(newOwner != null)
-		{
 			this.owner.SetOwner(newOwner);
-			this.mode = ActiveMode.DISABLED;
-			this.setChanged();
-			if(!this.isClient())
-				BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag())));
-		}
 	}
 	public void setTeam(long teamID) {
 		Team team = TeamSaveData.GetTeam(this.isClient(), teamID);
 		if(team != null)
 			this.owner.SetOwner(team);
+	}
+	private void OnOwnerChanged() {
+		this.mode = ActiveMode.DISABLED;
+		this.cachedContext = null;
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag())));
 	}
 	
 	public PlayerReference getReferencedPlayer() { return this.owner.getPlayerForContext(); }
@@ -230,6 +231,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			return;
 		this.reference.setTrader(traderID);
 		this.reference.setTrade(-1);
+		this.cachedContext = null;
 		this.setTradeReferenceDirty();
 	}
 	
@@ -281,12 +283,19 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	protected abstract TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext);
-	
+
+	private TradeContext cachedContext = null;
+
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
 	public TradeContext getTradeContext() {
-		if(this.interaction.trades)
-			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
-		return TradeContext.createStorageMode(this.getTrader());
+		if(this.cachedContext == null)
+		{
+			if(this.interaction.trades)
+				this.cachedContext = this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
+			else
+				this.cachedContext = TradeContext.createStorageMode(this.getTrader());
+		}
+		return this.cachedContext;
 	}
 	
 	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
@@ -360,13 +369,19 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	@Override
 	public void load(CompoundTag compound) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
+		{
 			this.owner.load(compound.getCompound("Owner"));
+			this.cachedContext = null;
+		}
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
 			this.onlineMode = compound.getBoolean("OnlineMode");
 		if(compound.contains("InteractionType", Tag.TAG_STRING))
+		{
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
+			this.cachedContext = null;
+		}
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
 			this.reference.load(compound.getCompound("Trade"));
 		if(compound.contains("Upgrades"))
