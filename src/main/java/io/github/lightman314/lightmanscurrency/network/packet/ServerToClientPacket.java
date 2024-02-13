@@ -6,6 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -23,6 +24,8 @@ public abstract class ServerToClientPacket extends CustomPacket {
 
     public final void sendToTargets(@Nonnull List<PacketDistributor.PacketTarget> targets)
     {
+        if(ServerLifecycleHooks.getCurrentServer() == null)
+            return;
         for(PacketDistributor.PacketTarget target : targets)
             LightmansCurrencyPacketHandler.instance.send(target, this);
     }

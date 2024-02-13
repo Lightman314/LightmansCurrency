@@ -41,7 +41,11 @@ import net.minecraftforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 
 public class TradeContext {
-	
+
+	private static long nextID = 0;
+
+	public final long id;
+
 	public final boolean isStorageMode;
 	
 	//Trader Data (public as it will be needed for trade data context)
@@ -82,6 +86,7 @@ public class TradeContext {
 	private boolean hasEnergyTank() { return this.energyTank != null; }
 
 	private TradeContext(Builder builder) {
+		this.id = nextID++;
 		this.isStorageMode = builder.storageMode;
 		this.trader = builder.trader;
 		this.player = builder.player;

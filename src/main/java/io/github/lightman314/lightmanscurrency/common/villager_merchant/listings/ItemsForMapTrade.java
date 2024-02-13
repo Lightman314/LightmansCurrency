@@ -61,7 +61,7 @@ public class ItemsForMapTrade implements ItemListing
     @Override
     public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
 
-        if(!(trader.level instanceof ServerLevel serverworld))
+        if(trader == null || !(trader.level instanceof ServerLevel serverworld))
             return null;
         else
         {

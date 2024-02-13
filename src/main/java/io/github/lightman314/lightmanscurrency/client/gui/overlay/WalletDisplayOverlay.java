@@ -49,6 +49,8 @@ public class WalletDisplayOverlay implements IGuiOverlay {
 
             //Draw the wallet
             IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(fgui.getMinecraft().player);
+            if(walletHandler == null)
+                return;
             ItemStack wallet = walletHandler.getWallet();
             if(WalletItem.isWallet(wallet))
             {
