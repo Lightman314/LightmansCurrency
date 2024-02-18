@@ -39,7 +39,7 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
             return new SPacketSyncCoinData(GsonHelper.parse(string).getAsJsonObject());
         }
         @Override
-        protected void handle(@Nonnull SPacketSyncCoinData message, @Nullable ServerPlayer sender) { CoinAPI.handleSyncPacket(message); }
+        protected void handle(@Nonnull SPacketSyncCoinData message, @Nullable ServerPlayer sender) { CoinAPI.API.HandleSyncPacket(message); }
     }
 
 

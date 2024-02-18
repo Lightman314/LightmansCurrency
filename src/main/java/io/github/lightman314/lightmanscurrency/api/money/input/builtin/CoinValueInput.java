@@ -224,12 +224,12 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
     private int getLargeIncreaseAmount(@Nonnull CoinEntry coin)
     {
-        Pair<CoinEntry,Integer> upperExchange = this.chain.getUpperExchange(coin);
+        Pair<CoinEntry,Integer> upperExchange = coin.getUpperExchange();
         if(upperExchange != null)
             return getLargeAmount(upperExchange);
         else
         {
-            Pair<CoinEntry,Integer> downwardExchange = this.chain.getLowerExchange(coin);
+            Pair<CoinEntry,Integer> downwardExchange = coin.getLowerExchange();
             if(downwardExchange != null)
                 return getLargeAmount(downwardExchange);
             //No exchange found for this coin. Assume 10;

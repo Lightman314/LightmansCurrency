@@ -55,7 +55,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         int i = 5 + rand.nextInt(15);
         ItemStack itemstack = EnchantmentHelper.enchantItem(rand, new ItemStack(sellItem), i, false);
 
-        ChainData chain = CoinAPI.chainForCoin(this.baseCoin);
+        ChainData chain = CoinAPI.API.ChainDataOfCoin(this.baseCoin);
         if(chain == null)
         {
             LightmansCurrency.LogWarning("Item for coin trade failed as '" + new ItemStack(this.baseCoin).getHoverName().getString() + "' is not a registered coin!");
@@ -71,12 +71,12 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         if(!(v instanceof CoinValue cv))
             return null;
         List<ItemStack> priceStacks = cv.getAsSeperatedItemList();
-        if(priceStacks.size() > 0)
+        if(!priceStacks.isEmpty())
             price1 = priceStacks.get(0);
         if(priceStacks.size() > 1)
             price2 = priceStacks.get(1);
 
-        LightmansCurrency.LogInfo("EnchantedItemForCoinsTrade.getOffer() -> \n" +
+        LightmansCurrency.LogDebug("EnchantedItemForCoinsTrade.getOffer() -> \n" +
                 "i=" + i +
                 "\ncoinValue=" + coinValue +
                 "\nbaseValue=" + baseValue +
@@ -88,7 +88,9 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         return new MerchantOffer(price1, price2, itemstack, this.maxTrades, this.xp, this.priceMult);
     }
 
-    private static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+    public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+
+        private Serializer() {}
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override

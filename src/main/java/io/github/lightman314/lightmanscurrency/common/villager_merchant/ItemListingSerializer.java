@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,16 +89,14 @@ public class ItemListingSerializer {
         return serializer.serialize(listing);
     }
 
-    public static ItemListing deserializeTrade(JsonObject json) throws Exception{
-        if(!json.has("Type"))
-            throw new RuntimeException("Could not deserialize entry as no 'Type' was defined!");
-        ResourceLocation type = new ResourceLocation(json.get("Type").getAsString());
+    public static ItemListing deserializeTrade(JsonObject json) throws JsonSyntaxException, ResourceLocationException{
+        ResourceLocation type = new ResourceLocation(GsonHelper.getAsString(json,"Type"));
         IItemListingDeserializer deserializer = deserializers.get(type);
         if(deserializer == null)
-            throw new RuntimeException("Could not deserialize entry as no deserializer was found of type '" + type + "'!");
+            throw new JsonSyntaxException("Could not deserialize entry as no deserializer was found of type '" + type + "'!");
         ItemListing trade = deserializer.deserialize(json);
         if(trade == null)
-            throw new RuntimeException("An unknown error occurred while deserializing entry!");
+            throw new JsonSyntaxException("An unknown error occurred while deserializing entry!");
         return trade;
     }
 

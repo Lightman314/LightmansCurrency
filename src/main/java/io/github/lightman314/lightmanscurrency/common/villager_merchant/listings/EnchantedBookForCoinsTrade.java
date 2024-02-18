@@ -56,7 +56,7 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
             LightmansCurrency.LogError("Enchantment of type '" + ForgeRegistries.ENCHANTMENTS.getKey(enchantment) + "' has a max enchantment level of " + enchantment.getMaxLevel() + ". Unable to properly randomize the enchantment level for a villager trade. Will default to a level 1 enchantment.");
         ItemStack itemstack = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level));
 
-        ChainData chain = CoinAPI.chainForCoin(this.baseCoin);
+        ChainData chain = CoinAPI.API.ChainDataOfCoin(this.baseCoin);
         if(chain == null)
         {
             LightmansCurrency.LogWarning("Book for coin trade failed as '" + new ItemStack(this.baseCoin).getHoverName().getString() + "' is not a registered coin!");
@@ -74,12 +74,12 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
             return null;
         List<ItemStack> coins = coinValue.getAsSeperatedItemList();
         ItemStack price1 = ItemStack.EMPTY, price2 = ItemStack.EMPTY;
-        if (coins.size() > 0)
+        if (!coins.isEmpty())
             price1 = coins.get(0);
         if (coins.size() > 1)
             price2 = coins.get(1);
 
-        LightmansCurrency.LogInfo("EnchantedBookForCoinsTrade.getOffer() -> \n" +
+        LightmansCurrency.LogDebug("EnchantedBookForCoinsTrade.getOffer() -> \n" +
                 "baseValue=" + baseValue +
                 "\ncoinValue=" + coinValue +
                 "\nlevel=" + level +
@@ -93,7 +93,9 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
 
     }
 
-    private static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+    public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+
+        private Serializer() {}
 
         @Override
         public ResourceLocation getType() { return TYPE; }

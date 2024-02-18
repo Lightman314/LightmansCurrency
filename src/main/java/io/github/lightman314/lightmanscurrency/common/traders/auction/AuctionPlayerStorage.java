@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.auction;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -63,9 +62,7 @@ public class AuctionPlayerStorage {
 	public void giveMoney(@Nonnull MoneyValue amount) { this.storedCoins.addValue(amount); }
 	
 	public void collectedMoney(Player player) {
-		for(MoneyValue value : this.storedCoins.allValues())
-			MoneyAPI.giveMoneyToPlayer(player, value);
-		this.storedCoins.clear();
+		this.storedCoins.GiveToPlayer(player);
 	}
 	
 	public void giveItem(ItemStack item) {

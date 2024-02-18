@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.bank;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountMenu;
@@ -58,7 +59,8 @@ public class BankAPI {
         if(account == null)
             return;
 
-        MoneyView valueOfContainer = MoneyAPI.valueOfContainer(coinInput);
+        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(coinInput, player);
+        MoneyView valueOfContainer = handler.getStoredMoney();
         for(MoneyValue value : valueOfContainer.allValues())
         {
             if(value.sameType(amount))
@@ -67,7 +69,7 @@ public class BankAPI {
                 if(depositAmount.isEmpty() || !value.containsValue(depositAmount))
                     depositAmount = value;
                 //Take the money from the container
-                MoneyAPI.takeMoneyFromContainer(coinInput, player, depositAmount);
+                handler.extractMoney(depositAmount,false);
                 //Add the money to the bank account
                 account.depositMoney(depositAmount);
                 if(account instanceof BankAccount ba)
@@ -118,7 +120,8 @@ public class BankAPI {
             account.depositMoney(withdrawnAmount);
             return;
         }
-        MoneyAPI.addMoneyToContainer(coinOutput, player, withdrawnAmount);
+        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(coinOutput,player);
+        handler.insertMoney(withdrawnAmount,false);
         if(account instanceof BankAccount ba)
             ba.LogInteraction(player, withdrawnAmount, false);
     }

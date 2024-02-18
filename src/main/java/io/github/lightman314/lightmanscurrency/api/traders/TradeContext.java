@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
@@ -124,14 +126,9 @@ public class TradeContext {
 			return false;
 		if(price.isFree() || price.isEmpty())
 			return true;
-		if(this.hasFunds(price))
+		if(this.moneyHolders.extractMoney(price,true).isEmpty())
 		{
-			MoneyValue leftover = this.moneyHolders.tryRemoveMoney(price);
-			if(!leftover.isEmpty())
-			{
-				this.givePayment(price.subtractValue(leftover));
-				return false;
-			}
+			this.moneyHolders.extractMoney(price,false);
 			return true;
 		}
 		return false;
@@ -143,13 +140,12 @@ public class TradeContext {
 			return false;
 		if(price.isFree())
 			return true;
-		MoneyValue leftover = this.moneyHolders.tryAddMoney(price);
-		if(!leftover.isEmpty())
+		if(this.moneyHolders.insertMoney(price,true).isEmpty())
 		{
-			this.getPayment(price.subtractValue(leftover));
-			return false;
+			this.moneyHolders.insertMoney(price,false);
+			return true;
 		}
-		return true;
+		return false;
 	}
 	
 	/**
@@ -671,13 +667,18 @@ public class TradeContext {
 		private IEnergyStorage energyHandler;
 		
 		private Builder(@Nonnull TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(@Nonnull TraderData trader, @Nonnull Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; this.withMoneyHolder(MoneyAPI.getPlayersMoneyHolder(player)); }
+		private Builder(@Nonnull TraderData trader, @Nonnull Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player)); }
 		private Builder(@Nonnull TraderData trader, @Nonnull PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 		
 		public Builder withBankAccount(@Nonnull BankReference bankAccount) { return this.withMoneyHolder(bankAccount); }
-		public Builder withCoinSlots(@Nonnull MoneyContainer coinSlots) { return this.withMoneyHolder(coinSlots); }
+		public Builder withCoinSlots(@Nonnull Container coinSlots) {
+			if(this.player == null)
+				return this;
+			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.slots"), 100);
+		}
 		public Builder withStoredCoins(@Nonnull MoneyStorage storedCoins) { return this.withMoneyHolder(storedCoins); }
 
+		public Builder withMoneyHandler(@Nonnull IMoneyHandler moneyHandler, @Nonnull Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
 		public Builder withMoneyHolder(@Nonnull IMoneyHolder moneyHandler) { if(!this.moneyHandlers.contains(moneyHandler)) this.moneyHandlers.add(moneyHandler); return this; }
 
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }

@@ -49,7 +49,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	{
 		if(getCurrentCount() >= COIN_LIMIT)
 			return false;
-		if(!CoinAPI.isCoin(coin, false))
+		if(!CoinAPI.API.IsCoin(coin, false))
 			return false;
 		
 		boolean foundStack = false;

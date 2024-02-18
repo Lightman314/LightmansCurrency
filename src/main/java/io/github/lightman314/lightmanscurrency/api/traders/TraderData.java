@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -354,25 +353,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.storedMoney.removeValue(amount);
 		return taxesPaid;
 	}
-	public void CollectStoredMoney(@Nonnull Player player, @Nullable MoneyContainer coinSlots)
+	public void CollectStoredMoney(@Nonnull Player player)
 	{
 		if(this.hasPermission(player, Permissions.COLLECT_COINS))
 		{
 			MoneyStorage storedMoney = this.getInternalStoredMoney();
 			if(storedMoney.isEmpty())
 				return;
-			TradeContext.Builder b = TradeContext.create(this, player);
-			if(coinSlots != null)
-				b.withCoinSlots(coinSlots);
-			TradeContext context = b.build();
-			List<MoneyValue> change = new ArrayList<>();
-			for(MoneyValue v : storedMoney.allValues())
-			{
-				if(!context.givePayment(v))
-					change.add(v);
-			}
+			storedMoney.GiveToPlayer(player);
 			storedMoney.clear();
-			storedMoney.addValues(change);
 		}
 		else
 			Permissions.PermissionWarning(player, "collect stored coins", Permissions.COLLECT_COINS);

@@ -11,9 +11,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
@@ -33,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -50,8 +52,9 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	public final TraderData getTrader() { return this.traderSource.get(); }
 
 	public static final int SLOT_OFFSET = 15;
-	
-	final MoneyContainer coinSlotContainer;
+
+	private final IMoneyHandler coinSlotHandler;
+	private final Container coinSlotContainer;
 
 	private boolean coinSlotsVisible = true;
 	public boolean areCoinSlotsVisible() { return this.coinSlotsVisible; }
@@ -104,8 +107,6 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	@Override
 	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
 
-	public boolean isClient() { return this.player.level().isClientSide; }
-
 	private final MenuValidator validator;
 	@Nonnull
 	@Override
@@ -119,7 +120,8 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		super(type, windowID, inventory);
 		this.validator = validator;
 		this.traderSource = traderSource;
-		this.coinSlotContainer = new MoneyContainer(inventory.player, 5);
+		this.coinSlotContainer = new SimpleContainer(5);
+		this.coinSlotHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinSlotContainer, inventory.player);
 
 		this.addValidator(() -> this.hasPermission(Permissions.OPEN_STORAGE));
 		this.addValidator(this.validator);
@@ -163,7 +165,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		//Run the tab open code for the current tab
 		try {
 			this.getCurrentTab().onTabOpen();
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error opening storage tab.",t); }
 		
 		this.getTrader().userOpen(this.player);
 		
@@ -330,7 +332,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 			this.listeners.add(listener);
 	}
 	
-	public boolean HasCoinsToAdd() { return !this.coinSlotContainer.getStoredMoney().isEmpty(); }
+	public boolean HasCoinsToAdd() { return !this.coinSlotHandler.getStoredMoney().isEmpty(); }
 
 	public void CollectStoredMoney() {
 		
@@ -340,7 +342,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 			this.player.closeContainer();
 			return;
 		}
-		trader.CollectStoredMoney(this.player, this.coinSlotContainer);
+		trader.CollectStoredMoney(this.player);
 	}
 	
 	public void AddCoins() {
@@ -353,7 +355,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		}
 		if(trader.hasPermission(this.player, Permissions.STORE_COINS))
 		{
-			MoneyView addAmount = this.coinSlotContainer.getStoredMoney();
+			MoneyView addAmount = this.coinSlotHandler.getStoredMoney();
 			for(MoneyValue value : addAmount.allValues())
 				trader.addStoredMoney(value, false);
 			this.coinSlotContainer.clearContent();

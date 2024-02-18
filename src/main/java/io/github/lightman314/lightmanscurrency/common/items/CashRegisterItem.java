@@ -104,7 +104,7 @@ public class CashRegisterItem extends BlockItem{
 		//Get the tag
 		CompoundTag tag = stack.getOrCreateTag();
 		
-		//If the tag contains the TraderPos list, get it, otherwise createTrue a new list
+		//If the tag contains the TraderPos list, get it, otherwise create a new list
 		ListTag storageList;
 		if(tag.contains("TraderPos"))
 			storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);

@@ -55,7 +55,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> imple
 				if(t instanceof TraderStorageClientTab<?> ct)
 					this.availableTabs.put(key, ct);
 				else
-					LightmansCurrency.LogError("Common tab of type '" + tab.getClass().getName() + "' did not createTrue a valid client tab!");
+					LightmansCurrency.LogError("Common tab of type '" + tab.getClass().getName() + "' did not create a valid client tab!");
 			} catch (Throwable t) { LightmansCurrency.LogError("Error initializing the Trader Storage Client Tabs!", t); }
 		});
 		if(this.availableTabs.size() == 0)

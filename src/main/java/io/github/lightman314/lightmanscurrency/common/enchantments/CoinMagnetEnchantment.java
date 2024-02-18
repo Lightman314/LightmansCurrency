@@ -83,7 +83,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	public static boolean coinMagnetEntityFilter(Entity entity) {
 		if(entity instanceof ItemEntity item)
-			return CoinAPI.isCoin(item.getItem(), false);
+			return CoinAPI.API.IsCoin(item.getItem(), false);
 		return false;
 	}
 	

@@ -47,11 +47,11 @@ public final class CoinValue extends MoneyValue
 	public String getChain() { return this.chain; }
 
 	@Override
-	public boolean isEmpty() { return this.coinValues.size() == 0; }
+	public boolean isEmpty() { return this.coinValues.isEmpty(); }
 	@Override
 	public boolean isInvalid() { return this.backup != null; }
 
-	public boolean isValid() { return this.isFree() || this.coinValues.size() > 0; }
+	public boolean isValid() { return this.isFree() || !this.coinValues.isEmpty(); }
 
 	@Nonnull
 	@Override
@@ -72,7 +72,8 @@ public final class CoinValue extends MoneyValue
 		this.coinValues = ImmutableList.copyOf(roundValue(this.chain, values));
 	}
 
-	public static MoneyValue create(@Nonnull String chain, @Nonnull List<CoinValuePair> coinValues) { return coinValues.size() == 0 ? MoneyValue.empty() : new CoinValue(chain, coinValues); }
+
+	public static MoneyValue create(@Nonnull String chain, @Nonnull List<CoinValuePair> coinValues) { return coinValues.isEmpty() ? MoneyValue.empty() : new CoinValue(chain, coinValues); }
 
 
 	public void saveAdditional(@Nonnull CompoundTag tag)
@@ -95,7 +96,7 @@ public final class CoinValue extends MoneyValue
 		if(tag.contains("Chain", Tag.TAG_STRING))
 		{
 			String chain = tag.getString("Chain");
-			ChainData chainData = CoinAPI.getChainData(chain);
+			ChainData chainData = CoinAPI.API.ChainData(chain);
 			if(chainData == null) //Load value as backup state, so that if the config gets reloaded properly and this chain gets re-added
 				return new CoinValue(chain, tag);
 			if(tag.contains("Value", Tag.TAG_LIST))
@@ -124,7 +125,7 @@ public final class CoinValue extends MoneyValue
 		else if(tag.contains("Value", Tag.TAG_LIST))
 		{
 			ListTag valueList = tag.getList("Value", Tag.TAG_COMPOUND);
-			if(valueList.size() == 0)
+			if(valueList.isEmpty())
 				return MoneyValue.empty();
 
 			List<CoinValuePair> pairList = new ArrayList<>();
@@ -135,7 +136,7 @@ public final class CoinValue extends MoneyValue
 				Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(entry.getString("Coin")));
 				int amount = entry.getInt("Amount");
 				if(chainData == null)
-					chainData = CoinAPI.chainForCoin(coin);
+					chainData = CoinAPI.API.ChainDataOfCoin(coin);
 				if(chainData != null && chainData.containsEntry(coin))
 					pairList.add(new CoinValuePair(coin, amount));
 			}
@@ -157,7 +158,7 @@ public final class CoinValue extends MoneyValue
 		{
 			//Read full value using old method
 			ListTag listNBT = parentTag.getList(key, Tag.TAG_COMPOUND);
-			if(listNBT.size() == 0)
+			if(listNBT.isEmpty())
 				return MoneyValue.empty();
 			List<CoinValuePair> pairList = new ArrayList<>();
 			ChainData chainData = null;
@@ -167,7 +168,7 @@ public final class CoinValue extends MoneyValue
 				Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(thisCompound.getString("id")));
 				int amount = thisCompound.getInt("amount");
 				if(chainData == null)
-					chainData = CoinAPI.chainForCoin(coin);
+					chainData = CoinAPI.API.ChainDataOfCoin(coin);
 				if(chainData != null && chainData.containsEntry(coin))
 					pairList.add(new CoinValuePair(coin,amount));
 			}
@@ -183,12 +184,11 @@ public final class CoinValue extends MoneyValue
 	{
 		if(valueNumber <= 0)
 			return MoneyValue.empty();
-		ChainData chainData = CoinAPI.getChainData(chain);
+		ChainData chainData = CoinAPI.API.ChainData(chain);
 		if(chainData == null)
 			return MoneyValue.empty();
 		long pendingValue = valueNumber;
-		List<CoinEntry> entries = chainData.getAllEntries(false);
-		entries.sort(ChainData.SORT_HIGHEST_VALUE_FIRST);
+		List<CoinEntry> entries = chainData.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
 		List<CoinValuePair> pairList = new ArrayList<>();
 		for(CoinEntry entry : entries)
 		{
@@ -203,7 +203,7 @@ public final class CoinValue extends MoneyValue
 					break;
 			}
 		}
-		return create(chain, pairList);
+		return create(chain,pairList);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public final class CoinValue extends MoneyValue
 	@Nonnull
 	public static MoneyValue fromItemOrValue(Item coin, int itemCount, long value)
 	{
-		ChainData chainData = CoinAPI.chainForCoin(coin);
+		ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
 		if(chainData != null)
 			return new CoinValue(chainData.chain, Lists.newArrayList(new CoinValuePair(coin, itemCount)));
 		return fromNumber("main", value);
@@ -276,7 +276,7 @@ public final class CoinValue extends MoneyValue
 	//Rounding and Sorting functions. Now static and only used on a coin values init stage as they are now immutable.
 	private static List<CoinValuePair> roundValue(@Nonnull String chain, @Nonnull List<CoinValuePair> list)
 	{
-		ChainData chainData = CoinAPI.getChainData(chain);
+		ChainData chainData = CoinAPI.API.ChainData(chain);
 		if(chainData == null)
 			return list;
 		while(needsRounding(chainData, list))
@@ -287,7 +287,7 @@ public final class CoinValue extends MoneyValue
 				{
 					CoinValuePair pair = list.get(i);
 					CoinEntry entry = chainData.findEntry(pair.coin);
-					Pair<CoinEntry,Integer> exchange = chainData.getUpperExchange(entry);
+					Pair<CoinEntry,Integer> exchange = entry.getUpperExchange();
 					int largeAmount = 0;
 					while(pair.amount >= exchange.getSecond())
 					{
@@ -326,7 +326,7 @@ public final class CoinValue extends MoneyValue
 	private static List<CoinValuePair> sortValue(@Nonnull ChainData chainData, List<CoinValuePair> list)
 	{
 		List<CoinValuePair> newList = new ArrayList<>();
-		while(list.size() > 0)
+		while(!list.isEmpty())
 		{
 			//Get the largest index
 			long largestValue = chainData.getCoreValue(list.get(0).coin);
@@ -401,7 +401,7 @@ public final class CoinValue extends MoneyValue
 	@Override
 	public MutableComponent getText(@Nonnull MutableComponent emptyText)
 	{
-		ChainData chainData = CoinAPI.getChainData(this.chain);
+		ChainData chainData = CoinAPI.API.ChainData(this.chain);
 		if(chainData == null)
 			return EasyText.literal("ERROR");
 		else
@@ -410,7 +410,7 @@ public final class CoinValue extends MoneyValue
 
 	@Override
 	public long getCoreValue() {
-		ChainData chainData = CoinAPI.getChainData(this.chain);
+		ChainData chainData = CoinAPI.API.ChainData(this.chain);
 		if(chainData == null)
 			return 0;
 		long value = 0;
@@ -431,7 +431,7 @@ public final class CoinValue extends MoneyValue
 
 	public static MoneyValue loadCoinValue(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String chain = GsonHelper.getAsString(json, "Chain");
-		ChainData data = CoinAPI.getChainData(chain);
+		ChainData data = CoinAPI.API.ChainData(chain);
 		if(data == null)
 			throw new JsonSyntaxException("No " + chain + " chain has been registered!");
 		List<CoinValuePair> valuePairs = new ArrayList<>();
@@ -441,7 +441,7 @@ public final class CoinValue extends MoneyValue
 			try { valuePairs.add(CoinValuePair.fromJson(data, GsonHelper.convertToJsonObject(entryArray.get(i),"Value[" + i + "]")));
 			} catch (JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing Coin Value entry #" + (i + 1) + "!", e); }
 		}
-		if(valuePairs.size() == 0)
+		if(valuePairs.isEmpty())
 			throw new JsonSyntaxException("Coin Value entry has no valid coin/count entries to parse.");
 		return create(chain, valuePairs);
 	}
@@ -462,7 +462,7 @@ public final class CoinValue extends MoneyValue
 			else if(primitive.isString())
 			{
 				double displayValue = Double.parseDouble(primitive.getAsString());
-				ChainData mainChain = CoinAPI.getChainData(CoinAPI.MAIN_CHAIN);
+				ChainData mainChain = CoinAPI.API.ChainData(CoinAPI.MAIN_CHAIN);
 				if(mainChain != null)
 					return mainChain.getDisplayData().parseDisplayInput(displayValue);
 			}
@@ -479,7 +479,7 @@ public final class CoinValue extends MoneyValue
 					//Parse coin
 					Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(coinData, "Coin")));
 					if(chainData == null)
-						chainData = CoinAPI.chainForCoin(coin);
+						chainData = CoinAPI.API.ChainDataOfCoin(coin);
 					//Parse count
 					int quantity = GsonHelper.getAsInt(coinData, "Count", 1);
 					if(quantity <= 0)
@@ -493,7 +493,7 @@ public final class CoinValue extends MoneyValue
 					valuePairs.add(new CoinValuePair(coin, quantity));
 				} catch (JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing CoinValue entry #" + (i + 1), e); }
 			}
-			if(valuePairs.size() == 0 || chainData == null)
+			if(valuePairs.isEmpty() || chainData == null)
 				throw new JsonSyntaxException("Coin Value entry has no valid coin/count entries to parse.");
 			return create(chainData.chain, valuePairs);
 		}
@@ -522,7 +522,7 @@ public final class CoinValue extends MoneyValue
 						//Parse coin
 						Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(coinData, "Coin")));
 						if(chainData == null)
-							chainData = CoinAPI.chainForCoin(coin);
+							chainData = CoinAPI.API.ChainDataOfCoin(coin);
 						//Parse count
 						int quantity = GsonHelper.getAsInt(coinData, "Count", 1);
 						if(quantity <= 0)
@@ -536,7 +536,7 @@ public final class CoinValue extends MoneyValue
 						pairs.add(new CoinValuePair(coin, quantity));
 					} catch (JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing CoinValue entry #" + (i + 1), e); }
 				}
-				if(pairs.size() == 0 || chainData == null)
+				if(pairs.isEmpty() || chainData == null)
 					throw new JsonSyntaxException("Coin Value entry has no valid coin/count entries to parse.");
 				return create(chainData.chain, pairs);
 			}

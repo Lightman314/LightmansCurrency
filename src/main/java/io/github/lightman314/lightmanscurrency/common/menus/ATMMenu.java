@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -18,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -29,8 +31,10 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public Player getPlayer() { return this.player; }
 	
-	private final MoneyContainer coinInput = new MoneyContainer(this.player, 9);
-	public MoneyContainer getCoinInput() { return this.coinInput; }
+	private final SimpleContainer coinInput = new SimpleContainer(9);
+	private final IMoneyHandler coinInputHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinInput,this.player);
+	public SimpleContainer getCoinInput() { return this.coinInput; }
+	public IMoneyHandler getCoinInputHandler() { return this.coinInputHandler; }
 	
 	private MutableComponent transferMessage = null;
 	

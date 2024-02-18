@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
@@ -28,7 +30,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -66,7 +68,7 @@ public class EventHandler {
 	{
 		
 		ItemStack pickupItem = event.getItem().getItem();
-		if(!CoinAPI.isCoin(pickupItem, false))
+		if(!CoinAPI.API.IsCoin(pickupItem, false))
 			return;
 		
 		Player player = event.getEntity();
@@ -80,7 +82,7 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
-		ItemStack wallet = CoinAPI.getWalletStack(player);
+		ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
 		if(!wallet.isEmpty())
 		{
 			WalletItem walletItem = (WalletItem)wallet.getItem();
@@ -261,7 +263,7 @@ public class EventHandler {
 					int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
 
 					//Get the wallet inventory
-					Container walletInventory = WalletItem.getWalletInventory(walletStack);
+					SimpleContainer walletInventory = WalletItem.getWalletInventory(walletStack);
 
 					//Post the Wallet Drop Event
 					WalletDropEvent wde = new WalletDropEvent(player, walletHandler, walletInventory, event.getSource(), keepWallet, coinDropPercent);
@@ -316,10 +318,13 @@ public class EventHandler {
 		if(coinDropPercent <= 0)
 			return new ArrayList<>();
 
-		Container walletInventory = event.getWalletInventory();
-		MoneyView walletFunds = MoneyAPI.valueOfContainer(event.getWalletInventory());
-
 		List<ItemStack> drops = new ArrayList<>();
+
+		SimpleContainer walletInventory = event.getWalletInventory();
+		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add);
+		MoneyView walletFunds = walletHandler.getStoredMoney();
+
+
 		//Remove the dropped coins from the wallet
 
 		for(MoneyValue value : walletFunds.allValues())
@@ -330,8 +335,10 @@ public class EventHandler {
 				if(takeAmount.isEmpty())
 					continue;
 
-				if(takeAmount instanceof CoinValue coinsToDrop && MoneyAPI.takeMoneyFromContainer(walletInventory, drops::add, takeAmount))
+				IMoneyHandler tempHandler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(walletInventory, drops::add);
+				if(takeAmount instanceof CoinValue coinsToDrop && tempHandler.extractMoney(takeAmount,true).isEmpty())
 				{
+					tempHandler.extractMoney(takeAmount,false);
 					drops.addAll(coinsToDrop.getAsSeperatedItemList());
 				}
 			}

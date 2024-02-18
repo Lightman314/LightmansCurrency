@@ -45,7 +45,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
 	
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.auction.createTrue"); }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer()); }
@@ -95,7 +95,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.timeInput.setTime(this.timeInput.minDuration);
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.addChild(new EasyTextButton(screenArea.pos.offset(40,- 20), screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.createTrue"), b -> this.submitAuction()));
+		this.buttonSubmitAuction = this.addChild(new EasyTextButton(screenArea.pos.offset(40,- 20), screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
 		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA)
@@ -126,7 +126,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		gui.drawString(EasyText.translatable("gui.lightmanscurrency.auction.auctionitems"), TraderMenu.SLOT_OFFSET + 7, 112, 0x404040);
 		
 		if(this.locked && this.successTime != 0)
-			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.auction.createTrue.success").withStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
+			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
 		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))
 			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"), 0, -35, 0xFFFFFF);
@@ -209,7 +209,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public void receiveServerMessage(LazyPacketData message) {
 		if(message.contains("AuctionCreated"))
 		{
-			//LightmansCurrency.LogInfo("Received createTrue response message from the server.\nAuction Created: " + message.getBoolean("AuctionCreated"));
+			//LightmansCurrency.LogInfo("Received create response message from the server.\nAuction Created: " + message.getBoolean("AuctionCreated"));
 			if(message.getBoolean("AuctionCreated"))
 				this.successTime = TimeUtil.getCurrentTime();
 			else

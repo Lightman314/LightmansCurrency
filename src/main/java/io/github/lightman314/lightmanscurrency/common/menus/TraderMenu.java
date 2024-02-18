@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -24,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -61,8 +62,8 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
-	private final MoneyContainer coins;
-	public MoneyContainer getCoinInventory() { return this.coins; }
+
+	private final Container coins;
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
@@ -80,7 +81,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		super(type, windowID, inventory);
 		this.validator = validator;
 		this.traderSource = traderSource;
-		this.coins = new MoneyContainer(inventory.player, 5);
+		this.coins = new SimpleContainer(5);
 
 		this.addValidator(this::traderSourceValid);
 		this.addValidator(this.validator);
@@ -130,7 +131,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		
 	}
 
-	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
+	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && !this.traderSource.get().getTraders().isEmpty(); }
 
 	@Override
 	public void removed(@NotNull Player player) {
@@ -166,7 +167,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			}
 			TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
 			if(result.hasMessage())
-				LightmansCurrency.LogInfo(result.failMessage.getString());
+				LightmansCurrency.LogDebug(result.failMessage.getString());
 		}
 		else
 			LightmansCurrency.LogWarning("Trader " + traderIndex + " is not a valid trader index.");
@@ -237,7 +238,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		{
 			LightmansCurrency.LogInfo("Attempting to collect coins from trader.");
 			TraderData trader = this.getSingleTrader();
-			trader.CollectStoredMoney(this.player, this.coins);
+			trader.CollectStoredMoney(this.player);
 		}
 	}
 	

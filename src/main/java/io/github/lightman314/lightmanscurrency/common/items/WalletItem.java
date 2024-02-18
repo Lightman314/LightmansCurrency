@@ -6,14 +6,15 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.api.capability.CapabilityMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -64,7 +65,7 @@ public class WalletItem extends Item{
 	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
 	{
 		List<ICapabilityProvider> providers = new ArrayList<>();
-		providers.add(CapabilityMoneyViewer.createProvider(stack, s -> MoneyAPI.valueOfContainer(WalletItem.getWalletInventory(s))));
+		providers.add(CapabilityMoneyViewer.createProvider(new WalletMoneyViewer(stack)));
 		if(LightmansCurrency.isCuriosLoaded())
 		{
 			ICapabilityProvider temp = LCCurios.createWalletProvider(stack);
@@ -181,11 +182,14 @@ public class WalletItem extends Item{
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 
-		MoneyView contents = CapabilityMoneyViewer.getContents(stack);
-		tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney").withStyle(ChatFormatting.YELLOW));
-		for(MoneyValue val : contents.allValues())
-			tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
-
+		IMoneyViewer handler = CapabilityMoneyViewer.getCapability(stack);
+		if(handler != null)
+		{
+			MoneyView contents = handler.getStoredMoney();
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney").withStyle(ChatFormatting.YELLOW));
+			for(MoneyValue val : contents.allValues())
+				tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+		}
 	}
 	
 	@Nonnull
@@ -276,8 +280,8 @@ public class WalletItem extends Item{
 		ItemStack returnValue = InventoryUtil.TryPutItemStack(inventory, coins);
 
 		if(WalletItem.getAutoExchange(wallet))
-			CoinAPI.ExchangeAllCoinsUp(inventory);
-		CoinAPI.SortCoins(inventory);
+			CoinAPI.API.CoinExchangeAllUp(inventory);
+		CoinAPI.API.SortCoinsByValue(inventory);
 		
 		putWalletInventory(wallet, inventory);
 		
@@ -300,18 +304,17 @@ public class WalletItem extends Item{
 	 * Reads & returns the wallets inventory contents from the ItemStack's compound tag data.
 	 */
 	@Nonnull
-	public static Container getWalletInventory(@Nonnull ItemStack wallet)
+	public static SimpleContainer getWalletInventory(@Nonnull ItemStack wallet)
 	{
 
 		 if(!(wallet.getItem() instanceof WalletItem))
-			 return new SimpleContainer(1);
+			 return new SimpleContainer();
 
 		CompoundTag compound = wallet.getOrCreateTag();
 
-
 		int inventorySize =  WalletItem.InventorySize(wallet);
 		if(!compound.contains("Items"))
-			return new SimpleContainer();
+			return new SimpleContainer(inventorySize);
 
 		return InventoryUtil.loadAllItems("Items", wallet.getOrCreateTag(), inventorySize);
 	}
@@ -364,13 +367,13 @@ public class WalletItem extends Item{
 	 */
 	public static void QuickCollect(Player player, Container container, boolean allowSideChain)
 	{
-		ItemStack wallet = CoinAPI.getWalletStack(player);
+		ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
 		if(isWallet(wallet))
 		{
 			for(int i = 0; i < container.getContainerSize(); ++i)
 			{
 				ItemStack stack = container.getItem(i);
-				if(CoinAPI.isCoin(stack, allowSideChain))
+				if(CoinAPI.API.IsCoin(stack, allowSideChain))
 				{
 					stack = PickupCoin(wallet, stack);
 					container.setItem(i, stack);

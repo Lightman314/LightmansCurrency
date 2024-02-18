@@ -1,2 +1,2 @@
-lcadmin events @s unlock event_christmas
-give @s lightmanscurrency:coin_chocolate_gold 32
+lcadmin events @s unlock chocolate_coins
+lcadmin events @s reward lightmanscurrency:coin_chocolate_gold 32

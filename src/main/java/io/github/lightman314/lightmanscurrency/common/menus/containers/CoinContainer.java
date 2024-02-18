@@ -19,6 +19,6 @@ public class CoinContainer extends SimpleContainer
             this.setItem(i, other.getItem(i));
     }
     @Override
-    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return CoinAPI.isCoin(stack, this.allowSideChain); }
+    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsCoin(stack, this.allowSideChain); }
 
 }

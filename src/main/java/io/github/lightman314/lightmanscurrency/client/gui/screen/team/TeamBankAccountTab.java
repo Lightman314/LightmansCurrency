@@ -36,7 +36,7 @@ public class TeamBankAccountTab extends TeamTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.createTrue"), this::createBankAccount));
+		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
 		
 		this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, EasyText.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();

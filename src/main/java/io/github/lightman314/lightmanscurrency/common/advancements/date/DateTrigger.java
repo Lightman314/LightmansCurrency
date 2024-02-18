@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
-import java.util.function.Predicate;
 
 public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
@@ -16,8 +15,8 @@ public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
     private DateTrigger() {}
 
-    public static Instance ofRange(int startMonth, int startDate, int endMonth, int endDate) { return new Instance(ContextAwarePredicate.ANY, new DatePredicate(startMonth, startDate), new DatePredicate(endMonth, endDate)); }
-    public static Instance ofRange(@Nonnull DatePredicate startDate, @Nonnull DatePredicate endDate) { return new Instance(ContextAwarePredicate.ANY, startDate, endDate); }
+    public static AbstractCriterionTriggerInstance ofRange(int startMonth, int startDate, int endMonth, int endDate) { return new Instance(ContextAwarePredicate.ANY, new DatePredicate(startMonth, startDate), new DatePredicate(endMonth, endDate)); }
+    public static AbstractCriterionTriggerInstance ofRange(@Nonnull DatePredicate startDate, @Nonnull DatePredicate endDate) { return new Instance(ContextAwarePredicate.ANY, startDate, endDate); }
 
     @Nonnull
     @Override
@@ -31,7 +30,7 @@ public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
     public void trigger(@Nonnull ServerPlayer player) { this.trigger(player, Instance::test); }
 
-    static class Instance extends AbstractCriterionTriggerInstance
+    protected static class Instance extends AbstractCriterionTriggerInstance
     {
 
         private final DatePredicate startDate;

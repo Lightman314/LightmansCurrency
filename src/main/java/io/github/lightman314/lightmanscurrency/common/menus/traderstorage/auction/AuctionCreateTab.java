@@ -83,7 +83,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			{
 				//Send failure message to the client.
 				this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", false));
-				//LightmansCurrency.LogInfo("Failed to createTrue the auction as the auction is not valid.");
+				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
 				return;
 			}
 			trader.addTrade(trade, false);

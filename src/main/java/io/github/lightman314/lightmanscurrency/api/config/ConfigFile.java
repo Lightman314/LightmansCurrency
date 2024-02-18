@@ -291,7 +291,7 @@ public abstract class ConfigFile {
 
                 if(!file.createNewFile())
                 {
-                    LightmansCurrency.LogError("Unable to createTrue " + this.fileName + "!");
+                    LightmansCurrency.LogError("Unable to create " + this.fileName + "!");
                     return;
                 }
             }

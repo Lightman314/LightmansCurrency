@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -103,7 +103,7 @@ public class BankAccountWidget implements IEasyTickable {
 		Font getFont();
 		Screen getScreen();
 		IBankAccount getBankAccount();
-		MoneyContainer getCoinAccess();
+		IMoneyViewer getCoinAccess();
 	}
 	
 }

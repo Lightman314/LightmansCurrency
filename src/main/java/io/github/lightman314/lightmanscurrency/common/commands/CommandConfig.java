@@ -44,10 +44,12 @@ public class CommandConfig {
         if(commandContext.getSource().hasPermission(2))
         {
             involveAdmins = true;
+            //Reload coin data before reloading config options
+            CoinAPI.API.ReloadCoinDataFromFile();
+            //Reload config files
             ConfigFile.reloadServerFiles();
-            //Reload normal data, as there's no point in not also reloading the non-standard config files
+            //Reload Persistent Traders
             TraderSaveData.ReloadPersistentTraders();
-            CoinAPI.reloadMoneyDataFromFile();
             result++;
         }
         ServerPlayer player = commandContext.getSource().getPlayer();

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
@@ -32,7 +33,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BankAccount extends IMoneyHolder.Slave implements IBankAccount {
+public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	
 	private final Runnable markDirty;
 	
@@ -102,7 +103,7 @@ public class BankAccount extends IMoneyHolder.Slave implements IBankAccount {
 	public MoneyValue withdrawMoney(@Nonnull MoneyValue withdrawAmount) {
 		String type = withdrawAmount.getUniqueName();
 		withdrawAmount = this.coinStorage.capValue(withdrawAmount);
-		//Cannot withdraw no money
+		//Cannot withdraw if none is in storage
 		if(withdrawAmount.isEmpty())
 			return MoneyValue.empty();
 		long oldValue = this.coinStorage.valueOf(type).getCoreValue();

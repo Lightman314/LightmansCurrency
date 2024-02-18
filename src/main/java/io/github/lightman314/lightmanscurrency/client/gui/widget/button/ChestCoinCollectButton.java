@@ -30,7 +30,7 @@ public class ChestCoinCollectButton extends IconButton {
     private static IconData getIcon() {
         Minecraft mc = Minecraft.getInstance();
         if(mc != null)
-            return IconData.of(CoinAPI.getWalletStack(mc.player));
+            return IconData.of(CoinAPI.API.getEquippedWallet(mc.player));
         return IconData.BLANK;
     }
 
@@ -41,7 +41,7 @@ public class ChestCoinCollectButton extends IconButton {
         Minecraft mc = Minecraft.getInstance();
         if(mc != null)
         {
-            ItemStack wallet = CoinAPI.getWalletStack(mc.player);
+            ItemStack wallet = CoinAPI.API.getEquippedWallet(mc.player);
             if(WalletItem.isWallet(wallet))
             {
                 final boolean allowSideChains = LCConfig.CLIENT.chestButtonAllowSideChains.get();
@@ -49,7 +49,7 @@ public class ChestCoinCollectButton extends IconButton {
                 Container container = this.screen.getMenu().getContainer();
                 for(int i = 0; i < container.getContainerSize(); ++i)
                 {
-                    if(CoinAPI.isCoin(container.getItem(i), allowSideChains))
+                    if(CoinAPI.API.IsCoin(container.getItem(i), allowSideChains))
                         return true;
                 }
             }

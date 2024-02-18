@@ -4,16 +4,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.integration.curios.wallet.CuriosWalletHandler;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -62,8 +59,10 @@ public class WalletCapability {
 		if(walletHandler != null)
 		{
 			ItemStack wallet = walletHandler.getWallet();
-			if(WalletItem.isWallet(wallet.getItem()))
-				return MoneyAPI.valueOfContainer(WalletItem.getWalletInventory(wallet));
+			IMoneyViewer moneyViewer = CapabilityMoneyViewer.getCapability(wallet);
+			if(moneyViewer == null)
+				return MoneyView.empty();
+			return moneyViewer.getStoredMoney();
 		}
 		return MoneyView.builder().build();
 	}
@@ -71,122 +70,6 @@ public class WalletCapability {
 	public static ICapabilityProvider createProvider(final Player playerEntity)
 	{
 		return new Provider(playerEntity);
-	}
-	
-	public static class WalletHandler extends MoneyViewer implements IWalletHandler
-	{
-		
-		final LivingEntity entity;
-		//Wallet
-		ItemStack walletItem;
-		ItemStack backupWallet;
-
-		//Visibility
-		boolean visible;
-		boolean wasVisible;
-		//Money Holder
-		ItemStack moneyCacheWallet;
-		
-		public WalletHandler(LivingEntity entity) {
-			this.entity = entity;
-			this.backupWallet = ItemStack.EMPTY;
-			this.walletItem = ItemStack.EMPTY;
-			this.moneyCacheWallet = ItemStack.EMPTY;
-			this.visible = true;
-			this.wasVisible = true;
-		}
-		
-		@Override
-		public ItemStack getWallet() {
-			
-			//Curios hook for consistent access
-			if(LightmansCurrency.isCuriosValid(this.entity))
-				return LCCurios.getCuriosWalletContents(this.entity);
-			
-			return this.walletItem;
-		}
-
-		@Override
-		public void setWallet(ItemStack walletStack) {
-			
-			if(LightmansCurrency.isCuriosValid(this.entity))
-			{
-				LCCurios.setCuriosWalletContents(this.entity, walletStack);
-				return;
-			}
-			
-			this.walletItem = walletStack;
-			if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
-				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
-			
-		}
-		
-		@Override
-		public void syncWallet(ItemStack walletStack) { this.walletItem = walletStack; }
-		
-		@Override
-		public boolean visible() {
-			if(LightmansCurrency.isCuriosValid(this.entity))
-				return LCCurios.getCuriosWalletVisibility(this.entity);
-			return this.visible;
-		}
-		
-		@Override
-		public void setVisible(boolean visible) { this.visible = visible; }
-
-		@Override
-		public LivingEntity entity() { return this.entity; }
-		
-		@Override
-		public boolean isDirty() {
-			return !InventoryUtil.ItemsFullyMatch(this.backupWallet, this.getWallet()) || this.wasVisible != this.visible;
-		}
-		
-		@Override
-		public void clean() {
-			this.backupWallet = this.walletItem.copy();
-			this.wasVisible = this.visible;
-		}
-		
-		@Override
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			CompoundTag walletItem = this.walletItem.save(new CompoundTag());
-			compound.put("Wallet", walletItem);
-			compound.putBoolean("Visible", this.visible);
-			return compound;
-		}
-		
-		@Override
-		public void load(CompoundTag compound)
-		{
-			this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
-			if(compound.contains("Visible"))
-				this.visible = compound.getBoolean("Visible");
-
-			this.clean();
-		}
-		
-		@Override
-		public void tick() {
-			if(LightmansCurrency.isCuriosValid(this.entity) && !this.walletItem.isEmpty())
-			{
-				LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
-				LCCurios.setCuriosWalletContents(this.entity, this.walletItem);
-				this.walletItem = ItemStack.EMPTY;
-			}
-		}
-
-		@Override
-		protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
-			this.moneyCacheWallet = this.getWallet().copy();
-			if(WalletItem.isWallet(this.moneyCacheWallet))
-				builder.merge(MoneyAPI.valueOfContainer(WalletItem.getWalletInventory(this.moneyCacheWallet)));
-		}
-
-		@Override
-		public boolean hasStoredMoneyChanged() { return !InventoryUtil.ItemsFullyMatch(this.moneyCacheWallet, this.getWallet()); }
-
 	}
 	
 	private static class Provider implements ICapabilitySerializable<Tag>{

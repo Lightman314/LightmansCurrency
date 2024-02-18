@@ -3,22 +3,26 @@ package io.github.lightman314.lightmanscurrency.api.money.types.builtin;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class NullCurrencyType extends CurrencyType {
 
@@ -29,17 +33,16 @@ public final class NullCurrencyType extends CurrencyType {
 
     @Nonnull
     @Override
-    protected MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values) {
-        return null;
-    }
+    protected MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values) { return null; }
+
+    @Nullable
     @Override
-    public boolean hasPlayersMoneyChanged(@Nonnull Player player) { return false; }
+    public IPlayerMoneyHandler createMoneyHandlerForPlayer(@Nonnull Player player) { return null; }
+
+    @Nullable
     @Override
-    public void getAvailableMoney(@Nonnull Player player, @Nonnull MoneyView.Builder builder) {}
-    @Override
-    public void giveMoneyToPlayer(@Nonnull Player player, @Nonnull MoneyValue value) { }
-    @Override
-    public boolean takeMoneyFromPlayer(@Nonnull Player player, @Nonnull MoneyValue value) { return true; }
+    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) { return null; }
+
     @Override
     public MoneyValue loadMoneyValue(@Nonnull CompoundTag valueTag) {
         if(valueTag.contains("Free", Tag.TAG_BYTE) && valueTag.getBoolean("Free"))

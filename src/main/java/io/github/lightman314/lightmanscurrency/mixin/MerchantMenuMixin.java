@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
@@ -64,13 +65,13 @@ public abstract class MerchantMenuMixin {
                 if(tradeContainer.getItem(0).isEmpty() && tradeContainer.getItem(1).isEmpty())
                 {
                     MerchantOffer offer = self.getOffers().get(trade);
-                    if(CoinAPI.isCoin(offer.getCostA(), false) && isCoinOrEmpty(offer.getCostB()))
+                    if(CoinAPI.API.IsCoin(offer.getCostA(), false) && isCoinOrEmpty(offer.getCostB()))
                     {
                         ItemStack coinA = offer.getCostA().copy();
                         ItemStack coinB = offer.getCostB().copy();
 
-                        ChainData chainA = CoinAPI.chainForCoin(coinA);
-                        ChainData chainB = CoinAPI.chainForCoin(coinB);
+                        ChainData chainA = CoinAPI.API.ChainDataOfCoin(coinA);
+                        ChainData chainB = CoinAPI.API.ChainDataOfCoin(coinB);
 
                         long valueA = chainA.getCoreValue(coinA);
                         long valueB = 0;
@@ -117,12 +118,9 @@ public abstract class MerchantMenuMixin {
                         {
                             coinA.setCount(coinToAddA);
                             coinB.setCount(coinToAddB);
-                            if(MoneyAPI.takeMoneyFromPlayer(player, fundsToExtractA))
+                            IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                            if(handler.extractMoney(fundsToExtractA,true).isEmpty() && handler.extractMoney(fundsToExtractB,true).isEmpty())
                             {
-                                if(!MoneyAPI.takeMoneyFromPlayer(player, fundsToExtractB)) {
-                                    MoneyAPI.giveMoneyToPlayer(player, fundsToExtractA);
-                                    return;
-                                }
                                 tradeContainer.setItem(0, coinA.copy());
                                 tradeContainer.setItem(1, coinB.copy());
                                 LightmansCurrency.LogDebug("Moved " + fundsToExtractA.getString() + " & " + fundsToExtractB.getString() + " worth of coins into the Merchant Menu!");
@@ -167,7 +165,7 @@ public abstract class MerchantMenuMixin {
     {
         MerchantContainer tradeContainer = this.getTradeContainer();
         ItemStack item = tradeContainer.getItem(0);
-        if (!item.isEmpty() && CoinAPI.isCoin(item, false)) {
+        if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
             IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
             if(walletHandler != null)
             {
@@ -187,7 +185,7 @@ public abstract class MerchantMenuMixin {
             }
         }
         item = tradeContainer.getItem(1);
-        if (!item.isEmpty() && CoinAPI.isCoin(item, false)) {
+        if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
             IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
             if(walletHandler != null)
             {
@@ -207,6 +205,6 @@ public abstract class MerchantMenuMixin {
         }
     }
 
-    private static boolean isCoinOrEmpty(ItemStack item) { return item.isEmpty() || CoinAPI.isCoin(item, false); }
+    private static boolean isCoinOrEmpty(ItemStack item) { return item.isEmpty() || CoinAPI.API.IsCoin(item, false); }
 
 }

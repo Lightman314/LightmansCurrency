@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.capability.wallet;
 
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-public interface IWalletHandler extends IMoneyViewer {
-	
+public interface IWalletHandler extends IMoneyHandler {
+
 	/**
 	 * The currently equipped wallet on the player.
 	 */

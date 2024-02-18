@@ -79,7 +79,7 @@ public class ClientEvents {
 				
 				new CPacketOpenWallet(-1).send();
 
-				ItemStack wallet = CoinAPI.getWalletStack(player);
+				ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
 				if(!wallet.isEmpty())
 				{
 					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level().random.nextFloat() * 0.5f, 0.75f));

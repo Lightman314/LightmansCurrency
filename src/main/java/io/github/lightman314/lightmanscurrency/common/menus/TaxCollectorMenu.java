@@ -2,9 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.*;
@@ -82,11 +80,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
         {
             MoneyStorage amountToGive = entry.getStoredMoney();
             if(!amountToGive.isEmpty())
-            {
-                for(MoneyValue value : amountToGive.allValues())
-                    MoneyAPI.giveMoneyToPlayer(this.player, value);
-                entry.clearStoredMoney();
-            }
+                entry.getStoredMoney().GiveToPlayer(this.player);
             if(this.isClient())
                 this.SendMessageToServer(LazyPacketData.simpleFlag("CollectStoredMoney"));
         }

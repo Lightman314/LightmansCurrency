@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -12,6 +12,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -24,20 +25,18 @@ public final class MoneyStorage extends MoneyHolder {
 
     private final Map<String,MoneyValue> values = new HashMap<>();
     private final Runnable markDirty;
+    private final int priority;
 
-    public MoneyStorage(@Nonnull Runnable markDirty) { this.markDirty = Objects.requireNonNull(markDirty); }
+    public MoneyStorage(@Nonnull Runnable markDirty) { this(markDirty,0); }
+    public MoneyStorage(@Nonnull Runnable markDirty, int priority) { this.markDirty = Objects.requireNonNull(markDirty); this.priority = priority; }
 
     private void markDirty() { this.cacheChanged = true; this.markDirty.run(); }
 
+    @Override
+    public int priority() { return this.priority; }
+
     @Nonnull
     public List<MoneyValue> allValues() { return ImmutableList.copyOf(this.values.values()); }
-
-    /**
-     * Returns the stored {@link CoinValue} with the given coin chain.
-     * May be removed in the future depending on if I actually utilize this or not.
-     */
-    @Nonnull
-    public MoneyValue valueOfCoinChain(@Nonnull String chain){ return valueOf(CoinCurrencyType.getUniqueName(chain)); }
 
     /**
      * Returns the stored value with the given unique name
@@ -47,8 +46,9 @@ public final class MoneyStorage extends MoneyHolder {
 
     @Nonnull
     @Override
-    public MoneyValue tryAddMoney(@Nonnull MoneyValue valueToAdd) {
-        this.addValue(valueToAdd);
+    public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
+        if(!simulation)
+            this.addValue(insertAmount);
         return MoneyValue.empty();
     }
 
@@ -100,7 +100,6 @@ public final class MoneyStorage extends MoneyHolder {
     @Nonnull
     public MoneyValue capValue(@Nonnull MoneyValue value) { return this.containsValue(value) ? value : this.valueOf(value.getUniqueName()); }
 
-    public boolean valueContainsThis(@Nonnull MoneyValue value) { return value.containsValue(this.valueOf(value.getUniqueName())); }
 
     public boolean isEmpty() { return this.values.isEmpty() || this.values.values().stream().allMatch(MoneyValue::isEmpty); }
 
@@ -132,11 +131,15 @@ public final class MoneyStorage extends MoneyHolder {
 
     @Nonnull
     @Override
-    public MoneyValue tryRemoveMoney(@Nonnull MoneyValue valueToRemove) {
-        MoneyValue actualRemoved = this.capValue(valueToRemove);
-        this.removeValue(actualRemoved);
-        return valueToRemove.subtractValue(actualRemoved);
+    public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
+        MoneyValue actualRemoved = this.capValue(extractAmount);
+        if(!simulation)
+            this.removeValue(actualRemoved);
+        return extractAmount.subtractValue(actualRemoved);
     }
+
+    @Override
+    public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return true; }
 
     @Nonnull
     public ListTag save()
@@ -205,11 +208,30 @@ public final class MoneyStorage extends MoneyHolder {
     private boolean cacheChanged = true;
 
     @Override
-    protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) { builder.merge(this); }
+    protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
+        for(MoneyValue value : this.values.values())
+            builder.add(value);
+    }
 
     @Override
     public boolean hasStoredMoneyChanged() { return this.cacheChanged; }
 
     @Override
     public Component getTooltipTitle() { return EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.coin_storage"); }
+
+    public void GiveToPlayer(@Nonnull Player player)
+    {
+        IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+        List<MoneyValue> extra = new ArrayList<>();
+        for(MoneyValue value : this.allValues())
+        {
+            MoneyValue e = handler.insertMoney(value,false);
+            if(!e.isEmpty())
+                extra.add(e);
+        }
+        this.clear();
+        for(MoneyValue e : extra)
+            this.addValue(e);
+    }
+
 }

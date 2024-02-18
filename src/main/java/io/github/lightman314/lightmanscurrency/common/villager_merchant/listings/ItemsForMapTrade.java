@@ -79,7 +79,9 @@ public class ItemsForMapTrade implements ItemListing
         }
     }
 
-    private static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+    public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+
+        private Serializer() {}
 
         @Override
         public ResourceLocation getType() { return TYPE; }

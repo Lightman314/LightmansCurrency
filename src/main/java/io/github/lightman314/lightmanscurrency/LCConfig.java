@@ -239,7 +239,9 @@ public final class LCConfig {
 
         //Event Options
         public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
+        public final BooleanOption chocolateEventCoinLootDrops = BooleanOption.createTrue();
         public final DoubleOption chocolateCoinDropRate = DoubleOption.create(0.1d,0d,1d);
+        public final BooleanOption eventAdvancementRewards = BooleanOption.createTrue();
 
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
@@ -290,9 +292,17 @@ public final class LCConfig {
 
             builder.comment("Event Settings").push("events");
 
+            builder.comment("Whether advancements will give players chocolate coins as a reward for playing during the event.",
+                            "Note: Disabling will disable the entire `/lcadmin events reward` command used by the functions to give the reward.")
+                    .add("advancementRewards", this.eventAdvancementRewards);
+
             builder.comment("Whether the Chocolate Event Coins will be added to the coin data.",
                             "Note: Disabling will not remove any Chocolate Coin items that already exist.")
                     .add("chocolate", this.chocolateEventCoins);
+
+            builder.comment("Whether the Chocolate Event Coins will replace a small portion of the default coin loot drops during the event.",
+                            "See \"chocolateRate\" to customize the replacement rate")
+                    .add("chocolateDrops", this.chocolateEventCoinLootDrops);
 
             builder.comment("The percentage of Chocolate Coins being dropped instead of normal coins while an event is active.")
                     .add("chocolateRate", this.chocolateCoinDropRate);

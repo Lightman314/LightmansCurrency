@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.data;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -19,10 +20,10 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -57,10 +59,10 @@ public class ChainData {
     private final ValueDisplayData displayData;
     public ValueDisplayData getDisplayData() { return this.displayData; }
 
-    public boolean isVisibleTo(@Nonnull Player player) { return !this.isEvent || CapabilityEventUnlocks.isUnlocked(player, this.chain); }
+    public boolean isVisibleTo(@Nonnull Player player) { return !this.isEvent || CapabilityEventUnlocks.isUnlocked(player, this.chain) || LCAdminMode.isAdminPlayer(player); }
 
     private final ATMData atmData;
-    public boolean hasATMData() { return this.atmData != null && this.atmData.getExchangeButtons().size() > 0; }
+    public boolean hasATMData() { return this.atmData != null && !this.atmData.getExchangeButtons().isEmpty(); }
     @Nonnull
     public ATMData getAtmData() { return this.atmData; }
     @Nonnull
@@ -84,6 +86,8 @@ public class ChainData {
 
     private final List<CoinEntry> coreChain;
     private final List<List<CoinEntry>> sideChains;
+    private final Map<ResourceLocation,CoinEntry> itemIdToEntryMap;
+    private final List<CoinEntry> allEntryList;
 
     protected ChainData(@Nonnull Builder builder)
     {
@@ -99,6 +103,17 @@ public class ChainData {
         this.sideChains = ImmutableList.copyOf(temp);
         this.atmData = builder.atmDataBuilder.build(this);
         this.defineEntryCoreValues();
+        //Store pre-built list of all entries
+        this.allEntryList = new ArrayList<>(this.coreChain);
+        for(List<CoinEntry> sideChain : this.sideChains)
+            this.allEntryList.addAll(sideChain);
+        //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
+        Map<ResourceLocation,CoinEntry> temp2 = new HashMap<>();
+        for(CoinEntry entry : this.allEntryList)
+            temp2.put(ForgeRegistries.ITEMS.getKey(entry.getCoin()), entry);
+        this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
+        //Cache coin exchange rates in the CoinEntry data
+        this.cacheCoinExchanges();
     }
 
     protected ChainData(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
@@ -123,7 +138,7 @@ public class ChainData {
             throw new JsonSyntaxException("InputType is not valid!");
 
         JsonArray coreChainArray = GsonHelper.getAsJsonArray(json, "CoreChain");
-        if(coreChainArray.size() == 0)
+        if(coreChainArray.isEmpty())
             throw new JsonSyntaxException("CoreChain must have at least 1 entry!");
         List<CoinEntry> coreChainTemp = new ArrayList<>();
         try { //Load first entry manually
@@ -153,7 +168,7 @@ public class ChainData {
         {
             try {
                 JsonArray chainArray = sideChainsArray.get(c).getAsJsonArray();
-                if(chainArray.size() > 0) //Do not throw error if size is 0 as empty side-chains can simply be ignored.
+                if(!chainArray.isEmpty()) //Do not throw error if size is 0 as empty side-chains can simply be ignored.
                 {
                     List<CoinEntry> tempList = new ArrayList<>();
                     //Load the first entry manually
@@ -192,7 +207,22 @@ public class ChainData {
 
         this.defineEntryCoreValues();
 
+        //Store pre-built list of all entries
+        this.allEntryList = new ArrayList<>(this.coreChain);
+        for(List<CoinEntry> sideChain : this.sideChains)
+            this.allEntryList.addAll(sideChain);
+        //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
+        Map<ResourceLocation,CoinEntry> temp2 = new HashMap<>();
+        for(CoinEntry entry : this.allEntryList)
+            temp2.put(ForgeRegistries.ITEMS.getKey(entry.getCoin()), entry);
+        this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
+
+        //Cache coin exchange rates in the CoinEntry data
+        this.cacheCoinExchanges();
+
     }
+
+
 
     private void defineEntryCoreValues()
     {
@@ -242,7 +272,7 @@ public class ChainData {
         json.add("CoreChain", coreChainArray);
 
         //Write side chains
-        if(this.sideChains.size() > 0)
+        if(!this.sideChains.isEmpty())
         {
             JsonArray sideChainArray = new JsonArray();
             for(List<CoinEntry> sideChain : this.sideChains)
@@ -256,7 +286,7 @@ public class ChainData {
         }
 
         //Write ATM Data
-        if(this.atmData.getExchangeButtons().size() > 0)
+        if(!this.atmData.getExchangeButtons().isEmpty())
             json.add("ATMData", this.atmData.save());
 
         return json;
@@ -278,24 +308,15 @@ public class ChainData {
 
     @Nullable
     public CoinEntry findEntry(@Nonnull ItemStack item) { return this.findEntry(item.getItem()); }
-    public CoinEntry findEntry(@Nonnull Item item)
-    {
-        for(CoinEntry entry : this.coreChain)
-        {
-            if(entry.matches(item))
-                return entry;
-        }
-        for(List<CoinEntry> sideChain : this.sideChains)
-        {
-            for(CoinEntry entry : sideChain)
-            {
-                if(entry.matches(item))
-                    return entry;
-            }
-        }
-        return null;
-    }
+    @Nullable
+    public CoinEntry findEntry(@Nonnull Item item) { return this.itemIdToEntryMap.get(ForgeRegistries.ITEMS.getKey(item)); }
 
+    /**
+     * Returns a list of all entries.
+     * @param includeSideChains Whether coins from side-chains should be included in the list.
+     * @param sorter How you'd like the list to be sorted.
+     * @return Array List copy of the coin entry list. Not immutable so that it can be sorted again later.
+     */
     @Nonnull
     public List<CoinEntry> getAllEntries(boolean includeSideChains, @Nonnull Comparator<CoinEntry> sorter)
     {
@@ -304,12 +325,17 @@ public class ChainData {
         return list;
     }
 
+    /**
+     * Returns a list of all coin entries in this chain.
+     * @param includeSideChains Whether coins from side-chains should be included in the list.
+     * @return Array List copy of the coin entry list. Not immutable so that it can be sorted later.
+     */
+    @Nonnull
     public List<CoinEntry> getAllEntries(boolean includeSideChains)
     {
-        List<CoinEntry> results = new ArrayList<>(this.coreChain);
         if(includeSideChains)
-            this.sideChains.forEach(results::addAll);
-        return results;
+            return new ArrayList<>(this.allEntryList);
+        return new ArrayList<>(this.coreChain);
     }
 
     /**
@@ -328,42 +354,62 @@ public class ChainData {
         return entry.getCoreValue();
     }
 
+    private void cacheCoinExchanges()
+    {
+        for(int i = 0; i < this.coreChain.size(); ++i)
+        {
+            CoinEntry entry = this.coreChain.get(i);
+            //Get Lower Exchange for this entry
+            Pair<CoinEntry,Integer> down = null;
+            if(i > 0)
+                down = Pair.of(this.coreChain.get(i - 1), entry.getExchangeRate());
+            Pair<CoinEntry,Integer> up = null;
+            if(i < this.coreChain.size() - 1)
+            {
+                CoinEntry nextEntry = this.coreChain.get(i + 1);
+                up = Pair.of(nextEntry, nextEntry.getExchangeRate());
+            }
+            entry.defineExchanges(down, up);
+        }
+        for(List<CoinEntry> sideChain : this.sideChains)
+        {
+            for(int i = 0; i < sideChain.size(); ++i)
+            {
+                CoinEntry entry = sideChain.get(i);
+                Pair<CoinEntry,Integer> down = null;
+                if(i == 0)
+                {
+                    if(entry instanceof SideBaseCoinEntry e)
+                        down = Pair.of(e.parentCoin, e.getExchangeRate());
+                }
+                else
+                    down = Pair.of(sideChain.get(i - 1), entry.getExchangeRate());
+                Pair<CoinEntry,Integer> up = null;
+                if(i < sideChain.size() - 1)
+                {
+                    CoinEntry nextEntry = this.coreChain.get(i + 1);
+                    up = Pair.of(nextEntry, nextEntry.getExchangeRate());
+                }
+                entry.defineExchanges(down,up);
+            }
+        }
+    }
+
     @Nullable
     public Pair<CoinEntry,Integer> getLowerExchange(@Nonnull Item item)
     {
         CoinEntry entry = this.findEntry(item);
         if(entry == null)
             return null;
-        return getLowerExchange(entry);
+        return entry.getLowerExchange();
     }
+
+    /**
+     * @deprecated Redundant, use {@link CoinEntry#getLowerExchange()} instead.
+     */
     @Nullable
-    public Pair<CoinEntry,Integer> getLowerExchange(@Nonnull CoinEntry entry)
-    {
-        for(int i = 0; i < this.coreChain.size(); ++i)
-        {
-            CoinEntry queryEntry = this.coreChain.get(i);
-            if(queryEntry.matches(entry))
-            {
-                if(i == 0)
-                    return null;
-                return Pair.of(this.coreChain.get(i - 1), queryEntry.getExchangeRate());
-            }
-        }
-        for(List<CoinEntry> sideChain : this.sideChains)
-        {
-            for(int i = 0; i < sideChain.size(); ++i)
-            {
-                CoinEntry queryEntry = sideChain.get(i);
-                if(queryEntry.matches(entry))
-                {
-                    if(i == 0 && queryEntry instanceof SideBaseCoinEntry e)
-                        return Pair.of(e.parentCoin, e.getExchangeRate());
-                    return Pair.of(sideChain.get(i - 1), queryEntry.getExchangeRate());
-                }
-            }
-        }
-        return null;
-    }
+    @Deprecated(since = "2.2.0.4")
+    public Pair<CoinEntry,Integer> getLowerExchange(@Nonnull CoinEntry entry) { return entry.getLowerExchange(); }
 
     @Nullable
     public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull Item item)
@@ -371,38 +417,15 @@ public class ChainData {
         CoinEntry entry = this.findEntry(item);
         if(entry == null)
             return null;
-        return getUpperExchange(entry);
+        return entry.getUpperExchange();
     }
+
+    /**
+     * @deprecated Redundant, use {@link CoinEntry#getUpperExchange()} instead.
+     */
     @Nullable
-    public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull CoinEntry entry)
-    {
-        for(int i = 0; i < this.coreChain.size(); ++i)
-        {
-            CoinEntry queryEntry = this.coreChain.get(i);
-            if(queryEntry.matches(entry))
-            {
-                if(i + 1 >= this.coreChain.size())
-                    return null;
-                CoinEntry nextEntry = this.coreChain.get(i + 1);
-                return Pair.of(nextEntry, nextEntry.getExchangeRate());
-            }
-        }
-        for(List<CoinEntry> sideChain : this.sideChains)
-        {
-            for(int i = 0; i < sideChain.size(); ++i)
-            {
-                CoinEntry queryEntry = sideChain.get(i);
-                if(queryEntry.matches(entry))
-                {
-                    if(i + 1 >= sideChain.size())
-                        return null;
-                    CoinEntry nextEntry = sideChain.get(i + 1);
-                    return Pair.of(nextEntry, nextEntry.getExchangeRate());
-                }
-            }
-        }
-        return null;
-    }
+    @Deprecated(since = "2.2.0.4")
+    public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull CoinEntry entry) { return entry.getUpperExchange(); }
 
     @OnlyIn(Dist.CLIENT)
     public Object getInputHandler() { return CoinInputTypeHelper.getHandler(this.inputType, this); }
@@ -518,7 +541,7 @@ public class ChainData {
 
     public static void addCoinTooltips(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag, @Nullable Player player)
     {
-        ChainData chain = CoinAPI.chainForCoin(stack);
+        ChainData chain = CoinAPI.API.ChainDataOfCoin(stack);
         if(chain != null)
         {
             if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))

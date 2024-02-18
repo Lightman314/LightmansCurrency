@@ -36,38 +36,34 @@ public class MultiMoneyHolder extends MoneyHolder {
     }
 
     @Override
-    public boolean hasStoredMoneyChanged() {
-        for(IMoneyHolder holder : this.holdersPayFirst)
-        {
-            if(holder.hasStoredMoneyChanged(this))
-                return true;
-        }
-        return false;
-    }
+    public boolean hasStoredMoneyChanged() { return this.holdersPayFirst.stream().anyMatch(h -> h.hasStoredMoneyChanged(this)); }
 
     @Nonnull
     @Override
-    public MoneyValue tryAddMoney(@Nonnull MoneyValue valueToAdd) {
+    public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
         for(IMoneyHolder holder : this.holdersPayFirst)
         {
-            valueToAdd = holder.tryAddMoney(valueToAdd);
-            if(valueToAdd.isEmpty())
+            insertAmount = holder.insertMoney(insertAmount, simulation);
+            if(insertAmount.isEmpty())
                 return MoneyValue.empty();
         }
-        return valueToAdd;
+        return insertAmount;
     }
 
     @Nonnull
     @Override
-    public MoneyValue tryRemoveMoney(@Nonnull MoneyValue valueToRemove) {
+    public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
         for(IMoneyHolder holder : this.holdersTakeFirst)
         {
-            valueToRemove = holder.tryRemoveMoney(valueToRemove);
-            if(valueToRemove.isEmpty())
+            extractAmount = holder.extractMoney(extractAmount, simulation);
+            if(extractAmount.isEmpty())
                 return MoneyValue.empty();
         }
-        return valueToRemove;
+        return extractAmount;
     }
+
+    @Override
+    public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.holdersPayFirst.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
 
     @Override
     public void formatTooltip(@Nonnull List<Component> tooltip) {

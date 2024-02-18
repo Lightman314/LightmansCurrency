@@ -490,7 +490,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
-		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		//Update: Use TradeData#getCost(TradeContext) as it will run the trade cost event,
+		// but with cached results to avoid having to re-do laggy calculations.
+		MoneyValue price = trade.getCost(context);
 		
 		//Process a sale
 		if(trade.isSale())
@@ -514,7 +516,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!context.getPayment(price))
 			{
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
-						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + context.getAvailableFunds().getString());
+						"\nPrice: " + price.getString("Null") + "\nAvailable Funds: " + context.getAvailableFunds().getString());
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			

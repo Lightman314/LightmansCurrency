@@ -246,10 +246,10 @@ public class ClientProxy extends CommonProxy{
 	@SubscribeEvent
 	//Add coin value tooltips to non CoinItem coins.
 	public void onItemTooltip(ItemTooltipEvent event) {
-		if(event.getEntity() == null || CoinAPI.DataNotReady())
+		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())
 			return;
 		Item item = event.getItemStack().getItem();
-		if(CoinAPI.isCoin(item, true))
+		if(CoinAPI.API.IsCoin(item, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 	}
 	
