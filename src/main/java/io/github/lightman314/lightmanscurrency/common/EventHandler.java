@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
@@ -30,6 +29,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -320,7 +320,7 @@ public class EventHandler {
 
 		List<ItemStack> drops = new ArrayList<>();
 
-		SimpleContainer walletInventory = event.getWalletInventory();
+		Container walletInventory = event.getWalletInventory();
 		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add);
 		MoneyView walletFunds = walletHandler.getStoredMoney();
 
@@ -335,10 +335,9 @@ public class EventHandler {
 				if(takeAmount.isEmpty())
 					continue;
 
-				IMoneyHandler tempHandler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(walletInventory, drops::add);
-				if(takeAmount instanceof CoinValue coinsToDrop && tempHandler.extractMoney(takeAmount,true).isEmpty())
+				if(takeAmount instanceof CoinValue coinsToDrop && walletHandler.extractMoney(takeAmount,true).isEmpty())
 				{
-					tempHandler.extractMoney(takeAmount,false);
+					walletHandler.extractMoney(takeAmount,false);
 					drops.addAll(coinsToDrop.getAsSeperatedItemList());
 				}
 			}

@@ -121,6 +121,8 @@ public abstract class MerchantMenuMixin {
                             IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
                             if(handler.extractMoney(fundsToExtractA,true).isEmpty() && handler.extractMoney(fundsToExtractB,true).isEmpty())
                             {
+                                handler.extractMoney(fundsToExtractA,false);
+                                handler.extractMoney(fundsToExtractB,false);
                                 tradeContainer.setItem(0, coinA.copy());
                                 tradeContainer.setItem(1, coinB.copy());
                                 LightmansCurrency.LogDebug("Moved " + fundsToExtractA.getString() + " & " + fundsToExtractB.getString() + " worth of coins into the Merchant Menu!");

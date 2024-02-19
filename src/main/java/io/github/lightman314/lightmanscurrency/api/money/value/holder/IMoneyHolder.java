@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 
-public interface IMoneyHolder extends IMoneyViewer, IMoneyHandler {
+public interface IMoneyHolder extends IMoneyHandler {
 
     /**
      * Sorting priority.<br>

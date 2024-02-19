@@ -361,7 +361,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			if(storedMoney.isEmpty())
 				return;
 			storedMoney.GiveToPlayer(player);
-			storedMoney.clear();
 		}
 		else
 			Permissions.PermissionWarning(player, "collect stored coins", Permissions.COLLECT_COINS);

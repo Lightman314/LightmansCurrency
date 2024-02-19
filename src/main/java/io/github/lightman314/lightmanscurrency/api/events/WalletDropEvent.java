@@ -6,7 +6,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,10 +30,10 @@ import javax.annotation.Nonnull;
 @Cancelable
 public class WalletDropEvent extends PlayerEvent {
 
-	private SimpleContainer walletInventory;
+	private Container walletInventory;
 	private ItemStack walletStack;
 	@Nonnull
-	public SimpleContainer getWalletInventory() { return this.walletInventory; }
+	public Container getWalletInventory() { return this.walletInventory; }
 	@Nonnull
 	public ItemStack getWalletStack()
 	{
@@ -55,7 +55,7 @@ public class WalletDropEvent extends PlayerEvent {
 	public final boolean keepWallet;
 	public final int coinDropPercent;
 	
-	public WalletDropEvent(@Nonnull Player player, @Nonnull IWalletHandler walletHandler, @Nonnull SimpleContainer walletInventory, @Nonnull DamageSource source, boolean keepWallet, int coinDropPercent)
+	public WalletDropEvent(@Nonnull Player player, @Nonnull IWalletHandler walletHandler, @Nonnull Container walletInventory, @Nonnull DamageSource source, boolean keepWallet, int coinDropPercent)
 	{
 		super(player);
 		this.walletStack = walletHandler.getWallet().copy();
