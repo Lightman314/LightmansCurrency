@@ -73,7 +73,7 @@ public class ATMAPI {
         command = UpdateCommand(command);
         if(command.contentEquals("exchangeAllUp"))
         {
-            CoinAPI.ExchangeAllCoinsUp(coinSlots);
+            CoinAPI.API.CoinExchangeAllUp(coinSlots);
             return true;
         }
         //Convert defined coin upwards
@@ -90,7 +90,7 @@ public class ATMAPI {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a registered item.");
                     return false;
                 }
-                ChainData chain = CoinAPI.chainForCoin(coinItem);
+                ChainData chain = CoinAPI.API.ChainDataOfCoin(coinItem);
                 if(chain == null && !chain.findEntry(coinItem).isSideChain())
                 {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a coin.");
@@ -101,13 +101,13 @@ public class ATMAPI {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is the largest visible coin in its chain, and thus cannot be exchanged any larger.");
                     return false;
                 }
-                CoinAPI.ExchangeCoinsUp(coinSlots, coinItem);
+                CoinAPI.API.CoinExchangeUp(coinSlots, coinItem);
                 return true;
             } catch(ResourceLocationException e) { LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e);}
         }
         else if(command.contentEquals("exchangeAllDown"))
         {
-            CoinAPI.ExchangeAllCoinsDown(coinSlots);
+            CoinAPI.API.CoinExchangeAllDown(coinSlots);
             return true;
         }
         else if(command.startsWith("exchangeDown-"))
@@ -122,7 +122,7 @@ public class ATMAPI {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a registered item.");
                     return false;
                 }
-                ChainData chain = CoinAPI.chainForCoin(coinItem);
+                ChainData chain = CoinAPI.API.ChainDataOfCoin(coinItem);
                 if(chain == null && !chain.findEntry(coinItem).isSideChain())
                 {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a coin.");
@@ -133,7 +133,7 @@ public class ATMAPI {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is the smallest known coin, and thus cannot be exchanged any smaller.");
                     return false;
                 }
-                CoinAPI.ExchangeCoinsDown(coinSlots, coinItem);
+                CoinAPI.API.CoinExchangeDown(coinSlots, coinItem);
                 return true;
             } catch(ResourceLocationException e) { LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e); }
         }

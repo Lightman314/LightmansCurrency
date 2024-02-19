@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -13,6 +14,7 @@ import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
@@ -56,6 +58,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class CommandLCAdmin {
 
@@ -105,6 +108,10 @@ public class CommandLCAdmin {
 								.executes(CommandLCAdmin::forceDisableTaxCollectors)))
 				.then(Commands.literal("events")
 						.then(Commands.argument("player", EntityArgument.player())
+								.then(Commands.literal("reward")
+										.then(Commands.argument("item",ItemArgument.item(context))
+												.then(Commands.argument("count",IntegerArgumentType.integer(1))
+														.executes(CommandLCAdmin::giveEventReward))))
 								.then(Commands.literal("list")
 										.executes(CommandLCAdmin::listUnlockedEvents))
 								.then(Commands.literal("unlock")
@@ -163,7 +170,7 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
 
-		if(allTraders.size() > 0)
+		if(!allTraders.isEmpty())
 		{
 
 			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
@@ -193,7 +200,7 @@ public class CommandLCAdmin {
 		String searchText = StringArgumentType.getString(commandContext,"searchText");
 
 		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.filterTrader(trader, searchText)).toList();
-		if(results.size() > 0)
+		if(!results.isEmpty())
 		{
 
 			EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
@@ -457,6 +464,20 @@ public class CommandLCAdmin {
 		return count;
 	}
 
+	static int giveEventReward(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		if(!LCConfig.COMMON.eventAdvancementRewards.get())
+			return 0;
+		int success = 0;
+		int count = IntegerArgumentType.getInteger(commandContext,"count");
+		ItemStack reward = ItemArgument.getItem(commandContext, "item").createItemStack(count,false);
+		for(ServerPlayer player : EntityArgument.getPlayers(commandContext,"player"))
+		{
+			ItemHandlerHelper.giveItemToPlayer(player,reward.copy());
+			success++;
+		}
+		return success;
+	}
 
 	static int listUnlockedEvents(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
 	{
@@ -466,7 +487,7 @@ public class CommandLCAdmin {
 		if(eventUnlocks != null)
 		{
 			List<String> unlocks = eventUnlocks.getUnlockedList();
-			if(unlocks.size() > 0)
+			if(!unlocks.isEmpty())
 			{
 				StringBuilder list = new StringBuilder();
 				for(String v : eventUnlocks.getUnlockedList())

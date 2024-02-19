@@ -257,7 +257,7 @@ public abstract class TradeRule {
 		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(type);
 		if(ruleType != null)
 			return ruleType.createNew();
-		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to createTrue the Trade Rule.");
+		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to create the Trade Rule.");
 		return null;
 	}
 

@@ -40,7 +40,7 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
         Vector3f pos = new Vector3f(be.getBlockPos().getX() + 0.5f, be.getBlockPos().getY() + 0.5f, be.getBlockPos().getZ() + 0.5f);
         AABB searchBox = new AABB(pos.x() - radius, pos.y() - radius, pos.z() - radius, pos.x() + radius, pos.y() + radius, pos.z() + radius);
         boolean playSound = false;
-        for(Entity e : be.getLevel().getEntities((Entity)null, searchBox, e -> e instanceof ItemEntity item && CoinAPI.isCoin(item.getItem(), true)))
+        for(Entity e : be.getLevel().getEntities((Entity)null, searchBox, e -> e instanceof ItemEntity item && CoinAPI.API.IsCoin(item.getItem(), true)))
         {
             ItemEntity ie = (ItemEntity)e;
             ItemStack coinStack = ie.getItem();

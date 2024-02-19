@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
@@ -263,37 +264,40 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return;
 
         //Confirm that payment can be taken successfully
-        if(MoneyAPI.takeMoneyFromPlayer(host, this.hostMoney))
+        IMoneyHandler hostHandler = MoneyAPI.API.GetPlayersMoneyHandler(host);
+        IMoneyHandler guestHandler = MoneyAPI.API.GetPlayersMoneyHandler(guest);
+        //Run money simulations before executing
+        if(hostHandler.extractMoney(this.hostMoney, true).isEmpty()
+                && hostHandler.insertMoney(this.guestMoney, true).isEmpty()
+                && guestHandler.extractMoney(this.guestMoney, true).isEmpty()
+                && guestHandler.insertMoney(this.hostMoney,true).isEmpty()
+        )
         {
-            if(MoneyAPI.takeMoneyFromPlayer(guest, this.guestMoney))
+            //Flag trade as completed
+            completed = true;
+
+            //Give & take money/items to/from host
+            hostHandler.extractMoney(this.hostMoney, false);
+            hostHandler.insertMoney(this.guestMoney, false);
+            for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
             {
-                //Flag trade as completed
-                completed = true;
-
-                //Give money/items to host
-                MoneyAPI.giveMoneyToPlayer(host, this.guestMoney);
-                for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
-                {
-                    ItemStack stack = this.guestItems.getItem(i);
-                    if(!stack.isEmpty())
-                        ItemHandlerHelper.giveItemToPlayer(host, stack);
-                }
-
-                //Give money/items to guest
-                MoneyAPI.giveMoneyToPlayer(guest, this.hostMoney);
-                for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
-                {
-                    ItemStack stack = this.hostItems.getItem(i);
-                    if(!stack.isEmpty())
-                        ItemHandlerHelper.giveItemToPlayer(guest, stack);
-                }
-
-                this.tryCloseMenu(host);
-                this.tryCloseMenu(guest);
-
+                ItemStack stack = this.guestItems.getItem(i);
+                if(!stack.isEmpty())
+                    ItemHandlerHelper.giveItemToPlayer(host, stack);
             }
-            else //Refund host money if guest doesn't have enough money
-                MoneyAPI.giveMoneyToPlayer(host, this.hostMoney);
+
+            //Give money/items to guest
+            guestHandler.extractMoney(this.guestMoney, false);
+            guestHandler.insertMoney(this.hostMoney,false);
+            for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
+            {
+                ItemStack stack = this.hostItems.getItem(i);
+                if(!stack.isEmpty())
+                    ItemHandlerHelper.giveItemToPlayer(guest, stack);
+            }
+
+            this.tryCloseMenu(host);
+            this.tryCloseMenu(guest);
         }
 
     }

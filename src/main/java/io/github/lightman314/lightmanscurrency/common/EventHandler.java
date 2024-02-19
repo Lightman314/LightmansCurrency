@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -66,7 +67,7 @@ public class EventHandler {
 	{
 		
 		ItemStack pickupItem = event.getItem().getItem();
-		if(!CoinAPI.isCoin(pickupItem, false))
+		if(!CoinAPI.API.IsCoin(pickupItem, false))
 			return;
 		
 		Player player = event.getEntity();
@@ -80,7 +81,7 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
-		ItemStack wallet = CoinAPI.getWalletStack(player);
+		ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
 		if(!wallet.isEmpty())
 		{
 			WalletItem walletItem = (WalletItem)wallet.getItem();
@@ -316,10 +317,12 @@ public class EventHandler {
 		if(coinDropPercent <= 0)
 			return new ArrayList<>();
 
-		Container walletInventory = event.getWalletInventory();
-		MoneyView walletFunds = MoneyAPI.valueOfContainer(event.getWalletInventory());
-
 		List<ItemStack> drops = new ArrayList<>();
+
+		Container walletInventory = event.getWalletInventory();
+		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add);
+		MoneyView walletFunds = walletHandler.getStoredMoney();
+
 		//Remove the dropped coins from the wallet
 
 		for(MoneyValue value : walletFunds.allValues())
@@ -330,8 +333,9 @@ public class EventHandler {
 				if(takeAmount.isEmpty())
 					continue;
 
-				if(takeAmount instanceof CoinValue coinsToDrop && MoneyAPI.takeMoneyFromContainer(walletInventory, drops::add, takeAmount))
+				if(takeAmount instanceof CoinValue coinsToDrop && walletHandler.extractMoney(takeAmount,true).isEmpty())
 				{
+					walletHandler.extractMoney(takeAmount,false);
 					drops.addAll(coinsToDrop.getAsSeperatedItemList());
 				}
 			}

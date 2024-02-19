@@ -45,7 +45,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public final ItemStack getWallet()
 	{
 		if(this.isEquippedWallet())
-			return CoinAPI.getWalletStack(this.inventory.player);
+			return CoinAPI.API.getEquippedWallet(this.inventory.player);
 		return this.inventory.getItem(this.walletStackIndex);
 	}
 	
@@ -148,8 +148,8 @@ public abstract class WalletMenuBase extends EasyMenu {
 	
 	public final void ExchangeCoints()
 	{
-		CoinAPI.ExchangeAllCoinsUp(this.coinInput);
-		CoinAPI.SortCoins(this.coinInput);
+		CoinAPI.API.CoinExchangeAllUp(this.coinInput);
+		CoinAPI.API.SortCoinsByValue(this.coinInput);
 		this.saveWalletContents();
 	}
 	
@@ -196,7 +196,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public static void SafeOpenWallet(@Nonnull ServerPlayer player, int walletIndex, @Nonnull MenuProvider menu, @Nonnull Consumer<FriendlyByteBuf> dataWriter) {
 		if (walletIndex < 0)
 		{
-			if(!WalletItem.isWallet(CoinAPI.getWalletStack(player)))
+			if(!WalletItem.isWallet(CoinAPI.API.getEquippedWallet(player)))
 			{
 				player.sendSystemMessage(EasyText.translatable("message.lightmanscurrency.wallet.none_equipped"));
                 return;

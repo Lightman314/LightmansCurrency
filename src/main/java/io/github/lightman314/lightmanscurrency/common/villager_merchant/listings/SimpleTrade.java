@@ -109,7 +109,9 @@ public class SimpleTrade implements VillagerTrades.ItemListing
         return new MerchantOffer(this.price, this.price2, this.forSale, this.maxTrades, this.xp, this.priceMult);
     }
 
-    private static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+    public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
+
+        private Serializer() {}
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override

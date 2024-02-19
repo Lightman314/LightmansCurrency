@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BankReference extends IMoneyHolder.Slave implements IClientTracker {
+public abstract class BankReference extends MoneyHolder.Slave implements IClientTracker {
 
     private boolean isClient = false;
     public boolean isClient() { return this.isClient; }

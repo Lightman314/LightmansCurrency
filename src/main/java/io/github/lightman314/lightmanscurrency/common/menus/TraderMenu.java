@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -24,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -56,14 +57,14 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
 
 	private final Map<Long,TradeContext> contextCache = new HashMap<>();
-	
+
 	public static final int SLOT_OFFSET = 15;
-	
+
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
-	private final MoneyContainer coins;
-	public MoneyContainer getCoinInventory() { return this.coins; }
-	
+
+	private final Container coins;
+
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 
@@ -75,12 +76,12 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	public TraderMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
 		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID), validator);
 	}
-	
+
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource, MenuValidator validator) {
 		super(type, windowID, inventory);
 		this.validator = validator;
 		this.traderSource = traderSource;
-		this.coins = new MoneyContainer(inventory.player, 5);
+		this.coins = new SimpleContainer(5);
 
 		this.addValidator(this::traderSourceValid);
 		this.addValidator(this.validator);
@@ -100,7 +101,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	}
 
 	protected void init(Inventory inventory) {
-		
+
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -114,23 +115,23 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		{
 			this.addSlot(new Slot(inventory, x, SLOT_OFFSET + 8 + x * 18, 212));
 		}
-		
+
 		//Coin Slots
 		for(int x = 0; x < coins.getContainerSize(); x++)
 		{
 			this.coinSlots.add(this.addSlot(new CoinSlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122)));
 		}
-		
+
 		//Interaction Slots
 		List<InteractionSlotData> slotData = new ArrayList<>();
 		for(TraderData trader : this.traderSource.get().getTraders())
 			trader.addInteractionSlots(slotData);
 		this.interactionSlot = new InteractionSlot(slotData, SLOT_OFFSET + 8, 122);
 		this.addSlot(this.interactionSlot);
-		
+
 	}
 
-	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
+	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && !this.traderSource.get().getTraders().isEmpty(); }
 
 	@Override
 	public void removed(@NotNull Player player) {
@@ -144,9 +145,9 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			}
 		}
 		this.contextCache.values().forEach(TradeContext::clearCache);
-			
+
 	}
-	
+
 	public void ExecuteTrade(int traderIndex, int tradeIndex) {
 		//LightmansCurrency.LogInfo("Executing trade " + traderIndex + "/" + tradeIndex);
 		ITraderSource traderSource = this.traderSource.get();
@@ -166,12 +167,12 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			}
 			TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
 			if(result.hasMessage())
-				LightmansCurrency.LogInfo(result.failMessage.getString());
+				LightmansCurrency.LogDebug(result.failMessage.getString());
 		}
 		else
 			LightmansCurrency.LogWarning("Trader " + traderIndex + " is not a valid trader index.");
 	}
-	
+
 	public boolean isSingleTrader() {
 		ITraderSource tradeSource = this.traderSource.get();
 		if(tradeSource == null)
@@ -181,21 +182,21 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		}
 		return tradeSource.isSingleTrader() && tradeSource.getTraders().size() == 1;
 	}
-	
+
 	public TraderData getSingleTrader() {
 		if(this.isSingleTrader())
 			return this.traderSource.get().getSingleTrader();
 		return null;
 	}
-	
+
 	@Override
 	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
 	{
-		
+
 		ItemStack clickedStack = ItemStack.EMPTY;
-		
+
 		Slot slot = this.slots.get(index);
-		
+
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -216,7 +217,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 					return ItemStack.EMPTY;
 				}
 			}
-			
+
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -226,9 +227,9 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 				slot.setChanged();
 			}
 		}
-		
+
 		return clickedStack;
-		
+
 	}
 
 	@Override
@@ -237,10 +238,10 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		{
 			LightmansCurrency.LogInfo("Attempting to collect coins from trader.");
 			TraderData trader = this.getSingleTrader();
-			trader.CollectStoredMoney(this.player, this.coins);
+			trader.CollectStoredMoney(this.player);
 		}
 	}
-	
+
 	public static class TraderMenuBlockSource extends TraderMenu
 	{
 		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos pos, MenuValidator validator) {
@@ -258,6 +259,6 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide), validator);
 		}
 	}
-	
-	
+
+
 }

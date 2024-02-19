@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
@@ -47,17 +49,17 @@ public class TradeContext {
 	public final long id;
 
 	public final boolean isStorageMode;
-	
+
 	//Trader Data (public as it will be needed for trade data context)
 	private final TraderData trader;
 	public boolean hasTrader() { return this.trader != null; }
 	public TraderData getTrader() { return this.trader; }
-	
+
 	//Player Data
 	private final Player player;
 	public boolean hasPlayer() { return this.player != null; }
 	public Player getPlayer() { return this.player; }
-	
+
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;
 	public boolean hasPlayerReference() { return this.playerReference != null; }
@@ -66,7 +68,7 @@ public class TradeContext {
 	//Money/Payment related data
 	private final MultiMoneyHolder moneyHolders;
 	public final void clearCache() { this.moneyHolders.clearCache(this); }
-	
+
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
 	private boolean hasInteractionSlot(String type) { return this.getInteractionSlot(type) != null; }
@@ -76,11 +78,11 @@ public class TradeContext {
 	//Item related data
 	private final IItemHandler itemHandler;
 	private boolean hasItemHandler() { return this.itemHandler != null; }
-	
+
 	//Fluid related data
 	private final IFluidHandler fluidTank;
 	private boolean hasFluidTank() { return this.fluidTank != null; }
-	
+
 	//Energy related data
 	private final IEnergyStorage energyTank;
 	private boolean hasEnergyTank() { return this.energyTank != null; }
@@ -98,9 +100,9 @@ public class TradeContext {
 		this.energyTank = builder.energyHandler;
 	}
 
-	
+
 	public boolean hasPaymentMethod() { return this.hasPlayer(); }
-	
+
 	public boolean hasFunds(MoneyValue price)
 	{
 		if(price.isFree() || price.isEmpty())
@@ -117,41 +119,35 @@ public class TradeContext {
 		this.moneyHolders.formatTooltip(text);
 		return text;
 	}
-	
+
 	public boolean getPayment(MoneyValue price)
 	{
 		if(price == null)
 			return false;
 		if(price.isFree() || price.isEmpty())
 			return true;
-		if(this.hasFunds(price))
+		if(this.moneyHolders.extractMoney(price,true).isEmpty())
 		{
-			MoneyValue leftover = this.moneyHolders.tryRemoveMoney(price);
-			if(!leftover.isEmpty())
-			{
-				this.givePayment(price.subtractValue(leftover));
-				return false;
-			}
+			this.moneyHolders.extractMoney(price,false);
 			return true;
 		}
 		return false;
 	}
-	
+
 	public boolean givePayment(MoneyValue price)
 	{
 		if(price == null)
 			return false;
 		if(price.isFree())
 			return true;
-		MoneyValue leftover = this.moneyHolders.tryAddMoney(price);
-		if(!leftover.isEmpty())
+		if(this.moneyHolders.insertMoney(price,true).isEmpty())
 		{
-			this.getPayment(price.subtractValue(leftover));
-			return false;
+			this.moneyHolders.insertMoney(price,false);
+			return true;
 		}
-		return true;
+		return false;
 	}
-	
+
 	/**
 	 * Whether the given item stack is present in the item handler, and can be successfully removed without issue.
 	 */
@@ -163,7 +159,7 @@ public class TradeContext {
 			return InventoryUtil.GetItemCount(this.player.getInventory(), item) >= item.getCount();
 		return false;
 	}
-	
+
 	/**
 	 * Whether the given item stacks are present in the item handler, and can be successfully removed without issue.
 	 */
@@ -203,7 +199,7 @@ public class TradeContext {
 			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.getInventory(), requirements) != null;
 		return false;
 	}
-	
+
 	/**
 	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
 	 */
@@ -276,7 +272,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Removes the given item stack from the item handler.
 	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
@@ -354,7 +350,7 @@ public class TradeContext {
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes the given ticket from the item handler.
 	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
@@ -400,7 +396,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean canFitItem(ItemStack item)
 	{
 		if(item.isEmpty())
@@ -409,7 +405,7 @@ public class TradeContext {
 			return ItemHandlerHelper.insertItemStacked(this.itemHandler, item, true).isEmpty();
 		return this.hasPlayer();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public boolean canFitItems(ItemStack... items)
 	{
@@ -469,7 +465,7 @@ public class TradeContext {
 		}
 		return this.hasPlayer();
 	}
-	
+
 	public boolean putItem(ItemStack item)
 	{
 		if(this.canFitItem(item))
@@ -487,7 +483,7 @@ public class TradeContext {
 					if(!item.isEmpty())
 						this.collectItem(placedStack);
 					return false;
-				}	
+				}
 			}
 			if(this.hasPlayer())
 			{
@@ -497,7 +493,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean hasFluid(FluidStack fluid)
 	{
 		if(this.hasFluidTank())
@@ -517,7 +513,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean drainFluid(FluidStack fluid)
 	{
 		if(this.hasFluid(fluid))
@@ -540,7 +536,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean canFitFluid(FluidStack fluid)
 	{
 		if(this.hasFluidTank())
@@ -554,7 +550,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean fillFluid(FluidStack fluid)
 	{
 		if(this.canFitFluid(fluid))
@@ -577,7 +573,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean hasEnergy(int amount)
 	{
 		if(this.hasEnergyTank())
@@ -591,7 +587,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean drainEnergy(int amount)
 	{
 		if(this.hasEnergy(amount))
@@ -610,7 +606,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean canFitEnergy(int amount)
 	{
 		if(this.hasEnergyTank())
@@ -624,7 +620,7 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public boolean fillEnergy(int amount)
 	{
 		if(this.canFitEnergy(amount))
@@ -643,52 +639,57 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
 	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
 	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player); }
 	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
-	
+
 	public static class Builder
 	{
-		
+
 		//Core
 		private final boolean storageMode;
 		private final TraderData trader;
 		private final Player player;
 		private final PlayerReference playerReference;
-		
+
 		//Money
 		private final List<IMoneyHolder> moneyHandlers = new ArrayList<>();
-		
+
 		//Interaction Slots
 		private InteractionSlot interactionSlot;
-		
+
 		//Item
 		private IItemHandler itemHandler;
 		//Fluid
 		private IFluidHandler fluidHandler;
 		//Energy
 		private IEnergyStorage energyHandler;
-		
+
 		private Builder(@Nonnull TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(@Nonnull TraderData trader, @Nonnull Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; this.withMoneyHolder(MoneyAPI.getPlayersMoneyHolder(player)); }
+		private Builder(@Nonnull TraderData trader, @Nonnull Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player)); }
 		private Builder(@Nonnull TraderData trader, @Nonnull PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
-		
+
 		public Builder withBankAccount(@Nonnull BankReference bankAccount) { return this.withMoneyHolder(bankAccount); }
-		public Builder withCoinSlots(@Nonnull MoneyContainer coinSlots) { return this.withMoneyHolder(coinSlots); }
+		public Builder withCoinSlots(@Nonnull Container coinSlots) {
+			if(this.player == null)
+				return this;
+			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.slots"), 100);
+		}
 		public Builder withStoredCoins(@Nonnull MoneyStorage storedCoins) { return this.withMoneyHolder(storedCoins); }
 
+		public Builder withMoneyHandler(@Nonnull IMoneyHandler moneyHandler, @Nonnull Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
 		public Builder withMoneyHolder(@Nonnull IMoneyHolder moneyHandler) { if(!this.moneyHandlers.contains(moneyHandler)) this.moneyHandlers.add(moneyHandler); return this; }
 
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }
-		
+
 		public Builder withItemHandler(@Nonnull IItemHandler itemHandler) { this.itemHandler = itemHandler; return this; }
 		public Builder withFluidHandler(@Nonnull IFluidHandler fluidHandler) { this.fluidHandler = fluidHandler; return this; }
 		public Builder withEnergyHandler(@Nonnull IEnergyStorage energyHandler) { this.energyHandler = energyHandler; return this; }
-		
-		
+
+
 		public TradeContext build() { return new TradeContext(this); }
-		
+
 	}
-	
+
 }

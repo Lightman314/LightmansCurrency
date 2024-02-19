@@ -39,7 +39,7 @@ public final class ATMPageManager {
         this.removeChild = removeChild;
         this.commandProcessor = commandProcessor;
         Map<String,ATMData> mapTemp = new HashMap<>();
-        for(ChainData chain : CoinAPI.getAllChainData())
+        for(ChainData chain : CoinAPI.API.AllChainData())
         {
             if(chain.hasATMData() && chain.isVisibleTo(player))
                 mapTemp.put(chain.chain, chain.getAtmData());
@@ -47,7 +47,7 @@ public final class ATMPageManager {
         this.validData = ImmutableList.copyOf(mapTemp.values());
         if(mapTemp.containsKey(lastSelected))
             this.selectedData = mapTemp.get(lastSelected);
-        else if(this.validData.size() > 0)
+        else if(!this.validData.isEmpty())
         {
             this.selectedData = this.validData.get(0);
             lastSelected = this.selectedData.chain.chain;

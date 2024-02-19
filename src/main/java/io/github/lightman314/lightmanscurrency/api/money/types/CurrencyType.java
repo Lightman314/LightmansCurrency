@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.types;
 
 import com.google.gson.JsonObject;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -40,7 +41,7 @@ public abstract class CurrencyType {
      */
     public final MoneyValue sumValues(@Nonnull List<MoneyValue> values)
     {
-        if(values.size() == 0)
+        if(values.isEmpty())
             return MoneyValue.empty();
         if(values.size() == 1)
             return values.get(0);
@@ -55,65 +56,11 @@ public abstract class CurrencyType {
     @Nonnull
     protected abstract MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values);
 
-    public abstract boolean hasPlayersMoneyChanged(@Nonnull Player player);
+    @Nullable
+    public abstract IPlayerMoneyHandler createMoneyHandlerForPlayer(@Nonnull Player player);
 
-    /**
-     * Adds the amount of money available for this mods currency type to the {@link MoneyView.Builder}.
-     * Mostly used by {@link io.github.lightman314.lightmanscurrency.api.money.value.holder.PlayerMoneyHolder} to safely cache the players stored money amounts to save processing time.
-     */
-    public abstract void getAvailableMoney(@Nonnull Player player, @Nonnull MoneyView.Builder builder);
-
-
-    /**
-     * Adds the given amount of money to the player.
-     * Assumes that the player can always be given money.
-     * @param player The player to give money to.
-     * @param value The {@link MoneyValue} to give to the player.
-     */
-    public abstract void giveMoneyToPlayer(@Nonnull Player player, @Nonnull MoneyValue value);
-
-    /**
-     * Takes the given amount of money from the player.
-     * Check {@link MoneyView#containsValue(MoneyValue)} on the result of {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#getPlayersAvailableFunds(Player)} before calling this to confirm that they have the funds available.
-     * @param player The player to take the money from.
-     * @param value The {@link MoneyValue} to take from the player.
-     * @return Whether the money was successfully taken. Should only be <code>false</code> if {@link MoneyView#containsValue(MoneyValue)} on the results of {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#getPlayersAvailableFunds(Player)} is also false.
-     */
-    public abstract boolean takeMoneyFromPlayer(@Nonnull Player player, @Nonnull MoneyValue value);
-
-    /**
-     * Returns the salvagable value of any coin items within the {@link Container}.
-     * Return an empty {@link ArrayList} if no value can be salvaged from these items.
-     * {@link MoneyValue} entries returns should accurately describe if a value can be added or removed from the items currently present.
-     */
-    public final MoneyView valueInContainer(@Nonnull Container container) {
-        MoneyView.Builder builder = MoneyView.builder();
-        this.getValueInContainer(container, builder);
-        return builder.build();
-    }
-
-    public void getValueInContainer(@Nonnull Container container, @Nonnull MoneyView.Builder builder) { }
-
-    /**
-     * Removes the given value from the container.
-     * Should always check {@link #valueInContainer(Container)} and then {@link MoneyValue#containsValue(MoneyValue)} first before executing.
-     * @return <code>false</code>> if the interaction failed. <code>true</code> if the requested amount was successfully taken.
-     */
-    public boolean takeValueFromContainer(@Nonnull Container container, @Nonnull MoneyValue amount, @Nonnull Consumer<ItemStack> overflowHandler) { return false; }
-
-    /**
-     * Whether the given value can be inserted into an item within the inventory.
-     * Note: All actual addition of money will have a handler for overflow items
-     * if more items are created than can be fit in the available space,
-     * so space limitations could/should be ignored if that is the only concern.
-     */
-    public boolean canAddValueToContainer(@Nonnull Container container, @Nonnull MoneyValue value) { return false; }
-
-    /**
-     * Actually add the value to the inventory.
-     * Should call {@link #canAddValueToContainer(Container, MoneyValue)} before calling this.
-     */
-    public boolean addValueToContainer(@Nonnull Container container, @Nonnull MoneyValue value, @Nonnull Consumer<ItemStack> overflowHandler) { return false; }
+    @Nullable
+    public abstract IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler);
 
     /**
      * Function to load a money value saved to NBT.

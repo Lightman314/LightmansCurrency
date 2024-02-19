@@ -1,15 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.menus.containers;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
+import javax.annotation.Nonnull;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerListener;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -20,26 +16,9 @@ public class SuppliedContainer implements Container{
 	public final Supplier<Container> source;
 	private final Container nullContainer;
 
-	@Nullable
-	private List<ContainerListener> listeners;
 
-	
 	public SuppliedContainer(Supplier<Container> source) { this(source, new SimpleContainer(1)); }
 	public SuppliedContainer(Supplier<Container> source, Container nullContainer) { this.source = source; this.nullContainer = nullContainer; }
-
-	public void addListener(ContainerListener p_19165_) {
-		if (this.listeners == null) {
-			this.listeners = Lists.newArrayList();
-		}
-
-		this.listeners.add(p_19165_);
-	}
-
-	public void removeListener(ContainerListener p_19182_) {
-		if (this.listeners != null) {
-			this.listeners.remove(p_19182_);
-     	}
-	}
 
 	private Container safeGet() {
 		Container c = this.source.get();
@@ -48,54 +27,50 @@ public class SuppliedContainer implements Container{
 
 	@Override
 	public void clearContent() { this.safeGet().clearContent(); }
-	
+
 	@Override
 	public int getContainerSize() { return this.safeGet().getContainerSize(); }
-	
+
 	@Override
 	public boolean isEmpty() { return this.safeGet().isEmpty(); }
-	
+
+	@Nonnull
 	@Override
-	public ItemStack getItem(int p_18941_) { return this.safeGet().getItem(p_18941_); }
-	
+	public ItemStack getItem(int slot) { return this.safeGet().getItem(slot); }
+
+	@Nonnull
 	@Override
-	public ItemStack removeItem(int p_18942_, int p_18943_) { return this.safeGet().removeItem(p_18942_, p_18943_); }
-	
+	public ItemStack removeItem(int slot, int count) { return this.safeGet().removeItem(slot, count); }
+
+	@Nonnull
 	@Override
-	public ItemStack removeItemNoUpdate(int p_18951_) { return this.safeGet().removeItemNoUpdate(p_18951_); }
-	
+	public ItemStack removeItemNoUpdate(int slot) { return this.safeGet().removeItemNoUpdate(slot); }
+
 	@Override
-	public void setItem(int p_18944_, ItemStack p_18945_) { this.safeGet().setItem(p_18944_, p_18945_); }
-	
+	public void setItem(int slot, @Nonnull ItemStack stack) { this.safeGet().setItem(slot, stack); }
+
 	@Override
 	public int getMaxStackSize() { return this.safeGet().getMaxStackSize(); }
-	
+
 	@Override
-	public void setChanged() {
-		this.safeGet().setChanged();
-		if (this.listeners != null) {
-			for(ContainerListener containerlistener : this.listeners) {
-				containerlistener.containerChanged(this);
-			}
-		}
-	}
-	
+	public void setChanged() { this.safeGet().setChanged(); }
+
 	@Override
-	public boolean stillValid(Player p_18946_) { return this.safeGet().stillValid(p_18946_); }
-	
+	public boolean stillValid(@Nonnull Player player) { return this.safeGet().stillValid(player); }
+
 	@Override
-	public void startOpen(Player p_18955_) { this.safeGet().startOpen(p_18955_); }
-	
+	public void startOpen(@Nonnull Player player) { this.safeGet().startOpen(player); }
+
 	@Override
-	public void stopOpen(Player p_18954_) { this.safeGet().stopOpen(p_18954_); }
-	
+	public void stopOpen(@Nonnull Player player) { this.safeGet().stopOpen(player); }
+
 	@Override
-	public boolean canPlaceItem(int p_18952_, ItemStack p_18953_) { return this.safeGet().canPlaceItem(p_18952_, p_18953_); }
-	
+	public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return this.safeGet().canPlaceItem(slot, stack); }
+
 	@Override
-	public int countItem(Item p_18948_) { return this.safeGet().countItem(p_18948_); }
-	
+	public int countItem(@Nonnull Item item) { return this.safeGet().countItem(item); }
+
 	@Override
-	public boolean hasAnyOf(Set<Item> p_18950_) { return this.safeGet().hasAnyOf(p_18950_); }
-	
+	public boolean hasAnyOf(@Nonnull Set<Item> items) { return this.safeGet().hasAnyOf(items); }
+
 }

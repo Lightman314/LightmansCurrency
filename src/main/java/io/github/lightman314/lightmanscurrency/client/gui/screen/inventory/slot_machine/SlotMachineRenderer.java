@@ -74,7 +74,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
                 }
             }
         }
-        if(this.possibleBlocks.size() == 0)
+        if(this.possibleBlocks.isEmpty())
             this.possibleBlocks.add(SlotMachineRenderBlock.empty());
     }
 
@@ -86,7 +86,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
         SlotMachineTraderData trader = this.getTrader();
         if(trader != null)
         {
-            List<ItemStack> previousRewards = trader.getLastRewards();
+            List<ItemStack> previousRewards = SlotMachineEntry.splitDisplayItems(trader.getLastRewards());
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
                 if(i < previousRewards.size())
@@ -152,7 +152,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
     {
         SlotMachineMenu.RewardCache pendingReward = this.menu.getNextReward();
         List<SlotMachineRenderBlock> resultBlocks = new ArrayList<>(SlotMachineEntry.ITEM_LIMIT);
-        List<ItemStack> displayItems = pendingReward.getDisplayItems();
+        List<ItemStack> displayItems = SlotMachineEntry.splitDisplayItems(pendingReward.getDisplayItems());
         for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
         {
             if(i < displayItems.size())
@@ -186,7 +186,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
         List<Integer> lockDelay = Lists.newArrayList(GetAnimationTime() - 1);
         while(lockDelay.size() < randomLines.size())
             lockDelay.add(rand.nextInt(GetAnimationTime() - 11, GetAnimationTime() - 1));
-        while(randomLines.size() > 0)
+        while(!randomLines.isEmpty())
         {
             SlotMachineLine line = randomLines.size() > 1 ? randomLines.remove(rand.nextInt(randomLines.size())) : randomLines.remove(0);
             line.lockAtResult(resultBlocks.remove(0), lockDelay.remove(0));

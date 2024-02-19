@@ -57,7 +57,7 @@ public class ModCreativeGroups {
                 //Event Coins
                 ModItems.COIN_CHOCOLATE_COPPER, ModItems.COIN_CHOCOLATE_IRON, ModItems.COIN_CHOCOLATE_GOLD,
                 ModItems.COIN_CHOCOLATE_EMERALD, ModItems.COIN_CHOCOLATE_DIAMOND, ModItems.COIN_CHOCOLATE_NETHERITE
-        );
+        ).build();
 
         MACHINE_GROUP.startInit().add(
                 //Coin Mint

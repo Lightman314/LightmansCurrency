@@ -79,7 +79,7 @@ public class CoinValueParser extends MoneyValueParser {
         {
             ResourceLocation coinID = new ResourceLocation(coinIDString);
             Item coin = ForgeRegistries.ITEMS.getValue(coinID);
-            ChainData chainData = CoinAPI.chainForCoin(coin);
+            ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
             if(chainData == null)
                 throw NotACoinException(coinID.toString(), reader);
             CoinEntry entry = chainData.findEntry(coin);
@@ -150,12 +150,12 @@ public class CoinValueParser extends MoneyValueParser {
 
     private static boolean isCoin(ResourceLocation itemID)
     {
-        return CoinAPI.isCoin(ForgeRegistries.ITEMS.getValue(itemID), false);
+        return CoinAPI.API.IsCoin(ForgeRegistries.ITEMS.getValue(itemID), false);
     }
 
     @Override
     public void addExamples(@Nonnull List<String> examples) {
-        for(ChainData chain : CoinAPI.getAllChainData())
+        for(ChainData chain : CoinAPI.API.AllChainData())
         {
             int suggestedCount = 1;
             StringBuilder result = new StringBuilder(this.prefix).append(";");

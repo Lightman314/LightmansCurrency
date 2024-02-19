@@ -40,7 +40,7 @@ public class CoinSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) { return CoinAPI.isCoin(stack, this.acceptSideChains); }
+	public boolean mayPlace(@NotNull ItemStack stack) { return CoinAPI.API.IsCoin(stack, this.acceptSideChains); }
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {

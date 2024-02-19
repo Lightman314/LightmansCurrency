@@ -24,7 +24,7 @@ public class CommandTicket {
                         .then(Commands.literal("changeColor")
                                 .then(Commands.argument("color", ColorArgument.argument())
                                         .executes(CommandTicket::changeColor)))
-                        .then(Commands.literal("createTrue")
+                        .then(Commands.literal("create")
                                 .executes(CommandTicket::createTicketNonColored)
                                 .then(Commands.argument("color", ColorArgument.argument())
                                         .executes(CommandTicket::createTicketColored)));

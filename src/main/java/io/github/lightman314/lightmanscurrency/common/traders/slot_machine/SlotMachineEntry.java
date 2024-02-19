@@ -18,8 +18,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public final class SlotMachineEntry {
 
@@ -33,19 +35,19 @@ public final class SlotMachineEntry {
 
     private SlotMachineEntry(List<ItemStack> items, int weight) { this.items = items; this.setWeight(weight); }
 
-    public boolean isValid() { return this.items.size() > 0 && this.weight > 0; }
+    public boolean isValid() { return !this.items.isEmpty() && this.weight > 0; }
 
     public boolean isMoney() {
-        if(this.items.size() == 0)
+        if(this.items.isEmpty())
             return false;
         ChainData chain = null;
         for(ItemStack item : this.items)
         {
-            if(CoinAPI.isCoin(item, false))
+            if(CoinAPI.API.IsCoin(item, false))
             {
                 if(chain == null)
-                    chain = CoinAPI.chainForCoin(item);
-                else if(chain != CoinAPI.chainForCoin(item)) //Reject if coins are from different chains
+                    chain = CoinAPI.API.ChainDataOfCoin(item);
+                else if(chain != CoinAPI.API.ChainDataOfCoin(item)) //Reject if coins are from different chains
                     return false;
             }
             else
@@ -60,14 +62,13 @@ public final class SlotMachineEntry {
         long value = 0;
         for(ItemStack item : this.items)
         {
-            if(CoinAPI.isCoin(item, false))
+            if(CoinAPI.API.IsCoin(item, false))
             {
                 if(chain == null)
-                    chain = CoinAPI.chainForCoin(item);
-                else if(chain != CoinAPI.chainForCoin(item)) //Reject if coins are from different chains
+                    chain = CoinAPI.API.ChainDataOfCoin(item);
+                else if(chain != CoinAPI.API.ChainDataOfCoin(item)) //Reject if coins are from different chains
                     return MoneyValue.empty();
-                else
-                    value += chain.getCoreValue(item) * item.getCount();
+                value += chain.getCoreValue(item) * item.getCount();
             }
             else if(!item.isEmpty())
                 return MoneyValue.empty();
@@ -95,6 +96,30 @@ public final class SlotMachineEntry {
                 return coinValue.getAsSeperatedItemList();
         }
         return InventoryUtil.copyList(this.items);
+    }
+
+    @Nonnull
+    public static List<ItemStack> splitDisplayItems(@Nonnull List<ItemStack> displayItems)
+    {
+        if(displayItems.size() >= ITEM_LIMIT)
+            return displayItems;
+        int totalCount = 0;
+        for(ItemStack s : displayItems)
+            totalCount+= s.getCount();
+        List<ItemStack> result = InventoryUtil.copyList(displayItems);
+        Random random = new Random();
+        while(result.size() < ITEM_LIMIT && result.size() < totalCount)
+        {
+            int splitIndex = random.nextInt(result.size());
+            ItemStack s = result.get(splitIndex);
+            if(s.getCount() > 1)
+            {
+                int splitCount = s.getCount() / 2;
+                ItemStack split = s.split(splitCount);
+                result.add(split);
+            }
+        }
+        return result;
     }
 
     public boolean CanGiveToCustomer(TradeContext context)
@@ -221,8 +246,8 @@ public final class SlotMachineEntry {
                 items.add(stack);
             } catch (JsonSyntaxException | ResourceLocationException t) { LightmansCurrency.LogError("Error parsing Slot Machine Entry item #" + (i + 1), t); }
         }
-        if(items.size() == 0)
-            throw new JsonSyntaxException("Slot Machie Entry has no valid items!");
+        if(items.isEmpty())
+            throw new JsonSyntaxException("Slot Machine Entry has no valid items!");
         int weight = GsonHelper.getAsInt(json, "Weight", 1);
         return new SlotMachineEntry(items, weight);
     }

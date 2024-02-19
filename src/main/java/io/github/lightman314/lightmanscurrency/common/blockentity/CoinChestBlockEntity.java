@@ -314,7 +314,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         private final CoinChestBlockEntity blockEntity;
         public ItemHandler(CoinChestBlockEntity blockEntity) { super(blockEntity.storage); this.blockEntity = blockEntity; }
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.isCoin(stack, false); }
+        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsCoin(stack, false); }
         @Override
         public Container getInv() { return this.blockEntity.storage; }
     }

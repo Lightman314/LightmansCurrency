@@ -12,6 +12,7 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
 import vazkii.quark.base.handler.WoodSetHandler;
+import vazkii.quark.content.building.module.BambooBackportModule;
 import vazkii.quark.content.world.module.AncientWoodModule;
 import vazkii.quark.content.world.module.AzaleaWoodModule;
 import vazkii.quark.content.world.module.BlossomTreesModule;
@@ -26,15 +27,21 @@ public class QuarkCustomWoodTypes {
     public static final WoodType ANCIENT = WoodType.builder("ancient", MODID).ofColor(MaterialColor.TERRACOTTA_WHITE).ofName("Ancient").build();
     public static final WoodType AZALEA = WoodType.builder("azalea", MODID).ofColor(MaterialColor.COLOR_LIGHT_GREEN).ofName("Azalea").build();
     public static final WoodType BLOSSOM = WoodType.builder("blossom", MODID).ofColor(MaterialColor.COLOR_RED).ofName("Blossom").build();
+    public static final WoodType BAMBOO = WoodType.builder("bamboo", MODID).ofColor(MaterialColor.COLOR_YELLOW).ofName("Bamboo").build();
 
     public static void setupWoodTypes() {
         registerSet(ANCIENT, () -> AncientWoodModule.woodSet);
         registerSet(AZALEA, () -> AzaleaWoodModule.woodSet);
         registerSet(BLOSSOM, () -> BlossomTreesModule.woodSet);
+        registerBamboo(BAMBOO, () -> BambooBackportModule.woodSet);
     }
 
     private static void registerSet(@Nonnull WoodType type, @Nonnull Supplier<WoodSetHandler.WoodSet> set) {
         WoodDataHelper.register(type, WoodData.of2(log(set), plank(set), slab(type), "quark:block/" + type.id + "_log", "quark:block/" + type.id + "_log_top", "quark:block/" + type.id + "_planks"));
+    }
+
+    private static void registerBamboo(@Nonnull WoodType type, @Nonnull Supplier<WoodSetHandler.WoodSet> set) {
+        WoodDataHelper.register(type, WoodData.of2(log(set), plank(set), slab(type), "quark:block/" + type.id + "_block","quark:block/" + type.id + "_block_top","quark:block/" + type.id + "_planks"));
     }
 
     private static Supplier<ItemLike> log(@Nonnull Supplier<WoodSetHandler.WoodSet> set) {

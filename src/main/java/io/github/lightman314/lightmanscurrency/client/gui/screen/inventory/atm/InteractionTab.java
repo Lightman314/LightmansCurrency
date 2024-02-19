@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyContainer;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
@@ -55,6 +55,6 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public IBankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }
 
 	@Override
-	public MoneyContainer getCoinAccess() { return this.screen.getMenu().getCoinInput(); }
+	public IMoneyViewer getCoinAccess() { return this.screen.getMenu().getCoinInputHandler(); }
 
 }

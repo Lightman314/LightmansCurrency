@@ -11,10 +11,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Mod.EventBusSubscriber
 public class EnchantmentEvents {
 
 	private static boolean canTick = false;
+
+	private static final Map<Integer,Thread> threadCache = new HashMap<>();
 
 	@SubscribeEvent
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -34,12 +39,21 @@ public class EnchantmentEvents {
 		if(!canTick || entity.level.isClientSide)
 			return;
 
-		if(entity instanceof Player player)
-			MoneyMendingEnchantment.runEntityTick(player);
+		//Place enchantment ticks on a different thread to avoid causing more lag than necessary
+		Thread latestThread = threadCache.get(entity.getId());
+		if(latestThread != null && latestThread.isAlive())
+			return;
 
-		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
-		if(walletHandler != null)
-			CoinMagnetEnchantment.runEntityTick(walletHandler, entity);
+		latestThread = new Thread(() -> {
+			if(entity instanceof Player player)
+				MoneyMendingEnchantment.runEntityTick(player);
+
+			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+			if(walletHandler != null)
+				CoinMagnetEnchantment.runEntityTick(walletHandler, entity);
+		});
+		threadCache.put(entity.getId(),latestThread);
+		latestThread.start();
 		
 	}
 	

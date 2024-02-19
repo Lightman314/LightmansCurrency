@@ -47,9 +47,7 @@ public class InventoryUtil {
 	{
 		Container copy = new SimpleContainer(inventory.getContainerSize());
 		for(int i = 0; i < inventory.getContainerSize(); i++)
-		{
 			copy.setItem(i, inventory.getItem(i).copy());
-		}
 		return copy;
 	}
 	
@@ -362,6 +360,8 @@ public class InventoryUtil {
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, inventoryStack.getMaxStackSize() - inventoryStack.getCount());
 				//Add the items to the stack
 				inventoryStack.grow(amountToPlace);
+				//Set the stack in the slot to trigger the markDirty code
+				inventory.setItem(i,inventoryStack);
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -604,8 +604,6 @@ public class InventoryUtil {
 
 	public static boolean ContainerMatches(@Nonnull Container container1, @Nonnull Container container2)
 	{
-		if(container1 == container2)
-			return true;
 		if(container1.getContainerSize() != container2.getContainerSize())
 			return false;
 		for(int i = 0; i < container1.getContainerSize(); ++i)

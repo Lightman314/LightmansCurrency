@@ -202,6 +202,7 @@
 	
 	"block.lightmanscurrency.shelf_quark_ancient": "Ancient Shelf",
 	"block.lightmanscurrency.shelf_quark_azalea": "Azalea Shelf",
+	"block.lightmanscurrency.shelf_quark_bamboo": "Bamboo Shelf",
 	"block.lightmanscurrency.shelf_quark_blossom": "Blossom Shelf",
 	
 	"block.lightmanscurrency.shelf_2x2_oak": "Oak 2x2 Shelf",
@@ -261,6 +262,7 @@
 	"block.lightmanscurrency.shelf_2x2_quark_ancient": "Ancient Shelf",
 	"block.lightmanscurrency.shelf_2x2_quark_azalea": "Azalea Shelf",
 	"block.lightmanscurrency.shelf_2x2_quark_blossom": "Blossom Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_bamboo": "Bamboo 2x2 Shelf",
 	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
 	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
@@ -326,6 +328,7 @@
 	"block.lightmanscurrency.card_display_quark_ancient": "Ancient Card Display",
 	"block.lightmanscurrency.card_display_quark_azalea": "Azalea Card Display",
 	"block.lightmanscurrency.card_display_quark_blossom": "Blossom Card Display",
+	"block.lightmanscurrency.card_display_quark_bamboo": "Bamboo Card Display",
    
     "block.lightmanscurrency.ticket_machine": "Ticket Station",
     "block.lightmanscurrency.paygate": "Paygate",
@@ -406,6 +409,7 @@
 	"block.lightmanscurrency.bookshelf_trader_quark_ancient": "Ancient Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_quark_azalea": "Azalea Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_quark_blossom": "Blossom Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_quark_bamboo": "Bamboo Bookshelf Trader",
 	
 	"block.lightmanscurrency.slot_machine": "Slot Machine",
 	
@@ -485,6 +489,7 @@
 	"block.lightmanscurrency.auction_stand_quark_ancient": "Ancient Auction Stand",
 	"block.lightmanscurrency.auction_stand_quark_azalea": "Azalea Auction Stand",
 	"block.lightmanscurrency.auction_stand_quark_blossom": "Blossom Auction Stand",
+	"block.lightmanscurrency.auction_stand_quark_bamboo": "Bamboo Auction Stand",
 	
     "block.lightmanscurrency.coin_chest": "Money Chest",
 	"block.lightmanscurrency.tax_block": "Tax Collector",

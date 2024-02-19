@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
@@ -161,10 +163,11 @@ public class LightmansCurrency {
 		//IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);
 
 		//Setup Money System
-		CoinAPI.Setup();
+		CoinAPI.API.Setup();
+		ATMAPI.Setup();
 		//Register built-in Currency Types
-		MoneyAPI.registerCurrencyType(CoinCurrencyType.INSTANCE);
-		MoneyAPI.registerCurrencyType(NullCurrencyType.INSTANCE);
+		MoneyAPI.API.RegisterCurrencyType(CoinCurrencyType.INSTANCE);
+		MoneyAPI.API.RegisterCurrencyType(NullCurrencyType.INSTANCE);
 
 		LightmansCurrencyPacketHandler.init();
 
@@ -267,6 +270,7 @@ public class LightmansCurrency {
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {
     	event.register(IWalletHandler.class);
+		event.register(IMoneyHandler.class);
     	event.register(IMoneyViewer.class);
     	event.register(ISpawnTracker.class);
     }
@@ -293,7 +297,7 @@ public class LightmansCurrency {
     {
 		if(player == null)
 			return ItemStack.EMPTY;
-    	return CoinAPI.getWalletStack(player);
+		return CoinAPI.API.getEquippedWallet(player);
     }
 
     public static void LogDebug(String message) { LOGGER.debug(message); }

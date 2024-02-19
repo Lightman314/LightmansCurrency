@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -19,7 +20,7 @@ public final class MoneyView {
     private MoneyView(Builder builder) {
         Map<String,MoneyValue> results = new HashMap<>();
         builder.values.forEach((name,list) -> {
-            if(list.size() > 0)
+            if(!list.isEmpty())
             {
                 MoneyValue firstVal = list.get(0);
                 MoneyValue sum = firstVal.getCurrency().sumValues(list);
@@ -91,20 +92,6 @@ public final class MoneyView {
         return this.getRandomValue().getText();
     }
 
-    @Nonnull
-    public MutableComponent getAllValueText() {
-        MutableComponent text = EasyText.empty();
-        for(MoneyValue value : this.values.values())
-        {
-            if(value.isEmpty())
-                continue;
-            if(!text.getString().isEmpty())
-                text.append(EasyText.translatable("gui.lightmanscurrency.trading.listseperator"));
-            text.append(value.getText());
-        }
-        return text;
-    }
-
     public static final class Builder
     {
 
@@ -112,12 +99,8 @@ public final class MoneyView {
 
         private Builder() {}
 
-        /**
-         * Adds the contents of the {@link MoneyStorage}.
-         */
         @Nonnull
-        public Builder merge(@Nonnull MoneyStorage storage) { this.add(storage.allValues()); return this; }
-
+        public Builder merge(@Nonnull IMoneyViewer storage) { this.add(storage.getStoredMoney().allValues()); return this; }
         @Nonnull
         public Builder merge(@Nonnull Builder values) { values.values.forEach((name,list) -> this.add(list)); return this; }
         @Nonnull

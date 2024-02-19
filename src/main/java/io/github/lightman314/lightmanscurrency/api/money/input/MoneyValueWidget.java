@@ -87,7 +87,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         Map<String,MoneyInputHandler> handlers = new HashMap<>();
-        for(CurrencyType type : MoneyAPI.getAllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
         {
             for(Object h : type.getInputHandlers(player))
             {

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.data.coin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
@@ -39,6 +40,26 @@ public class CoinEntry {
             return;
         }
         this.coreValue = value;
+    }
+
+    private boolean exchangeRatesSet = false;
+    private Pair<CoinEntry,Integer> lowerExchange = null;
+    @Nullable
+    public Pair<CoinEntry,Integer> getLowerExchange() { return this.lowerExchange; }
+    private Pair<CoinEntry,Integer> upperExchange = null;
+    @Nullable
+    public Pair<CoinEntry,Integer> getUpperExchange() { return this.upperExchange; }
+
+    public void defineExchanges(@Nullable Pair<CoinEntry,Integer> lowerExchange, @Nullable Pair<CoinEntry,Integer> upperExchange)
+    {
+        if(this.exchangeRatesSet)
+        {
+            LightmansCurrency.LogWarning("Attempted to define a coin entries exchange rates after they've already been defined.");
+            return;
+        }
+        this.lowerExchange = lowerExchange;
+        this.upperExchange = upperExchange;
+        this.exchangeRatesSet = true;
     }
 
     public int getExchangeRate() { return 0; }

@@ -49,7 +49,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	{
 		if(getCurrentCount() >= COIN_LIMIT)
 			return false;
-		if(!CoinAPI.isCoin(coin, false))
+		if(!CoinAPI.API.IsCoin(coin, false))
 			return false;
 		
 		boolean foundStack = false;
@@ -141,7 +141,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	//For reading/writing the storage when silk touched.
 	public void writeItemTag(ItemStack item)
 	{
-		if(this.storage.size() > 0)
+		if(!this.storage.isEmpty())
 			item.getOrCreateTag().put("JarData", this.writeStorage(new CompoundTag()));
 		this.writeSimpleItemTag(item);
 	}

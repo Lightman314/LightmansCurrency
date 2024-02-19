@@ -87,7 +87,7 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
             if(command != null && !command.isBlank())
             {
                 if(ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
-                    CoinAPI.SortCoins(be.getStorage());
+                    CoinAPI.API.SortCoinsByValue(be.getStorage());
             }
         }
     }

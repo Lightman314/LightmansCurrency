@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import net.minecraft.core.NonNullList;
@@ -18,9 +19,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
+
 public class CustomCreativeTab extends CreativeModeTab {
 
-	private final ItemSorter itemSorter = new ItemSorter();
+	private final ItemSorter itemSorter;
 	
 	Supplier<ItemStack> iconItem;
 
@@ -28,6 +31,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	{
 		super(label);
 		this.iconItem = iconItem;
+		this.itemSorter = new ItemSorter(label);
 	}
 
 	public static CustomCreativeTab build(String label, Supplier<RegistryObject<? extends ItemLike>> iconItem) { return new CustomCreativeTab(label, () -> new ItemStack(iconItem.get().get())); }
@@ -133,8 +137,10 @@ public class CustomCreativeTab extends CreativeModeTab {
 	
 	private static class ItemSorter implements Comparator<ItemStack>
 	{
-		
-		public ItemSorter() {}
+
+
+		private final String groupName;
+		public ItemSorter(@Nonnull String groupName) { this.groupName = groupName; }
 		
 		private ArrayList<Item> sortList = null;
 		
@@ -193,7 +199,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 			
 			if(this.sortList == null)
 			{
-				LightmansCurrency.LogWarning("No sortlist defined for this CurrencyGroup.");
+				LightmansCurrency.LogWarning("No sortlist defined for the " + EasyText.translatable(this.groupName).getString() + " Creative Group.");
 				return 0;
 			}
 			

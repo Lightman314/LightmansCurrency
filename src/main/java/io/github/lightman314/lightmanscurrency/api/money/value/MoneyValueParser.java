@@ -73,7 +73,7 @@ public abstract class MoneyValueParser {
             prefix = readStringUntil(inputReader,';');
         else
             prefix = null;
-        for(CurrencyType type : MoneyAPI.getAllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
             if(parser != null && parser.tryParse(prefix))
@@ -94,7 +94,7 @@ public abstract class MoneyValueParser {
 
     @Nonnull
     public static String writeParsable(@Nonnull MoneyValue value) {
-        for(CurrencyType type : MoneyAPI.getAllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
             if(parser != null)

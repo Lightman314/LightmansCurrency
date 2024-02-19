@@ -31,7 +31,7 @@ public class ATMData {
 		this.chain = chain;
 		
 		List<ATMExchangeButtonData> temp = new ArrayList<>();
-		JsonArray exchangeButtonDataList = GsonHelper.getAsJsonArray(jsonData,"ConversionButtons", GsonHelper.getAsJsonArray(jsonData,"ExchangeButtons"));
+		JsonArray exchangeButtonDataList = GsonHelper.getAsJsonArray(jsonData,"ExchangeButtons");
 		for(int i = 0; i < exchangeButtonDataList.size(); ++i)
 		{
 			try { temp.add(ATMExchangeButtonData.parse(exchangeButtonDataList.get(i).getAsJsonObject()));

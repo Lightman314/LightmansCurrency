@@ -56,7 +56,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		if(!level.isClientSide)
 		{
 			ItemStack coinStack = player.getItemInHand(hand);
-			if(!CoinAPI.isCoin(coinStack, false))
+			if(!CoinAPI.API.IsCoin(coinStack, false))
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);

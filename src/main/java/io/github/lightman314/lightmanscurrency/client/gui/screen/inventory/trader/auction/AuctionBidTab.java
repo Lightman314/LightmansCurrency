@@ -87,7 +87,7 @@ public class AuctionBidTab extends TraderClientTab {
 		{
 			MoneyValue oldBid = this.bidAmount.getCurrentValue();
 			MoneyValue minBid = this.getTrade().getMinNextBid();
-			if(!minBid.containsValue(oldBid))
+			if(!oldBid.containsValue(minBid))
 				this.bidAmount.changeValue(this.getTrade().getMinNextBid());
 			this.bidButton.active = this.menu.getContext(this.getAuctionHouse()).getAvailableFunds().containsValue(this.bidAmount.getCurrentValue());
 		}

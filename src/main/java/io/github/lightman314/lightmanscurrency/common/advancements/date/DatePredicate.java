@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nonnull;

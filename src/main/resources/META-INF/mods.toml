@@ -15,7 +15,7 @@ logoFile="lightman_icon.png"
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 authors="Lightman314. Textures & models made by beta50test & Lightman314."
-description="Adds a simple money & shop system to the game."
+description="Adds a simple item-based money & shop system to the game."
 
 [[dependencies.lightmanscurrency]]
     modId="forge" #mandatory

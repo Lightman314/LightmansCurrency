@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.NumberDisplay;
-import io.github.lightman314.lightmanscurrency.common.advancements.date.DatePredicate;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -30,12 +29,15 @@ public final class ChocolateEventCoins {
 
     private ChocolateEventCoins() {}
 
-    private static final DatePredicate christmasStart = new DatePredicate(12,1);
-    private static final DatePredicate christmasEnd = new DatePredicate(12,31);
-    private static final DatePredicate valentinesStart = new DatePredicate(2,13);
-    private static final DatePredicate valentinesEnd = new DatePredicate(2,15);
+    //Christmas event for all of december
+    public static final EventRange CHRISTMAS = EventRange.create(12,1,12,31);
+    //Valentine's event for the day before to the day after
+    public static final EventRange VALENTINES = EventRange.create(2,13,2,15);
 
-    public static boolean isEventActive() { return DatePredicate.isInRange(christmasStart,christmasEnd) || DatePredicate.isInRange(valentinesStart, valentinesEnd); }
+    public static boolean shouldModifyLoot() {
+        return LCConfig.COMMON.chocolateEventCoinLootDrops.get() &&
+                (CHRISTMAS.isActive() || VALENTINES.isActive());
+    }
 
     public static ChainData getChainData()
     {
@@ -67,7 +69,7 @@ public final class ChocolateEventCoins {
     {
 
         @Override
-        protected boolean isEnabled() { return isEventActive() && LCConfig.COMMON.chocolateEventCoins.get(); }
+        protected boolean isEnabled() { return shouldModifyLoot(); }
         @Override
         protected double getSuccessChance() { return LCConfig.COMMON.chocolateCoinDropRate.get(); }
         @Override

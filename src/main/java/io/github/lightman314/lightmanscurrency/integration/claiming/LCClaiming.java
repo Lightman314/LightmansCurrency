@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -115,8 +116,10 @@ public class LCClaiming {
                     hitLimit = true;
                     break;
                 }
-                if(!MoneyAPI.takeMoneyFromPlayer(player, price))
+                IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                if(!handler.extractMoney(price,true).isEmpty())
                     break;
+                handler.extractMoney(price,false);
             }
             if(boughtCount > 0)
             {
@@ -169,8 +172,10 @@ public class LCClaiming {
                     hitLimit = true;
                     break;
                 }
-                if(!MoneyAPI.takeMoneyFromPlayer(player, price))
+                IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                if(!handler.extractMoney(price,true).isEmpty())
                     break;
+                handler.extractMoney(price,false);
             }
             if(boughtCount > 0)
             {

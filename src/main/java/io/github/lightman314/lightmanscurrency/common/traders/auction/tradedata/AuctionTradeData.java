@@ -126,7 +126,7 @@ public class AuctionTradeData extends TradeData {
 	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
 	
 	/**
-	 * Used to createTrue an auction trade from persistent auction data
+	 * Used to create an auction trade from persistent auction data
 	 */
 	public AuctionTradeData(PersistentAuctionData data) {
 		super(false);
@@ -195,7 +195,7 @@ public class AuctionTradeData extends TradeData {
 	
 	public boolean validateBidAmount(@Nonnull MoneyValue amount) {
 		MoneyValue minAmount = this.getMinNextBid();
-		return minAmount.containsValue(amount);
+		return amount.containsValue(minAmount);
 	}
 	
 	public MoneyValue getMinNextBid() {
