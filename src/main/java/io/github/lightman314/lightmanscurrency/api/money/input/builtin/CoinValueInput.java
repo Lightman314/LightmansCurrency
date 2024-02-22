@@ -39,6 +39,8 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     {
         this.chain = chain;
         this.coinData = this.chain.getAllEntries(false, ChainData.SORT_LOWEST_VALUE_FIRST);
+        //Default to fully scrolled
+        this.scroll = this.getMaxScroll();
     }
 
     @Nonnull
@@ -110,9 +112,15 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         if(this.decreaseButtons == null || this.increaseButtons == null)
             return;
         if(this.buttonScrollLeft != null)
-            this.buttonScrollLeft.visible = this.isVisible() && this.scroll > 0;
+        {
+            this.buttonScrollLeft.visible = this.isVisible();
+            this.buttonScrollLeft.active = this.scroll > 0;
+        }
         if(this.buttonScrollRight != null)
-            this.buttonScrollRight.visible = this.isVisible() && this.scroll < this.getMaxScroll();
+        {
+            this.buttonScrollRight.visible = this.isVisible();
+            this.buttonScrollRight.active = this.scroll < this.getMaxScroll();
+        }
         for(int i = 0; i < this.decreaseButtons.size(); ++i)
         {
             this.decreaseButtons.get(i).visible = this.isVisible();
@@ -156,7 +164,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     public void setScroll(int newScroll) { this.scroll = newScroll; this.validateScroll(); }
 
     @Override
-    public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.coinData.size(), MAX_BUTTON_COUNT); }
+    public int getMaxScroll() { return IScrollable.calculateMaxScroll(MAX_BUTTON_COUNT,this.coinData.size()); }
 
     public void IncreaseButtonHit(EasyButton button)
     {

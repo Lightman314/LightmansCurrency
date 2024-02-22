@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -32,9 +31,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public Player getPlayer() { return this.player; }
 	
 	private final SimpleContainer coinInput = new SimpleContainer(9);
-	private final IMoneyHandler coinInputHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinInput,this.player);
+	private final IMoneyHandler moneyHandler = MoneyAPI.API.GetATMMoneyHandler(this.player, this.coinInput);
 	public SimpleContainer getCoinInput() { return this.coinInput; }
-	public IMoneyHandler getCoinInputHandler() { return this.coinInputHandler; }
+	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
 	
 	private MutableComponent transferMessage = null;
 	

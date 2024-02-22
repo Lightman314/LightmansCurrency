@@ -59,7 +59,7 @@ public class BankAPI {
         if(account == null)
             return;
 
-        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(coinInput, player);
+        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,coinInput);
         MoneyView valueOfContainer = handler.getStoredMoney();
         for(MoneyValue value : valueOfContainer.allValues())
         {
@@ -120,7 +120,7 @@ public class BankAPI {
             account.depositMoney(withdrawnAmount);
             return;
         }
-        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(coinOutput,player);
+        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,coinOutput);
         handler.insertMoney(withdrawnAmount,false);
         if(account instanceof BankAccount ba)
             ba.LogInteraction(player, withdrawnAmount, false);

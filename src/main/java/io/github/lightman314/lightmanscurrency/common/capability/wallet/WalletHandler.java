@@ -71,8 +71,9 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
     @Nullable
     private Container getWalletContainer()
     {
-        if(WalletItem.isWallet(this.walletItem))
-            return WalletItem.getWalletInventory(this.walletItem);
+        ItemStack w = this.getWallet();
+        if(WalletItem.isWallet(w))
+            return WalletItem.getWalletInventory(w);
         return null;
     }
 
@@ -202,18 +203,19 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     private void updateWalletContents(@Nonnull Container updatedContainer)
     {
-        if(WalletItem.getAutoExchange(this.walletItem))
+        ItemStack w = this.getWallet();
+        if(WalletItem.getAutoExchange(w))
         {
             CoinAPI.API.CoinExchangeAllUp(updatedContainer);
             CoinAPI.API.SortCoinsByValue(updatedContainer);
         }
-        WalletItem.putWalletInventory(this.walletItem, updatedContainer);
+        WalletItem.putWalletInventory(w, updatedContainer);
         WalletMenu.OnWalletUpdated(this.entity);
     }
 
     @Override
     public boolean isMoneyTypeValid(@Nonnull MoneyValue value) {
-        if(WalletItem.isWallet(this.walletItem))
+        if(WalletItem.isWallet(this.getWallet()))
             return value instanceof CoinValue;
         return false;
     }

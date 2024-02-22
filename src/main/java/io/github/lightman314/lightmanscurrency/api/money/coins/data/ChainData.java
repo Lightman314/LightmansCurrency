@@ -339,6 +339,19 @@ public class ChainData {
     }
 
     /**
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.EditableChainData EditableChainData} to copy the core chains data into an editable format.<br>
+     * Result is Immutable and cannot be edited or sorted.
+     */
+    @Nonnull
+    public List<CoinEntry> getCoreChain() { return this.coreChain; }
+    /**
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.EditableChainData EditableChainData} to copy the side chains data into an editable format.<br>
+     * Result is Immutable and cannot be edited or sorted.
+     */
+    @Nonnull
+    public List<List<CoinEntry>> getSideChains() { return this.sideChains; }
+
+    /**
      * Returns the internal value of the given item stack
      * Ignores the items count when doing this calculation.
      */

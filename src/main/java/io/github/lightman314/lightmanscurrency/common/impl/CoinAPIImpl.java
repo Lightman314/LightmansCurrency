@@ -15,7 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExcha
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.CoinDisplay;
+import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.money.coins.old_compat.OldCoinData;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
