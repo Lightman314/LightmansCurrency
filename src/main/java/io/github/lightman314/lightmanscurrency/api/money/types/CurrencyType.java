@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,11 +57,22 @@ public abstract class CurrencyType {
     @Nonnull
     protected abstract MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values);
 
+    /**
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetPlayersMoneyHandler(Player) MoneyAPI#GetPlayersMoneyHandler(Player)} to create the universal {@link io.github.lightman314.lightmanscurrency.common.impl.PlayerMoneyHolder PlayerMoneyHolder} for said player.<br>
+     * Method is {@link Nullable} and should return null if it is not possible for the player to <b>ever</b> handle money of this type.
+     */
     @Nullable
     public abstract IPlayerMoneyHandler createMoneyHandlerForPlayer(@Nonnull Player player);
 
+    /**
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetContainersMoneyHandler(Container, Consumer) MoneyAPI#GetContainersMoneyHandler(Container, Consumer)} to create a combined {@link IMoneyHandler} for said container using the provided {@link Consumer itemOverflowHandler} to handle any items that won't fit in the container.<br>
+     * Method is {@link Nullable} and should return null if it is not possible for money of this type to be stored or handled in an item form.
+     */
     @Nullable
     public abstract IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler);
+
+    @Nullable
+    public IMoneyHandler createMoneyHandlerForATM(@Nonnull Player player, @Nonnull Container container) { return createMoneyHandlerForContainer(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s)); }
 
     /**
      * Function to load a money value saved to NBT.

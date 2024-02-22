@@ -137,15 +137,24 @@ public abstract class MoneyAPI {
      * Uses the players inventory as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
      * @see #GetContainersMoneyHandler(Container, Consumer)
      */
+    @Nonnull
     public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Player player)  { return this.CreateContainersMoneyHandler(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s)); }
     /**
      * Creates a {@link IMoneyHandler} for the given container that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>
      * Uses the given overflow handler to avoid limiting transactions by container size.
      * @see #GetContainersMoneyHandler(Container, Consumer)
      */
+    @Nonnull
     public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) { return CreateContainersMoneyHandler(container, overflowHandler); }
 
     protected abstract IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler);
+
+    /**
+     * Creates a {@link IMoneyHandler} for the given ATM menu for depositing/withdrawing money from bank accounts.<br>
+     * Used by {@link io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI BankAPI}, {@link io.github.lightman314.lightmanscurrency.common.menus.ATMMenu ATMMenu}, and {@link io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu WalletBankMenu}
+     */
+    @Nonnull
+    public abstract IMoneyHandler GetATMMoneyHandler(@Nonnull Player player, @Nonnull Container container);
 
     /**
      * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#getStoredMoney()} instead.

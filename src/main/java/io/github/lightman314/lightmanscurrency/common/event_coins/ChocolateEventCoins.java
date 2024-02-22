@@ -61,8 +61,8 @@ public final class ChocolateEventCoins {
     }
     @SubscribeEvent
     public static void registerChain(@Nonnull ChainDataReloadedEvent.Pre event) {
-        if(LCConfig.COMMON.chocolateEventCoins.get())
-            event.addEntry(getChainData(),true);
+        if(LCConfig.COMMON.chocolateEventCoins.get() && !event.chainExists(CHAIN))
+            event.addEntry(getChainData());
     }
 
     private static class ChocolateLootModifier extends SimpleLootModifier

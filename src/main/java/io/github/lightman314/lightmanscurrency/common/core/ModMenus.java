@@ -66,6 +66,7 @@ public class ModMenus {
 
 		TAX_COLLECTOR = ModRegistries.MENUS.register("tax_collector", () -> CreateType((IContainerFactory<TaxCollectorMenu>)(id, inventory, data) -> new TaxCollectorMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
 
+		COIN_MANAGEMENT = ModRegistries.MENUS.register("coin_management", () -> CreateType((IContainerFactory<CoinManagementMenu>)(id,inventory,data) -> new CoinManagementMenu(id,inventory)));
 
 	}
 	
@@ -100,6 +101,8 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<CoinChestMenu>> COIN_CHEST;
 
 	public static final RegistryObject<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
+
+	public static final RegistryObject<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier); }
 

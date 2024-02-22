@@ -31,9 +31,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public Player getPlayer() { return this.player; }
 
 	private final SimpleContainer coinInput = new SimpleContainer(9);
-	private final IMoneyHandler coinInputHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinInput,this.player);
+	private final IMoneyHandler moneyHandler = MoneyAPI.API.GetATMMoneyHandler(this.player, this.coinInput);
 	public SimpleContainer getCoinInput() { return this.coinInput; }
-	public IMoneyHandler getCoinInputHandler() { return this.coinInputHandler; }
+	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
 	
 	private MutableComponent transferMessage = null;
 	

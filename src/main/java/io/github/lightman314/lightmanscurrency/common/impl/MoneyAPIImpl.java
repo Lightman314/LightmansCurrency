@@ -81,4 +81,16 @@ public final class MoneyAPIImpl extends MoneyAPI {
         return MoneyHandler.combine(handlers);
     }
 
+    @Nonnull
+    @Override
+    public IMoneyHandler GetATMMoneyHandler(@Nonnull Player player, @Nonnull Container container) {
+        List<IMoneyHandler> handlers = new ArrayList<>();
+        for(CurrencyType type : this.registeredCurrencyTypes.values())
+        {
+            IMoneyHandler h = type.createMoneyHandlerForATM(player,container);
+            if(h != null)
+                handlers.add(h);
+        }
+        return MoneyHandler.combine(handlers);
+    }
 }
