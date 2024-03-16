@@ -19,7 +19,7 @@ public class TicketSlot extends Slot{
 	public TicketSlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, LCTags.Items.TICKET); }
+	public boolean mayPlace(@NotNull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, LCTags.Items.TICKETS); }
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() { return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_TICKET_SLOT); }

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
@@ -8,20 +7,24 @@ import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerato
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
+import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
-import net.minecraft.ResourceLocationException;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMod;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMods;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public final class LCConfig {
 
@@ -189,16 +192,40 @@ public final class LCConfig {
         public final BooleanOption changeVanillaTrades = BooleanOption.createFalse();
         public final BooleanOption changeModdedTrades = BooleanOption.createFalse();
         public final BooleanOption changeWanderingTrades = BooleanOption.createFalse();
-        public final ItemOption defaultVillagerReplacementCoin = ItemOption.create(ModItems.COIN_EMERALD, false);
-        public final StringListOption villagerReplacementCoinOverrides = StringListOption.create(ImmutableList.of(
-                "minecraft:butcher-lightmanscurrency:coin_iron",
-                "minecraft:cartographer-lightmanscurrency:coin_iron",
-                "minecraft:farmer-lightmanscurrency:coin_iron",
-                "minecraft:fisherman-lightmanscurrency:coin_iron",
-                "minecraft:fletcher-lightmanscurrency:coin_copper",
-                "minecraft:leatherworker-lightmanscurrency:coin_iron",
-                "minecraft:mason-lightmanscurrency:coin_iron",
-                "minecraft:shepherd-lightmanscurrency:coin_iron"));
+        public final ConfiguredTradeModOption defaultEmeraldReplacementMod =
+                ConfiguredTradeMod.builder()
+                        .defaults(ModItems.COIN_EMERALD)
+                        .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_EMERALD)
+                        .buildOption();
+        public final VillagerTradeModsOption professionEmeraldReplacementOverrides = VillagerTradeMods.builder()
+                .forProfession(VillagerProfession.BUTCHER)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .forProfession(VillagerProfession.CARTOGRAPHER)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .forProfession(VillagerProfession.FARMER)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .forProfession(VillagerProfession.FISHERMAN)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                //Fletcher will cost iron, but pay copper because stick trades are OP
+                .forProfession(VillagerProfession.FLETCHER)
+                    .defaultCost(ModItems.COIN_IRON)
+                    .defaultResult(ModItems.COIN_COPPER)
+                    .costForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON)
+                    .resultForRegion(VillagerType.SNOW, ModItems.COIN_CHOCOLATE_COPPER).back()
+                .forProfession(VillagerProfession.LEATHERWORKER)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .forProfession(VillagerProfession.MASON)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .forProfession(VillagerProfession.SHEPHERD)
+                    .defaults(ModItems.COIN_IRON)
+                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .buildOption();
 
         //Loot Items
         public final ItemOption lootItem1 = ItemOption.create(ModItems.COIN_COPPER);
@@ -331,13 +358,21 @@ public final class LCConfig {
             builder.comment("Whether the wandering trader should have the emeralds from their trades replaced with the default replacement coin.")
                     .add("changeWanderingTrades", this.changeWanderingTrades);
 
-            builder.comment("The default coin to replace a trades emeralds with.")
-                    .add("defaultReplacementCoin", this.defaultVillagerReplacementCoin);
+            builder.comment("The default coin to replace a trades emeralds with.",
+                            "May seperate and define villager type specific entries by adding multiple items seperated by '-' with region")
+                    .add("defaultEmeraldReplacementItem", this.defaultEmeraldReplacementMod);
 
             builder.comment("List of replacement coin overrides.",
-                            "Each entry must be formatted as follows: \"mod:some_trader_type-lightmanscurrency:some_coin\"",
+                            "Each entry must be formatted as follows: \"mod:some_profession_type-SUB_ENTRY-SUB_ENTRY-...\"",
+                            "You may use \"minecraft:wandering_trader\" as a profession id to override the vanilla Wandering Trader",
+                            "",
+                            "Each sub-entry must be formatted as either of the following: \"r;minecraft:villager_type;ITEM_ENTRY\" to define an entry specific to an in-game region (villagers from `mincraft:snow` or `minecraft:desert` regions, etc.)",
+                            "with the exception of a single 'default' entry with no defined villager type/region \"...-ITEM_ENTRY-...\"",
+                            "",
+                            "Each item-entry is either 1 or 2 item ids (e.g. \"mod:coin_item\" or \"mod:coin_item_1;mod:coin_item_2\".",
+                            "When two are given, the first will replace the cost items (items the player must pay the villager) and the second will replace the result (items the player will be paid by the villager)",
                             "Every trader not on this list will use the default trader coin defined above.")
-                    .add("replacementCoinOverrides", this.villagerReplacementCoinOverrides);
+                    .add("professionEmeraldReplacementOverrides", this.professionEmeraldReplacementOverrides);
 
             builder.pop().pop();
 
@@ -429,50 +464,8 @@ public final class LCConfig {
 
         }
 
-        private final Map<String, Item> villagerCoinOverrideResults = new HashMap<>();
-
-        @Override
-        protected void afterReload() {
-            this.villagerCoinOverrideResults.clear();
-            List<String> overrides = this.villagerReplacementCoinOverrides.get();
-            for(int i = 0; i < overrides.size(); ++i)
-            {
-                try {
-                    String override = overrides.get(i);
-                    if(!override.contains("-"))
-                        throw new RuntimeException("Input doesn't have a '-' splitter.");
-                    String[] split = override.split("-");
-                    if(split.length != 2)
-                        throw new RuntimeException("Input has more than 1 '-' splitter.");
-
-                    ResourceLocation villagerType;
-                    try { villagerType = new ResourceLocation(split[0]);
-                    } catch(ResourceLocationException t) { throw new RuntimeException("Villager type is not a valid resource location.", t); }
-                    ResourceLocation itemType;
-                    try { itemType = new ResourceLocation(split[1]);
-                    } catch(ResourceLocationException t) { throw new RuntimeException("Item is not a valid resource location.", t); }
-
-                    Item item = ForgeRegistries.ITEMS.getValue(itemType);
-                    if(item == null || item == Items.AIR)
-                        throw new RuntimeException("Item '" + itemType + "' is air or is not a registered item.");
-
-                    if(this.villagerCoinOverrideResults.containsKey(villagerType.toString()))
-                        throw new RuntimeException("Villager Type '" + villagerType + "' already has an override. Cannot override it twice!");
-
-                    this.villagerCoinOverrideResults.put(villagerType.toString(), item);
-                    LightmansCurrency.LogInfo("Villager Replacement Coin Override loaded: " + villagerType + " -> " + itemType);
-
-                } catch(RuntimeException t) { LightmansCurrency.LogError("Error parsing villager emerald override input #" + (i + 1) + ".", t); }
-            }
-        }
-
         @Nonnull
-        public Item getEmeraldReplacementItem(@Nonnull String trader)
-        {
-            if(this.villagerCoinOverrideResults.containsKey(trader))
-                return this.villagerCoinOverrideResults.get(trader);
-            return this.defaultVillagerReplacementCoin.get();
-        }
+        public Supplier<VillagerTradeMod> getVillagerMod(@Nonnull String trader) { return () -> this.professionEmeraldReplacementOverrides.get().getModFor(trader); }
 
     }
 
@@ -484,6 +477,7 @@ public final class LCConfig {
         public final IntOption notificationLimit = IntOption.create(500, 0);
 
         public final BooleanOption safelyEjectMachineContents = BooleanOption.createTrue();
+        public final BooleanOption anarchyMode = BooleanOption.createFalse();
 
         //Coin Minting/Melting
         public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
@@ -523,6 +517,7 @@ public final class LCConfig {
         public final IntOption coinChestMagnetRange4 = IntOption.create(10,4,50);
 
         //Enchantment Settings
+        public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
         public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
         public final IntOption coinMagnetLeveledRange = IntOption.create(2,1,50);
@@ -532,6 +527,11 @@ public final class LCConfig {
         public final BooleanOption auctionHouseOnTerminal = BooleanOption.createTrue();
         public final IntOption auctionHouseDurationMin = IntOption.create(0,0);
         public final IntOption auctionHouseDurationMax = IntOption.create(30,1);
+
+        //Bank Account Settings
+        public final IntOption bankAccountInterestRate = IntOption.create(0,0,100);
+        public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
+        public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
 
         //Terminal Options
         public final BooleanOption moveUnnamedTradersToBottom = BooleanOption.createFalse();
@@ -581,9 +581,16 @@ public final class LCConfig {
 
             builder.comment("Machine Protection Settings").push("machine_protection")
                     .comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
-                            "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.")
-                    .add("safeEjection", this.safelyEjectMachineContents)
-                    .pop();
+                            "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.",
+                            "Value ignored if anarchyMode is enabled!")
+                    .add("safeEjection", this.safelyEjectMachineContents);
+
+
+            builder.comment("Whether block break protection will be disabled completely.",
+                    "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.")
+                            .add("anarchyMode", this.anarchyMode);
+
+            builder.pop();
 
             builder.comment("Coin Mint Settings").push("coin_mint");
 
@@ -673,6 +680,11 @@ public final class LCConfig {
 
             builder.comment("Enchantment Settings").push("enchantments");
 
+            builder.comment("The delay (in ticks) between Money Mending & Coin Magnet ticks.",
+                    "Increase if my enchantments are causing extreme lag.",
+                    "Note: 20 ticks = 1s")
+                            .add("tickDelay", this.enchantmentTickDelay);
+
             builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
                     .add("moneyMendingRepairCost", this.moneyMendingRepairCost);
 
@@ -700,6 +712,30 @@ public final class LCConfig {
 
             builder.comment("The maxumim number of day an auction can have its duration set to.")
                     .add("maximumDuration", this.auctionHouseDurationMax);
+
+            builder.pop();
+
+            builder.comment("Bank Account Settings").push("bank_accounts");
+
+            builder.comment("The interest rate that bank accounts will earn just by existing.",
+                        "Setting to 0 will disable interesting and all interest-related ticks from happening.")
+                    .add("interestRate", this.bankAccountInterestRate);
+
+            builder.comment("The number of minecraft ticks that will pass before interest is applied.",
+                            "Helpful Notes:",
+                            "1s = 20 ticks",
+                            "1m = 1200 ticks",
+                            "1h = 72000 ticks",
+                            "1 day = 1728000 ticks",
+                            "1 week = 12096000 ticks",
+                            "30 days = 51840000 ticks",
+                            "365 days = 630720000 ticks")
+                    .add("interestDelay", this.bankAccountInterestTime);
+
+            builder.comment("A list of upper interest limits.",
+                            "Example:",
+                            "Adding \"coin;1-lightmanscurrency:coin_netherite\" to this list will make it so that players will get no more than 1 netherite coin worth of interest even if they would normally get more.")
+                    .add("interestUpperLimits", this.bankAccountInterestLimits);
 
             builder.pop();
 

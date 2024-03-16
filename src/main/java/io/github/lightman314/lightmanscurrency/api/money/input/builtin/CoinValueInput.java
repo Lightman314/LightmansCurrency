@@ -38,7 +38,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     public CoinValueInput(@Nonnull ChainData chain)
     {
         this.chain = chain;
-        this.coinData = this.chain.getAllEntries(false, ChainData.SORT_LOWEST_VALUE_FIRST);
+        this.coinData = this.chain.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
         //Default to fully scrolled
         this.scroll = this.getMaxScroll();
     }
@@ -136,7 +136,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         }
     }
 
-    private int getQuantityOfCoin(@Nonnull CoinEntry coin)
+    private long getQuantityOfCoin(@Nonnull CoinEntry coin)
     {
         MoneyValue currentValue = this.currentValue();
         if(currentValue instanceof CoinValue coinValue)

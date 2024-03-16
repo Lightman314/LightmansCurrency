@@ -48,11 +48,11 @@ public class CoinPriceEntry extends DisplayEntry {
                 int left = this.getTopLeft(x + pos.xOffset(), pos.width());
                 int top = this.getTopLeft(y + pos.yOffset(), pos.height());
                 ItemStack stack = new ItemStack(entries.get(i).coin);
-                stack.setCount(entries.get(i).amount);
+                stack.setCount((int)entries.get(i).amount);
                 gui.renderItem(stack, left, top);
             }
         }
-        else if(entries.size() > 0)
+        else if(!entries.isEmpty())
         {
             int spacing = (area.width() - 16) / entries.size();
             int top = this.getTopLeft(y + area.yOffset(), area.height());
@@ -61,7 +61,7 @@ public class CoinPriceEntry extends DisplayEntry {
             for(int i = entries.size() - 1; i >= 0; --i)
             {
                 ItemStack stack = new ItemStack(entries.get(i).coin);
-                stack.setCount(entries.get(i).amount);
+                stack.setCount((int)entries.get(i).amount);
                 gui.renderItem(stack, left, top);
                 left -= spacing;
             }

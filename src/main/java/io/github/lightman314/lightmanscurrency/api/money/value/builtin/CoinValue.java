@@ -182,11 +182,18 @@ public final class CoinValue extends MoneyValue
 
 	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber)
 	{
+		//LightmansCurrency.LogDebug("Generating Coin Value from '" + chain + "' with a value of " + valueNumber);
 		if(valueNumber <= 0)
+		{
+			//LightmansCurrency.LogDebug("Value was <= 0. Returning empty.");
 			return MoneyValue.empty();
+		}
 		ChainData chainData = CoinAPI.API.ChainData(chain);
 		if(chainData == null)
+		{
+			//LightmansCurrency.LogDebug("Chain does not exist. Returning empty.");
 			return MoneyValue.empty();
+		}
 		long pendingValue = valueNumber;
 		List<CoinEntry> entries = chainData.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
 		List<CoinValuePair> pairList = new ArrayList<>();
@@ -195,10 +202,15 @@ public final class CoinValue extends MoneyValue
 			long entryValue = entry.getCoreValue();
 			if(pendingValue >= entryValue && entryValue != 0)
 			{
-				int thisCount = (int)(pendingValue / entryValue);
+				//LightmansCurrency.LogDebug("Comparing pending value of " + pendingValue + " to the value of " + new ItemStack(entry.getCoin()).getHoverName().getString() + " (" + entryValue + ")");
+				long thisCount = pendingValue / entryValue;
 				pendingValue = (pendingValue % entryValue);
 				if(thisCount > 0)
-					pairList.add(new CoinValuePair(entry.getCoin(), thisCount));
+				{
+					if(thisCount >= Integer.MAX_VALUE)
+						LightmansCurrency.LogWarning("Value count of " + new ItemStack(entry.getCoin()).getHoverName().getString() + " is greater than the maximum integer value!");
+					pairList.add(new CoinValuePair(entry.getCoin(), (int)thisCount));
+				}
 				if(pendingValue <= 0)
 					break;
 			}
@@ -370,24 +382,33 @@ public final class CoinValue extends MoneyValue
 	public List<ItemStack> getAsItemList() {
 		List<ItemStack> items = new ArrayList<>();
 		for(CoinValuePair entry : this.coinValues)
-			items.add(new ItemStack(entry.coin, entry.amount));
+			items.addAll(getStacks(entry,false));
 		return items;
+	}
+
+	private static List<ItemStack> getStacks(@Nonnull CoinValuePair entry, boolean limitToMaxStackSize)
+	{
+		List<ItemStack> result = new ArrayList<>();
+		int max = limitToMaxStackSize ? new ItemStack(entry.coin).getMaxStackSize() : Integer.MAX_VALUE;
+		long temp = entry.amount;
+		while(temp > max)
+		{
+			result.add(new ItemStack(entry.coin,max));
+			temp -= max;
+		}
+		if(temp > 0)
+			result.add(new ItemStack(entry.coin,(int)temp));
+		return result;
 	}
 
 	public List<ItemStack> getAsSeperatedItemList() {
 		List<ItemStack> items = new ArrayList<>();
 		for(CoinValuePair entry : this.coinValues)
-		{
-			ItemStack stack = entry.asStack();
-			while(stack.getCount() > stack.getMaxStackSize())
-				items.add(stack.split(stack.getMaxStackSize()));
-			if(!stack.isEmpty())
-				items.add(stack);
-		}
+			items.addAll(getStacks(entry,true));
 		return items;
 	}
 	
-	public int getEntry(Item coinItem)
+	public long getEntry(Item coinItem)
 	{
 		for(CoinValuePair pair : this.coinValues)
 		{

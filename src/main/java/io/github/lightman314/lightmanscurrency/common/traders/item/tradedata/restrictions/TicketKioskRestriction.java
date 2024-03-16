@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,7 +39,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return true;
-		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && itemStack.getItem() != ModItems.TICKET.get();
+		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(itemStack);
 	}
 	
 	@Override
@@ -48,7 +47,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return TicketItem.CreateTicket(itemStack);
-		else if(InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && itemStack.getItem() != ModItems.TICKET.get())
+		else if(InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(itemStack))
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
@@ -57,8 +56,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	@Override
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
-		Item item = itemStack.getItem();
-		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && item != ModItems.TICKET.get() && item != ModItems.TICKET_MASTER.get();
+		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKETS);
 	}
 	
 	@Override
@@ -74,7 +72,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		for(ItemStack sellItem : Lists.newArrayList(trade.getSellItem(0), trade.getSellItem(1))) {
 			//Always add item to the ticket count, even if it's not a ticket, as the non-ticket sell item will still subtract from the available printing materials.
 			ticketCount += sellItem.getCount();
-			if(sellItem.getItem() == ModItems.TICKET.get())
+			if(TicketItem.isTicket(sellItem))
 				foundTicket = true;
 			else
 				minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
@@ -97,7 +95,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		List<ItemStack> ignoreIfPossible = new ArrayList<>();
 		for(ItemStack sellItem : soldItems)
 		{
-			if(sellItem.getItem() == ModItems.TICKET.get())
+			if(TicketItem.isTicket(sellItem))
 				tickets.add(sellItem);
 			else
 			{

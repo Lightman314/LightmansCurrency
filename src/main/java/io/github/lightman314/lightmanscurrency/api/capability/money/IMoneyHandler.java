@@ -16,7 +16,8 @@ public interface IMoneyHandler extends IMoneyViewer {
      * Attempts to insert money into the money handler.
      * @param insertAmount The {@link MoneyValue} to insert into this money handler.
      * @param simulation Whether this is a simulation. When <code>true</code> no money will actually be stored.
-     * @return The {@link MoneyValue} that could <b>not</b> be inserted. If nothing was inserted, it will match the <code>insertAmount</code> input.
+     * @return The {@link MoneyValue} that could <b>not</b> be inserted. If nothing was inserted, it will match the <code>insertAmount</code> input.<br>
+     * If the full amount was inserted, the result of {@link MoneyValue#isEmpty()} will be <code>true</code>.
      */
     @Nonnull
     MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation);
@@ -25,7 +26,8 @@ public interface IMoneyHandler extends IMoneyViewer {
      * Attempts to take money from the money handler.
      * @param extractAmount The {@link MoneyValue} to take from this money handler.
      * @param simulation Whether this is a simulation. When <code>true</code> no money will actually be extracted.
-     * @return The {@link MoneyValue} that could <b>not</b> be extracted. If nothing was extracted, it will match the <code>extractAmount</code> input.
+     * @return The {@link MoneyValue} that could <b>not</b> be extracted. If nothing was extracted, it will match the <code>extractAmount</code> input.<br>
+     * If the full amount was extracted, the result of {@link MoneyValue#isEmpty()} will be <code>true</code>.
      */
     @Nonnull
     MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation);

@@ -63,14 +63,14 @@ public class CoinDisplay extends ValueDisplayData {
     @Override
     public MutableComponent formatValue(@Nonnull CoinValue value, @Nonnull MutableComponent emptyText)
     {
-        if(value.getEntries().size() == 0)
+        if(value.getEntries().isEmpty())
             return emptyText;
         MutableComponent result = EasyText.empty();
         for(CoinValuePair pair : value.getEntries())
         {
-            int amount = pair.amount;
+            long amount = pair.amount;
             ItemData data = this.getDataForCoin(this.getParent().findEntry(pair.coin));
-            result.append(EasyText.literal(Integer.toString(amount))).append(data.getInitial());
+            result.append(EasyText.literal(Long.toString(amount))).append(data.getInitial());
         }
         return result;
     }
@@ -153,7 +153,7 @@ public class CoinDisplay extends ValueDisplayData {
         {
             return Objects.requireNonNullElseGet(this.initial, () -> {
                 String name = new ItemStack(this.coin).getHoverName().getString();
-                if(name.length() > 0)
+                if(!name.isEmpty())
                     return EasyText.literal(name.substring(0,1).toLowerCase());
                 return EasyText.literal("X");
             });

@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolde
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
@@ -185,5 +186,30 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 
 	@Override
 	public Component getTooltipTitle() { return EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.bank",this.getName()); }
+
+	@Override
+	public void applyInterest(int interestRate, @Nonnull List<MoneyValue> limits) {
+		for(MoneyValue value : this.coinStorage.allValues())
+		{
+			MoneyValue interest = value.percentageOfValue(interestRate);
+			if(!interest.isEmpty())
+			{
+				//Check for limits
+				for(MoneyValue limit : limits)
+				{
+					if(!limit.isEmpty() && limit.sameType(interest))
+					{
+						if(interest.containsValue(limit))
+							interest = limit;
+					}
+				}
+				if(!interest.isEmpty())
+				{
+					this.depositMoney(interest);
+					this.pushNotification(BankInterestNotification.create(this.getName(), interest));
+				}
+			}
+		}
+	}
 
 }

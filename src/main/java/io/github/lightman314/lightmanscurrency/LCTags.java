@@ -62,8 +62,19 @@ public class LCTags {
         public static final TagKey<Item> COIN_JAR_ALL = tag("coin_jar/all");
 
         //Ticket Tags
-        public static final TagKey<Item> TICKET = tag("ticket");
+        /**
+         * Tag for all ticket items regardless of their material or type<br>
+         * Type being ticket/pass/master ticket<br>
+         * Material being paper/gold, etc.
+         */
+        public static final TagKey<Item> TICKETS = tag("tickets");
+        public static final TagKey<Item> TICKETS_TICKET = tag("tickets/ticket");
+        public static final TagKey<Item> TICKETS_PASS = tag("tickets/pass");
+        public static final TagKey<Item> TICKETS_MASTER = tag("tickets/master");
+        //Ticket Materials
         public static final TagKey<Item> TICKET_MATERIAL = tag("ticket_material");
+        public static final TagKey<Item> TICKET_MATERIAL_PAPER = tag("ticket_material/paper");
+        public static final TagKey<Item> TICKET_MATERIAL_GOLD = tag("ticket_material/gold");
 
 
         //Tradable tags

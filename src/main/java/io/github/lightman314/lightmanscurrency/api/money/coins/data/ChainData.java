@@ -45,8 +45,8 @@ import java.util.*;
 
 public class ChainData {
 
-    public static final Comparator<CoinEntry> SORT_HIGHEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getCoreValue);
-    public static final Comparator<CoinEntry> SORT_LOWEST_VALUE_FIRST = (a,b) -> Long.compare(b.getCoreValue(),a.getCoreValue());
+    public static final Comparator<CoinEntry> SORT_HIGHEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getCoreValue).reversed();
+    public static final Comparator<CoinEntry> SORT_LOWEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getCoreValue);
 
     public final boolean isEvent;
     public final String chain;
@@ -400,7 +400,7 @@ public class ChainData {
                 Pair<CoinEntry,Integer> up = null;
                 if(i < sideChain.size() - 1)
                 {
-                    CoinEntry nextEntry = this.coreChain.get(i + 1);
+                    CoinEntry nextEntry = sideChain.get(i + 1);
                     up = Pair.of(nextEntry, nextEntry.getExchangeRate());
                 }
                 entry.defineExchanges(down,up);

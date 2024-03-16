@@ -158,7 +158,7 @@ public abstract class ConfigFile {
 
     private boolean reloading = false;
     private boolean loaded = false;
-    public final boolean isLoaded() { return this.loaded; }
+    public boolean isLoaded() { return this.loaded; }
 
     public final void reload()
     {

@@ -23,4 +23,6 @@ public class LCUpgradeSmithingTemplateItem extends Item {
         tooltip.add(this.tooltip);
     }
 
+
+
 }

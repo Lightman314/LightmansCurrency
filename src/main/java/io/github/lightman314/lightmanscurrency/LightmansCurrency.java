@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancement
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
 import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.OwnableBlockEjectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -203,8 +204,10 @@ public class LightmansCurrency {
 		NotificationAPI.registerNotification(DepositWithdrawNotification.TRADER_TYPE);
 		NotificationAPI.registerNotification(DepositWithdrawNotification.SERVER_TYPE);
 		NotificationAPI.registerNotification(BankTransferNotification.TYPE);
+		NotificationAPI.registerNotification(BankInterestNotification.TYPE);
 		NotificationAPI.registerNotification(TaxesCollectedNotification.TYPE);
 		NotificationAPI.registerNotification(TaxesPaidNotification.TYPE);
+		NotificationAPI.registerNotification(OwnableBlockEjectedNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
 		NotificationAPI.registerCategory(NotificationCategory.GENERAL_TYPE);
@@ -222,8 +225,8 @@ public class LightmansCurrency {
 		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
 
 		//Register Bank Account Reference Types
-		BankAPI.registerType(PlayerBankReference.TYPE);
-		BankAPI.registerType(TeamBankReference.TYPE);
+		BankAPI.API.RegisterReferenceType(PlayerBankReference.TYPE);
+		BankAPI.API.RegisterReferenceType(TeamBankReference.TYPE);
 
 		//Register Menu Validator Types
 		MenuValidatorType.register(SimpleValidator.TYPE);

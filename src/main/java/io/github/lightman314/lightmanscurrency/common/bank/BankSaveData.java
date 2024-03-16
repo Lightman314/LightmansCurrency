@@ -35,6 +35,7 @@ public class BankSaveData extends SavedData {
 
 	
 	private final Map<UUID, Pair<BankAccount,BankReference>> playerBankData = new HashMap<>();
+	private int interestTick = 0;
 	
 	private BankSaveData() {}
 	private BankSaveData(CompoundTag compound) {
@@ -48,6 +49,8 @@ public class BankSaveData extends SavedData {
 			BankReference lastSelected = BankReference.load(tag.getCompound("LastSelected"));
 			playerBankData.put(player, Pair.of(bankAccount, lastSelected));
 		}
+		if(compound.contains("InterestTick"))
+			this.interestTick = compound.getInt("InterestTick");
 	}
 	
 	@Nonnull
@@ -62,6 +65,8 @@ public class BankSaveData extends SavedData {
 			bankData.add(tag);
 		});
 		compound.put("PlayerBankData", bankData);
+
+		compound.putInt("InterestTick", this.interestTick);
 		
 		return compound;
 	}
@@ -71,7 +76,7 @@ public class BankSaveData extends SavedData {
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
 			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable ignored) {  }
 		return bankAccount;
 	}
 	
@@ -80,7 +85,7 @@ public class BankSaveData extends SavedData {
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
 			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable ignored) { }
 		return bankAccount;
 	}
 	
@@ -95,11 +100,16 @@ public class BankSaveData extends SavedData {
 		return null;
 	}
 	
-	public static List<BankReference> GetPlayerBankAccounts() {
+	public static List<BankReference> GetPlayerBankAccounts(boolean isClient) {
+		if(isClient)
+			return ClientBankData.GetPlayerBankAccounts();
 		List<BankReference> results = new ArrayList<>();
 		BankSaveData bsd = get();
 		if(bsd != null)
-			bsd.playerBankData.forEach((player,data) -> results.add(PlayerBankReference.of(player)));
+		{
+			for(UUID player : bsd.playerBankData.keySet())
+				results.add(PlayerBankReference.of(player));
+		}
 		return results;
 	}
 	
@@ -222,6 +232,28 @@ public class BankSaveData extends SavedData {
 		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());
 		new SPacketSyncSelectedBankAccount(selectedAccount).sendToTarget(target);
 		
+	}
+
+	public static int InterestTick()
+	{
+		BankSaveData bsd = get();
+		if(bsd != null)
+		{
+			bsd.interestTick++;
+			bsd.setDirty();
+			return bsd.interestTick;
+		}
+		return 0;
+	}
+
+	public static void ResetInterestTick()
+	{
+		BankSaveData bsd = get();
+		if(bsd != null)
+		{
+			bsd.interestTick = 0;
+			bsd.setDirty();
+		}
 	}
 	
 }

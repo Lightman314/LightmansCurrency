@@ -57,7 +57,7 @@ public class TraderSaveData extends SavedData {
 	
 	public static final String PERSISTENT_TRADER_SECTION = "Traders";
 	public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
-	
+
 	private void validateAuctionHouse() {
 		if(!LCConfig.SERVER.auctionHouseEnabled.get())
 		{
@@ -85,7 +85,8 @@ public class TraderSaveData extends SavedData {
 			this.AddTraderInternal(traderID, ah);
 		}
 	}
-	
+
+	private int cleanTick = 0;
 	private long nextID = 0;
 	private long getNextID() {
 		long id = nextID;
@@ -569,7 +570,7 @@ public class TraderSaveData extends SavedData {
 		if(isClient)
 		{
 			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t.getPersistentID().equals(persistentTraderID)).toList();
-			if(validTraders.size() > 0)
+			if(!validTraders.isEmpty())
 				return validTraders.get(0);
 		}
 		else
@@ -585,7 +586,7 @@ public class TraderSaveData extends SavedData {
 		if(isClient)
 		{
 			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
-			if(validTraders.size() > 0)
+			if(!validTraders.isEmpty())
 				return validTraders.get(0);
 		}
 		else
@@ -594,13 +595,13 @@ public class TraderSaveData extends SavedData {
 			if(tsd != null)
 			{
 				List<TraderData> validTraders = tsd.traderData.values().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
-				if(validTraders.size() > 0)
+				if(!validTraders.isEmpty())
 					return validTraders.get(0);
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Clean up invalid traders
 	 */
@@ -616,29 +617,28 @@ public class TraderSaveData extends SavedData {
 			TraderSaveData tsd = get();
 			if(tsd != null)
 			{
-				if(server.getTickCount() % 1200 == 0)
+				if(tsd.cleanTick++ >= 1200 && event.haveTime())
 				{
+					tsd.cleanTick = 0;
 					tsd.traderData.values().removeIf(traderData -> {
 						if(!traderData.isPersistent() && traderData.shouldRemove(server))
 						{
 							if(traderData instanceof IEasyTickable t)
 								tsd.tickers.remove(t);
-							if(LCConfig.SERVER.safelyEjectMachineContents.get())
-							{
-								try {
-									Level level = server.getLevel(traderData.getLevel());
-									BlockPos pos = traderData.getPos();
-									EjectionData e = EjectionData.create(level, pos, null, traderData, false);
-									EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
-								} catch(Throwable t) { t.printStackTrace(); }
-							}
+							tsd.traderData.remove(traderData.getID());
+							try {
+								Level level = server.getLevel(traderData.getLevel());
+								BlockPos pos = traderData.getPos();
+								EjectionData e = EjectionData.create(level, pos, null, traderData, false);
+								EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
+							} catch(Throwable t) { LightmansCurrency.LogError("Error deleting missing trader.",t); }
 							new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 							return true;
 						}
 						return false;
 					});
 				}
-				if(server.getTickCount() % 20 == 0 && tsd.persistentAuctionData.size() > 0)
+				if(server.getTickCount() % 20 == 0 && !tsd.persistentAuctionData.isEmpty())
 				{
 					List<TraderData> traders = tsd.traderData.values().stream().toList();
 					AuctionHouseTrader ah = null;

@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
@@ -179,16 +180,17 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 					TraderData trader = traderSource.getTraderData();
 					if(trader != null)
 					{
-						LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
-						LightmansCurrency.LogError("Activating emergency eject protocol.");
-						
+						if(!LCConfig.SERVER.anarchyMode.get())
+						{
+							LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
+							LightmansCurrency.LogError("Activating emergency eject protocol.");
+						}
+
 						EjectionData data = EjectionData.create(level, pos, state, trader);
 						EjectionSaveData.HandleEjectionData(level, pos, data);
 					}
 					//Remove the rest of the multi-block structure.
-					try {
-						this.onInvalidRemoval(state, level, pos, trader);
-					} catch(Throwable t) { t.printStackTrace(); }
+					this.onInvalidRemoval(state, level, pos, trader);
 				}
 				else
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");

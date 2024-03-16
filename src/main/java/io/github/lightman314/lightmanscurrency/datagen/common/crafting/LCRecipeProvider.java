@@ -123,6 +123,13 @@ public class LCRecipeProvider extends RecipeProvider {
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_EMERALD, ModBlocks.COINPILE_EMERALD, ModBlocks.COINBLOCK_EMERALD);
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_DIAMOND, ModBlocks.COINPILE_DIAMOND, ModBlocks.COINBLOCK_DIAMOND);
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_NETHERITE, ModBlocks.COINBLOCK_NETHERITE);
+        //Chocolate Coin Recipes
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_COPPER, ModBlocks.COINPILE_CHOCOLATE_COPPER, ModBlocks.COINBLOCK_CHOCOLATE_COPPER,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_IRON, ModBlocks.COINPILE_CHOCOLATE_IRON, ModBlocks.COINBLOCK_CHOCOLATE_IRON,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_GOLD, ModBlocks.COINPILE_CHOCOLATE_GOLD, ModBlocks.COINBLOCK_CHOCOLATE_GOLD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_EMERALD, ModBlocks.COINPILE_CHOCOLATE_EMERALD, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_DIAMOND, ModBlocks.COINPILE_CHOCOLATE_DIAMOND, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_NETHERITE, ModBlocks.COINPILE_CHOCOLATE_NETHERITE, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
 
         //Utility Blocks
         //Coin Mint
@@ -141,6 +148,7 @@ public class LCRecipeProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TICKET_STATION.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("ticket_trader", LazyTrigger(ModBlocks.TICKET_KIOSK))
+                .unlockedBy("ticket", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .pattern("igi")
                 .pattern("igi")
@@ -159,7 +167,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("ede")
                 .pattern("iii")
                 .define('i', Tags.Items.INGOTS_IRON)
-                .define('e', Items.ENDER_PEARL)
+                .define('e', Tags.Items.ENDER_PEARLS)
                 .define('d', Items.DROPPER)
                 .save(consumer, ItemID(ModBlocks.CASH_REGISTER));
 
@@ -462,7 +470,8 @@ public class LCRecipeProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.PAYGATE.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("trader", TraderKnowledge())
-                .unlockedBy("ticket", LazyTrigger(LCTags.Items.TICKET))
+                .unlockedBy("ticket", LazyTrigger(LCTags.Items.TICKETS))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .pattern("iri")
                 .pattern("ixi")
                 .pattern("iti")
@@ -696,7 +705,7 @@ public class LCRecipeProvider extends RecipeProvider {
         conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
-                Ingredient.of(Items.ENDER_PEARL),
+                Ingredient.of(Tags.Items.ENDER_PEARLS),
                 Ingredient.of(Tags.Items.INGOTS_COPPER),
                 RecipeCategory.MISC,
                 ModItems.COIN_CHEST_MAGNET_UPGRADE_1.get())
@@ -775,22 +784,28 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('n', Tags.Items.INGOTS_NETHERITE)
                 .define('x', ModItems.TRADING_CORE.get())
                 .define('h', Items.HOPPER)
-                .define('e', Items.ENDER_PEARL)
+                .define('e', Tags.Items.ENDER_PEARLS)
                 .save(conditional::addRecipe);
         conditional.generateAdvancement(ItemID(ModBlocks.TAX_COLLECTOR).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_COLLECTOR));
 
         //2.2.0.0
         //Ticket Station crafting as an actual recipe
-        MasterTicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL)
+        MasterTicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .withResult(ModItems.TICKET_MASTER)
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .save(consumer, ItemID("ticket_station/", ModItems.TICKET_MASTER));
-        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL, ModItems.TICKET.get())
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER, ModItems.TICKET.get())
+                .withMasterTicket(ModItems.TICKET_MASTER.get())
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .save(consumer, ItemID("ticket_station/", ModItems.TICKET));
-        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL, ModItems.TICKET_PASS.get())
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER, ModItems.TICKET_PASS.get())
+                .withMasterTicket(ModItems.TICKET_MASTER.get())
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .save(consumer, ItemID("ticket_station/", ModItems.TICKET_PASS));
 
@@ -853,34 +868,35 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID(ItemPath(item1) + "_swap"));
     }
 
-    private static void GenerateCoinBlockRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, RegistryObject<? extends ItemLike> coinPile, RegistryObject<? extends ItemLike> coinBlock)
+    private static void GenerateCoinBlockRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, RegistryObject<? extends ItemLike> coinPile, RegistryObject<? extends ItemLike> coinBlock) { GenerateCoinBlockRecipes(consumer,coin,coinPile,coinBlock,"",MoneyKnowledge()); }
+    private static void GenerateCoinBlockRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, RegistryObject<? extends ItemLike> coinPile, RegistryObject<? extends ItemLike> coinBlock, @Nonnull String prefix, @Nonnull CriterionTriggerInstance moneyKnowledge)
     {
         //Coin -> Pile
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, coinPile.get())
-                .group("coin_pile_from_coin")
-                .unlockedBy("money", MoneyKnowledge())
+                .group(prefix + "coin_pile_from_coin")
+                .unlockedBy("money", moneyKnowledge)
                 .unlockedBy("coin", LazyTrigger(coin))
                 .requires(coin.get(), 9)
                 .save(consumer, ID("coins/" + ItemPath(coinPile) + "_from_coin"));
         //Pile -> Block
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, coinBlock.get())
-                .group("coin_block_from_pile")
-                .unlockedBy("money", MoneyKnowledge())
+                .group(prefix + "coin_block_from_pile")
+                .unlockedBy("money", moneyKnowledge)
                 .unlockedBy("pile", LazyTrigger(coinPile))
                 .pattern("xx").pattern("xx")
                 .define('x', coinPile.get())
                 .save(consumer, ID("coins/" + ItemPath(coinBlock) + "_from_pile"));
         //Block -> Pile
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, coinPile.get(), 4)
-                .group("coin_pile_from_block")
-                .unlockedBy("money", MoneyKnowledge())
+                .group(prefix + "coin_pile_from_block")
+                .unlockedBy("money", moneyKnowledge)
                 .unlockedBy("block", LazyTrigger(coinBlock))
                 .requires(coinBlock.get())
                 .save(consumer, ID("coins/" + ItemPath(coinPile) + "_from_block"));
         //Pile -> Coin
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, coin.get(), 9)
-                .group("coin_from_pile")
-                .unlockedBy("money", MoneyKnowledge())
+                .group(prefix + "coin_from_pile")
+                .unlockedBy("money", moneyKnowledge)
                 .unlockedBy("pile", LazyTrigger(coinPile))
                 .requires(coinPile.get())
                 .save(consumer, ID("coins/" + ItemPath(coin) + "_from_pile"));

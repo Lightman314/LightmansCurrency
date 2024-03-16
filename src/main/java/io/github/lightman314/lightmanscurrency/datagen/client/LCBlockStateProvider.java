@@ -54,6 +54,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerCoinPile(ModBlocks.COINPILE_EMERALD);
         this.registerCoinPile(ModBlocks.COINPILE_DIAMOND);
         this.registerCoinPile(ModBlocks.COINPILE_NETHERITE);
+        //Chocolate Coin Piles
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_COPPER);
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_IRON);
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_GOLD);
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_EMERALD);
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_DIAMOND);
+        this.registerCoinPile(ModBlocks.COINPILE_CHOCOLATE_NETHERITE);
         //Coin Blocks
         this.registerCoinBlock(ModBlocks.COINBLOCK_COPPER);
         this.registerCoinBlock(ModBlocks.COINBLOCK_IRON);
@@ -61,6 +68,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerCoinBlock(ModBlocks.COINBLOCK_EMERALD);
         this.registerCoinBlock(ModBlocks.COINBLOCK_DIAMOND);
         this.registerCoinBlock(ModBlocks.COINBLOCK_NETHERITE);
+        //Chocolate Coin Blocks
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_COPPER);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_IRON);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_GOLD);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
+        this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
 
         //Trading Core
         this.registerBasicItem(ModItems.TRADING_CORE);

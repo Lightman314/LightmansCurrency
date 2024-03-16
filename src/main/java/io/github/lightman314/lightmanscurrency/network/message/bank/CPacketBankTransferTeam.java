@@ -43,7 +43,7 @@ public class CPacketBankTransferTeam extends ClientToServerPacket {
 				if(sender.containerMenu instanceof IBankAccountAdvancedMenu menu)
 				{
 					BankReference destination = TeamBankReference.of(message.teamID);
-					MutableComponent response = BankAPI.TransferCoins(menu, message.amount, destination);
+					MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, destination.get());
 					if(response != null)
 						new SPacketBankTransferResponse(response).sendTo(sender);
 				}

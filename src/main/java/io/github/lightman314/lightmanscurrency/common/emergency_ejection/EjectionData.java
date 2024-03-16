@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.OwnableBlockEjectedNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -79,6 +83,22 @@ public class EjectionData implements Container, IClientTracker {
 			}
 		}
 		
+	}
+
+	public final void pushNotificationToOwner() {
+		Team team = this.owner.getTeam();
+		if(team != null)
+		{
+			//Push to admins and owner only
+			for(PlayerReference admin : team.getAdminsAndOwner())
+				NotificationAPI.PushPlayerNotification(admin.id, OwnableBlockEjectedNotification.create(this.traderName));
+		}
+		else
+		{
+			PlayerReference player = this.owner.getPlayer();
+			if(player != null)
+				NotificationAPI.PushPlayerNotification(player.id, OwnableBlockEjectedNotification.create(this.traderName));
+		}
 	}
 	
 	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader) {

@@ -209,7 +209,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET.get())
+				if(TicketItem.isTicket(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -228,7 +228,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET.get())
+				if(TicketItem.isTicket(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -248,7 +248,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET_PASS.get())
+				if(TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -262,7 +262,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET_PASS.get())
+				if(TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -362,7 +362,7 @@ public class TradeContext {
 			{
 				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
 					ItemStack stack = this.itemHandler.getStackInSlot(i);
-					if(stack.getItem() == ModItems.TICKET.get())
+					if(TicketItem.isTicket(stack))
 					{
 						long id = TicketItem.GetTicketID(stack);
 						if(id == ticketID)
@@ -381,7 +381,7 @@ public class TradeContext {
 				for(int i = 0; i < inventory.getContainerSize(); ++i)
 				{
 					ItemStack stack = inventory.getItem(i);
-					if(stack.getItem() == ModItems.TICKET.get())
+					if(TicketItem.isTicket(stack))
 					{
 						long id = TicketItem.GetTicketID(stack);
 						if(id == ticketID)

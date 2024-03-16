@@ -28,18 +28,18 @@ public class LCResourcePacks {
 
     private static final List<CustomResourcePack> packList = new ArrayList<>();
 
-    public static final CustomResourcePack RUPEE_PACK = registerPack(LightmansCurrency.MODID, "RupeePack",EasyText.translatable("resourcepack.lightmanscurrency.rupees"));
-    public static final CustomResourcePack FANCY_ITEMS_PACK = registerPack(LightmansCurrency.MODID, "CloserItemsPack",EasyText.translatable("resourcepack.lightmanscurrency.closer_items"));
+    static {
+        registerPack(LightmansCurrency.MODID, "RupeePack",EasyText.translatable("resourcepack.lightmanscurrency.rupees"));
+        registerPack(LightmansCurrency.MODID, "CloserItemsPack",EasyText.translatable("resourcepack.lightmanscurrency.closer_items"));
+        registerPack(LightmansCurrency.MODID, "LegacyCoins",EasyText.translatable("resourcepack.lightmanscurrency.legacy_coins"));
+    }
 
-    @Nonnull
-    public static CustomResourcePack registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name) { return registerPack(new CustomResourcePack(modid,path,name)); }
+    public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name) { registerPack(new CustomResourcePack(modid,path,name)); }
 
-    @Nonnull
-    public static CustomResourcePack registerPack(@Nonnull CustomResourcePack pack) {
+    public static void registerPack(@Nonnull CustomResourcePack pack) {
         if(packList.contains(pack))
-            return pack;
+            return;
         packList.add(pack);
-        return pack;
     }
 
 

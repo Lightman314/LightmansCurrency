@@ -48,7 +48,7 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerRecipes(IRecipeRegistration registration)
 	{
-		List<CoinMintRecipe> mintRecipes = RecipeValidator.getValidMintRecipes(Minecraft.getInstance().level);
+		List<CoinMintRecipe> mintRecipes = RecipeValidator.getAllMintRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(COIN_MINT_TYPE, mintRecipes);
 
 		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
@@ -75,7 +75,6 @@ public class LCJeiPlugin implements IModPlugin{
 	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
 	{
 		registration.addRecipeTransferHandler(MintMenu.class, ModMenus.MINT.get(), COIN_MINT_TYPE, 0, 1, 2, 36);
-		//TODO register Ticket Station transfer handler
 		registration.addRecipeTransferHandler(TicketStationMenu.class, ModMenus.TICKET_MACHINE.get(), TICKET_TYPE, 0, 2, 3, 36);
 	}
 	

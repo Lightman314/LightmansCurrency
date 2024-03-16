@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 public class TicketRecipeBuilder implements RecipeBuilder {
 
+    private Ingredient masterIngredient;
     private final Ingredient ingredient;
     private final Item result;
 
@@ -34,6 +35,14 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     public static TicketRecipeBuilder of(@Nonnull TagKey<Item> tag, @Nonnull ItemLike result) { return of(Ingredient.of(tag), result); }
     public static TicketRecipeBuilder of(@Nonnull ItemLike item, @Nonnull ItemLike result) { return of(Ingredient.of(item), result); }
     public static TicketRecipeBuilder of(@Nonnull Ingredient ingredient, @Nonnull ItemLike result) { return new TicketRecipeBuilder(ingredient, result); }
+
+    @Nonnull
+    public TicketRecipeBuilder withMasterTicket(@Nonnull TagKey<Item> tag) { this.masterIngredient = Ingredient.of(tag); return this; }
+    @Nonnull
+    public TicketRecipeBuilder withMasterTicket(@Nonnull ItemLike item) { this.masterIngredient = Ingredient.of(item); return this; }
+    @Nonnull
+    public TicketRecipeBuilder withMasterTicket(@Nonnull Ingredient ingredient) { this.masterIngredient = ingredient; return this; }
+
 
     @Nonnull
     @Override
@@ -51,7 +60,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.ingredient, this.result, this.advancement, id.withPrefix("recipes/ticket_machine/")));
+        consumer.accept(new Result(id, this.masterIngredient, this.ingredient, this.result, this.advancement, id.withPrefix("recipes/ticket_machine/")));
     }
 
     private void ensureValid(ResourceLocation id) {
@@ -60,20 +69,24 @@ public class TicketRecipeBuilder implements RecipeBuilder {
         }
         if(this.ingredient == null)
             throw new IllegalStateException("No ingredient defined for " + id);
+        if(this.masterIngredient == null)
+            throw new IllegalStateException("No master ticket defined for " + id);
     }
 
     public static class Result implements FinishedRecipe
     {
 
         private final ResourceLocation id;
+        private final Ingredient masterIngredient;
         private final Ingredient ingredient;
         private final Item result;
         private final Advancement.Builder advancement;
         private final ResourceLocation advancementId;
 
-        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient ingredient, @Nonnull Item result, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
+        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient masterIngredient, @Nonnull Ingredient ingredient, @Nonnull Item result, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
         {
             this.id = id;
+            this.masterIngredient = masterIngredient;
             this.ingredient = ingredient;
             this.result = result;
             this.advancement = advancement;
@@ -82,6 +95,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
 
         @Override
         public void serializeRecipeData(@Nonnull JsonObject json) {
+            json.add("masterTicket", this.masterIngredient.toJson());
             json.add("ingredient", this.ingredient.toJson());
             json.addProperty("result", ForgeRegistries.ITEMS.getKey(this.result).toString());
         }

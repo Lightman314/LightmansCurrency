@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -35,9 +36,9 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     @Override
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isTicketTrade())
-            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketID(), this.trade.getTicketColor()), 1, Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.ticket.id", this.trade.getTicketID()))));
+            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketID(), this.trade.getTicketColor()), 1, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", this.trade.getTicketID()))));
         else
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
     }
 
     @Override

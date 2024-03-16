@@ -27,6 +27,8 @@ import java.util.Random;
 @Mod.EventBusSubscriber
 public class AuctionStandBlockEntity extends EasyBlockEntity {
 
+    public boolean dropItem = true;
+
     public AuctionStandBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.AUCTION_STAND.get(), pos, state); }
 
     private static ImmutableList<ItemStack> displayItems = ImmutableList.of(ItemStack.EMPTY);

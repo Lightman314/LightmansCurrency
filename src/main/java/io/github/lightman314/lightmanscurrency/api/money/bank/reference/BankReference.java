@@ -56,7 +56,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
     {
         if(tag.contains("Type"))
         {
-            BankReferenceType type = BankAPI.getType(new ResourceLocation(tag.getString("Type")));
+            BankReferenceType type = BankAPI.API.GetReferenceType(new ResourceLocation(tag.getString("Type")));
             if(type != null)
                 return type.load(tag);
             else
@@ -76,7 +76,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
     @Nullable
     public static BankReference decode(@Nonnull FriendlyByteBuf buffer)
     {
-        BankReferenceType type = BankAPI.getType(new ResourceLocation(buffer.readUtf()));
+        BankReferenceType type = BankAPI.API.GetReferenceType(new ResourceLocation(buffer.readUtf()));
         if(type != null)
             return type.decode(buffer);
         else

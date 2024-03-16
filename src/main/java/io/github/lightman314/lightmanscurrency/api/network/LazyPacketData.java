@@ -233,7 +233,12 @@ public final class LazyPacketData {
             if(this.type == TYPE_DOUBLE)
                 buffer.writeDouble((double)this.value);
             if(this.type == TYPE_STRING)
-                buffer.writeUtf((String)this.value);
+            {
+                int length = ((String)this.value).length();
+                buffer.writeInt(length);
+                buffer.writeUtf((String)this.value,length);
+            }
+
             //MC values
             if(this.type == TYPE_TEXT)
                 buffer.writeUtf(Component.Serializer.toJson((Component)this.value));
@@ -258,7 +263,11 @@ public final class LazyPacketData {
             if(type == TYPE_DOUBLE)
                 return ofDouble(buffer.readDouble());
             if(type == TYPE_STRING)
-                return ofString(buffer.readUtf());
+            {
+                int length = buffer.readInt();
+                return ofString(buffer.readUtf(length));
+            }
+
             //Minecraft Values
             if(type == TYPE_TEXT)
                 return ofText(Component.Serializer.fromJson(buffer.readUtf()));

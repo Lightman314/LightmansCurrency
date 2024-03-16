@@ -15,5 +15,6 @@ public class LCLootTableProvider {
 
     public static LootTableProvider create(@Nonnull PackOutput output) { return new LootTableProvider(output, LCLootTables.all(),
             List.of(new SubProviderEntry(EntityAddonLoot::new, LootManager.ENTITY_PARAMS),
-                    new SubProviderEntry(ChestAddonLoot::new, LootContextParamSets.EMPTY))); }
+                    new SubProviderEntry(ChestAddonLoot::new, LootContextParamSets.EMPTY),
+                    new SubProviderEntry(BlockDropLoot::new, LootContextParamSets.BLOCK))); }
 }

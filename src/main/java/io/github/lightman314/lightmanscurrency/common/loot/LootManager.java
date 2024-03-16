@@ -101,7 +101,6 @@ public class LootManager {
 				event.addVanillaEntry("cave_spider");
 				event.addVanillaEntry("husk");
 				event.addVanillaEntry("stray");
-				event.addVanillaEntry("magma_cube");
 				event.addVanillaEntry("zombie_villager");
 				event.addVanillaEntry("drowned");
 			}

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -9,13 +8,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,7 +19,7 @@ import net.minecraft.network.chat.Component;
 
 public class CommandBalTop {
 
-	public static final Comparator<BankReference> SORTER = new AccountSorter();
+	public static final Comparator<IBankAccount> SORTER = new AccountSorter();
 
 	public static final int ENTRIES_PER_PAGE = 10;
 	
@@ -50,24 +46,15 @@ public class CommandBalTop {
 		CommandSourceStack source = commandContext.getSource();
 		
 		//Get and sort all the bank accounts
-		//Get player bank accounts
-		List<BankReference> allAccounts = BankSaveData.GetPlayerBankAccounts();
-		//Get team bank accounts
-		List<Team> allTeams = TeamSaveData.GetAllTeams(false);
-		for(Team team : allTeams) {
-			if(team.hasBankAccount())
-				allAccounts.add(team.getBankReference());
-		}
+		//Get bank accounts
+		List<IBankAccount> allAccounts = BankAPI.API.GetAllBankAccounts(false);
 		//Remove any accidental null entries from the list
-		allAccounts.removeIf(br -> {
-			if(br == null)
-				return true;
-			IBankAccount ba = br.get();
+		allAccounts.removeIf(ba -> {
 			if(ba == null)
 				return true;
 			return ba.getMoneyStorage().isEmpty();
 		});
-		if(allAccounts.size() == 0)
+		if(allAccounts.isEmpty())
 		{
 			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.no_results"));
 			return 0;
@@ -89,7 +76,7 @@ public class CommandBalTop {
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
-				IBankAccount account = allAccounts.get(i).get();
+				IBankAccount account = allAccounts.get(i);
 				Component name = account.getName();
 				Component amount = account.getMoneyStorage().getAllValueText();
 				EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
@@ -103,18 +90,10 @@ public class CommandBalTop {
 		return ((listSize - 1) / ENTRIES_PER_PAGE) + 1;
 	}
 
-	private static class AccountSorter implements Comparator<BankReference> {
+	private static class AccountSorter implements Comparator<IBankAccount> {
 
 		@Override
-		public int compare(BankReference o1, BankReference o2) {
-			IBankAccount a1 = o1 == null ? null : o1.get();
-			IBankAccount a2 = o2 == null ? null : o2.get();
-			if(o1 == o2)
-				return 0;
-			if(o1 == null)
-				return 1;
-			if(o2 == null)
-				return -1;
+		public int compare(IBankAccount a1, IBankAccount a2) {
 			long bal1 = 0;
 			for(MoneyValue val : a1.getMoneyStorage().allValues())
 				bal1 += val.getCoreValue();

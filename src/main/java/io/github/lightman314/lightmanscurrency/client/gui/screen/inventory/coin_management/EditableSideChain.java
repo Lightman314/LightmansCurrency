@@ -20,6 +20,7 @@ public class EditableSideChain {
         return this.entries.get(0).sideChainParent;
     }
 
+    private EditableSideChain() {}
     public EditableSideChain(@Nonnull List<CoinEntry> sideChainList)
     {
         if(sideChainList.isEmpty())
@@ -28,5 +29,13 @@ public class EditableSideChain {
             this.entries.add(new EditableCoinEntry(e));
     }
     public EditableSideChain(@Nonnull Item parentCoin, @Nonnull Item rootCoin, int exchangeRate) { this.entries.add(new EditableCoinEntry(rootCoin,exchangeRate,parentCoin)); }
+
+    @Nonnull
+    public EditableSideChain copy() {
+        EditableSideChain clone = new EditableSideChain();
+        for(EditableCoinEntry e : this.entries)
+            clone.entries.add(e.copy());
+        return clone;
+    }
 
 }

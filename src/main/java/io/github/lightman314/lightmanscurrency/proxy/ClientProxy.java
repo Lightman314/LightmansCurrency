@@ -9,6 +9,8 @@ import com.google.common.base.Suppliers;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
@@ -34,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayer
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -42,10 +45,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -254,6 +254,12 @@ public class ClientProxy extends CommonProxy{
 		Item item = event.getItemStack().getItem();
 		if(CoinAPI.API.IsCoin(item, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
+		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && item instanceof BlockItem bi)
+		{
+			Block b = bi.getBlock();
+			if(b instanceof IOwnableBlock)
+				event.getToolTip().add(EasyText.translatable("tooltip.lightmanscurrency.ownable.anarchy_warning").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+		}
 	}
 	
 	@Override

@@ -1,55 +1,57 @@
 package io.github.lightman314.lightmanscurrency.mixin;
 
-import com.google.common.collect.ImmutableList;
-import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
-/**
- * Wouldn't need to do this if they had done what they said they would do...<br>
- * <a href="https://legacy.curseforge.com/minecraft/mc-mods/supplementaries/issues/928">Them saying they'd add a trade event to Red Merchants</a>
- */
-public final class LCMixinPlugin implements IMixinConfigPlugin {
+public class LCMixinPlugin implements IMixinConfigPlugin {
 
-    public static final List<Predicate<String>> FILTERS = ImmutableList.of((mixin) -> !mixin.contains("supplementaries") || ModList.get().isLoaded("supplementaries"));
+    //Build our own logger for this, as using LightmansCurrency class will cause undesired classes to be loaded prematurely
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
-    public void onLoad(String mixinPackage) {
+    public void onLoad(String s) { }
 
+    @Override
+    public String getRefMapperConfig() { return null; }
+
+    @Override
+    public boolean shouldApplyMixin(String targetClass, String mixinClass) {
+        try {
+            if(mixinClass.contains("compat"))
+            {
+                String[] splits = mixinClass.split("\\.");
+                String modid = splits[splits.length - 2];
+                LOGGER.debug("Compat mixin detected. Checking if '" + modid + "' is loaded!");
+                boolean loaded = FMLLoader.getLoadingModList().getMods().stream().anyMatch(mod -> mod.getModId().equals(modid));
+                if(loaded)
+                    LOGGER.debug("Mod was loaded. Applying mixin.");
+                else
+                    LOGGER.debug("Mod was not loaded. Will not apply the mixin.");
+                return loaded;
+            }
+            else
+                return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     @Override
-    public String getRefMapperConfig() {
-        return null;
-    }
+    public void acceptTargets(Set<String> set, Set<String> set1) { }
 
     @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FILTERS.stream().allMatch(f -> f.test(mixinClassName));
-    }
+    public List<String> getMixins() { return null; }
 
     @Override
-    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
-
-    }
-
+    public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) { }
     @Override
-    public List<String> getMixins() {
-        return null;
-    }
+    public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) { }
 
-    @Override
-    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
-    }
-
-    @Override
-    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
-    }
 }

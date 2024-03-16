@@ -9,10 +9,12 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -57,4 +59,25 @@ public class AuctionStandBlock extends Block implements IEasyEntityBlock {
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new AuctionStandBlockEntity(pos, state); }
 
+    @Override
+    public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+        super.playerWillDestroy(level, pos, state, player);
+        //Flag it to not drop if the player was in creative mode
+        if(player.isCreative() && level.getBlockEntity(pos) instanceof AuctionStandBlockEntity be)
+            be.dropItem = false;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+        if(state.is(newState.getBlock()))
+        {
+            super.onRemove(state, level, pos, newState, flag);
+            return;
+        }
+        //Drop myself
+        if(level.getBlockEntity(pos) instanceof AuctionStandBlockEntity be && be.dropItem)
+            InventoryUtil.dumpContents(level, pos, new ItemStack(this));
+
+    }
 }

@@ -77,10 +77,17 @@ public interface IBankAccount extends IMoneyHolder {
     /**
      * Withdraws the given {@link MoneyValue amount} from the bank accounts money storage.<br>
      * If the requested amount is not available, it with instead withdraw as much as possible.<br>
-     * Will automatically trigger a Low-Balance notification if this withdraw pushes the accounts balance below the defined notification level for this {@link MoneyValue#getUniqueName() Money Type}.
+     * Will automatically trigger a Low-Balance notification if this withdrawl pushes the accounts balance below the defined notification level for this {@link MoneyValue#getUniqueName() Money Type}.
      * @return The {@link MoneyValue amount} successfully withdrawn from the bank account.
      */
     @Nonnull
     MoneyValue withdrawMoney(@Nonnull MoneyValue withdrawAmount);
+
+    /**
+     * Applies interest to all money contained in this bank account.
+     * @param interestRate The percentage-based interest to be applied to the money total.
+     * @param limits A list of upper limits of money that can be earned from interest.
+     */
+    void applyInterest(int interestRate, @Nonnull List<MoneyValue> limits);
 
 }

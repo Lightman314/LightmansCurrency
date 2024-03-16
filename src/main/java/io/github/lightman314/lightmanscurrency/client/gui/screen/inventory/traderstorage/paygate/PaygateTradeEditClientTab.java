@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
@@ -96,7 +97,6 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		int unitWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.duration.unit"));
 		gui.drawString(EasyText.translatable("gui.lightmanscurrency.duration.unit"), this.screen.getXSize() - unitWidth - 13, 42, 0x404040);
 		
-		
 	}
 
 	private Component getTicketStubButtonTooltip() {
@@ -116,7 +116,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof PaygateTradeData t)
 		{
-			if(this.menu.getHeldItem().getItem() == ModItems.TICKET_MASTER.get())
+			if(TicketItem.isMasterTicket(this.menu.getHeldItem()))
 				this.commonTab.setTicket(this.menu.getHeldItem());
 			else if(t.isTicketTrade())
 				this.commonTab.setTicket(ItemStack.EMPTY);

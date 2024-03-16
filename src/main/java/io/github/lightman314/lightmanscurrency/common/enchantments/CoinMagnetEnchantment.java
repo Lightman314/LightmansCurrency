@@ -40,7 +40,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	public int getMaxLevel() { return MAX_LEVEL; }
 	
-	public static void runEntityTick(@Nonnull IWalletHandler walletHandler, LivingEntity entity) {
+	public static void runEntityTick(@Nonnull IWalletHandler walletHandler, @Nonnull LivingEntity entity) {
 		if(entity.isSpectator())
 			return;
 		ItemStack wallet = walletHandler.getWallet();

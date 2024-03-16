@@ -40,9 +40,9 @@ public class CPacketBankInteraction extends ClientToServerPacket {
 				if(sender.containerMenu instanceof IBankAccountMenu menu)
 				{
 					if(message.isDeposit)
-						BankAPI.DepositCoins(menu, message.amount);
+						BankAPI.API.BankDeposit(menu, message.amount);
 					else
-						BankAPI.WithdrawCoins(menu, message.amount);
+						BankAPI.API.BankWithdraw(menu, message.amount);
 					menu.onDepositOrWithdraw();
 				}
 			}
