@@ -105,8 +105,10 @@ public class EjectionSaveData extends SavedData {
 		if(level.isClientSide)
 			return;
 		Objects.requireNonNull(data);
+		if(data.getContainerSize() == 0)
+			return;
 		
-		if(LCConfig.SERVER.safelyEjectMachineContents.get())
+		if(LCConfig.SERVER.safelyEjectMachineContents.get() && !LCConfig.SERVER.anarchyMode.get())
 		{
 			EjectionSaveData esd = get();
 			if(esd != null)
@@ -117,6 +119,9 @@ public class EjectionSaveData extends SavedData {
 		}
 		else
 			InventoryUtil.dumpContents(level, pos, data);
+
+		//Push notification to the data's owner(s)
+		data.pushNotificationToOwner();
 	}
 	
 	public static void RemoveEjectionData(EjectionData data) {

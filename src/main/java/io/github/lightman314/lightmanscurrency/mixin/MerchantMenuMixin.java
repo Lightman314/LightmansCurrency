@@ -41,6 +41,7 @@ public abstract class MerchantMenuMixin {
     public abstract Merchant getTrader();
     @Accessor("tradeContainer")
     public abstract MerchantContainer getTradeContainer();
+    @Unique
     public Player getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
 
     @Inject(at = @At("HEAD"), method = "tryMoveItems")
@@ -118,6 +119,14 @@ public abstract class MerchantMenuMixin {
                         {
                             coinA.setCount(coinToAddA);
                             coinB.setCount(coinToAddB);
+
+                            //Combine the funds if they're the same type so that the simulations will be accurate
+                            if(fundsToExtractA.sameType(fundsToExtractB))
+                            {
+                                fundsToExtractA = fundsToExtractA.addValue(fundsToExtractB);
+                                fundsToExtractB = MoneyValue.empty();
+                            }
+
                             IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
                             if(handler.extractMoney(fundsToExtractA,true).isEmpty() && handler.extractMoney(fundsToExtractB,true).isEmpty())
                             {
@@ -134,6 +143,7 @@ public abstract class MerchantMenuMixin {
         } catch(Throwable ignored) {}
     }
 
+    @Unique
     private static boolean containsValueFor(@Nonnull MoneyView query, @Nonnull ChainData chainA, long valueA, int countA, @Nullable ChainData chainB, long valueB, int countB)
     {
         MoneyValue cvA = CoinValue.fromNumber(chainA.chain, valueA * countA);
@@ -141,7 +151,7 @@ public abstract class MerchantMenuMixin {
         if(cvA.sameType(cvB))
         {
             cvA = cvA.addValue(cvB);
-            cvB = CoinValue.empty();
+            cvB = MoneyValue.empty();
         }
         return query.containsValue(cvA) && query.containsValue(cvB);
     }
@@ -152,6 +162,7 @@ public abstract class MerchantMenuMixin {
             this.EjectMoneyIntoWallet(player, true);
     }
 
+    @Unique
     protected boolean isPlayerAliveAndValid(Player player)
     {
         if(player.isAlive())
@@ -163,6 +174,7 @@ public abstract class MerchantMenuMixin {
         return false;
     }
 
+    @Unique
     private void EjectMoneyIntoWallet(Player player, boolean noUpdate)
     {
         MerchantContainer tradeContainer = this.getTradeContainer();
@@ -207,6 +219,7 @@ public abstract class MerchantMenuMixin {
         }
     }
 
+    @Unique
     private static boolean isCoinOrEmpty(ItemStack item) { return item.isEmpty() || CoinAPI.API.IsCoin(item, false); }
 
 }

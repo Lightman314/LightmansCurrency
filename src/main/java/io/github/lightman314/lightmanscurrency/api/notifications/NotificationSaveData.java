@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -117,7 +118,7 @@ public class NotificationSaveData extends SavedData {
 		NotificationData data = GetNotifications(playerID);
 		if(data != null)
 		{
-			//Post event to see if we should sent the notification
+			//Post event to see if we should send the notification
 			NotificationEvent.NotificationSent.Pre event = new NotificationEvent.NotificationSent.Pre(playerID, data, notification);
 			if(MinecraftForge.EVENT_BUS.post(event))
 				return;
@@ -142,7 +143,7 @@ public class NotificationSaveData extends SavedData {
 		}
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void OnPlayerLogin(PlayerLoggedInEvent event)
 	{
 		//Only send their personal notifications

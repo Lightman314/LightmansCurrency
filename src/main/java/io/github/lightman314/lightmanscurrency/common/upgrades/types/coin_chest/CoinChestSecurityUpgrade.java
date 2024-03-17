@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.SecurityUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
@@ -14,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -128,7 +130,12 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
 
     @Nonnull
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.1"),EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.2")); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) {
+        List<Component> tooltip = Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.1"),EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.2"));
+        if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get())
+            tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ownable.anarchy_warning").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+        return tooltip;
+    }
 
     @Override
     public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }

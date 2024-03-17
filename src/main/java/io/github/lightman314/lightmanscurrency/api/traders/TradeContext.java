@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoney
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -209,7 +208,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET.get())
+				if(TicketItem.isTicket(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -228,7 +227,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET.get())
+				if(TicketItem.isTicket(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -248,7 +247,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET_PASS.get())
+				if(TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -262,7 +261,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET_PASS.get())
+				if(TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -362,7 +361,7 @@ public class TradeContext {
 			{
 				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
 					ItemStack stack = this.itemHandler.getStackInSlot(i);
-					if(stack.getItem() == ModItems.TICKET.get())
+					if(TicketItem.isTicket(stack))
 					{
 						long id = TicketItem.GetTicketID(stack);
 						if(id == ticketID)
@@ -381,7 +380,7 @@ public class TradeContext {
 				for(int i = 0; i < inventory.getContainerSize(); ++i)
 				{
 					ItemStack stack = inventory.getItem(i);
-					if(stack.getItem() == ModItems.TICKET.get())
+					if(TicketItem.isTicket(stack))
 					{
 						long id = TicketItem.GetTicketID(stack);
 						if(id == ticketID)

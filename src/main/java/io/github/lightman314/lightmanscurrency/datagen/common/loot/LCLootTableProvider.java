@@ -29,7 +29,8 @@ public class LCLootTableProvider extends LootTableProvider {
     @Override
     protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
         return List.of(Pair.of(EntityAddonLoot::new, LootManager.ENTITY_PARAMS),
-                (Pair.of(ChestAddonLoot::new, LootContextParamSets.EMPTY)));
+                Pair.of(ChestAddonLoot::new, LootContextParamSets.EMPTY),
+                Pair.of(BlockDropLoot::new, LootContextParamSets.BLOCK));
     }
 
     @Override

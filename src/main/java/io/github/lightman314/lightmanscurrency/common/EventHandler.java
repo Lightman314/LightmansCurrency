@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
@@ -113,7 +114,11 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onBlockBreak(BlockEvent.BreakEvent event)
 	{
-		
+
+		//No block break handling in anarchy mode
+		if(LCConfig.SERVER.anarchyMode.get())
+			return;
+
 		LevelAccessor level = event.getLevel();
 		BlockState state = event.getState();
 		
@@ -132,6 +137,11 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void blockBreakSpeed(PlayerEvent.BreakSpeed event)
 	{
+
+		//No block break handling in anarchy mode
+		if(LCConfig.SERVER.anarchyMode.get())
+			return;
+
 		Level level = event.getEntity().level;
 		BlockState state = event.getState();
 

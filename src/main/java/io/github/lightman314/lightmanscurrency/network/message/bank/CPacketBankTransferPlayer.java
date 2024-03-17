@@ -41,7 +41,7 @@ public class CPacketBankTransferPlayer extends ClientToServerPacket {
 			if(sender != null && sender.containerMenu instanceof IBankAccountAdvancedMenu menu)
 			{
 				BankReference destination = PlayerBankReference.of(PlayerReference.of(false, message.playerName));
-				MutableComponent response = BankAPI.TransferCoins(menu, message.amount, destination);
+				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, destination.get());
 				if(response != null)
 					new SPacketBankTransferResponse(response).sendTo(sender);
 			}

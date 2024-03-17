@@ -5,11 +5,8 @@ import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
 public class LCEnchantmentCategories {
 	
-	public static final EnchantmentCategory WALLET_CATEGORY = EnchantmentCategory.create("WALLET",
-			item -> item instanceof WalletItem);
+	public static final EnchantmentCategory WALLET_CATEGORY = EnchantmentCategory.create("WALLET", item -> item instanceof WalletItem);
 	
-	public static final EnchantmentCategory WALLET_PICKUP_CATEGORY = EnchantmentCategory.create("WALLET_PICKUP",
-			item -> item instanceof WalletItem walletItem && WalletItem.CanPickup(walletItem)
-		);
+	public static final EnchantmentCategory WALLET_PICKUP_CATEGORY = EnchantmentCategory.create("WALLET_PICKUP",  item -> item instanceof WalletItem walletItem && WalletItem.CanPickup(walletItem) );
 	
 }

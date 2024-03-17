@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.NumberDisplay;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
@@ -51,6 +51,19 @@ public final class ChocolateEventCoins {
                     .withCoin(ModItems.COIN_CHOCOLATE_EMERALD, 10)
                     .withCoin(ModItems.COIN_CHOCOLATE_DIAMOND, 10)
                     .withCoin(ModItems.COIN_CHOCOLATE_NETHERITE, 10).back()
+                    //Side Chains
+                    /*.withSideChain(ModBlocks.COINPILE_CHOCOLATE_COPPER,9,ModItems.COIN_CHOCOLATE_COPPER)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_COPPER,4).back()
+                    .withSideChain(ModBlocks.COINPILE_CHOCOLATE_IRON,9,ModItems.COIN_CHOCOLATE_IRON)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_IRON,4).back()
+                    .withSideChain(ModBlocks.COINPILE_CHOCOLATE_GOLD,9,ModItems.COIN_CHOCOLATE_GOLD)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_GOLD,4).back()
+                    .withSideChain(ModBlocks.COINPILE_CHOCOLATE_EMERALD,9,ModItems.COIN_CHOCOLATE_EMERALD)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_EMERALD,4).back()
+                    .withSideChain(ModBlocks.COINPILE_CHOCOLATE_DIAMOND,9,ModItems.COIN_CHOCOLATE_DIAMOND)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND,4).back()
+                    .withSideChain(ModBlocks.COINPILE_CHOCOLATE_NETHERITE,9,ModItems.COIN_CHOCOLATE_NETHERITE)
+                    .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE,4).back()*/
                     //ATM Data
                     .atmBuilder().accept(ATMExchangeButtonData::generateChocolate).back()
                     .withDisplay(new NumberDisplay(EasyText.translatable("lightmanscurrency.money.chain.chocolate_coins.display"),EasyText.translatable("lightmanscurrency.money.chain.chocolate_coins.display.wordy"), ModItems.COIN_CHOCOLATE_COPPER.get()))

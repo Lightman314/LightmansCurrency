@@ -182,6 +182,9 @@ public class WalletItem extends Item{
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 
+		if(CoinAPI.API.NoDataAvailable())
+			return;
+
 		IMoneyViewer handler = CapabilityMoneyViewer.getCapability(stack);
 		if(handler != null)
 		{

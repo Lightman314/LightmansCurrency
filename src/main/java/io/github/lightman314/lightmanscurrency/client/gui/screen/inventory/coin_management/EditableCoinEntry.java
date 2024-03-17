@@ -42,4 +42,7 @@ public class EditableCoinEntry {
             this.sideChainParent = newParent;
     }
 
+    @Nonnull
+    public EditableCoinEntry copy() { return new EditableCoinEntry(this.coin, this.exchangeRate, this.sideChainParent); }
+
 }

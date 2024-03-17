@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -14,21 +12,17 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredItemListing;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.StructureTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraftforge.common.BasicItemListing;
@@ -39,13 +33,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
-
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
 
 	public static final ResourceLocation BANKER_ID = new ResourceLocation(LightmansCurrency.MODID, "banker");
 	public static final ResourceLocation CASHIER_ID = new ResourceLocation(LightmansCurrency.MODID, "cashier");
+
+	public static final String WANDERING_TRADER_ID = "minecraft:wandering_trader";
 
 	public static void registerDefaultTrades() {
 		CustomVillagerTradeData.registerDefaultFile(BANKER_ID, ImmutableMap.of(
@@ -371,7 +365,7 @@ public class VillagerTradeManager {
 	}
 
 	/**
-	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getEmeraldReplacementItem(String)}
+	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getVillagerMod(String)}
 	 * Should check {@link LCConfig.Common#changeVanillaTrades} or {@link LCConfig.Common#changeModdedTrades} first before applying.
 	 */
 	public static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
@@ -379,13 +373,12 @@ public class VillagerTradeManager {
 	}
 
 	/**
-	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getEmeraldReplacementItem(String)}
+	 * Used to apply configured trade changes as defined by {@link LCConfig.Common#getVillagerMod(String)}
 	 * Should check {@link LCConfig.Common#changeVanillaTrades} or {@link LCConfig.Common#changeModdedTrades} first before applying.
 	 */
 	public static void replaceExistingTrades(String trader, List<ItemListing> trades) {
 
-		Supplier<ItemLike> replacementSupplier = () -> LCConfig.COMMON.getEmeraldReplacementItem(trader);
-		trades.replaceAll(t -> new ConvertedTrade(t, Items.EMERALD, replacementSupplier));
+		trades.replaceAll(t -> new ConfiguredItemListing(t, LCConfig.COMMON.getVillagerMod(trader)));
 
 	}
 	
@@ -396,9 +389,9 @@ public class VillagerTradeManager {
 		//Replace the existing trades before adding my own custom ones
 		if(LCConfig.COMMON.changeWanderingTrades.get())
 		{
-			
-			replaceExistingTrades(event.getGenericTrades());
-			replaceExistingTrades(event.getRareTrades());
+
+			replaceExistingTrades(WANDERING_TRADER_ID,event.getGenericTrades());
+			replaceExistingTrades(WANDERING_TRADER_ID,event.getRareTrades());
 			
 		}
 		
@@ -408,79 +401,6 @@ public class VillagerTradeManager {
 			var pair = CustomVillagerTradeData.getWanderingTraderData();
 			event.getGenericTrades().addAll(pair.getFirst());
 			event.getRareTrades().addAll(pair.getSecond());
-		}
-		
-	}
-	
-	private static void replaceExistingTrades(List<ItemListing> tradeList) {
-
-		for(int i = 0; i < tradeList.size(); ++i)
-		{
-			if(tradeList.get(i) != null)
-				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, LCConfig.COMMON.defaultVillagerReplacementCoin));
-		}
-	}
-	
-	public static class ConvertedTrade implements ItemListing
-	{
-
-		final ItemListing tradeSource;
-		final ItemLike oldItem;
-		final Supplier<? extends ItemLike> newItem;
-
-		/**
-		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
-		 * Warning: Replaced items do not keep any NBT data, so this should not be used for items that can be enchanted.
-		 * Used by LC to replace Emeralds with Emerald Coins.
-		 * @param tradeSource The Item Listing to modify.
-		 * @param oldItem The Item to replace.
-		 * @param newItem The Item to replace the oldItem with.
-		 */
-		public ConvertedTrade(@Nonnull ItemListing tradeSource, @Nonnull ItemLike oldItem, @Nonnull Supplier<? extends ItemLike> newItem) {
-			this.tradeSource = tradeSource;
-			this.oldItem = oldItem;
-			this.newItem = newItem;
-		}
-		
-		@Override
-		public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource random) {
-			try {
-				int attempts = 0;
-				MerchantOffer offer;
-				do {
-					offer = this.tradeSource.getOffer(trader, random);
-				} while(offer == null && attempts++ < 100);
-				
-				if(attempts > 1)
-				{
-					if(offer == null)
-					{
-						LightmansCurrency.LogError("Original Item Listing Class: " + this.tradeSource.getClass().getName());
-						throw new NullPointerException("The original Item Listing of the converted trade returned a null trade offer " + attempts + " times!");
-					}
-					else
-					{
-						LightmansCurrency.LogWarning("Original Item Listing Class: " + this.tradeSource.getClass().getName());
-						LightmansCurrency.LogWarning("Converted Trade took " + attempts + " attempts to receive a non-null trade offer from the original Item Listing!");
-					}	
-				}
-
-				assert offer != null;
-				ItemStack itemA = offer.getBaseCostA();
-				ItemStack itemB = offer.getCostB();
-				ItemStack itemC = offer.getResult();
-				if(itemA.getItem() == this.oldItem)
-					itemA = new ItemStack(this.newItem.get(), itemA.getCount());
-				if(itemB.getItem() == this.oldItem)
-					itemB = new ItemStack(this.newItem.get(), itemB.getCount());
-				if(itemC.getItem() == this.oldItem)
-					itemC = new ItemStack(this.newItem.get(), itemC.getCount());
-				
-				return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
-			} catch(Throwable t) {
-				LightmansCurrency.LogDebug("Error converting trade:", t);
-				return null;
-			}
 		}
 		
 	}

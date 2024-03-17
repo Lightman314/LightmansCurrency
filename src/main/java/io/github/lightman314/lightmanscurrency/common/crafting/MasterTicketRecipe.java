@@ -1,22 +1,22 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -26,11 +26,13 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
     private final ResourceLocation id;
     private final Ingredient ingredient;
+    private final Item result;
 
-    public MasterTicketRecipe(@Nonnull ResourceLocation id, @Nonnull Ingredient ingredient)
+    public MasterTicketRecipe(@Nonnull ResourceLocation id, @Nonnull Ingredient ingredient, @Nonnull Item result)
     {
         this.id = id;
         this.ingredient = ingredient;
+        this.result = result;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     public Ingredient getIngredient() { return this.ingredient; }
     @Nonnull
     @Override
-    public ItemStack exampleResult() { return new ItemStack(ModItems.TICKET_MASTER.get()); }
+    public ItemStack exampleResult() { return TicketItem.CreateTicketInternal(this.result, TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR, 1); }
 
     @Override
     public boolean validModifier(@Nonnull ItemStack stack) { return stack.isEmpty() || stack.is(Tags.Items.DYES); }
@@ -56,10 +58,8 @@ public class MasterTicketRecipe implements TicketStationRecipe {
         long nextTicketID = TicketSaveData.createNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
-        if(dyeColor != null)
-            return TicketItem.CreateMasterTicket(nextTicketID, dyeColor.hexColor);
-        else
-            return TicketItem.CreateMasterTicket(nextTicketID);
+        int color = dyeColor == null ? TicketItem.GetDefaultTicketColor(nextTicketID) : dyeColor.hexColor;
+        return TicketItem.CreateTicketInternal(this.result, nextTicketID, color, 1);
     }
 
     @Override
@@ -69,7 +69,8 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Override
     public ItemStack getResultItem() {
         long nextTicketID = TicketSaveData.peekNextID();
-        return TicketItem.CreateMasterTicket(nextTicketID);
+        int color = TicketItem.GetDefaultTicketColor(nextTicketID);
+        return TicketItem.CreateTicketInternal(this.result, nextTicketID, color, 1);
     }
 
     @Nonnull
@@ -98,16 +99,18 @@ public class MasterTicketRecipe implements TicketStationRecipe {
         @Override
         public MasterTicketRecipe fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject json) {
             Ingredient ingredient = Ingredient.fromJson(GsonHelper.getAsJsonObject(json, "ingredient"));
-            return new MasterTicketRecipe(id, ingredient);
+            Item result = CraftingHelper.getItem(GsonHelper.getAsString(json, "result"), true);
+            return new MasterTicketRecipe(id, ingredient, result);
         }
         @Override
         @Nullable
         public MasterTicketRecipe fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
-            return new MasterTicketRecipe(id, Ingredient.fromNetwork(buffer));
+            return new MasterTicketRecipe(id, Ingredient.fromNetwork(buffer), buffer.readItem().getItem());
         }
         @Override
         public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull MasterTicketRecipe recipe) {
             recipe.ingredient.toNetwork(buffer);
+            buffer.writeItem(new ItemStack(recipe.result));
         }
     }
 

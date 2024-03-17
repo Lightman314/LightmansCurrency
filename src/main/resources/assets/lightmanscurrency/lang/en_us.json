@@ -49,6 +49,9 @@
     "item.lightmanscurrency.wallet_netherite" : "Wallet (Netherite)",
     "item.lightmanscurrency.trading_core": "Trading Core",
     "item.lightmanscurrency.ticket": "Ticket",
+    "item.lightmanscurrency.golden_ticket": "Golden Ticket",
+    "item.lightmanscurrency.golden_ticket.pass": "Golden Ticket Pass",
+    "item.lightmanscurrency.golden_ticket.master": "Master Golden Ticket",
     "item.lightmanscurrency.ticket_pass": "Pass",
     "item.lightmanscurrency.master_ticket": "Master Ticket",
     "item.lightmanscurrency.ticket_stub": "Ticket Stub",
@@ -102,6 +105,32 @@
     "block.lightmanscurrency.coinblock_diamond.plural" : "Blocks of Diamond Coins",
     "block.lightmanscurrency.coinblock_netherite" : "Block of Netherite Coins",
     "block.lightmanscurrency.coinblock_netherite.plural" : "Blocks of Netherite Coins",
+	
+	"block.lightmanscurrency.coinpile_chocolate_copper" : "Chocolate Copper Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_copper.plural" : "Chocolate Copper Coinpiles",
+    "block.lightmanscurrency.coinpile_chocolate_iron" : "Chocolate Iron Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_iron.plural" : "Chocolate Iron Coinpiles",
+    "block.lightmanscurrency.coinpile_chocolate_gold" : "Chocolate Gold Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_gold.plural" : "Chocolate Gold Coinpiles",
+    "block.lightmanscurrency.coinpile_chocolate_emerald" : "Chocolate Emerald Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_emerald.plural" : "Chocolate Emerald Coinpiles",
+    "block.lightmanscurrency.coinpile_chocolate_diamond" : "Chocolate Diamond Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_diamond.plural" : "Chocolate Diamond Coinpiles",
+    "block.lightmanscurrency.coinpile_chocolate_netherite" : "Chocolate Netherite Coinpile",
+    "block.lightmanscurrency.coinpile_chocolate_netherite.plural" : "Chocolate Netherite Coinpiles",
+    "block.lightmanscurrency.coinblock_chocolate_copper" : "Block of Chocolate Copper Coins",
+    "block.lightmanscurrency.coinblock_chocolate_copper.plural" : "Blocks of Chocolate Copper Coins",
+    "block.lightmanscurrency.coinblock_chocolate_iron" : "Block of Chocolate Iron Coins",
+    "block.lightmanscurrency.coinblock_chocolate_iron.plural" : "Blocks of Chocolate Iron Coins",
+    "block.lightmanscurrency.coinblock_chocolate_gold" : "Block of Chocolate Gold Coins",
+    "block.lightmanscurrency.coinblock_chocolate_gold.plural" : "Blocks of Chocolate Gold Coins",
+    "block.lightmanscurrency.coinblock_chocolate_emerald" : "Block of Chocolate Emerald Coins",
+    "block.lightmanscurrency.coinblock_chocolate_emerald.plural" : "Blocks of Chocolate Emerald Coins",
+    "block.lightmanscurrency.coinblock_chocolate_diamond" : "Block of Chocolate Diamond Coins",
+    "block.lightmanscurrency.coinblock_chocolate_diamond.plural" : "Blocks of Chocolate Diamond Coins",
+    "block.lightmanscurrency.coinblock_chocolate_netherite" : "Block of Chocolate Netherite Coins",
+    "block.lightmanscurrency.coinblock_chocolate_netherite.plural" : "Blocks of Chocolate Netherite Coins",
+	
     "block.lightmanscurrency.atm" : "ATM",
     "block.lightmanscurrency.cash_register": "Cash Register",
     "block.lightmanscurrency.display_case" : "Display Case",
@@ -545,12 +574,15 @@
     "tooltip.lightmanscurrency.tax_collector.1": "Tax Collector:",
     "tooltip.lightmanscurrency.tax_collector.2": "Can be placed and used to collect taxes from Trader sales within an area.",
     "tooltip.lightmanscurrency.tax_collector.admin_only": "Can only be activated by an admin!",
+	"tooltip.lightmanscurrency.coinmint.disabled.1": "Recipe Disabled",
+    "tooltip.lightmanscurrency.coinmint.disabled.2": "by Config",
 	
 	"tooltip.lightmanscurrency.coin.advanced.chain": "Chain: %s",
 	"tooltip.lightmanscurrency.coin.advanced.value": "Value: %s",
 	"tooltip.lightmanscurrency.coin.advanced.core_chain": "Core Chain",
 	"tooltip.lightmanscurrency.coin.advanced.side_chain": "Side Chain",
 	
+	"tooltip.lightmanscurrency.ownable.anarchy_warning":"Server is in Anarchy Mode. Block will not be break-protected!",
     
     "tooltip.lightmanscurrency.auction.nobidder": "Nobody has bid yet.",
     "tooltip.lightmanscurrency.auction.lastbidder": "%s currently has the highest bid.",
@@ -835,6 +867,10 @@
 	"notifications.message.taxes.paid": "%s was paid in taxes",
 	"notifications.message.taxes.paid.null": "No taxes were paid???",
 	"notifications.message.taxes.collected": "Collected %1$s in taxes from %2$s",
+	
+	"notifications.ejection.block_destroyed.ejected": "%s was destroyed by unpreventable means, but its contents were safely ejected",
+	"notifications.ejection.block_destroyed.dropped": "%s was destroyed by unpreventable means, and its contents were dropped",
+	"notifications.ejection.block_destroyed.anarchy": "%s was robbed or destroyed by another player.",
     
     "tooltip.lightmanscurrency.trader.creative.enable": "Enable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.disable": "Disable Creative Trader",
@@ -983,6 +1019,7 @@
     "gui.button.bank.transfer.team": "Transfer to Team",
     
     "gui.bank.transfer.error.null.from": "Your selected bank account no longer exists.",
+    "gui.bank.transfer.error.access": "You don't have access to your selected bank account!",
     "gui.bank.transfer.error.null.to": "Target bank account does not exist.",
     "gui.bank.transfer.error.same": "Cannot transfer to the same account.",
     "gui.bank.transfer.error.amount": "Cannot transfer %s.",
@@ -1030,6 +1067,7 @@
     "log.bank.withdraw": "withdrew",
     "log.bank.deposit": "deposited",
     "notifications.bank.server": "An admin",
+    "notifications.bank.interest": "Gained %s in interest",
     "log.bank.transfer.to": "to",
     "log.bank.transfer.from": "from",
     
@@ -1249,6 +1287,7 @@
 	
 	"resourcepack.lightmanscurrency.rupees": "LC Rupees (WIP)",
 	"resourcepack.lightmanscurrency.closer_items": "LC Fancy Item Placement",
+	"resourcepack.lightmanscurrency.legacy_coins": "LC Legacy Coins",
     
     "advancements.lightmanscurrency.root.title": "Lightman's Currency",
     "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",

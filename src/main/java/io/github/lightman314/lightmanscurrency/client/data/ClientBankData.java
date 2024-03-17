@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +35,7 @@ public class ClientBankData {
 			BankAccount account = new BankAccount(compound);
 			if(player != null && account != null)
 				loadedBankAccounts.put(player, account);
-		} catch(Exception e) { e.printStackTrace(); }
+		} catch(Exception e) { LightmansCurrency.LogError("Error loading bank account on client!",e); }
 	}
 	
 	public static void UpdateLastSelectedAccount(BankReference reference) {
@@ -46,7 +45,14 @@ public class ClientBankData {
 	public static BankReference GetLastSelectedAccount() {
 		return lastSelectedAccount;
 	}
-	
+
+	public static List<BankReference> GetPlayerBankAccounts() {
+		List<BankReference> list = new ArrayList<>();
+		for(UUID player : loadedBankAccounts.keySet())
+			list.add(PlayerBankReference.of(player).flagAsClient());
+		return list;
+	}
+
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
 		loadedBankAccounts.clear();

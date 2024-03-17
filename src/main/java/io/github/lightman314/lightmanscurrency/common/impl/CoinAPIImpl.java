@@ -51,7 +51,7 @@ import java.util.*;
 
 public final class CoinAPIImpl extends CoinAPI {
 
-    public static final CoinAPI INSTANCE = new CoinAPIImpl();
+    public static final CoinAPIImpl INSTANCE = new CoinAPIImpl();
     public static final Comparator<ItemStack> SORTER = new CoinSorter();
 
     private CoinAPIImpl() {}
@@ -93,11 +93,19 @@ public final class CoinAPIImpl extends CoinAPI {
                 loadDeprecatedData(GsonHelper.getAsJsonArray(fileData, "CoinEntries"));
             else
                 loadMoneyDataFromJson(fileData);
-        } catch (JsonSyntaxException | ResourceLocationException | IOException e) {
+        } catch (JsonParseException | ResourceLocationException | IOException e) {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
         }
         this.SyncCoinDataWith(PacketDistributor.ALL.noArg());
+    }
+
+    public static void LoadEditedData(@Nonnull String customJson) {
+        try {
+            JsonObject json = GsonHelper.parse(customJson);
+            INSTANCE.loadMoneyDataFromJson(json);
+            INSTANCE.createMoneyDataFile(new File(MONEY_FILE_LOCATION),INSTANCE.loadedChains,false);
+        } catch (JsonParseException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing custom json data!",e); }
     }
 
     private void loadData(@Nonnull Map<String,ChainData> dataMap)
@@ -440,7 +448,7 @@ public final class CoinAPIImpl extends CoinAPI {
             return;
         for(ChainData chain : this.AllChainData())
         {
-            List<CoinEntry> entryList = chain.getAllEntries(false, ChainData.SORT_LOWEST_VALUE_FIRST);
+            List<CoinEntry> entryList = chain.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
             for(CoinEntry entry : entryList)
                 this.CoinExchangeDown(container, entry.getCoin());
             for(CoinEntry entry : entryList)

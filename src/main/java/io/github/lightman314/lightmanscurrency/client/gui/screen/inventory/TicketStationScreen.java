@@ -85,7 +85,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	private Component getArrowTooltip()
 	{
 		if(this.selectedRecipe != null)
-			return EasyText.translatable("gui.button.lightmanscurrency.craft_ticket", this.selectedRecipe.getResultItem().getHoverName());
+			return EasyText.translatable("gui.button.lightmanscurrency.craft_ticket", this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
 		return EasyText.empty();
 	}
 
@@ -95,13 +95,13 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		List<TicketStationRecipe> matchingRecipes = this.getMatchingRecipes();
 		if(this.selectedRecipe != null && !matchingRecipes.contains(this.selectedRecipe))
 		{
-			if(matchingRecipes.size() > 0)
+			if(!matchingRecipes.isEmpty())
 				this.selectedRecipe = matchingRecipes.get(0);
 			else
 				this.selectedRecipe = null;
 			return;
 		}
-		if(this.selectedRecipe == null && matchingRecipes.size() > 0)
+		if(this.selectedRecipe == null && !matchingRecipes.isEmpty())
 			this.selectedRecipe = matchingRecipes.get(0);
 	}
 
@@ -123,7 +123,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	@Override
 	public void setScroll(int newScroll) {
 		List<TicketStationRecipe> matchingRecipes = this.getMatchingRecipes();
-		if(matchingRecipes.size() == 0)
+		if(matchingRecipes.isEmpty())
 			this.selectedRecipe = null;
 		else if(newScroll < 0 || newScroll >= matchingRecipes.size())
 			this.setScroll(0);
@@ -131,8 +131,6 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 			this.selectedRecipe = matchingRecipes.get(newScroll);
 	}
 
-	@Override
-	public int getMinScroll() { return 0; }
 	@Override
 	public int getMaxScroll() { return this.getMatchingRecipes().size() - 1; }
 

@@ -220,6 +220,7 @@ public class LightmansCurrency {
 		NotificationAPI.registerNotification(DepositWithdrawNotification.TRADER_TYPE);
 		NotificationAPI.registerNotification(DepositWithdrawNotification.SERVER_TYPE);
 		NotificationAPI.registerNotification(BankTransferNotification.TYPE);
+		NotificationAPI.registerNotification(BankInterestNotification.TYPE);
 		NotificationAPI.registerNotification(TaxesCollectedNotification.TYPE);
 		NotificationAPI.registerNotification(TaxesPaidNotification.TYPE);
 
@@ -239,8 +240,8 @@ public class LightmansCurrency {
 		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
 
 		//Register Bank Account Reference Types
-		BankAPI.registerType(PlayerBankReference.TYPE);
-		BankAPI.registerType(TeamBankReference.TYPE);
+		BankAPI.API.RegisterReferenceType(PlayerBankReference.TYPE);
+		BankAPI.API.RegisterReferenceType(TeamBankReference.TYPE);
 
 		//Register Menu Validator Types
 		MenuValidatorType.register(SimpleValidator.TYPE);

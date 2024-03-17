@@ -121,7 +121,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
 		List<ITaxCollector> taxes = TaxAPI.GetPossibleTaxCollectorsFor(newTrader);
 		taxes.forEach(e -> e.AcceptTaxable(newTrader));
-		if(taxes.size() > 0)
+		if(!taxes.isEmpty())
 		{
 			Component firstMessage = EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.1");
 			if(taxes.size() == 1 && taxes.get(0).isServerEntry())
@@ -142,7 +142,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		TraderData rawData = this.getRawTraderData();
 		try {
 			return (D)rawData;
-		} catch(Throwable t) { t.printStackTrace(); return null; }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error casting trader data to the correct type.", t); return null; }
 	}
 
 	@Override

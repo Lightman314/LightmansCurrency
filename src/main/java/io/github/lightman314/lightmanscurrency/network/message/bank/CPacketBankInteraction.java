@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -40,9 +39,9 @@ public class CPacketBankInteraction extends ClientToServerPacket {
 				if(sender.containerMenu instanceof IBankAccountMenu menu)
 				{
 					if(message.isDeposit)
-						BankAPI.DepositCoins(menu, message.amount);
+						BankAPI.API.BankDeposit(menu, message.amount);
 					else
-						BankAPI.WithdrawCoins(menu, message.amount);
+						BankAPI.API.BankWithdraw(menu, message.amount);
 					menu.onDepositOrWithdraw();
 				}
 			}

@@ -10,7 +10,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.19.2-2.2.1.0b'
+version = '1.19.2-2.2.1.1'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -135,6 +135,10 @@ dependencies {
     //Quark
     implementation fg.deobf("curse.maven:quark-243121:4812006")
     implementation fg.deobf("curse.maven:autoreglib-250363:4100299")
+
+    //Farming For Blockheads compat
+    implementation fg.deobf("curse.maven:farming-for-blockheads-261924:4749429")
+    implementation fg.deobf("curse.maven:balm-531761:4751735")
     
 }
 

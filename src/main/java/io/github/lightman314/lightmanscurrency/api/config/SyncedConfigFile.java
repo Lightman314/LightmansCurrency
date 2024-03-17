@@ -45,12 +45,16 @@ public abstract class SyncedConfigFile extends ConfigFile {
         fileMap.put(this.id, this);
     }
 
+    private boolean loadedSyncData = false;
+    @Override
+    public boolean isLoaded() { return super.isLoaded() || this.loadedSyncData; }
+
     @Override
     protected void afterReload() { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
     @Override
     protected void afterOptionChanged(@Nonnull ConfigOption<?> option) { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
 
-    public final void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
+    public final void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); this.loadedSyncData = false; }
 
     @Nonnull
     private Map<String,String> getSyncData()
@@ -74,6 +78,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
             else
                 LightmansCurrency.LogWarning("Received data for config option '" + id + "' but it is not present on the client!");
         });
+        this.loadedSyncData = true;
     }
 
 }

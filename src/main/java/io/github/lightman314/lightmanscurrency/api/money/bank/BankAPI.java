@@ -1,19 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
-import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.bank.source.BankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
+import io.github.lightman314.lightmanscurrency.common.impl.BankAPIImpl;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -21,139 +16,168 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public class BankAPI {
+public abstract class BankAPI {
 
-    private static final Map<ResourceLocation, BankReferenceType> TYPES = new HashMap<>();
+    public static final BankAPI API = BankAPIImpl.INSTANCE;
 
     /**
      * Method used to register a {@link BankReferenceType}.<br>
      * I recommend calling during the {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent Common Setup Event}
      */
-    public static void registerType(@Nonnull BankReferenceType type)
-    {
-        ResourceLocation id = type.id;
-        if(TYPES.containsKey(id))
-            LightmansCurrency.LogWarning("Attempted to registerNotification the AccountReferenceType '" + id + "' twice!");
-        else
-        {
-            TYPES.put(id, type);
-            LightmansCurrency.LogDebug("Registered BankReferenceType '" + id + "'!");
-        }
-    }
+    public abstract void RegisterReferenceType(@Nonnull BankReferenceType type);
 
+
+    /**
+     * @deprecated Use {@link #RegisterReferenceType(BankReferenceType)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static void registerType(@Nonnull BankReferenceType type) { API.RegisterReferenceType(type); }
+
+    public abstract void RegisterBankAccountSource(@Nonnull BankAccountSource source);
+
+    /**
+     * Method used to get a registered {@link BankReferenceType} from the available map.
+     * Used to load {@link BankReference} from NBT data.
+     */
     @Nullable
-    public static BankReferenceType getType(@Nonnull ResourceLocation type) { return TYPES.get(type); }
+    public abstract BankReferenceType GetReferenceType(@Nonnull ResourceLocation type);
+    /**
+     * @deprecated Use {@link #RegisterReferenceType(BankReferenceType)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    @Nullable
+    public static BankReferenceType getType(@Nonnull ResourceLocation type) { return API.GetReferenceType(type); }
 
-    public static void DepositCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount)
-    {
-        if(menu == null)
-            return;
-        DepositCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
-    }
+    public abstract List<IBankAccount> GetAllBankAccounts(boolean isClient);
+    public abstract List<BankReference> GetAllBankReferences(boolean isClient);
 
-    public static void DepositCoins(@Nonnull Player player, @Nonnull Container coinInput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount)
-    {
-        if(account == null)
-            return;
 
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,coinInput);
-        MoneyView valueOfContainer = handler.getStoredMoney();
-        for(MoneyValue value : valueOfContainer.allValues())
-        {
-            if(value.sameType(amount))
-            {
-                MoneyValue depositAmount = amount;
-                if(depositAmount.isEmpty() || !value.containsValue(depositAmount))
-                    depositAmount = value;
-                //Take the money from the container
-                handler.extractMoney(depositAmount,false);
-                //Add the money to the bank account
-                account.depositMoney(depositAmount);
-                if(account instanceof BankAccount ba)
-                    ba.LogInteraction(player, depositAmount, true);
-                return;
-            }
-        }
+    /**
+     * Executes a bank deposit interaction.
+     * This is the shortcut method called from the context of a player interacting with a {@link IBankAccountMenu} menu.
+     * @param requestedAmount The amount the player has requested to deposit. If not enough funds are available, the largest available amount will be deposited.
+     * @see #BankDeposit(Player, Container, BankReference, MoneyValue) for the non-shortcut version of the function.
+     */
+    public abstract void BankDeposit(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue requestedAmount);
+    /**
+     * Executes a bank deposit interaction.
+     * @param player The player who is attempting to make the deposit.
+     * @param container A container for items that could contain money. Used in {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetATMMoneyHandler(Player, Container)} to get the funds available for deposit.
+     * @param account A {@link BankReference} for the bank account that the player wished to make the deposit to. Will be used to confirm that the player has access to the bank account before depositing via {@link BankReference#allowedAccess(Player)}.
+     * @param requestedAmount The amount the player has requested to deposit. If not enough funds are available, the largest available amount will be deposited.
+     */
+    public abstract void BankDeposit(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference account, @Nonnull MoneyValue requestedAmount);
 
-    }
+    /**
+     * @deprecated Use {@link #BankDeposit(IBankAccountMenu, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static void DepositCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { API.BankDeposit(menu,amount); }
 
-    public static boolean ServerGiveCoins(@Nonnull IBankAccount account, @Nonnull MoneyValue amount)
-    {
-        if(account == null || amount.isEmpty())
-            return false;
+    /**
+     * @deprecated Use {@link #BankDeposit(Player, Container, BankReference, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    @SuppressWarnings("unused")
+    public static void DepositCoins(@Nonnull Player player, @Nonnull Container coinInput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount) { }
 
-        account.depositMoney(amount);
-        account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount));
-        return true;
-    }
+    /**
+     * Called by admins/commands to forcibly create and deposit money into the given bank account.
+     * @param account The bank account to deposit money into.
+     * @param amount The amount of money to deposit.
+     */
+    public abstract boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount);
+    /**
+     * Called by admins/commands to forcibly withdraw and destroy money from the given bank account.
+     * @param account The bank account to take money from.
+     * @param amount The amount of money to take.
+     */
+    @Nonnull
+    public abstract Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount);
+    /**
+     * @deprecated Use {@link #BankDepositFromServer(IBankAccount, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static boolean ServerGiveCoins(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) {return API.BankDepositFromServer(account,amount); }
 
-    public static Pair<Boolean, MoneyValue> ServerTakeCoins(@Nonnull IBankAccount account, MoneyValue amount)
-    {
-        if(account == null || amount.isEmpty())
-            return Pair.of(false, MoneyValue.empty());
+    /**
+     * @deprecated Use {@link #BankWithdrawFromServer(IBankAccount, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static Pair<Boolean, MoneyValue> ServerTakeCoins(@Nonnull IBankAccount account, MoneyValue amount) { return API.BankWithdrawFromServer(account,amount); }
 
-        MoneyValue taken = account.withdrawMoney(amount);
-        account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), false, taken));
-        return Pair.of(true, taken);
-    }
+    /**
+     * Executes a bank withdraw interaction.
+     * This is the shortcut method called from the context of a player interacting with a {@link IBankAccountMenu} menu.
+     * @param amount The amount the player has requested to withdraw. If not enough funds are available, the largest available amount will be withdrawn.
+     * @see #BankWithdraw(Player, Container, BankReference, MoneyValue) for the non-shortcut version of the function.
+     */
+    public abstract void BankWithdraw(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount);
+    /**
+     * Executes a bank withdraw interaction.
+     * @param player The player who is attempting to make the withdrawl.
+     * @param container A container for items that could contain money. Used in {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetATMMoneyHandler(Player, Container)} to get the funds available for deposit.
+     * @param account A {@link BankReference} for the bank account that the player wished to make the deposit to. Will be used to confirm that the player has access to the bank account before depositing via {@link BankReference#allowedAccess(Player)}.
+     * @param amount The amount the player has requested to withdraw. If not enough funds are available, the largest available amount will be withdrawn.
+     */
+    public abstract void BankWithdraw(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference account, @Nonnull MoneyValue amount);
 
-    public static void WithdrawCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount)
-    {
-        if(menu == null)
-            return;
-        WithdrawCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
-    }
+    /**
+     * @deprecated Use {@link #BankWithdraw(IBankAccountMenu, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static void WithdrawCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { API.BankWithdraw(menu,amount); }
+    /**
+     * @deprecated Use {@link #BankWithdraw(Player,Container,BankReference, MoneyValue)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    @SuppressWarnings("unused")
+    public static void WithdrawCoins(@Nonnull Player player, @Nonnull Container coinOutput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount) { }
 
-    public static void WithdrawCoins(@Nonnull Player player, @Nonnull Container coinOutput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount)
-    {
-        if(account == null || amount.isEmpty())
-            return;
+    /**
+     * Executes a bank account money transfer interaction.
+     * This is the shortcut method called from the context of a player interacting with a {@link IBankAccountAdvancedMenu} menu.
+     * @param amount The amount the player has requested to transfer. If not enough funds are available, the largest available amount will be transferred.
+     * @return A message sent as feedback to the player who initiated the transfer.
+     * @see #BankTransfer(Player, BankReference, MoneyValue, IBankAccount) for the non-shortcut version of the function.
+     */
+    @Nonnull
+    public abstract MutableComponent BankTransfer(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination);
+    /**
+     * Executes a bank withdraw interaction from the given player.
+     * @param player The player who is attempting to make the withdrawl.
+     * @param fromAccount The bank account that money will be transferred from. Will be used to confirm that the player has access to the bank account before depositing via {@link BankReference#allowedAccess(Player)}.
+     * @param amount The amount the player has requested to transfer. If not enough funds are available, the largest available amount will be transferred.
+     * @param destination The bank account that money will be transferred to. Does not require that the player has access to this account as this will be purely beneficial to the target.
+     * @return A message sent as feedback to the player who initiated the transfer.
+     */
+    @Nonnull
+    public abstract MutableComponent BankTransfer(@Nonnull Player player, @Nonnull BankReference fromAccount, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination);
 
-        MoneyValue withdrawnAmount = account.withdrawMoney(amount);
+    /**
+     * @deprecated Use {@link #BankTransfer(IBankAccountAdvancedMenu, MoneyValue, IBankAccount)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    public static MutableComponent TransferCoins(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull BankReference destination) { return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get()); }
 
-        CurrencyType currencyType = withdrawnAmount.getCurrency();
-        if(currencyType == null)
-        {
-            account.depositMoney(withdrawnAmount);
-            return;
-        }
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,coinOutput);
-        handler.insertMoney(withdrawnAmount,false);
-        if(account instanceof BankAccount ba)
-            ba.LogInteraction(player, withdrawnAmount, false);
-    }
+    /**
+     * @deprecated Use {@link #BankTransfer(Player,BankReference, MoneyValue, IBankAccount)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.1.1")
+    @SuppressWarnings("unused")
+    public static MutableComponent TransferCoins(@Nonnull Player player, @Nonnull IBankAccount fromAccount, @Nonnull MoneyValue amount, @Nonnull IBankAccount destinationAccount) { return EasyText.literal("Outdated API usage!"); }
 
-    public static MutableComponent TransferCoins(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull BankReference destination)
-    {
-        return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get());
-    }
-
-    public static MutableComponent TransferCoins(@Nonnull Player player, @Nonnull IBankAccount fromAccount, @Nonnull MoneyValue amount, @Nonnull IBankAccount destinationAccount)
-    {
-        if(fromAccount == null)
-            return EasyText.translatable("gui.bank.transfer.error.null.from");
-        if(destinationAccount == null)
-            return EasyText.translatable("gui.bank.transfer.error.null.to");
-        if(amount.isEmpty())
-            return EasyText.translatable("gui.bank.transfer.error.amount", amount.getString("nothing"));
-        if(fromAccount == destinationAccount)
-            return EasyText.translatable("gui.bank.transfer.error.same");
-
-        MoneyValue withdrawnAmount = fromAccount.withdrawMoney(amount);
-        if(withdrawnAmount.isEmpty())
-            return EasyText.translatable("gui.bank.transfer.error.nobalance", amount.getString());
-
-        destinationAccount.depositMoney(withdrawnAmount);
-        if(fromAccount instanceof BankAccount ba)
-            ba.LogTransfer(player, withdrawnAmount, destinationAccount.getName(), false);
-        if(destinationAccount instanceof BankAccount ba)
-            ba.LogTransfer(player, withdrawnAmount, fromAccount.getName(), true);
-
-        return EasyText.translatable("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
-
-    }
 
 }

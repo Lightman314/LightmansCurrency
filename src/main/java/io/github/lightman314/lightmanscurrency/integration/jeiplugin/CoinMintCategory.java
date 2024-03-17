@@ -6,7 +6,10 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.MintScreen;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import mezz.jei.api.constants.VanillaTypes;
@@ -21,6 +24,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +40,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	
 	public CoinMintCategory(IGuiHelper guiHelper)
 	{
-		this.background = guiHelper.createDrawable(MintScreen.GUI_TEXTURE, 55, 16, 82, 26);
+		this.background = guiHelper.createDrawable(MintScreen.GUI_TEXTURE, 47, 8, 98, 42);
 		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.COIN_MINT.get()));
 
 		this.cachedArrows = CacheBuilder.newBuilder().maximumSize(25L).build(new CacheLoader<>() {
@@ -67,20 +71,27 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	public void draw(@Nonnull CoinMintRecipe recipe, @Nonnull IRecipeSlotsView recipeSlotsView, @Nonnull PoseStack pose, double mouseX, double mouseY) {
 		IRecipeCategory.super.draw(recipe, recipeSlotsView, pose, mouseX, mouseY);
 		IDrawableAnimated arrow = this.getArrow(recipe);
-		arrow.draw(pose, 25, 5);
+		arrow.draw(pose, 33, 13);
+		if(!recipe.isValid())
+		{
+			//Render "disabled in config" text
+			EasyGuiGraphics gui = EasyGuiGraphics.create(pose,(int)mouseX,(int)mouseY,0f);
+			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.coinmint.disabled.1").withStyle(ChatFormatting.BOLD), 52, 0, 0xFF0000);
+			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.coinmint.disabled.2").withStyle(ChatFormatting.BOLD), 52, 35, 0xFF0000);
+		}
 	}
 
 	@Override
 	public @NotNull IDrawable getIcon() { return this.icon; }
 
 	@Override
-	public @NotNull Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
+	public @NotNull Component getTitle() { return EasyText.translatable("gui.lightmanscurrency.coinmint.title"); }
 	
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @NotNull IFocusGroup focus) {
-		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
+		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 9, 13);
 		inputSlot.addIngredients(VanillaTypes.ITEM_STACK, Lists.newArrayList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
-		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);
+		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 69, 13);
 		outputSlot.addIngredient(VanillaTypes.ITEM_STACK, recipe.getResultItem());
 	}
 

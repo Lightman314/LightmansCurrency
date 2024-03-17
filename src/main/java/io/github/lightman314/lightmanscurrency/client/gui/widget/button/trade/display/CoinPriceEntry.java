@@ -52,7 +52,7 @@ public class CoinPriceEntry extends DisplayEntry {
                 gui.renderItem(stack, left, top);
             }
         }
-        else if(entries.size() > 0)
+        else if(!entries.isEmpty())
         {
             int spacing = (area.width() - 16) / entries.size();
             int top = this.getTopLeft(y + area.yOffset(), area.height());

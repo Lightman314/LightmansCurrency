@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
@@ -41,7 +40,12 @@ public class PaygateTradeData extends TradeData {
 	public int getTicketColor() { return this.ticketColor; }
 	public boolean isTicketTrade() { return this.ticketID >= -1; }
 	public long getTicketID() { return this.ticketID; }
-	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); this.validateRuleStates(); }
+	public void setTicket(ItemStack ticket)
+	{
+		this.ticketID = TicketItem.GetTicketID(ticket);
+		this.ticketColor = TicketItem.GetTicketColor(ticket);
+		this.validateRuleStates();
+	}
 
 	boolean storeTicketStubs = false;
 	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
@@ -266,7 +270,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
+			if(TicketItem.isMasterTicket(heldItem))
 			{
 				this.setTicket(heldItem);
 				//Only send message on client, otherwise we get an infinite loop

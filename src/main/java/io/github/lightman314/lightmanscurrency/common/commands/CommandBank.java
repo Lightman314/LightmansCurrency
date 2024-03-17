@@ -8,15 +8,15 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.PlayerBankAccountSource;
+import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.TeamBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -31,7 +31,7 @@ public class CommandBank {
 
         LiteralArgumentBuilder<CommandSourceStack> bankCommand
                 = Commands.literal("lcbank")
-                .requires(stack -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
+                .requires(stack -> stack.hasPermission(2))
                 .then(Commands.literal("give")
                         .then(Commands.literal("allPlayers")
                                 .then(Commands.argument("amount", MoneyValueArgument.argument(context))
@@ -70,7 +70,7 @@ public class CommandBank {
     static int giveAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
-        return giveTo(commandContext.getSource(), BankSaveData.GetPlayerBankAccounts(), amount);
+        return giveTo(commandContext.getSource(), PlayerBankAccountSource.INSTANCE.CollectAllReferences(false), amount);
     }
 
     static int giveAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -110,7 +110,7 @@ public class CommandBank {
         Component bankName = null;
         for(BankReference account : accounts)
         {
-            if(BankAPI.ServerGiveCoins(account.get(), amount))
+            if(BankAPI.API.BankDepositFromServer(account.get(), amount))
             {
                 count++;
                 if(count == 1)
@@ -133,13 +133,13 @@ public class CommandBank {
     static int takeAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
-        return takeFrom(commandContext.getSource(), BankSaveData.GetPlayerBankAccounts(), amount);
+        return takeFrom(commandContext.getSource(), PlayerBankAccountSource.INSTANCE.CollectAllReferences(false), amount);
     }
 
     static int takeAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
     {
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
-        return takeFrom(commandContext.getSource(), TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).map(Team::getBankReference).toList(), amount);
+        return takeFrom(commandContext.getSource(), TeamBankAccountSource.INSTANCE.CollectAllReferences(false), amount);
     }
 
     static int takePlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -174,7 +174,7 @@ public class CommandBank {
         MoneyValue largestAmount = MoneyValue.empty();
         for(BankReference account : accounts)
         {
-            Pair<Boolean, MoneyValue> result = BankAPI.ServerTakeCoins(account.get(), amount);
+            Pair<Boolean, MoneyValue> result = BankAPI.API.BankWithdrawFromServer(account.get(), amount);
             if(result.getFirst())
             {
                 count++;

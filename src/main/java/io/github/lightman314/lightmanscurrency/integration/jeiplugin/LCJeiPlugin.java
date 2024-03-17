@@ -48,25 +48,11 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerRecipes(IRecipeRegistration registration)
 	{
-		List<CoinMintRecipe> recipes = RecipeValidator.getValidMintRecipes(Minecraft.getInstance().level);
-		registration.addRecipes(COIN_MINT_TYPE, recipes);
+		List<CoinMintRecipe> mintRecipes = RecipeValidator.getAllMintRecipes(Minecraft.getInstance().level);
+		registration.addRecipes(COIN_MINT_TYPE, mintRecipes);
 
 		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(TICKET_TYPE, ticketRecipes);
-
-		/*
-		ItemStack masterTicket = TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_master"));
-		registration.addIngredientInfo(masterTicket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-
-		ItemStack ticket = TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(ticket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket"));
-		registration.addIngredientInfo(ticket, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-
-		ItemStack pass = TicketItem.CreatePass(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR);
-		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket.pass"));
-		registration.addIngredientInfo(pass, VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
-		*/
 
 		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_stub"));
 		
