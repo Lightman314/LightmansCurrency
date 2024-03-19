@@ -177,8 +177,8 @@ public class LightmansCurrencyPacketHandler {
 	
 	public static PacketTarget getTarget(Player player)
 	{
-		if(player instanceof ServerPlayer)
-			return getTarget((ServerPlayer)player);
+		if(player instanceof ServerPlayer sp)
+			return getTarget(sp);
 		return null;
 	}
 	

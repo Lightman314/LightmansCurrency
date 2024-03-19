@@ -765,6 +765,27 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .save(consumer, ItemID("ticket_station/", ModItems.TICKET_PASS));
 
+        //2.2.1.2
+        //Golden Tickets
+        MasterTicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_GOLD)
+                .withResult(ModItems.GOLDEN_TICKET_MASTER)
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.GOLDEN_TICKET_MASTER));
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_GOLD, ModItems.GOLDEN_TICKET.get())
+                .withMasterTicket(ModItems.GOLDEN_TICKET_MASTER.get())
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.GOLDEN_TICKET));
+        TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_GOLD, ModItems.GOLDEN_TICKET_PASS.get())
+                .withMasterTicket(ModItems.GOLDEN_TICKET_MASTER.get())
+                .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
+                .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .save(consumer, ItemID("ticket_station/", ModItems.GOLDEN_TICKET_PASS));
+
     }
 
     private static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, RegistryObject<? extends ItemLike>>> ingredientWalletPairs)

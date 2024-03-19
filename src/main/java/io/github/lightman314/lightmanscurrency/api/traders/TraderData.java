@@ -88,6 +88,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -1387,5 +1388,19 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull  Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition, this.validator); }
 
 	}
-	
+
+	@Nonnull
+	public final List<Component> getTerminalInfo(@Nullable Player player)
+	{
+		List<Component> info = new ArrayList<>();
+		this.appendTerminalInfo(info, player);
+		return info;
+	}
+
+	/**
+	 * Adds info about this trader to the {@link io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton NetworkTraderButton}'s tooltip.<br>
+	 * Can be used to add useful info about how many trades are available, how many are in stock, etc.
+	 */
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) { }
+
 }

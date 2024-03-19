@@ -38,6 +38,14 @@ public interface TicketStationRecipe extends Recipe<Container> {
     @Nonnull
     static List<ItemStack> exampleTicketList(@Nonnull RegistryObject<? extends ItemLike> item) { return exampleTicketList(item.get().asItem()); }
     @Nonnull
+    static List<ItemStack> exampleTicketList(@Nonnull Ingredient ingredient)
+    {
+        List<ItemStack> result = new ArrayList<>();
+        for(ItemStack item : ingredient.getItems())
+            result.addAll(exampleTicketList(item.getItem()));
+        return result;
+    }
+    @Nonnull
     static List<ItemStack> exampleTicketList(@Nonnull Item item)
     {
         List<ItemStack> result = new ArrayList<>();

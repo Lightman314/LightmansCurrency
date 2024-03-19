@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -56,10 +57,16 @@ public class ModItems {
 		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
 
 		//Ticket
-		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup())));
-		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.UNCOMMON)));
-		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.RARE).stacksTo(1)));
+		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()),-1, Color.YELLOW));
+		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.UNCOMMON),-1, Color.YELLOW));
+		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.RARE).stacksTo(1),-1, Color.YELLOW));
 		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getMachineGroup())));
+
+		//Golden Ticket
+		GOLDEN_TICKET = ModRegistries.ITEMS.register("golden_ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()), -2, Color.BLUE));
+		GOLDEN_TICKET_PASS = ModRegistries.ITEMS.register("golden_ticket_pass", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.UNCOMMON), -2, Color.BLUE));
+		GOLDEN_TICKET_MASTER = ModRegistries.ITEMS.register("golden_master_ticket", () -> new TicketItem(new Item.Properties().tab(ModCreativeGroups.getMachineGroup()).rarity(Rarity.RARE).stacksTo(1), -2, Color.BLUE));
+		GOLDEN_TICKET_STUB = ModRegistries.ITEMS.register("golden_ticket_stub", () -> new Item(new Item.Properties().tab(ModCreativeGroups.getMachineGroup())));
 
 		//Wallets
 		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties().tab(ModCreativeGroups.getCoinGroup())));
@@ -122,6 +129,11 @@ public class ModItems {
 	public static final RegistryObject<Item> TICKET_PASS;
 	public static final RegistryObject<Item> TICKET_MASTER;
 	public static final RegistryObject<Item> TICKET_STUB;
+
+	public static final RegistryObject<Item> GOLDEN_TICKET;
+	public static final RegistryObject<Item> GOLDEN_TICKET_PASS;
+	public static final RegistryObject<Item> GOLDEN_TICKET_MASTER;
+	public static final RegistryObject<Item> GOLDEN_TICKET_STUB;
 
 	public static final RegistryObject<WalletItem> WALLET_COPPER;
 	public static final RegistryObject<WalletItem> WALLET_IRON;

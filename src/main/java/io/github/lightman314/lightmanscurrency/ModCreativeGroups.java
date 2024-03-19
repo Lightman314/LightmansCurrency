@@ -82,6 +82,11 @@ public class ModCreativeGroups {
                 ModItems.TICKET_PASS,
                 ModItems.TICKET,
                 ModItems.TICKET_STUB,
+                //Golden Tickets
+                ModItems.GOLDEN_TICKET_MASTER,
+                ModItems.GOLDEN_TICKET_PASS,
+                ModItems.GOLDEN_TICKET,
+                ModItems.GOLDEN_TICKET_STUB,
                 //Coin Chest
                 ModBlocks.COIN_CHEST,
                 //Coin Jars

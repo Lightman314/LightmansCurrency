@@ -2,12 +2,11 @@ package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
+import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.CoinChestRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
-import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -56,6 +55,7 @@ public class ClientModEvents {
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
 	}
 

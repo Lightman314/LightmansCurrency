@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
@@ -21,10 +22,15 @@ public class NetworkTradeReference extends NetworkTraderReference{
 	
 	public void setTrade(int tradeIndex) {
 		this.tradeIndex = tradeIndex;
+		if(tradeIndex < 0)
+		{
+			this.tradeData = null;
+			return;
+		}
 		this.tradeData = copyTrade(this.getTrueTrade());
 		if(this.tradeData == null)
 		{
-			LightmansCurrency.LogWarning("Trade index of '" + this.tradeIndex + "' does not result in a valid trade. Resetting back to no trade selected.");
+			LightmansCurrency.LogWarning("Trade index of '" + this.tradeIndex + "' does not result in a valid trade on the " + DebugUtil.getSideText(this.isClient()) + ". Resetting back to no trade selected.");
 			this.tradeIndex = -1;
 		}
 	}

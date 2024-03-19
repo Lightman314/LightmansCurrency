@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
-	
+
 	public enum TradeDirection { SALE(0), PURCHASE(1), NONE(-1);
 		public final int index;
 		TradeDirection(int index) { this.index = index; }
@@ -46,17 +46,17 @@ public abstract class TradeData implements ITradeRuleHost {
 			return TradeDirection.SALE;
 		}
 	}
-	
+
 	protected MoneyValue cost = MoneyValue.empty();
-	
+
 	List<TradeRule> rules = new ArrayList<>();
-	
+
 	public abstract TradeDirection getTradeDirection();
 
 	public boolean validCost() { return this.getCost().isValidPrice(); }
-	
+
 	public boolean isValid() { return validCost(); }
-	
+
 	public MoneyValue getCost() { return this.cost; }
 
 	private TradeCostCache cachedCost = TradeCostCache.EMPTY;
@@ -106,7 +106,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 		return cost;
 	}
-	
+
 	public void setCost(MoneyValue value) { this.cost = value; this.flagPriceAsChanged(); }
 
 	public final int stockCountOfCost(TraderData trader)
@@ -136,22 +136,22 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 
 	private final boolean validateRules;
-	
+
 	protected TradeData(boolean validateRules) {
 		this.validateRules = validateRules;
 		if(this.validateRules)
 			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
-	
+
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag tradeNBT = new CompoundTag();
 		tradeNBT.put("Price", this.cost.save());
 		TradeRule.saveRules(tradeNBT, this.rules, "RuleData");
-		
+
 		return tradeNBT;
 	}
-	
+
 	protected void loadFromNBT(CompoundTag nbt)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
@@ -162,7 +162,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			this.cost = MoneyValue.free();
 			this.flagPriceAsChanged();
 		}
-		
+
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
 		{
@@ -171,10 +171,10 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 		else
 			this.rules = TradeRule.loadRules(nbt, "RuleData", this);
-		
+
 		if(this.validateRules)
 			TradeRule.ValidateTradeRuleList(this.rules, this);
-		
+
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	@Override
 	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
-	
+
 	public void beforeTrade(PreTradeEvent event) {
 		for(TradeRule rule : this.rules)
 		{
@@ -202,7 +202,7 @@ public abstract class TradeData implements ITradeRuleHost {
 				rule.tradeCost(event);
 		}
 	}
-	
+
 	public void afterTrade(PostTradeEvent event) {
 		for(TradeRule rule : this.rules)
 		{
@@ -210,7 +210,7 @@ public abstract class TradeData implements ITradeRuleHost {
 				rule.afterTrade(event);
 		}
 	}
-	
+
 	@Nonnull
 	@Override
 	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
@@ -223,12 +223,26 @@ public abstract class TradeData implements ITradeRuleHost {
 	 */
 	public void setRules(List<TradeRule> rules) { this.rules = rules; }
 
-	public abstract TradeComparisonResult compare(TradeData otherTrade);
-	
+	/**
+	 * Compares two trades to each other.<br>
+	 * Should be called by the <code>True Trade</code> that would actually be executed.<br>
+	 * If the <code>True Trade</code>'s {@link #getCost()}'s money value is greater than the <code>Expected Trade</code>'s {@link #getCost()} then {@link TradeComparisonResult#isPriceExpensive()} should be true, etc.
+	 * @param expectedTrade The <codeExpected Trade</code> that we are checking for differences from.
+	 */
+	public abstract TradeComparisonResult compare(TradeData expectedTrade);
+
+	/**
+	 * Whether the results of {@link #compare(TradeData)} are acceptable and an automated trade can be carried out.
+	 * Should return <code>false</code> if any changes have been made to the trade that aren't beneficial to the customer.
+	 */
 	public abstract boolean AcceptableDifferences(TradeComparisonResult result);
-	
+
+	/**
+	 * Collects legible notes about the differences returned by {@link #compare(TradeData)} to be viewed by a player.<br>
+	 * Used to inform them about what changes have been made so that they can make an informed decision about whether they want to accept the changes or not.
+	 */
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
-	
+
 	@OnlyIn(Dist.CLIENT)
 	@Nonnull
 	public abstract TradeRenderManager<?> getButtonRenderer();

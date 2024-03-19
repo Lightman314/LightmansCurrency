@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
+import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -57,6 +58,10 @@ public class MoneyMendingEnchantment extends Enchantment {
 		{
 			//Only bother calculating the repair cost until we have a confirmed mending target to reduce lag
 			MoneyValue repairCost = MoneyMendingEnchantment.getRepairCost();
+			//If item has infinity, add the infinity repair cost to the base repair cost
+			Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(item);
+			if(enchantments.containsKey(Enchantments.INFINITY_ARROWS) && enchantments.get(Enchantments.INFINITY_ARROWS) > 0)
+				repairCost = repairCost.addValue(LCConfig.SERVER.moneyMendingInfinityCost.get());
 			MoneyView availableFunds = handler.getStoredMoney();
 			if(!availableFunds.containsValue(repairCost))
 				return;

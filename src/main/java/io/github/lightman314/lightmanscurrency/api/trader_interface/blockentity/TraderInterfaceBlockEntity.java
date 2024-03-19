@@ -492,8 +492,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public void serverTick() {
 		if(this.isActive())
 		{
-			this.waitTimer -= 1;
-			if(this.waitTimer <= 0)
+			if(--this.waitTimer <= 0)
 			{
 				this.waitTimer = this.getInteractionDelay();
 				if(this.interaction.requiresPermissions)
@@ -517,7 +516,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 				}
 			}
 		}
-
 	}
 
 
@@ -533,7 +531,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		TradeData trueTrade = this.getTrueTrade();
 		if(expectedTrade == null || trueTrade == null)
 			return false;
-		return expectedTrade.AcceptableDifferences(expectedTrade.compare(trueTrade));
+		return trueTrade.AcceptableDifferences(trueTrade.compare(expectedTrade));
 	}
 
 	public abstract boolean validTraderType(TraderData trader);

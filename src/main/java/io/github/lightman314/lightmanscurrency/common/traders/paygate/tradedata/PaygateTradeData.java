@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -22,34 +24,56 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
 public class PaygateTradeData extends TradeData {
 
 	public PaygateTradeData() { super(true); }
-	
+
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
 	public void setDuration(int duration) { this.duration = Math.max(duration, PaygateTraderData.DURATION_MIN); }
+	Item ticketItem = Items.AIR;
 	long ticketID = Long.MIN_VALUE;
 	int ticketColor = 0xFFFFFF;
 	public int getTicketColor() { return this.ticketColor; }
 	public boolean isTicketTrade() { return this.ticketID >= -1; }
+	public Item getTicketItem() { return this.ticketItem; }
 	public long getTicketID() { return this.ticketID; }
-	public void setTicket(ItemStack ticket)
-	{
-		this.ticketID = TicketItem.GetTicketID(ticket);
-		this.ticketColor = TicketItem.GetTicketColor(ticket);
+	public void setTicket(ItemStack ticket) {
+		TicketData data = TicketData.getForMaster(ticket);
+		if(data != null && TicketItem.isMasterTicket(ticket))
+		{
+			this.ticketItem = data.ticket;
+			this.ticketID = TicketItem.GetTicketID(ticket);
+			this.ticketColor = TicketItem.GetTicketColor(ticket);
+		}
+		else
+		{
+			this.ticketItem = Items.AIR;
+			this.ticketID = Long.MIN_VALUE;
+			this.ticketColor = 0xFFFFFF;
+		}
 		this.validateRuleStates();
 	}
 
 	boolean storeTicketStubs = false;
 	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
 	public void setStoreTicketStubs(boolean value) { this.storeTicketStubs = value; }
+	public ItemStack getTicketStub() {
+		TicketData data = TicketData.getForTicket(new ItemStack(this.ticketItem));
+		if(data != null)
+			return new ItemStack(data.ticketStub);
+		return ItemStack.EMPTY;
+	}
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
@@ -60,51 +84,51 @@ public class PaygateTradeData extends TradeData {
 		else
 			return context.hasFunds(this.cost);
 	}
-	
+
 	@Override
 	public boolean isValid() {
 		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid());
 	}
-	
+
 	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data)
 	{
 		saveAllData(nbt, data, DEFAULT_KEY);
 	}
-	
+
 	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key)
 	{
 		ListTag listNBT = new ListTag();
 
 		for (PaygateTradeData datum : data)
 			listNBT.add(datum.getAsNBT());
-		
-		if(listNBT.size() > 0)
+
+		if(!listNBT.isEmpty())
 			nbt.put(key, listNBT);
 	}
-	
+
 	public static PaygateTradeData loadData(CompoundTag nbt) {
 		PaygateTradeData trade = new PaygateTradeData();
 		trade.loadFromNBT(nbt);
 		return trade;
 	}
-	
+
 	public static List<PaygateTradeData> loadAllData(CompoundTag nbt)
 	{
 		return loadAllData(DEFAULT_KEY, nbt);
 	}
-	
+
 	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt)
 	{
 		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
-		
+
 		List<PaygateTradeData> data = listOfSize(listNBT.size());
-		
+
 		for(int i = 0; i < listNBT.size(); i++)
 			data.get(i).loadFromNBT(listNBT.getCompound(i));
-		
+
 		return data;
 	}
-	
+
 	public static List<PaygateTradeData> listOfSize(int tradeCount)
 	{
 		List<PaygateTradeData> data = Lists.newArrayList();
@@ -112,38 +136,48 @@ public class PaygateTradeData extends TradeData {
 			data.add(new PaygateTradeData());
 		return data;
 	}
-	
+
 	@Override
 	public CompoundTag getAsNBT() {
 		CompoundTag compound = super.getAsNBT();
-		
+
 		compound.putInt("Duration", this.getDuration());
 		if(this.ticketID >= -1)
 		{
+			compound.putString("TicketItem", ForgeRegistries.ITEMS.getKey(this.ticketItem).toString());
 			compound.putLong("TicketID", this.ticketID);
 			compound.putInt("TicketColor", this.ticketColor);
 			compound.putBoolean("StoreTicketStubs", this.storeTicketStubs);
 		}
 
-		
 		return compound;
 	}
-	
+
 	@Override
 	protected void loadFromNBT(CompoundTag compound) {
 		super.loadFromNBT(compound);
-		
+
 		this.duration = compound.getInt("Duration");
 
 		if(compound.contains("TicketID"))
+		{
 			this.ticketID = compound.getLong("TicketID");
+			if(compound.contains("TicketItem"))
+				this.ticketItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TicketItem")));
+			else
+				this.ticketItem = ModItems.TICKET.get();
+		}
 		else if(compound.contains("Ticket"))
 		{
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
+			this.ticketItem = ModItems.TICKET.get();
 		}
 		else
+		{
 			this.ticketID = Long.MIN_VALUE;
+			this.ticketItem = Items.AIR;
+		}
 
 		if(compound.contains("TicketColor"))
 			this.ticketColor = compound.getInt("TicketColor");
@@ -154,9 +188,9 @@ public class PaygateTradeData extends TradeData {
 			this.storeTicketStubs = compound.getBoolean("StoreTicketStubs");
 		else
 			this.storeTicketStubs = false;
-		
+
 	}
-	
+
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		LightmansCurrency.LogWarning("Attempting to compare paygate trades, but paygate trades do not support this interaction.");
@@ -174,9 +208,9 @@ public class PaygateTradeData extends TradeData {
 		LightmansCurrency.LogWarning("Attempting to get warnings for different paygate trades, but paygate trades do not support this interaction.");
 		return Lists.newArrayList();
 	}
-	
-	public static MutableComponent formatDurationShort(int duration) { 
-		
+
+	public static MutableComponent formatDurationShort(int duration) {
+
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
@@ -192,9 +226,9 @@ public class PaygateTradeData extends TradeData {
 			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks));
 		return result;
 	}
-	
-	public static MutableComponent formatDurationDisplay(int duration) { 
-		
+
+	public static MutableComponent formatDurationDisplay(int duration) {
+
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
@@ -207,9 +241,9 @@ public class PaygateTradeData extends TradeData {
 			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds);
 		return Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks);
 	}
-	
-	public static MutableComponent formatDuration(int duration) { 
-		
+
+	public static MutableComponent formatDuration(int duration) {
+
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
@@ -225,7 +259,7 @@ public class PaygateTradeData extends TradeData {
 				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours", hours));
 			else
 				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.singular", hours));
-		}	
+		}
 		if(minutes > 0)
 		{
 			if(addSpacer)
@@ -259,7 +293,7 @@ public class PaygateTradeData extends TradeData {
 	}
 
 	@Nonnull
-    @Override
+	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
@@ -297,7 +331,7 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
-		
+
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -305,7 +339,7 @@ public class PaygateTradeData extends TradeData {
 				return;
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
 		}
-		
+
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -60,6 +61,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter {
 
@@ -740,7 +742,23 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
 		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
-	
-	
+
+	@Override
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+		int tradeCount = 0;
+		int outOfStock = 0;
+		for(ItemTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				tradeCount++;
+				if(!this.isCreative() && !trade.hasStock(this))
+					outOfStock++;
+			}
+		}
+		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count", tradeCount));
+		if(outOfStock > 0)
+			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock", outOfStock));
+	}
 	
 }

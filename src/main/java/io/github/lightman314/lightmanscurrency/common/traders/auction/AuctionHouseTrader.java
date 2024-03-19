@@ -43,6 +43,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
@@ -351,5 +352,16 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
+
+	@Override
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+		int auctionCount = 0;
+		for(AuctionTradeData auction : this.trades)
+		{
+			if(auction.isValid() && auction.isActive())
+				auctionCount++;
+		}
+		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.auction_house",auctionCount));
+	}
 	
 }

@@ -18,7 +18,6 @@ public class ProductComparisonResult {
     private final boolean sameNBT;
     /**
      * Whether the two products have the same NBT data.
-     * @return
      */
     public boolean SameProductNBT() { return this.sameNBT; }
     private final int quantityDifference;
@@ -28,7 +27,7 @@ public class ProductComparisonResult {
     public boolean SameProductQuantity() { return this.quantityDifference == 0; }
     /**
      * The difference between the two quantities.
-     * Calculated as 'expected quantity - true quantity', so a difference > 0 means a smaller quantity, while a difference < 0 means a larger quantity
+     * Calculated as 'true quantity - expected quantity', so a difference > 0 means a larger quantity, while a difference < 0 means a smaller quantity
      */
     public int ProductQuantityDifference() { return this.quantityDifference; }
 
@@ -38,49 +37,56 @@ public class ProductComparisonResult {
         this.quantityDifference = quantityDifference;
     }
 
-    public static ProductComparisonResult CompareItem(ItemStack original, ItemStack query) {
-        boolean isItemEqual = original.getItem() == query.getItem();
+    public static ProductComparisonResult CompareItem(ItemStack trueItem, ItemStack expectedItem) { return CompareItem(trueItem,expectedItem,true); }
+    public static ProductComparisonResult CompareItem(ItemStack trueItem, ItemStack expectedItem, boolean checkNBT) {
+        boolean isItemEqual = trueItem.getItem() == expectedItem.getItem();
         boolean isTagEqual;
-        if(original.getTag() != null)
-            isTagEqual = original.getTag().equals(query.getTag());
+        if(checkNBT)
+        {
+            if(trueItem.getTag() != null)
+                isTagEqual = trueItem.getTag().equals(expectedItem.getTag());
+            else
+                isTagEqual = expectedItem.getTag() == null || expectedItem.getTag().isEmpty();
+        }
         else
-            isTagEqual = query.getTag() == null;
-        int quantityDifference = original.getCount() - query.getCount();
+            isTagEqual = true;
+        int quantityDifference = trueItem.getCount() - expectedItem.getCount();
         return new ProductComparisonResult(isItemEqual, isTagEqual, quantityDifference);
     }
 
     public static ProductComparisonResult CreateRaw(boolean sameProduct, boolean sameNBT, int quantityDifference) { return new ProductComparisonResult(sameProduct, sameNBT, quantityDifference); }
 
-    public static List<ProductComparisonResult> CompareTwoItems(ItemStack original1, ItemStack original2, ItemStack query1, ItemStack query2)
+    public static List<ProductComparisonResult> CompareTwoItems(ItemStack true1, ItemStack true2, ItemStack expected1, ItemStack expected2) { return CompareTwoItems(true1, true2, expected1,expected2,true); }
+    public static List<ProductComparisonResult> CompareTwoItems(ItemStack true1, ItemStack true2, ItemStack expected1, ItemStack expected2, boolean checkNBT)
     {
         List<ProductComparisonResult> results = new ArrayList<>();
-        boolean flipMatch = original1.getItem() == query2.getItem() && original2.getItem() == query1.getItem() && !(original1.getItem() == original2.getItem() || query1.getItem() == query2.getItem());
+        boolean flipMatch = true1.getItem() == expected2.getItem() && true2.getItem() == expected1.getItem() && !(true1.getItem() == true2.getItem() || expected1.getItem() == expected2.getItem());
         if(flipMatch)
         {
-            results.add(CompareItem(original1, query2));
-            results.add(CompareItem(original2, query1));
+            results.add(CompareItem(true1, expected2, checkNBT));
+            results.add(CompareItem(true2, expected1));
         }
         else
         {
-            results.add(CompareItem(original1, query1));
-            results.add(CompareItem(original2, query2));
+            results.add(CompareItem(true1, expected1));
+            results.add(CompareItem(true2, expected2));
         }
         return results;
     }
 
-    public static ProductComparisonResult CompareFluid(FluidStack original, FluidStack query) {
-        boolean isFluidEqual = original.getFluid() == query.getFluid();
+    public static ProductComparisonResult CompareFluid(FluidStack trueFluid, FluidStack expectedFluid) {
+        boolean isFluidEqual = trueFluid.getFluid() == expectedFluid.getFluid();
         boolean isTagEqual;
-        if(original.getTag() != null)
-            isTagEqual = original.getTag().equals(query.getTag());
+        if(trueFluid.getTag() != null)
+            isTagEqual = trueFluid.getTag().equals(expectedFluid.getTag());
         else
-            isTagEqual = query.getTag() == null;
-        int quantityDifference = original.getAmount() - query.getAmount();
+            isTagEqual = expectedFluid.getTag() == null;
+        int quantityDifference = trueFluid.getAmount() - expectedFluid.getAmount();
         return new ProductComparisonResult(isFluidEqual, isTagEqual, quantityDifference);
     }
 
-    public static ProductComparisonResult CompareEnergy(int original, int query) {
-        return new ProductComparisonResult(true, true, original - query);
+    public static ProductComparisonResult CompareEnergy(int trueAmount, int expectedAmount) {
+        return new ProductComparisonResult(true, true, trueAmount - expectedAmount);
     }
 
 }

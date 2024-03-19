@@ -97,7 +97,7 @@ public class ClientProxy extends CommonProxy{
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
-    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), EjectionRecoveryScreen::new);
+    	MenuScreens.register(ModMenus.EJECTION_RECOVERY.get(), EjectionRecoveryScreen::new);
 
 		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
 

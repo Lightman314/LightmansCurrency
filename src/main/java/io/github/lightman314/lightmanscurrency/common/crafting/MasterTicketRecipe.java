@@ -45,7 +45,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     public Ingredient getIngredient() { return this.ingredient; }
     @Nonnull
     @Override
-    public ItemStack exampleResult() { return TicketItem.CreateTicketInternal(this.result, TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR, 1); }
+    public ItemStack exampleResult() { return TicketItem.CreateTicket(this.result, -1, 0xFFFF00); }
 
     @Override
     public boolean validModifier(@Nonnull ItemStack stack) { return stack.isEmpty() || stack.is(Tags.Items.DYES); }
@@ -59,7 +59,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         int color = dyeColor == null ? TicketItem.GetDefaultTicketColor(nextTicketID) : dyeColor.hexColor;
-        return TicketItem.CreateTicketInternal(this.result, nextTicketID, color, 1);
+        return TicketItem.CreateTicket(this.result, nextTicketID, color);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     public ItemStack getResultItem() {
         long nextTicketID = TicketSaveData.peekNextID();
         int color = TicketItem.GetDefaultTicketColor(nextTicketID);
-        return TicketItem.CreateTicketInternal(this.result, nextTicketID, color, 1);
+        return TicketItem.CreateTicket(this.result, nextTicketID, color);
     }
 
     @Nonnull
@@ -80,9 +80,9 @@ public class MasterTicketRecipe implements TicketStationRecipe {
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         if(dyeColor != null)
-            return TicketItem.CreateMasterTicket(nextTicketID, dyeColor.hexColor);
+            return TicketItem.CreateTicket(this.result, nextTicketID, dyeColor.hexColor);
         else
-            return TicketItem.CreateMasterTicket(nextTicketID);
+            return TicketItem.CreateTicket(this.result, nextTicketID);
     }
 
     @Nonnull

@@ -42,6 +42,7 @@ public class TradeComparisonResult {
     //Price Comparison Result
     private boolean priceIncompatible = false;
     private boolean priceGreater = false;
+    private boolean priceCheaper = false;
     private MoneyValue priceChange = MoneyValue.empty();
     /**
      * Whether the two trades prices are the same.
@@ -56,7 +57,7 @@ public class TradeComparisonResult {
     /**
      * Whether the trade is now cheaper (difference > 0)
      */
-    public boolean isPriceCheaper() { return !this.priceGreater; }
+    public boolean isPriceCheaper() { return this.priceCheaper; }
     /**
      * Whether the trade is now more expensive (difference < 0)
      */
@@ -107,13 +108,20 @@ public class TradeComparisonResult {
         {
             //Either greater or equal
             if(oldPrice.containsValue(currentPrice))
+            {
+                this.priceChange = MoneyValue.empty();
+                this.priceGreater = false;
+                this.priceCheaper = false;
                 return;
+            }
             this.priceGreater = true;
+            this.priceCheaper = false;
             this.priceChange = currentPrice.subtractValue(oldPrice);
         }
         else //Price is smaller
         {
             this.priceGreater = false;
+            this.priceCheaper = true;
             this.priceChange = oldPrice.subtractValue(currentPrice);
         }
     }

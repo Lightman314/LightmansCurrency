@@ -12,10 +12,12 @@ import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -24,10 +26,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class TicketItem extends Item{
 
-	public static final long CREATIVE_TICKET_ID = -1;
-	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
+	private final long creativeID;
+	private final int creativeColor;
 
-	public TicketItem(Properties properties) { super(properties); }
+	public TicketItem(Properties properties, long creativeID, Color creativeColor) { this(properties,creativeID, creativeColor.hexColor); }
+	public TicketItem(Properties properties, long creativeID, int creativeColor) {
+		super(properties);
+		this.creativeID = creativeID;
+		this.creativeColor = creativeColor;
+	}
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
@@ -35,7 +42,7 @@ public class TicketItem extends Item{
 		if(isPass(stack))
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.pass"));
 		long ticketID = GetTicketID(stack);
-		if(ticketID >= -1)
+		if(ticketID >= -2)
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
 	}
 
@@ -96,39 +103,23 @@ public class TicketItem extends Item{
 	}
 
 	public static int GetDefaultTicketColor(long ticketID) {
-		if (ticketID == CREATIVE_TICKET_ID)
+		if (ticketID == -1)
 			return Color.YELLOW.hexColor;
+		if(ticketID == -2)
+			return Color.BLUE.hexColor;
 		return Color.getFromIndex(ticketID).hexColor;
 	}
-
-	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }
-
-	public static ItemStack CreateMasterTicket(long ticketID, int color) { return CreateTicketInternal(ModItems.TICKET_MASTER.get(), ticketID, color, 1); }
-
-	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
-	public static ItemStack CreatePass(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET_PASS.get(), ticketID, color,count); }
-
-	public static ItemStack CreateTicket(ItemStack master)
-	{
-		if(isMasterTicket(master))
-			return CreateTicket(GetTicketID(master), GetTicketColor(master));
-		return ItemStack.EMPTY;
-	}
-
-	public static ItemStack CreateTicket(long ticketID, int color) { return CreateTicket(ticketID, color,1); }
-
-	public static ItemStack CreateTicket(long ticketID, int color, int count) {
-
-		return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
 
 	public static ItemStack CraftTicket(@Nonnull ItemStack master, @Nonnull Item item)
 	{
 		if(isMasterTicket(master))
-			return CreateTicketInternal(item, GetTicketID(master), GetTicketColor(master), 1);
+			return CreateTicket(item, GetTicketID(master), GetTicketColor(master), 1);
 		return ItemStack.EMPTY;
 	}
 
-	public static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
+	public static ItemStack CreateTicket(Item item, long ticketID) { return CreateTicket(item, ticketID, TicketItem.GetDefaultTicketColor(ticketID)); }
+	public static ItemStack CreateTicket(Item item, long ticketID, int color) { return CreateTicket(item, ticketID, color, 1); }
+	public static ItemStack CreateTicket(Item item, long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();
@@ -152,4 +143,9 @@ public class TicketItem extends Item{
 		tag.putInt("TicketColor", color);
 	}
 
+	@Override
+	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
+		if(this.allowedIn(tab))
+			list.add(CreateTicket(this, this.creativeID, this.creativeColor));
+	}
 }

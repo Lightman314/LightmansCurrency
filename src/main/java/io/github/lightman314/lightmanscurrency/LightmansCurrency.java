@@ -14,8 +14,10 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyView
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
@@ -250,6 +252,9 @@ public class LightmansCurrency {
 
 		//Initialize the Item Trade Restrictions
 		ItemTradeRestriction.init();
+		//Setup the ticket data for ticket kiosks and paygate traders
+		TicketData.create(ModItems.TICKET_MASTER.get(), ModItems.TICKET.get(), ModItems.TICKET_STUB.get(), LCTags.Items.TICKET_MATERIAL_PAPER);
+		TicketData.create(ModItems.GOLDEN_TICKET_MASTER.get(), ModItems.GOLDEN_TICKET.get(), ModItems.GOLDEN_TICKET_STUB.get(), LCTags.Items.TICKET_MATERIAL_GOLD);
 
 		//Villager Trades
 		VillagerTradeManager.registerDefaultTrades();
