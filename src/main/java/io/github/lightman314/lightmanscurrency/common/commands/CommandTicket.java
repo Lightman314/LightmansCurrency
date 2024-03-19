@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.commands.CommandSourceStack;
@@ -48,7 +49,7 @@ public class CommandTicket {
 
     static int createTicketNonColored(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         ServerPlayer player = commandContext.getSource().getPlayerOrException();
-        ItemStack ticket = TicketItem.CreateMasterTicket(TicketSaveData.createNextID());
+        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketSaveData.createNextID());
         giveItemToPlayer(player, ticket);
         return 1;
     }
@@ -56,7 +57,7 @@ public class CommandTicket {
     static int createTicketColored(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         ServerPlayer player = commandContext.getSource().getPlayerOrException();
         int color = ColorArgument.getColor(commandContext,"color");
-        ItemStack ticket = TicketItem.CreateMasterTicket(TicketSaveData.createNextID(), color);
+        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketSaveData.createNextID(), color);
         giveItemToPlayer(player, ticket);
         return 1;
     }

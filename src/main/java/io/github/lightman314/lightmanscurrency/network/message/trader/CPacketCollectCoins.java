@@ -1,9 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;

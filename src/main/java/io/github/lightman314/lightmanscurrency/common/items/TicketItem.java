@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -24,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class TicketItem extends Item{
 
-	public static final long CREATIVE_TICKET_ID = -1;
-	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
 
 	public TicketItem(Properties properties) { super(properties); }
 
@@ -35,7 +32,7 @@ public class TicketItem extends Item{
 		if(isPass(stack))
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.pass"));
 		long ticketID = GetTicketID(stack);
-		if(ticketID >= -1)
+		if(ticketID >= -2)
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
 	}
 
@@ -96,39 +93,23 @@ public class TicketItem extends Item{
 	}
 
 	public static int GetDefaultTicketColor(long ticketID) {
-		if (ticketID == CREATIVE_TICKET_ID)
+		if (ticketID == -1)
 			return Color.YELLOW.hexColor;
+		if(ticketID == -2)
+			return Color.BLUE.hexColor;
 		return Color.getFromIndex(ticketID).hexColor;
 	}
-
-	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }
-	
-	public static ItemStack CreateMasterTicket(long ticketID, int color) { return CreateTicketInternal(ModItems.TICKET_MASTER.get(), ticketID, color, 1); }
-
-	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
-	public static ItemStack CreatePass(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET_PASS.get(), ticketID, color,count); }
-
-	public static ItemStack CreateTicket(ItemStack master)
-	{
-		if(isMasterTicket(master))
-			return CreateTicket(GetTicketID(master), GetTicketColor(master));
-		return ItemStack.EMPTY;
-	}
-
-	public static ItemStack CreateTicket(long ticketID, int color) { return CreateTicket(ticketID, color,1); }
-	
-	public static ItemStack CreateTicket(long ticketID, int color, int count) {
-
-		return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
 
 	public static ItemStack CraftTicket(@Nonnull ItemStack master, @Nonnull Item item)
 	{
 		if(isMasterTicket(master))
-			return CreateTicketInternal(item, GetTicketID(master), GetTicketColor(master), 1);
+			return CreateTicket(item, GetTicketID(master), GetTicketColor(master));
 		return ItemStack.EMPTY;
 	}
 
-	public static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
+	public static ItemStack CreateTicket(Item item, long ticketID) { return CreateTicket(item, ticketID, TicketItem.GetDefaultTicketColor(ticketID)); }
+	public static ItemStack CreateTicket(Item item, long ticketID, int color) { return CreateTicket(item, ticketID, color, 1); }
+	public static ItemStack CreateTicket(Item item, long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();

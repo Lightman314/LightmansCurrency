@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
@@ -519,6 +520,7 @@ public final class LCConfig {
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
+        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(MoneyValue::empty, v -> v.sameType(this.moneyMendingRepairCost.get()));
         public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
         public final IntOption coinMagnetLeveledRange = IntOption.create(2,1,50);
 
@@ -687,6 +689,9 @@ public final class LCConfig {
 
             builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
                     .add("moneyMendingRepairCost", this.moneyMendingRepairCost);
+
+            builder.comment("The additional cost to repair an item with Infinity applied to it.")
+                    .add("moneyMendingInfinityCost", this.moneyMendingInfinityCost);
 
             builder.comment("The coin collection radius of the Coin Magnet I enchantment.")
                     .add("coinMagnetBaseRange", this.coinMagnetBaseRange);

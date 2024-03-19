@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.colors.GoldenTicketColor;
 import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
@@ -25,6 +26,7 @@ public class ClientModEvents {
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
 	{
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
 	}
 

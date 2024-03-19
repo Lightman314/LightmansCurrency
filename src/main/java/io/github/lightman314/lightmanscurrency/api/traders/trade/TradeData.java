@@ -223,10 +223,24 @@ public abstract class TradeData implements ITradeRuleHost {
 	 */
 	public void setRules(List<TradeRule> rules) { this.rules = rules; }
 
-	public abstract TradeComparisonResult compare(TradeData otherTrade);
-	
+	/**
+	 * Compares two trades to each other.<br>
+	 * Should be called by the <code>True Trade</code> that would actually be executed.<br>
+	 * If the <code>True Trade</code>'s {@link #getCost()}'s money value is greater than the <code>Expected Trade</code>'s {@link #getCost()} then {@link TradeComparisonResult#isPriceExpensive()} should be true, etc.
+	 * @param expectedTrade The <codeExpected Trade</code> that we are checking for differences from.
+	 */
+	public abstract TradeComparisonResult compare(TradeData expectedTrade);
+
+	/**
+	 * Whether the results of {@link #compare(TradeData)} are acceptable and an automated trade can be carried out.
+	 * Should return <code>false</code> if any changes have been made to the trade that aren't beneficial to the customer.
+	 */
 	public abstract boolean AcceptableDifferences(TradeComparisonResult result);
-	
+
+	/**
+	 * Collects legible notes about the differences returned by {@link #compare(TradeData)} to be viewed by a player.<br>
+	 * Used to inform them about what changes have been made so that they can make an informed decision about whether they want to accept the changes or not.
+	 */
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
 	
 	@OnlyIn(Dist.CLIENT)

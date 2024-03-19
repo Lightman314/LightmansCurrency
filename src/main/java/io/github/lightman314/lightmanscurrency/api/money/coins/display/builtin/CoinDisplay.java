@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -166,11 +167,17 @@ public class CoinDisplay extends ValueDisplayData {
     public static CoinDisplay easyDefine()
     {
         return easyDefine(coin -> {
+            String type = "item.";
+            if(coin instanceof BlockItem)
+                type = "block.";
             ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
-            return EasyText.translatable("item." + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
+            return EasyText.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
         }, coin -> {
+            String type = "item.";
+            if(coin instanceof BlockItem)
+                type = "block.";
             ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
-            return EasyText.translatable("item." + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
+            return EasyText.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
         });
     }
     public static CoinDisplay easyDefine(@Nonnull NonNullFunction<Item,Component> initialGenerator, @Nonnull NonNullFunction<Item,Component> pluralGenerator)

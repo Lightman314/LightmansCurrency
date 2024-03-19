@@ -163,11 +163,14 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .addTag(LCTags.Items.TICKETS_PASS)
                 .addTag(LCTags.Items.TICKETS_MASTER);
         this.cTag(LCTags.Items.TICKETS_TICKET)
-                .add(ModItems.TICKET);
+                .add(ModItems.TICKET)
+                .add(ModItems.GOLDEN_TICKET);
         this.cTag(LCTags.Items.TICKETS_PASS)
-                .add(ModItems.TICKET_PASS);
+                .add(ModItems.TICKET_PASS)
+                .add(ModItems.GOLDEN_TICKET_PASS);
         this.cTag(LCTags.Items.TICKETS_MASTER)
-                .add(ModItems.TICKET_MASTER);
+                .add(ModItems.TICKET_MASTER)
+                .add(ModItems.GOLDEN_TICKET_MASTER);
         //Ticket Material Tags
         this.cTag(LCTags.Items.TICKET_MATERIAL)
                 .addTag(LCTags.Items.TICKET_MATERIAL_PAPER)
@@ -178,7 +181,12 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.TICKET)
                 .add(ModItems.TICKET_PASS)
                 .add(ModItems.TICKET_MASTER);
-        this.cTag(LCTags.Items.TICKET_MATERIAL_GOLD);
+        this.cTag(LCTags.Items.TICKET_MATERIAL_GOLD)
+                .addTag(Tags.Items.INGOTS_GOLD)
+                .add(ModItems.GOLDEN_TICKET_STUB)
+                .add(ModItems.GOLDEN_TICKET)
+                .add(ModItems.GOLDEN_TICKET_PASS)
+                .add(ModItems.GOLDEN_TICKET_MASTER);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items

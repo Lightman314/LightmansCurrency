@@ -13,7 +13,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.registries.RegistryObject;
-import org.checkerframework.checker.units.qual.C;
 
 public class ModMenus {
 	
@@ -57,7 +56,7 @@ public class ModMenus {
 			return new TraderInterfaceMenu(id, inventory, blockEntity);
 		}));
 		
-		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> CreateType((IContainerFactory<EjectionRecoveryMenu>)(id, inventory, data) -> new EjectionRecoveryMenu(id, inventory)));
+		EJECTION_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> CreateType((IContainerFactory<EjectionRecoveryMenu>)(id, inventory, data) -> new EjectionRecoveryMenu(id, inventory)));
 
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> CreateType((IContainerFactory<PlayerTradeMenu>)(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data))));
 
@@ -96,7 +95,7 @@ public class ModMenus {
 	
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	
-	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> TRADER_RECOVERY;
+	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
 
 	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
 

@@ -54,11 +54,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 	@Override
 	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.info"); }
-	
-	@Override
-	public boolean blockInventoryClosing() { return false; }
 
-	@Override
+    @Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getReferencedTrade, TradeButton.NULL_PRESS));
@@ -98,7 +95,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.missing").withStyle(ChatFormatting.RED));
 				return list;
 			}
-			TradeComparisonResult differences = referencedTrade.compare(trueTrade);
+			TradeComparisonResult differences = trueTrade.compare(referencedTrade);
 			//Type check
 			if(!differences.TypeMatches())
 			{
@@ -106,7 +103,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				return list;
 			}
 			//Trade-specific checks
-			list.addAll(referencedTrade.GetDifferenceWarnings(differences));
+			list.addAll(trueTrade.GetDifferenceWarnings(differences));
 			return list;
 		}
 		else if(this.menu.getBE().getInteractionType().requiresPermissions)

@@ -36,7 +36,7 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public List<ItemStack> jeiModifierList() { return TicketStationRecipe.exampleTicketList(ModItems.TICKET_MASTER); }
+    public List<ItemStack> jeiModifierList() { return TicketStationRecipe.exampleTicketList(this.masterIngredient); }
     @Nonnull
     @Override
     public Ingredient getIngredient() { return this.ingredient; }
@@ -65,7 +65,7 @@ public class TicketRecipe implements TicketStationRecipe {
     public ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) {
         if(this.masterIngredient.getItems().length == 0)
             return ItemStack.EMPTY;
-        return TicketItem.CraftTicket(TicketItem.CreateTicketInternal(this.masterIngredient.getItems()[0].getItem(), TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR, 1), this.ticketResult);
+        return TicketItem.CraftTicket(TicketItem.CreateTicket(this.masterIngredient.getItems()[0].getItem(), -1), this.ticketResult);
     }
 
     @Nonnull

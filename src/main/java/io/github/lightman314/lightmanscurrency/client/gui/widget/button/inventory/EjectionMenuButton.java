@@ -35,11 +35,11 @@ public class EjectionMenuButton extends InventoryButton {
 	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
 	@Override
-	protected boolean canShow() { return EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0; }
+	protected boolean canShow() { return !EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).isEmpty(); }
 
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos.x, gui.mousePos.y))
-			gui.renderTooltip(EasyText.translatable("tooltip.button.team_manager"));
+			gui.renderTooltip(EasyText.translatable("tooltip.button.ejection"));
 	}
 
 }

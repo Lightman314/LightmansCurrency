@@ -538,6 +538,8 @@ public class InventoryUtil {
     	for(ItemStack item : items)
     	{
     		boolean addNew = true;
+			if(item.isEmpty())
+				continue;
     		for(int i = 0; i < itemList.size() && addNew; ++i)
     		{
     			if(ItemMatches(item, itemList.get(i)))

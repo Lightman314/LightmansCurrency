@@ -36,7 +36,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     @Override
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isTicketTrade())
-            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketID(), this.trade.getTicketColor()), 1, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", this.trade.getTicketID()))));
+            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketItem(), this.trade.getTicketID(), this.trade.getTicketColor()), 1, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", this.trade.getTicketID()))));
         else
             return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
     }

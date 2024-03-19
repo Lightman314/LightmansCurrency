@@ -26,11 +26,9 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 
 	public static final MenuProvider PROVIDER = new Provider();
 	
-	public EjectionRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.TRADER_RECOVERY.get(), menuID, inventory); }
-	
-	public boolean isClient() { return this.player.level().isClientSide; }
-	
-	public List<EjectionData> getValidEjectionData() {
+	public EjectionRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.EJECTION_RECOVERY.get(), menuID, inventory); }
+
+    public List<EjectionData> getValidEjectionData() {
 		return EjectionSaveData.GetValidEjectionData(this.isClient(), this.player);
 	}
 	
@@ -38,7 +36,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	public int getSelectedIndex() { return this.selectedIndex; }
 	public EjectionData getSelectedData() { 
 		List<EjectionData> data = this.getValidEjectionData();
-		if(data.size() > 0 && this.selectedIndex >= 0 && this.selectedIndex < data.size())
+		if(!data.isEmpty() && this.selectedIndex >= 0 && this.selectedIndex < data.size())
 			return data.get(this.selectedIndex);
 		return null;
 	}
@@ -50,7 +48,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		List<EjectionData> data = this.getValidEjectionData();
 		//Refresh selection, just in case it's no longer valid.
 		this.changeSelection(this.selectedIndex);
-		if(data.size() > 0 && this.selectedIndex >= 0 && this.selectedIndex < data.size())
+		if(!data.isEmpty() && this.selectedIndex >= 0 && this.selectedIndex < data.size())
 			return data.get(this.selectedIndex);
 		return this.dummyContainer;
 	}

@@ -275,6 +275,11 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerLayeredItem(ModItems.TICKET_MASTER);
         this.registerLayeredItem(ModItems.TICKET_PASS);
         this.registerBasicItem(ModItems.TICKET_STUB);
+        //Golden Tickets
+        this.registerBasicItem(ModItems.GOLDEN_TICKET);
+        this.registerLayeredItem(ModItems.GOLDEN_TICKET_MASTER);
+        this.registerLayeredItem(ModItems.GOLDEN_TICKET_PASS);
+        this.registerBasicItem(ModItems.GOLDEN_TICKET_STUB);
 
         //Auction Stands
         ModBlocks.AUCTION_STAND.forEach((type,block) -> {

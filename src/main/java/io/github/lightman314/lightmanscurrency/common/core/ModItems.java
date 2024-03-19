@@ -57,6 +57,12 @@ public class ModItems {
 		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1)));
 		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties()));
+
+		//Golden Ticket
+		GOLDEN_TICKET = ModRegistries.ITEMS.register("golden_ticket", () -> new TicketItem(new Item.Properties()));
+		GOLDEN_TICKET_PASS = ModRegistries.ITEMS.register("golden_ticket_pass", () -> new TicketItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+		GOLDEN_TICKET_MASTER = ModRegistries.ITEMS.register("golden_master_ticket", () -> new TicketItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1)));
+		GOLDEN_TICKET_STUB = ModRegistries.ITEMS.register("golden_ticket_stub", () -> new Item(new Item.Properties()));
 		
 		//Wallets
 		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties()));
@@ -122,6 +128,11 @@ public class ModItems {
 	public static final RegistryObject<Item> TICKET_PASS;
 	public static final RegistryObject<Item> TICKET_MASTER;
 	public static final RegistryObject<Item> TICKET_STUB;
+
+	public static final RegistryObject<Item> GOLDEN_TICKET;
+	public static final RegistryObject<Item> GOLDEN_TICKET_PASS;
+	public static final RegistryObject<Item> GOLDEN_TICKET_MASTER;
+	public static final RegistryObject<Item> GOLDEN_TICKET_STUB;
 	
 	public static final RegistryObject<WalletItem> WALLET_COPPER;
 	public static final RegistryObject<WalletItem> WALLET_IRON;

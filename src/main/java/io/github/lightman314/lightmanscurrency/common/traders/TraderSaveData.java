@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -620,23 +621,25 @@ public class TraderSaveData extends SavedData {
 				if(tsd.cleanTick++ >= 1200 && event.haveTime())
 				{
 					tsd.cleanTick = 0;
-					tsd.traderData.values().removeIf(traderData -> {
-						if(!traderData.isPersistent() && traderData.shouldRemove(server))
-						{
-							if(traderData instanceof IEasyTickable t)
-								tsd.tickers.remove(t);
-							tsd.traderData.remove(traderData.getID());
-							try {
-								Level level = server.getLevel(traderData.getLevel());
-								BlockPos pos = traderData.getPos();
-								EjectionData e = EjectionData.create(level, pos, null, traderData, false);
-								EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
-							} catch(Throwable t) { LightmansCurrency.LogError("Error deleting missing trader.",t); }
-							new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
-							return true;
-						}
-						return false;
-					});
+					List<TraderData> remove = new ArrayList<>();
+					for(TraderData traderData : new ArrayList<>(tsd.traderData.values()))
+					{
+						if(traderData.shouldRemove(server))
+							remove.add(traderData);
+					}
+					for(TraderData traderData : remove)
+					{
+						if(traderData instanceof IEasyTickable t)
+							tsd.tickers.remove(t);
+						tsd.traderData.remove(traderData.getID());
+						try {
+							Level level = server.getLevel(traderData.getLevel());
+							BlockPos pos = traderData.getPos();
+							EjectionData e = EjectionData.create(level, pos, null, traderData, false);
+							EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
+						} catch(NullPointerException e) { LightmansCurrency.LogError("Error deleting missing trader.",e); }
+						new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
+					}
 				}
 				if(server.getTickCount() % 20 == 0 && !tsd.persistentAuctionData.isEmpty())
 				{
