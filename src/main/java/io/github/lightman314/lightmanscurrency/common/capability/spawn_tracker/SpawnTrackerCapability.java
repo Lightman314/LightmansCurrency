@@ -16,6 +16,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
+import java.util.Objects;
+
 public class SpawnTrackerCapability {
 
 	@Deprecated
@@ -53,7 +55,9 @@ public class SpawnTrackerCapability {
 		
 		@Override
 		public void setSpawnReason(MobSpawnType reason) {
-			this.reason = reason;
+			//If null mob spawn type is given, assume it's some form of event I guess?
+			//Shouldn't really matter though, cause all we check for is if it's a `SPAWNER` reason
+			this.reason = Objects.requireNonNullElse(reason, MobSpawnType.EVENT);
 		}
 
 		@Override

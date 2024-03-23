@@ -216,7 +216,12 @@ public class LootManager {
 		if(tracker == null)
 			LightmansCurrency.LogDebug("Entity of type '" + ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString() + "' does not have a ISpawnTracker attached. Unable to flag it's SpawnReason.");
 		else
-			tracker.setSpawnReason(event.getSpawnReason());
+		{
+			if(event.getSpawnReason() == null)
+				LightmansCurrency.LogError("Entity of type '" + ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString() + "' was spawned with a null `MobSpawnType`, which should never happen. Please report this to the developer of that mod, and have them correct this.");
+			else
+				tracker.setSpawnReason(event.getSpawnReason());
+		}
 	}
 
 	@SubscribeEvent
