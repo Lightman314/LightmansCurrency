@@ -19,7 +19,7 @@ public class CoinPlayerMoneyHandler extends MoneyHandler implements IPlayerMoney
 
     private Player player;
     private IWalletHandler walletHandler;
-    private ItemStack cachedWallet;
+    private ItemStack cachedWallet = ItemStack.EMPTY;
 
     public CoinPlayerMoneyHandler(@Nonnull Player player) { this.updatePlayer(player); }
 
@@ -61,7 +61,7 @@ public class CoinPlayerMoneyHandler extends MoneyHandler implements IPlayerMoney
     @Override
     protected boolean hasStoredMoneyChanged() {
         if(this.walletHandler == null)
-            return !this.getStoredMoney().isEmpty();
+            return !this.cachedWallet.isEmpty(); //If the wallet handler is null but the cache isn't empty, we need to update the cache to empty/null
         return !InventoryUtil.ItemsFullyMatch(this.cachedWallet, this.walletHandler.getWallet());
     }
 
@@ -72,6 +72,8 @@ public class CoinPlayerMoneyHandler extends MoneyHandler implements IPlayerMoney
             builder.merge(this.walletHandler.getStoredMoney());
             this.cachedWallet = this.walletHandler.getWallet().copy();
         }
+        else //No wallet handler -> empty wallet cache
+            this.cachedWallet = ItemStack.EMPTY;
     }
 
 }

@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +14,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+
+import java.util.Objects;
 
 public class SpawnTrackerCapability {
 
@@ -53,7 +54,9 @@ public class SpawnTrackerCapability {
 		
 		@Override
 		public void setSpawnReason(MobSpawnType reason) {
-			this.reason = reason;
+			//If null mob spawn type is given, assume it's some form of event I guess?
+			//Shouldn't really matter though, cause all we check for is if it's a `SPAWNER` reason
+			this.reason = Objects.requireNonNullElse(reason, MobSpawnType.EVENT);
 		}
 
 		@Override
