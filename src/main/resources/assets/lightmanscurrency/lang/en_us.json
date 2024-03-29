@@ -1174,6 +1174,9 @@
 	"lightmanscurrency.money.chain.chocolate_coins": "Chocolate",
 	"lightmanscurrency.money.chain.chocolate_coins.display": "{value}CC",
 	"lightmanscurrency.money.chain.chocolate_coins.display.wordy": "{value} Chocolate Chunks",
+	"lightmanscurrency.money.chain.emeralds": "Emeralds",
+	"lightmanscurrency.money.chain.emeralds.display": "{value}E",
+	"lightmanscurrency.money.chain.emeralds.display.wordy": "{value} Emeralds",
 	
 	"command.lightmanscurrency.lctrade.host.notify": "Trade request has been sent to %s.",
 	"command.lightmanscurrency.lctrade.guest.notify": "%1$s has requested to trade with you. Click [%2$s] to accept.",

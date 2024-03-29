@@ -403,7 +403,7 @@ public class CommandLCAdmin {
 		}
 
 		//Dimension
-		String dimension = taxEntry.getArea().getCenter().getDimension().toString();
+		String dimension = taxEntry.getArea().getCenter().getDimension().location().toString();
 		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcadmin.taxdata.list.dimension", dimension), false);
 		//Position
 		BlockPos pos = taxEntry.getArea().getCenter().getPos();

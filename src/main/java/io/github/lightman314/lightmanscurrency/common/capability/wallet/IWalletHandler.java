@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.capability.wallet;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedItemContainer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;

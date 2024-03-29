@@ -77,23 +77,23 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.TRADING_CORE);
                     //Event Coins
                     ezPop(p, ModItems.COIN_CHOCOLATE_COPPER);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_COPPER);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_COPPER);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_COPPER);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_COPPER);
                     ezPop(p, ModItems.COIN_CHOCOLATE_IRON);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_IRON);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_IRON);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_IRON);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_IRON);
                     ezPop(p, ModItems.COIN_CHOCOLATE_GOLD);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_GOLD);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_GOLD);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_GOLD);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_GOLD);
                     ezPop(p, ModItems.COIN_CHOCOLATE_EMERALD);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_EMERALD);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_EMERALD);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
                     ezPop(p, ModItems.COIN_CHOCOLATE_DIAMOND);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_DIAMOND);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_DIAMOND);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
                     ezPop(p, ModItems.COIN_CHOCOLATE_NETHERITE);
-                    //ezPop(p, ModBlocks.COINPILE_CHOCOLATE_NETHERITE);
-                    //ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
+                    ezPop(p, ModBlocks.COINPILE_CHOCOLATE_NETHERITE);
+                    ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
                 }).build()
         );
 

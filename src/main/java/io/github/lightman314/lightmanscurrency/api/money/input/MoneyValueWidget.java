@@ -41,7 +41,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     public static final Consumer<MoneyValue> EMPTY_CONSUMER = v -> {};
 
-    private static String lastSelectedHandler = MoneyAPI.MODID + ":coin_based!main";
+    private static String lastSelectedHandler = MoneyAPI.MODID + ":coins!main";
 
     public boolean drawBG = true;
     public boolean allowFreeInput = true;
