@@ -13,17 +13,20 @@ public final class EnchantmentEvents {
 
 	private EnchantmentEvents() {}
 
+	private static int ticker = 0;
+
 	@SubscribeEvent
 	public static void onServerTick(TickEvent.ServerTickEvent event) {
 		if(event.phase == TickEvent.Phase.START)
 		{
-			MinecraftServer server = event.getServer();
+			ticker++;
 			//Confirm we have time, and that the tick count matches the tick delay
-			if(event.haveTime() && server != null && server.getTickCount() % LCConfig.SERVER.enchantmentTickDelay.get() == 0)
+			if(ticker >= LCConfig.SERVER.enchantmentMaxTickDelay.get() || (event.haveTime() && ticker >= LCConfig.SERVER.enchantmentTickDelay.get()))
 			{
+				ticker = 0;
 				//Since we're only running the tick on players now, we might as well do it from the server tick where we can confirm
 				//that we have time to spare on this process
-				for(ServerPlayer player : server.getPlayerList().getPlayers())
+				for(ServerPlayer player : event.getServer().getPlayerList().getPlayers())
 				{
 					if(!player.isSpectator())
 						EnchantmentUtil.tickAllEnchantments(player,null);
