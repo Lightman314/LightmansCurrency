@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.player;
 
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketSyncAdminList;
-import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.PacketDistributor;
@@ -15,7 +14,7 @@ public class LCAdminMode {
 
     private static final List<UUID> adminPlayers = new ArrayList<>();
 
-    public static boolean isAdminPlayer(@Nullable Player player) { return player != null && adminPlayers.contains(player.getUUID()) && (player.hasPermissions(2) || Secret.hasSecretAccess(player)); }
+    public static boolean isAdminPlayer(@Nullable Player player) { return player != null && adminPlayers.contains(player.getUUID()) && (player.hasPermissions(2)); }
 
     public static void ToggleAdminPlayer(ServerPlayer player) {
         UUID playerID = player.getUUID();

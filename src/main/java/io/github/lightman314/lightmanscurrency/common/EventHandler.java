@@ -230,9 +230,8 @@ public class EventHandler {
 					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
 					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
 						keepWallet = true;
-					
-					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
-					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+
+					int coinDropPercent = ModGameRules.safeGetCustomInt(livingEntity.level, ModGameRules.COIN_DROP_PERCENT, 0);
 					
 					if(keepWallet && coinDropPercent <= 0)
 						return;
