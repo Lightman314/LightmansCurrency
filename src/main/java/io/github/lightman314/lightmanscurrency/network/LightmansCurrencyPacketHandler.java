@@ -93,7 +93,7 @@ public class LightmansCurrencyPacketHandler {
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
 		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
-		register(CPacketWalletInteraction.class, CPacketWalletInteraction.HANDLER);
+		register(CPacketCreativeWalletEdit.class, CPacketCreativeWalletEdit.HANDLER);
 		
 		//Trader Data Sync
 		register(SPacketClearClientTraders.class, SPacketClearClientTraders.HANDLER);

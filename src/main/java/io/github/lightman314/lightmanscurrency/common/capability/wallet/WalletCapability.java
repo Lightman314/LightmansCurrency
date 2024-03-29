@@ -8,17 +8,16 @@ import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMo
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedItemContainer;
 import io.github.lightman314.lightmanscurrency.integration.curios.wallet.CuriosWalletHandler;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
+import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketCreativeWalletEdit;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -38,6 +37,16 @@ public class WalletCapability {
 		if(optional.isPresent())
 			return optional.orElseThrow(() -> new RuntimeException("Unexpected error occurred!"));
 		return null;
+	}
+
+	@Nonnull
+	public static Container getWalletContainer(@Nonnull final Entity entity) {
+		return new SuppliedItemContainer(() -> {
+			IWalletHandler handler = lazyGetWalletHandler(entity);
+			if(handler != null)
+				return new WalletInteractable(handler);
+			return null;
+		});
 	}
 
 	/**
@@ -99,82 +108,23 @@ public class WalletCapability {
 		}
 		
 	}
-	
-	public static void WalletSlotInteraction(Player player, int clickedSlot, boolean heldShift, ItemStack heldItem)
+
+	private static class WalletInteractable implements SuppliedItemContainer.IItemInteractable
 	{
-		
-		if(LightmansCurrency.isCuriosValid(player))
-			return;
-		
-		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
-		AbstractContainerMenu menu = player.containerMenu;
-		boolean creative = player.isCreative() && !player.level.isClientSide;
-		if(!creative)
-			heldItem = menu.getCarried();
-		IWalletHandler walletHandler = lazyGetWalletHandler(player);
-		if(walletHandler == null)
-		{
-			LightmansCurrency.LogWarning("Attempted to do a wallet slot interaction, but the player has no wallet handler.");
-			return;
-		}
-		if(clickedSlot < 0)
-		{
-			//Wallet slot clicked
-			ItemStack wallet = walletHandler.getWallet();
-			if(heldShift)
+		private final IWalletHandler walletHandler;
+		WalletInteractable(@Nonnull IWalletHandler handler) { this.walletHandler = handler; }
+		@Nonnull
+		@Override
+		public ItemStack getItem() { return this.walletHandler.getWallet(); }
+		@Override
+		public void setItem(@Nonnull ItemStack item) {
+			this.walletHandler.setWallet(item);
+			if (this.walletHandler.entity().level.isClientSide && this.walletHandler.entity() instanceof Player player && player.isCreative())
 			{
-				//Quick-move the wallet to the players inventory
-				if(wallet.isEmpty())
-					return;
-				//If we were able to move the wallet into the players inventory, empty the wallet slot
-				if(player.getInventory().getFreeSlot() >= 0)
-				{
-					if(!creative)
-						player.getInventory().add(wallet);
-					walletHandler.setWallet(ItemStack.EMPTY);
-					//LightmansCurrency.LogInfo("Successfully moved the wallet into the players inventory on the " + DebugUtil.getSideText(player));
-				}
-			}
-			else
-			{
-				//Swap the held item with the wallet item
-				if(wallet.isEmpty() && heldItem.isEmpty())
-					return;
-				if(WalletSlot.isValidWallet(heldItem) || heldItem.isEmpty())
-				{
-					walletHandler.setWallet(heldItem);
-					if(!creative)
-						menu.setCarried(wallet);
-				}
+				//Send an update packet when edited on the client in creative mode
+				new CPacketCreativeWalletEdit(this.getItem().copy()).send();
 			}
 		}
-		else if(heldShift)
-		{
-			Inventory inventory = player.getInventory();
-			//Try to shift-click the hovered slot into the wallet slot
-			if(clickedSlot >= inventory.getContainerSize())
-			{
-				LightmansCurrency.LogWarning("Clicked on slot " + clickedSlot + " of " + player.getInventory().getContainerSize() + " on the " + DebugUtil.getSideText(player));
-				return;
-			}	
-			ItemStack slotItem = inventory.getItem(clickedSlot);
-			if(WalletSlot.isValidWallet(slotItem) && walletHandler.getWallet().isEmpty())
-			{
-				//Remove the item from inventory
-				if(!creative)
-				{
-					if(slotItem.getCount() > 1)
-						inventory.removeItem(clickedSlot, 1);
-					else
-						inventory.setItem(clickedSlot, ItemStack.EMPTY);
-				}
-				//Move the wallet into the wallet slot
-				ItemStack newWallet = slotItem.copy();
-				newWallet.setCount(1);
-				walletHandler.setWallet(newWallet);
-			}
-		}
-			
 	}
 	
 }

@@ -110,7 +110,7 @@ public class LCCurrencyAdvancements implements Consumer<Consumer<Advancement>> {
         Advancement enchantedWallet = save(consumer,Builder.advancement()
                         .parent(wallet)
                         .display(ezDisplay(enchantedWalletItem,"advancements.lightmanscurrency.enchanted_wallet",FrameType.GOAL,true,true,false))
-                        .addCriterion("enchanted_wallet",ezItemTrigger(b -> b.of(LCTags.Items.WALLET).hasEnchantment(EnchantmentPredicate.ANY)))
+                        .addCriterion("enchanted_wallet",ezItemTrigger(b -> b.of(LCTags.Items.WALLET).hasEnchantment(new EnchantmentPredicate(ModEnchantments.COIN_MAGNET.get(), MinMaxBounds.Ints.atLeast(1)))))
                 ,"currency/enchanted_wallet");
         //Cash Register
         Advancement cashRegister = save(consumer,Builder.advancement()

@@ -798,7 +798,6 @@
     "gui.lightmanscurrency.discount.tooltip": "% Discount",
     "gui.lightmanscurrency.fluctuation.tooltip": "% Fluctuation",
     "gui.button.lightmanscurrency.playerlimit": "123",
-    "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit.info": "Players can do %s trade(s).",
     "gui.button.lightmanscurrency.playerlimit2": "1-3",
     "gui.button.lightmanscurrency.playerlimit.setlimit": "Set",
@@ -1053,7 +1052,6 @@
 	"tooltip.lightmanscurrency.coin_chest.tab.exchange": "Coin Exchange Options",
 	"tooltip.lightmanscurrency.coin_chest.tab.security": "Chest Security Options",
     
-    "gui.button.lightmanscurrency.team.owner": "Owner: %s",
     "gui.button.lightmanscurrency.team.create": "Create",
     "gui.button.lightmanscurrency.team.rename": "Rename Team",
     "gui.button.lightmanscurrency.team.member.add": "Add",
@@ -1176,6 +1174,9 @@
 	"lightmanscurrency.money.chain.chocolate_coins": "Chocolate",
 	"lightmanscurrency.money.chain.chocolate_coins.display": "{value}CC",
 	"lightmanscurrency.money.chain.chocolate_coins.display.wordy": "{value} Chocolate Chunks",
+	"lightmanscurrency.money.chain.emeralds": "Emeralds",
+	"lightmanscurrency.money.chain.emeralds.display": "{value}E",
+	"lightmanscurrency.money.chain.emeralds.display.wordy": "{value} Emeralds",
 	
 	"command.lightmanscurrency.lctrade.host.notify": "Trade request has been sent to %s.",
 	"command.lightmanscurrency.lctrade.guest.notify": "%1$s has requested to trade with you. Click [%2$s] to accept.",
@@ -1239,7 +1240,6 @@
 	"command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
 	"command.lightmanscurrency.lcadmin.openServerTax.error": "An error occurred accessing the server tax entry!",
 	"command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.success": "Disabled %s active Tax Collectors",
-	"command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.fail": "No Tax Collectors are currently active",
 	"command.lightmanscurrency.lcadmin.forceDisableTaxCollectors.fail": "No Tax Collectors are currently active",
 	"command.lightmanscurrency.lcadmin.event.list.none": "No events are unlocked for this player.",
 	"command.lightmanscurrency.lcadmin.event.unlock.fail": "%s is already unlocked for this player.",

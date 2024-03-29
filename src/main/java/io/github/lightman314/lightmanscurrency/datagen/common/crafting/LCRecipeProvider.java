@@ -126,12 +126,12 @@ public class LCRecipeProvider extends RecipeProvider {
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_DIAMOND, ModBlocks.COINPILE_DIAMOND, ModBlocks.COINBLOCK_DIAMOND);
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_NETHERITE, ModBlocks.COINBLOCK_NETHERITE);
         //Chocolate Coin Recipes
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_COPPER, ModBlocks.COINPILE_CHOCOLATE_COPPER, ModBlocks.COINBLOCK_CHOCOLATE_COPPER,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_IRON, ModBlocks.COINPILE_CHOCOLATE_IRON, ModBlocks.COINBLOCK_CHOCOLATE_IRON,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_GOLD, ModBlocks.COINPILE_CHOCOLATE_GOLD, ModBlocks.COINBLOCK_CHOCOLATE_GOLD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_EMERALD, ModBlocks.COINPILE_CHOCOLATE_EMERALD, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_DIAMOND, ModBlocks.COINPILE_CHOCOLATE_DIAMOND, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
-        //GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_NETHERITE, ModBlocks.COINPILE_CHOCOLATE_NETHERITE, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_COPPER, ModBlocks.COINPILE_CHOCOLATE_COPPER, ModBlocks.COINBLOCK_CHOCOLATE_COPPER,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_IRON, ModBlocks.COINPILE_CHOCOLATE_IRON, ModBlocks.COINBLOCK_CHOCOLATE_IRON,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_GOLD, ModBlocks.COINPILE_CHOCOLATE_GOLD, ModBlocks.COINBLOCK_CHOCOLATE_GOLD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_EMERALD, ModBlocks.COINPILE_CHOCOLATE_EMERALD, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_DIAMOND, ModBlocks.COINPILE_CHOCOLATE_DIAMOND, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
+        GenerateCoinBlockRecipes(consumer, ModItems.COIN_CHOCOLATE_NETHERITE, ModBlocks.COINPILE_CHOCOLATE_NETHERITE, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE,"chocolate_",LazyTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE));
 
         //Utility Blocks
         //Coin Mint

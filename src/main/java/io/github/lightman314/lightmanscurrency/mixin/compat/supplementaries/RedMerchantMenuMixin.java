@@ -1,22 +1,22 @@
-package io.github.lightman314.lightmanscurrency.mixin;
+package io.github.lightman314.lightmanscurrency.mixin.compat.supplementaries;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.mehvahdjukaar.supplementaries.common.inventories.RedMerchantContainerMenu;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantContainer;
-import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
@@ -31,35 +31,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Mixin(MerchantMenu.class)
-public abstract class MerchantMenuMixin {
+//A copy/paste of the MerchantMenuMixin, applied to the RedMerchantMenu
+@Mixin(RedMerchantContainerMenu.class)
+public abstract class RedMerchantMenuMixin {
 
     @Unique
-    protected MerchantMenu self() { return (MerchantMenu)(Object)this; }
+    protected RedMerchantContainerMenu self() { return (RedMerchantContainerMenu)(Object)this; }
 
-    @Accessor("trader")
+    @Accessor(value = "trader", remap = false)
     public abstract Merchant getTrader();
-    @Accessor("tradeContainer")
+    @Accessor(value = "tradeContainer", remap = false)
     public abstract MerchantContainer getTradeContainer();
     @Unique
     public Player getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
 
-    @Inject(at = @At("HEAD"), method = "tryMoveItems")
+    @Inject(at = @At("HEAD"), method = "tryMoveItems", remap = false)
     private void tryMoveItemsEarly(int trade, CallbackInfo info)
     {
         //Clear coin items into the wallet instead of their inventory
         try {
-            MerchantMenu self = this.self();
+            RedMerchantContainerMenu self = this.self();
             if(trade >= 0 && trade < self.getOffers().size())
                 this.EjectMoneyIntoWallet(this.getPlayer(), false);
         } catch (Throwable ignored) {}
     }
 
-    @Inject(at = @At("TAIL"), method = "tryMoveItems")
+    @Inject(at = @At("TAIL"), method = "tryMoveItems", remap = false)
     private void tryMoveItems(int trade, CallbackInfo info)
     {
         try {
-            MerchantMenu self = this.self();
+            RedMerchantContainerMenu self = this.self();
             if(trade >= 0 && trade < self.getOffers().size())
             {
                 MerchantContainer tradeContainer = this.getTradeContainer();

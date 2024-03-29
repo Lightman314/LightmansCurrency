@@ -377,9 +377,11 @@ public class VillagerTradeManager {
 	 * Should check {@link LCConfig.Common#changeVanillaTrades} or {@link LCConfig.Common#changeModdedTrades} first before applying.
 	 */
 	public static void replaceExistingTrades(String trader, List<ItemListing> trades) {
-
-		trades.replaceAll(t -> new ConfiguredItemListing(t, LCConfig.COMMON.getVillagerMod(trader)));
-
+		trades.replaceAll(t -> {
+			if(t instanceof ConfiguredItemListing)
+				return t;
+			return new ConfiguredItemListing(t, LCConfig.COMMON.getVillagerMod(trader));
+		});
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)

@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.*;
@@ -314,6 +315,13 @@ public final class CoinAPIImpl extends CoinAPI {
                 .withDisplay(CoinDisplay.easyDefine())
                 .atmBuilder().accept(ATMExchangeButtonData::generateMain).back()
                 .apply(event,true); //Override any existing chains with this id, as they shouldn't be replacing the main chain on this priority level
+
+        //Emerald Coin Chain
+        ChainData.builder("emeralds", EasyText.translatable("lightmanscurrency.money.chain.emeralds"))
+                .withCoreChain(Items.EMERALD).withCoin(Items.EMERALD_BLOCK, 9).back()
+                .withInputType(CoinInputType.DEFAULT)
+                .withDisplay(new NumberDisplay(EasyText.translatable("lightmanscurrency.money.chain.emeralds.display"),EasyText.translatable("lightmanscurrency.money.chain.emeralds.display.wordy"), Items.EMERALD))
+                .apply(event, true);
     }
 
     @Nonnull

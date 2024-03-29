@@ -1,13 +1,20 @@
 {
-	"required": true,
-	"package": "io.github.lightman314.lightmanscurrency.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"refmap": "lightmanscurrency.refmap.json",
-	"plugin": "io.github.lightman314.lightmanscurrency.mixin.LCMixinPlugin",
-	"mixins": [
-		"MerchantMenuMixin",
-		"compat.farmingforblockheads.MarketMenuMixin"
-	],
-	"client": [],
-	"minVersion": "0.8"
+  "required": true,
+  "package": "io.github.lightman314.lightmanscurrency.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "lightmanscurrency.refmap.json",
+  "plugin": "io.github.lightman314.lightmanscurrency.mixin.LCMixinPlugin",
+  "mixins": [
+    "AbstractContainerMenuAccessor",
+    "InventoryMenuMixin",
+    "MerchantMenuMixin",
+    "SlotAccessor",
+    "compat.farmingforblockheads.MarketMenuMixin",
+    "compat.supplementaries.ModVillagerTradesMixin",
+    "compat.supplementaries.RedMerchantMenuMixin"
+  ],
+  "client": [
+    "SlotWrapperMixin"
+  ],
+  "minVersion": "0.8"
 }
