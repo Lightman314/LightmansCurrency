@@ -8,7 +8,6 @@
     "AbstractContainerMenuAccessor",
     "InventoryMenuMixin",
     "MerchantMenuMixin",
-    "SlotAccessor",
     "compat.farmingforblockheads.MarketMenuMixin",
     "compat.supplementaries.ModVillagerTradesMixin",
     "compat.supplementaries.RedMerchantMenuMixin"
