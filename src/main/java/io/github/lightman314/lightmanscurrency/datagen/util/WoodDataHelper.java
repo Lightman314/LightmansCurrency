@@ -2,13 +2,17 @@ package io.github.lightman314.lightmanscurrency.datagen.util;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class WoodDataHelper {
 
@@ -42,5 +46,18 @@ public class WoodDataHelper {
 
     @Nullable
     public static WoodData get(WoodType type) { return registeredData.get(type); }
+
+    public static Supplier<? extends ItemLike> supplier(@Nonnull ResourceLocation itemID)
+    {
+        return () -> {
+            ItemLike result = ForgeRegistries.ITEMS.getValue(itemID);
+            if(result == Items.AIR)
+            {
+                LightmansCurrency.LogError("Could not find " + itemID);
+                return null;
+            }
+            return result;
+        };
+    }
 
 }

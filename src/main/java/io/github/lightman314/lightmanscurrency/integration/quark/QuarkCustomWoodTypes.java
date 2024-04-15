@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
 import vazkii.quark.base.handler.WoodSetHandler;
 import vazkii.quark.content.building.module.BambooBackportModule;
@@ -33,15 +32,15 @@ public class QuarkCustomWoodTypes {
         registerSet(ANCIENT, () -> AncientWoodModule.woodSet);
         registerSet(AZALEA, () -> AzaleaWoodModule.woodSet);
         registerSet(BLOSSOM, () -> BlossomTreesModule.woodSet);
-        registerBamboo(BAMBOO, () -> BambooBackportModule.woodSet);
+        registerBamboo(() -> BambooBackportModule.woodSet);
     }
 
     private static void registerSet(@Nonnull WoodType type, @Nonnull Supplier<WoodSetHandler.WoodSet> set) {
         WoodDataHelper.register(type, WoodData.of2(log(set), plank(set), slab(type), "quark:block/" + type.id + "_log", "quark:block/" + type.id + "_log_top", "quark:block/" + type.id + "_planks"));
     }
 
-    private static void registerBamboo(@Nonnull WoodType type, @Nonnull Supplier<WoodSetHandler.WoodSet> set) {
-        WoodDataHelper.register(type, WoodData.of2(log(set), plank(set), slab(type), "quark:block/" + type.id + "_block","quark:block/" + type.id + "_block_top","quark:block/" + type.id + "_planks"));
+    private static void registerBamboo(@Nonnull Supplier<WoodSetHandler.WoodSet> set) {
+        WoodDataHelper.register(BAMBOO, WoodData.of2(WoodDataHelper.supplier(new ResourceLocation(MODID,"bamboo_block")), plank(set), slab(BAMBOO), "quark:block/bamboo_block","quark:block/bamboo_block_top","quark:block/bamboo_planks"));
     }
 
     private static Supplier<ItemLike> log(@Nonnull Supplier<WoodSetHandler.WoodSet> set) {
@@ -62,16 +61,6 @@ public class QuarkCustomWoodTypes {
         };
     }
 
-    private static Supplier<ItemLike> slab(@Nonnull WoodType type) {
-        return () -> {
-            //Manually get slab block cause quark screwed this part up
-            ResourceLocation itemID = new ResourceLocation(MODID, type.id + "_planks_slab");
-            Item result = ForgeRegistries.ITEMS.getValue(itemID);
-            if(result == Items.AIR)
-                return null;
-            LightmansCurrency.LogDebug("Manually found the quark slab for wood type " + type.id + " since quark screwed this up and made their variant handler return the method input instead of the variant that was made...");
-            return result;
-        };
-    }
+    private static Supplier<? extends ItemLike> slab(@Nonnull WoodType type) { return WoodDataHelper.supplier(new ResourceLocation(MODID,type.id + "_planks_slab")); }
 
 }

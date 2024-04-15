@@ -10,7 +10,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.19.2-2.2.1.3b'
+version = '1.19.2-2.2.1.3c'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -55,7 +55,8 @@ minecraft {
             args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
                         '--existing', file('optional_assets/1.19.2/biomesoplenty'),
                         '--existing', file('optional_assets/1.19.2/byg'),
-                        '--existing', file('optional_assets/1.19.2/quark')
+                        '--existing', file('optional_assets/1.19.2/quark'),
+                        '--existing', file('optional_assets/1.19.2/tinkers')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -134,6 +135,9 @@ dependencies {
     //Quark
     implementation fg.deobf("curse.maven:quark-243121:4812006")
     implementation fg.deobf("curse.maven:autoreglib-250363:4100299")
+    //Tinker's Construct
+    implementation fg.deobf("curse.maven:tinkers-construct-74072:5245284")
+    implementation fg.deobf("curse.maven:mantle-74924:5245271")
 
     //Supplementaries RedMerchant compat
     compileOnly fg.deobf("curse.maven:supplementaries-412082:5152602")
@@ -142,6 +146,7 @@ dependencies {
     //Farming For Blockheads compat
     implementation fg.deobf("curse.maven:farming-for-blockheads-261924:4749429")
     implementation fg.deobf("curse.maven:balm-531761:4751735")
+
     
 }
 

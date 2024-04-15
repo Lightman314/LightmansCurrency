@@ -31,15 +31,17 @@ public class LCLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
 
-        Predicate<WoodType> currentTest = w -> w.isMod("quark");
+        Predicate<WoodType> currentTest = w -> w.isMod("tconstruct");
 
         //Will only contain newly added wooden blocks on the patch they are made as a reminder
         // to add names for other MC versions that have different wood compats
-        //this.addWoodenBlocks(ModBlocks.AUCTION_STAND, "%s Auction Stand", currentTest);
-        //this.addWoodenBlocks(ModBlocks.SHELF, "%s Shelf", currentTest);
-        //this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s Shelf", currentTest);
-        //this.addWoodenBlocks(ModBlocks.CARD_DISPLAY, "%s Card Display", currentTest);
-        //this.addWoodenBlocks(ModBlocks.BOOKSHELF_TRADER, "%s Bookshelf Trader", currentTest);
+        /*
+        this.addWoodenBlocks(ModBlocks.AUCTION_STAND, "%s Auction Stand", currentTest);
+        this.addWoodenBlocks(ModBlocks.SHELF, "%s Shelf", currentTest);
+        this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s Shelf", currentTest);
+        this.addWoodenBlocks(ModBlocks.CARD_DISPLAY, "%s Card Display", currentTest);
+        this.addWoodenBlocks(ModBlocks.BOOKSHELF_TRADER, "%s Bookshelf Trader", currentTest);
+        //*/
 
     }
 

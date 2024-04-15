@@ -235,6 +235,13 @@
 	"block.lightmanscurrency.shelf_quark_bamboo": "Bamboo Shelf",
 	"block.lightmanscurrency.shelf_quark_blossom": "Blossom Shelf",
 	
+	"block.lightmanscurrency.shelf_tconstruct_blazewood": "Blazewood Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_bloodshroom": "Bloodshroom Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_enderbark": "Enderbark Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_greenheart": "Greenheart Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_lavawood": "Lavawood Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_skyroot": "Skyroot Shelf",
+	
 	"block.lightmanscurrency.shelf_2x2_oak": "Oak 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_spruce": "Spruce 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_birch": "Birch 2x2 Shelf",
@@ -293,6 +300,13 @@
 	"block.lightmanscurrency.shelf_2x2_quark_azalea": "Azalea Shelf",
 	"block.lightmanscurrency.shelf_2x2_quark_blossom": "Blossom Shelf",
 	"block.lightmanscurrency.shelf_2x2_quark_bamboo": "Bamboo 2x2 Shelf",
+	
+	"block.lightmanscurrency.shelf_2x2_tconstruct_blazewood": "Blazewood Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_bloodshroom": "Bloodshroom Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_enderbark": "Enderbark Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_greenheart": "Greenheart Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_lavawood": "Lavawood Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_skyroot": "Skyroot Shelf",
 	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
 	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
@@ -359,6 +373,11 @@
 	"block.lightmanscurrency.card_display_quark_azalea": "Azalea Card Display",
 	"block.lightmanscurrency.card_display_quark_blossom": "Blossom Card Display",
 	"block.lightmanscurrency.card_display_quark_bamboo": "Bamboo Card Display",
+	
+	"block.lightmanscurrency.card_display_tconstruct_bloodshroom": "Bloodshroom Card Display",
+	"block.lightmanscurrency.card_display_tconstruct_enderbark": "Enderbark Card Display",
+	"block.lightmanscurrency.card_display_tconstruct_greenheart": "Greenheart Card Display",
+	"block.lightmanscurrency.card_display_tconstruct_skyroot": "Skyroot Card Display",
    
     "block.lightmanscurrency.ticket_machine": "Ticket Station",
     "block.lightmanscurrency.paygate": "Paygate",
@@ -441,6 +460,13 @@
 	"block.lightmanscurrency.bookshelf_trader_quark_blossom": "Blossom Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_quark_bamboo": "Bamboo Bookshelf Trader",
 	
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_blazewood": "Blazewood Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_bloodshroom": "Bloodshroom Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_enderbark": "Enderbark Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_greenheart": "Greenheart Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_lavawood": "Lavawood Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_skyroot": "Skyroot Bookshelf Trader",
+	
 	"block.lightmanscurrency.slot_machine": "Slot Machine",
 	
     "block.lightmanscurrency.terminal": "Trading Terminal",
@@ -520,6 +546,11 @@
 	"block.lightmanscurrency.auction_stand_quark_azalea": "Azalea Auction Stand",
 	"block.lightmanscurrency.auction_stand_quark_blossom": "Blossom Auction Stand",
 	"block.lightmanscurrency.auction_stand_quark_bamboo": "Bamboo Auction Stand",
+	
+	"block.lightmanscurrency.auction_stand_tconstruct_bloodshroom": "Bloodshroom Auction Stand",
+	"block.lightmanscurrency.auction_stand_tconstruct_enderbark": "Enderbark Auction Stand",
+	"block.lightmanscurrency.auction_stand_tconstruct_greenheart": "Greenheart Auction Stand",
+	"block.lightmanscurrency.auction_stand_tconstruct_skyroot": "Skyroot Auction Stand",
 	
     "block.lightmanscurrency.coin_chest": "Money Chest",
 	"block.lightmanscurrency.tax_block": "Tax Collector",
