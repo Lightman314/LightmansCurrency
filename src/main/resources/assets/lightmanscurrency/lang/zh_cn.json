@@ -1280,7 +1280,7 @@
     
     "command.argument.trader.notfound": "找不到该ID的交易设备。",
     "command.trader.block.notfound": "指定位置没有交易设备。",
-    "command.argument.coinvalue.notacoin": "'%s' 不是一种有效的钱币！",
+    "command.argument.coinvalue.notacoin": "'%s'不是一种有效的钱币！",
 	"command.argument.coinvalue.novalue": "价值解析为空！",
     "command.argument.coinvalue.not_free_or_empty": "输入不是“免费”或“空”！",
     
