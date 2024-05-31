@@ -8,10 +8,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
@@ -33,8 +35,12 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	//TODO rework terminal screen
 
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/network_terminal.png");
+
+	private static NetworkTerminalState networkTerminalState;
 	
 	private EditBox searchField;
+
+	private PlainButton hideEmptyTradersCheckbox;
 	private static int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
@@ -79,10 +85,12 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		this.resize((this.columns * NetworkTraderButton.WIDTH) + 30, (this.rows * NetworkTraderButton.HEIGHT) + 37);
 		return this.getArea();
 	}
-	
+
 	@Override
 	protected void initialize(ScreenArea screenArea)
 	{
+
+		networkTerminalState = NetworkTerminalState.getInstance();
 
 		screenArea = this.calculateSize();
 
@@ -90,7 +98,20 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
-		
+		this.searchField.setValue(networkTerminalState.searchQuery);
+
+		this.hideEmptyTradersCheckbox = this.addChild(
+				IconAndButtonUtil.checkmarkButton(
+						screenArea.x + 135,
+						screenArea.y + 5,
+						(EasyButton b) -> {
+							networkTerminalState.hideEmptyTraders = !networkTerminalState.hideEmptyTraders;
+							this.updateTraderList();
+						},
+						() -> networkTerminalState.hideEmptyTraders
+				)
+		);
+
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns), 17), (NetworkTraderButton.HEIGHT * this.rows) + 2, this));
 		
 		this.initTraderButtons(screenArea);
@@ -124,6 +145,8 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		gui.blit(GUI_TEXTURE, 14, 3, 100, 0,118, 14);
 		//Render the button background
 		gui.blitBackgroundOfSize(GUI_TEXTURE, 14, 17, this.imageWidth - 28, this.imageHeight - 34, 0, 100, 100, 100, 25);
+		//Render the hideNoStockCheckbox text
+		gui.drawString(EasyText.literal("Hide empty traders"), 147, 6, 0x404040);
 		
 	}
 	
@@ -135,6 +158,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		{
 			if(!Objects.equals(s, this.searchField.getValue()))
 			{
+				networkTerminalState.searchQuery = this.searchField.getValue();
 				this.updateTraderList();
 			}
 			return true;
@@ -150,6 +174,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		{
 			if(!Objects.equals(s,  this.searchField.getValue()))
 			{
+				networkTerminalState.searchQuery = this.searchField.getValue();
 				this.updateTraderList();
 			}
 			return true;
@@ -181,7 +206,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), networkTerminalState.searchQuery, networkTerminalState.hideEmptyTraders);
 		//Validate the scroll
 		this.validateScroll();
 		//Update the trader buttons
@@ -211,5 +236,24 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.columns * this.rows, this.columns, this.filteredTraderList.size()); }
+
+	private static class NetworkTerminalState {
+		private static NetworkTerminalState instance;
+		private String searchQuery;
+		private boolean hideEmptyTraders;
+
+		private NetworkTerminalState() {
+			searchQuery = "";
+			hideEmptyTraders = true;
+		}
+
+		public static NetworkTerminalState getInstance() {
+			if(instance == null) {
+				instance = new NetworkTerminalState();
+			}
+			return instance;
+		}
+
+	}
 
 }

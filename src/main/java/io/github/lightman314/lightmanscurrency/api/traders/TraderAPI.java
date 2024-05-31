@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -79,13 +80,20 @@ public final class TraderAPI {
     }
 
     @Nonnull
-    public static List<TraderData> filterTraders(@Nonnull List<TraderData> data, @Nonnull String searchText)
+    public static List<TraderData> filterTraders(@Nonnull List<TraderData> data, @Nonnull String searchText, boolean hideEmptyTraders)
     {
-        if(searchText.isBlank())
+        if(searchText.isBlank() && !hideEmptyTraders)
             return data;
         List<TraderData> results = new ArrayList<>();
         for(TraderData trader : data)
         {
+
+            if(trader instanceof ItemTraderData) {
+                if(((ItemTraderData) trader).isTraderEmpty()) {
+                    continue;
+                }
+            }
+
             if(filterTrader(trader, searchText))
                 results.add(trader);
         }

@@ -186,8 +186,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	private void updateTraderList()
 	{
-		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), this.searchField.getValue(), false);
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())
