@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -31,7 +30,7 @@ public class CommandBank {
 
         LiteralArgumentBuilder<CommandSourceStack> bankCommand
                 = Commands.literal("lcbank")
-                .requires(stack -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
+                .requires(stack -> stack.hasPermission(2))
                 .then(Commands.literal("give")
                         .then(Commands.literal("allPlayers")
                                 .then(Commands.argument("amount", CoinValueArgument.argument(context))
