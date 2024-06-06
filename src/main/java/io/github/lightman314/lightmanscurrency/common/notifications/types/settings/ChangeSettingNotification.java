@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -59,7 +60,7 @@ public abstract class ChangeSettingNotification extends Notification {
 
 		@Nonnull
 		@Override
-		public MutableComponent getMessage() { return Component.translatable("log.settings.change", this.player.getName(true), this.setting, this.oldValue, this.newValue); }
+		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(true), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(@Nonnull CompoundTag compound) {
@@ -101,7 +102,7 @@ public abstract class ChangeSettingNotification extends Notification {
 		@Nonnull
 		@Override
 		public MutableComponent getMessage() {
-			return Component.translatable("log.settings.change.simple", this.player.getName(true), this.setting, this.newValue);
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE.get(this.player.getName(true), this.setting, this.newValue);
 		}
 		
 		@Override

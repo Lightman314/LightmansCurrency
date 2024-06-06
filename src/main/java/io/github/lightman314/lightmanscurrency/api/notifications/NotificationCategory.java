@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
@@ -34,7 +35,7 @@ public abstract class NotificationCategory implements ITab
 		public IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Nonnull
 		@Override
-		public MutableComponent getName() { return EasyText.translatable("notifications.source.general"); }
+		public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_GENERAL.get(); }
 		@Override
 		public boolean matches(NotificationCategory other) { return other == GENERAL; }
 		@Nonnull

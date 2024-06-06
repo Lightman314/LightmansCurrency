@@ -12,6 +12,11 @@ import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurre
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PlayerOwnerProvider;
+import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.TeamOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
@@ -25,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
@@ -44,7 +50,6 @@ import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.*;
@@ -160,6 +165,15 @@ public class LightmansCurrency {
 		//Register Crafting Conditions
 		LCCraftingConditions.register();
 
+		//Ownership API data
+		OwnershipAPI.API.registerOwnerType(Owner.NULL_TYPE);
+		OwnershipAPI.API.registerOwnerType(FakeOwner.TYPE);
+		OwnershipAPI.API.registerOwnerType(PlayerOwner.TYPE);
+		OwnershipAPI.API.registerOwnerType(TeamOwner.TYPE);
+
+		OwnershipAPI.API.registerPotentialOwnerProvider(PlayerOwnerProvider.INSTANCE);
+		OwnershipAPI.API.registerPotentialOwnerProvider(TeamOwnerProvider.INSTANCE);
+
 		//Initialize the TraderData deserializers
 		TraderAPI.registerTrader(ItemTraderData.TYPE);
 		TraderAPI.registerTrader(ItemTraderDataArmor.TYPE);
@@ -173,14 +187,17 @@ public class LightmansCurrency {
 		ModGameRules.registerRules();
 
 		//Initialize the Trade Rule deserializers
-		TraderAPI.registerTradeRule(PlayerWhitelist.TYPE);
-		TraderAPI.registerTradeRule(PlayerBlacklist.TYPE);
+		TraderAPI.registerTradeRule(PlayerListing.TYPE);
 		TraderAPI.registerTradeRule(PlayerTradeLimit.TYPE);
 		TraderAPI.registerTradeRule(PlayerDiscounts.TYPE);
 		TraderAPI.registerTradeRule(TimedSale.TYPE);
 		TraderAPI.registerTradeRule(TradeLimit.TYPE);
 		TraderAPI.registerTradeRule(FreeSample.TYPE);
 		TraderAPI.registerTradeRule(PriceFluctuation.TYPE);
+
+		TradeRule.addLoadListener(PlayerListing.LISTENER);
+		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");
+		TradeRule.addIgnoreMissing("lightmanscurrency:blacklist");
 
 		//Initialize the Notification deserializers
 		NotificationAPI.registerNotification(ItemTradeNotification.TYPE);
@@ -260,7 +277,6 @@ public class LightmansCurrency {
     	event.register(IWalletHandler.class);
 		event.register(IMoneyHandler.class);
     	event.register(IMoneyViewer.class);
-    	event.register(ISpawnTracker.class);
     }
     
     @SubscribeEvent

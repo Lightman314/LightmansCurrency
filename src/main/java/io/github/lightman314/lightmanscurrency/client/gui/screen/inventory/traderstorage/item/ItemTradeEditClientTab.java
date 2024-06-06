@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
@@ -85,7 +86,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.itemEditScroll = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + 18 * COLUMNS, Y_OFFSET), 18 * ROWS, this.itemEdit));
 		this.itemEditScroll.smallKnob = true;
 		
-		int labelWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.customname"));
+		int labelWidth = this.getFont().width(LCText.GUI_NAME.get());
 		this.customNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 28 - labelWidth, 18, EasyText.empty()));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
@@ -121,10 +122,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
 		if(this.customNameInput.visible)
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.customname"), 13, 42, 0x404040);
+			gui.drawString(LCText.GUI_NAME.get(), 13, 42, 0x404040);
 
 		if(this.isNBTButtonVisible())
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.blurb.nbt"), 124, 5, 0x404040);
+			gui.drawString(LCText.GUI_TRADER_ITEM_ENFORCE_NBT.get(), 124, 5, 0x404040);
 
 	}
 	
@@ -159,7 +160,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
-		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeType().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(LCText.GUI_TRADE_DIRECTION.get(this.getTrade().getTradeDirection()).get());
 	}
 	
 	@Override
@@ -264,7 +265,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	private void ToggleTradeType(EasyButton button) {
 		if(this.getTrade() != null)
 		{
-			this.commonTab.setType(this.getTrade().getTradeType().next());
+			this.commonTab.setType(ItemTradeData.getNextInCycle(this.getTrade().getTradeDirection()));
 			this.itemEdit.refreshSearch();
 		}
 	}

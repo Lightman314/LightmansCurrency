@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
@@ -41,9 +41,7 @@ public class LowBalanceNotification extends Notification{
 
 	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
-		return EasyText.translatable("notifications.message.bank_low_balance", this.value.getString());
-	}
+	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_LOW_BALANCE.get(this.value.getString()); }
 
 	@Override
 	protected void saveAdditional(@Nonnull CompoundTag compound) {

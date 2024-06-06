@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
@@ -91,12 +92,12 @@ public class CoinDisplay extends ValueDisplayData {
         if(lowerExchange != null)
         {
             ItemData otherData = this.getDataForCoin(lowerExchange.getFirst());
-            tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.down", lowerExchange.getSecond(), otherData.getPlural()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(LCText.TOOLTIP_COIN_WORTH_DOWN.get(lowerExchange.getSecond(), otherData.getPlural()).withStyle(ChatFormatting.YELLOW));
         }
         Pair<CoinEntry,Integer> upperExchange = parent.getUpperExchange(data.coin);
         if(upperExchange != null)
         {
-            tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.up", upperExchange.getSecond(), upperExchange.getFirst().getName()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(LCText.TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(), upperExchange.getFirst().getName()).withStyle(ChatFormatting.YELLOW));
         }
 
     }
@@ -160,7 +161,7 @@ public class CoinDisplay extends ValueDisplayData {
             });
         }
         @Nonnull
-        public Component getPlural() { return Objects.requireNonNullElseGet(this.plural, () -> EasyText.translatable("item.lightmanscurrency.generic.plural", new ItemStack(this.coin).getHoverName())); }
+        public Component getPlural() { return Objects.requireNonNullElseGet(this.plural, () -> LCText.MISC_GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())); }
         ItemData(@Nonnull Item coin) { this.coin = coin; }
     }
 
@@ -171,13 +172,13 @@ public class CoinDisplay extends ValueDisplayData {
             if(coin instanceof BlockItem)
                 type = "block.";
             ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
-            return EasyText.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
+            return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
         }, coin -> {
             String type = "item.";
             if(coin instanceof BlockItem)
                 type = "block.";
             ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
-            return EasyText.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
+            return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
         });
     }
     public static CoinDisplay easyDefine(@Nonnull NonNullFunction<Item,Component> initialGenerator, @Nonnull NonNullFunction<Item,Component> pluralGenerator)

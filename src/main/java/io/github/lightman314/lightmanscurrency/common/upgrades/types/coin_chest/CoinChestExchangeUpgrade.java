@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.ExchangeUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -97,7 +97,7 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
 
     @Nonnull
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.exchange")); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE.get()); }
 
     @Override
     public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -30,12 +30,11 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 
-	//TODO rework terminal screen
-
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/network_terminal.png");
 	
 	private EditBox searchField;
 	private static int scroll = 0;
+	private static String lastSearch = "";
 	
 	ScrollBarWidget scrollBar;
 
@@ -47,7 +46,6 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	private List<TraderData> traderList(){
 		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
 		//No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
-		//traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
 		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
@@ -55,7 +53,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	public NetworkTerminalScreen(TerminalMenu menu, Inventory inventory, Component ignored)
 	{
-		super(menu, inventory, EasyText.translatable("block.lightmanscurrency.terminal"));
+		super(menu, inventory, LCText.GUI_NETWORK_TERMINAL_TITLE.get());
 	}
 
 	private ScreenArea calculateSize()
@@ -86,10 +84,12 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 		screenArea = this.calculateSize();
 
-		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
+		this.searchField.setValue(lastSearch);
+		this.searchField.setResponder(this::onSearchChanged);
 		
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns), 17), (NetworkTraderButton.HEIGHT * this.rows) + 2, this));
 		
@@ -126,20 +126,13 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		gui.blitBackgroundOfSize(GUI_TEXTURE, 14, 17, this.imageWidth - 28, this.imageHeight - 34, 0, 100, 100, 100, 25);
 		
 	}
-	
-	@Override
-	public boolean charTyped(char c, int code)
+
+	protected void onSearchChanged(String newSearch)
 	{
-		String s = this.searchField.getValue();
-		if(this.searchField.charTyped(c, code))
-		{
-			if(!Objects.equals(s, this.searchField.getValue()))
-			{
-				this.updateTraderList();
-			}
-			return true;
-		}
-		return false;
+		if(newSearch.equals(lastSearch))
+			return;
+		lastSearch = newSearch;
+		this.updateTraderList();
 	}
 	
 	@Override

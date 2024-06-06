@@ -2,17 +2,19 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderinterface.bas
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.InfoClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class InfoTab extends TraderInterfaceTab {
 
@@ -39,11 +41,7 @@ public class InfoTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().acceptTradeChanges();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putBoolean("AcceptTradeChanges", true);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleFlag("AcceptTradeChanges"));
 		}
 	}
 	
@@ -52,25 +50,16 @@ public class InfoTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().setInteractionType(newType);
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewInteractionType", newType.index);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewInteractionType", newType.index));
 		}
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void handleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("NewInteractionType"))
-		{
-			InteractionType newType = InteractionType.fromIndex(message.getInt("NewInteractionType"));
-			this.changeInteractionType(newType);
-		}
+			this.changeInteractionType(InteractionType.fromIndex(message.getInt("NewInteractionType")));
 		if(message.contains("AcceptTradeChanges"))
-		{
 			this.acceptTradeChanges();
-		}
 	}
 
 }

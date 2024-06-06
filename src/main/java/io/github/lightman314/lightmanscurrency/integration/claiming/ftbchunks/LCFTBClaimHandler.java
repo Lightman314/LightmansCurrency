@@ -23,7 +23,7 @@ public class LCFTBClaimHandler implements IClaimPurchaseHandler {
     @Override
     public int getCurrentBonusClaims(@Nonnull ServerPlayer player) {
         ChunkTeamData data = FTBChunksAPI.api().getManager().getOrCreateData(player);
-        if(data == null)
+        if(data != null)
             return data.getExtraClaimChunks();
         return 0;
     }
@@ -31,7 +31,7 @@ public class LCFTBClaimHandler implements IClaimPurchaseHandler {
     @Override
     public int getCurrentBonusForceloadChunks(@Nonnull ServerPlayer player) {
         ChunkTeamData data = FTBChunksAPI.api().getManager().getOrCreateData(player);
-        if(data == null)
+        if(data != null)
             return data.getExtraForceLoadChunks();
         return 0;
     }

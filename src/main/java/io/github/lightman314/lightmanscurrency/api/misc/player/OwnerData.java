@@ -2,7 +2,11 @@ package io.github.lightman314.lightmanscurrency.api.misc.player;
 
 import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.ownership.IOwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -12,124 +16,162 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
-public class OwnerData {
+import javax.annotation.Nonnull;
 
-	private MutableComponent customOwner = null;
-	private PlayerReference playerOwner = null;
-	private long teamOwner = -1;
+
+public final class OwnerData implements IOwnerData {
+
+	private Owner backupOwner = Owner.NULL;
+	private Owner currentOwner = Owner.NULL;
 	
 	private final IClientTracker parent;
 	private final Consumer<OwnerData> onChanged;
 	
 	public OwnerData(IClientTracker parent, Consumer<OwnerData> onChanged) { this.parent = parent; this.onChanged = onChanged; }
-	
-	public boolean hasOwner() { return this.playerOwner != null || this.getTeam() != null || this.customOwner != null; }
+
+	@Nonnull
+	public Owner getValidOwner() { return this.currentOwner.stillValid() ? this.currentOwner : this.backupOwner; }
+
+	public boolean hasOwner() { return this.currentOwner.stillValid() || this.backupOwner.stillValid(); }
+
+	public void flagAsClient() {
+		this.backupOwner.flagAsClient();
+		this.currentOwner.flagAsClient();
+	}
 	
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
-		if(this.customOwner != null)
-			compound.putString("Custom", Component.Serializer.toJson(this.customOwner));
-		if(this.playerOwner != null)
-			compound.put("Player", this.playerOwner.save());
-		if(this.teamOwner >= 0)
-			compound.putLong("Team", this.teamOwner);
+		compound.put("BackupOwner", this.backupOwner.save());
+		compound.put("Owner", this.currentOwner.save());
 		return compound;
 	}
 	
 	public void load(CompoundTag compound)
 	{
-		if(compound.contains("Custom"))
-			this.customOwner = Component.Serializer.fromJson(compound.getString("Custom"));
+		if(compound.contains("BackupOwner") && compound.contains("Owner"))
+		{
+			this.backupOwner = Owner.load(compound.getCompound("BackupOwner"));
+			this.currentOwner = Owner.load(compound.getCompound("Owner"));
+			if(this.parent.isClient())
+			{
+				this.backupOwner.flagAsClient();
+				this.currentOwner.flagAsClient();
+			}
+		}
 		else
-			this.customOwner = null;
-		
-		if(compound.contains("Player"))
-			this.playerOwner = PlayerReference.load(compound.getCompound("Player"));
-		else
-			this.playerOwner = null;
-		
-		if(compound.contains("Team"))
-			this.teamOwner = compound.getLong("Team");
-		else
-			this.teamOwner = -1;
+		{
+			this.backupOwner = FakeOwner.of("NULL");
+			//Load deprecated save data
+			if(compound.contains("Custom"))
+			{
+				MutableComponent custom = Component.Serializer.fromJson(compound.getString("Custom"));
+				this.backupOwner = FakeOwner.of(custom.copy());
+				this.currentOwner = FakeOwner.of(custom);
+			}
+			if(compound.contains("Player"))
+			{
+				PlayerReference player = PlayerReference.load(compound.getCompound("Player"));
+				this.backupOwner = PlayerOwner.of(player);
+				this.currentOwner = PlayerOwner.of(player);
+			}
+
+			if(compound.contains("Team")) //Don't set a team owner as the backup owner
+				this.currentOwner = TeamOwner.of(compound.getLong("Team"));
+		}
+
 	}
 	
 	public void copyFrom(OwnerData owner) {
-		this.customOwner = owner.customOwner;
-		this.playerOwner = owner.playerOwner;
-		this.teamOwner = owner.teamOwner;
-	}
-	
-	public boolean hasPlayer() { return this.playerOwner != null; }
-	public PlayerReference getPlayer() { return this.playerOwner; }
-	
-	public boolean hasTeam() { return this.getTeam() != null; }
-	public Team getTeam()
-	{
-		if(this.teamOwner < 0)
-			return null;
-		return TeamSaveData.GetTeam(this.parent.isClient(), this.teamOwner);
-	}
-	public PlayerReference getPlayerForContext() {
-		Team team = this.getTeam();
-		if(team != null)
-			return team.getOwner().copyWithName(team.getName());
-		return this.playerOwner;
-	}
-	
-	public boolean isAdmin(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
-	
-	public boolean isAdmin(PlayerReference player)
-	{
-		if(player == null)
-			return false;
-		Team team = this.getTeam();
-		if(team != null)
-			return team.isAdmin(player.id);
-		return player.is(this.playerOwner);
-	}
-	
-	public boolean isMember(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
-	
-	public boolean isMember(PlayerReference player) {
-		if(player == null)
-			return false;
-		Team team = this.getTeam();
-		if(team != null)
-			return team.isMember(player.id);
-		return player.is(this.playerOwner);
-	}
-	
-	public String getOwnerName() { return this.getOwnerName(this.parent.isClient()); }
-	public String getOwnerName(boolean isClient)
-	{
-		if(this.customOwner != null)
-			return this.customOwner.getString();
-		Team team = this.getTeam();
-		if(team != null)
-			return team.getName();
-		if(this.playerOwner != null)
-			return this.playerOwner.getName(isClient);
-		return EasyText.translatable("gui.button.lightmanscurrency.team.owner.null").getString();
-	}
-	
-	public void SetCustomOwner(String customOwner) { this.customOwner = Component.literal(customOwner); }
-	public void SetCustomOwner(MutableComponent customOwner) { this.customOwner = customOwner; }
-	
-	public void SetOwner(PlayerReference player) {
-		this.playerOwner = player;
-		this.teamOwner = -1;
-		this.onChanged.accept(this); 
+		this.backupOwner = owner.backupOwner;
+		this.currentOwner = owner.currentOwner;
 	}
 
-	public void SetOwner(Player player) { this.SetOwner(PlayerReference.of(player)); }
+
+	@Deprecated(since = "2.2.1.4")
+	public boolean hasPlayer() { return this.getPlayer() != null; }
+	@Deprecated(since = "2.2.1.4")
+	public PlayerReference getPlayer() {
+		if(this.currentOwner instanceof PlayerOwner po)
+			return po.player;
+		if(this.backupOwner instanceof PlayerOwner po)
+			return po.player;
+		return null;
+	}
+
+	@Deprecated(since = "2.2.1.4")
+	public boolean hasTeam() { return this.getTeam() != null; }
+	@Deprecated(since = "2.2.1.4")
+	public Team getTeam()
+	{
+		if(this.currentOwner instanceof TeamOwner to)
+			return TeamSaveData.GetTeam(this.parent.isClient(), to.teamID);
+		return null;
+	}
+	@Nonnull
+	public PlayerReference getPlayerForContext() { return this.getValidOwner().asPlayerReference(); }
 	
+	public boolean isAdmin(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
+	
+	public boolean isAdmin(@Nonnull PlayerReference player) { return this.getValidOwner().isAdmin(player); }
+	
+	public boolean isMember(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
+	
+	public boolean isMember(@Nonnull PlayerReference player) { return this.getValidOwner().isMember(player); }
+
+	/**
+	 * @deprecated Use {@link #getName()} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public String getOwnerName() { return this.getName().getString(); }
+	/**
+	 * @deprecated Use {@link #getName()} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public String getOwnerName(boolean ignored) { return this.getName().getString(); }
+
+	@Nonnull
+	public MutableComponent getName() { return this.getValidOwner().getName(); }
+
+	/**
+	 * @deprecated Use {@link #SetOwner(Owner)} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public void SetCustomOwner(String customOwner) { this.SetOwner(FakeOwner.of(customOwner)); }
+	/**
+	 * @deprecated Use {@link #SetOwner(Owner)} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public void SetCustomOwner(MutableComponent customOwner) { this.SetOwner(FakeOwner.of(customOwner)); }
+
+	/**
+	 * @deprecated Use {@link #SetOwner(Owner)} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public void SetOwner(PlayerReference player) { this.SetOwner(PlayerOwner.of(player)); }
+
+	/**
+	 * @deprecated Use {@link #SetOwner(Owner)} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
+	public void SetOwner(Player player) { this.SetOwner(PlayerReference.of(player)); }
+
+	/**
+	 * @deprecated Use {@link #SetOwner(Owner)} instead.
+	 */
+	@Deprecated(since = "2.2.1.4")
 	public void SetOwner(Team team) {
 		if(team == null)
 			return;
-		this.teamOwner = team.getID();
-		this.onChanged.accept(this); 
+		this.SetOwner(TeamOwner.of(team));
+	}
+
+	public void SetOwner(@Nonnull Owner newOwner)
+	{
+		this.currentOwner = newOwner;
+		if(newOwner.alwaysValid())
+			this.backupOwner = newOwner;
+		this.onChanged.accept(this);
 	}
 	
 }

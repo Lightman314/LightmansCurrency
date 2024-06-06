@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -7,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -26,7 +26,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     private SettingsSubTab getCurrentTab() {
         if(this.selectedTab < 0 || this.selectedTab >= this.tabs.size())
             this.selectedTab = 0;
-        if(this.tabs.size() > 0)
+        if(!this.tabs.isEmpty())
             return this.tabs.get(this.selectedTab);
         return null;
     }
@@ -38,7 +38,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     public IconData getIcon() { return IconAndButtonUtil.ICON_SETTINGS; }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.settings"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS.get(); }
 
     @Override
     public boolean blockInventoryClosing() { return true; }

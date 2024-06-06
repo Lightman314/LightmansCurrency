@@ -3,13 +3,13 @@ package io.github.lightman314.lightmanscurrency.api.money.types.builtin;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -72,7 +72,7 @@ public final class NullCurrencyType extends CurrencyType {
                 return MoneyValue.free();
             if(text.equalsIgnoreCase("empty"))
                 return MoneyValue.empty();
-            throw new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, EasyText.translatable("command.argument.coinvalue.not_free_or_empty"), reader.getString(), reader.getCursor());
+            throw new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE.get(), reader.getString(), reader.getCursor());
         }
 
         @Override

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader_interface.menu;
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import net.minecraft.nbt.CompoundTag;
@@ -10,6 +11,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderInterfaceTab {
 
@@ -50,9 +53,11 @@ public abstract class TraderInterfaceTab {
 	
 	public boolean quickMoveStack(ItemStack stack) { return false; }
 	
-	/**
-	 * Sends a message to the server to notify them about an interaction made client-side.
-	 */
-	public abstract void receiveMessage(CompoundTag message);
+
+	@Deprecated(since = "2.2.1.4")
+	public void receiveMessage(CompoundTag ignored) {}
+
+	public abstract void handleMessage(@Nonnull LazyPacketData message);
+
 	
 }

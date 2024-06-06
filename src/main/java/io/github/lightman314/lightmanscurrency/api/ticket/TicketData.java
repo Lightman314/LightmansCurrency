@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.ticket;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -14,6 +15,8 @@ import java.util.List;
 public class TicketData {
 
     private static final List<TicketData> DATA = new ArrayList<>();
+
+    public static List<TicketData> allData() { return ImmutableList.copyOf(DATA); }
 
     public final Item masterTicket;
     public final Item ticket;

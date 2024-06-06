@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
@@ -21,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPla
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client.AuctionTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
@@ -106,7 +108,10 @@ public class AuctionTradeData extends TradeData {
 			return;
 		this.duration = Math.max(GetMinimumDuration(), duration);
 	}
-	
+
+	@Override
+	public int getStock(@Nonnull TradeContext context) { return this.isValid() ? 1 : 0; }
+
 	List<ItemStack> auctionItems = new ArrayList<>();
 	public List<ItemStack> getAuctionItems() { return this.auctionItems; }
 	public void setAuctionItems(Container auctionItems) {
@@ -143,7 +148,7 @@ public class AuctionTradeData extends TradeData {
 	public boolean isValid() {
 		if(this.cancelled)
 			return false;
-		if(this.auctionItems.size() == 0)
+		if(this.auctionItems.isEmpty())
 			return false;
 		if(this.isActive() && this.hasExpired(TimeUtil.getCurrentTime()))
 			return false;
@@ -388,7 +393,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
-	public TradeDirection getTradeDirection() { return TradeDirection.NONE; }
+	public TradeDirection getTradeDirection() { return TradeDirection.OTHER; }
 
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) { return new TradeComparisonResult(); }

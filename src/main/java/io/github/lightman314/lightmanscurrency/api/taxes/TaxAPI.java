@@ -20,7 +20,7 @@ public final class TaxAPI {
     public static void registerReferenceType(@Nonnull TaxReferenceType type) {
         ResourceLocation id = type.typeID;
         if(REFERENCE_TYPES.containsKey(id))
-            LightmansCurrency.LogWarning("Attempted to registerNotification the TaxReferenceType '" + id + "' twice!");
+            LightmansCurrency.LogWarning("Attempted to register the TaxReferenceType '" + id + "' twice!");
         else
         {
             REFERENCE_TYPES.put(id, type);

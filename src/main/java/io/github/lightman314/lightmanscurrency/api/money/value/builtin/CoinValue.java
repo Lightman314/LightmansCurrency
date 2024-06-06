@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.value.builtin;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,13 +92,19 @@ public final class CoinValue extends MoneyValue
 	}
 
 	@Nonnull
-	public static MoneyValue loadCoinValue(CompoundTag tag)
+	public static MoneyValue loadCoinValue(@Nonnull CompoundTag tag)
 	{
 		if(tag.contains("Chain", Tag.TAG_STRING))
 		{
+			boolean dataLoaded = true;
+			if(CoinAPI.API.NoDataAvailable())
+			{
+				LightmansCurrency.LogWarning("Coin Value loaded before receiving the Chain Data packet. Will assume all value pairs are valid and don't need rounding!");
+				dataLoaded = false;
+			}
 			String chain = tag.getString("Chain");
 			ChainData chainData = CoinAPI.API.ChainData(chain);
-			if(chainData == null) //Load value as backup state, so that if the config gets reloaded properly and this chain gets re-added
+			if(chainData == null && dataLoaded) //Load value as backup state, so that if the config gets reloaded properly and this chain gets re-added
 				return new CoinValue(chain, tag);
 			if(tag.contains("Value", Tag.TAG_LIST))
 			{
@@ -180,7 +187,8 @@ public final class CoinValue extends MoneyValue
 		return MoneyValue.empty();
 	}
 
-	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber)
+	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber) { return fromNumber(CoinAPI.API.ChainData(chain), valueNumber); }
+	public static MoneyValue fromNumber(ChainData chainData, long valueNumber)
 	{
 		//LightmansCurrency.LogDebug("Generating Coin Value from '" + chain + "' with a value of " + valueNumber);
 		if(valueNumber <= 0)
@@ -188,7 +196,6 @@ public final class CoinValue extends MoneyValue
 			//LightmansCurrency.LogDebug("Value was <= 0. Returning empty.");
 			return MoneyValue.empty();
 		}
-		ChainData chainData = CoinAPI.API.ChainData(chain);
 		if(chainData == null)
 		{
 			//LightmansCurrency.LogDebug("Chain does not exist. Returning empty.");
@@ -215,7 +222,7 @@ public final class CoinValue extends MoneyValue
 					break;
 			}
 		}
-		return create(chain,pairList);
+		return create(chainData.chain,pairList);
 	}
 
 	/**
@@ -255,6 +262,24 @@ public final class CoinValue extends MoneyValue
 		return null;
 	}
 
+	@Nonnull
+	@Override
+	public MoneyValue multiplyValue(double multiplier) {
+		BigDecimal value = BigDecimal.valueOf(this.getCoreValue());
+		BigDecimal result = value.multiply(BigDecimal.valueOf(multiplier));
+		//If less than 1, return empty
+		if(result.compareTo(BigDecimal.valueOf(0.5d)) < 0)
+			return MoneyValue.empty();
+		if(result.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+		{
+			//If larger than max long value, return max long value
+			return fromNumber(this.chain, Long.MAX_VALUE);
+		}
+		long rounding = 0;
+		if(result.remainder(BigDecimal.ONE).compareTo(BigDecimal.valueOf(0.5d)) >= 0)
+			rounding = 1;
+		return fromNumber(this.chain, result.longValue() + rounding);
+	}
 
 	@Override
 	public MoneyValue percentageOfValue(int percentage, boolean roundUp) {
@@ -581,4 +606,15 @@ public final class CoinValue extends MoneyValue
 	@Override
 	public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) { return new CoinPriceEntry(this, additionalTooltips, tooltipOverride); }
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(CoinValuePair pair : this.coinValues)
+		{
+			if(!sb.isEmpty())
+				sb.append(',');
+			sb.append(pair.amount).append('x').append(ForgeRegistries.ITEMS.getKey(pair.coin));
+		}
+		return "CoinValue:" + sb;
+	}
 }

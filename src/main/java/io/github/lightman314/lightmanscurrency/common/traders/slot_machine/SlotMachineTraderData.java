@@ -5,13 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -124,12 +124,12 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         //Return undefined info if not yet defined
         if(!this.hasValidTrade())
         {
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.undefined").withStyle(ChatFormatting.RED));
+            tooltips.add(LCText.TOOLTIP_SLOT_MACHINE_UNDEFINED.get().withStyle(ChatFormatting.RED));
             return tooltips;
         }
 
         if(!this.hasStock())
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.outofstock").withStyle(ChatFormatting.RED));
+            tooltips.add(LCText.TOOLTIP_OUT_OF_STOCK.get().withStyle(ChatFormatting.RED));
 
         return tooltips;
     }
@@ -160,22 +160,22 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     public int getTradeCount() { return 1; }
 
     @Override
-    public int getTradeStock(int tradeIndex) { return this.hasStock() ? 1 : 0; }
-
-    public boolean hasStock()
-    {
-        //Return false if no valid entries exist.
+    public int getTradeStock(int tradeIndex) {
         if(!this.hasValidTrade())
-            return false;
+            return 0;
         if(this.isCreative())
-            return true;
+            return 1;
+        int minStock = Integer.MAX_VALUE;
         for(SlotMachineEntry entry : this.entries)
         {
-            if(entry.isValid() && !entry.hasStock(this))
-                return false;
+            int stock = entry.getStock(this);
+            if(stock < minStock)
+                minStock = stock;
         }
-        return true;
+        return minStock;
     }
+
+    public boolean hasStock() { return this.getTradeStock(0) > 0; }
 
     @Override
     public boolean hasValidTrade() { return this.entries.stream().anyMatch(SlotMachineEntry::isValid) && this.isPriceValid(); }
@@ -286,7 +286,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
                 this.entries.add(SlotMachineEntry.parse(GsonHelper.convertToJsonObject(entryList.get(i), "Entries[" + i + "]")));
             } catch(JsonSyntaxException | ResourceLocationException t) { LightmansCurrency.LogError("Error parsing Slot Machine Trader Entry #" + (i + 1), t); }
         }
-        if(this.entries.size() == 0)
+        if(this.entries.isEmpty())
             throw new JsonSyntaxException("Slot Machine Trader had no valid Entries!");
 
     }
@@ -349,11 +349,11 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             return TradeResult.FAIL_OUT_OF_STOCK;
 
         //Check if the player is allowed to do the trade
-        if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+        if(this.runPreTradeEvent(trade, context).isCanceled())
             return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
         //Get the cost of the trade
-        MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+        MoneyValue price = this.runTradeCostEvent(trade, context).getCostResult();
 
         //Get the Result Items
         SlotMachineEntry loot = this.getRandomizedEntry(context);
@@ -397,7 +397,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
             //Push the post-trade event
-            this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+            this.runPostTradeEvent(trade, context, price, taxesPaid);
 
             return TradeResult.SUCCESS;
 

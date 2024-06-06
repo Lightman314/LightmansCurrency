@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public interface ITeam {
+public interface ITeam extends IClientTracker {
 
     long getID();
 
@@ -61,6 +62,8 @@ public interface ITeam {
         result.add(this.getOwner());
         return ImmutableList.copyOf(result);
     }
+
+    default int getMemberCount() { return this.getMembers().size() + this.getAdmins().size() + 1; }
 
     /**
      * Whether the team has a {@link io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount Bank Account} built for it.

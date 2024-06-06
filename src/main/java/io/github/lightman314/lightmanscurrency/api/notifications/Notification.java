@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
@@ -35,19 +36,17 @@ public abstract class Notification {
 	public abstract MutableComponent getMessage();
 
 	@Nonnull
-	public MutableComponent getGeneralMessage() {
-		return EasyText.translatable("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
-	}
+	public MutableComponent getGeneralMessage() { return LCText.NOTIFICATION_FORMAT_GENERAL.get(this.getCategory().getName(), this.getMessage()); }
 
 	@Nonnull
 	public MutableComponent getChatMessage() {
-		return EasyText.translatable("notifications.chat.format",
-				EasyText.translatable("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
+		return LCText.NOTIFICATION_FORMAT_CHAT.get(
+				LCText.NOTIFICATION_FORMAT_CHAT_TITLE.get(this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
 				this.getMessage());
 	}
 
 	@Nonnull
-	public Component getTimeStampMessage() { return EasyText.translatable("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
+	public Component getTimeStampMessage() { return LCText.NOTIFICATION_TIMESTAMP.get(TimeUtil.formatTime(this.timeStamp)); }
 
 	@Nonnull
 	public final CompoundTag save() {

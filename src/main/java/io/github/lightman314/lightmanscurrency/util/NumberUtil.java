@@ -1,6 +1,11 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import javax.swing.text.NumberFormatter;
+import java.text.DecimalFormat;
+
 public class NumberUtil {
+
+    public static String GetPrettyString(int count) { return new DecimalFormat().format(count); }
 
     public static boolean IsInteger(String text)
     {
@@ -32,5 +37,7 @@ public class NumberUtil {
             value.insert(0, "0");
         return value.toString();
     }
+
+    public static String prettyInteger(int i) { return new DecimalFormat().format(i); }
 
 }

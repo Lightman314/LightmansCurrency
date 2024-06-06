@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -41,6 +42,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.AbstractHugeMushroomFeature;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
@@ -50,13 +52,16 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -171,7 +176,7 @@ public class EventHandler {
 	{
 		if(event.getEntity().level().isClientSide)
 			return;
-		sendWalletUpdatePacket(event.getEntity(), LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
+		sendWalletUpdatePacket(event.getEntity());
 		sendEventUpdatePacket(event.getEntity());
 		if(event.getEntity() instanceof ServerPlayer player)
 			SyncedConfigFile.playerJoined(player);
@@ -219,7 +224,7 @@ public class EventHandler {
 		Player player = event.getEntity();
 		if(player.level().isClientSide)
 			return;
-		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
+		sendWalletUpdatePacket(player);
 		sendEventUpdatePacket(player);
 	}
 	
@@ -229,6 +234,11 @@ public class EventHandler {
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
 			new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(target);
+	}
+
+	private static void sendWalletUpdatePacket(Player player)
+	{
+		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 
 	private static void sendEventUpdatePacket(Player player)
@@ -296,8 +306,6 @@ public class EventHandler {
 
 	private static List<ItemEntity> turnIntoEntities(@Nonnull LivingEntity entity, @Nonnull List<ItemStack> list)
 	{
-		if(list == null)
-			return new ArrayList<>();
 		List<ItemEntity> result = new ArrayList<>();
 		for(ItemStack stack : list)
 			result.add(new ItemEntity(entity.level(), entity.position().x, entity.position().y, entity.position().z, stack));
@@ -368,7 +376,7 @@ public class EventHandler {
 			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+				new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendToTarget(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity));
 				walletHandler.clean();
 			}
 		}
@@ -393,6 +401,39 @@ public class EventHandler {
 		{
 			for(ServerPlayer player : event.getServer().getPlayerList().getPlayers())
 				DateTrigger.INSTANCE.trigger(player);
+		}
+	}
+
+	@SubscribeEvent
+	public static void treeGrowEvent(SaplingGrowTreeEvent event)
+	{
+		//Check for LC blocks within the potential spawning range of a huge mushroom
+		if(event.getFeature().get().feature() instanceof AbstractHugeMushroomFeature)
+		{
+			LevelAccessor level = event.getLevel();
+			BlockPos center = event.getPos();
+			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+			final int radius = 3;
+			//Max mushroom height is 6 * 2 or 12 blocks tall
+			final int height = 13;
+			for(int y = 0; y <= height; ++y)
+			{
+				for(int x = -radius;x <= radius; ++x)
+				{
+					for(int z = -radius; z <= radius; ++z)
+					{
+						pos.setWithOffset(center,x,y,z);
+						BlockState state = level.getBlockState(pos);
+						//Don't allow mushrooms to grow with any LC blocks within the area
+						if(ForgeRegistries.BLOCKS.getKey(state.getBlock()).getNamespace().equals(LightmansCurrency.MODID))
+						{
+							LightmansCurrency.LogDebug("LC block detected at " + pos.toShortString() + " which is within the potential growth area of a Huge Mushroom attempting to grow at " + center.toShortString() + ". Mushroom growth will be cancelled.");
+							event.setResult(Event.Result.DENY);
+							return;
+						}
+					}
+				}
+			}
 		}
 	}
 	

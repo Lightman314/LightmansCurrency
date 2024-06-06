@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -32,7 +32,7 @@ public class ItemTraderInterfaceBlock extends TraderInterfaceBlock {
 	}
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_INTERFACE; }
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_INTERFACE_ITEM.asTooltip(); }
 
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderInterfaceBlockEntity trader) { }

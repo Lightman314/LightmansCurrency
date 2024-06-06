@@ -2,14 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -76,24 +77,21 @@ public class PaygateBlock extends TraderBlockRotatable {
     }
 	
 	@Override
-	public boolean isSignalSource(BlockState state)
-	{
-		return true;
-	}
+	@SuppressWarnings("deprecation")
+	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	
 	@Override
-	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
-		
+	@SuppressWarnings("deprecation")
+	public int getSignal(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
 		if(state.getValue(POWERED))
 			return 15;
 		return 0;
-		
 	}
 	
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
-		TooltipItem.addTooltip(tooltip, LCTooltips.PAYGATE);
+		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_PAYGATE.asTooltip());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 

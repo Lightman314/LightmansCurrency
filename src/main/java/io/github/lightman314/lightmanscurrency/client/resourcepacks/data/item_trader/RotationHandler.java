@@ -80,7 +80,7 @@ public abstract class RotationHandler
     {
         if(ROTATION_HANDLERS.containsKey(typeName))
         {
-            LightmansCurrency.LogWarning("Could not registerNotification duplicate rotation handler '" + typeName + "'!");
+            LightmansCurrency.LogWarning("Could not register duplicate rotation handler '" + typeName + "'!");
             return;
         }
         ROTATION_HANDLERS.put(typeName, handler);

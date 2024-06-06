@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public abstract class InputTraderData extends TraderData {
 
-	public static MutableComponent getFacingName(Direction side) { return EasyText.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
+	public static MutableComponent getFacingName(Direction side) { return LCText.GUI_INPUT_SIDES.get(side).get(); }
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final Map<Direction,Boolean> inputSides = new HashMap<>();

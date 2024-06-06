@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
@@ -46,7 +46,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-        gui.drawString(EasyText.translatable("traderule.list.blurb").withStyle(ChatFormatting.BOLD), 20, 10, 0xFFFFFF);
+        gui.drawString(LCText.GUI_TRADE_RULES_LIST.getWithStyle(ChatFormatting.BOLD), 20, 10, 0xFFFFFF);
 
         List<TradeRule> rules = this.getFilteredRules();
         for(int i = 0; i < this.getFilteredRules().size(); ++i)
@@ -63,7 +63,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
     public IconData getIcon() { return IconData.of(Items.PAPER); }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("gui.button.lightmanscurrency.manager"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADE_RULES_MANAGER.get(); }
 
     void PressManagerActiveButton(EasyButton button)
     {

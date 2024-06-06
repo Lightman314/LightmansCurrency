@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.network.message.config;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -54,10 +54,10 @@ public class SPacketResetConfig extends ServerToClientPacket {
                     {
                         ConfigOption<?> option = optionMap.get(message.option);
                         option.setToDefault();
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", option.getName(), option.write()));
+                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(option.getName(), option.write()));
                     }
                     else
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.edit.missing").withStyle(ChatFormatting.RED));
+                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get(message.option).withStyle(ChatFormatting.RED));
                 }
             }
         }

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -36,9 +35,9 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     @Override
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isTicketTrade())
-            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketItem(), this.trade.getTicketID(), this.trade.getTicketColor()), 1, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", this.trade.getTicketID()))));
+            return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketItem(), this.trade.getTicketID(), this.trade.getTicketColor()), 1, LCText.TOOLTIP_TICKET_ID.getAsList(this.trade.getTicketID())));
         else
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
     }
 
     @Override
@@ -53,10 +52,10 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
         {
             //Check whether the paygate is currently active
             if(paygate.isActive())
-                alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.paygate.active")));
+                alerts.add(AlertData.warn(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE));
             //Check whether they can afford the costs
             if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.cannotafford")));
+                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
         }
     }
 

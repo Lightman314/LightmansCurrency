@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
@@ -21,7 +21,7 @@ public class PortableATMItem extends TooltipItem{
 
 	public PortableATMItem(Properties properties)
 	{
-		super(properties.stacksTo(1), LCTooltips.ATM);
+		super(properties.stacksTo(1), LCText.TOOLTIP_ATM.asTooltip());
 	}
 	
 	@Nonnull

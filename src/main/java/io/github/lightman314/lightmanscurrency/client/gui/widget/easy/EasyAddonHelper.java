@@ -6,6 +6,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -26,15 +28,20 @@ public class EasyAddonHelper {
 
     //Widget Tooltip Modifiers
     public static WidgetAddon tooltip(@Nonnull Component tooltip) { return new TooltipAddon(Suppliers.memoize(() -> ImmutableList.of(tooltip))); }
+    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip) { return new TooltipAddon(Suppliers.memoize(() -> ImmutableList.of(tooltip.get()))); }
+    public static WidgetAddon tooltip(@Nonnull MultiLineTextEntry tooltip) { return new TooltipAddon(Suppliers.memoize(tooltip::get)); }
     public static WidgetAddon tooltips(@Nonnull List<Component> tooltip) { return new TooltipAddon(Suppliers.memoize(() -> tooltip)); }
     public static WidgetAddon tooltip(@Nonnull Supplier<Component> tooltip) { return new TooltipAddon(() -> ImmutableList.of(tooltip.get())); }
     public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip) { return new TooltipAddon(tooltip); }
 
     public static WidgetAddon tooltip(@Nonnull Component tooltip, int width) { return new TooltipSplitterAddon(tooltip, width); }
+    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip, int width) { return new TooltipSplitterAddon(tooltip.get(), width); }
 
     //Fancier Tooltip Modifiers
-    public static WidgetAddon additiveTooltip(@Nonnull String translationKey, @Nonnull Supplier<Object[]> inputSource) { return tooltip(() -> EasyText.translatable(translationKey, inputSource.get())); }
-    public static WidgetAddon additiveTooltip2(@Nonnull String translationKey, @Nonnull Supplier<Object> inputSource) { return tooltip(() -> EasyText.translatable(translationKey, inputSource.get())); }
+    @Deprecated
+    public static WidgetAddon additiveTooltip(@Nonnull String translationKey, @Nonnull Supplier<Object[]> inputSource) { return tooltip(() -> Component.translatable(translationKey, inputSource.get())); }
+    @Deprecated
+    public static WidgetAddon additiveTooltip2(@Nonnull String translationKey, @Nonnull Supplier<Object> inputSource) { return tooltip(() -> Component.translatable(translationKey, inputSource.get())); }
     public static WidgetAddon toggleTooltip(@Nonnull NonNullSupplier<Boolean> toggle, Component trueTooltip, Component falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip : falseTooltip); }
     public static WidgetAddon toggleTooltip(@Nonnull NonNullSupplier<Boolean> toggle, Supplier<Component> trueTooltip, Supplier<Component> falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip.get() : falseTooltip.get()); }
     public static WidgetAddon changingTooltip(@Nonnull NonNullSupplier<Integer> indicator, Component... tooltips)

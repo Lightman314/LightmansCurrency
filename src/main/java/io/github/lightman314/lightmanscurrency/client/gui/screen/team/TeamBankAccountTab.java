@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -25,7 +28,7 @@ public class TeamBankAccountTab extends TeamTab {
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 	
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.team.bank"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_BANK.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) { return team != null && team.isOwner(player); }
@@ -36,7 +39,7 @@ public class TeamBankAccountTab extends TeamTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
+		this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, LCText.BUTTON_TEAM_BANK_CREATE.get(), this::createBankAccount));
 		
 		this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, EasyText.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();
@@ -50,7 +53,12 @@ public class TeamBankAccountTab extends TeamTab {
 			return;
 
 		if(this.getActiveTeam() != null && this.getActiveTeam().hasBankAccount())
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getMoneyStorage().getRandomValueText()), 20, 46, 0x404040);
+		{
+			IBankAccount account = this.getActiveTeam().getBankAccount();
+			if(account != null)
+				gui.drawString(account.getBalanceText(), 20, 46, 0x404040);
+		}
+
 		
 	}
 
@@ -89,7 +97,7 @@ public class TeamBankAccountTab extends TeamTab {
 	
 	private void updateBankLimitText()
 	{
-		Component message = EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit", EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit." + this.getActiveTeam().getBankLimit()));
+		Component message = LCText.BUTTON_TEAM_BANK_LIMIT.get(Owner.getOwnerLevelBlurb(this.getActiveTeam().getBankLimit()));
 		this.buttonToggleAccountLimit.setMessage(message);
 	}
 	

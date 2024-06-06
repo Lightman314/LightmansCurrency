@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -16,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -143,12 +144,12 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(accountPlayer));
-				return Component.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
+				return LCText.GUI_BANK_SELECT_PLAYER_SUCCESS.get(accountPlayer.getName(false));
 			}
 			else
-				return Component.translatable("gui.bank.transfer.error.null.to");
+				return LCText.GUI_BANK_TRANSFER_ERROR_NULL_TARGET.get();
 		}
-		return Component.literal("ERROR");
+		return EasyText.literal("ERROR");
 		
 	}
 	

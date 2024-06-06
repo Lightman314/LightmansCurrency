@@ -11,9 +11,12 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
 public class MoneyValueOption extends ConfigOption<MoneyValue> {
+
+    public static final String bonusComment = "See the wiki for Money Value format: https://github.com/Lightman314/LightmansCurrency/wiki/Money-Value-Arguments";
 
     public static ConfigParser<MoneyValue> createParser(@Nonnull Predicate<MoneyValue> allowed) { return new Parser(allowed); }
 
@@ -24,6 +27,10 @@ public class MoneyValueOption extends ConfigOption<MoneyValue> {
     @Nonnull
     @Override
     protected ConfigParser<MoneyValue> getParser() { return this.parser; }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return bonusComment; }
 
     public static MoneyValueOption create(@Nonnull NonNullSupplier<MoneyValue> defaultValue) { return create(defaultValue, v -> true); }
     public static MoneyValueOption createNonEmpty(@Nonnull NonNullSupplier<MoneyValue> defaultValue) { return create(defaultValue, v -> !v.isEmpty()); }

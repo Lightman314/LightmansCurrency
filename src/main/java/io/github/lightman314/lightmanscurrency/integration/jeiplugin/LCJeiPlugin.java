@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -54,8 +55,9 @@ public class LCJeiPlugin implements IModPlugin{
 		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(TICKET_TYPE, ticketRecipes);
 
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, EasyText.translatable("lightmanscurrency.jei.info.ticket_stub"));
-		
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, LCText.JEI_INFO_TICKET_STUB.get());
+		registration.addIngredientInfo(new ItemStack(ModItems.GOLDEN_TICKET_STUB.get()), VanillaTypes.ITEM_STACK, LCText.JEI_INFO_TICKET_STUB.get());
+
 	}
 	
 	@Override

@@ -147,7 +147,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	private void renderAlert(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, @Nullable List<AlertData> alerts)
 	{
 		
-		if(alerts == null || alerts.size() == 0)
+		if(alerts == null || alerts.isEmpty())
 			return;
 		alerts.sort(AlertData::compare);
 
@@ -165,16 +165,19 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	}
 
 	@Override
-	public List<Component> getTooltipText(int mouseX, int mouseY) {
+	public void renderTooltip(EasyGuiGraphics gui) {
 
-		if(!this.isMouseOver(mouseX, mouseY))
-			return null;
+		if(!this.isMouseOver(gui.mousePos))
+			return;
 
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
-			return null;
+			return;
 
 		TradeContext context = this.getContext();
+
+		int mouseX = gui.mousePos.x;
+		int mouseY = gui.mousePos.y;
 
 		List<Component> tooltips = new ArrayList<>();
 
@@ -183,13 +186,19 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
 		{
 			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			{
+				if(display.getFirst().trySelfRenderTooltip(gui))
+					return;
 				this.tryAddTooltip(tooltips, display.getFirst().getTooltip());
+			}
 		}
 
 		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(tr, context))
 		{
 			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
 			{
+				if(display.getFirst().trySelfRenderTooltip(gui))
+					return;
 				this.tryAddTooltip(tooltips, display.getFirst().getTooltip());
 			}
 		}
@@ -198,17 +207,19 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		if(this.isMouseOverAlert(mouseX, mouseY, tr, context))
 		{
 			List<AlertData> alerts = tr.getAlertData(context);
-			if(alerts != null && alerts.size() > 0)
+			if(alerts != null && !alerts.isEmpty())
 				this.tryAddAlertTooltips(tooltips, alerts);
 		}
 
 
-		if(tooltips.size() == 0)
-			return null;
+		if(tooltips.isEmpty())
+			return;
 
-		return tooltips;
-
+		gui.renderComponentTooltip(tooltips);
 	}
+
+	@Override
+	public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
 	
 	private void tryAddTooltip(@Nonnull List<Component> tooltips, @Nullable List<Component> add)
 	{

@@ -7,6 +7,8 @@ import java.util.function.Supplier;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
@@ -56,7 +58,12 @@ public class PaygateTraderData extends TraderData {
 	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "paygate"),PaygateTraderData::new);
 	
 	public static final int DURATION_MIN = 1;
-	public static final int DURATION_MAX = 1200;
+	public static int getMaxDuration() {
+		int val = LCConfig.SERVER.paygateMaxDuration.get();
+		if(val <= 0)
+			return Integer.MAX_VALUE;
+		return val;
+	}
 
 	private final List<ItemStack> storedTicketStubs = new ArrayList<>();
 	public int getStoredTicketStubs() {
@@ -242,7 +249,7 @@ public class PaygateTraderData extends TraderData {
 			return TradeResult.FAIL_NULL;
 		
 		//Check if the player is allowed to do the trade
-		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+		if(this.runPreTradeEvent(trade, context).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
 		MoneyValue price = MoneyValue.empty();
@@ -322,18 +329,8 @@ public class PaygateTraderData extends TraderData {
 
 		}
 		//Push the post-trade event
-		this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+		this.runPostTradeEvent(trade, context, price, taxesPaid);
 		return TradeResult.SUCCESS;
-	}
-	
-	@Override
-	public boolean hasValidTrade() {
-		for(PaygateTradeData trade : this.trades)
-		{
-			if(trade.isValid())
-				return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -433,7 +430,7 @@ public class PaygateTraderData extends TraderData {
 	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource)
 	{
 		return new IconButton(0,0, b -> new CPacketCollectTicketStubs(this.getID()).send(), IconData.of(ModItems.TICKET_STUB))
-				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> EasyText.translatable("tooltip.lightmanscurrency.trader.collect_ticket_stubs", this.getStoredTicketStubs()), EasyText::empty),
+				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()), EasyText::empty),
 				EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)),
 				EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0));
 	}

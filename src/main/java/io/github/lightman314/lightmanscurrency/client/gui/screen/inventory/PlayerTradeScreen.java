@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -9,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.CPacketPlayerTradeInteraction;
 import net.minecraft.nbt.CompoundTag;
@@ -80,9 +80,9 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
         this.valueInput = this.addChild(new MoneyValueWidget(screenArea.pos, this.valueInput, MoneyValue.empty(), this::onValueChanged));
         this.valueInput.allowFreeInput = false;
 
-        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110 + MoneyValueWidget.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
+        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110 + MoneyValueWidget.HEIGHT), 70, 20, LCText.BUTTON_PLAYER_TRADING_PROPOSE.get(), this::OnPropose));
 
-        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110 + MoneyValueWidget.HEIGHT), 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
+        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110 + MoneyValueWidget.HEIGHT), 70, 20,  LCText.BUTTON_PLAYER_TRADING_ACCEPT.get(), this::OnAccept));
         this.buttonAccept.active = false;
 
     }
@@ -96,10 +96,10 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> {
         this.valueInput.active = myState < 1;
         //Update Propose Button text/active state
         this.buttonPropose.active = myState < 2;
-        this.buttonPropose.setMessage(EasyText.translatable(myState <= 0 ? "gui.lightmanscurrency.button.player_trading.propose" : "gui.lightmanscurrency.button.player_trading.cancel"));
+        this.buttonPropose.setMessage(myState <= 0 ?  LCText.BUTTON_PLAYER_TRADING_PROPOSE.get() :  LCText.BUTTON_PLAYER_TRADING_CANCEL.get());
         //Update Accept Button text/active state
         this.buttonAccept.active = myState > 0 && otherState > 0;
-        this.buttonAccept.setMessage(EasyText.translatable(myState <= 1 ? "gui.lightmanscurrency.button.player_trading.accept" : "gui.lightmanscurrency.button.player_trading.cancel"));
+        this.buttonAccept.setMessage(myState <= 1 ? LCText.BUTTON_PLAYER_TRADING_ACCEPT.get() : LCText.BUTTON_PLAYER_TRADING_CANCEL.get());
 
     }
 

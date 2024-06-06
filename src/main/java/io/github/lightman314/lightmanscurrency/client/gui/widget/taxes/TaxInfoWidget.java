@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.taxes;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.network.chat.Component;
 
@@ -55,14 +55,14 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
             else if(entry.ShouldTax(trader))
                 statusColor = 0x00FF00;
             gui.drawString(entry.getName(), 0, 0, statusColor);
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.tax_rate", entry.getTaxRate()), this.parent.canPlayerForceIgnore() ? 12 : 0, 15, 0x404040);
+            gui.drawString(LCText.GUI_TAX_COLLECTOR_TAX_RATE.get(entry.getTaxRate()), this.parent.canPlayerForceIgnore() ? 12 : 0, 15, 0x404040);
         }
 
     }
 
     @Override
     public void addChildren() {
-        this.addChild(new EasyTextButton(this.getPosition().offset(80, 10), 60, 16, EasyText.translatable("gui.lightmanscurrency.tax_collector.taxable.accept_collector"), this::AcceptTaxCollector)
+        this.addChild(new EasyTextButton(this.getPosition().offset(80, 10), 60, 16, LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR.get(), this::AcceptTaxCollector)
                 .withAddons(EasyAddonHelper.visibleCheck(this::shouldAcceptBeVisible)));
         this.addChild(new PlainButton(this.getPosition().offset(0, 13), this::ToggleIgnoreState, this::getForceIgnoreSprite)
                 .withAddons(EasyAddonHelper.visibleCheck(() -> this.parent.canPlayerForceIgnore() && this.entrySource.get() != null),
@@ -88,7 +88,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     private Sprite getForceIgnoreSprite() { return this.isCurrentlyIgnored() ? SPRITE_STOP_IGNORING_TC : SPRITE_IGNORE_TC; }
 
-    private Component getForceIgnoreTooltip() { return this.isCurrentlyIgnored() ? EasyText.translatable("tooltip.lightmanscurrency.tax_collector.taxable.pardon_ignored_collector") : EasyText.translatable("tooltip.lightmanscurrency.tax_collector.taxable.force_ignore_collector"); }
+    private Component getForceIgnoreTooltip() { return this.isCurrentlyIgnored() ? LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_PARDON_IGNORED.get() : LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_FORCE_IGNORE.get(); }
 
     private void AcceptTaxCollector(EasyButton button)
     {

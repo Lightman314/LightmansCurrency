@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,24 +25,23 @@ public class CoinJarItem extends BlockItem {
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
-		super.appendHoverText(stack,  level,  tooltip,  flagIn);
+		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_COIN_JAR);
+
 		List<ItemStack> jarStorage = readJarData(stack);
-		
-		if(jarStorage.size() > 0)
+
+		if(!jarStorage.isEmpty())
 		{
 			if(Screen.hasShiftDown())
 			{
 				for (ItemStack coin : jarStorage) {
 					if (coin.getCount() > 1)
-						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
+						tooltip.add(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE.get(coin.getCount(), coin.getHoverName()));
 					else
-						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
+						tooltip.add(LCText.TOOLTIP_COIN_JAR_CONTENTS_SINGLE.get(coin.getHoverName()));
 				}
 			}
 			else
-			{
-				tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
-			}
+				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.get().withStyle(ChatFormatting.YELLOW));
 		}
 
 	}
@@ -79,6 +79,12 @@ public class CoinJarItem extends BlockItem {
 		public int getColor(ItemStack stack) {
 			CompoundTag compoundtag = stack.getTagElement("display");
 			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
+		}
+
+		@Override
+		public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.get());
+			super.appendHoverText(stack, level, tooltip, flagIn);
 		}
 	}
 

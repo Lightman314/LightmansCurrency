@@ -9,12 +9,16 @@ import javax.annotation.Nullable;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeItem;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -127,7 +131,19 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			UpgradeData data = getUpgradeData(stack);
 			if(item.customTooltips != null)
 				return item.customTooltips.apply(data);
-			return type.getTooltip(data);
+			//Get initial list and force it to be editable, as the UpgradeType#getTooltip may return an immutable list
+            List<Component> tooltip = new ArrayList<>(type.getTooltip(data));
+			List<Component> targets = type.getPossibleTargets();
+			if(!targets.isEmpty())
+			{
+				tooltip.add(LCText.TOOLTIP_UPGRADE_TARGETS.getWithStyle(ChatFormatting.GRAY));
+				for(Component target : targets)
+				{
+					MutableComponent mc = EasyText.makeMutable(target);
+					tooltip.add(mc.withStyle(ChatFormatting.GRAY));
+				}
+			}
+			return tooltip;
 		}
 		return Lists.newArrayList();
 	}

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.enchantments;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -25,11 +26,6 @@ import javax.annotation.Nonnull;
 
 public class CoinMagnetEnchantment extends WalletEnchantment {
 
-	//Max enchantment level
-	public static final int MAX_LEVEL = 3;
-	//Max level to calculate range for
-	public static final int MAX_CALCULATION_LEVEL = MAX_LEVEL + 2;
-	
 	public CoinMagnetEnchantment(Rarity rarity, EquipmentSlot... slots) {
 		super(rarity, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY, slots);
 	}
@@ -38,7 +34,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	public int getMaxCost(int level) { return super.getMinCost(level) + 50; }
 
-	public int getMaxLevel() { return MAX_LEVEL; }
+	public int getMaxLevel() { return 3; }
 	
 	public static void runEntityTick(@Nonnull IWalletHandler walletHandler, @Nonnull LivingEntity entity) {
 		if(entity.isSpectator())
@@ -91,7 +87,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		enchantLevel -= 1;
 		if(enchantLevel < 0)
 			return 0f;
-		return LCConfig.SERVER.coinMagnetBaseRange.get() + (LCConfig.SERVER.coinMagnetLeveledRange.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
+		return LCConfig.SERVER.coinMagnetBaseRange.get() + (LCConfig.SERVER.coinMagnetLeveledRange.get() * Math.min(enchantLevel, LCConfig.SERVER.coinMagnetCalculationCap.get()));
 	}
 	
 	public static Component getCollectionRangeDisplay(int enchantLevel) {
@@ -106,7 +102,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		{
 			if(enchantLevel > 0 && WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			{
-				tooltips.add(Component.translatable("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
+				tooltips.add(LCText.TOOLTIP_WALLET_PICKUP_MAGNET.get(getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
 			}
 		}
 	}

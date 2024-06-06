@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -16,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
@@ -38,14 +38,14 @@ public class SelectionTab extends WalletBankTab {
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.selection"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_SELECTION.get(); }
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
 		this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(79, 15), 5, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		
-		this.buttonPersonalAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 15), 70, 20, EasyText.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
+		this.buttonPersonalAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 15), 70, 20, LCText.BUTTON_BANK_MY_ACCOUNT.get(), this::PressPersonalAccount));
 		
 		this.tick();
 		
@@ -101,10 +101,10 @@ public class SelectionTab extends WalletBankTab {
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		//Render text in front of selection background
-		if(this.getTeamList().size() == 0)
+		if(this.getTeamList().isEmpty())
 		{
 			gui.pushOffset(this.teamSelection);
-			TextRenderUtil.drawVerticallyCenteredMultilineText(gui, EasyText.translatable("gui.lightmanscurrency.bank.noteamsavailable"), 1, Size.NARROW.width - 2, 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+			TextRenderUtil.drawVerticallyCenteredMultilineText(gui, LCText.GUI_BANK_NO_TEAMS_AVAILABLE.get(), 1, Size.NARROW.width - 2, 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 			gui.popOffset();
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -16,22 +17,21 @@ import javax.annotation.Nonnull;
 
 public abstract class TradeEvent extends Event{
 
-	private final PlayerReference player;
 	@Nonnull
-	public final PlayerReference getPlayerReference() { return this.player; }
+	public final PlayerReference getPlayerReference() { return this.context.getPlayerReference(); }
 	private final TradeData trade;
 	@Nonnull
 	public final TradeData getTrade() { return this.trade; }
-	public final int getTradeIndex() { return this.trader.indexOfTrade(this.trade); }
-	private final TraderData trader;
+	public final int getTradeIndex() { return this.getTrader().indexOfTrade(this.trade); }
 	@Nonnull
-	public final TraderData getTrader() { return this.trader; }
+	public final TraderData getTrader() { return this.context.getTrader(); }
+	private final TradeContext context;
+	public final TradeContext getContext() { return this.context; }
 	
-	protected TradeEvent(@Nonnull PlayerReference player, @Nonnull TradeData trade, @Nonnull TraderData trader)
+	protected TradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
-		this.player = player;
 		this.trade = trade;
-		this.trader = trader;
+		this.context = context;
 	}
 	
 	@Cancelable
@@ -40,7 +40,7 @@ public abstract class TradeEvent extends Event{
 		
 		private final List<AlertData> alerts = new ArrayList<>();
 		
-		public PreTradeEvent(@Nonnull PlayerReference player, @Nonnull TradeData trade, @Nonnull TraderData trader) { super(player, trade, trader); }
+		public PreTradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context) { super(trade,context); }
 		
 		/**
 		 * Adds an alert to the trade display.
@@ -106,12 +106,12 @@ public abstract class TradeEvent extends Event{
 
 		MoneyValue baseCost;
 		public MoneyValue getBaseCost() { return this.baseCost; }
-		public boolean getCostResultIsFree() { return this.forceFree || this.pricePercentage <= 0; }
+		public boolean getCostResultIsFree() { return this.forceFree || this.pricePercentage <= 0 || this.baseCost.isFree(); }
 		public MoneyValue getCostResult() { return this.getCostResultIsFree() ? MoneyValue.free() : this.baseCost.percentageOfValue(this.pricePercentage); }
 		
-		public TradeCostEvent(@Nonnull PlayerReference player, @Nonnull TradeData trade, @Nonnull TraderData trader)
+		public TradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 		{
-			super(player, trade, trader);
+			super(trade, context);
 			this.pricePercentage = 100;
 			this.baseCost = trade.getCost();
 		}
@@ -131,9 +131,9 @@ public abstract class TradeEvent extends Event{
 		private final MoneyValue taxesPaid;
 		public MoneyValue getTaxesPaid() { return this.taxesPaid; }
 		
-		public PostTradeEvent(PlayerReference player, TradeData trade, TraderData trader, MoneyValue pricePaid, MoneyValue taxesPaid)
+		public PostTradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context, @Nonnull MoneyValue pricePaid, @Nonnull MoneyValue taxesPaid)
 		{
-			super(player, trade, trader);
+			super(trade, context);
 			this.pricePaid = pricePaid;
 			this.taxesPaid = taxesPaid;
 		}

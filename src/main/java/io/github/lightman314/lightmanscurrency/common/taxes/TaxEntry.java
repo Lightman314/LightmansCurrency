@@ -2,13 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.taxes;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -23,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -136,7 +137,7 @@ public class TaxEntry implements ITaxCollector {
     @Nonnull
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
     public void setName(String name) { this.name = name; this.markNameDirty(); }
-    protected MutableComponent getDefaultName() { return EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name", this.isServerEntry() ? EasyText.translatable("gui.lightmanscurrency.tax_entry.default_name.server") : this.owner.getOwnerName()); }
+    protected MutableComponent getDefaultName() { return LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME.get(this.isServerEntry() ? LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER.get() : this.owner.getName()); }
 
     private final OwnerData owner = new OwnerData(this, o -> this.markOwnerDirty());
     @Override
@@ -177,18 +178,14 @@ public class TaxEntry implements ITaxCollector {
     private boolean linkToBank = false;
     public void setLinkedToBank(boolean newState) { this.linkToBank = newState; this.markBankStateDirty(); }
     public boolean isLinkedToBank() { return this.linkToBank && !this.isServerEntry(); }
+    @Nullable
     public final IBankAccount getBankAccount()
     {
         if(!this.linkToBank)
             return null;
-        if(this.owner.hasTeam())
-        {
-            Team team = this.owner.getTeam();
-            if(team.hasBankAccount())
-                return team.getBankAccount();
-        }
-        else if(this.owner.hasPlayer())
-            return BankSaveData.GetBankAccount(this.isClient, this.owner.getPlayer().id);
+        BankReference reference = this.owner.getValidOwner().asBankReference();
+        if(reference != null)
+            return reference.get();
         return null;
     }
 
@@ -262,7 +259,7 @@ public class TaxEntry implements ITaxCollector {
         this.id = id;
         if(core != null)
             this.center = WorldPosition.ofBE(core);
-        this.owner.SetOwner(owner);
+        this.owner.SetOwner(PlayerOwner.of(owner));
     }
 
     public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)

@@ -66,8 +66,8 @@ public class RegistryObjectBundle<T,L> {
 		return values;
 	}
 
-	private final List<L> getKeysSorted() { return this.getKeysSorted(this.sorter); }
-	private final List<L> getKeysSorted(Comparator<L> sorter) {
+	private List<L> getKeysSorted() { return this.getKeysSorted(this.sorter); }
+	private List<L> getKeysSorted(Comparator<L> sorter) {
 		List<L> keys = new ArrayList<>(this.values.keySet());
 		keys.sort(sorter);
 		return keys;

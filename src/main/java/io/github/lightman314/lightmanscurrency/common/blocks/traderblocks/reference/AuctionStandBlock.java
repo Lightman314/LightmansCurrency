@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -17,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,14 +29,17 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class AuctionStandBlock extends Block implements IEasyEntityBlock {
+public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
 
     public AuctionStandBlock(Properties properties) { super(properties); }
 
     @Override
+    protected boolean isBlockOpaque() { return false; }
+
+    @Override
     @Nonnull
     @SuppressWarnings("deprecation")
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return LazyShapes.BOX_T; }
+    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return LazyShapes.BOX; }
 
     @Override
     @Nonnull

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
@@ -9,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryEditWidget;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineEntryTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -41,7 +41,7 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER_ALT; }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.slot_machine.edit_entries"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SLOT_MACHINE_EDIT_ENTRIES.get(); }
 
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen)

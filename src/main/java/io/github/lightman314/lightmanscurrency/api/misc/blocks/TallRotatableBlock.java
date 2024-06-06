@@ -25,7 +25,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
-	protected TallRotatableBlock(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE_T); }
+	protected TallRotatableBlock(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE); }
 	
 	protected TallRotatableBlock(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazyTallSingleShape(shape)); }
 	
@@ -61,9 +61,9 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
-		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
+		if(this.isReplaceable(level, pos.above()))
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
 		else
 		{

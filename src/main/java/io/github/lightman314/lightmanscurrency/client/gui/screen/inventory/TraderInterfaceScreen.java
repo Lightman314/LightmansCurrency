@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
@@ -64,7 +64,7 @@ public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 				.withAddons(EasyAddonHelper.tooltip(() -> this.getMode().getDisplayText())));
 		
 		this.onlineModeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE)
-				.withAddons(EasyAddonHelper.tooltip(() -> EasyText.translatable("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
+				.withAddons(EasyAddonHelper.tooltip(() -> this.menu.getBE().isOnlineMode() ? LCText.TOOLTIP_INTERFACE_ONLINE_MODE_ON.get() : LCText.TOOLTIP_INTERFACE_ONLINE_MODE_OFF.get())));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();

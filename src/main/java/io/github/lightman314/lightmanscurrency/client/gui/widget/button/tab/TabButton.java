@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class TabButton extends EasyButton implements ITooltipWidget {
+public class TabButton extends EasyButton implements ITooltipSource {
 	
 	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
 	
@@ -72,6 +73,11 @@ public class TabButton extends EasyButton implements ITooltipWidget {
 	protected int getColor() { return this.tab.getColor(); }
 
 	@Override
-	public List<Component> getTooltipText() { return this.hideTooltip ? null : ImmutableList.of(this.tab.getTooltip()); }
-
+	public List<Component> getTooltipText(int mouseX, int mouseY) {
+		if(this.hideTooltip || !this.isVisible())
+			return null;
+		if(this.getArea().isMouseInArea(mouseX,mouseY))
+			return ImmutableList.of(this.tab.getTooltip());
+		return null;
+	}
 }

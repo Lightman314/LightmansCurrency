@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
@@ -10,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisp
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -47,11 +49,14 @@ public class NumberDisplay extends ValueDisplayData {
         return this.baseEntry;
     }
 
+    public NumberDisplay(@Nonnull TextEntry format, @Nonnull Item baseItem) { this(format.get(),baseItem); }
     public NumberDisplay(@Nonnull Component format, @Nonnull Item baseItem) {
+
         this.format = format;
         this.wordyFormat = format;
         this.baseItem = baseItem;
     }
+    public NumberDisplay(@Nonnull TextEntry format, @Nullable TextEntry wordyFormat, @Nonnull Item baseItem) { this(format.get(),wordyFormat.get(),baseItem);}
     public NumberDisplay(@Nonnull Component format, @Nullable Component wordyFormat, @Nonnull Item baseItem)
     {
         this.format = format;
@@ -109,9 +114,9 @@ public class NumberDisplay extends ValueDisplayData {
     @Override
     public void formatCoinTooltip(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip) {
         double value = this.getDisplayValue(stack.getItem());
-        tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.value", this.formatWordyDisplay(value)).withStyle(ChatFormatting.YELLOW));
+        tooltip.add(LCText.TOOLTIP_COIN_WORTH_VALUE.get(this.formatWordyDisplay(value)).withStyle(ChatFormatting.YELLOW));
         if (stack.getCount() > 1)
-            tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.value.stack", this.formatWordyDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(LCText.TOOLTIP_COIN_WORTH_VALUE_STACK.get(this.formatWordyDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
     }
 
     @Nonnull

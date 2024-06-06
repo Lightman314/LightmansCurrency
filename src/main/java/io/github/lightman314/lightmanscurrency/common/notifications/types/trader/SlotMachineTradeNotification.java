@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
@@ -31,7 +31,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
 
     TraderCategory traderData;
 
-    List<ItemWriteData> items;
+    List<ItemData> items;
     MoneyValue cost = MoneyValue.empty();
     MoneyValue money = MoneyValue.empty();
 
@@ -50,7 +50,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         else
         {
             for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
-                this.items.add(new ItemWriteData(item));
+                this.items.add(new ItemData(item));
         }
 
         this.customer = customer.getName(false);
@@ -72,11 +72,11 @@ public class SlotMachineTradeNotification extends TaxableNotification {
     public MutableComponent getNormalMessage() {
         Component rewardText;
         if(!this.money.isEmpty())
-            rewardText = this.money.getText("0");
+            rewardText = this.money.getText();
         else
-            rewardText = ItemWriteData.getItemNames(this.items);
+            rewardText = ItemData.getItemNames(this.items);
 
-        return EasyText.translatable("notifications.message.slot_machine_trade", this.customer, this.cost.getString("0"), rewardText);
+        return LCText.NOTIFICATION_TRADE_SLOT_MACHINE.get(this.customer, this.cost.getString(), rewardText);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
 
         compound.put("TraderInfo", this.traderData.save());
         ListTag itemList = new ListTag();
-        for(ItemWriteData item : this.items)
+        for(ItemData item : this.items)
             itemList.add(item.save());
         compound.put("Items", itemList);
         compound.put("Money", this.money.save());
@@ -100,7 +100,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
         this.items = new ArrayList<>();
         for(int i = 0; i < itemList.size(); ++i)
-            this.items.add(new ItemWriteData(itemList.getCompound(i)));
+            this.items.add(ItemData.load(itemList.getCompound(i)));
         this.money = MoneyValue.safeLoad(compound,"Money");
         this.cost = MoneyValue.safeLoad(compound, "Price");
         this.customer = compound.getString("Customer");
@@ -117,11 +117,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
                 return false;
             for(int i = 0; i < this.items.size(); ++i)
             {
-                ItemWriteData i1 = this.items.get(i);
-                ItemWriteData i2 = smtn.items.get(i);
-                if(!i1.itemName.getString().equals(i2.itemName.getString()))
-                    return false;
-                if(i1.count != i2.count)
+                if(!this.items.get(i).matches(smtn.items.get(i)))
                     return false;
             }
             if(!smtn.money.equals(this.money))

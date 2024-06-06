@@ -2,16 +2,18 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderinterface.bas
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.TraderSelectClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class TraderSelectTab extends TraderInterfaceTab {
 
@@ -38,25 +40,19 @@ public class TraderSelectTab extends TraderInterfaceTab {
 		//Don't need to mark dirty, as that's done on the BE's side automatically
 		if(this.menu.isClient())
 		{
-			CompoundTag message = new CompoundTag();
 			if(traderID >= 0)
-				message.putLong("NewTrader", traderID);
+				this.menu.SendMessage(LazyPacketData.simpleLong("NewTrader", traderID));
 			else
-				message.putBoolean("NullTrader", true);
-			this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.simpleFlag("NullTrader"));
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void handleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("NewTrader"))
-		{
 			this.setTrader(message.getLong("NewTrader"));
-		}
 		else if(message.contains("NullTrader"))
-		{
 			this.setTrader(-1);
-		}
 	}
 	
 }

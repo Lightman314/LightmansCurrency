@@ -1,10 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -12,14 +7,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlo
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 
@@ -60,64 +52,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		if(this.getBlockState().getBlock() instanceof IItemTraderBlock traderBlock)
 			return traderBlock.getItemPositionData();
 		return ItemPositionData.EMPTY;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	@Deprecated(since = "2.1.2.4")
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isDoubleTrade)
-	{
-		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock traderBlock)
-			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isDoubleTrade);
-		else
-			return Lists.newArrayList(new Vector3f(0.0f, 0.0f, 0.0f));
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	@Deprecated(since = "2.1.2.4")
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, float partialTicks)
-	{
-		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock traderBlock)
-		{
-			List<Quaternionf> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
-			//If null received. Rotate item based on world time
-			if(rotation == null)
-			{
-				rotation = new ArrayList<>();
-				rotation.add(ItemTraderBlockEntityRenderer.getRotation(partialTicks));
-			}
-			return rotation;
-		}
-		else
-		{
-			List<Quaternionf> rotation = new ArrayList<>();
-			rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f,1f,0f), 0f));
-			return rotation;
-		}
-			
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	@Deprecated(since = "2.1.2.4")
-	public float GetStackRenderScale(int tradeSlot)
-	{
-		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock traderBlock)
-			return traderBlock.GetStackRenderScale(tradeSlot, this.getBlockState());
-		else
-			return 0f;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	@Deprecated(since = "2.1.2.4")
-	public int maxRenderIndex()
-	{
-		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock traderBlock)
-			return traderBlock.maxRenderIndex();
-		else
-			return 0;
 	}
 	
 	@Override

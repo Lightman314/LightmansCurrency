@@ -2,16 +2,21 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderinterface.bas
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.OwnershipClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class OwnershipTab extends TraderInterfaceTab {
 
@@ -35,43 +40,37 @@ public class OwnershipTab extends TraderInterfaceTab {
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 	
-	public void setNewOwner(String newOwner) {
+	public void setPlayerOwner(String newOwner) {
 		if(this.isAdmin())
 		{
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putString("NewOwner", newOwner);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.simpleString("NewPlayerOwner", newOwner));
 			}
 			else
-				this.menu.getBE().setOwner(newOwner);
+			{
+				PlayerReference player = PlayerReference.of(false, newOwner);
+				if(player != null)
+					this.menu.getBE().owner.SetOwner(PlayerOwner.of(player));
+			}
 		}
 	}
 	
-	public void setNewTeam(long team) {
-		if(this.isAdmin() && team >= 0)
+	public void setOwner(Owner newOwner) {
+		if(this.isAdmin())
 		{
-			this.menu.getBE().setTeam(team);
+			this.menu.getBE().owner.SetOwner(newOwner);
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putLong("NewTeam", team);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleTag("NewOwner", newOwner.save()));
 		}
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void handleMessage(@Nonnull LazyPacketData message) {
+		if(message.contains("NewPlayerOwner"))
+			this.setPlayerOwner(message.getString("NewPlayerOwner"));
 		if(message.contains("NewOwner"))
-		{
-			this.setNewOwner(message.getString("NewOwner"));
-		}
-		if(message.contains("NewTeam"))
-		{
-			this.setNewTeam(message.getLong("NewTeam"));
-		}
+			this.setOwner(Owner.load(message.getNBT("NewOwner")));
 	}
 
 }

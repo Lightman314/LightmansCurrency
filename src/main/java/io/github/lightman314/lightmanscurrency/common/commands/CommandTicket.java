@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -43,7 +44,7 @@ public class CommandTicket {
             TicketItem.SetTicketColor(heldItem, color);
         }
         else
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.ticket.color.not_held"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_TICKETS_COLOR_NOT_HELD.get());
         return 0;
     }
 

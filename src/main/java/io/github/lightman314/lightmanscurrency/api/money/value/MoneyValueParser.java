@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
@@ -67,7 +68,7 @@ public abstract class MoneyValueParser {
      */
     @Nonnull
     public static MoneyValue parse(StringReader reader, boolean allowEmpty) throws CommandSyntaxException {
-        StringReader inputReader = new StringReader(readStringUntil(reader, ' '));
+        StringReader inputReader = new StringReader(readArgument(reader));
         String prefix;
         if(inputReader.getString().contains(";"))
             prefix = readStringUntil(inputReader,';');
@@ -107,6 +108,15 @@ public abstract class MoneyValueParser {
         return "ERROR";
     }
 
+    //Emulates StringReader#ReadUnquotedString, but without forcing certain allowed characters
+    private static String readArgument(@Nonnull StringReader reader)
+    {
+        final int start = reader.getCursor();
+        while(reader.canRead() && !(reader.peek() == ' '))
+            reader.skip();
+        return reader.getString().substring(start, reader.getCursor());
+    }
+
     public static String readStringUntil(StringReader reader, char... t) throws CommandSyntaxException {
         List<Character> terminators = new ArrayList<>();
         for(char c : t)
@@ -136,7 +146,7 @@ public abstract class MoneyValueParser {
     }
 
     public static CommandSyntaxException NoValueException(StringReader reader) {
-        return new CommandSyntaxException(EXCEPTION_TYPE, EasyText.translatable("command.argument.coinvalue.novalue"), reader.getString(), reader.getCursor());
+        return new CommandSyntaxException(EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NO_VALUE.get(), reader.getString(), reader.getCursor());
     }
 
     public static final CommandExceptionType EXCEPTION_TYPE = new CommandExceptionType() {

@@ -11,7 +11,7 @@ public interface ITooltipSource {
     default void renderTooltip(EasyGuiGraphics gui)
     {
         List<Component> tooltips = this.getTooltipText(gui.mousePos.x, gui.mousePos.y);
-        if(tooltips != null && tooltips.size() > 0)
+        if(tooltips != null && !tooltips.isEmpty())
             gui.renderComponentTooltip(tooltips);
     }
 

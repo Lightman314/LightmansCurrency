@@ -167,7 +167,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			}
 			TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
 			if(result.hasMessage())
-				LightmansCurrency.LogDebug(result.failMessage.getString());
+				LightmansCurrency.LogDebug(result.getMessage().getString());
 		}
 		else
 			LightmansCurrency.LogWarning("Trader " + traderIndex + " is not a valid trader index.");

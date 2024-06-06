@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
@@ -32,7 +33,7 @@ public class TeamMemberEditTab extends TeamTab {
 	public IconData getIcon() { return IconAndButtonUtil.ICON_ALEX_HEAD; }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.team.member_edit"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_MEMBER_EDIT.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -54,9 +55,9 @@ public class TeamMemberEditTab extends TeamTab {
 		this.memberNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 11, screenArea.y + 9, 178, 20, EasyText.empty()));
 		this.memberNameInput.setMaxLength(16);
 		
-		this.buttonAddMember = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 30), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember));
-		this.buttonPromoteMember = this.addChild(new EasyTextButton(screenArea.pos.offset(70, 30), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin));
-		this.buttonRemoveMember = this.addChild(new EasyTextButton(screenArea.pos.offset(130, 30), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember));
+		this.buttonAddMember = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 30), 60, 20, LCText.BUTTON_ADD.get(), this::addMember));
+		this.buttonPromoteMember = this.addChild(new EasyTextButton(screenArea.pos.offset(70, 30), 60, 20, LCText.BUTTON_TEAM_MEMBER_PROMOTE.get(), this::addAdmin));
+		this.buttonRemoveMember = this.addChild(new EasyTextButton(screenArea.pos.offset(130, 30), 60, 20, LCText.BUTTON_REMOVE.get(), this::removeMember));
 		this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 		
 		this.memberDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(10, 55), screenArea.width - 20, screenArea.height - 65, this::getMemberList));

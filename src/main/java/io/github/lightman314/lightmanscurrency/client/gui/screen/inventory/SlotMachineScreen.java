@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
@@ -18,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -190,9 +191,9 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         {
             List<Component> info = trader.getSlotMachineInfo();
             if(this.isInfoMode())
-                info.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.to_interact"));
+                LCText.TOOLTIP_SLOT_MACHINE_TO_INTERACT.tooltip(info);
             else
-                info.add(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.to_info"));
+                LCText.TOOLTIP_SLOT_MACHINE_TO_INFO.tooltip(info);
             return info;
         }
         return null;
@@ -205,10 +206,18 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         SlotMachineTraderData trader = this.menu.getTrader();
         if(trader != null)
         {
+            MoneyValue normalCost = trader.getPrice();
+            MoneyValue currentCost = trader.runTradeCostEvent(trader.getTrade(0), this.menu.getContext()).getCostResult();
+            Component costText = currentCost.isFree() ? LCText.TOOLTIP_SLOT_MACHINE_COST_FREE.get() : currentCost.getText();
+            List<Component> result;
             if(count == 1)
-                return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.roll"), EasyText.translatable("tooltip.lightmanscurrency.slot_machine.roll.cost", trader.getPrice().getString()));
+                result = LCText.TOOLTIP_SLOT_MACHINE_ROLL_ONCE.get(count,costText);
             else
-                return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.rolls", count), EasyText.translatable("tooltip.lightmanscurrency.slot_machine.rolls.cost", trader.getPrice().getString()));
+                result = LCText.TOOLTIP_SLOT_MACHINE_ROLL_MULTI.get(count,costText);
+            //If the price is modified by a trade rule, display the "normal cost" as well just in case it changes in-between rolls
+            if(!currentCost.equals(normalCost) && count > 1)
+                result.add(LCText.TOOLTIP_SLOT_MACHINE_NORMAL_COST.get(normalCost.isFree() ? LCText.TOOLTIP_SLOT_MACHINE_COST_FREE.get() : normalCost.getText()));
+            return result;
         }
         return ImmutableList.of();
     }

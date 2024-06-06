@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.providers;
 
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -22,7 +22,7 @@ public class TerminalMenuProvider implements MenuProvider {
 
     @Nonnull
     @Override
-    public Component getDisplayName() { return EasyText.translatable("block.lightmanscurrency.terminal"); }
+    public Component getDisplayName() { return ModBlocks.TERMINAL.get().getName(); }
 
     @Nullable
     @Override

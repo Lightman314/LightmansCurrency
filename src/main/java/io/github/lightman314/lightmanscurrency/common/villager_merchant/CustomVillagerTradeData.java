@@ -43,7 +43,7 @@ public class CustomVillagerTradeData {
 
     public static void registerDefaultFile(@Nonnull ResourceLocation villager, @Nonnull Map<Integer,List<ItemListing>> value) {
         if(defaultValues.containsKey(villager))
-            LightmansCurrency.LogWarning("Attempted to registerNotification default villager data of type '" + villager + "' twice!");
+            LightmansCurrency.LogWarning("Attempted to register default villager data of type '" + villager + "' twice!");
         else
         {
             for(int i = 1; i <=5; ++i)

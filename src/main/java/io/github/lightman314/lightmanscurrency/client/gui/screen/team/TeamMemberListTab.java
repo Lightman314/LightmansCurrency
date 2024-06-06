@@ -4,12 +4,12 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -28,7 +28,7 @@ public class TeamMemberListTab extends TeamTab {
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.team.members"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_MEMBERS.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {

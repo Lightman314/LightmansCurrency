@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
@@ -60,9 +61,9 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		if(this.selectedRecipe != null && SELECTION_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))
 		{
 			List<Component> tooltip = new ArrayList<>();
-			tooltip.add(EasyText.translatable("gui.button.lightmanscurrency.ticket_station.recipe_info", this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName()));
+			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName()));
 			if(this.getMatchingRecipes().size() > 1)
-				tooltip.add(EasyText.translatable("gui.button.lightmanscurrency.ticket_station.select_recipe"));
+				tooltip.add(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE.get());
 			gui.renderComponentTooltip(tooltip);
 		}
 	}
@@ -85,7 +86,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	private Component getArrowTooltip()
 	{
 		if(this.selectedRecipe != null)
-			return EasyText.translatable("gui.button.lightmanscurrency.craft_ticket", this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
+			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
 		return EasyText.empty();
 	}
 

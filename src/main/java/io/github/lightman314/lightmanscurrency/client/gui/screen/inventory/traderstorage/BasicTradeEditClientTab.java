@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
@@ -8,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -30,12 +30,9 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
 
 	@Override
-	public Component getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.edit_trades"); }
-	
-	@Override
-	public boolean blockInventoryClosing() { return false; }
+	public Component getTooltip() { return LCText.TOOLTIP_TRADER_EDIT_TRADES.get(); }
 
-	TradeButtonArea tradeDisplay;
+    TradeButtonArea tradeDisplay;
 	
 	EasyButton buttonAddTrade;
 	EasyButton buttonRemoveTrade;

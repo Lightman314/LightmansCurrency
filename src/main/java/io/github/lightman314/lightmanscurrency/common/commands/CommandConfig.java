@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
@@ -59,7 +60,7 @@ public class CommandConfig {
             result++;
         }
         if(result > 0)
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.reload"), involveAdmins);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_RELOAD.get(), involveAdmins);
         return result;
     }
 
@@ -115,13 +116,13 @@ public class CommandConfig {
             Pair<Boolean,ConfigParsingException> result = option.load(input, ConfigOption.LoadSource.COMMAND);
             if(!result.getFirst())
             {
-                EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.parse", result.getSecond().getMessage()));
+                EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE.get(result.getSecond().getMessage()));
                 return 0;
             }
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", option.getName(), input), true);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(option.getName(), input), true);
             return 1;
         }
-        EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing"));
+        EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));
         return 0;
     }
 
@@ -143,17 +144,17 @@ public class CommandConfig {
             Pair<Boolean,ConfigParsingException> result = option.editList(input, listIndex, isEdit);
             if(!result.getFirst())
             {
-                EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.parse", result.getSecond().getMessage()));
+                EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE.get(result.getSecond().getMessage()));
                 return 0;
             }
             if(!isEdit)
-                EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.list.remove.success", configOption + "[" + listIndex + "]"), true);
+                EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS.get(configOption + "[" + listIndex + "]"), true);
             if(listIndex < 0)
                 listIndex = option.get().size() - 1;
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", configOption + "[" + listIndex + "]", input), true);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(configOption + "[" + listIndex + "]", input), true);
             return 1;
         }
-        EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing"));
+        EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));
         return 0;
     }
 
@@ -185,10 +186,10 @@ public class CommandConfig {
         {
             ConfigOption<?> option = optionMap.get(configOption);
             option.setToDefault();
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.success", option.getName(), option.write()), true);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(option.getName(), option.write()), true);
             return 1;
         }
-        EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.edit.fail.missing"));
+        EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));
         return 0;
     }
 
@@ -219,11 +220,11 @@ public class CommandConfig {
         if(optionMap.containsKey(configOption))
         {
             ConfigOption<?> option = optionMap.get(configOption);
-            EasyText.sendCommandSucess(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.view", option.getName()), false);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_VIEW.get(option.getName()), false);
             EasyText.sendCommandSucess(commandContext.getSource(), EasyText.literal(option.write()), false);
             return 1;
         }
-        EasyText.sendCommandFail(commandContext.getSource(), EasyText.translatable("command.lightmanscurrency.lcconfig.view.fail.missing"));
+        EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));
         return 0;
     }
 

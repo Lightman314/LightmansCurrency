@@ -1,16 +1,19 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade.client;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -67,7 +70,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
         List<AlertData> alerts = new ArrayList<>();
         this.addTradeRuleAlertData(alerts, context);
         if(context.getTrader().exceedsAcceptableTaxRate())
-            alerts.add(AlertData.error(EasyText.translatable("tooltip.lightmanscurrency.tax_limit")));
+            alerts.add(AlertData.error(LCText.TOOLTIP_TAX_LIMIT.get()));
         this.getAdditionalAlertData(context, alerts);
         return alerts;
     }
@@ -75,7 +78,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
     private void addTradeRuleAlertData(List<AlertData> alerts, TradeContext context) {
         if(context.hasTrader() && context.hasPlayerReference())
         {
-            TradeEvent.PreTradeEvent pte = context.getTrader().runPreTradeEvent(context.getPlayerReference(), this.trade);
+            TradeEvent.PreTradeEvent pte = context.getTrader().runPreTradeEvent(this.trade, context);
             alerts.addAll(pte.getAlertInfo());
         }
     }
@@ -99,5 +102,9 @@ public abstract class TradeRenderManager<T extends TradeData> {
      */
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
 
+    public final MutableComponent getStockTooltip(boolean isCreative, int stockCount)
+    {
+        return LCText.TOOLTIP_TRADE_INFO_STOCK.get(isCreative ? LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE.getWithStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(stockCount)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+    }
 
 }

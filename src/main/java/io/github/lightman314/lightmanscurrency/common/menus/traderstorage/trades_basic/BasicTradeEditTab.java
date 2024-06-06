@@ -34,8 +34,6 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	@OnlyIn(Dist.CLIENT)
 	public Object createClientTab(Object screen) { return new BasicTradeEditClientTab<>(screen, this); }
 
-	@Deprecated(since = "2.1.2.4")
-	public void setClientHandler(Consumer<CompoundTag> oldClientHandler) { this.oldClientHandler = oldClientHandler; }
 	public void setClient(Consumer<LazyPacketData.Builder> clientHandler)
 	{
 		this.clientHandler = clientHandler;

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item;
 
-import java.util.List;
-
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -15,11 +14,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -52,7 +51,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
 	
 	private DirectionalSettings getInputSettings() {
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
@@ -61,8 +60,8 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	}
 	
 	private DirectionalSettings getOutputSettings() { 
-		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
-			return ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemHandler().getOutputSides();
+		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
+			return be.getItemHandler().getOutputSides();
 		return new DirectionalSettings();
 	}
 	
@@ -83,8 +82,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-
-		gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), 8, 6, 0x404040);
 		
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
@@ -119,9 +116,9 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 			
 			//Render the input/output labels
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), 33, WIDGET_OFFSET, 0x404040);
-			int textWidth = gui.font.width(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
+			Component outputText = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
+			gui.drawString(outputText, 173 - gui.font.width(outputText), WIDGET_OFFSET, 0x404040);
 		}
 		
 	}
@@ -155,16 +152,10 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					if(hoveredSlot < storage.getContents().size())
 					{
 						ItemStack stack = storage.getContents().get(hoveredSlot);
-						List<Component> tooltip = EasyScreenHelper.getTooltipFromItem(stack);
-						tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
-						if(stack.getCount() >= 64)
-						{
-							if(stack.getCount() % 64 == 0)
-								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
-							else
-								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
-						}
-						gui.renderComponentTooltip(tooltip);
+						if(stack.isEmpty())
+							return;
+						//Vanilla tooltip
+						EasyScreenHelper.RenderItemTooltipWithCount(gui, stack, storage.getMaxAmount(), ChatFormatting.YELLOW);
 					}	
 				}
 			}

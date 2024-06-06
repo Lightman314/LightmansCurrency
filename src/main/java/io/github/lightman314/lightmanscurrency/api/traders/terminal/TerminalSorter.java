@@ -74,7 +74,7 @@ public class TerminalSorter {
                 int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
                 //Sort by owner name if trader name is equal
                 if (sort == 0)
-                    sort = a.getOwner().getOwnerName(true).compareToIgnoreCase(b.getOwner().getOwnerName(true));
+                    sort = a.getOwner().getName().getString().compareToIgnoreCase(b.getOwner().getName().getString());
 
                 return sort;
 

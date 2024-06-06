@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachinePriceTab;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -23,10 +23,7 @@ public class SlotMachinePriceClientTab extends TraderStorageClientTab<SlotMachin
     public IconData getIcon() { return IconData.of(ModItems.COIN_GOLD); }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.slot_machine.edit_price"); }
-
-    @Override
-    public boolean blockInventoryClosing() { return false; }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SLOT_MACHINE_EDIT_PRICE.get(); }
 
     private MoneyValueWidget priceInput;
 

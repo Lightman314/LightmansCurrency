@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
@@ -36,7 +37,7 @@ public class AllyTab extends SettingsSubTab {
     public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.ally"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_ALLY.get(); }
 
     @Override
     public boolean canOpen() { return this.menu.hasPermission(Permissions.ADD_REMOVE_ALLIES); }
@@ -47,8 +48,8 @@ public class AllyTab extends SettingsSubTab {
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 10, 160, 20, EasyText.empty()));
         this.nameInput.setMaxLength(16);
 
-        this.buttonAddAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 35), 74, 20, EasyText.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
-        this.buttonRemoveAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 35), 74, 20, EasyText.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
+        this.buttonAddAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 35), 74, 20, LCText.BUTTON_ADD.get(), this::AddAlly));
+        this.buttonRemoveAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 35), 74, 20, LCText.BUTTON_REMOVE.get(), this::RemoveAlly));
 
         this.display = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(5, 60), screenArea.width - 10, 75, this::getAllyList));
         this.display.setColumnCount(2);

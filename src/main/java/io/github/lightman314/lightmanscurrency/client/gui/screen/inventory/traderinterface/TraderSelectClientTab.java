@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -19,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -40,7 +40,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.trader"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_TRADER_SELECT.get(); }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -84,7 +84,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);

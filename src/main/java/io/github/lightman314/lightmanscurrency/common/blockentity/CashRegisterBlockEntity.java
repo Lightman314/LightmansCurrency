@@ -48,7 +48,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		if(this.getTraders().size() > 0)
+		if(!this.getTraders().isEmpty())
 			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 		else
 			player.sendSystemMessage(Component.translatable("message.lightmanscurrency.cash_register.notlinked"));
@@ -85,10 +85,8 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			storageList.add(thisEntry);
 		}
 		
-		if(storageList.size() > 0)
-		{
+		if(!storageList.isEmpty())
 			compound.put("TraderPos", storageList);
-		}
 		
 		super.saveAdditional(compound);
 	}

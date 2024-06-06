@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.taxes.TaxInfoWi
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
@@ -38,7 +38,7 @@ public class TaxInfoClientTab extends TraderStorageClientTab<TaxInfoTab> impleme
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.tax_info"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TRADER_TAXES.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -61,9 +61,9 @@ public class TaxInfoClientTab extends TraderStorageClientTab<TaxInfoTab> impleme
         TraderData trader = this.getTrader();
         if(trader != null)
         {
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.trader.tax_info.total_rate", trader.getTotalTaxPercentage()), this.screen.getXSize() / 2, 6, 0x404040);
-            if(trader.getPossibleTaxes().size() == 0)
-                TextRenderUtil.drawCenteredMultilineText(gui, EasyText.translatable("tooltip.lightmanscurrency.trader.tax_info.no_tax_collectors"), 10, this.screen.getXSize() - 20, 60, 0x404040);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(trader.getTotalTaxPercentage()), this.screen.getXSize() / 2, 6, 0x404040);
+            if(trader.getPossibleTaxes().isEmpty())
+                TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS.get(), 10, this.screen.getXSize() - 20, 60, 0x404040);
         }
     }
 

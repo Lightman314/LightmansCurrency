@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.taxes;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
@@ -38,7 +39,7 @@ public class TaxesCollectedNotification extends Notification {
 
     @Nonnull
     @Override
-    public MutableComponent getMessage() { return EasyText.translatable("notifications.message.taxes.collected", this.amount.getText("NULL"), this.taxedName); }
+    public MutableComponent getMessage() { return LCText.NOTIFICATION_TAXES_COLLECTED.get(this.amount.getText("NULL"), this.taxedName); }
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag compound) {

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.N
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
@@ -28,7 +28,7 @@ public class LogTab extends ATMTab{
 	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.log"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_LOGS.get(); }
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {

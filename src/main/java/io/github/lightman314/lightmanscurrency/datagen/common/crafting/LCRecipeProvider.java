@@ -607,6 +607,16 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("previous", LazyTrigger(ModItems.ITEM_CAPACITY_UPGRADE_2))
                 .save(consumer, ItemID("upgrades/", ModItems.ITEM_CAPACITY_UPGRADE_3));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.ITEM_CAPACITY_UPGRADE_3.get()),
+                        Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                        RecipeCategory.MISC,
+                        ModItems.ITEM_CAPACITY_UPGRADE_4.get())
+                .unlocks("money", MoneyKnowledge())
+                .unlocks("trader", TraderKnowledge())
+                .unlocks("previous", LazyTrigger(ModItems.ITEM_CAPACITY_UPGRADE_3))
+                .save(consumer, ItemID("upgrades/", ModItems.ITEM_CAPACITY_UPGRADE_4));
 
         //Network Upgrade
         SmithingTransformRecipeBuilder.smithing(

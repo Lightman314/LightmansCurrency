@@ -8,13 +8,13 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +33,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)
 	{
 		if(TicketItem.isTicket(sellItem) && !customName.isBlank())
-			sellItem.setHoverName(Component.literal(customName));
+			sellItem.setHoverName(EasyText.literal(customName));
 		return sellItem;
 	}
 	

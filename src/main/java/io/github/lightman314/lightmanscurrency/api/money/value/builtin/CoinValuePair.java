@@ -45,7 +45,7 @@ public final class CoinValuePair
         return tag;
     }
 
-    public static CoinValuePair load(@Nonnull ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Coin"))), tag.getInt("Amount")); }
+    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Coin"))), tag.getInt("Amount")); }
 
     public void encode(FriendlyByteBuf buffer)
     {
@@ -76,10 +76,13 @@ public final class CoinValuePair
     }
 
     @Nullable
-    private static CoinValuePair from(@Nonnull ChainData chainData, @Nonnull Item coinItem, int amount)
+    private static CoinValuePair from(@Nullable ChainData chainData, @Nonnull Item coinItem, int amount)
     {
         if(coinItem == Items.AIR)
             return null;
+        //Forcibly load the given coin value if the data is null
+        if(chainData == null)
+            return new CoinValuePair(coinItem, amount);
         CoinEntry entry = chainData.findEntry(coinItem);
         if(entry != null)
             return new CoinValuePair(entry.getCoin(), amount);

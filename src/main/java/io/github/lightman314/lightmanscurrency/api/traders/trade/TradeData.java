@@ -34,19 +34,6 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
-	public enum TradeDirection { SALE(0), PURCHASE(1), NONE(-1);
-		public final int index;
-		TradeDirection(int index) { this.index = index; }
-		public static TradeDirection fromIndex(int index) {
-			for(TradeDirection d : TradeDirection.values())
-			{
-				if(d.index == index)
-					return d;
-			}
-			return TradeDirection.SALE;
-		}
-	}
-	
 	protected MoneyValue cost = MoneyValue.empty();
 	
 	List<TradeRule> rules = new ArrayList<>();
@@ -71,7 +58,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	public final MoneyValue getCost(@Nonnull TradeContext context) {
 		if(!context.hasPlayerReference() || !context.hasTrader())
 			return this.getCost();
-		TradeCostEvent event = context.getTrader().runTradeCostEvent(context.getPlayerReference(), this);
+		TradeCostEvent event = context.getTrader().runTradeCostEvent(this, context);
 		if(!this.cachedCost.matches(event))
 		{
 			if(this.cachedCost != TradeCostCache.EMPTY)
@@ -108,6 +95,12 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 	
 	public void setCost(MoneyValue value) { this.cost = value; this.flagPriceAsChanged(); }
+
+	public boolean outOfStock(@Nonnull TradeContext context) { return !this.hasStock(context); }
+
+	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
+
+	public abstract int getStock(@Nonnull TradeContext context);
 
 	public final int stockCountOfCost(TraderData trader)
 	{
@@ -183,10 +176,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	@Override
 	public final boolean isTrade() { return true; }
 
-	@Override
-	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
-	
-	public void beforeTrade(PreTradeEvent event) {
+    public void beforeTrade(PreTradeEvent event) {
 		for(TradeRule rule : this.rules)
 		{
 			if(rule.isActive())

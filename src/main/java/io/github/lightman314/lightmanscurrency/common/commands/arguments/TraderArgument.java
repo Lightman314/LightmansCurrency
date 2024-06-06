@@ -12,18 +12,19 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class TraderArgument implements ArgumentType<TraderData>{
 
-	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(Component.translatable("command.argument.trader.notfound"));
+	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(LCText.ARGUMENT_TRADER_NOT_FOUND.get());
 	private final boolean acceptPersistentIDs;
 	private TraderArgument(boolean acceptPersistentIDs) { this.acceptPersistentIDs = acceptPersistentIDs; }
 	
@@ -93,13 +94,15 @@ public class TraderArgument implements ArgumentType<TraderData>{
 		public void serializeToNetwork(Template template, FriendlyByteBuf buffer) { buffer.writeBoolean(template.acceptPersistentIDs); }
 
 		@Override
-		public @NotNull Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean()); }
+		@Nonnull
+		public Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean()); }
 
 		@Override
 		public void serializeToJson(Template template, JsonObject json) { json.addProperty("acceptPersistentIDs", template.acceptPersistentIDs); }
 
 		@Override
-		public @NotNull Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs); }
+		@Nonnull
+		public Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs); }
 		
 		public final class Template implements ArgumentTypeInfo.Template<TraderArgument>
 		{
@@ -108,10 +111,12 @@ public class TraderArgument implements ArgumentType<TraderData>{
 			Template(boolean checkPersistentIDs) { this.acceptPersistentIDs = checkPersistentIDs; }
 
 			@Override
-			public @NotNull TraderArgument instantiate(@NotNull CommandBuildContext context) { return new TraderArgument(this.acceptPersistentIDs); }
+			@Nonnull
+			public TraderArgument instantiate(@Nonnull CommandBuildContext context) { return new TraderArgument(this.acceptPersistentIDs); }
 
 			@Override
-			public @NotNull ArgumentTypeInfo<TraderArgument, ?> type() { return Info.this; }
+			@Nonnull
+			public ArgumentTypeInfo<TraderArgument, ?> type() { return Info.this; }
 			
 		}
 		

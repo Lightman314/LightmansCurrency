@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -70,7 +71,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.overwrite", message.id));
+							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_OVERWRITE.get(message.id));
 							return;
 						}
 					}
@@ -78,8 +79,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
 					TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-					sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.add", message.id));
-					return;
+					sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(message.id));
 				}
 				else
 				{
@@ -101,7 +101,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						{
 							persistentAuctions.add(message.getAuctionJson(genID));
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.add", genID));
+							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
 							return;
 						}
 					}
@@ -110,7 +110,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 				}
 			}
 			else if(sender != null)
-				sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.fail"));
+				sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_FAIL.get());
 		}
 	}
 	

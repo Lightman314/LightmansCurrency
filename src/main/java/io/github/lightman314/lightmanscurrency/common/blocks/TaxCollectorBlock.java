@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
@@ -10,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -84,7 +84,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
             if(entry == null)
             {
                 LightmansCurrency.LogWarning("Tax Entry for block at " + pos.getX() + "," + pos.getY() + "," + pos.getZ() + " had to be re-initialized on interaction.");
-                EasyText.sendMessage(player, EasyText.translatable("tax_block.warning.reinitialized").withStyle(ChatFormatting.RED));
+                EasyText.sendMessage(player, LCText.MESSAGE_TAX_COLLECTOR_WARNING_MISSING_DATA.getWithStyle(ChatFormatting.RED));
                 taxBlock.initialize(player);
                 entry = taxBlock.getTaxEntry();
             }
@@ -93,7 +93,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
                 if(entry.canAccess(player))
                     entry.openMenu(player, BlockEntityValidator.of(taxBlock));
                 else
-                    EasyText.sendMessage(player, EasyText.translatable("tax_block.warning.no_access"));
+                    EasyText.sendMessage(player, LCText.MESSAGE_TAX_COLLECTOR_WARNING_NO_ACCESS.get());
             }
         }
         return InteractionResult.SUCCESS;
@@ -120,8 +120,8 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
-        TooltipItem.addTooltip(tooltips, LCTooltips.TAX_COLLECTOR);
+        TooltipItem.addTooltip(tooltips, LCText.TOOLTIP_TAX_COLLECTOR.asTooltip());
         if(LCConfig.SERVER.taxCollectorAdminOnly.get())
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.tax_collector.admin_only").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
+            tooltips.add(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN.get().withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
     }
 }

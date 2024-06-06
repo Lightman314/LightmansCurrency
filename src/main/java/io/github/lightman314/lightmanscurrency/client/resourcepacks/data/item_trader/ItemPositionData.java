@@ -18,7 +18,7 @@ import java.util.*;
 
 public class ItemPositionData {
 
-    public static final ItemPositionData EMPTY = new ItemPositionData(ImmutableList.of());
+    public static final ItemPositionData EMPTY = new ItemPositionData();
 
     private final List<PositionEntry> entries;
 
@@ -135,7 +135,7 @@ public class ItemPositionData {
     }
 
     public int getEntryCount() { return this.entries.size(); }
-    public boolean isEmpty() { return this.getEntryCount() == 0; }
+    public boolean isEmpty() { return this.entries.isEmpty(); }
 
     public record PositionEntry(Vector3f position, int extraCount, Vector3f extraOffset, float scale, RotationHandler rotationHandler) {}
 

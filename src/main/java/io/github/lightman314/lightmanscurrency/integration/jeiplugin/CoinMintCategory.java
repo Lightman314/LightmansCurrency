@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.MintScreen;
@@ -76,8 +77,8 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 		{
 			//Render "disabled in config" text
 			EasyGuiGraphics gui = EasyGuiGraphics.create(guiGraphics,(int)mouseX,(int)mouseY,0f);
-			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.coinmint.disabled.1").withStyle(ChatFormatting.BOLD), 52, 0, 0xFF0000);
-			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.coinmint.disabled.2").withStyle(ChatFormatting.BOLD), 52, 35, 0xFF0000);
+			TextRenderUtil.drawCenteredText(gui, LCText.TOOLTIP_COIN_MINT_DISABLED_TOP.get().withStyle(ChatFormatting.BOLD), 52, 0, 0xFF0000);
+			TextRenderUtil.drawCenteredText(gui, LCText.TOOLTIP_COIN_MINT_DISABLED_BOTTOM.get().withStyle(ChatFormatting.BOLD), 52, 35, 0xFF0000);
 		}
 	}
 
@@ -87,7 +88,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 
 	@Nonnull
 	@Override
-	public Component getTitle() { return EasyText.translatable("gui.lightmanscurrency.coinmint.title"); }
+	public Component getTitle() { return LCText.GUI_COIN_MINT_TITLE.get(); }
 	
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @Nonnull IFocusGroup focus) {

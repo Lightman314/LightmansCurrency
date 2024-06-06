@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -10,10 +8,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -71,11 +67,11 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 		this.data.getIcon().render(gui, 4, 7);
 		
 		//Draw the name & owner of the trader
-		Style style = this.data.isCreative() ? Style.EMPTY.applyFormat(ChatFormatting.GREEN) : Style.EMPTY;
-		gui.drawString(TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), 24, 6, 0x404040);
-		gui.drawString(TextRenderUtil.fitString(this.data.getOwner().getOwnerName(true), this.width - 26), 24, 16, 0x404040);
+		int color = this.data.getTerminalTextColor();
+		gui.drawString(TextRenderUtil.fitString(this.data.getName(), this.width - 26), 24, 6, color);
+		gui.drawString(TextRenderUtil.fitString(this.data.getOwner().getName(), this.width - 26), 24, 16, 0x404040);
 
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		gui.resetColor();
 
 	}
 

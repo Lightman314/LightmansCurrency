@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -33,7 +35,7 @@ public class NotificationTab extends SettingsSubTab {
     public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.notifications"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_NOTIFICATIONS.get(); }
 
     @Override
     public boolean canOpen() { return this.menu.hasPermission(Permissions.NOTIFICATION); }
@@ -68,15 +70,15 @@ public class NotificationTab extends SettingsSubTab {
             return;
 
         //Render the enable notification test
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.notifications.enabled"), 47, 35, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED.get(), 47, 35, 0x404040);
 
         //Render the enable chat notification text
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.notifications.chat"), 47, 55, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT.get(), 47, 55, 0x404040);
 
-        this.buttonToggleTeamLevel.visible = trader.getOwner().hasTeam();
+        this.buttonToggleTeamLevel.visible = trader.getOwner().getValidOwner().hasNotificationLevels();
         if(this.buttonToggleTeamLevel.visible)
         {
-            Component message = EasyText.translatable("gui.button.lightmanscurrency.team.bank.notifications", EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit." + trader.teamNotificationLevel()));
+            Component message = LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET.get(Owner.getOwnerLevelBlurb(trader.teamNotificationLevel()));
             this.buttonToggleTeamLevel.setMessage(message);
         }
 

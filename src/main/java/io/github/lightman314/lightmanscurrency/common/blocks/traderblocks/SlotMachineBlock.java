@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +32,9 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
     public SlotMachineBlock(Properties properties) { super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST)); }
 
     @Override
+    protected boolean isBlockOpaque() { return false; }
+
+    @Override
     protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new SlotMachineTraderBlockEntity(pos, state); }
 
     @Override
@@ -41,6 +44,6 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
     public ResourceLocation getLightModel() { return LIGHT_MODEL_LOCATION; }
 
     @Override
-    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.SLOT_MACHINE; }
+    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_SLOT_MACHINE.asTooltip(); }
 
 }

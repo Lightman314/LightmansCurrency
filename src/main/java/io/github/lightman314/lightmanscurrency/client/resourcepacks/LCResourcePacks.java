@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.resourcepacks;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionBlockManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
@@ -29,9 +29,9 @@ public class LCResourcePacks {
     private static final List<CustomResourcePack> packList = new ArrayList<>();
 
     static {
-        registerPack(LightmansCurrency.MODID, "RupeePack",EasyText.translatable("resourcepack.lightmanscurrency.rupees"));
-        registerPack(LightmansCurrency.MODID, "CloserItemsPack",EasyText.translatable("resourcepack.lightmanscurrency.closer_items"));
-        registerPack(LightmansCurrency.MODID, "LegacyCoins",EasyText.translatable("resourcepack.lightmanscurrency.legacy_coins"));
+        registerPack(LightmansCurrency.MODID, "RupeePack", LCText.RESOURCE_PACK_RUPEES.get());
+        registerPack(LightmansCurrency.MODID, "CloserItemsPack",LCText.RESOURCE_PACK_CLOSER_ITEMS.get());
+        registerPack(LightmansCurrency.MODID, "LegacyCoins",LCText.RESOURCE_PACK_LEGACY_COINS.get());
     }
 
     public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name) { registerPack(new CustomResourcePack(modid,path,name)); }

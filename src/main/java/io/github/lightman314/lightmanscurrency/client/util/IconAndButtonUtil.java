@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -19,15 +20,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.Dropdo
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -126,32 +124,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_ONLINEMODE_TRUE = IconData.of(Items.PLAYER_HEAD);
 	public static final IconData ICON_ONLINEMODE_FALSE = ICON_CHECKMARK;
 
-	public static final Component TOOLTIP_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.opentrades");
-	public static final Component TOOLTIP_STORAGE = EasyText.translatable("tooltip.lightmanscurrency.trader.openstorage");
-	
-	public static final String TOOLTIP_COLLECT_COINS = "tooltip.lightmanscurrency.trader.collectcoins";
-	public static final Component TOOLTIP_STORE_COINS = EasyText.translatable("tooltip.lightmanscurrency.trader.storecoins");
-	
-	public static final Component TOOLTIP_BACK_TO_TERMINAL = EasyText.translatable("tooltip.lightmanscurrency.trader.universaltrader.back");
-
-	public static final Component TOOLTIP_TRADE_RULES = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules");
-	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
-	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADE = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
-	public static final Component TOOLTIP_OPEN_SETTINGS = EasyText.translatable("tooltip.lightmanscurrency.trader.settings");
-
-	public static final Component TOOLTIP_CANNOT_BE_UNDONE = EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW);
-
-	public static final Component TOOLTIP_CREATIVE_ENABLE = EasyText.translatable("tooltip.lightmanscurrency.trader.creative.enable");
-	public static final Component TOOLTIP_CREATIVE_DISABLE = EasyText.translatable("tooltip.lightmanscurrency.trader.creative.disable");
-	
-	public static final Component TOOLTIP_INTERFACE_ENABLE = EasyText.translatable("tooltip.lightmanscurrency.interface.enable");
-	public static final Component TOOLTIP_INTERFACE_DISABLE = EasyText.translatable("tooltip.lightmanscurrency.interface.disable");
-	
-	public static final Component TOOLTIP_PERSISTENT_TRADER = EasyText.translatable("tooltip.lightmanscurrency.persistent.add.trader");
-	public static final Component TOOLTIP_PERSISTENT_AUCTION = EasyText.translatable("tooltip.lightmanscurrency.persistent.add.auction");
-
-	public static IconButton traderButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADER).withAddons(EasyAddonHelper.tooltip(TOOLTIP_TRADER)); }
-	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORAGE).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORAGE)); }
+	public static IconButton traderButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADER).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_TRADES)); }
+	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORAGE).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE)); }
 	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visiblityCheck) { return storageButton(x,y,pressable).withAddons(EasyAddonHelper.visibleCheck(visiblityCheck)); }
 	
 	public static IconButton collectCoinButton(int x, int y, Consumer<EasyButton> pressable, Player player, Supplier<TraderData> traderSource) {
@@ -161,7 +135,7 @@ public class IconAndButtonUtil {
 					if(trader != null && !trader.hasBankAccount() && !trader.getStoredMoney().getStoredMoney().isEmpty())
 					{
 						List<Component> result = new ArrayList<>();
-						result.add(EasyText.translatable(TOOLTIP_COLLECT_COINS));
+						result.add(LCText.TOOLTIP_TRADER_COLLECT_COINS.get());
 						IMoneyHolder storage = trader.getStoredMoney();
 						for(MoneyValue value : storage.getStoredMoney().allValues())
 							result.add(value.getText());
@@ -190,7 +164,7 @@ public class IconAndButtonUtil {
 					if(storage != null && !storage.isEmpty())
 					{
 						List<Component> result = new ArrayList<>();
-						result.add(EasyText.translatable(TOOLTIP_COLLECT_COINS));
+						result.add(LCText.TOOLTIP_TRADER_COLLECT_COINS.get());
 						for(MoneyValue value : storage.allValues())
 							result.add(value.getText());
 						return result;
@@ -198,7 +172,7 @@ public class IconAndButtonUtil {
 					return new ArrayList<>();
 		}));
 	}
-	public static IconButton storeCoinButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORE_COINS)); }
+	public static IconButton storeCoinButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_STORE_COINS)); }
 	
 	public static IconButton leftButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }
 	public static IconButton rightButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
@@ -208,16 +182,14 @@ public class IconAndButtonUtil {
 	public static PlainButton minusButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return minusButton(pos.x, pos.y, pressable); }
 	public static PlainButton minusButton(int x, int y, Consumer<EasyButton> pressable) { return new PlainButton(x, y, pressable, SPRITE_MINUS); }
 
-	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(TOOLTIP_BACK_TO_TERMINAL)); }
-	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visibilityCheck) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(TOOLTIP_BACK_TO_TERMINAL), EasyAddonHelper.visibleCheck(visibilityCheck)); }
+	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK)); }
+	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visibilityCheck) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK), EasyAddonHelper.visibleCheck(visibilityCheck)); }
 
-	public static IconButton tradeRuleButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES).withAddons(EasyAddonHelper.tooltip(TOOLTIP_TRADE_RULES_TRADE)); }
+	public static IconButton tradeRuleButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE)); }
 
 	public static IconButton creativeToggleButton(ScreenPosition pos, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isCreative) { return creativeToggleButton(pos.x, pos.y, pressable, isCreative); }
-	public static IconButton creativeToggleButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative)).withAddons(EasyAddonHelper.toggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
+	public static IconButton creativeToggleButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative)).withAddons(EasyAddonHelper.toggleTooltip(isCreative, LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_DISABLE.get(), LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ENABLE.get())); }
 
-	public static IconButton interfaceActiveToggleButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive)).withAddons(EasyAddonHelper.toggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
-	
 	public static PlainButton quickInsertButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return new PlainButton(pos, pressable, Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0, 10, 10)); }
 	public static PlainButton quickExtractButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return new PlainButton(pos, pressable,  Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0, 10, 10)); }
 	

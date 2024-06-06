@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.network.message.config;
 
-import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
@@ -55,11 +54,11 @@ public class SPacketViewConfig extends ServerToClientPacket {
                     if(optionMap.containsKey(message.option))
                     {
                         ConfigOption<?> option = optionMap.get(message.option);
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.view", option.getName()));
+                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_VIEW.get(option.getName()));
                         LightmansCurrency.PROXY.sendClientMessage(EasyText.literal(option.write()));
                     }
                     else
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.translatable("command.lightmanscurrency.lcconfig.view.missing").withStyle(ChatFormatting.RED));
+                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get().withStyle(ChatFormatting.RED));
                 }
             }
         }

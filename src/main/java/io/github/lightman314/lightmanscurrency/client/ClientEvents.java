@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -52,9 +53,9 @@ public class ClientEvents {
 
 	public static final ResourceLocation WALLET_SLOT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
 	
-	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
-	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping("key.portable_terminal", GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
-	public static final KeyMapping KEY_PORTABLE_ATM = new KeyMapping("key.portable_atm", GLFW.GLFW_KEY_EQUAL, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(), GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_PORTABLE_ATM = new KeyMapping(LCText.KEY_PORTABLE_ATM.getKey(), GLFW.GLFW_KEY_EQUAL, KeyMapping.CATEGORY_INVENTORY);
 	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.Key event)

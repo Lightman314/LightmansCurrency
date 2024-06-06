@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -28,7 +28,7 @@ public class AuctionHouseCategory extends NotificationCategory {
 	
 	@Nonnull
 	@Override
-	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
+	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
 
 	@Nonnull
     @Override

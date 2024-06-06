@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -30,10 +30,10 @@ public class TicketItem extends Item{
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		if(isPass(stack))
-			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.pass"));
+			tooltip.add(LCText.TOOLTIP_PASS.get());
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -2)
-			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
+			tooltip.add(LCText.TOOLTIP_TICKET_ID.get(ticketID));
 	}
 
 	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {

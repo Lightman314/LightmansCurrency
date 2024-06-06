@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.cl
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -23,8 +23,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
@@ -47,7 +49,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         //If this is a sale, this is the price
         if(this.trade.isSale())
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
         if(this.trade.isPurchase())
             return this.getSaleItemEntries(context);
         if(this.trade.isBarter())
@@ -64,7 +66,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         if(this.trade.isSale() || this.trade.isBarter())
             return this.getSaleItemEntries(context);
         if(this.trade.isPurchase())
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context)));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
         return new ArrayList<>();
     }
 
@@ -77,48 +79,42 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!item.isEmpty())
                 entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
+                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), LCText.TOOLTIP_TRADE_ITEM_EDIT_ITEM.getAsList()));
         }
         return entries;
     }
 
-    private List<Component> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context)
+    private Consumer<List<Component>> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context)
     {
-        if(stack.isEmpty())
-        {
-            if(context.isStorageMode)
-                return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"));
-            return null;
-        }
-
-        List<Component> tooltips = this.getTooltipFromItem(stack, this.trade.isPurchase(), enforceNBT);
-        Component originalName = null;
-        if(!customName.isEmpty() && (this.trade.isSale() || this.trade.isBarter()))
-        {
-            originalName = tooltips.get(0);
-            tooltips.set(0, EasyText.literal(customName).withStyle(ChatFormatting.GOLD));
-        }
-        //Stop here if this is in storage mode, and there's no custom name
-        if(context.isStorageMode && originalName == null)
-            return tooltips;
-
-        //Trade Info
-        tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.info").withStyle(ChatFormatting.GOLD));
-        //Custom Name
-        if(originalName != null)
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(ChatFormatting.GOLD));
-
-        if(context.hasTrader() && context.hasPlayerReference())
-        {
-            //Stock
-            if(context.getTrader() instanceof ItemTraderData trader)
+        return tooltips -> {
+            Component originalName = null;
+            if(!customName.isEmpty() && (this.trade.isSale() || this.trade.isBarter()))
             {
-                tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.stockCount(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD));
+                originalName = stack.getHoverName();
+                tooltips.set(0,EasyText.literal(customName).withStyle(ChatFormatting.GOLD));
             }
-        }
 
-        return tooltips;
+            this.addNBTWarning(tooltips, this.trade.isPurchase(), enforceNBT);
 
+            //Stop here if this is in storage mode, and there's no custom name
+            if(context.isStorageMode && originalName == null)
+                return;
+
+            //Trade Info
+            tooltips.add(LCText.TOOLTIP_TRADE_INFO_TITLE.getWithStyle(ChatFormatting.GOLD));
+            //Custom Name
+            if(originalName != null)
+                tooltips.add(LCText.TOOLTIP_TRADE_INFO_ORIGINAL_NAME.get(originalName).withStyle(ChatFormatting.GOLD));
+
+            if(context.hasTrader() && context.hasPlayerReference())
+            {
+                //Stock
+                if(context.getTrader() instanceof ItemTraderData trader)
+                {
+                    tooltips.add(this.getStockTooltip(trader.isCreative(), this.trade.getStock(context)));
+                }
+            }
+        };
     }
 
     private List<DisplayEntry> getBarterItemEntries(TradeContext context) {
@@ -127,9 +123,9 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getBarterItem(i);
             if(!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount(), this.getTooltipFromItem(item, true, this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
+                entries.add(DisplayEntry.of(item, item.getCount(), this.getBarterTooltips(this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
+                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, LCText.TOOLTIP_TRADE_ITEM_EDIT_ITEM.getAsList()));
         }
         return entries;
     }
@@ -138,12 +134,14 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return enforceNBT ? null : NBT_BACKGROUND;
     }
 
-    private List<Component> getTooltipFromItem(ItemStack item, boolean purchase, boolean enforceNBT) {
-        List<Component> tooltip = new ArrayList<>();
-        if(!enforceNBT)
-            tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
-        tooltip.addAll(EasyScreenHelper.getTooltipFromItem(item));
-        return tooltip;
+    private void addNBTWarning(@Nonnull List<Component> tooltips, boolean purchase, boolean enforceNBT)
+    {
+        if(!enforceNBT) //Put NBT warning at the top of the tooltip. Should only be called after swapping out any custom names, etc.
+            tooltips.add(0,(purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+    }
+
+    private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT) {
+        return tooltips -> this.addNBTWarning(tooltips, true, enforceNBT);
     }
 
     @Override
@@ -153,25 +151,25 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!trader.isCreative())
             {
                 //Check Stock
-                if(this.trade.stockCount(context) <= 0)
-                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofstock")));
+                if(this.trade.outOfStock(context))
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
 
                 //Check Space (Purchase)
                 if(this.trade.isPurchase())
                 {
                     if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(0), this.trade.getItemRequirement(1))))
-                        alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+                        alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
                 }
                 //Check Space (Barter)
                 if(this.trade.isBarter())
                 {
                     if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(2), this.trade.getItemRequirement(3))))
-                        alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+                        alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
                 }
             }
             //Check whether they can afford the cost
             if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.cannotafford")));
+                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
 
         }
     }

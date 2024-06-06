@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import net.minecraft.network.chat.Component;
@@ -59,9 +59,9 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
         if(trader != null && entry != null)
         {
             //Draw label
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.trader.slot_machine.entry_label", this.index.get() + 1), 0, 0, 0x404040);
+            gui.drawString(LCText.GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL.get(this.index.get() + 1), 0, 0, 0x404040);
             //Draw Weight label
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.trader.slot_machine.odds_label", trader.getOdds(entry.getWeight())), 0, 12, 0x404040);
+            gui.drawString(LCText.GUI_TRADER_SLOT_MACHINE_ODDS_LABEL.get(trader.getOdds(entry.getWeight())), 0, 12, 0x404040);
             //Render Items
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
@@ -83,6 +83,9 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
 
     @Override
     public List<Component> getTooltipText(int mouseX, int mouseY) {
+        //Do nothing if not visible
+        if(!this.isVisible())
+            return null;
         SlotMachineEntry entry = this.getEntry();
         if(entry != null)
         {
@@ -92,7 +95,7 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
                 if(itemIndex >= 0 && itemIndex < entry.items.size())
                 {
                     if(entry.isMoney())
-                        return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.slot_machine.money", entry.getMoneyValue().getText("0")));
+                        return ImmutableList.of(LCText.TOOLTIP_SLOT_MACHINE_MONEY.get(entry.getMoneyValue().getText()));
                     else
                     {
                         ItemStack item = entry.items.get(itemIndex);

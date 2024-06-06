@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -34,12 +33,7 @@ public abstract class SettingsSubTab extends EasyTab {
 
     public abstract boolean canOpen();
 
-    public void tick() {}
-
     public final void sendMessage(@Nonnull LazyPacketData.Builder message) { this.menu.SendMessage(message); }
-
-    @Deprecated(since = "2.1.2.4")
-    public final void sendNetworkMessage(@Nonnull CompoundTag message) { this.commonTab.SendSettingsMessage(message); }
 
     public boolean shouldRenderInventoryText() { return true; }
 

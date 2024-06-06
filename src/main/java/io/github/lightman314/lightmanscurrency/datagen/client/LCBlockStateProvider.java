@@ -307,6 +307,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_1);
         this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_2);
         this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_3);
+        this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_4);
 
         this.registerBasicItem(ModItems.SPEED_UPGRADE_1);
         this.registerBasicItem(ModItems.SPEED_UPGRADE_2);

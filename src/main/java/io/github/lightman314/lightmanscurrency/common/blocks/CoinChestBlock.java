@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +54,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
     @Nonnull
     @Override
+    @SuppressWarnings("deprecation")
     public RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
 
     @Override
@@ -74,6 +75,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
     @Nonnull
     @Override
+    @SuppressWarnings("deprecation")
     public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be && player instanceof ServerPlayer sp)
         {
@@ -83,7 +85,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
                 PiglinAi.angerNearbyPiglins(player, true);
             }
             else
-                player.sendSystemMessage(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.warning").withStyle(ChatFormatting.GOLD));
+                player.sendSystemMessage(LCText.MESSAGE_COIN_CHEST_PROTECTION_WARNING.get().withStyle(ChatFormatting.GOLD));
         }
         return InteractionResult.CONSUME;
     }
@@ -101,6 +103,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean flag) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
@@ -120,6 +123,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinChestBlockEntity(pos, state); }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void tick(@Nonnull BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
         super.tick(state, level, pos, random);
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
@@ -127,6 +131,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean triggerEvent(@Nonnull BlockState p_49226_, @Nonnull Level p_49227_, @Nonnull BlockPos p_49228_, int p_49229_, int p_49230_) {
         super.triggerEvent(p_49226_, p_49227_, p_49228_, p_49229_, p_49230_);
         BlockEntity blockentity = p_49227_.getBlockEntity(p_49228_);

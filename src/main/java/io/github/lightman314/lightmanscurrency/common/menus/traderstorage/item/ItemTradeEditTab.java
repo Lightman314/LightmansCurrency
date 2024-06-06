@@ -5,11 +5,11 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
@@ -60,7 +60,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 	
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
-	public void setType(ItemTradeData.ItemTradeType type) {
+	public void setType(TradeDirection type) {
 		ItemTradeData trade = this.getTrade();
 		if(trade != null)
 		{
@@ -171,7 +171,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		}
 		else if(message.contains("NewType"))
 		{
-			this.setType(ItemTradeType.fromIndex(message.getInt("NewType")));
+			this.setType(TradeDirection.fromIndex(message.getInt("NewType")));
 		}
 		else if(message.contains("Interaction"))
 		{

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.datagen.client.*;
+import io.github.lightman314.lightmanscurrency.datagen.client.language.EnglishProvider;
 import io.github.lightman314.lightmanscurrency.datagen.client.resourcepacks.LCCloserItemPositionProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.advancements.LCAdvancementProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.*;
@@ -49,7 +50,7 @@ public class LCDataEventListener {
         generator.addProvider(event.includeClient(), new LCCloserItemPositionProvider(output));
 
         //Language
-        generator.addProvider(event.includeClient(), new LCLanguageProvider(output));
+        generator.addProvider(event.includeClient(), new EnglishProvider(output));
 
     }
 

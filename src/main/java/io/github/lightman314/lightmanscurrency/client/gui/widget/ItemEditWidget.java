@@ -6,10 +6,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -180,7 +179,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	 */
 	public static void ConfirmItemListLoaded()
 	{
-		if(allItems.size() == 0) //Flag as rebuilding asap if the list is empty
+		if(allItems.isEmpty()) //Flag as rebuilding asap if the list is empty
 			rebuilding = true;
 		new Thread(ItemEditWidget::safeInitItemList).start();
 	}
@@ -211,7 +210,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		RegistryAccess lookup = mc.player.level().registryAccess();
 
 		//Force Creative Tab content rebuild
-		if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && allItems.size() > 0)
+		if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && !allItems.isEmpty())
 		{
 			//Ignore if we have existing results, and the tab contents have not been changed.
 			LightmansCurrency.LogDebug("Creative Tab Contents have not changed. Used existing filtered results.");
@@ -331,7 +330,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
-			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease registerNotification during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
+			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
 			return new ArrayList<>(allItems).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
 		}
 		if(!preFilteredItems.containsKey(type))
@@ -371,7 +370,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		this.searchString = newSearch.toLowerCase();
 
 		//Repopulate the searchResultItems list
-		if(this.searchString.length() > 0)
+		if(!this.searchString.isEmpty())
 		{
 			this.searchResultItems = new ArrayList<>();
 			for(ItemStack stack : this.getFilteredItems())
@@ -414,7 +413,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	@Override
 	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), LCText.GUI_ITEM_EDIT_SEARCH.get()));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
@@ -478,7 +477,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				return EasyScreenHelper.getTooltipFromItem(this.searchResultItems.get(hoveredSlot));
 		}
 		if(this.isMouseOverStackSizeScroll(mouseX,mouseY))
-			return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"));
+			return LCText.TOOLTIP_ITEM_EDIT_SCROLL.getAsList();
 		return null;
 	}
 

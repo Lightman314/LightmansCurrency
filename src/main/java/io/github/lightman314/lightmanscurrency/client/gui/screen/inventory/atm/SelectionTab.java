@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -52,7 +53,7 @@ public class SelectionTab extends ATMTab {
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.selection"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_SELECTION.get(); }
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -65,7 +66,7 @@ public class SelectionTab extends ATMTab {
 		
 		this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(79,15), 6, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		
-		this.buttonPersonalAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 15), 70, 20, EasyText.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
+		this.buttonPersonalAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 15), 70, 20, LCText.BUTTON_BANK_MY_ACCOUNT.get(), this::PressPersonalAccount));
 		
 		this.buttonToggleAdminMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
 		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
@@ -73,7 +74,7 @@ public class SelectionTab extends ATMTab {
 		this.playerAccountSelect = this.addChild(new EditBox(this.screen.getFont(), screenArea.x + 7, screenArea.y + 20, 162, 20, EasyText.empty()));
 		this.playerAccountSelect.visible = false;
 		
-		this.buttonSelectPlayerAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 45), 162, 20, EasyText.translatable("gui.button.bank.admin.playeraccount"), this::PressSelectPlayerAccount));
+		this.buttonSelectPlayerAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 45), 162, 20, LCText.BUTTON_BANK_PLAYER_ACCOUNT.get(), this::PressSelectPlayerAccount));
 		this.buttonSelectPlayerAccount.visible = false;
 
 		this.tick();
@@ -161,10 +162,10 @@ public class SelectionTab extends ATMTab {
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		//Render text in front of selection background
-		if(this.getTeamList().size() == 0 && !this.adminMode)
+		if(this.getTeamList().isEmpty() && !this.adminMode)
 		{
 			gui.pushOffsetZero();
-			TextRenderUtil.drawVerticallyCenteredMultilineText(gui, EasyText.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.getX() + 1, Size.NARROW.width - 2, this.teamSelection.getY() + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+			TextRenderUtil.drawVerticallyCenteredMultilineText(gui, LCText.GUI_BANK_NO_TEAMS_AVAILABLE.get(), this.teamSelection.getX() + 1, Size.NARROW.width - 2, this.teamSelection.getY() + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 			gui.popOffset();
 		}
 	}

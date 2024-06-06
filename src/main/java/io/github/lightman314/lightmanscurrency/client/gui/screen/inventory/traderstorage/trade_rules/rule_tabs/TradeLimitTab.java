@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
@@ -39,9 +40,9 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         if(rule != null)
             this.limitInput.setValue(Integer.toString(rule.getLimit()));
 
-        this.buttonSetLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(41, 19), 40, 20, EasyText.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton));
-        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton)
-                .withAddons(EasyAddonHelper.tooltip(EasyText.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip"))));
+        this.buttonSetLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(41, 19), 40, 20, LCText.BUTTON_SET.get(), this::PressSetLimitButton));
+        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), screenArea.width - 20, 20, LCText.BUTTON_CLEAR_MEMORY.get(), this::PressClearMemoryButton)
+                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY)));
 
     }
 
@@ -50,7 +51,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
 
         TradeLimit rule = this.getRule();
         if(rule != null)
-            gui.drawString(EasyText.translatable("gui.button.lightmanscurrency.playerlimit.info", rule.getLimit()).getString(), 10, 9, 0xFFFFFF);
+            gui.drawString(LCText.GUI_TRADE_LIMIT_INFO.get(rule.getLimit()).getString(), 10, 9, 0xFFFFFF);
 
 
     }

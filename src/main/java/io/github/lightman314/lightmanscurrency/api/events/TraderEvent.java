@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.events;
 
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -11,7 +11,7 @@ public abstract class TraderEvent extends Event{
 	private final long traderID;
 	public final long getID() { return this.traderID; }
 	public final OwnerData getOwner() { return this.getTrader() == null ? null : this.getTrader().getOwner(); }
-	public TraderData getTrader() { return TraderSaveData.GetTrader(false, this.traderID); }
+	public TraderData getTrader() { return TraderAPI.getTrader(false, this.traderID); }
 	
 	protected TraderEvent(long traderID)
 	{

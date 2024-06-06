@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -161,23 +162,23 @@ public class WalletItem extends Item{
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(LCText.TOOLTIP_WALLET_PICKUP.get().withStyle(ChatFormatting.YELLOW));
 		}
 		if(CanExchange(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoExchange(stack) ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
-				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
+				Component onOffText = getAutoExchange(stack) ? LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_ON.get().withStyle(ChatFormatting.GREEN) : LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_OFF.get().withStyle(ChatFormatting.RED);
+				tooltip.add(LCText.TOOLTIP_WALLET_EXCHANGE_AUTO.get(onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(LCText.TOOLTIP_WALLET_EXCHANGE_MANUAL.get().withStyle(ChatFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(LCText.TOOLTIP_WALLET_BANK_ACCOUNT.get().withStyle(ChatFormatting.YELLOW));
 		}
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
@@ -189,7 +190,7 @@ public class WalletItem extends Item{
 		if(handler != null)
 		{
 			MoneyView contents = handler.getStoredMoney();
-			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
 			for(MoneyValue val : contents.allValues())
 				tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
 		}

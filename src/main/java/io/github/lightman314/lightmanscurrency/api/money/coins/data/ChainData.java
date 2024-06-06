@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.client.CoinInputTypeHelper;
@@ -19,8 +20,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
@@ -74,12 +75,12 @@ public class ChainData {
             CoinEntry entry = this.findEntry(stack);
             if(entry != null)
             {
-                tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coin.advanced.chain", this.chain).withStyle(ChatFormatting.DARK_GRAY));
-                tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coin.advanced.value", DecimalFormat.getIntegerInstance().format(entry.getCoreValue())).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(LCText.TOOLTIP_COIN_ADVANCED_CHAIN.get(this.chain).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(LCText.TOOLTIP_COIN_ADVANCED_VALUE.get(DecimalFormat.getIntegerInstance().format(entry.getCoreValue())).withStyle(ChatFormatting.DARK_GRAY));
                 if(entry.isSideChain())
-                    tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coin.advanced.side_chain").withStyle(ChatFormatting.DARK_GRAY));
+                    tooltip.add(LCText.TOOLTIP_COIN_ADVANCED_SIDE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
                 else
-                    tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coin.advanced.core_chain").withStyle(ChatFormatting.DARK_GRAY));
+                    tooltip.add(LCText.TOOLTIP_COIN_ADVANCED_CORE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
             }
         }
     }
@@ -453,8 +454,9 @@ public class ChainData {
         existingEntries.add(newEntry);
     }
 
-    public static Builder builder(@Nonnull String chain) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, EasyText.translatable("lightmanscurrency.money.chain." + chain)); }
+    public static Builder builder(@Nonnull String chain) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, Component.translatable("lightmanscurrency.money.chain." + chain)); }
     public static Builder builder(@Nonnull String chain, @Nonnull MutableComponent displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName); }
+    public static Builder builder(@Nonnull String chain, @Nonnull TextEntry displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName.get()); }
 
     public static ChainData fromJson(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException { return new ChainData(existingEntries, Objects.requireNonNull(json)); }
 

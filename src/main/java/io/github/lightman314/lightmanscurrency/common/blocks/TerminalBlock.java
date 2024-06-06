@@ -5,9 +5,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import net.minecraft.core.BlockPos;
@@ -29,7 +29,10 @@ public class TerminalBlock extends RotatableBlock {
 	public TerminalBlock(Properties properties) { super(properties); }
 	
 	public TerminalBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
-	
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Override
 	@Nonnull
 	@SuppressWarnings("deprecation")
@@ -43,7 +46,7 @@ public class TerminalBlock extends RotatableBlock {
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
-		TooltipItem.addTooltip(tooltip, LCTooltips.TERMINAL);
+		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_TERMINAL.asTooltip());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -8,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.ChatFormatting;
@@ -27,7 +29,7 @@ public class TeamOwnerTab extends TeamTab{
 	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.team.owner"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_OWNER.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) { return team != null && team.isOwner(player); }
@@ -52,23 +54,26 @@ public class TeamOwnerTab extends TeamTab{
 		this.newOwnerName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 20, 160, 20, EasyText.empty()));
 		this.newOwnerName.setMaxLength(16);
 		
-		this.buttonChangeOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 45), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setNewOwner)
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
+		this.buttonChangeOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 45), 160, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::setNewOwner)
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
 		this.buttonChangeOwner.active = false;
 		
-		this.buttonDisbandTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 160),160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.disband"), this::disbandTeam)
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
+		this.buttonDisbandTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 160),160, 20, LCText.BUTTON_TEAM_DISBAND.get(), this::disbandTeam)
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
 		
 	}
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
-		if(this.getActiveTeam() == null)
+
+		Team team = this.getActiveTeam();
+		if(team == null)
 			return;
 
-		gui.drawString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getActiveTeam().getOwner().getName(true)), 20, 10, 0x404040);
-		
+		gui.drawString(LCText.GUI_OWNER_CURRENT.get(team.getOwner().getName(true)), 20, 10, 0x404040);
+
+		TextRenderUtil.drawCenteredText(gui, LCText.GUI_TEAM_ID.get(team.getID()), this.screen.getXSize() / 2, 184, 0x404040);
+
 	}
 
 	@Override

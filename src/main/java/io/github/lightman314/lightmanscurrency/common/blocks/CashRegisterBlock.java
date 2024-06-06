@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.Nonnull;
+
 public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 
 	public CashRegisterBlock(Properties properties)
@@ -29,36 +31,31 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new CashRegisterBlockEntity(pos, state);
-	}
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CashRegisterBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CashRegisterBlockEntity)
-			{
-				CashRegisterBlockEntity register = (CashRegisterBlockEntity)blockEntity;
-				register.loadDataFromItems(stack.getTag());
-			}
+			if(blockEntity instanceof CashRegisterBlockEntity register)
+                register.loadDataFromItems(stack.getTag());
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	@SuppressWarnings("deprecation")
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
 			//Open UI
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CashRegisterBlockEntity)
+			if(blockEntity instanceof CashRegisterBlockEntity register)
 			{
-				CashRegisterBlockEntity register = (CashRegisterBlockEntity)blockEntity;
-				BlockEntityUtil.sendUpdatePacket(blockEntity);
+                BlockEntityUtil.sendUpdatePacket(blockEntity);
 				register.OpenContainer(player);
 			}
 		}

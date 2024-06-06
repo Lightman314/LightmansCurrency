@@ -7,11 +7,11 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableMap;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -72,9 +72,9 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.markDirty();
 	}
 	@Override
-	public void pushNotification(@Nonnull NonNullSupplier<Notification> notification) {
+	public void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers) {
 		this.pushLocalNotification(notification.get());
-		if(this.notificationSender != null)
+		if(notifyPlayers && this.notificationSender != null)
 			this.notificationSender.accept(notification);
 	}
 	
@@ -92,7 +92,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
 	@Override
 	@Nonnull
-	public MutableComponent getName() { return EasyText.translatable("lightmanscurrency.bankaccount", this.ownerName); }
+	public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
 
 	@Override
 	public void depositMoney(@Nonnull MoneyValue depositAmount) {
@@ -185,13 +185,15 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 
 	@Override
-	public Component getTooltipTitle() { return EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.bank",this.getName()); }
+	public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_BANK.get(); }
 
 	@Override
-	public void applyInterest(int interestRate, @Nonnull List<MoneyValue> limits) {
+	public void applyInterest(double interestMultiplier, @Nonnull List<MoneyValue> limits, boolean forceInterest, boolean notifyPlayers) {
 		for(MoneyValue value : this.coinStorage.allValues())
 		{
-			MoneyValue interest = value.percentageOfValue(interestRate);
+			MoneyValue interest = value.multiplyValue(interestMultiplier);
+			if(interest.isEmpty() && forceInterest)
+				interest = value.getSmallestValue();
 			if(!interest.isEmpty())
 			{
 				//Check for limits
@@ -206,7 +208,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 				if(!interest.isEmpty())
 				{
 					this.depositMoney(interest);
-					this.pushNotification(BankInterestNotification.create(this.getName(), interest));
+					this.pushNotification(BankInterestNotification.create(this.getName(), interest), notifyPlayers);
 				}
 			}
 		}

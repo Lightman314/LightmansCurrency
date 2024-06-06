@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Event to registerNotification the {@link ValueDisplaySerializer Value Display Serializers} to the system.
+ * Event to register the {@link ValueDisplaySerializer Value Display Serializers} to the system.
  * Run only once during the mods common setup phase.
  */
 public final class RegisterValueDisplayTypes extends Event implements IModBusEvent {

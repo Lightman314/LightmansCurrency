@@ -41,8 +41,16 @@ public class MoneyMendingEnchantment extends Enchantment {
 	protected boolean checkCompatibility(@Nonnull Enchantment otherEnchant) {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
-	
-	public static MoneyValue getRepairCost() { return LCConfig.SERVER.moneyMendingRepairCost.get(); }
+
+	public static MoneyValue getRepairCost(@Nonnull ItemStack item)
+	{
+		MoneyValue baseCost = LCConfig.SERVER.moneyMendingRepairCost.get();
+		MoneyValue cost = baseCost;
+		Map<Enchantment,Integer> enchantments = item.getAllEnchantments();
+		if(enchantments.getOrDefault(Enchantments.INFINITY_ARROWS,0) > 0)
+			cost = baseCost.addValue(LCConfig.SERVER.moneyMendingInfinityCost.get());
+		return cost == null ? baseCost : cost;
+	}
 	
 	public static void runEntityTick(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler handler)
 	{
@@ -62,11 +70,8 @@ public class MoneyMendingEnchantment extends Enchantment {
 		if(item != null)
 		{
 			//Only bother calculating the repair cost until we have a confirmed mending target to reduce lag
-			MoneyValue repairCost = MoneyMendingEnchantment.getRepairCost();
-			//If item has infinity, add the infinity repair cost to the base repair cost
-			Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(item);
-			if(enchantments.containsKey(Enchantments.INFINITY_ARROWS) && enchantments.get(Enchantments.INFINITY_ARROWS) > 0)
-				repairCost = repairCost.addValue(LCConfig.SERVER.moneyMendingInfinityCost.get());
+			//That and the cost can now be modified based on other enchantments such as infinity, etc.
+			MoneyValue repairCost = getRepairCost(item);
 			MoneyView availableFunds = handler.getStoredMoney();
 			if(!availableFunds.containsValue(repairCost))
 				return;

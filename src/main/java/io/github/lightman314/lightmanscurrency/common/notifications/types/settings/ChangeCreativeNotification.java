@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -7,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -33,7 +33,7 @@ public class ChangeCreativeNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.settings.creativemode", this.player.getName(true), Component.translatable(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
+		return LCText.NOTIFICATION_SETTINGS_CHANGE_CREATIVE.get(this.player.getName(true), this.creative ? LCText.NOTIFICATION_SETTINGS_CHANGE_CREATIVE_ENABLED.get() : LCText.NOTIFICATION_SETTINGS_CHANGE_CREATIVE_DISABLED.get());
 	}
 	
 	@Override

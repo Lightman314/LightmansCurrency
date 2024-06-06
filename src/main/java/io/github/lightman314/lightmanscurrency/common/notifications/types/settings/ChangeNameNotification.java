@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -7,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -35,12 +35,12 @@ public class ChangeNameNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		if(oldName.isBlank())
-			return Component.translatable("log.settings.changename.set", this.player.getName(true), this.newName);
-		else if(newName.isBlank())
-			return Component.translatable("log.settings.changename.reset", this.player.getName(true), this.oldName);
+		if(this.oldName.isBlank())
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME_SET.get(this.player.getName(true), this.newName);
+		else if(this.newName.isBlank())
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME_RESET.get(this.player.getName(true), this.oldName);
 		else
-			return Component.translatable("log.settings.changename", this.player.getName(true), this.oldName, this.newName);
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME.get(this.player.getName(true), this.oldName, this.newName);
 	}
 
 	@Override

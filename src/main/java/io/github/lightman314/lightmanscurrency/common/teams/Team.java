@@ -43,6 +43,9 @@ public class Team implements ITeam {
 	public String getName() { return this.teamName; }
 	
 	private boolean isClient = false;
+	@Override
+	public boolean isClient() { return this.isClient; }
+
 	public Team flagAsClient() { this.isClient = true; return this; }
 	
 	List<PlayerReference> admins = new ArrayList<>();
@@ -62,7 +65,6 @@ public class Team implements ITeam {
 	public int getBankLimit() { return this.bankAccountLimit; }
 	BankAccount bankAccount = null;
 	@Override
-
 	public boolean hasBankAccount() { return this.bankAccount != null; }
 	@Override
 	public boolean canAccessBankAccount(@Nonnull Player player) {
@@ -158,16 +160,13 @@ public class Team implements ITeam {
 		if(this.isOwner(player.id))
 			return;
 
-		boolean notFound = true;
 		if(this.isAdmin(player.id))
 			PlayerReference.removeFromList(this.admins, player);
 		else
 			PlayerReference.removeFromList(this.members, player);
 
-		if(notFound)
-			return;
-
 		this.markDirty();
+
 	}
 	public void changeOwner(Player requestor, String name) {
 		if(!this.isOwner(requestor))

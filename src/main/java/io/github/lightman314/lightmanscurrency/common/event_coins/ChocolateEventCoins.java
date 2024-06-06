@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.event_coins;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
@@ -44,7 +45,7 @@ public final class ChocolateEventCoins {
     {
         if(CHAIN_DATA == null)
         {
-            CHAIN_DATA = ChainData.builder(CHAIN, EasyText.translatable("lightmanscurrency.money.chain.chocolate_coins"))
+            CHAIN_DATA = ChainData.builder(CHAIN, LCText.COIN_CHAIN_CHOCOLATE)
                     //Chain
                     .withCoreChain(ModItems.COIN_CHOCOLATE_COPPER)
                     .withCoin(ModItems.COIN_CHOCOLATE_IRON, 10)
@@ -67,7 +68,7 @@ public final class ChocolateEventCoins {
                     .withCoin(ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE,4).back()
                     //ATM Data
                     .atmBuilder().accept(ATMExchangeButtonData::generateChocolate).back()
-                    .withDisplay(new NumberDisplay(EasyText.translatable("lightmanscurrency.money.chain.chocolate_coins.display"),EasyText.translatable("lightmanscurrency.money.chain.chocolate_coins.display.wordy"), ModItems.COIN_CHOCOLATE_COPPER.get()))
+                    .withDisplay(new NumberDisplay(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY,LCText.COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY, ModItems.COIN_CHOCOLATE_COPPER.get()))
                     .withInputType(CoinInputType.TEXT)
                     .asEvent().build();
         }

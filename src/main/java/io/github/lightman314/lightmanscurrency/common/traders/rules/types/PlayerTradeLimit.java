@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
@@ -53,17 +54,17 @@ public class PlayerTradeLimit extends TradeRule{
 		if(tradeCount >= this.limit)
 		{
 			if(this.enforceTimeLimit())
-				event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.timed", tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
+				event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIMED.get(tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
 			else
-				event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial", tradeCount));
-			event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
+				event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL.get(tradeCount));
+			event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_LIMIT.get(this.limit));
 		}
 		else
 		{
 			if(this.enforceTimeLimit())
-				event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit.info.timed", tradeCount, this.limit, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
+				event.addHelpful(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_INFO_TIMED.get(tradeCount, this.limit, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
 			else
-				event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit.info", tradeCount, this.limit));
+				event.addHelpful(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_INFO.get(tradeCount, this.limit));
 		}
 	}
 
@@ -101,7 +102,7 @@ public class PlayerTradeLimit extends TradeRule{
 					i--;
 				}
 			}
-			if(eventTimes.size() == 0)
+			if(eventTimes.isEmpty())
 				emptyEntries.add(id);
 		});
 		emptyEntries.forEach(id -> this.memory.remove(id));

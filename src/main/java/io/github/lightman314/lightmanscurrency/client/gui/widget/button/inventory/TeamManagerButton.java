@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class TeamManagerButton extends InventoryButton {
@@ -30,7 +30,7 @@ public class TeamManagerButton extends InventoryButton {
 	
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos))
-			gui.renderTooltip(EasyText.translatable("tooltip.button.team_manager"));
+			gui.renderTooltip(LCText.TOOLTIP_TEAM_MANAGER_BUTTON.get());
 	}
 	
 }

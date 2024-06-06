@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -10,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayer
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -85,5 +88,15 @@ public class CommonProxy {
 	public void syncEventUnlocks(@Nonnull List<String> unlocks) {}
 
 	public void sendClientMessage(@Nonnull Component message) {}
+
+	public List<GameProfile> getPlayerList(boolean logicalClient)
+	{
+		if(logicalClient)
+			return new ArrayList<>();
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.getPlayerList().getPlayers().stream().map(ServerPlayer::getGameProfile).toList();
+		return new ArrayList<>();
+	}
 	
 }

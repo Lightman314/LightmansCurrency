@@ -6,8 +6,8 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -70,7 +70,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.overwrite", message.id));
+									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
 									return;
 								}
 							}
@@ -78,9 +78,8 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-							sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.add", message.id));
-							return;
-						} catch (Throwable t) { t.printStackTrace(); }
+							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
+						} catch (Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
 					else
 					{
@@ -105,17 +104,17 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								{
 									persistentTraders.add(trader.saveToJson(genID, message.owner));
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.add", genID));
+									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
 									return;
 								}
 							}
 							LightmansCurrency.LogError("Could not generate ID, as all trader_# ID's are somehow spoken for.");
-						} catch(Throwable t) { t.printStackTrace(); }
+						} catch(Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
 				}
 			}
 			else if(sender != null)
-				sender.sendSystemMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.fail"));
+				sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_FAIL.get());
 		}
 	}
 	

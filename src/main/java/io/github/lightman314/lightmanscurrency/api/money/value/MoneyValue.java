@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
@@ -211,6 +212,7 @@ public abstract class MoneyValue {
      * Otherwise a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      * @see #percentageOfValue(int, boolean)
      */
+    @Nonnull
     public final MoneyValue percentageOfValue(int percentage) { return this.percentageOfValue(percentage, false); }
 
     /**
@@ -223,6 +225,15 @@ public abstract class MoneyValue {
      * Otherwise a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      */
     public abstract MoneyValue percentageOfValue(int percentage, boolean roundUp);
+
+    /**
+     * Does math to multiply this value by the given amount.<br>
+     * Result can be rounded as desired, but should be of the same type as the original value unless the result is {@link #empty() empty}.
+     * @param multiplier The amount to multiply this value by.
+     * @return The mathematical result of multiplying this value by the given number.
+     */
+    @Nonnull
+    public abstract MoneyValue multiplyValue(double multiplier);
 
     /**
      * Function called when a block that contains money is broken through either legitimate means, or by illegal means.
@@ -387,9 +398,12 @@ public abstract class MoneyValue {
         public long getCoreValue() { return 0; }
         @Nonnull
         @Override
-        public MutableComponent getText(@Nonnull MutableComponent emptyText) { return this.free ? EasyText.translatable("gui.coinvalue.free") : emptyText; }
+        public MutableComponent getText(@Nonnull MutableComponent emptyText) { return this.free ? LCText.GUI_MONEY_VALUE_FREE.get() : emptyText; }
         @Override
         public MoneyValue addValue(@Nonnull MoneyValue addedValue) { return addedValue; }
+        @Nonnull
+        @Override
+        public MoneyValue multiplyValue(double multiplier) { return this; }
         @Override
         public boolean containsValue(@Nonnull MoneyValue queryValue) { return queryValue.isFree() || queryValue.isEmpty(); }
         @Override
@@ -409,7 +423,8 @@ public abstract class MoneyValue {
         @Nonnull
         @Override
         public DisplayEntry getDisplayEntry(@Nullable List<Component> tooltips, boolean tooltipOverride) { return new EmptyPriceEntry(this, tooltips); }
-
+        @Override
+        public String toString() { return "NullMoneyValue:"+ (this.free ? "Free" : "Empty"); }
     }
 
     @Override

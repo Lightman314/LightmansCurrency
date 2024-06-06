@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -81,7 +82,7 @@ public final class MoneyView {
     }
 
     @Nonnull
-    public MutableComponent getRandomValueText() { return this.getRandomValueText(EasyText.translatable("gui.lightmanscurrency.bank.balance.empty")); }
+    public MutableComponent getRandomValueText() { return this.getRandomValueText(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
     @Nonnull
     public MutableComponent getRandomValueText(@Nonnull String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
     @Nonnull

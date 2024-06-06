@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
@@ -78,7 +79,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 		
 		this.notificationScroller = this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 15, 15), this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
-		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + screenArea.width - 15, screenArea.y + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead)
+		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + screenArea.width - 15, screenArea.y + 4, LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ.get(), this::markAsRead)
 				.withAddons(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory))));
 		
 	}

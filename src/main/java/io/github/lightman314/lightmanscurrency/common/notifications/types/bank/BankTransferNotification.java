@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
@@ -44,7 +45,7 @@ public class BankTransferNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.bank.transfer", this.player.getName(true), this.amount.getText(), Component.translatable(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
+		return LCText.NOTIFICATION_BANK_TRANSFER.get(this.player.getName(true), this.amount.getText(), this.wasReceived ? LCText.GUI_FROM.get() : LCText.GUI_TO.get(), this.otherAccount);
 	}
 
 	@Override

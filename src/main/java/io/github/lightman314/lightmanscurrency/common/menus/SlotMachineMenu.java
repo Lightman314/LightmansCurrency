@@ -253,7 +253,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     public final RewardCache loadReward(CompoundTag tag) {
         MoneyStorage storage = new MoneyStorage(() -> {}, Integer.MIN_VALUE / 2);
         storage.load(tag.getList("Money", Tag.TAG_COMPOUND));
-        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), storage); }
+        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), storage);
+    }
 
     public final class RewardCache
     {

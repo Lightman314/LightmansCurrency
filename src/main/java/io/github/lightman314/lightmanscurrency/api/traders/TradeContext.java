@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -18,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoney
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -446,17 +446,17 @@ public class TradeContext {
 			{
 				try{
 					copy = ((ICanCopy<? extends IItemHandler>)original).copy();
-				} catch(Throwable ignored) { }
+				} catch(Throwable t) { LightmansCurrency.LogDebug("Error copying item handler.",t); }
 			}
 			if(copy == null)
 			{
 				//Assume a default item handler
 				NonNullList<ItemStack> inventory = NonNullList.withSize(original.getSlots(), ItemStack.EMPTY);
 				for(int i = 0; i < original.getSlots(); ++i)
-					inventory.set(i, original.getStackInSlot(i));
+					inventory.set(i, original.getStackInSlot(i).copy());
 				copy = new ItemStackHandler(inventory);
 			}
-			for(ItemStack item : items)
+			for(ItemStack item : InventoryUtil.combineQueryItems(items))
 			{
 				if(!ItemHandlerHelper.insertItemStacked(copy, item, false).isEmpty())
 					return false;
@@ -641,9 +641,9 @@ public class TradeContext {
 	}
 	
 	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player); }
+	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
 	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
-	
+
 	public static class Builder
 	{
 		
@@ -667,14 +667,21 @@ public class TradeContext {
 		private IEnergyStorage energyHandler;
 		
 		private Builder(@Nonnull TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(@Nonnull TraderData trader, @Nonnull Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player)); }
+		private Builder(@Nonnull TraderData trader, @Nonnull Player player, boolean playerInteractable) {
+			this.trader = trader;
+			this.player = player;
+			this.playerReference = PlayerReference.of(player);
+			this.storageMode = false;
+			if(playerInteractable)
+				this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player));
+		}
 		private Builder(@Nonnull TraderData trader, @Nonnull PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
-		
+
 		public Builder withBankAccount(@Nonnull BankReference bankAccount) { return this.withMoneyHolder(bankAccount); }
 		public Builder withCoinSlots(@Nonnull Container coinSlots) {
 			if(this.player == null)
 				return this;
-			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.slots"), 100);
+			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
 		public Builder withStoredCoins(@Nonnull MoneyStorage storedCoins) { return this.withMoneyHolder(storedCoins); }
 

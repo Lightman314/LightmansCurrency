@@ -10,11 +10,13 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -34,7 +36,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,18 +44,18 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-public abstract class TraderBlockBase extends Block implements ITraderBlock, IEasyEntityBlock {
+public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock, IEasyEntityBlock {
 
 	private final VoxelShape shape;
 	
-	public TraderBlockBase(Properties properties) { this(properties, LazyShapes.BOX_T); }
+	public TraderBlockBase(Properties properties) { this(properties, LazyShapes.BOX); }
 	
 	public TraderBlockBase(Properties properties, VoxelShape shape)
 	{
 		super(properties);
-		this.shape = shape != null ? shape : LazyShapes.BOX_T;
+		this.shape = shape != null ? shape : LazyShapes.BOX;
 	}
-	
+
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
@@ -90,7 +91,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 				if(trader == null)
 				{
 					LightmansCurrency.LogWarning("Trader Data for block at " + pos.getX() + "," + pos.getY() + "," + pos.getZ() + " had to be re-initialized on interaction.");
-					player.sendSystemMessage(Component.translatable("trader.warning.reinitialized").withStyle(ChatFormatting.RED));
+					player.sendSystemMessage(LCText.MESSAGE_TRADER_WARNING_MISSING_DATA.getWithStyle(ChatFormatting.RED));
 					traderSource.initialize(player, ItemStack.EMPTY);
 					trader = traderSource.getTraderData();
 				}
@@ -207,9 +208,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 	
-	@Nonnull
+	@Nullable
 	@Override
-	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level == null ? null : level.getBlockEntity(pos); }
+	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level.getBlockEntity(pos); }
 	
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
@@ -221,5 +222,14 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	}
 
 	protected static void replaceTraderBlock(Level level, BlockPos pos, BlockState newState) { level.setBlock(pos, newState, 35); }
-	
+
+	@Override
+	protected boolean isAir(@Nonnull BlockState state) {
+		if(super.isAir(state))
+		{
+			LightmansCurrency.LogWarning(this.getName().getString() + " is returning true to Block#isAir!");
+		}
+		return false;
+	}
+
 }

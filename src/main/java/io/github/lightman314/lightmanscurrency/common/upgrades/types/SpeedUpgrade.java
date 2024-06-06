@@ -3,8 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types;
 import java.util.List;
 import java.util.Objects;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import net.minecraft.network.chat.Component;
@@ -33,7 +35,11 @@ public class SpeedUpgrade extends UpgradeType {
 	@Override
 	public List<Component> getTooltip(@Nonnull UpgradeData data)
 	{
-		return Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.upgrade.speed", data.getIntValue(DELAY_AMOUNT)));
+		return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_SPEED.get(data.getIntValue(DELAY_AMOUNT)));
 	}
-	
+
+	@Nonnull
+	@Override
+	protected List<Component> getBuiltInTargets() { return ImmutableList.of(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE.get()); }
+
 }

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
 
 import javax.annotation.Nonnull;
@@ -29,8 +29,8 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 60), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton)
-                .withAddons(EasyAddonHelper.tooltip(EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset.tooltip"))));
+        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 60), screenArea.width - 20, 20, LCText.BUTTON_FREE_SAMPLE_RESET.get(), this::PressClearMemoryButton)
+                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_FREE_SAMPLE_RESET)));
 
     }
 
@@ -39,7 +39,7 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
         FreeSample rule = this.getRule();
         if(rule != null)
-            TextRenderUtil.drawCenteredMultilineText(gui, EasyText.translatable("gui.lightmanscurrency.free_sample.player_count", rule.getSampleCount()), 10, this.screen.getXSize() - 20, 20, 0x404040);
+            TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_FREE_SAMPLE_PLAYER_COUNT.get(rule.getSampleCount()), 10, this.screen.getXSize() - 20, 20, 0x404040);
     }
 
     void PressClearMemoryButton(EasyButton button)

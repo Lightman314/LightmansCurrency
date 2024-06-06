@@ -16,6 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class IconData {
 
@@ -26,11 +27,12 @@ public abstract class IconData {
 	private static class ItemIcon extends IconData
 	{
 		private final ItemStack iconStack;
-		private ItemIcon(ItemStack iconStack) { this.iconStack = iconStack; }
+		private final String countTextOverride;
+		private ItemIcon(ItemStack iconStack, @Nullable String countTextOverride) { this.iconStack = iconStack; this.countTextOverride = countTextOverride; }
 		
 		@Override
 		@OnlyIn(Dist.CLIENT)
-		public void render(EasyGuiGraphics gui, int x, int y) { gui.renderItem(this.iconStack, x, y); }
+		public void render(EasyGuiGraphics gui, int x, int y) { gui.renderItem(this.iconStack, x, y, this.countTextOverride); }
 		
 	}
 	
@@ -78,8 +80,11 @@ public abstract class IconData {
 	public static final IconData BLANK = of();
 	
 	public static IconData of(@Nonnull ItemLike item) { return of(new ItemStack(item)); }
+	public static IconData of(@Nonnull ItemLike item, @Nullable String countTextOverride) { return of(new ItemStack(item),countTextOverride); }
 	public static IconData of(@Nonnull RegistryObject<? extends ItemLike> item) { return of(new ItemStack(item.get())); }
-	public static IconData of(@Nonnull ItemStack iconStack) { return new ItemIcon(iconStack); }
+	public static IconData of(@Nonnull RegistryObject<? extends ItemLike> item, @Nullable String countTextOverride) { return of(new ItemStack(item.get()),countTextOverride); }
+	public static IconData of(@Nonnull ItemStack iconStack) { return of(iconStack,null); }
+	public static IconData of(@Nonnull ItemStack iconStack, @Nullable String countTextOverride) { return new ItemIcon(iconStack,countTextOverride); }
 	public static IconData of(@Nonnull ResourceLocation iconImage, int u, int v) { return new ImageIcon(Sprite.SimpleSprite(iconImage, u, v, 16, 16)); }
 	public static IconData of(@Nonnull Sprite sprite) { return new ImageIcon(sprite); }
 	public static IconData of(@Nonnull Component iconText) { return new TextIcon(iconText, 0xFFFFFF); }

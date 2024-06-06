@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 /**
  * Used for collecting the default config entries for each tier of coin drops.<br>
- * Note: This is called when my mod is first loaded, so in order to registerNotification your own listeners
+ * Note: This is called when my mod is first loaded, so in order to register your own listeners
  * you will need to make sure your mod loads before mine.
  */
 public abstract class DroplistConfigGenerator {

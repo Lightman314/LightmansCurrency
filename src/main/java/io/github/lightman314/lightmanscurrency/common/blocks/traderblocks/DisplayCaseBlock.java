@@ -4,12 +4,12 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -23,7 +23,10 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	public static final int TRADECOUNT = 1;
 	
 	public DisplayCaseBlock(Properties properties) { super(properties); }
-	
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, TRADECOUNT); }
 	
@@ -34,7 +37,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
 
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }

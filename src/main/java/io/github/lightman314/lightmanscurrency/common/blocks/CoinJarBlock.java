@@ -33,6 +33,9 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 	
 	public CoinJarBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_JAR.get()); }
@@ -119,4 +122,5 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		}
 		return stack;
 	}
+
 }

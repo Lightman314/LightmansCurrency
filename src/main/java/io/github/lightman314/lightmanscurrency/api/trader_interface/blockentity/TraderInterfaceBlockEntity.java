@@ -7,21 +7,19 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.NetworkTradeReference;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.SidedHandler;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -44,8 +42,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -65,7 +63,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity implements IUpgradeable, IDumpable, IServerTicker {
@@ -87,7 +84,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		public final boolean drains;
 		public final boolean trades;
 		public final int index;
-		public final Component getDisplayText() { return Component.translatable("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return LCText.GUI_INTERFACE_INTERACTION_TYPE.get(this).get(); }
 
 		InteractionType(boolean requiresPermissions, boolean restocks, boolean drains, boolean trades, int index) {
 			this.requiresPermissions =  requiresPermissions;
@@ -125,7 +122,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		ALWAYS_ON(3, be -> true);
 		
 		public final int index;
-		public final Component getDisplayText() { return Component.translatable("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return LCText.GUI_INTERFACE_ACTIVE_MODE.get(this).get(); }
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
 		private final Function<TraderInterfaceBlockEntity,Boolean> active;
@@ -144,17 +141,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	public final OwnerData owner = new OwnerData(this, o -> this.OnOwnerChanged());
-	public void initOwner(Entity owner) { if(!this.owner.hasOwner()) this.owner.SetOwner(PlayerReference.of(owner)); }
-	public void setOwner(String name) {
-		PlayerReference newOwner = PlayerReference.of(this.isClient(), name);
-		if(newOwner != null)
-			this.owner.SetOwner(newOwner);
-	}
-	public void setTeam(long teamID) {
-		Team team = TeamSaveData.GetTeam(this.isClient(), teamID);
-		if(team != null)
-			this.owner.SetOwner(team);
-	}
+	public void initOwner(Entity owner) { if(!this.owner.hasOwner() && owner instanceof Player player) this.owner.SetOwner(PlayerOwner.of(player)); }
 	private void OnOwnerChanged() {
 		this.mode = ActiveMode.DISABLED;
 		this.cachedContext = null;
@@ -165,21 +152,17 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public PlayerReference getReferencedPlayer() { return this.owner.getPlayerForContext(); }
 	
-	public String getOwnerName() { return this.owner.getOwnerName(this.isClient()); }
-	
+	public MutableComponent getOwnerName() { return this.owner.getName(); }
+
+	@Nullable
 	public IBankAccount getBankAccount() {
 		BankReference reference = this.getAccountReference();
 		if(reference != null)
 			return reference.get();
 		return null;
 	}
-	public BankReference getAccountReference() {
-		if(this.owner.hasTeam())
-			return TeamBankReference.of(this.owner.getTeam()).flagAsClient(this.isClient());
-		if(this.owner.hasPlayer())
-			return PlayerBankReference.of(this.owner.getPlayer()).flagAsClient(this.isClient());
-		return null;
-	}
+	@Nullable
+	public BankReference getAccountReference() { return this.owner.getValidOwner().asBankReference(); }
 	
 	List<SidedHandler<?>> handlers = new ArrayList<>();
 	
@@ -459,33 +442,21 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		//Always return false on the client
 		if(this.isClient())
 			return false;
+		//Always return true if we're not in online mode
 		if(!this.onlineMode)
 			return true;
 
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server == null)
-			return false;
-		if(this.owner.hasTeam())
-		{
-			Team team = this.owner.getTeam();
-			for(PlayerReference member : team.getAllMembers())
-			{
-				if(member != null && server.getPlayerList().getPlayer(member.id) != null)
-					return true;
-			}
-		}
-		else if(this.owner.hasPlayer())
-			return server.getPlayerList().getPlayer(this.owner.getPlayer().id) != null;
-		return false;
+		return this.owner.getValidOwner().isOnline();
 	}
 	
 	public final boolean hasTraderPermissions(TraderData trader) {
 		if(trader == null)
 			return false;
-		Team team = this.owner.getTeam();
-		if(team != null)
-			return trader.getOwner().getTeam() == team;
-		return trader.hasPermission(this.owner.getPlayer(), Permissions.INTERACTION_LINK);
+		//If this is owned by a player, check player permissions
+		if(this.owner.getValidOwner() instanceof PlayerOwner po)
+			return trader.hasPermission(po.player, Permissions.INTERACTION_LINK);
+		//Otherwise require exact ownership match
+		return trader.getOwner().getValidOwner().matches(this.owner.getValidOwner());
 	}
 	
 	@Override

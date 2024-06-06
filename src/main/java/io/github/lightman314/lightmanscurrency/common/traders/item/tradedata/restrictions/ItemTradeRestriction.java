@@ -42,7 +42,7 @@ public class ItemTradeRestriction {
 	public static void register(ResourceLocation type, ItemTradeRestriction restriction) {
 		if(registeredRestrictions.containsKey(type))
 		{
-			LightmansCurrency.LogWarning("Cannot registerNotification an Item Trade Restriction of type '" + type + "' as one is already registered.");
+			LightmansCurrency.LogWarning("Cannot register an Item Trade Restriction of type '" + type + "' as one is already registered.");
 			return;
 		}
 		registeredRestrictions.put(type, restriction);

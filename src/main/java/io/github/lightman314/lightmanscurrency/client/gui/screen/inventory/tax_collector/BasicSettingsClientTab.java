@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
@@ -31,7 +32,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("gui.lightmanscurrency.tax_collector.basic"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_BASIC.get(); }
 
     private EditBox nameInput;
 
@@ -46,9 +47,9 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
 
         //Render Mode Selection
         this.addChild(new DropdownWidget(screenArea.pos.offset(screenArea.width - 88, 26), 80, entry == null ? 0 : entry.getRenderMode(), this.commonTab::SetRenderMode,
-                EasyText.translatable("gui.lightmanscurrency.tax_collector.render_mode.0"),
-                EasyText.translatable("gui.lightmanscurrency.tax_collector.render_mode.1"),
-                EasyText.translatable("gui.lightmanscurrency.tax_collector.render_mode.2"))
+                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_NONE.get(),
+                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_MEMBERS.get(),
+                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_ALL.get())
                 .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons)));
 
         //Tax Rate Selection
@@ -109,12 +110,12 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(8, 58), b -> this.commonTab.SetBankAccountLink(!this.getCurrentBankAccountLink()), this::getCurrentBankAccountLink)
                 .withAddons(EasyAddonHelper.visibleCheck(() -> !this.menu.isServerEntry())));
 
-        //Name Edit (low enough to not
+        //Name Edit
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10, screenArea.pos.y + 80, screenArea.width - 20, 18, EasyText.empty()));
         this.nameInput.setValue(entry != null ? entry.getCustomName() : "");
-        this.addChild(new EasyTextButton(screenArea.pos.offset(10, 102), 70, 20, EasyText.translatable("gui.lightmanscurrency.changename"), () -> this.commonTab.SetName(this.getCurrentNameInput()))
+        this.addChild(new EasyTextButton(screenArea.pos.offset(10, 102), 70, 20, LCText.BUTTON_SETTINGS_CHANGE_NAME.get(), () -> this.commonTab.SetName(this.getCurrentNameInput()))
                 .withAddons(EasyAddonHelper.activeCheck(this::isNameDifferent)));
-        this.addChild(new EasyTextButton(screenArea.pos.offset(96, 102), 70, 20, EasyText.translatable("gui.lightmanscurrency.resetname"), this::ResetName)
+        this.addChild(new EasyTextButton(screenArea.pos.offset(96, 102), 70, 20, LCText.BUTTON_SETTINGS_RESET_NAME.get(), this::ResetName)
                 .withAddons(EasyAddonHelper.activeCheck(this::hasCustomName)));
 
         this.tick();
@@ -182,45 +183,45 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         gui.drawString(entry.getName(), 8, 6, 0x404040);
 
         //Render Active Label
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.active"), 20, 18, entry != null && entry.isActive() ? 0x00FF00 : 0xFF0000);
+        gui.drawString(LCText.GUI_TAX_COLLECTOR_ACTIVE.get(), 20, 18, entry != null && entry.isActive() ? 0x00FF00 : 0xFF0000);
 
         //Render Mode Label
         if(this.showAreaButtons)
         {
-            Component label = EasyText.translatable("gui.lightmanscurrency.tax_collector.render_mode.label");
+            Component label = LCText.GUI_TAX_COLLECTOR_RENDER_MODE_LABEL.get();
             gui.drawString(label, this.screen.getXSize() - 8 - gui.font.width(label), 16, 0x404040);
         }
 
         //Render Tax Rate Label
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.tax_rate", entry != null ? entry.getTaxRate() : "ERROR"), 18, 39, 0x404040);
+        gui.drawString(LCText.GUI_TAX_COLLECTOR_TAX_RATE.get(entry.getTaxRate()), 18, 39, 0x404040);
 
         //Bank Link Label
         if(!entry.isServerEntry())
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.banklink"), 20, 60, 0x404040);
+            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 20, 60, 0x404040);
 
         if(entry.isInfiniteRange())
         {
             //Infinite Range Area Labels
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.tax_collector.area.infinite.label"), this.screen.getXSize() / 2, this.screen.getYSize() - 38, 0x404040);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TAX_COLLECTOR_AREA_INFINITE_LABEL.get(), this.screen.getXSize() / 2, this.screen.getYSize() - 38, 0x404040);
             Component areaText;
             if(entry.getCenter().isVoid())
-                areaText = EasyText.translatable("gui.lightmanscurrency.tax_collector.area.infinite.void");
+                areaText = LCText.GUI_TAX_COLLECTOR_AREA_INFINITE_VOID.get();
             else
-                areaText = EasyText.translatable("gui.lightmanscurrency.tax_collector.area.infinite.dimension", entry.getCenter().getDimension().location());
+                areaText = LCText.GUI_TAX_COLLECTOR_AREA_INFINITE_DIMENSION.get(entry.getCenter().getDimension().location());
             TextRenderUtil.drawCenteredText(gui, areaText, this.screen.getXSize() / 2, this.screen.getYSize() - 28, 0x404040);
         }
         else //Normal Area Labels
         {
             //Radius Labels
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.tax_collector.area.radius"), 32, this.screen.getYSize() - 38, 0x404040);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TAX_COLLECTOR_AREA_RADIUS.get(), 32, this.screen.getYSize() - 38, 0x404040);
             TextRenderUtil.drawCenteredText(gui, Integer.toString(entry.getRadius()), 32, this.screen.getYSize() - 28, 0x404040);
 
             //Height Labels
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.tax_collector.area.height"), this.screen.getXSize() / 2, this.screen.getYSize() - 38, 0x404040);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TAX_COLLECTOR_AREA_HEIGHT.get(), this.screen.getXSize() / 2, this.screen.getYSize() - 38, 0x404040);
             TextRenderUtil.drawCenteredText(gui, Integer.toString(entry.getHeight()), this.screen.getXSize() / 2, this.screen.getYSize() - 28, 0x404040);
 
             //Y Offset Labels
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.tax_collector.area.vertOffset"), this.screen.getXSize() - 32, this.screen.getYSize() - 38, 0x404040);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TAX_COLLECTOR_AREA_VERTOFFSET.get(), this.screen.getXSize() - 32, this.screen.getYSize() - 38, 0x404040);
             TextRenderUtil.drawCenteredText(gui, Integer.toString(entry.getVertOffset()), this.screen.getXSize() - 32, this.screen.getYSize() - 28, 0x404040);
         }
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
@@ -149,14 +150,14 @@ public final class CoinAPIImpl extends CoinAPI {
         Map<String,ChainData> tempMap = new HashMap<>();
         oldData.forEach((chain,dataList) -> {
             //Create a builder
-            ChainData.Builder builder = ChainData.builder(chain, EasyText.translatable("lightmanscurrency.money.chain." + chain));
+            ChainData.Builder builder = ChainData.builder(chain, Component.translatable("lightmanscurrency.money.chain." + chain));
             //Copy old initial and plural values into the new Value Display system
             //Assuming coin display as the default display type
             CoinDisplay.Builder displayBuilder = CoinDisplay.builder();
             for(OldCoinData data : dataList)
             {
-                Component initial = data.initialTranslation != null ? EasyText.translatable(data.initialTranslation) : null;
-                Component plural = data.pluralTranslation != null ? EasyText.translatable(data.pluralTranslation) : null;
+                Component initial = data.initialTranslation != null ? Component.translatable(data.initialTranslation) : null;
+                Component plural = data.pluralTranslation != null ? Component.translatable(data.pluralTranslation) : null;
                 if(initial != null || plural != null)
                     displayBuilder.defineFor(data.coinItem, initial, plural);
             }
@@ -292,7 +293,7 @@ public final class CoinAPIImpl extends CoinAPI {
     //Flag as highest priority so that other mods can more easily modify my default values
     private void generateDefaultCoins(BuildDefaultMoneyDataEvent event)
     {
-        ChainData.builder(CoinAPI.MAIN_CHAIN, EasyText.translatable("lightmanscurrency.money.chain.main"))
+        ChainData.builder(CoinAPI.MAIN_CHAIN, LCText.COIN_CHAIN_MAIN)
                 .withCoreChain(ModItems.COIN_COPPER)
                 .withCoin(ModItems.COIN_IRON, 10)
                 .withCoin(ModItems.COIN_GOLD, 10)
@@ -317,10 +318,10 @@ public final class CoinAPIImpl extends CoinAPI {
                 .apply(event,true); //Override any existing chains with this id, as they shouldn't be replacing the main chain on this priority level
 
         //Emerald Coin Chain
-        ChainData.builder("emeralds", EasyText.translatable("lightmanscurrency.money.chain.emeralds"))
+        ChainData.builder("emeralds", LCText.COIN_CHAIN_EMERALDS)
                 .withCoreChain(Items.EMERALD).withCoin(Items.EMERALD_BLOCK, 9).back()
                 .withInputType(CoinInputType.DEFAULT)
-                .withDisplay(new NumberDisplay(EasyText.translatable("lightmanscurrency.money.chain.emeralds.display"),EasyText.translatable("lightmanscurrency.money.chain.emeralds.display.wordy"), Items.EMERALD))
+                .withDisplay(new NumberDisplay(LCText.COIN_CHAIN_EMERALDS_DISPLAY,LCText.COIN_CHAIN_EMERALDS_DISPLAY_WORDY, Items.EMERALD))
                 .apply(event, true);
 
     }

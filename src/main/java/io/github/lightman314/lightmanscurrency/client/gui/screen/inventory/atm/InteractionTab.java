@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -28,7 +29,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.interact"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_INTERACT.get(); }
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {

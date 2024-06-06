@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +43,7 @@ public class ModCreativeGroups {
     static {
 
         COIN_GROUP = ModRegistries.CREATIVE_TABS.register("coins", () -> CreativeModeTab.builder()
-                .title(EasyText.translatable("itemGroup.lightmanscurrency.coins"))
+                .title(LCText.CREATIVE_GROUP_COINS.get())
                 .icon(ezIcon(ModBlocks.COINPILE_GOLD))
                 .displayItems((parameters,p) -> {
                     //Coin -> Coin Pile -> Coin Block by type
@@ -99,7 +98,7 @@ public class ModCreativeGroups {
 
         MACHINE_GROUP = ModRegistries.CREATIVE_TABS.register("machines", () -> CreativeModeTab.builder()
                 .withTabsBefore(COIN_GROUP_ID)
-                .title(EasyText.translatable("itemGroup.lightmanscurrency.machines"))
+                .title(LCText.CREATIVE_GROUP_MACHINES.get())
                 .icon(ezIcon(ModBlocks.COIN_MINT))
                 .displayItems((parameters, p) -> {
                     //Coin Mint
@@ -144,7 +143,7 @@ public class ModCreativeGroups {
 
         TRADER_GROUP = ModRegistries.CREATIVE_TABS.register("traders", () -> CreativeModeTab.builder()
                 .withTabsBefore(MACHINE_GROUP_ID)
-                .title(EasyText.translatable("itemGroup.lightmanscurrency.trading"))
+                .title(LCText.CREATIVE_GROUP_TRADING.get())
                 .icon(ezIcon(ModBlocks.DISPLAY_CASE))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
@@ -173,13 +172,14 @@ public class ModCreativeGroups {
 
         UPGRADE_GROUP = ModRegistries.CREATIVE_TABS.register("upgrades", () -> CreativeModeTab.builder()
                 .withTabsBefore(TRADER_GROUP_ID)
-                .title(EasyText.translatable("itemGroup.lightmanscurrency.upgrades"))
+                .title(LCText.CREATIVE_GROUP_UPGRADES.get())
                 .icon(ezIcon(ModItems.ITEM_CAPACITY_UPGRADE_1))
                 .displayItems((parameters, p) -> {
                     ezPop(p, ModItems.UPGRADE_SMITHING_TEMPLATE);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_1);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_2);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_3);
+                    ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_4);
                     ezPop(p, ModItems.SPEED_UPGRADE_1);
                     ezPop(p, ModItems.SPEED_UPGRADE_2);
                     ezPop(p, ModItems.SPEED_UPGRADE_3);
@@ -201,7 +201,7 @@ public class ModCreativeGroups {
             EXTRA_GROUP = ModRegistries.CREATIVE_TABS.register("extra", () -> CreativeModeTab.builder()
                     .withTabsBefore(TRADER_GROUP_ID)
                     .withTabsAfter(UPGRADE_GROUP_ID)
-                    .title(EasyText.translatable("itemGroup.lightmanscurrency.extra"))
+                    .title(LCText.CREATIVE_GROUP_EXTRA.get())
                     .icon(ezRandomIcon(ModCreativeGroups::getExtraGroup))
                     .displayItems((parameters,p) -> {
                         ezPop(p, ModBlocks.AUCTION_STAND, BundleRequestFilter.MODDED);

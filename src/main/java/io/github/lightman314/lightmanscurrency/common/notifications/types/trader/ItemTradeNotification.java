@@ -3,18 +3,18 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.trade
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,8 +31,8 @@ public class ItemTradeNotification extends TaxableNotification {
 	
 	TraderCategory traderData;
 	
-	ItemTradeType tradeType;
-	List<ItemWriteData> items;
+	TradeDirection tradeType;
+	List<ItemData> items;
 	MoneyValue cost = MoneyValue.empty();
 	
 	String customer;
@@ -44,16 +44,16 @@ public class ItemTradeNotification extends TaxableNotification {
 		super(taxesPaid);
 
 		this.traderData = traderData;
-		this.tradeType = trade.getTradeType();
+		this.tradeType = trade.getTradeDirection();
 		
 		this.items = new ArrayList<>();
-		this.items.add(new ItemWriteData(trade.getSellItem(0), trade.isPurchase() ? "" : trade.getCustomName(0)));
-		this.items.add(new ItemWriteData(trade.getSellItem(1), trade.isPurchase() ? "" : trade.getCustomName(1)));
+		this.items.add(new ItemData(trade.getSellItem(0), trade.isPurchase() ? "" : trade.getCustomName(0)));
+		this.items.add(new ItemData(trade.getSellItem(1), trade.isPurchase() ? "" : trade.getCustomName(1)));
 		
 		if(trade.isBarter())
 		{
-			this.items.add(new ItemWriteData(trade.getBarterItem(0),""));
-			this.items.add(new ItemWriteData(trade.getBarterItem(1),""));
+			this.items.add(new ItemData(trade.getBarterItem(0),""));
+			this.items.add(new ItemData(trade.getBarterItem(1),""));
 		}
 		else
 		{
@@ -79,22 +79,22 @@ public class ItemTradeNotification extends TaxableNotification {
 	@Override
 	public MutableComponent getNormalMessage() {
 		
-		Component boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component action = this.tradeType.getActionPhrase();
 
-		Component itemText = ItemWriteData.getItemNames(this.items.get(0), this.items.get(1));
+		Component itemText = ItemData.format(this.items.get(0), this.items.get(1));
 
 		Component cost;
-		if(this.tradeType == ItemTradeType.BARTER)
+		if(this.tradeType == TradeDirection.BARTER)
 		{
 			//Flip the cost and item text, as for barters the text is backwards "bartered *barter items* for *sold items*"
 			cost = itemText;
-			itemText = ItemWriteData.getItemNames(this.items.get(2), this.items.get(3));
+			itemText = ItemData.format(this.items.get(2), this.items.get(3));
 		}
 		else
-			cost = this.cost.getText("0");
+			cost = this.cost.getText("NULL");
 
 		//Create log from stored data
-		return EasyText.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
+		return LCText.NOTIFICATION_TRADE_ITEM.get(this.customer, action, itemText, cost);
 		
 	}
 
@@ -104,10 +104,10 @@ public class ItemTradeNotification extends TaxableNotification {
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
 		ListTag itemList = new ListTag();
-		for(ItemWriteData item : this.items)
+		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
-		if(this.tradeType != ItemTradeType.BARTER)
+		if(this.tradeType != TradeDirection.BARTER)
 			compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
@@ -117,12 +117,12 @@ public class ItemTradeNotification extends TaxableNotification {
 	protected void loadNormal(CompoundTag compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
-		this.tradeType = ItemTradeType.fromIndex(compound.getInt("TradeType"));
+		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemWriteData(itemList.getCompound(i)));
-		if(this.tradeType != ItemTradeType.BARTER)
+			this.items.add(ItemData.load(itemList.getCompound(i)));
+		if(this.tradeType != TradeDirection.BARTER)
 			this.cost = MoneyValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
@@ -140,11 +140,7 @@ public class ItemTradeNotification extends TaxableNotification {
 				return false;
 			for(int i = 0; i < this.items.size(); ++i)
 			{
-				ItemWriteData i1 = this.items.get(i);
-				ItemWriteData i2 = itn.items.get(i);
-				if(!i1.itemName.getString().equals(i2.itemName.getString()))
-					return false;
-				if(i1.count != i2.count)
+				if(!this.items.get(i).matches(itn.items.get(i)))
 					return false;
 			}
 			if(itn.cost.equals(this.cost))

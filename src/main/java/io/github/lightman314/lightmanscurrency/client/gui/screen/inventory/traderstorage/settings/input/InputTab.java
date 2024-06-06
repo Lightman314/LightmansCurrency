@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -28,8 +28,8 @@ public class InputTab extends SettingsSubTab {
 
     protected InputTraderData getInputTrader() {
         TraderData trader = this.menu.getTrader();
-        if(trader instanceof InputTraderData)
-            return (InputTraderData)trader;
+        if(trader instanceof InputTraderData t)
+            return t;
         return null;
     }
 
@@ -68,7 +68,7 @@ public class InputTab extends SettingsSubTab {
         InputTraderData trader = this.getInputTrader();
         if(trader != null)
             return trader.inputSettingsTabTooltip();
-        return EasyText.translatable("tooltip.lightmanscurrency.settings.iteminput");
+        return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_GENERIC.get();
     }
 
     public List<? extends InputTabAddon> getAddons() {
@@ -98,8 +98,8 @@ public class InputTab extends SettingsSubTab {
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         //Side Widget Labels
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), 20, 7, 0x404040);
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), 110, 7, 0x404040);
+        gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 20, 7, 0x404040);
+        gui.drawString(LCText.GUI_SETTINGS_OUTPUT_SIDE.get(), 110, 7, 0x404040);
 
         this.getAddons().forEach(a -> a.renderBG(this, gui));
 

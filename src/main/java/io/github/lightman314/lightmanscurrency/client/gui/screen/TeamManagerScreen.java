@@ -107,7 +107,7 @@ public class TeamManagerScreen extends EasyScreen {
 		gui.renderNormalBackground(GUI_TEXTURE, this);
 
 		try{ this.currentTab().renderBG(gui);
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering Team Manager BG", t); }
 	}
 
 	@Override
@@ -115,7 +115,7 @@ public class TeamManagerScreen extends EasyScreen {
 		super.renderAfterWidgets(gui);
 
 		try{ this.currentTab().renderAfterWidgets(gui);
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering Team Manager FG",t); }
 
 	}
 	

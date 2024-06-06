@@ -15,7 +15,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -196,8 +195,7 @@ public class LCCurios {
 				@Override
 				public DropRule getDropRule(SlotContext context, DamageSource source, int lootingLevel, boolean recentlyHit)
 				{
-					GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level(), ModGameRules.KEEP_WALLET);
-					if((keepWallet != null && keepWallet.get()))
+					if(ModGameRules.safeGetCustomBool(context.entity().level(), ModGameRules.KEEP_WALLET, false))
 						return DropRule.ALWAYS_KEEP;
 					else
 						return DropRule.DEFAULT;

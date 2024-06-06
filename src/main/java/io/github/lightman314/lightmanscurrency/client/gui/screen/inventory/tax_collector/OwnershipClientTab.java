@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
+import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.OwnerSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -14,16 +15,13 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.OwnershipTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Nullable;
 
 public class OwnershipClientTab extends TaxCollectorClientTab<OwnershipTab> {
 
@@ -35,119 +33,87 @@ public class OwnershipClientTab extends TaxCollectorClientTab<OwnershipTab> {
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("gui.lightmanscurrency.tax_collector.owner"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_OWNER.get(); }
 
-    private boolean playerMode = true;
-    private boolean isPlayerMode() { return this.playerMode; }
-    private boolean isTeamMode() { return !this.playerMode; }
+    private boolean manualMode = false;
 
-    private EditBox newOwnerInput;
-
-    private long selectedTeam = -1;
-    private List<Team> teamList = new ArrayList<>();
+    private OwnerSelectionWidget ownerSelectionWidget;
+    private EditBox playerOwnerInput;
+    private EasyButton playerOwnerButton;
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         if(firstOpen)
-        {
-            this.selectedTeam = -1;
-            this.playerMode = true;
-        }
+            this.manualMode = false;
 
-        this.newOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 50, screenArea.width - 20, 20, EasyText.empty()));
-        this.newOwnerInput.setMaxLength(16);
+        //Manual player selection
+        this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 50, 160, 20, EasyText.empty()));
+        this.playerOwnerInput.setMaxLength(16);
 
-        this.addChild(new EasyTextButton(screenArea.pos.offset(10, 72), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::SetOwnerPlayer)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isPlayerMode),
-                        EasyAddonHelper.activeCheck(() -> this.newOwnerInput != null && !this.newOwnerInput.getValue().isBlank()),
-                        EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
+        this.playerOwnerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 72), screenArea.width - 20, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetOwnerPlayer)
+                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
 
-        this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 40), 5, TeamButton.Size.NORMAL, () -> this.teamList, this::getSelectedTeam, this::selectTeam)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isTeamMode)));
+        this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(12,30), 152, 6, this::getCurrentOwner, this.commonTab::SetOwner, this.ownerSelectionWidget));
 
-        this.addChild(new EasyTextButton(screenArea.pos.offset(10, 145), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::SetOwnerTeam)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isTeamMode),
-                        EasyAddonHelper.activeCheck(() -> this.getSelectedTeam() != null),
-                        EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
+        //Toggle Mode button
+        this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
 
-        this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::ToggleMode, this::GetModeIcon)
-                .withAddons(EasyAddonHelper.toggleTooltip(this::isPlayerMode, EasyText.translatable("tooltip.lightmanscurrency.settings.owner.player"), EasyText.translatable("tooltip.lightmanscurrency.settings.owner.team"))));
+        this.updateMode();
 
+    }
+
+    @Override
+    public void tick() {
+        if(this.manualMode)
+            this.playerOwnerButton.active = !this.playerOwnerInput.getValue().isBlank();
     }
 
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         TaxEntry entry = this.getEntry();
-        String ownerName = "NULL";
+        Component ownerName = LCText.GUI_OWNER_NULL.get();
         if(entry != null)
-            ownerName = entry.getOwner().getOwnerName();
+            ownerName = entry.getOwner().getName();
 
-        gui.drawString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", ownerName), 8, 6, 0x404040);
+        gui.drawString(LCText.GUI_OWNER_CURRENT.get(ownerName), 8, 6, 0x404040);
 
     }
 
-    @Override
-    public void tick() {
-        this.newOwnerInput.visible = this.isPlayerMode();
-        this.recollectTeams();
+    @Nullable
+    protected OwnerData getCurrentOwner()
+    {
+        TaxEntry entry = this.menu.getEntry();
+        if(entry != null)
+            return entry.getOwner();
+        return null;
     }
 
-    private void ToggleMode(EasyButton button) { this.playerMode = !this.playerMode; }
+    private void toggleInputMode(EasyButton button) { this.manualMode = !this.manualMode; this.updateMode(); }
 
-    private IconData GetModeIcon() { return this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(Items.WRITABLE_BOOK); }
+    private void updateMode()
+    {
+        this.playerOwnerInput.visible = this.playerOwnerButton.visible = this.manualMode;
+        if(this.manualMode)
+            this.playerOwnerButton.active = !this.playerOwnerInput.getValue().isBlank();
+        this.ownerSelectionWidget.setVisible(!this.manualMode);
+    }
+
+    private IconData getModeIcon() { return this.manualMode ? IconData.of(Items.COMMAND_BLOCK) : IconAndButtonUtil.ICON_ALEX_HEAD; }
+
+    private Component getModeTooltip() { return this.manualMode ? LCText.TOOLTIP_OWNERSHIP_MODE_SELECTION.get() : LCText.TOOLTIP_OWNERSHIP_MODE_MANUAL.get(); }
 
     private void SetOwnerPlayer()
     {
-        if(this.newOwnerInput != null)
+        if(this.playerOwnerInput != null)
         {
-            this.commonTab.SetOwnerPlayer(this.newOwnerInput.getValue());
-            this.newOwnerInput.setValue("");
+            this.commonTab.SetOwnerPlayer(this.playerOwnerInput.getValue());
+            this.playerOwnerInput.setValue("");
         }
     }
 
-    private void recollectTeams()
-    {
-        this.teamList = new ArrayList<>();
-        List<Team> allTeams = TeamSaveData.GetAllTeams(true);
-        allTeams.forEach(team ->{
-            if(team.isMember(this.menu.player))
-                this.teamList.add(team);
-        });
-        this.teamList.sort(Team.sorterFor(this.menu.player));
-    }
-
-    private Team getSelectedTeam()
-    {
-        if(this.selectedTeam < 0)
-            return null;
-        return TeamSaveData.GetTeam(true, this.selectedTeam);
-    }
-
-    private void selectTeam(int teamIndex)
-    {
-        if(teamIndex < 0 || teamIndex >= this.teamList.size())
-            return;
-        Team team = this.teamList.get(teamIndex);
-        if(team != null)
-            this.selectedTeam = team.getID();
-    }
-
-    private void SetOwnerTeam()
-    {
-        if(this.selectedTeam < 0)
-            return;
-        this.commonTab.SetOwnerTeam(this.selectedTeam);
-    }
-
     @Override
-    protected void closeAction() {
-        this.selectedTeam = -1;
-        this.teamList = new ArrayList<>();
-    }
-
-    @Override
-    public boolean blockInventoryClosing() { return this.newOwnerInput.isFocused(); }
+    public boolean blockInventoryClosing() { return true; }
 
 }

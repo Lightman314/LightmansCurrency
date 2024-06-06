@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
@@ -46,9 +47,9 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		{
 			switch (event.getTrade().getTradeDirection()) {
 				case SALE ->
-						event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.discount_list.info.sale", this.discount));
+						event.addHelpful(LCText.TRADE_RULE_PLAYER_DISCOUNTS_INFO_SALE.get(this.discount));
 				case PURCHASE ->
-						event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.discount_list.info.purchase", this.discount));
+						event.addHelpful(LCText.TRADE_RULE_PLAYER_DISCOUNTS_INFO_PURCHASE.get(this.discount));
 				default -> {
 				} //Nothing by default
 			}

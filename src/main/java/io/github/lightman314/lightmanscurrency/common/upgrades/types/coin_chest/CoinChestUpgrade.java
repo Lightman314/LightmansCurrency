@@ -2,10 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -33,6 +35,10 @@ public abstract class CoinChestUpgrade extends UpgradeType {
 
     @Override
     protected Object defaultTagValue(String tag) { return null; }
+
+    @Nonnull
+    @Override
+    protected List<Component> getBuiltInTargets() { return ImmutableList.of(formatTarget(ModBlocks.COIN_CHEST)); }
 
     protected final boolean clearTags(CompoundTag itemTag, String... tags)
     {

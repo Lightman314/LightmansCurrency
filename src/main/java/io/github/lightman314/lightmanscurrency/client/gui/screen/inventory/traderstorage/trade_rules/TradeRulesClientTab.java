@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
@@ -26,7 +27,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     private TradeRulesClientSubTab getCurrentTab() {
         if(this.selectedTab < 0 || this.selectedTab >= this.tabs.size())
             this.selectedTab = 0;
-        if(this.tabs.size() > 0)
+        if(!this.tabs.isEmpty())
             return this.tabs.get(this.selectedTab);
         return null;
     }
@@ -143,7 +144,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         public Trader(Object screen, TradeRulesTab.Trader commonTab) { super(screen, commonTab); }
 
         @Override
-        public MutableComponent getTooltip() { return IconAndButtonUtil.TOOLTIP_TRADE_RULES_TRADER; }
+        public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_TRADE_RULES_TRADER.get(); }
 
     }
 
@@ -155,7 +156,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         public boolean tabButtonVisible() { return false; }
 
         @Override
-        public MutableComponent getTooltip() { return IconAndButtonUtil.TOOLTIP_TRADE_RULES_TRADE; }
+        public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE.get(); }
 
         @Override
         public void receiveSelfMessage(LazyPacketData message) { this.commonTab.receiveMessage(message); }

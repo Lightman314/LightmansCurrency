@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -81,7 +82,8 @@ public class ModItems {
 		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade1, new Item.Properties()));
 		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade2, new Item.Properties()));
 		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade3, new Item.Properties()));
-		
+		ITEM_CAPACITY_UPGRADE_4 = ModRegistries.ITEMS.register("item_capacity_upgrade_4", () -> new CapacityUpgradeItem(Upgrades.ITEM_CAPACITY, LCConfig.SERVER.itemCapacityUpgrade4, new Item.Properties()));
+
 		//Speed Upgrades
 		SPEED_UPGRADE_1 = ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties()));
 		SPEED_UPGRADE_2 = ModRegistries.ITEMS.register("speed_upgrade_2", () -> new SpeedUpgradeItem(8, new Item.Properties()));
@@ -104,7 +106,7 @@ public class ModItems {
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties()));
 
 		//Smithing Templates (1.20 only)
-		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new LCUpgradeSmithingTemplateItem(EasyText.translatable("item.lightmanscurrency.upgrade_smithing_template.tooltip").withStyle(ChatFormatting.GRAY), new Item.Properties()));
+		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new LCUpgradeSmithingTemplateItem(LCText.TOOLTIP_UPGRADE_TEMPLATE, new Item.Properties()));
 
 	}
 	
@@ -148,7 +150,8 @@ public class ModItems {
 	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_1;
 	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_2;
 	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_3;
-	
+	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_4;
+
 	public static final RegistryObject<Item> SPEED_UPGRADE_1;
 	public static final RegistryObject<Item> SPEED_UPGRADE_2;
 	public static final RegistryObject<Item> SPEED_UPGRADE_3;

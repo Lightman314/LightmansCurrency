@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
@@ -45,15 +46,15 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 34, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset( 10, 55), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
-        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 55), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
+        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset( 10, 55), 78, 20, LCText.BUTTON_ADD.get(), this::PressAddButton));
+        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 55), 78, 20, LCText.BUTTON_REMOVE.get(), this::PressForgetButton));
 
         this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.discountInput.setMaxLength(2);
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(110, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(110, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
 
         this.playerList = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 78), screenArea.width - 14, 61, this::getPlayerList));
         this.playerList.setColumnCount(2);
@@ -78,7 +79,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
             return;
 
         gui.pushOffset(this.discountInput);
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
         gui.popOffset();
 
     }

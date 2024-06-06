@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -22,7 +22,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 
 	public static final NotificationType<AuctionHouseBidNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house_outbid"),AuctionHouseBidNotification::new);
 	
-	List<ItemWriteData> items;
+	List<ItemData> items;
 	MoneyValue cost;
 	
 	String customer;
@@ -36,7 +36,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 		
 		this.items = new ArrayList<>();
 		for(int i = 0; i < trade.getAuctionItems().size(); ++i)
-			this.items.add(new ItemWriteData(trade.getAuctionItems().get(i)));
+			this.items.add(new ItemData(trade.getAuctionItems().get(i)));
 		
 	}
 	
@@ -47,13 +47,13 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
+
+		Component itemText = ItemData.getItemNames(this.items);
 		
-		Component itemText = getItemNames(this.items);
-		
-		Component cost = this.cost.getText("0");
+		Component cost = this.cost.getText();
 		
 		//Create log from stored data
-		return EasyText.translatable("notifications.message.auction.outbid", this.customer, itemText, cost);
+		return LCText.NOTIFICATION_AUCTION_BID.get(this.customer, itemText, cost);
 		
 	}
 
@@ -61,7 +61,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		ListTag itemList = new ListTag();
-		for(ItemWriteData item : this.items)
+		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		compound.put("Price", this.cost.save());
@@ -75,7 +75,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemWriteData(itemList.getCompound(i)));
+			this.items.add(ItemData.load(itemList.getCompound(i)));
 		this.cost = MoneyValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		

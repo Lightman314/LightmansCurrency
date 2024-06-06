@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
@@ -46,16 +47,16 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         if(this.trade.getLastBidPlayer() == null)
         {
             //First bid info
-            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.nobidder"));
-            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getLastBidAmount().getString()));
+            bidInfo.add(LCText.TOOLTIP_TRADER_AUCTION_INFO_NO_BIDDER.get());
+            bidInfo.add(LCText.TOOLTIP_TRADER_AUCTION_INFO_STARTING_BID.get(this.trade.getLastBidAmount().getText()));
         }
         else
         {
             //Last bid info
-            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.trade.getLastBidPlayer().getName(true)));
-            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.currentbid", this.trade.getLastBidAmount().getString()));
+            bidInfo.add(LCText.TOOLTIP_TRADER_AUCTION_INFO_LAST_BIDDER.get(this.trade.getLastBidPlayer().getName(true)));
+            bidInfo.add(LCText.TOOLTIP_TRADER_AUCTION_INFO_LAST_BID.get(this.trade.getLastBidAmount().getString()));
             //Next bid info
-            bidInfo.add(EasyText.translatable("tooltip.lightmanscurrency.auction.minbid", this.trade.getMinNextBid().getString()));
+            bidInfo.add(LCText.TOOLTIP_TRADER_AUCTION_INFO_MIN_BID.get(this.trade.getMinNextBid().getString()));
         }
         return bidInfo;
     }
@@ -86,7 +87,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     @Override
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        return Lists.newArrayList(EasyText.translatable("gui.lightmanscurrency.auction.time_remaining", EasyText.literal(time.getString()).withStyle(s -> s.withColor(this.getTextColor(time)))));
+        return Lists.newArrayList(LCText.TOOLTIP_TRADER_AUCTION_TIME_REMAINING.get(EasyText.literal(time.getString()).withStyle(s -> s.withColor(this.getTextColor(time)))));
     }
 
     private int getTextColor(TimeUtil.TimeData remainingTime) {

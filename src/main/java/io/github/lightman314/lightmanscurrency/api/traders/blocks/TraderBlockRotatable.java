@@ -26,7 +26,7 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	private final Function<Direction,VoxelShape> shape;
 	
-	protected TraderBlockRotatable(Properties properties) { this(properties, LazyShapes.BOX_T); }
+	protected TraderBlockRotatable(Properties properties) { this(properties, LazyShapes.BOX); }
 	
 	protected TraderBlockRotatable(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazySingleShape(shape)); }
 	

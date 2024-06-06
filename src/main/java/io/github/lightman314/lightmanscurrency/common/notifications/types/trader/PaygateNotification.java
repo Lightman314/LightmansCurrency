@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
@@ -70,12 +71,12 @@ public class PaygateNotification extends TaxableNotification {
 		if(this.ticketID >= -1)
 		{
 			if(this.usedPass)
-				return EasyText.translatable("notifications.message.paygate_trade.pass", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+				return LCText.NOTIFICATION_TRADE_PAYGATE_PASS.get(this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 			else
-				return EasyText.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+				return LCText.NOTIFICATION_TRADE_PAYGATE_TICKET.get(this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 		}
 		else
-			return EasyText.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
+			return LCText.NOTIFICATION_TRADE_PAYGATE_MONEY.get(this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
 		
 	}
 

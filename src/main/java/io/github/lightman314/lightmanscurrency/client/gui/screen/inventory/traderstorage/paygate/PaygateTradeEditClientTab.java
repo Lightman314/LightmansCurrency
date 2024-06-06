@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
@@ -74,8 +75,8 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 				.withAddons(EasyAddonHelper.tooltip(this::getTicketStubButtonTooltip),
 						EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && t.isTicketTrade(); })));
 		
-		int labelWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.duration"));
-		int unitWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.duration.unit"));
+		int labelWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION.get());
+		int unitWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get());
 		this.durationInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 30 - labelWidth - unitWidth, 18, EasyText.empty()));
 		this.durationInput.setValue(String.valueOf(trade.getDuration()));
 		
@@ -88,21 +89,22 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 			return;
 
 		//Whitelist and update the input duration value
-		TextInputUtil.whitelistInteger(this.durationInput, PaygateTraderData.DURATION_MIN, PaygateTraderData.DURATION_MAX);
+		TextInputUtil.whitelistInteger(this.durationInput, PaygateTraderData.DURATION_MIN, PaygateTraderData.getMaxDuration());
 		int inputDuration = Math.max(TextInputUtil.getIntegerValue(this.durationInput, PaygateTraderData.DURATION_MIN), PaygateTraderData.DURATION_MIN);
 		if(inputDuration != this.commonTab.getTrade().getDuration())
 			this.commonTab.setDuration(inputDuration);
 
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.duration"), 13, 42, 0x404040);
-		int unitWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.duration.unit"));
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.duration.unit"), this.screen.getXSize() - unitWidth - 13, 42, 0x404040);
+		gui.drawString(LCText.GUI_TRADER_PAYGATE_DURATION.get(), 13, 42, 0x404040);
+		MutableComponent unitText = LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get();
+		int unitWidth = gui.font.width(unitText);
+		gui.drawString(unitText, this.screen.getXSize() - unitWidth - 13, 42, 0x404040);
 		
 	}
 
 	private Component getTicketStubButtonTooltip() {
 		PaygateTradeData trade = this.commonTab.getTrade();
 		if(trade != null)
-			return trade.shouldStoreTicketStubs() ? EasyText.translatable("tooltip.lightmanscurrency.trader.paygate.store_stubs") : EasyText.translatable("tooltip.lightmanscurrency.trader.storage.dont_store_stubs");
+			return trade.shouldStoreTicketStubs() ? LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP.get() : LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE.get();
 		return null;
 	}
 	

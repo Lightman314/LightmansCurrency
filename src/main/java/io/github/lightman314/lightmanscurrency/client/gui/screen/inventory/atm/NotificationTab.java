@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
@@ -30,7 +30,7 @@ public class NotificationTab extends ATMTab {
 	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.notification"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_NOTIFICATIONS.get(); }
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -67,10 +67,10 @@ public class NotificationTab extends ATMTab {
 		{
 			Map<String,MoneyValue> limits = account.getNotificationLevels();
 			if(limits.isEmpty())
-				return EasyText.translatable("gui.lightmanscurrency.notification.disabled");
+				return LCText.GUI_BANK_NOTIFICATIONS_DISABLED.get();
 			List<MoneyValue> values = limits.values().stream().toList();
 			int displayIndex = (int)(TimeUtil.getCurrentTime() / 2000 % values.size());
-			return EasyText.translatable("gui.lightmanscurrency.notification.details", values.get(displayIndex).getText());
+			return LCText.GUI_BANK_NOTIFICATIONS_DETAILS.get(values.get(displayIndex).getText());
 		}
 		return EasyText.literal("ERROR!");
 

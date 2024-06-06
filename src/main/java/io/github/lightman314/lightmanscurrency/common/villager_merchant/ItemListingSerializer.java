@@ -26,9 +26,9 @@ public class ItemListingSerializer {
 
     public static <T extends ItemListing> void registerItemListing(@NotNull ResourceLocation type, Class<T> clazz, @NotNull IItemListingSerializer serializer, @NotNull IItemListingDeserializer deserializer) {
         if(serializers.containsKey(clazz))
-            LightmansCurrency.LogWarning("Attempted to registerNotification a duplicate ItemListing Serializer of class '" + clazz.getName() + "'!");
+            LightmansCurrency.LogWarning("Attempted to register a duplicate ItemListing Serializer of class '" + clazz.getName() + "'!");
         else if(deserializers.containsKey(type))
-            LightmansCurrency.LogWarning("Attempted to registerNotification a duplicate ItemListing Deserializer of type '" + type + "'!");
+            LightmansCurrency.LogWarning("Attempted to register a duplicate ItemListing Deserializer of type '" + type + "'!");
         else
         {
             serializers.put(clazz, serializer);

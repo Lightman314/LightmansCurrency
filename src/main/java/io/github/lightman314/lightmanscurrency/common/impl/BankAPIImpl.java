@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.impl;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -155,26 +155,26 @@ public class BankAPIImpl extends BankAPI {
 
     @Nonnull
     @Override
-    public MutableComponent BankTransfer(@Nonnull Player player, @Nonnull BankReference fromReference, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination) {
+    public MutableComponent BankTransfer(@Nonnull Player player, BankReference fromReference, @Nonnull MoneyValue amount, IBankAccount destination) {
         if(fromReference == null)
-            return EasyText.translatable("gui.bank.transfer.error.null.from");
+            return LCText.GUI_BANK_TRANSFER_ERROR_NULL_FROM.get();
         if(!fromReference.allowedAccess(player))
-            return EasyText.translatable("gui.bank.transfer.error.access");
+            return LCText.GUI_BANK_TRANSFER_ERROR_ACCESS.get();
         IBankAccount fromAccount = fromReference.get();
         if(fromAccount == null)
-            return EasyText.translatable("gui.bank.transfer.error.null.from");
+            return LCText.GUI_BANK_TRANSFER_ERROR_NULL_FROM.get();
         if(destination == null)
-            return EasyText.translatable("gui.bank.transfer.error.null.to");
+            return LCText.GUI_BANK_TRANSFER_ERROR_NULL_TARGET.get();
         if(amount.isEmpty())
-            return EasyText.translatable("gui.bank.transfer.error.amount", amount.getText(EasyText.translatable("gui.lightmanscurrency.bank.balance.empty")));
+            return LCText.GUI_BANK_TRANSFER_ERROR_AMOUNT.get(amount.getText(LCText.GUI_MONEY_STORAGE_EMPTY.get()));
 
         if(fromAccount == destination)
-            return EasyText.translatable("gui.bank.transfer.error.same");
+            return LCText.GUI_BANK_TRANSFER_ERROR_SAME.get();
 
 
         MoneyValue withdrawnAmount = fromAccount.withdrawMoney(amount);
         if(withdrawnAmount.isEmpty())
-            return EasyText.translatable("gui.bank.transfer.error.nobalance", amount.getString());
+            return LCText.GUI_BANK_TRANSFER_ERROR_NO_BALANCE.get(amount.getText());
 
         destination.depositMoney(withdrawnAmount);
         if(fromAccount instanceof BankAccount ba)
@@ -182,50 +182,55 @@ public class BankAPIImpl extends BankAPI {
         if(destination instanceof BankAccount ba)
             ba.LogTransfer(player, withdrawnAmount, fromAccount.getName(), true);
 
-        return EasyText.translatable("gui.bank.transfer.success", withdrawnAmount.getString(), destination.getName());
+        return LCText.GUI_BANK_TRANSFER_SUCCESS.get(withdrawnAmount.getText(), destination.getName());
     }
 
     @Override
-    public boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) {
+    public boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return false;
 
         account.depositMoney(amount);
-        account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount));
+        account.pushNotification(DepositWithdrawNotification.Server.create(account.getName(), true, amount), notifyPlayers);
+
         return true;
     }
 
     @Nonnull
     @Override
-    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) {
+    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return Pair.of(false, MoneyValue.empty());
 
         MoneyValue taken = account.withdrawMoney(amount);
-        account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), false, taken));
+        account.pushNotification(DepositWithdrawNotification.Server.create(account.getName(), false, taken), notifyPlayers);
         return Pair.of(true, taken);
     }
 
     @SubscribeEvent
     public void ServerTick(@Nonnull TickEvent.ServerTickEvent event)
     {
-        int interestRate = LCConfig.SERVER.bankAccountInterestRate.get();
+        if(event.phase != TickEvent.Phase.START)
+            return;
+        double interestRate = LCConfig.SERVER.bankAccountInterestRate.get();
         if(interestRate > 0)
         {
             int interest = BankSaveData.InterestTick();
-            if(interest >= LCConfig.SERVER.bankAccountInterestTime.get() && event.haveTime())
+            if(interest >= LCConfig.SERVER.bankAccountInterestTime.get())
             {
                 //Only calculate interest if the server has time to spare, if not wait until it does before calculating interest
                 BankSaveData.ResetInterestTick();
                 LightmansCurrency.LogDebug("Applying interest to all bank accounts!");
                 List<MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();
+                boolean forceInterest = LCConfig.SERVER.bankAccountForceInterest.get();
+                boolean notifyPlayers = LCConfig.SERVER.bankAccountInterestNotification.get();
                 for(BankReference reference : this.GetAllBankReferences(false))
                 {
                     IBankAccount account = reference.get();
                     if(account != null)
                     {
                         LightmansCurrency.LogDebug("Applying interest to " + account.getName().getString());
-                        account.applyInterest(interestRate,limits);
+                        account.applyInterest(interestRate,limits,forceInterest,notifyPlayers);
                     }
                 }
             }

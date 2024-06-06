@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trad
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -24,6 +26,9 @@ public class SlotMachineTrade extends TradeData {
 
     public final SlotMachineTraderData trader;
     public SlotMachineTrade(SlotMachineTraderData trader) { super(false); this.trader = trader; }
+
+    @Override
+    public int getStock(@Nonnull TradeContext context) { return this.trader.getTradeStock(0); }
 
     @Override
     public MoneyValue getCost() { return this.trader.getPrice(); }

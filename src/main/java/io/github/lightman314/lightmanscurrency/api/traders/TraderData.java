@@ -9,10 +9,15 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -52,11 +57,9 @@ import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveAllyNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeAllyPermissionNotification;
@@ -66,8 +69,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
@@ -156,7 +157,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean isCreative() { return this.creative; }
 	
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; }
+	public void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); }
 	public boolean isClient() { return this.isClient; }
 	
 	private final OwnerData owner = new OwnerData(this, o -> this.markDirty(this::saveOwner));
@@ -284,14 +285,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final MutableComponent getTitle() {
 		if(this.creative)
 			return this.getName();
-		return EasyText.translatable("gui.lightmanscurrency.trading.title", this.getName(), this.owner.getOwnerName(this.isClient));
+		return LCText.GUI_TRADER_TITLE.get(this.getName(), this.owner.getName());
 	}
 	
 	private Item traderBlock;
 	protected MutableComponent getDefaultName() {
 		if(this.traderBlock != null)
 			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
-		return EasyText.translatable("gui.lightmanscurrency.universaltrader.default");
+		return LCText.GUI_TRADER_DEFAULT_NAME.get();
 	}
 	
 	private final MoneyStorage storedMoney = new MoneyStorage(() -> this.markDirty(this::saveStoredMoney));
@@ -383,9 +384,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean getLinkedToBank() { return this.linkedToBank; }
 	public boolean canLinkBankAccount()
 	{
-		if(this.owner.hasTeam())
-			return this.owner.getTeam().hasBankAccount();
-		return true;
+		BankReference reference = this.owner.getValidOwner().asBankReference();
+		return reference != null && reference.get() != null;
 	}
 	public void setLinkedToBank(Player player, boolean linkedToBank) {
 		if(this.hasPermission(player, Permissions.BANK_LINK) && linkedToBank != this.linkedToBank)
@@ -415,26 +415,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		if(this.linkedToBank)
 		{
-			if(this.owner.hasTeam())
-			{
-				Team team = this.owner.getTeam();
-				if(team != null)
-				{
-					if(team.hasBankAccount())
-					{
-						return team.getBankAccount();
-					}
-				}
-			}
-			if(this.owner.hasPlayer())
-			{
-				PlayerReference player = this.owner.getPlayer();
-				if(player != null)
-				{
-					//Get player bank account
-					return BankSaveData.GetBankAccount(this.isClient, player.id);
-				}
-			}
+			BankReference reference = this.owner.getValidOwner().asBankReference();
+			if(reference != null)
+				return reference.get();
 		}
 		return null;
 	}
@@ -467,7 +450,17 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean canEditTradeCount() { return false; }
 	public int getMaxTradeCount() { return 1; }
 	public abstract int getTradeStock(int tradeIndex);
-	public abstract boolean hasValidTrade();
+	public boolean hasValidTrade() { return this.getTradeData().stream().anyMatch(TradeData::isValid); }
+	public boolean allTradesHaveStock()
+	{
+		TradeContext context = TradeContext.createStorageMode(this);
+		for(TradeData trade : this.getTradeData())
+		{
+			if(trade.isValid() && !trade.hasStock(context))
+				return false;
+		}
+		return true;
+	}
 
 	private int acceptableTaxRate = 99;
 	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
@@ -538,11 +531,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected TraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos) {
 		this(type);
 		this.worldPosition = WorldPosition.ofLevel(level, pos);
-		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(this.worldPosition.getPos()).getBlock().asItem();
+		this.traderBlock = level.getBlockState(this.worldPosition.getPos()).getBlock().asItem();
 	}
 	
 	private String persistentID = "";
-	public boolean isPersistent() { return this.persistentID.length() > 0; }
+	public boolean isPersistent() { return !this.persistentID.isEmpty(); }
 	public String getPersistentID() { return this.persistentID; }
 	public void makePersistent(long id, String persistentID) {
 		this.id = id;
@@ -591,7 +584,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.saveTaxSettings(compound);
 		
 		//Save persistent trader id
-		if(this.persistentID.length() > 0)
+		if(!this.persistentID.isEmpty())
 			compound.putString("PersistentTraderID", this.persistentID);
 		
 		//Save trader-specific data
@@ -676,7 +669,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		json.addProperty("OwnerName", ownerName);
 		
 		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules);
-		if(ruleData.size() > 0)
+		if(!ruleData.isEmpty())
 			json.add("Rules", ruleData);
 		
 		this.saveAdditionalToJson(json);
@@ -798,7 +791,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected abstract void loadAdditional(CompoundTag compound);
 	
 	public final void loadFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-		this.owner.SetCustomOwner(GsonHelper.getAsString(json, "OwnerName", "Server"));
+		this.owner.SetOwner(FakeOwner.of(GsonHelper.getAsString(json, "OwnerName", "Server")));
 		
 		if(json.has("Name"))
 			this.customName = GsonHelper.getAsString(json, "Name");
@@ -867,9 +860,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	public Consumer<FriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
 	
-	public PreTradeEvent runPreTradeEvent(PlayerReference player, TradeData trade)
+	public PreTradeEvent runPreTradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
-		PreTradeEvent event = new PreTradeEvent(player, trade, this);
+		PreTradeEvent event = new PreTradeEvent(trade, context);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)
@@ -887,9 +880,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return event;
 	}
 	
-	public TradeCostEvent runTradeCostEvent(PlayerReference player, TradeData trade)
+	public TradeCostEvent runTradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
-		TradeCostEvent event = new TradeCostEvent(player, trade, this);
+		TradeCostEvent event = new TradeCostEvent(trade, context);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)
@@ -907,9 +900,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return event;
 	}
 
-	public void runPostTradeEvent(PlayerReference player, TradeData trade, MoneyValue cost, MoneyValue taxesPaid)
+	public void runPostTradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context, @Nonnull MoneyValue cost, @Nonnull MoneyValue taxesPaid)
 	{
-		PostTradeEvent event = new PostTradeEvent(player, trade, this, cost, taxesPaid);
+		PostTradeEvent event = new PostTradeEvent(trade, context, cost, taxesPaid);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)
@@ -1073,10 +1066,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public boolean isMoneyRelevant() { return this.canMoneyBeRelevant(); }
 
-	@Override
-	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
-
-	public final TradeResult TryExecuteTrade(@Nonnull TradeContext context, int tradeIndex)
+    public final TradeResult TryExecuteTrade(@Nonnull TradeContext context, int tradeIndex)
 	{
 		if(this.exceedsAcceptableTaxRate())
 			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
@@ -1102,11 +1092,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
 			{
-				PlayerReference newOwner = PlayerReference.of(this.isClient, message.getString("ChangePlayerOwner"));
-				if(newOwner != null && (this.owner.hasTeam() || !newOwner.is(this.owner.getPlayer())))
+				PlayerReference newOwnerPlayer = PlayerReference.of(this.isClient, message.getString("ChangePlayerOwner"));
+				if(newOwnerPlayer != null)
 				{
-					Team oldTeam = this.owner.getTeam();
-					PlayerReference oldPlayer = this.owner.getPlayer();
+					Owner newOwner = PlayerOwner.of(newOwnerPlayer);
+					Owner oldOwner = this.owner.getValidOwner();
+					if(oldOwner.matches(newOwner))
+					{
+						LightmansCurrency.LogDebug("Set owner player to the same player who already owns this machine.");
+						return;
+					}
 
 					this.owner.SetOwner(newOwner);
 					if(this.linkedToBank)
@@ -1114,35 +1109,27 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 						this.linkedToBank = false;
 						this.markDirty(this::saveLinkedBankAccount);
 					}
-
-					if(oldTeam != null)
-						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldTeam));
-					else if(oldPlayer != null)
-						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldPlayer));
+					//Send Notification
+					this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldOwner));
 				}
 			}
 		}
-		if(message.contains("ChangeTeamOwner"))
+		if(message.contains("ChangeOwner"))
 		{
 			if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
 			{
-				Team team = TeamSaveData.GetTeam(this.isClient, message.getLong("ChangeTeamOwner"));
-				if(team != null && team.isMember(player) && team != this.owner.getTeam())
+				Owner newOwner = Owner.load(message.getNBT("ChangeOwner"));
+				Owner oldOwner = this.owner.getValidOwner();
+				if(newOwner != null && !oldOwner.matches(newOwner))
 				{
-					Team oldTeam = this.owner.getTeam();
-					PlayerReference oldPlayer = this.owner.getPlayer();
-
-					this.owner.SetOwner(team);
+					this.owner.SetOwner(newOwner);
 					if(this.linkedToBank)
 					{
 						this.linkedToBank = false;
 						this.markDirty(this::saveLinkedBankAccount);
 					}
-
-					if(oldTeam != null)
-						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldTeam));
-					else if(oldPlayer != null)
-						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldPlayer));
+					//Send Notification
+					this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player),newOwner,oldOwner));
 				}
 			}
 		}
@@ -1349,26 +1336,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		if(!this.notificationsEnabled)
 			return;
-		
-		Team team = this.owner.getTeam();
-		if(team != null)
-		{
-			List<PlayerReference> sendTo = new ArrayList<>();
-			if(this.teamNotificationLevel < 1)
-				sendTo.addAll(team.getMembers());
-			if(this.teamNotificationLevel < 2)
-				sendTo.addAll(team.getAdmins());
-			sendTo.add(team.getOwner());
-			for(PlayerReference player: sendTo)
-			{
-				if(player != null && player.id != null)
-					NotificationSaveData.PushNotification(player.id, notificationSource.get(), this.notificationsToChat);
-			}
-		}
-		else if(this.owner.hasPlayer())
-		{
-			NotificationSaveData.PushNotification(this.owner.getPlayer().id, notificationSource.get(), this.notificationsToChat);
-		}
+
+		//Push notifications is now handled by owner
+		this.owner.getValidOwner().pushNotification(notificationSource, this.teamNotificationLevel, this.notificationsToChat);
 		
 	}
 	
@@ -1402,5 +1372,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	 * Can be used to add useful info about how many trades are available, how many are in stock, etc.
 	 */
 	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) { }
-	
+
+	public int getTerminalTextColor()
+	{
+		if(this.hasValidTrade() && this.isCreative())
+			return 0x00FF00;
+		if(!this.hasValidTrade())
+			return 0xFF0000;
+		if(!this.allTradesHaveStock())
+			return 0xFFAA00;
+		return 0x404040;
+	}
+
 }

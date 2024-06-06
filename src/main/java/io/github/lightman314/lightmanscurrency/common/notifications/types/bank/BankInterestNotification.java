@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
@@ -41,7 +41,7 @@ public class BankInterestNotification extends Notification {
 
     @Nonnull
     @Override
-    public MutableComponent getMessage() { return EasyText.translatable("notifications.bank.interest", this.amount.getText("ERROR")); }
+    public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_INTEREST.get(this.amount.getText()); }
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag compound) {

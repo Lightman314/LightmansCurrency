@@ -4,10 +4,12 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TradeIDArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTradeManager;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -42,14 +44,14 @@ public class CommandPlayerTrading {
 
         if(guest == host)
         {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctrade.self"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_TRADE_SELF.get());
             return 0;
         }
 
         int tradeID = PlayerTradeManager.CreateNewTrade(host, guest);
 
-        host.sendSystemMessage(EasyText.translatable("command.lightmanscurrency.lctrade.host.notify", guest.getName()));
-        guest.sendSystemMessage(EasyText.translatable("command.lightmanscurrency.lctrade.guest.notify", host.getName(), EasyText.translatable("command.lightmanscurrency.lctrade.guest.notify.here").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GREEN).withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lctradeaccept " + tradeID)))).withStyle(ChatFormatting.GOLD));
+        host.sendSystemMessage(LCText.COMMAND_TRADE_HOST_NOTIFY.get(guest.getName()));
+        guest.sendSystemMessage(LCText.COMMAND_TRADE_GUEST_NOTIFY.get(host.getName(), LCText.COMMAND_TRADE_GUEST_NOTIFY_PROMPT.getWithStyle(ChatFormatting.BOLD, ChatFormatting.GREEN).withStyle(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lctradeaccept " + tradeID)))).withStyle(ChatFormatting.GOLD));
 
         return 1;
     }
@@ -65,20 +67,27 @@ public class CommandPlayerTrading {
             int rangeResult = trade.isGuestInRange(guest);
             if(rangeResult > 0)
             {
-                EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.fail." + rangeResult, PlayerTrade.enforceDistance()));
+                TextEntry entry = switch (rangeResult) {
+                    case 1 -> LCText.COMMAND_TRADE_ACCEPT_FAIL_OFFLINE;
+                    case 2 -> LCText.COMMAND_TRADE_ACCEPT_FAIL_DISTANCE;
+                    case 3 -> LCText.COMMAND_TRADE_ACCEPT_FAIL_DIMENSION;
+                    default -> null;
+                };
+                if(entry != null)
+                    EasyText.sendCommandFail(source, entry.get(PlayerTrade.enforceDistance()));
                 return 0;
             }
             if(trade.requestAccepted(guest))
                 return 1;
             else
             {
-                EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.error"));
+                EasyText.sendCommandFail(source, LCText.COMMAND_TRADE_ACCEPT_ERROR.get());
                 return 0;
             }
         }
         else
         {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lctradeaccept.notfound"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_TRADE_ACCEPT_NOT_FOUND.get());
             return 0;
         }
     }

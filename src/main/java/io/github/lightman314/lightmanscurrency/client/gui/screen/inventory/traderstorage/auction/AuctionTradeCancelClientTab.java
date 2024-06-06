@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
@@ -32,9 +33,6 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	@Override
 	public boolean tabButtonVisible() { return false; }
 
-	@Override
-	public boolean blockInventoryClosing() { return false; }
-
 	TradeButton tradeDisplay;
 	
 	EasyButton buttonCancelPlayerGive;
@@ -46,17 +44,17 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset((screenArea.width / 2) - 47, 17));
 		
-		this.buttonCancelPlayerGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 60), screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true))
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.self"), 160)));
-		this.buttonCancelStorageGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 85) , screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false))
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.storage"), 160)));
+		this.buttonCancelPlayerGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 60), screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CANCEL_SELF.get(), b -> this.commonTab.cancelAuction(true))
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_SELF, 160)));
+		this.buttonCancelStorageGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 85) , screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CANCEL_STORAGE.get(), b -> this.commonTab.cancelAuction(false))
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE, 160)));
 		
 	}
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
-		TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.auction.cancel"), (this.screen.getXSize() / 2), 50, 0x404040);
+		TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_AUCTION_CANCEL.get(), (this.screen.getXSize() / 2), 50, 0x404040);
 		
 	}
 	

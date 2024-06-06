@@ -6,13 +6,14 @@ import java.util.function.Function;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
@@ -65,12 +66,12 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	private AuctionHouseTrader() {
 		super(TYPE);
-		this.getOwner().SetCustomOwner(EasyText.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
+		this.getOwner().SetOwner(FakeOwner.of(LCText.GUI_TRADER_AUCTION_HOUSE_OWNER.get()));
 	}
 	
 	@Nonnull
     @Override
-	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
+	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
@@ -208,9 +209,6 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 					this.storage.put(storageEntry.getOwner().id, storageEntry);
 			}
 		}
-		
-		if(!this.getOwner().hasOwner())
-			this.getOwner().SetCustomOwner(Component.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
 		
 	}
 
@@ -361,6 +359,18 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			if(auction.isValid() && auction.isActive())
 				auctionCount++;
 		}
-		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.auction_house",auctionCount));
+		list.add(LCText.TOOLTIP_NETWORK_TERMINAL_AUCTION_HOUSE.get(auctionCount));
+	}
+
+	@Override
+	public int getTerminalTextColor() {
+		int auctionCount = 0;
+		for(AuctionTradeData auction : this.trades)
+		{
+			if(auction.isValid() && auction.isActive())
+				auctionCount++;
+		}
+		//Green if there's an auction available, normal color if not.
+		return auctionCount > 0 ? 0x00FF00 : 0x404040;
 	}
 }

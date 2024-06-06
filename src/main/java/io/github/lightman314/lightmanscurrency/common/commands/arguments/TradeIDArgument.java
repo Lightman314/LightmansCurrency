@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTradeManager;
 import net.minecraft.commands.CommandSourceStack;
@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class TradeIDArgument implements ArgumentType<Integer> {
 
-    private static final SimpleCommandExceptionType ERROR_NOT_VALID = new SimpleCommandExceptionType(EasyText.translatable("command.argument.tradeid.invalid"));
+    private static final SimpleCommandExceptionType ERROR_NOT_VALID = new SimpleCommandExceptionType(LCText.ARGUMENT_TRADEID_INVALID.get());
 
     private TradeIDArgument() {}
 

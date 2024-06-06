@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
@@ -15,14 +16,14 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderI
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class ItemStorageTab extends TraderInterfaceTab{
 
@@ -49,7 +50,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), (Runnable)this::onUpgradeModified);
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
 			upgradeSlot.active = false;
 			addSlot.apply(upgradeSlot);
 			this.slots.add(upgradeSlot);
@@ -148,11 +149,10 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			}
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("ClickedSlot", storageSlot);
-				message.putBoolean("HeldShift", isShiftHeld);
-				message.putBoolean("LeftClick", leftClick);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setInt("ClickedSlot",storageSlot)
+						.setBoolean("HeldShift", isShiftHeld)
+						.setBoolean("LeftClick", leftClick));
 			}
 		}
 	}
@@ -211,11 +211,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 				be.setItemBufferDirty();
 			
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("QuickTransfer", type);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
 			
 		}
 	}
@@ -235,8 +231,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) { 
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void handleMessage(@Nonnull LazyPacketData message) {
+		if(message.contains("ClickedSlot"))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -14,6 +15,10 @@ public class MoneyValueListOption extends ListOption<MoneyValue> {
     private final ConfigParser<MoneyValue> parser;
 
     protected MoneyValueListOption(@Nonnull NonNullSupplier<List<MoneyValue>> defaultValue, @Nonnull Predicate<MoneyValue> allowed) { super(defaultValue); this.parser = MoneyValueOption.createParser(allowed); }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return MoneyValueOption.bonusComment; }
 
     @Override
     protected ConfigParser<MoneyValue> getPartialParser() { return this.parser; }

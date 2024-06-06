@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -157,28 +157,25 @@ public class CashRegisterItem extends BlockItem{
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);
+
+		tooltip.addAll(LCText.TOOLTIP_CASH_REGISTER.get());
+
+		tooltip.add(LCText.TOOLTIP_CASH_REGISTER_INFO.get(data.size()));
 		
-		TooltipItem.addTooltipAlways(tooltip, LCTooltips.CASH_REGISTER);
-		
-		tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register", data.size()));
-		
-		if(!Screen.hasShiftDown() || data.size() == 0)
-		{
-			tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register.instructions"));
-		}
+		if(!Screen.hasShiftDown() || data.isEmpty())
+			tooltip.add(LCText.TOOLTIP_CASH_REGISTER_INSTRUCTIONS.get());
 		
 		if(Screen.hasShiftDown())
 		{
-			//Display details of the 
+			//Display details of the registered blocks
 			for(int i = 0; i < data.size(); i++)
 			{
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.cash_register.details", i + 1, data.get(i).getX(), data.get(i).getY(), data.get(i).getZ()));
+				BlockPos pos = data.get(i);
+				tooltip.add(LCText.TOOLTIP_CASH_REGISTER_DETAILS.get(i + 1,pos.getX(), pos.getY(), pos.getZ()));
 			}
 		}
-		else if(data.size() > 0)
-		{
-			tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register.holdshift").withStyle(ChatFormatting.YELLOW));
-		}
+		else if(!data.isEmpty())
+			tooltip.add(LCText.TOOLTIP_CASH_REGISTER_HOLD_SHIFT.get().withStyle(ChatFormatting.YELLOW));
 	}
 	
 }

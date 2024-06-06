@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,12 +28,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
 	private final TriFunction<Direction,Boolean,Boolean,VoxelShape> shape;
 	
-	protected TraderBlockTallWideRotatable(Properties properties) { this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T); }
+	protected TraderBlockTallWideRotatable(Properties properties) { this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE); }
 	
 	protected TraderBlockTallWideRotatable(Properties properties, VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west)
 	{
@@ -83,7 +85,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	{
 		//Attempt to place the other three blocks
 		BlockPos rightPos = IRotatableBlock.getRightPos(pos, this.getFacing(state));
-		if(this.getReplacable(level, rightPos, state, player, stack) && this.getReplacable(level, rightPos.above(), state, player, stack) && this.getReplacable(level, pos.above(), state, player, stack))
+		if(this.isReplaceable(level, rightPos) && this.isReplaceable(level, rightPos.above()) && this.isReplaceable(level, pos.above()))
 		{
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)).setValue(ISLEFT, true));
 			level.setBlockAndUpdate(rightPos, this.defaultBlockState().setValue(ISBOTTOM, true).setValue(FACING, state.getValue(FACING)).setValue(ISLEFT, false));
@@ -91,13 +93,16 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		}	
 		else
 		{
+			//Flag as a legitimate break so that it won't break the other block as an illegal break...
+			if(level.getBlockEntity(pos) instanceof TraderBlockEntity<?> be)
+				be.flagAsLegitBreak();
 			//Failed placing the top block. Abort placement
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player instanceof Player)
+			if(player instanceof Player p)
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				((Player)player).getInventory().add(giveStack);
+				InventoryUtil.safeGiveToPlayer(p.getInventory(),giveStack);
 			}
 		}
 		
@@ -143,7 +148,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		setAir(level, this.getOtherHeight(otherPos, state), null);
 	}
 	
-	@Nonnull
+	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)
 	{

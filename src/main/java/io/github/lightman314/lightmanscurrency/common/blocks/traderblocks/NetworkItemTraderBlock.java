@@ -6,11 +6,11 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +33,9 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	public NetworkItemTraderBlock(Properties properties, int tradeCount) { super(properties); this.tradeCount = tradeCount; }
 
 	@Override
+	protected boolean isBlockOpaque() { return false; }
+
+	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, this.tradeCount, true); }
 
 	@Override
@@ -44,7 +47,7 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
-		TooltipItem.addTooltip(tooltip, LCTooltips.ITEM_NETWORK_TRADER);
+		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ITEM_TRADER_NETWORK.asTooltip(this.tradeCount));
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	

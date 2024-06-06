@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -42,8 +43,8 @@ public class ChocolateCoinItem extends Item {
         if(LCConfig.SERVER.chocolateCoinEffects.get())
         {
             if(this.healing > 0)
-                tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.chocolate_coin.healing", (int)this.healing).withStyle(ChatFormatting.BLUE));
-            if(this.effects.size() > 0)
+                tooltip.add(LCText.TOOLTIP_HEALING.get((int)this.healing).withStyle(ChatFormatting.BLUE));
+            if(!this.effects.isEmpty())
                 PotionUtils.addPotionTooltip(this.effects, tooltip, 1f);
         }
     }

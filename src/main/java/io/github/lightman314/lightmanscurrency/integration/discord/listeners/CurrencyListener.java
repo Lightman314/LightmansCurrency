@@ -17,11 +17,10 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.integration.discord.CurrencyMessages;
@@ -215,9 +214,9 @@ public class CurrencyListener extends SafeSingleChannelListener {
 					try {
 						if(searchType.acceptTrader(trader, searchText))
 							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
-					} catch(Throwable e) { e.printStackTrace(); }
+					} catch(Throwable e) { LightmansCurrency.LogError("Error during the DiscordTraderSearchEvent!", e); }
 				});
-				if(output.size() > 0)
+				if(!output.isEmpty())
 					channel.sendMessage(output);
 				else
 					channel.sendMessage(CurrencyMessages.M_SEARCH_NORESULTS.get());
@@ -259,7 +258,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 			if(!item.isEmpty())
 				itemEntries.add(CurrencyMessages.M_SEARCH_TRADE_ITEM_SINGLE.format(item.getCount(), getItemName(item,"")));
 		}
-		if(itemEntries.size() > 0)
+		if(!itemEntries.isEmpty())
 		{
 			if(itemEntries.size() == 2)
 			{
@@ -328,7 +327,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 						{
 							if(firstTrade)
 							{
-								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getOwnerName(false), trader.getName()));
+								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getName(), trader.getName()));
 								firstTrade = false;
 							}
 							String priceText = trade.getCost().getString();
@@ -346,7 +345,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 						{
 							if(firstTrade)
 							{
-								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getOwnerName(false), trader.getName()));
+								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getName(), trader.getName()));
 								firstTrade = false;
 							}
 							event.addToOutput(CurrencyMessages.M_SEARCH_TRADE_ITEM_PURCHASE.format(getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), ""), trade.getCost().getString()));
@@ -366,7 +365,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 						{
 							if(firstTrade)
 							{
-								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getOwnerName(false), trader.getName()));
+								event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(itemTrader.getOwner().getName(), trader.getName()));
 								firstTrade = false;
 							}
 							event.addToOutput(CurrencyMessages.M_SEARCH_TRADE_ITEM_BARTER.format(getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), ""), getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1))));
@@ -454,7 +453,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				User user = LightmansDiscordIntegration.PROXY.getJDA().getUserById(userId);
 				if(user != null)
 					SafeUserReference.of(user).sendPrivateMessage(messages);
-			} catch(Exception e) { e.printStackTrace(); }
+			} catch(Throwable e) { LightmansCurrency.LogError("Error sending messages!", e); }
 		});
 		this.pendingMessages.clear();
 	}
@@ -502,10 +501,10 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				if(trader == null) //Abort if the trader was removed.
 					return;
 				if(trader.hasCustomName())
-					cl.sendMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getOwnerName(false), trader.getCustomName()));
+					cl.sendMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getName(), trader.getCustomName()));
 				else
-					cl.sendMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getOwnerName(false)));
-			} catch(Exception e) { e.printStackTrace(); }
+					cl.sendMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getName()));
+			} catch(Exception e) { LightmansCurrency.LogError("Error sending New Trader Announcement", e); }
 		}
 		
 	}
@@ -514,10 +513,10 @@ public class CurrencyListener extends SafeSingleChannelListener {
 	{
 		TRADE_SALE(trade -> trade.getTradeDirection() == TradeDirection.SALE),
 		TRADE_PURCHASE(trade -> trade.getTradeDirection() == TradeDirection.PURCHASE),
-		TRADE_BARTER(trade -> { if(trade instanceof IBarterTrade) return ((IBarterTrade)trade).isBarter(); return false; }),
+		TRADE_BARTER(trade -> trade.getTradeDirection() == TradeDirection.BARTER),
 		TRADE_ANY(trade -> true),
 		
-		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getOwnerName(false).toLowerCase().contains(search)),
+		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getName().getString().toLowerCase().contains(search)),
 		TRADER_NAME((trader,search) -> search.isEmpty() || trader.getName().getString().toLowerCase().contains(search)),
 		TRADER_ANY((trader,search) -> true);
 		

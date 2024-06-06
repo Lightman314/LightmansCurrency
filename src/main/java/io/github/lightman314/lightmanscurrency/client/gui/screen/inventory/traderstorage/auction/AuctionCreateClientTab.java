@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -30,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -45,7 +47,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
 	
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.auction.create"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_AUCTION_CREATE.get(); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer()); }
@@ -86,7 +88,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.priceSelect = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34), firstOpen ? null : this.priceSelect, MoneyValue.empty(), this::onPriceChanged));
 		this.priceSelect.drawBG = this.priceSelect.allowFreeInput = false;
 		
-		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 5), screenArea.width - 119, 20, EasyText.translatable("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()));
+		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 5), screenArea.width - 119, 20, this::getBidModeText, b -> this.TogglePriceTarget()));
 		
 		//Duration Input
 		this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(80, 112), 10, TimeUnit.DAY, TimeUnit.HOUR, this::updateDuration));
@@ -95,15 +97,15 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.timeInput.setTime(this.timeInput.minDuration);
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.addChild(new EasyTextButton(screenArea.pos.offset(40,- 20), screenArea.width - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
+		this.buttonSubmitAuction = this.addChild(new EasyTextButton(screenArea.pos.offset(40,- 20), screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CREATE.get(), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
 		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA)
-				.withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION)));
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_AUCTION)));
 		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		this.buttonSubmitPersistentAuction.active = false;
 		
-		int idWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"));
+		int idWidth = this.getFont().width(LCText.GUI_PERSISTENT_ID.get());
 		this.persistentAuctionIDInput = this.addChild((new EditBox(this.getFont(), screenArea.x + idWidth + 2, screenArea.y - 40, screenArea.width - idWidth - 2, 18, EasyText.empty())));
 		this.persistentAuctionIDInput.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		
@@ -123,13 +125,13 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		}
 		
 		//Item Slot label
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.auction.auctionitems"), TraderMenu.SLOT_OFFSET + 7, 112, 0x404040);
+		gui.drawString(LCText.GUI_TRADER_AUCTION_ITEMS.get(), TraderMenu.SLOT_OFFSET + 7, 112, 0x404040);
 		
 		if(this.locked && this.successTime != 0)
-			TextRenderUtil.drawCenteredText(gui, EasyText.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
+			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_AUCTION_CREATE_SUCCESS.getWithStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
 		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.persistent.id"), 0, -35, 0xFFFFFF);
+			gui.drawString(LCText.GUI_PERSISTENT_ID.get(), 0, -35, 0xFFFFFF);
 		
 	}
 	
@@ -180,14 +182,16 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	
 	private void TogglePriceTarget() {
 		this.startingBidMode = !this.startingBidMode;
-		this.buttonTogglePriceMode.setMessage(EasyText.translatable(this.startingBidMode ? "button.lightmanscurrency.auction.toggleprice.startingbid" : "button.lightmanscurrency.auction.toggleprice.mindeltabid"));
 		if(this.startingBidMode)
 			this.priceSelect.changeValue(this.pendingAuction.getLastBidAmount());
 		else
 			this.priceSelect.changeValue(this.pendingAuction.getMinBidDifference());
 	}
 	
-	
+	private Component getBidModeText()
+	{
+		return this.startingBidMode ? LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID.get() : LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE.get();
+	}
 	
 	private void updateDuration(TimeData newTime) {
 		this.pendingAuction.setDuration(newTime.miliseconds);

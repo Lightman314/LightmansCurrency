@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -18,37 +20,10 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class TooltipItem extends Item{
-
-	public static final Style DEFAULT_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
 	
 	private final NonNullSupplier<List<Component>> tooltips;
 	
 	public TooltipItem(Properties properties, NonNullSupplier<List<Component>> tooltips) { super(properties); this.tooltips = tooltips; }
-	
-	public static List<Component> getTooltipLines(String tooltipTranslation) { return getTooltipLines(tooltipTranslation, DEFAULT_STYLE); }
-	public static List<Component> getTooltipLines(String tooltipTranslation, @Nullable Style format) {
-		List<Component> result = new ArrayList<>();
-		int i = 0;
-		
-		while(true)
-		{
-			MutableComponent nextLine = getTooltipLine(tooltipTranslation, ++i);
-			if(nextLine == null)
-				return result;
-			if(format != null)
-				nextLine.withStyle(format);
-			result.add(nextLine);
-		}
-	}
-	
-	private static MutableComponent getTooltipLine(String tooltipTranslation, int page) {
-		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + String.valueOf(page);
-		MutableComponent result = Component.translatable(tt);
-		//Returns null if the translated text is the translation key.
-		if(result.getString().contentEquals(tt))
-			return null;
-		return result;
-	}
 	
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
@@ -57,14 +32,15 @@ public class TooltipItem extends Item{
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
+	public static void addTooltip(List<Component> tooltip, MultiLineTextEntry entry) { addTooltip(tooltip, entry::get); }
 	public static void addTooltip(List<Component> tooltip, NonNullSupplier<List<Component>> tooltipSource) {
 		List<Component> addableTooltips = tooltipSource.get();
-		if(addableTooltips.size() == 0)
+		if(addableTooltips.isEmpty())
 			return;
 		if(Screen.hasShiftDown())
-			tooltip.addAll(tooltipSource.get());
+			tooltip.addAll(addableTooltips);
 		else
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.tooltip").withStyle(DEFAULT_STYLE));
+			tooltip.add(LCText.TOOLTIP_INFO_BLURB.get().withStyle(ChatFormatting.GRAY));
 	}
 	
 	public static void addTooltipAlways(List<Component> tooltip, NonNullSupplier<List<Component>> tooltipSource) {

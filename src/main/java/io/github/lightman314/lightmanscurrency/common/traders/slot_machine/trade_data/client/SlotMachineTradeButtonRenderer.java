@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
@@ -42,7 +42,7 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     private SlotMachineEntry getTimedEntry()
     {
         List<SlotMachineEntry> entries = this.trade.trader.getValidEntries();
-        if(entries.size() == 0)
+        if(entries.isEmpty())
             return null;
         return entries.get((int)Minecraft.getInstance().level.getGameTime()/20 % entries.size());
     }
@@ -65,8 +65,8 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
             return null;
 
         List<Component> tooltips = EasyScreenHelper.getTooltipFromItem(stack);
-        tooltips.add(0, EasyText.translatable("tooltip.lightmanscurrency.slot_machine.weight", weight));
-        tooltips.add(0, EasyText.translatable("tooltip.lightmanscurrency.slot_machine.odds", odds));
+        tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
+        tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
 
         return tooltips;
 
@@ -81,11 +81,11 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
             {
                 //Check Stock
                 if(!trader.hasStock())
-                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofstock")));
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
             }
             //Check whether they can afford the price
             if(!context.hasFunds(this.trade.getCost(context)))
-                alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.cannotafford")));
+                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
         }
     }
 

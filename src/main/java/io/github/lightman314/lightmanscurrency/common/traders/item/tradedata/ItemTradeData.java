@@ -6,12 +6,12 @@ import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
@@ -36,30 +36,24 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class ItemTradeData extends TradeData implements IBarterTrade {
-	
-	public ItemTradeData(boolean validateRules) { super(validateRules); this.resetNBTList(); }
-	
-	public enum ItemTradeType { SALE(0,1), PURCHASE(1,2), BARTER(2,0);
-		public final int index;
-		private final int nextIndex;
-		public final ItemTradeType next() { return fromIndex(this.nextIndex); }
-		ItemTradeType(int index, int nextIndex) { this.index = index; this.nextIndex = nextIndex; }
-		public static ItemTradeType fromIndex(int index) {
-			for(ItemTradeType type : ItemTradeType.values())
-			{
-				if(type.index == index)
-					return type;
-			}
-			return ItemTradeType.SALE;
-		}
+public class ItemTradeData extends TradeData {
+
+	@Nonnull
+	public static TradeDirection getNextInCycle(@Nonnull TradeDirection direction)
+	{
+		int index = direction.index + 1;
+		if(index > TradeDirection.BARTER.index)
+			index = 0;
+		return TradeDirection.fromIndex(index);
 	}
+
+	public ItemTradeData(boolean validateRules) { super(validateRules); this.resetNBTList(); }
 	
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
 	SimpleContainer items = new SimpleContainer(4);
 	final List<Boolean> enforceNBT = Lists.newArrayList(true, true, true, true);
 	private void resetNBTList() { for(int i = 0; i < 4; ++i) this.enforceNBT.set(i, true); }
-	ItemTradeType tradeType = ItemTradeType.SALE;
+	TradeDirection tradeType = TradeDirection.SALE;
 	String customName1 = "";
 	String customName2 = "";
 	
@@ -170,22 +164,13 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 	
 	@Override
-	public TradeDirection getTradeDirection()
-	{
-		return switch (this.tradeType) {
-			case SALE -> TradeDirection.SALE;
-			case PURCHASE -> TradeDirection.PURCHASE;
-			default -> TradeDirection.NONE;
-		};
-	}
+	public TradeDirection getTradeDirection() { return this.tradeType; }
 	
-	public ItemTradeType getTradeType() { return this.tradeType; }
+	public boolean isSale() { return this.tradeType == TradeDirection.SALE; }
+	public boolean isPurchase() { return this.tradeType == TradeDirection.PURCHASE; }
+	public boolean isBarter() { return this.tradeType == TradeDirection.BARTER; }
 	
-	public boolean isSale() { return this.tradeType == ItemTradeType.SALE; }
-	public boolean isPurchase() { return this.tradeType == ItemTradeType.PURCHASE; }
-	public boolean isBarter() { return this.tradeType == ItemTradeType.BARTER; }
-	
-	public void setTradeType(ItemTradeType tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
+	public void setTradeType(TradeDirection tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
 
 	@Nonnull
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
@@ -195,7 +180,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	@Override
 	public boolean isValid()
 	{
-		if(this.tradeType == ItemTradeType.BARTER)
+		if(this.tradeType == TradeDirection.BARTER)
 			return this.sellItemsDefined() && this.barterItemsDefined();
 		return super.isValid() && this.sellItemsDefined();
 	}
@@ -215,13 +200,6 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return stockCount(trader) > 0;
 	}
 	
-	public boolean hasStock(TradeContext context)
-	{
-		if(!this.sellItemsDefined())
-			return false;
-		return stockCount(context) > 0;
-	}
-	
 	public boolean hasSpace(ItemTraderData trader, List<ItemStack> collectableItems)
 	{
 		return switch (this.tradeType) {
@@ -235,11 +213,11 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!this.sellItemsDefined())
 			return 0;
 		
-		if(this.tradeType == ItemTradeType.PURCHASE)
+		if(this.tradeType == TradeDirection.PURCHASE)
 		{
 			return this.stockCountOfCost(trader);
 		}
-		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
+		else if(this.tradeType == TradeDirection.SALE || this.tradeType == TradeDirection.BARTER)
 		{
 			return this.restriction.getSaleStock(trader.getStorage(), this);
 		}
@@ -247,7 +225,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			return 0;
 	}
 	
-	public int stockCount(TradeContext context)
+	public int getStock(@Nonnull TradeContext context)
 	{
 		if(!this.sellItemsDefined())
 			return 0;
@@ -258,11 +236,11 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(trader.isCreative())
 			return 1;
 		
-		if(this.tradeType == ItemTradeType.PURCHASE)
+		if(this.tradeType == TradeDirection.PURCHASE)
 		{
 			return this.stockCountOfCost(context);
 		}
-		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
+		else if(this.tradeType == TradeDirection.SALE || this.tradeType == TradeDirection.BARTER)
 		{
 			return this.restriction.getSaleStock(trader.getStorage(), this);
 		}
@@ -298,7 +276,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(!this.getEnforceNBT(i))
 				ignoreNBTSlots.add(i);
 		}
-		if(ignoreNBTSlots.size() > 0)
+		if(!ignoreNBTSlots.isEmpty())
 			tradeNBT.putIntArray("IgnoreNBT", ignoreNBTSlots);
 		return tradeNBT;
 	}
@@ -372,7 +350,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
 			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
-			this.tradeType = ItemTradeType.SALE;
+			this.tradeType = TradeDirection.SALE;
 		
 		if(nbt.contains("CustomName1"))
 			this.customName1 = nbt.getString("CustomName1");
@@ -397,11 +375,11 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		}
 	}
 	
-	public static ItemTradeType loadTradeType(String name)
+	public static TradeDirection loadTradeType(String name)
 	{
-		ItemTradeType value = ItemTradeType.SALE;
+		TradeDirection value = TradeDirection.SALE;
 		try {
-			value = ItemTradeType.valueOf(name);
+			value = TradeDirection.valueOf(name);
 		}
 		catch (IllegalArgumentException exception)
 		{
@@ -523,21 +501,21 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!differences.PriceMatches())
 		{
 			if(differences.PriceIncompatible())
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.different").withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_MONEY_TYPE.getWithStyle(ChatFormatting.RED));
 			if(this.isPurchase())
 			{
 				if(differences.isPriceCheaper())
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.purchase.cheaper", differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
+					list.add(LCText.GUI_TRADE_DIFFERENCE_PURCHASE_CHEAPER.get(differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
 				else
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.purchase.expensive", differences.priceDifference().getText()).withStyle(ChatFormatting.GOLD));
+					list.add(LCText.GUI_TRADE_DIFFERENCE_PURCHASE_EXPENSIVE.get(differences.priceDifference().getText()).withStyle(ChatFormatting.GOLD));
 			}
 			else
 			{
 				//Price difference
 				if(differences.isPriceExpensive()) //More expensive
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
+					list.add(LCText.GUI_TRADE_DIFFERENCE_EXPENSIVE.get(differences.priceDifference().getText()).withStyle(ChatFormatting.RED));
 				else
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", differences.priceDifference().getText()).withStyle(ChatFormatting.GOLD));
+					list.add(LCText.GUI_TRADE_DIFFERENCE_CHEAPER.get(differences.priceDifference().getText()).withStyle(ChatFormatting.GOLD));
 			}
 		}
 		for(int i = 0; i < differences.getProductResultCount(); ++i)
@@ -545,21 +523,21 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			int slot = this.isPurchase() ? i + 2 : i;
 			ChatFormatting moreColor = slot >= 2 ? ChatFormatting.RED : ChatFormatting.GOLD;
 			ChatFormatting lessColor = slot >= 2 ? ChatFormatting.GOLD : ChatFormatting.RED;
-			Component slotName = EasyText.translatable("gui.lightmanscurrency.interface.item.difference.product." + slot);
+			Component slotName = slot >= 2 ? LCText.GUI_TRADE_DIFFERENCE_ITEM_PURCHASING.get() : LCText.GUI_TRADE_DIFFERENCE_ITEM_SELLING.get();
 			ProductComparisonResult productCheck = differences.getProductResult(i);
 			if(!productCheck.SameProductType())
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_TYPE.get(slotName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT()) //Don't announce changes in NBT if the item is also different
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
+					list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_NBT.get(slotName).withStyle(ChatFormatting.RED));
 				else if(!productCheck.SameProductQuantity()) //Don't announce changes in quantity if the item or nbt is also different
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference > 0) //More items
-						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, quantityDifference).withStyle(moreColor));
+						list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_QUANTITY_MORE.get(slotName, quantityDifference).withStyle(moreColor));
 					else //Less items
-						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, -quantityDifference).withStyle(lessColor));
+						list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_QUANTITY_LESS.get(slotName, -quantityDifference).withStyle(lessColor));
 				}
 			}
 		}

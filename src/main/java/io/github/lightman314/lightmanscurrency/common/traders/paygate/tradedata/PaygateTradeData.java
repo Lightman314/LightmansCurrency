@@ -5,9 +5,13 @@ import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -64,6 +68,9 @@ public class PaygateTradeData extends TradeData {
 		}
 		this.validateRuleStates();
 	}
+
+	@Override
+	public int getStock(@Nonnull TradeContext context) { return this.isValid() ? 1 : 0; }
 
 	boolean storeTicketStubs = false;
 	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
@@ -215,15 +222,15 @@ public class PaygateTradeData extends TradeData {
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = Component.empty();
+		MutableComponent result = EasyText.empty();
 		if(hours > 0)
-			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.short", hours));
+			result.append(formatUnitShort(hours, LCText.TIME_UNIT_HOUR));
 		if(minutes > 0)
-			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes));
+			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_MINUTE));
 		if(seconds > 0)
-			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds));
+			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_SECOND));
 		if(ticks > 0 || result.getString().isBlank())
-			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks));
+			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_TICK));
 		return result;
 	}
 	
@@ -234,12 +241,12 @@ public class PaygateTradeData extends TradeData {
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
 		if(hours > 0)
-			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.short", hours);
+			return formatUnitShort(hours,LCText.TIME_UNIT_HOUR);
 		if(minutes > 0)
-			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes);
+			return formatUnitShort(hours,LCText.TIME_UNIT_MINUTE);
 		if(seconds > 0)
-			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds);
-		return Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks);
+			return formatUnitShort(hours,LCText.TIME_UNIT_SECOND);
+		return formatUnitShort(hours,LCText.TIME_UNIT_TICK);
 	}
 	
 	public static MutableComponent formatDuration(int duration) { 
@@ -248,49 +255,45 @@ public class PaygateTradeData extends TradeData {
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = Component.empty();
+		MutableComponent result = EasyText.empty();
 		boolean addSpacer = false;
 		if(hours > 0)
 		{
-			if(addSpacer)
-				result.append(Component.literal(" "));
+			appendUnit(result, false, hours, LCText.TIME_UNIT_HOUR);
 			addSpacer = true;
-			if(hours > 1)
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours", hours));
-			else
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.singular", hours));
+
 		}	
 		if(minutes > 0)
 		{
-			if(addSpacer)
-				result.append(Component.literal(" "));
+			appendUnit(result, addSpacer, minutes, LCText.TIME_UNIT_MINUTE);
 			addSpacer = true;
-			if(minutes > 1)
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes", minutes));
-			else
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.singular", minutes));
 		}
 		if(seconds > 0)
 		{
-			if(addSpacer)
-				result.append(Component.literal(" "));
+			appendUnit(result, addSpacer, seconds, LCText.TIME_UNIT_SECOND);
 			addSpacer = true;
-			if(seconds > 1)
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds", seconds));
-			else
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.singular", seconds));
 		}
 		if(ticks > 0)
 		{
-			if(addSpacer)
-				result.append(Component.literal(" "));
-			if(ticks > 1)
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks", ticks));
-			else
-				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.singular", ticks));
+			appendUnit(result, addSpacer, seconds, LCText.TIME_UNIT_TICK);
+			//addSpacer = true;
 		}
 		return result;
 	}
+
+	private static void appendUnit(@Nonnull MutableComponent result, boolean addSpacer, int count, @Nonnull TimeUnitTextEntry entry)
+	{
+		if(addSpacer)
+			result.append(EasyText.literal(" "));
+		result.append(EasyText.literal(String.valueOf(count)));
+		if(count > 1)
+			result.append(entry.pluralText.get());
+		else
+			result.append(entry.fullText.get());
+	}
+
+	@Nonnull
+	private static MutableComponent formatUnitShort(int count, @Nonnull TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
 
 	@Nonnull
     @Override

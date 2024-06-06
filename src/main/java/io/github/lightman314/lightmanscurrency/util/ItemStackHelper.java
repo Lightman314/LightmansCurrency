@@ -6,9 +6,21 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+
+import javax.annotation.Nonnull;
 
 public class ItemStackHelper {
-	
+
+	public static ItemStack skullForPlayer(@Nonnull String playerName)
+	{
+		ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
+		CompoundTag tag = new CompoundTag();
+		tag.putString("SkullOwner", playerName);
+		stack.setTag(tag);
+		return stack;
+	}
+
 	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
 	{
 		ListTag listTag = new ListTag();

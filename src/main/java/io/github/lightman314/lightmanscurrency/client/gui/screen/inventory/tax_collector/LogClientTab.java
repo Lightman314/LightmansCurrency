@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -28,7 +29,7 @@ public class LogClientTab extends TaxCollectorClientTab<LogTab> {
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("gui.lightmanscurrency.tax_collector.logs"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_LOGS.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {

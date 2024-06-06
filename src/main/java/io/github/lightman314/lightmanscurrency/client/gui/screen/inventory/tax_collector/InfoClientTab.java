@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.InfoTab;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
@@ -28,11 +28,11 @@ public class InfoClientTab extends TaxCollectorClientTab<InfoTab> {
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("gui.lightmanscurrency.tax_collector.info"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_INFO.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        Component clearLabel = EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.clear");
+        Component clearLabel = LCText.BUTTON_TAX_COLLECTOR_STATS_CLEAR.get();
         int buttonWidth = this.getFont().width(clearLabel) + 6;
         this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - buttonWidth - 8, 15), buttonWidth, 12, clearLabel, this.commonTab::ClearInfoCache)
                 .withAddons(EasyAddonHelper.visibleCheck(this::canClearStats)));
@@ -49,21 +49,21 @@ public class InfoClientTab extends TaxCollectorClientTab<InfoTab> {
             TaxStats stats = entry.stats;
 
             //Total Money Collected
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.total_collected"), 10, 35, 0x404040);
+            gui.drawString(LCText.GUI_TAX_COLLECTOR_STATS_TOTAL_COLLECTED.get(), 10, 35, 0x404040);
             gui.drawString(stats.getTotalCollected().getRandomValueText(), 10, 45, 0x404040);
 
             //Unique Machines Taxed
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.unique_taxables", stats.getUniqueTaxableCount()), 10, 65, 0x404040);
+            gui.drawString(LCText.GUI_TAX_COLLECTOR_STATS_UNIQUE_TAXABLES.get(stats.getUniqueTaxableCount()), 10, 65, 0x404040);
             //Most Taxed
             TaxableReference mostTaxed = stats.getMostTaxed();
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.most_taxed.label"), 10, 85, 0x404040);
+            gui.drawString(LCText.GUI_TAX_COLLECTOR_STATS_MOST_TAXED_LABEL.get(), 10, 85, 0x404040);
             if(mostTaxed != null)
             {
                 ITaxable taxable = mostTaxed.getTaxable(true);
                 if(taxable != null)
                 {
                     gui.drawString(taxable.getName(), 10, 95, 0x404040);
-                    gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.stats.most_taxed.format", stats.getMostTaxedCount()), 10, 104, 0x404040);
+                    gui.drawString(LCText.GUI_TAX_COLLECTOR_STATS_MOST_TAXED_FORMAT.get(stats.getMostTaxedCount()), 10, 104, 0x404040);
                 }
             }
         }

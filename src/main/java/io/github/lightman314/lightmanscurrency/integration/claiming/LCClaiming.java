@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
@@ -62,7 +63,7 @@ public class LCClaiming {
         ServerPlayer player = source.getPlayerOrException();
         if(currentHandler == null)
         {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.fail.nodata"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_FAIL_NO_DATA.get());
             return 0;
         }
         else
@@ -70,18 +71,18 @@ public class LCClaiming {
             int count = 0;
             if(currentHandler.canBuyClaims(player))
             {
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.info", currentHandler.getCurrentBonusClaims(player), LCConfig.SERVER.claimingMaxClaimCount.get()), false);
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.info.price", LCConfig.SERVER.claimingClaimPrice.get().getText(EasyText.translatable("command.lightmanscurrency.lcclaims.invalid_price"))), false);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_INFO_CLAIMS.get(currentHandler.getCurrentBonusClaims(player), LCConfig.SERVER.claimingMaxClaimCount.get()), false);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_INFO_PRICE.get(LCConfig.SERVER.claimingClaimPrice.get().getText(LCText.COMMAND_CLAIM_INVALID.get())), false);
                 count++;
             }
             if(currentHandler.canBuyForceload(player))
             {
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.info", currentHandler.getCurrentBonusForceloadChunks(player), LCConfig.SERVER.claimingMaxForceloadCount.get()), false);
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.info.price", LCConfig.SERVER.claimingForceloadPrice.get().getText(EasyText.translatable("command.lightmanscurrency.lcclaims.invalid_price"))), false);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_INFO_FORCELOAD.get(currentHandler.getCurrentBonusForceloadChunks(player), LCConfig.SERVER.claimingMaxForceloadCount.get()), false);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_INFO_PRICE.get(LCConfig.SERVER.claimingForceloadPrice.get().getText(LCText.COMMAND_CLAIM_INVALID.get())), false);
                 count++;
             }
             if(count <= 0)
-                EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.info.disabled.all"));
+                EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_INFO_DISABLED.get());
             return count;
         }
     }
@@ -90,14 +91,14 @@ public class LCClaiming {
     {
         CommandSourceStack source = commandContext.getSource();
         ServerPlayer player = source.getPlayerOrException();
-        if(currentHandler == null || !currentHandler.canBuyClaims(player))
-        {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.fail.disabled"));
-            return 0;
-        }
         if(currentHandler == null)
         {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.fail.nodata"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_FAIL_NO_DATA.get());
+            return 0;
+        }
+        if(!currentHandler.canBuyClaims(player))
+        {
+            EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_CLAIM_DISABLED.get());
             return 0;
         }
         else
@@ -125,18 +126,18 @@ public class LCClaiming {
             {
                 currentHandler.addBonusClaims(player, boughtCount);
                 if(hitLimit)
-                    EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.limit_reached", LCConfig.SERVER.claimingMaxClaimCount.get()), true);
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.success", boughtCount), true);
+                    EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_BUY_CLAIM_LIMIT_REACHED.get(LCConfig.SERVER.claimingMaxClaimCount.get()), true);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_BUY_CLAIM_SUCCESS.get(boughtCount), true);
                 return boughtCount;
             }
             else
             {
                 if(invalidPrice)
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.fail.invalid_price"));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_FAIL_INVALID_PRICE.get());
                 else if(hitLimit)
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.limit_reached", LCConfig.SERVER.claimingMaxClaimCount.get()));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_CLAIM_LIMIT_REACHED.get(LCConfig.SERVER.claimingMaxClaimCount.get()));
                 else
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.claims.fail.cantafford"));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_CLAIM_CANNOT_AFFORD.get());
                 return 0;
             }
         }
@@ -146,14 +147,14 @@ public class LCClaiming {
     {
         CommandSourceStack source = commandContext.getSource();
         ServerPlayer player = source.getPlayerOrException();
-        if(!currentHandler.canBuyForceload(player))
-        {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.fail.disabled"));
-            return 0;
-        }
         if(currentHandler == null)
         {
-            EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.fail.nodata"));
+            EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_FAIL_NO_DATA.get());
+            return 0;
+        }
+        if(!currentHandler.canBuyForceload(player))
+        {
+            EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_FORCELOAD_DISABLED.get());
             return 0;
         }
         else
@@ -181,18 +182,18 @@ public class LCClaiming {
             {
                 currentHandler.addBonusForceloadChunks(player, boughtCount);
                 if(hitLimit)
-                    EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.limit_reached", LCConfig.SERVER.claimingMaxClaimCount.get()), true);
-                EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.success", boughtCount), true);
+                    EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_BUY_FORCELOAD_LIMIT_REACHED.get(LCConfig.SERVER.claimingMaxForceloadCount.get()), true);
+                EasyText.sendCommandSucess(source, LCText.COMMAND_CLAIM_BUY_FORCELOAD_SUCCESS.get(boughtCount), true);
                 return boughtCount;
             }
             else
             {
                 if(invalidPrice)
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.fail.invalid_price"));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_FAIL_INVALID_PRICE.get());
                 else if(hitLimit)
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.limit_reached", LCConfig.SERVER.claimingMaxClaimCount.get()));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_FORCELOAD_LIMIT_REACHED.get(LCConfig.SERVER.claimingMaxForceloadCount.get()));
                 else
-                    EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcclaims.forceload.fail.cantafford"));
+                    EasyText.sendCommandFail(source, LCText.COMMAND_CLAIM_BUY_FORCELOAD_CANNOT_AFFORD.get());
                 return 0;
             }
         }

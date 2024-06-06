@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +16,7 @@ public class PortableTerminalItem extends TooltipItem {
 
 	public PortableTerminalItem(Properties properties)
 	{
-		super(properties.stacksTo(1), LCTooltips.TERMINAL);
+		super(properties.stacksTo(1), LCText.TOOLTIP_TERMINAL.asTooltip());
 	}
 	
 	@Nonnull

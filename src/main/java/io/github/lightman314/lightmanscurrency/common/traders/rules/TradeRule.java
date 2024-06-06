@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
@@ -21,6 +20,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -31,13 +31,29 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class TradeRule {
-	
-	public final TradeRuleType<?> type;
-	public static MutableComponent nameOfType(ResourceLocation ruleType) { return EasyText.translatable("traderule." + ruleType.getNamespace() + "." + ruleType.getPath());
+
+	private static final List<IRuleLoadListener> LISTENERS = new ArrayList<>();
+	private static final List<String> IGNORE_MISSING = new ArrayList<>();
+	public static void addLoadListener(@Nonnull IRuleLoadListener listener)
+	{
+		if(LISTENERS.contains(listener))
+			return;
+		LISTENERS.add(listener);
 	}
+	public static void addIgnoreMissing(@Nonnull String oldType)
+	{
+		if(IGNORE_MISSING.contains(oldType))
+			return;
+		IGNORE_MISSING.add(oldType);
+	}
+
+	public final TradeRuleType<?> type;
+	public static String translationKeyOfType(@Nonnull ResourceLocation ruleType) { return "traderule." + ruleType.getNamespace() + "." + ruleType.getPath(); }
+	public static MutableComponent nameOfType(@Nonnull ResourceLocation ruleType) { return Component.translatable(translationKeyOfType(ruleType)); }
 	public final MutableComponent getName() { return nameOfType(this.type.type); }
 
 	private ITradeRuleHost host = null;
+	protected void setHost(@Nullable ITradeRuleHost host) { this.host = host; }
 
 	private boolean isActive = false;
 	public boolean isActive() { return this.canActivate(this.host) && this.isActive; }
@@ -113,7 +129,7 @@ public abstract class TradeRule {
 				ruleData.add(thisRuleData);
 			}
 		}
-		if(ruleData.size() == 0)
+		if(ruleData.isEmpty())
 			return false;
 		compound.put(tag, ruleData);
 		return true;
@@ -139,16 +155,20 @@ public abstract class TradeRule {
 		if(compound.contains(tag, Tag.TAG_LIST))
 		{
 			ListTag ruleData = compound.getList(tag, Tag.TAG_COMPOUND);
+			List<CompoundTag> allData = new ArrayList<>();
 			for(int i = 0; i < ruleData.size(); i++)
+				allData.add(ruleData.getCompound(i));
+			LISTENERS.forEach(l -> l.beforeLoading(host,allData,rules));
+			for(CompoundTag data : allData)
 			{
-				CompoundTag thisRuleData = ruleData.getCompound(i);
-				TradeRule thisRule = Deserialize(thisRuleData);
+				TradeRule thisRule = Deserialize(data);
 				if(thisRule != null)
 				{
 					rules.add(thisRule);
 					thisRule.host = host;
 				}
 			}
+			LISTENERS.forEach(l -> l.afterLoading(host,allData,rules));
 		}
 		return rules;
 	}
@@ -268,6 +288,8 @@ public abstract class TradeRule {
 		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(new ResourceLocation(thisType));
 		if(ruleType != null)
 			return ruleType.load(compound);
+		if(IGNORE_MISSING.contains(thisType))
+			return null;
 		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.data;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -7,6 +8,10 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
+/**
+ * @deprecated Deprecated because {@link Component Components} cannot be properly compared server-side, resulting in no notifications being able to stack.
+ */
+@Deprecated(since = "2.2.1.4")
 public class ItemWriteData
 {
     public final boolean isEmpty;
@@ -54,11 +59,11 @@ public class ItemWriteData
         return compound;
     }
 
-    public Component format() { return Component.translatable("log.shoplog.item.itemformat", this.count, this.itemName); }
+    public Component format() { return LCText.NOTIFICATION_ITEM_FORMAT.get(this.count, this.itemName); }
 
-    public Component formatWith(Component other) { return Component.translatable("log.shoplog.and", this.format(), other); }
+    public Component formatWith(Component other) { return LCText.GUI_AND.get(this.format(), other); }
 
-    public Component formatWith(ItemWriteData other) { return Component.translatable("log.shoplog.and", this.format(), other.format()); }
+    public Component formatWith(ItemWriteData other) { return LCText.GUI_AND.get(this.format(), other.format()); }
 
     public static Component getItemNames(ItemWriteData item1, ItemWriteData item2) {
         if(item1.isEmpty && item2.isEmpty)

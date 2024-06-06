@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -20,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -63,7 +63,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 		}
 		
 		this.buttonOpenWallet = this.addChild(new IconButton(screenArea.pos.offset(0, -20), this::PressOpenWalletButton, IconData.of(this.menu.getWallet()))
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.wallet.openwallet"))));
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_WALLET)));
 
 		this.currentTab().onOpen();
 		
@@ -135,9 +135,6 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 			this.changeTab(tabIndex);
 		}
 	}
-	
-	@Nonnull
-    public Font getFont() { return this.font; }
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }

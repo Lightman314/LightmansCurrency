@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.ejection;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -31,7 +33,7 @@ public class OwnableBlockEjectedNotification extends Notification {
     }
 
     @Nonnull
-    public static Notification create(@Nonnull Component name) { return new OwnableBlockEjectedNotification(name); }
+    public static NonNullSupplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
 
     @Nonnull
     @Override
@@ -42,14 +44,14 @@ public class OwnableBlockEjectedNotification extends Notification {
     public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
     @Nonnull
     @Override
-    public MutableComponent getMessage() { return EasyText.translatable(this.getTranslationKey(),this.name); }
+    public MutableComponent getMessage() { return this.getText().get(this.name); }
 
-    private String getTranslationKey() {
+    private TextEntry getText() {
         if(this.anarchy)
-            return "notifications.ejection.block_destroyed.anarchy";
+            return LCText.NOTIFICATION_EJECTION_ANARCHY;
         if(this.ejected)
-            return "notifications.ejection.block_destroyed.ejected";
-        return "notifications.ejection.block_destroyed.dropped";
+            return LCText.NOTIFICATION_EJECTION_EJECTED;
+        return LCText.NOTIFICATION_EJECTION_DROPPED;
     }
 
     @Override

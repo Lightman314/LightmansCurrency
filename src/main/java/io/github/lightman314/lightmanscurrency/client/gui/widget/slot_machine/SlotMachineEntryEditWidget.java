@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
@@ -53,7 +54,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
 
     @Override
     public void addChildren() {
-        this.weightEdit = this.addChild(new EditBox(this.tab.getFont(), this.getX() + this.tab.getFont().width(EasyText.translatable("gui.lightmanscurrency.trader.slot_machine.weight_label")), this.getY() + 10, 36, 10, EasyText.empty()));
+        this.weightEdit = this.addChild(new EditBox(this.tab.getFont(), this.getX() + this.tab.getFont().width(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get()), this.getY() + 10, 36, 10, EasyText.empty()));
         this.weightEdit.setMaxLength(4);
         this.removeEntryButton = this.addChild(IconAndButtonUtil.minusButton(this.getX(), this.getY(), this::Remove));
     }
@@ -69,9 +70,9 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
         if(entry != null)
         {
             //Draw label
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.trader.slot_machine.entry_label", this.entryIndex.get() + 1), 12, 0, 0x404040);
+            gui.drawString(LCText.GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL.get(this.entryIndex.get() + 1), 12, 0, 0x404040);
             //Draw Weight label
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.trader.slot_machine.weight_label"), 0, 12, 0x404040);
+            gui.drawString(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get(), 0, 12, 0x404040);
             //Render Items
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
@@ -107,7 +108,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                         {
                             if(!heldItem.isEmpty())
                             {
-                                if(rightClick) //If right-click, set as 1
+                                if(rightClick) //If right-clicked, set as 1
                                     this.tab.commonTab.AddEntryItem(entryIndex, heldItem.copyWithCount(1));
                                 else //Otherwise add whole stack
                                     this.tab.commonTab.AddEntryItem(entryIndex, heldItem);
@@ -116,7 +117,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                         }
                         else if(heldItem.isEmpty())
                         {
-                            if(rightClick) //If right-click, reduce by 1
+                            if(rightClick) //If right-clicked, reduce by 1
                             {
                                 ItemStack newStack = entry.items.get(itemIndex).copy();
                                 newStack.shrink(1);
@@ -125,12 +126,12 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                                 else
                                     this.tab.commonTab.EditEntryItem(entryIndex, itemIndex, newStack);
                             }
-                            else //If left-click, remove entirely
+                            else //If left-clicked, remove entirely
                                 this.tab.commonTab.RemoveEntryItem(entryIndex, itemIndex);
                             return true;
                         }
                         else {
-                            if(rightClick) //If right-click, either set as 1 or increase by 1
+                            if(rightClick) //If right-clicked, either set as 1 or increase by 1
                             {
                                 ItemStack oldStack = entry.items.get(itemIndex);
                                 if(InventoryUtil.ItemMatches(heldItem, oldStack))

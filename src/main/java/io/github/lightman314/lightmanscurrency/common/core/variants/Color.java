@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -57,7 +57,7 @@ public enum Color {
         }
         return builder.toString();
     }
-    public final MutableComponent getComponent() { return EasyText.translatable("color.minecraft." + this.getResourceSafeName());}
+    public final MutableComponent getComponent() { return Component.translatable("color.minecraft." + this.getResourceSafeName());}
     public final TagKey<Item> dyeTag;
     Color(int sortIndex, int hexColor, MapColor mapColor, TagKey<Item> dyeTag) { this.sortIndex = sortIndex; this.hexColor = hexColor; this.mapColor = mapColor; this.dyeTag = dyeTag; }
 

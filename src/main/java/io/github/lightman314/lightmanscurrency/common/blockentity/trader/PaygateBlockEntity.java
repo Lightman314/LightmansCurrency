@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -89,13 +89,14 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 			long ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID >= -1)
 			{
+				TradeContext context = TradeContext.create(trader,player).build();
 				for(int i = 0; i < trader.getTradeCount(); ++i)
 				{
 					PaygateTradeData trade = trader.getTrade(i);
 					if(trade.isTicketTrade() && trade.getTicketID() == ticketID)
 					{
 						//Confirm that the player is allowed to access the trade
-						if(!trader.runPreTradeEvent(PlayerReference.of(player), trade).isCanceled())
+						if(!trader.runPreTradeEvent(trade, context).isCanceled())
 							return i;
 					}
 				}

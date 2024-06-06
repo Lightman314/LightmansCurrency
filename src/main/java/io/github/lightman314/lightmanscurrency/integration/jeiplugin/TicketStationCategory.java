@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TicketStationScreen;
 import io.github.lightman314.lightmanscurrency.common.blocks.TicketStationBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -36,7 +37,7 @@ public class TicketStationCategory implements IRecipeCategory<TicketStationRecip
 
     @Nonnull
     @Override
-    public Component getTitle() { return TicketStationBlock.TITLE; }
+    public Component getTitle() { return LCText.GUI_TICKET_STATION_TITLE.get(); }
 
     @Nonnull
     @Override

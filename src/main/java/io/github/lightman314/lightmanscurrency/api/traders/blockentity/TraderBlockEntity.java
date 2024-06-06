@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.traders.blockentity;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.network.chat.Component;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -123,11 +125,11 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		taxes.forEach(e -> e.AcceptTaxable(newTrader));
 		if(!taxes.isEmpty())
 		{
-			Component firstMessage = EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.1");
+			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
 			if(taxes.size() == 1 && taxes.get(0).isServerEntry())
-				firstMessage = EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.server_only");
-			EasyText.sendMessage(owner, firstMessage);
-			EasyText.sendMessage(owner, EasyText.translatable("lightmanscurrency.tax_entry.placement_notification.trader.2"));
+				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
+			EasyText.sendMessage(owner, firstMessage.get());
+			EasyText.sendMessage(owner, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
 		}
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();

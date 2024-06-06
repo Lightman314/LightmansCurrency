@@ -53,7 +53,7 @@ public final class TeamAPI {
      * Should only be run on the logical server. If run on the logical client, <code>null</code> will be returned instead.
      * @return The {@link ITeam} that was created.
      */
-    @Nonnull
+    @Nullable
     public static ITeam createTeam(@Nonnull Player owner, @Nonnull String name)
     {
         if(owner.level().isClientSide)

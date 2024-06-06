@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -7,12 +8,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,11 +34,8 @@ import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 
 public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
-
-	private static final MutableComponent TITLE = Component.translatable("gui.lightmanscurrency.coinmint.title");
 	
 	public CoinMintBlock(Properties properties) { super(properties, box(1d,0d,1d,15d,16d,15d)); }
 
@@ -79,7 +78,14 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
-		TooltipItem.addTooltip(tooltip, LCTooltips.COIN_MINT);
+		TooltipItem.addTooltip(tooltip, () -> {
+			List<Component> t = new ArrayList<>();
+			if(LCConfig.SERVER.coinMintCanMint.get())
+				t.add(LCText.TOOLTIP_COIN_MINT_MINTABLE.get());
+			if(LCConfig.SERVER.coinMintCanMelt.get())
+				t.add(LCText.TOOLTIP_COIN_MINT_MELTABLE.get());
+			return t;
+		});
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 
@@ -88,7 +94,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new MintMenu(id, inventory, this.blockEntity); }
 		@Nonnull
 		@Override
-		public Component getDisplayName() { return TITLE; }
+		public Component getDisplayName() { return LCText.GUI_COIN_MINT_TITLE.get(); }
 	}
 
 }

@@ -36,16 +36,19 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	
 	public CoinpileBlock(Properties properties, Supplier<Item> coinItem)
 	{
-		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
+		this(properties, coinItem, LazyShapes.SHORT_BOX);
 	}
 	
 	public CoinpileBlock(Properties properties, Supplier<Item> coinItem, VoxelShape shape)
 	{
 		super(properties, coinItem);
-		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;
+		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX;
 		this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
 	}
-	
+
+	@Override
+	protected boolean isFullBlock() { return false; }
+
 	@Override
 	protected int getCoinCount() { return 9; }
 	

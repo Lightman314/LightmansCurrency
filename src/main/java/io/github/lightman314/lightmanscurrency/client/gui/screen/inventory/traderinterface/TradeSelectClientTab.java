@@ -1,13 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface;
 
-import java.util.List;
-
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -27,7 +25,7 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.trade"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_TRADE_SELECT.get(); }
 
 	@Override
 	public boolean tabButtonVisible() { return this.commonTab.canOpen(this.menu.player); }
@@ -57,10 +55,7 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	}
 	
 	private int getTradeIndex(TraderData trader, TradeData trade) {
-		List<? extends TradeData> trades = trader.getTradeData();
-		if(trades != null)
-			return trades.indexOf(trade);
-		return -1;
+		return trader.getTradeData().indexOf(trade);
 	}
 	
 	private void SelectTrade(TraderData trader, TradeData trade) {

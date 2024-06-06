@@ -5,10 +5,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -34,7 +34,10 @@ public class ATMBlock extends TallRotatableBlock{
 	{
 		super(properties);
 	}
-	
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
@@ -51,7 +54,7 @@ public class ATMBlock extends TallRotatableBlock{
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
-		TooltipItem.addTooltip(tooltip, LCTooltips.ATM);
+		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ATM);
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	

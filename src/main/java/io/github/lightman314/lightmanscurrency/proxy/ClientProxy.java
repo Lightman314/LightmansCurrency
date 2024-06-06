@@ -1,15 +1,17 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
 
+import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -30,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.I
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
@@ -39,6 +42,7 @@ import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCurio
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -46,6 +50,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -109,7 +115,7 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
-		//BlockEntityRenderers.registerNotification(ModBlockEntities.TAX_BLOCK.get(), TaxBlockRenderer::new);
+		//BlockEntityRenderers.register(ModBlockEntities.TAX_BLOCK.get(), TaxBlockRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
@@ -251,15 +257,22 @@ public class ClientProxy extends CommonProxy{
 	public void onItemTooltip(ItemTooltipEvent event) {
 		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())
 			return;
-		Item item = event.getItemStack().getItem();
-		if(CoinAPI.API.IsCoin(item, true))
+		ItemStack stack = event.getItemStack();
+		if(CoinAPI.API.IsCoin(stack, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
-		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && item instanceof BlockItem bi)
+		//If item has money mending, display money mending tooltip
+		Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(event.getItemStack());
+		if(enchantments.getOrDefault(ModEnchantments.MONEY_MENDING.get(),0) > 0)
+			event.getToolTip().add(LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText()).withStyle(ChatFormatting.YELLOW));
+
+		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && stack.getItem() instanceof BlockItem bi)
 		{
 			Block b = bi.getBlock();
 			if(b instanceof IOwnableBlock)
-				event.getToolTip().add(EasyText.translatable("tooltip.lightmanscurrency.ownable.anarchy_warning").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+				event.getToolTip().add(LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
 		}
+
+
 	}
 	
 	@Override
@@ -305,4 +318,10 @@ public class ClientProxy extends CommonProxy{
 			player.sendSystemMessage(message);
 	}
 
+	@Override
+	public List<GameProfile> getPlayerList(boolean logicalClient) {
+		if(!logicalClient)
+			return super.getPlayerList(logicalClient);
+		return Minecraft.getInstance().getConnection().getOnlinePlayers().stream().map(PlayerInfo::getProfile).toList();
+	}
 }

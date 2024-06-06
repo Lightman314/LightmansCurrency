@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -32,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource, IEasyTickable {
 	
@@ -74,7 +76,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public TradeButtonArea withScrollBarHeight(int height) { this.scrollBarHeight = height; return this; }
 
 	//Variant of getAvailableWidth that assumes we'll have the smallest amount of available space.
-	//Assumption is made so that we don't get into an infinite loop calculating the whether we can scroll -> how many rows -> whether we can scroll...
+	//Assumption is made so that we don't get into an infinite loop calculating whether we can scroll -> how many rows -> whether we can scroll...
 	public int getMinAvailableWidth() { return this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width; }
 	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width) : this.width; }
 	
@@ -136,7 +138,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 				if (this.tradeFilter.apply(trade)) {
 					TradeRenderManager<?> trm = trade.getButtonRenderer();
 					int tradeWidth = trm.tradeButtonWidth(context);
-					if (currentRowWidth + tradeWidth > this.getMinAvailableWidth() && currentRow.size() > 0) {
+					if (currentRowWidth + tradeWidth > this.getMinAvailableWidth() && !currentRow.isEmpty()) {
 						//Start new row
 						result.add(currentRow);
 						currentRow = new ArrayList<>();
@@ -176,8 +178,9 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 		if(this.validTrades() <= 0)
 		{
-			int textWidth = gui.font.width(EasyText.translatable("gui.lightmanscurrency.notrades"));
-			gui.drawString(EasyText.translatable("gui.lightmanscurrency.notrades"), (this.width / 2) - (textWidth / 2), (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+			Component text = LCText.GUI_TRADER_NO_TRADES.get();
+			int textWidth = gui.font.width(text);
+			gui.drawString(text, (this.width / 2) - (textWidth / 2), (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
 		}
 		//Render title
 		if(this.hasTitlePosition)
@@ -186,17 +189,17 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			if(ts == null)
 				return;
 
-			StringBuilder text = new StringBuilder();
+			MutableComponent text = EasyText.empty();
 			for(TraderData trader : ts.getTraders())
 			{
-				if(text.length() == 0)
-					text = new StringBuilder(this.renderNameOnly ? trader.getName().getString() : trader.getTitle().getString());
+				if(text.getString().isEmpty())
+					text.append(this.renderNameOnly ? trader.getName() : trader.getTitle());
 				else
-					text.append(EasyText.translatable("gui.lightmanscurrency.trading.listseperator").getString()).append(this.renderNameOnly ? trader.getName().getString() : trader.getTitle().getString());
+					text.append(LCText.GUI_SEPERATOR.get()).append(this.renderNameOnly ? trader.getName() : trader.getTitle());
 			}
 
 			gui.pushOffsetZero();
-			gui.drawString(TextRenderUtil.fitString(text.toString(), this.titleWidth), this.titlePosition, 0x404040);
+			gui.drawString(TextRenderUtil.fitString(text, this.titleWidth), this.titlePosition, 0x404040);
 			gui.popOffset();
 		}
 	}

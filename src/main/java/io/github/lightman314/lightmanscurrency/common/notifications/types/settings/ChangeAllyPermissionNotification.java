@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -43,9 +44,9 @@ public class ChangeAllyPermissionNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(this.oldValue == 0)
-			return Component.translatable("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS_SIMPLE.get(this.player.getName(true), this.permission, this.newValue);
 		else
-			return Component.translatable("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS.get(this.player.getName(true), this.permission, this.oldValue, this.newValue);
 	}
 
 	@Override

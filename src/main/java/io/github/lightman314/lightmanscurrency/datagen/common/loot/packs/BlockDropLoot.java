@@ -32,6 +32,7 @@ public class BlockDropLoot extends LootTableProviderTemplate {
 
     @Override
     protected void generateLootTables() {
+
         this.tallBlock(ModBlocks.ATM);
         this.simpleBlock(ModBlocks.COIN_CHEST);
         this.simpleBlock(ModBlocks.CASH_REGISTER);
@@ -54,6 +55,7 @@ public class BlockDropLoot extends LootTableProviderTemplate {
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_EMERALD, ModBlocks.COINPILE_CHOCOLATE_EMERALD, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_DIAMOND, ModBlocks.COINPILE_CHOCOLATE_DIAMOND, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_NETHERITE, ModBlocks.COINPILE_CHOCOLATE_NETHERITE, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
+
     }
 
     protected ResourceLocation getBlockTable(@Nonnull Block block)

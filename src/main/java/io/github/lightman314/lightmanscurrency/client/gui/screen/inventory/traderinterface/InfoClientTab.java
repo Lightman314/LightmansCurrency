@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -19,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -53,7 +53,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.info"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_INFO.get(); }
 
     @Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -69,7 +69,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
 		
 		this.acceptChangesButton = this.addChild(new IconButton(screenArea.pos.offset(181,90), this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK)
-				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES.get())));
 		this.acceptChangesButton.visible = false;
 		
 	}
@@ -81,8 +81,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		//Get last result
 		List<Component> list = new ArrayList<>();
 		TradeResult result = this.menu.getBE().mostRecentTradeResult();
-		if(result.failMessage != null)
-			list.add(result.failMessage);
+		Component message = result.getMessage();
+		if(message != null)
+			list.add(message);
 		
 		if(this.menu.getBE().getInteractionType().trades)
 		{
@@ -92,14 +93,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				return new ArrayList<>();
 			if(trueTrade == null)
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.missing").withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_MISSING.getWithStyle(ChatFormatting.RED));
 				return list;
 			}
 			TradeComparisonResult differences = trueTrade.compare(referencedTrade);
 			//Type check
 			if(!differences.TypeMatches())
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.type").withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_TYPE.getWithStyle(ChatFormatting.RED));
 				return list;
 			}
 			//Trade-specific checks
@@ -111,7 +112,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			TraderData trader = this.menu.getBE().getTrader();
 			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_INTERFACE_INFO_MISSING_PERMISSIONS.getWithStyle(ChatFormatting.RED));
 			}
 		}
 		return list;
@@ -133,9 +134,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		else
 		{
 			if(this.menu.getBE().hasTrader())
-				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.removed").withStyle(ChatFormatting.RED);
+				infoText = LCText.GUI_INTERFACE_INFO_TRADER_REMOVED.getWithStyle(ChatFormatting.RED);
 			else
-				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.null");
+				infoText = LCText.GUI_INTERFACE_INFO_TRADER_NULL.get();
 		}
 		gui.drawString(TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), 8, 16, 0x404040);
 		
@@ -147,7 +148,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		{
 			//If no defined trade, give "No Trade Selected" message.
 			if(this.menu.getBE().getReferencedTrade() == null)
-				gui.drawString(EasyText.translatable("gui.lightmanscurrency.interface.info.trade.notdefined"), 6, 40, 0x404040);
+				gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_NOT_DEFINED.get(), 6, 40, 0x404040);
 		}
 		if(this.newTradeDisplay.visible)
 		{
@@ -157,7 +158,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			
 			//If no found trade, give "Trade No Longer Exists" message.
 			if(this.menu.getBE().getTrueTrade() == null)
-				gui.drawString(EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
+				gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_MISSING.getWithStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
 			
 		}
 
@@ -166,11 +167,11 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		{
 			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
 			gui.drawString(accountName, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(accountName) / 2), 120, 0x404040);
-			Component balanceText = EasyText.translatable("gui.lightmanscurrency.bank.balance", account.getMoneyStorage().getRandomValueText());
+			Component balanceText = account.getBalanceText();
 			gui.drawString(balanceText, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(balanceText) / 2), 130, 0x404040);
 		}
 
-		if(this.getWarningMessages().size() > 0)
+		if(!this.getWarningMessages().isEmpty())
 		{
 			//Render warning widget
 			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
@@ -200,7 +201,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		if(WARNING_AREA.atPosition(WARNING_AREA.pos.offset(this.screen)).isMouseInArea(gui.mousePos))
 		{
 			List<Component> warnings = this.getWarningMessages();
-			if(warnings.size() > 0)
+			if(!warnings.isEmpty())
 				gui.renderComponentTooltip(warnings);
 		}
 		

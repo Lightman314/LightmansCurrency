@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketChestQuickCollect;
 import net.minecraft.client.Minecraft;
@@ -28,10 +28,7 @@ public class ChestCoinCollectButton extends IconButton {
     }
 
     private static IconData getIcon() {
-        Minecraft mc = Minecraft.getInstance();
-        if(mc != null)
-            return IconData.of(CoinAPI.API.getEquippedWallet(mc.player));
-        return IconData.BLANK;
+        return IconData.of(CoinAPI.API.getEquippedWallet(Minecraft.getInstance().player));
     }
 
     private boolean shouldBeVisible()
@@ -62,7 +59,7 @@ public class ChestCoinCollectButton extends IconButton {
 
     public static void tryRenderTooltip(EasyGuiGraphics gui, int mouseX, int mouseY) {
         if(lastButton != null && lastButton.isMouseOver(mouseX, mouseY))
-            gui.renderTooltip(EasyText.translatable("tooltip.button.chest.coin_collection"), mouseX, mouseY);
+            gui.renderTooltip(LCText.TOOLTIP_CHEST_COIN_COLLECTION_BUTTON.get());
     }
 
 }

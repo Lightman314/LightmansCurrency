@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.impl;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -77,6 +78,6 @@ public class PlayerMoneyHolder extends MoneyHolder {
     }
 
     @Override
-    public Component getTooltipTitle() { return EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.player"); }
+    public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_PLAYER.get(); }
 
 }

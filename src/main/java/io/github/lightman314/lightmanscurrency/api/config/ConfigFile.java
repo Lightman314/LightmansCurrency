@@ -318,7 +318,7 @@ public abstract class ConfigFile {
         //Write Options
         Consumer<String> w = section.lineConsumer(writer);
         section.optionsInOrder.forEach(pair -> pair.getSecond().write(pair.getFirst(),w));
-        //Write sub-sections
+        //Write subsections
         section.sectionsInOrder.forEach(s -> this.writeSection(writer,s));
     }
 
@@ -402,7 +402,7 @@ public abstract class ConfigFile {
 
     }
 
-    private static final class ConfigSection
+    protected static final class ConfigSection
     {
         private final ConfigSection parent;
         private final int depth;

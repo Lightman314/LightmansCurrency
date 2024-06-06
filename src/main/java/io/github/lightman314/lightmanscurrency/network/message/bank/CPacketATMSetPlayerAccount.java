@@ -31,7 +31,7 @@ public class CPacketATMSetPlayerAccount extends ClientToServerPacket {
 				if(sender.containerMenu instanceof ATMMenu menu)
 				{
 					MutableComponent response = menu.SetPlayerAccount(message.playerName);
-					 new SPacketATMPlayerAccountResponse(response).sendTo(sender);
+				 	new SPacketATMPlayerAccountResponse(response).sendTo(sender);
 				}
 			}
 		}

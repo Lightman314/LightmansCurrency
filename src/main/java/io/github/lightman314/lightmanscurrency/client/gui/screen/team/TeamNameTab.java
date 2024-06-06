@@ -1,16 +1,16 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -23,10 +23,10 @@ public class TeamNameTab extends TeamTab {
 	
 	@Nonnull
     @Override
-	public @NotNull IconData getIcon() { return IconData.of(Component.translatable("gui.button.lightmanscurrency.changename")); }
+	public @NotNull IconData getIcon() { return LCText.BUTTON_CHANGE_NAME_ICON.icon(); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.name"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_NAME.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -42,11 +42,11 @@ public class TeamNameTab extends TeamTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 20, 160, 20, Component.empty()));
+		this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 20, 160, 20, EasyText.empty()));
 		this.nameInput.setMaxLength(Team.MAX_NAME_LENGTH);
 		this.nameInput.setValue(this.getActiveTeam().getName());
 		
-		this.buttonChangeName = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 45), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName));
+		this.buttonChangeName = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 45), 160, 20, LCText.BUTTON_TEAM_RENAME.get(), this::changeName));
 		this.buttonChangeName.active = false;
 	}
 
@@ -56,7 +56,7 @@ public class TeamNameTab extends TeamTab {
 		String currentName = "NULL";
 		if(this.getActiveTeam() != null)
 			currentName = this.getActiveTeam().getName();
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.name.current", currentName), 20, 10, 0x404040);
+		gui.drawString(LCText.GUI_TEAM_NAME_CURRENT.get(currentName), 20, 10, 0x404040);
 		
 	}
 

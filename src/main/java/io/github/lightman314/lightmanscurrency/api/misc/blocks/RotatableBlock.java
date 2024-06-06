@@ -2,8 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.misc.blocks;
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -17,13 +16,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
-public class RotatableBlock extends Block implements IRotatableBlock {
+public class RotatableBlock extends EasyBlock implements IRotatableBlock {
 	
 	private final Function<Direction,VoxelShape> shape;
 	
 	public RotatableBlock(Properties properties)
 	{
-		this(properties, LazyShapes.BOX_SHAPE_T);
+		this(properties, LazyShapes.BOX_SHAPE);
 	}
 	
 	public RotatableBlock(Properties properties, VoxelShape shape) {

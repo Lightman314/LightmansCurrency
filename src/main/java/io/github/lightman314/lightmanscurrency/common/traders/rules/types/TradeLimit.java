@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEv
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,11 +38,11 @@ public class TradeLimit extends TradeRule{
 		
 		if(this.count >= this.limit)
 		{
-			event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit2.denial", this.count));
-			event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
+			event.addDenial(LCText.TRADE_RULE_TRADE_LIMIT_DENIAL.get(this.count));
+			event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_LIMIT.get(this.limit));
 		}
 		else
-			event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit2.info", this.count, this.limit));
+			event.addHelpful(LCText.TRADE_RULE_TRADE_LIMIT_INFO.get(this.count, this.limit));
 	}
 
 	@Override

@@ -7,15 +7,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class TraderInterfaceMenu extends EasyMenu {
+public class TraderInterfaceMenu extends LazyMessageMenu {
 
 	private final TraderInterfaceBlockEntity blockEntity;
 	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
@@ -37,10 +36,8 @@ public class TraderInterfaceMenu extends EasyMenu {
 	int currentTab = TraderInterfaceTab.TAB_INFO;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderInterfaceTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
-	
-	public boolean isClient() { return this.player.level().isClientSide; }
-	
-	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
+
+    public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
 		this.blockEntity = blockEntity;
 		this.canEditTabs = true;
@@ -75,7 +72,7 @@ public class TraderInterfaceMenu extends EasyMenu {
 		//Run the tab open code for the current tab
 		try {
 			this.getCurrentTab().onTabOpen();
-		} catch(Throwable t) { t.printStackTrace(); }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error opening tab!",t); }
 		
 	}
 	
@@ -182,16 +179,18 @@ public class TraderInterfaceMenu extends EasyMenu {
 		message.putInt("ChangeTab", newTab);
 		return message;
 	}
-	
+
+	@Deprecated(since = "2.2.1.4")
 	public void sendMessage(CompoundTag message) {
 		if(this.isClient())
 		{
-			new CPacketInterfaceInteraction(message).send();
+			this.SendMessageToServer(LazyPacketData.simpleTag("OldMessage", message));
 			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
 		}
 	}
-	
-	public void receiveMessage(CompoundTag message) {
+
+	@Deprecated(since = "2.2.1.4")
+	private void receiveMessage(CompoundTag message) {
 		//LightmansCurrency.LogInfo("Received nessage:\n" + message.getAsString());
 		if(message.contains("ChangeTab", Tag.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"));
@@ -202,5 +201,19 @@ public class TraderInterfaceMenu extends EasyMenu {
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable ignored) { }
 	}
-	
+
+	@Override
+	public void HandleMessage(@Nonnull LazyPacketData message) {
+		if(message.contains("ChangeTab"))
+			this.changeTab(message.getInt("ChangeTab"));
+		if(message.contains("ModeChange"))
+			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
+		if(message.contains("OnlineModeChange"))
+			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
+		if(message.contains("OldMessage"))
+			this.receiveMessage(message.getNBT("OldMessage"));
+		try {
+			this.getCurrentTab().handleMessage(message);
+		} catch (Throwable t) { LightmansCurrency.LogError("Error handling Trader Interface Message!",t); }
+	}
 }

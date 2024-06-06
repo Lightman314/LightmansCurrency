@@ -3,9 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -20,7 +21,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 
 	public static final NotificationType<AuctionHouseSellerNobidNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house_seller_nobid"),AuctionHouseSellerNobidNotification::new);
 	
-	List<ItemWriteData> items;
+	List<ItemData> items;
 
 	private AuctionHouseSellerNobidNotification() {}
 
@@ -28,7 +29,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 		
 		this.items = new ArrayList<>();
 		for(int i = 0; i < trade.getAuctionItems().size(); ++i)
-			this.items.add(new ItemWriteData(trade.getAuctionItems().get(i)));
+			this.items.add(new ItemData(trade.getAuctionItems().get(i)));
 		
 	}
 	
@@ -40,10 +41,10 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 	@Override
 	public MutableComponent getMessage() {
 		
-		Component itemText = getItemNames(this.items);
+		Component itemText = ItemData.getItemNames(this.items);
 		
 		//Create log from stored data
-		return Component.translatable("notifications.message.auction.seller.nobid", itemText);
+		return LCText.NOTIFICATION_AUCTION_SELLER_NO_BID.get(itemText);
 		
 	}
 
@@ -51,7 +52,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		
 		ListTag itemList = new ListTag();
-		for(ItemWriteData item : this.items)
+		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		
@@ -63,7 +64,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemWriteData(itemList.getCompound(i)));
+			this.items.add(ItemData.load(itemList.getCompound(i)));
 		
 	}
 	

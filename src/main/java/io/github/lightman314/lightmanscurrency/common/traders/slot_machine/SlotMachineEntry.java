@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -33,7 +34,7 @@ public final class SlotMachineEntry {
     public int getWeight() { return this.weight; }
     public void setWeight(int newWeight) { this.weight = Math.max(1, newWeight); }
 
-    private SlotMachineEntry(List<ItemStack> items, int weight) { this.items = items; this.setWeight(weight); }
+    private SlotMachineEntry(List<ItemStack> items, int weight) { this.items = InventoryUtil.copyList(items); this.setWeight(weight); }
 
     public boolean isValid() { return !this.items.isEmpty() && this.weight > 0; }
 
@@ -152,7 +153,7 @@ public final class SlotMachineEntry {
                     if(!context.putItem(this.items.get(i).copy()))
                     {
                         for(int x = 0; x < i; ++x)
-                            context.collectItem(this.items.get(i).copy());
+                            context.collectItem(this.items.get(x).copy());
                         return false;
                     }
                 }
@@ -169,19 +170,36 @@ public final class SlotMachineEntry {
             return false;
     }
 
-    public boolean hasStock(SlotMachineTraderData trader)
+    public int getStock(SlotMachineTraderData trader)
     {
+        if(!this.isValid())
+            return 0;
         if(trader.isCreative())
-            return true;
+            return 1;
         if(this.isMoney())
-            return trader.getStoredMoney().getStoredMoney().containsValue(this.getMoneyValue());
-        for(ItemStack item : InventoryUtil.combineQueryItems(this.items))
         {
-            if(!trader.getStorage().hasItem(item))
-                return false;
+            MoneyValue payout = this.getMoneyValue();
+            if(payout.isEmpty() || payout.getCoreValue() <= 0)
+                return 0;
+            IMoneyHolder storedMoney = trader.getStoredMoney();
+            MoneyValue totalMoney = storedMoney.getStoredMoney().valueOf(payout.getUniqueName());
+            return (int)(totalMoney.getCoreValue() / payout.getCoreValue());
         }
-        return true;
+        else
+        {
+            int minStock = Integer.MAX_VALUE;
+            for(ItemStack item : InventoryUtil.combineQueryItems(this.items))
+            {
+                int count = trader.getStorage().getItemCount(item);
+                int stock = count / item.getCount();
+                if(stock < minStock)
+                    minStock = stock;
+            }
+            return minStock;
+        }
     }
+
+    public boolean hasStock(SlotMachineTraderData trader) { return this.getStock(trader) > 0; }
 
     public boolean isItemRelevant(ItemStack item)
     {

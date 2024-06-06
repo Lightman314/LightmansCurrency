@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -7,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankInteraction;
 import net.minecraft.client.gui.Font;
@@ -48,9 +48,9 @@ public class BankAccountWidget implements IEasyTickable {
 		this.amountSelection.allowFreeInput = false;
 		addWidget.accept(this.amountSelection);
 
-		this.buttonDeposit = new EasyTextButton(screenMiddle - 5 - BUTTON_WIDTH, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, EasyText.translatable("gui.button.bank.deposit"), this::OnDeposit);
+		this.buttonDeposit = new EasyTextButton(screenMiddle - 5 - BUTTON_WIDTH, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, LCText.BUTTON_BANK_DEPOSIT.get(), this::OnDeposit);
 		addWidget.accept(this.buttonDeposit);
-		this.buttonWithdraw = new EasyTextButton(screenMiddle + 5, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, EasyText.translatable("gui.button.bank.withdraw"), this::OnWithdraw);
+		this.buttonWithdraw = new EasyTextButton(screenMiddle + 5, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, LCText.BUTTON_BANK_WITHDRAW.get(), this::OnWithdraw);
 		addWidget.accept(this.buttonWithdraw);
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		
@@ -63,7 +63,7 @@ public class BankAccountWidget implements IEasyTickable {
 
 		int screenMiddle = this.parent.getScreen().width / 2;
 		IBankAccount ba = this.parent.getBankAccount();
-		Component balanceComponent = ba == null ? EasyText.translatable("gui.lightmanscurrency.bank.null") : EasyText.translatable("gui.lightmanscurrency.bank.balance", ba.getMoneyStorage().getRandomValueText());
+		Component balanceComponent = ba == null ? LCText.GUI_BANK_NO_SELECTED_ACCOUNT.get() : ba.getBalanceText();
 		int offset = gui.font.width(balanceComponent.getString()) / 2;
 		gui.pushOffsetZero().drawString(balanceComponent, screenMiddle - offset, this.y + MoneyValueWidget.HEIGHT + 30 + spacing + yOffset, 0x404040);
 		gui.popOffset();

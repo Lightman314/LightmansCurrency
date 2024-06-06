@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
@@ -17,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,9 +47,9 @@ public class TimedSale extends PriceTweakingTradeRule {
 		{
 			switch (event.getTrade().getTradeDirection()) {
 				case SALE ->
-						event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().getString()));
+						event.addHelpful(LCText.TRADE_RULE_TIMED_SALE_INFO_SALE.get(this.discount, this.getTimeRemaining().getString()));
 				case PURCHASE ->
-						event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().getString()));
+						event.addHelpful(LCText.TRADE_RULE_TIMED_SALE_INFO_PURCHASE.get(this.discount, this.getTimeRemaining().getString()));
 				default -> { } //Nothing if direction is NONE
 			}
 		}

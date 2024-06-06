@@ -3,8 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -12,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.teams.CPacketCreateTeam;
@@ -34,7 +32,7 @@ public class TeamSelectionTab extends TeamTab {
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.selection"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_SELECT.get(); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) { return true; }
@@ -58,7 +56,7 @@ public class TeamSelectionTab extends TeamTab {
 		this.newTeamName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 140, 160, 20, Component.empty()));
 		this.newTeamName.setMaxLength(32);
 		
-		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, EasyText.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam));
+		this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, LCText.BUTTON_TEAM_CREATE.get(), this::createTeam));
 		this.buttonCreateTeam.active = false;
 		
 	}
@@ -85,8 +83,8 @@ public class TeamSelectionTab extends TeamTab {
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		//Render the text
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.select"), 20, 10, 0x404040);
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.team.create"), 20, 130, 0x404040);
+		gui.drawString(LCText.GUI_TEAM_SELECT.get(), 20, 10, 0x404040);
+		gui.drawString(LCText.GUI_TEAM_CREATE.get(), 20, 130, 0x404040);
 		
 	}
 

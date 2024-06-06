@@ -4,13 +4,13 @@ import javax.annotation.Nonnull;
 
 import com.google.common.base.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class TeamButton extends EasyButton {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teambutton.png");
-	
+
 	public enum Size { WIDE(180, 0), NORMAL(156, 1), NARROW(90, 2);
 		public final int width;
 		public final int guiPos;
@@ -63,7 +63,7 @@ public class TeamButton extends EasyButton {
 		//Render Team Name
 		gui.drawString(TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), 2, 2, TEXT_COLOR);
 		//Render Owner Name
-		gui.drawString(TextRenderUtil.fitString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), 2, 10, TEXT_COLOR);
+		gui.drawString(TextRenderUtil.fitString(LCText.GUI_OWNER_CURRENT.get(this.getTeam().getOwner().getName(true)), this.width - 4), 2, 10, TEXT_COLOR);
 		
 	}
 	

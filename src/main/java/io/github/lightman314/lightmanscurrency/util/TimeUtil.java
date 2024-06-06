@@ -7,9 +7,12 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.chat.Component;
+import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import net.minecraft.network.chat.MutableComponent;
+
+import javax.annotation.Nonnull;
 
 public class TimeUtil {
 
@@ -111,9 +114,9 @@ public class TimeUtil {
 			{
 				TimeUnit unit = TimeUnit.UNITS_LARGE_TO_SMALL.get(i);
 				String unitText = this.getUnitString(unit, shortText, false);
-				if(unitText.length() > 0)
+				if(!unitText.isEmpty())
 				{
-					if(text.length() > 0)
+					if(!text.isEmpty())
 						text.append(" ");
 					text.append(unitText);
 					count++;
@@ -124,14 +127,17 @@ public class TimeUtil {
 	}
 	
 	public enum TimeUnit {
-		SECOND, MINUTE, HOUR, DAY;
-		
+		SECOND(LCText.TIME_UNIT_SECOND), MINUTE(LCText.TIME_UNIT_MINUTE), HOUR(LCText.TIME_UNIT_HOUR), DAY(LCText.TIME_UNIT_DAY);
+
+		public final TimeUnitTextEntry text;
+		TimeUnit(@Nonnull TimeUnitTextEntry text) { this.text = text; }
+
 		public static final List<TimeUnit> UNITS_SMALL_TO_LARGE = ImmutableList.of(TimeUnit.SECOND, TimeUnit.MINUTE, TimeUnit.HOUR, TimeUnit.DAY);
 		public static final List<TimeUnit> UNITS_LARGE_TO_SMALL = ImmutableList.of(TimeUnit.DAY, TimeUnit.HOUR, TimeUnit.MINUTE, TimeUnit.SECOND);
-		
-		public MutableComponent getText() { return Component.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase()); }
-		public MutableComponent getPluralText() { return Component.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".plural"); }
-		public MutableComponent getShortText() { return Component.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".short"); }
+
+		public MutableComponent getText() { return this.text.fullText.get(); }
+		public MutableComponent getPluralText() { return this.text.pluralText.get(); }
+		public MutableComponent getShortText() { return this.text.shortText.get(); }
 		
 	}
 	

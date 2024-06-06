@@ -65,7 +65,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	Map<Integer,TraderStorageTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderStorageTab> getAllTabs() { return this.availableTabs; }
 	@Override
-	public void setTab(int key, @Nonnull TraderStorageTab tab) { if(this.canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
+	public void setTab(int key, @Nonnull TraderStorageTab tab) { if(this.canEditTabs) this.availableTabs.put(key, tab); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
 	@Override
 	public void clearTab(int key)
 	{

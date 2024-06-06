@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.value;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -179,7 +180,7 @@ public final class MoneyStorage extends MoneyHolder {
     public void clear() { this.values.clear(); this.markDirty(); }
 
     @Nonnull
-    public Component getRandomValueText() { return this.getRandomValueText(EasyText.translatable("gui.lightmanscurrency.bank.balance.empty")); }
+    public Component getRandomValueText() { return this.getRandomValueText(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
     @Nonnull
     public Component getRandomValueText(@Nonnull String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
     @Nonnull
@@ -199,7 +200,7 @@ public final class MoneyStorage extends MoneyHolder {
             if(value.isEmpty())
                 continue;
             if(!text.getString().isEmpty())
-                text.append(EasyText.translatable("gui.lightmanscurrency.trading.listseperator"));
+                text.append(LCText.GUI_SEPERATOR.get());
             text.append(value.getText());
         }
         return text;
@@ -217,7 +218,7 @@ public final class MoneyStorage extends MoneyHolder {
     public boolean hasStoredMoneyChanged() { return this.cacheChanged; }
 
     @Override
-    public Component getTooltipTitle() { return EasyText.translatable("tooltip.lightmanscurrency.trader.info.money.coin_storage"); }
+    public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_STORAGE.get(); }
 
     public void GiveToPlayer(@Nonnull Player player)
     {

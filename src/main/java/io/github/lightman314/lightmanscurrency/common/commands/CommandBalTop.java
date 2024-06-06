@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -56,7 +57,7 @@ public class CommandBalTop {
 		});
 		if(allAccounts.isEmpty())
 		{
-			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.no_results"));
+			EasyText.sendCommandFail(source, LCText.COMMAND_BALTOP_NO_RESULTS.get());
 			return 0;
 		}
 
@@ -66,20 +67,20 @@ public class CommandBalTop {
 		
 		if(startIndex >= allAccounts.size())
 		{
-			EasyText.sendCommandFail(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.error.page"));
+			EasyText.sendCommandFail(source, LCText.COMMAND_BALTOP_ERROR_PAGE.get());
 			return 0;
 		}
 
 
-		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
-		EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		EasyText.sendCommandSucess(source, LCText.COMMAND_BALTOP_TITLE.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		EasyText.sendCommandSucess(source, LCText.COMMAND_BALTOP_PAGE.get(page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
 				IBankAccount account = allAccounts.get(i);
 				Component name = account.getName();
 				Component amount = account.getMoneyStorage().getAllValueText();
-				EasyText.sendCommandSucess(source, EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
+				EasyText.sendCommandSucess(source, LCText.COMMAND_BALTOP_ENTRY.get(i + 1, name, amount), false);
 			} catch(Exception ignored) { }
 		}
 		

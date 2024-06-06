@@ -92,14 +92,29 @@ public abstract class BankAPI {
      * @param account The bank account to deposit money into.
      * @param amount The amount of money to deposit.
      */
-    public abstract boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount);
+    public final boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) { return BankDepositFromServer(account, amount, true); }
+    /**
+     * Called by admins/commands to forcibly create and deposit money into the given bank account.
+     * @param account The bank account to deposit money into.
+     * @param amount The amount of money to deposit.
+     * @param notifyPlayers Whether the owner of the bank account should have the deposit notification pushed to their personal notifications.
+     */
+    public abstract boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers);
     /**
      * Called by admins/commands to forcibly withdraw and destroy money from the given bank account.
      * @param account The bank account to take money from.
      * @param amount The amount of money to take.
      */
     @Nonnull
-    public abstract Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount);
+    public final Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) { return this.BankWithdrawFromServer(account, amount, true); }
+    /**
+     * Called by admins/commands to forcibly withdraw and destroy money from the given bank account.
+     * @param account The bank account to take money from.
+     * @param amount The amount of money to take.
+     * @param notifyPlayers Whether the owner of the bank account should have the withdrawl notification pushed to their personal notifications.
+     */
+    @Nonnull
+    public abstract Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers);
     /**
      * @deprecated Use {@link #BankDepositFromServer(IBankAccount, MoneyValue)} instead.
      * @see #API
@@ -162,14 +177,14 @@ public abstract class BankAPI {
      * @return A message sent as feedback to the player who initiated the transfer.
      */
     @Nonnull
-    public abstract MutableComponent BankTransfer(@Nonnull Player player, @Nonnull BankReference fromAccount, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination);
+    public abstract MutableComponent BankTransfer(@Nonnull Player player, BankReference fromAccount, @Nonnull MoneyValue amount, IBankAccount destination);
 
     /**
      * @deprecated Use {@link #BankTransfer(IBankAccountAdvancedMenu, MoneyValue, IBankAccount)} instead.
      * @see #API
      */
     @Deprecated(since = "2.2.1.1")
-    public static MutableComponent TransferCoins(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull BankReference destination) { return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get()); }
+    public static MutableComponent TransferCoins(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, BankReference destination) { return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get()); }
 
     /**
      * @deprecated Use {@link #BankTransfer(Player,BankReference, MoneyValue, IBankAccount)} instead.

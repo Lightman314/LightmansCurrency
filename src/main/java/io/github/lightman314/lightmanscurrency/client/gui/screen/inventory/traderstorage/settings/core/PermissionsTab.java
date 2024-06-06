@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
@@ -29,7 +29,7 @@ public class PermissionsTab extends SettingsSubTab {
     public IconData getIcon() { return IconData.of(Items.BOOKSHELF); }
 
     @Override
-    public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.allyperms"); }
+    public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_ALLY_PERMS.get(); }
 
     @Override
     public boolean canOpen() { return this.menu.hasPermission(Permissions.EDIT_PERMISSIONS); }

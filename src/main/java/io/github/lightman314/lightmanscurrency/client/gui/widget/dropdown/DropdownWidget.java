@@ -172,7 +172,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	private String fitString(EasyGuiGraphics gui, String text) {
 		if(gui.font.width(text) <= this.width - 14)
 			return text;
-		while(gui.font.width(text + "...") > this.width - 14 && text.length() > 0)
+		while(gui.font.width(text + "...") > this.width - 14 && !text.isEmpty())
 			text = text.substring(0, text.length() - 1);
 		return text + "...";
 	}

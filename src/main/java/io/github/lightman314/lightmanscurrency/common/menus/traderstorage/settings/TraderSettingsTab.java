@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,13 +33,6 @@ public class TraderSettingsTab extends TraderStorageTab {
 
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
-
-    @Deprecated(since = "2.1.2.4")
-    public void SendSettingsMessage(CompoundTag settingsUpdate)
-    {
-        if(this.menu.isClient())
-            this.menu.SendMessage(LazyPacketData.simpleTag("SettingsUpdate", settingsUpdate));
-    }
 
     @Override
     public void receiveMessage(LazyPacketData message) {

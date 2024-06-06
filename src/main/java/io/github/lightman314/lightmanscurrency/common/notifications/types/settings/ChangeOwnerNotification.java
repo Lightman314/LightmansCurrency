@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -20,17 +20,12 @@ public class ChangeOwnerNotification extends Notification {
 	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_ownership"),ChangeOwnerNotification::new);
 	
 	PlayerReference player;
-	OwnershipData newOwner;
-	OwnershipData oldOwner;
+	Owner newOwner;
+	Owner oldOwner;
 	
 	private ChangeOwnerNotification() { }
-	
-	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, PlayerReference oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
-	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, Team oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
-	public ChangeOwnerNotification(PlayerReference player, Team newOwner, PlayerReference oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
-	public ChangeOwnerNotification(PlayerReference player, Team newOwner, Team oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
-	
-	private ChangeOwnerNotification(PlayerReference player, OwnershipData newOwner, OwnershipData oldOwner) {
+
+	public ChangeOwnerNotification(PlayerReference player, Owner newOwner, Owner oldOwner) {
 		this.player = player;
 		this.newOwner = newOwner;
 		this.oldOwner = oldOwner;
@@ -47,12 +42,12 @@ public class ChangeOwnerNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		if(newOwner.is(this.player))
-			return Component.translatable("log.settings.newowner.taken", this.player.getName(true), this.oldOwner.getName());
-		if(oldOwner.is(this.player))
-			return Component.translatable("log.settings.newowner.passed", this.player.getName(true), this.newOwner.getName());
+		if(this.newOwner.asPlayerReference().isExact(this.player))
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TAKEN.get(this.newOwner.getName(), this.oldOwner.getName());
+		if(this.oldOwner.asPlayerReference().isExact(this.player))
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_PASSED.get(this.oldOwner.getName(), this.newOwner.getName());
 		else
-			return Component.translatable("log.settings.newowner.transferred", this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TRANSFERRED.get(this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
 	}
 
 	@Override
@@ -65,77 +60,17 @@ public class ChangeOwnerNotification extends Notification {
 	@Override
 	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.newOwner = OwnershipData.load(compound.getCompound("NewOwner"));
-		this.oldOwner = OwnershipData.load(compound.getCompound("OldOwner"));
+		this.newOwner = Owner.load(compound.getCompound("NewOwner"));
+		this.oldOwner = Owner.load(compound.getCompound("OldOwner"));
 	}
 
 	@Override
 	protected boolean canMerge(@Nonnull Notification other) {
 		if(other instanceof ChangeOwnerNotification n)
 		{
-			return n.player.is(this.player) && n.newOwner.is(this.newOwner) && n.oldOwner.is(this.oldOwner);
+			return n.player.is(this.player) && n.newOwner.matches(this.newOwner) && n.oldOwner.matches(this.oldOwner);
 		}
 		return false;
-	}
-	
-	
-	private static class OwnershipData {
-		
-		public final PlayerReference player;
-		public final long team;
-		
-		private OwnershipData(PlayerReference player, long team) {
-			this.player = player;
-			this.team = team;
-		}
-		
-		public String getName() {
-			if(this.player != null)
-				return this.player.getName(true);
-			Team team = TeamSaveData.GetTeam(true, this.team);
-			if(team != null)
-				return team.getName();
-			return "DELETED TEAM";
-		}
-		
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			if(this.player != null)
-				compound.put("Player", this.player.save());
-			else
-				compound.putLong("Team", this.team);
-			return compound;
-		}
-		
-		public boolean is(PlayerReference player) {
-			if(this.player != null)
-				return this.player.is(player);
-			return false;
-		}
-		
-		public boolean is(OwnershipData other) {
-			if(this.player != null)
-			{
-				if(other.player != null)
-					return this.player.is(other.player);
-				return false;
-			}
-			else if(other.player != null)
-				return false;
-			return this.team == other.team;
-		}
-		
-		public static OwnershipData of(PlayerReference player) { return new OwnershipData(player, -1); }
-		public static OwnershipData of(Team team) { return new OwnershipData(null, team.getID()); }
-		public static OwnershipData of(long teamID) { return new OwnershipData(null, teamID); }
-		
-		public static OwnershipData load(CompoundTag compound) {
-			if(compound.contains("Player"))
-				return of(PlayerReference.load(compound.getCompound("Player")));
-			else
-				return of(compound.getLong("Team"));
-		}
-		
 	}
 
 

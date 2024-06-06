@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
@@ -62,7 +63,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		{
 			//Create the buttons
 			this.buttonExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressExchangeButton, IconData.of(GUI_TEXTURE, this.imageWidth, 0))
-					.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.wallet.convert"))));
+					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE)));
 
 			this.positioner.addWidget(this.buttonExchange);
 
@@ -78,7 +79,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		if(this.menu.hasBankAccess())
 		{
 			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.ATM.get().asItem()))
-					.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.wallet.openbank"))));
+					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK)));
 			this.positioner.addWidget(this.buttonOpenBank);
 		}
 
@@ -138,7 +139,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		this.buttonToggleAutoExchange.setIcon(IconData.of(GUI_TEXTURE, this.imageWidth, this.autoExchange ? 16 : 32));
 	}
 
-	private Component getAutoExchangeTooltip() { return this.autoExchange ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoconvert.disable") : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoconvert.enable"); }
+	private Component getAutoExchangeTooltip() { return this.autoExchange ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }
 	
 	private void PressExchangeButton(EasyButton button)
 	{

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -235,20 +235,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
 
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
+	public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER; }
-
-	@Override
-	public boolean hasValidTrade() {
-		for(ItemTradeData trade : this.trades)
-		{
-			if(trade.isValid())
-				return true;
-		}
-		return false;
-	}
 
 	@Override
 	protected void saveAdditionalToJson(JsonObject json) {
@@ -260,7 +250,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			{
 				JsonObject tradeData = new JsonObject();
 				JsonArray ignoreNBTData = new JsonArray();
-				tradeData.addProperty("TradeType", trade.getTradeType().name());
+				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
 				if(trade.getSellItem(0).isEmpty())
 				{
 					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(1)));
@@ -314,11 +304,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 
 				//Save ignored NBT slots (if relevant)
-				if(ignoreNBTData.size() > 0)
+				if(!ignoreNBTData.isEmpty())
 					tradeData.add("IgnoreNBT", ignoreNBTData);
 				
 				JsonArray ruleData = TradeRule.saveRulesToJson(trade.getRules());
-				if(ruleData.size() > 0)
+				if(!ruleData.isEmpty())
 					tradeData.add("Rules", ruleData);
 				
 				trades.add(tradeData);
@@ -339,7 +329,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(shouldWrite)
 				storageData.add(FileUtil.convertItemStack(item));
 		}
-		if(storageData.size() > 0)
+		if(!storageData.isEmpty())
 			json.add("RelevantStorage", storageData);
 		
 		json.add("Trades", trades);
@@ -411,7 +401,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			} catch(Exception e) { LightmansCurrency.LogError("Error parsing item trade at index " + i, e); }
 		}
 		
-		if(this.trades.size() == 0)
+		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
 
 		List<ItemStack> storage = new ArrayList<>();
@@ -488,7 +478,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return TradeResult.FAIL_NULL;
 		
 		//Check if the player is allowed to do the trade
-		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+		if(this.runPreTradeEvent(trade, context).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
@@ -499,6 +489,13 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a sale
 		if(trade.isSale())
 		{
+
+			if(trade.outOfStock(context) && !this.isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_OUT_OF_STOCK;
+			}
+
 			//Randomize the items to be sold
 			List<ItemStack> soldItems = trade.getRandomSellItems(this);
 			//Abort if not enough items in inventory
@@ -507,7 +504,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
-			
+
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
 			{
@@ -545,7 +542,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!this.isCreative())
 			{
 				//Remove the sold items from storage
-				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
+				trade.RemoveItemsFromStorage(this.getStorage(),soldItems);
 				this.markStorageDirty();
 				//Give the paid cost to storage
 				taxesPaid = this.addStoredMoney(price, true);
@@ -559,7 +556,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -582,7 +579,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				return TradeResult.FAIL_NO_INPUT_SPACE;
 			}
 			//Abort if not enough money to pay them back
-			if(!trade.hasStock(context) && !this.isCreative())
+			if(trade.outOfStock(context) && !this.isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
@@ -614,7 +611,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -636,6 +633,12 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return TradeResult.FAIL_NO_INPUT_SPACE;
+			}
+
+			if(trade.outOfStock(context) && !this.isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 
 			List<ItemStack> soldItems = trade.getRandomSellItems(this);
@@ -691,7 +694,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			}
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, MoneyValue.empty());
+			this.runPostTradeEvent(trade, context, price, MoneyValue.empty());
 			
 			return TradeResult.SUCCESS;
 			
@@ -756,8 +759,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					outOfStock++;
 			}
 		}
-		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count", tradeCount));
+		list.add(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT.get(tradeCount));
 		if(outOfStock > 0)
-			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock", outOfStock));
+			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
 }

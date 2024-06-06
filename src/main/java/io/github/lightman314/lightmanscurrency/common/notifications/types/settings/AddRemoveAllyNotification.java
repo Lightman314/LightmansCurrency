@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -7,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -40,7 +40,7 @@ public class AddRemoveAllyNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.settings.addremoveally", this.player.getName(true), Component.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.ally.getName(true), Component.translatable(this.isAdd ? "log.settings.to" : "log.settings.from"));
+		return LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_ALLY.get(this.player.getName(true), this.isAdd ? LCText.GUI_ADDED.get() : LCText.GUI_REMOVED.get(), this.ally.getName(true), this.isAdd ? LCText.GUI_TO.get() : LCText.GUI_FROM.get());
 	}
 
 	@Override

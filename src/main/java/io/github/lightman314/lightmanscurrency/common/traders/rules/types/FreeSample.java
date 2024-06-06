@@ -6,17 +6,17 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
@@ -51,7 +51,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	public void beforeTrade(PreTradeEvent event)
 	{
 		if(this.giveDiscount(event))
-			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.free_sample.alert"));
+			event.addHelpful(LCText.TRADE_RULE_FREE_SAMPLE_INFO.get());
 	}
 	
 	@Override

@@ -32,7 +32,8 @@ public class TraderInteractionTab extends TraderClientTab {
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui)
+	{
 
 		TradeButton hoveredButton = this.tradeDisplay.getHoveredButton(gui.mousePos);
 		if(hoveredButton != null)

@@ -51,7 +51,6 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		return result;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
 		try{
@@ -59,7 +58,9 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			if(!(rawTrader instanceof ItemTraderData trader))
 				return;
 			ItemPositionData positionData = blockEntity.GetRenderData();
-			final int maxIndex = positionData.isEmpty() ? blockEntity.maxRenderIndex() : positionData.getEntryCount();
+			if(positionData.isEmpty())
+				return;
+			final int maxIndex = positionData.getEntryCount();
 			final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
 			BlockState state = blockEntity.getBlockState();
 			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
@@ -68,29 +69,17 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 				ItemTradeData trade = trader.getTrade(tradeSlot);
 				List<ItemStack> renderItems = GetRenderItems(trade);
-				if(renderItems.size() > 0)
+				if(!renderItems.isEmpty())
 				{
 
 					//Get positions
-					List<Vector3f> positions;
-					if(positionData.isEmpty())
-						positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
-					else
-						positions = positionData.getPositions(state, tradeSlot);
+					List<Vector3f> positions = positionData.getPositions(state, tradeSlot);
 
 					//Get rotation
-					List<Quaternionf> rotation;
-					if(positionData.isEmpty())
-						rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
-					else
-						rotation = positionData.getRotation(state, tradeSlot, partialTicks);
+					List<Quaternionf> rotation = positionData.getRotation(state, tradeSlot, partialTicks);
 
 					//Get scale
-					float scale;
-					if(positionData.isEmpty())
-						scale = blockEntity.GetStackRenderScale(tradeSlot);
-					else
-						scale = positionData.getScale(tradeSlot);
+					float scale = positionData.getScale(tradeSlot);
 
 					for(int pos = 0; pos < renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 					{

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
@@ -94,7 +95,7 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
     {
         CoinChestUpgradeData data = this.getUpgradeData();
         if(data != null)
-            return EasyText.translatable("button.lightmanscurrency.upgrade.coin_chest.exchange.while_open." + (Upgrades.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? "y" : "n"));
+            return Upgrades.COIN_CHEST_EXCHANGE.getExchangeWhileOpen(data) ? LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES.get() : LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_NO.get();
         return EasyText.empty();
     }
 

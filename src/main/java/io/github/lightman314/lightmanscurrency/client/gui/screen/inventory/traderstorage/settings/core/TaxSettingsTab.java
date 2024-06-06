@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
@@ -30,7 +31,7 @@ public class TaxSettingsTab extends SettingsSubTab {
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.taxes"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_TAXES.get(); }
 
     @Override
     public boolean canOpen() { return true; }
@@ -57,14 +58,13 @@ public class TaxSettingsTab extends SettingsSubTab {
             int totalRate = trader.getTotalTaxPercentage();
             int acceptableRate = trader.getAcceptableTaxRate();
             int color = totalRate > acceptableRate ? AlertType.ERROR.color : totalRate == acceptableRate ? AlertType.WARN.color : AlertType.HELPFUL.color;
-            TextRenderUtil.drawCenteredText(gui, EasyText.translatable("tooltip.lightmanscurrency.trader.tax_info.total_rate", totalRate), this.screen.getXSize() / 2, 16, color);
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(totalRate), this.screen.getXSize() / 2, 16, color);
         }
 
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.acceptabletaxrate", this.getAcceptableTaxRate()), 34, 37, 0x404040);
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.acceptabletaxrate", this.getAcceptableTaxRate()), 34, 37, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE.get(this.getAcceptableTaxRate()), 34, 37, 0x404040);
 
         if(this.isIgnoreAllTaxesVisible())
-            gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.ingoretaxes"), 40, 82, 0x404040);
+            gui.drawString(LCText.GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES.get(), 40, 82, 0x404040);
 
     }
 

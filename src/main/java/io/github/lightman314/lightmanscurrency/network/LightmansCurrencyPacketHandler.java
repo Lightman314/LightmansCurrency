@@ -107,7 +107,6 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Trader Interfaces
 		register(CPacketInterfaceHandlerMessage.class, CPacketInterfaceHandlerMessage.HANDLER);
-		register(CPacketInterfaceInteraction.class, CPacketInterfaceInteraction.HANDLER);
 		
 		//Teams
 		register(SPacketClearClientTeams.class, SPacketClearClientTeams.HANDLER);

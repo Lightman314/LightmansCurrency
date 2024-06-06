@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
@@ -92,7 +93,7 @@ public class CoinValueParser extends MoneyValueParser {
     }
 
     public static CommandSyntaxException NotACoinException(String item, StringReader reader) {
-        return new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, EasyText.translatable("command.argument.coinvalue.notacoin", item), reader.getString(), reader.getCursor());
+        return new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN.get(item), reader.getString(), reader.getCursor());
     }
 
     @Nonnull

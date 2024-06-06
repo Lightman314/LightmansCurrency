@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
@@ -50,7 +51,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 	
 	@Nonnull
 	@Override
-	public MutableComponent getMessage() { return EasyText.translatable("log.bank", this.getName(), Component.translatable(this.isDeposit ? "log.bank.deposit" : "log.bank.withdraw"), this.amount.getText()); }
+	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW.get(this.getName(), this.isDeposit ? LCText.NOTIFICATION_BANK_DEPOSIT.get() : LCText.NOTIFICATION_BANK_WITHDRAW.get(), this.amount.getText()); }
 
 	private static Player createPlayer() { return new Player(); }
 	private static Trader createTrader() { return new Trader(); }
@@ -128,10 +129,12 @@ public abstract class DepositWithdrawNotification extends Notification {
 	public static class Server extends DepositWithdrawNotification {
 
 		private Server() {}
-		public Server(MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); }
+		private Server(MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); }
+
+		public static NonNullSupplier<Notification> create(@Nonnull MutableComponent accountName, boolean isDeposit, @Nonnull MoneyValue amount) { return () -> new Server(accountName,isDeposit,amount); }
 
 		@Override
-		protected MutableComponent getName() { return EasyText.translatable("notifications.bank.server"); }
+		protected MutableComponent getName() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER.get(); }
 
 		@Nonnull
         @Override

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,7 +21,7 @@ public abstract class TaxableNotification extends Notification {
     public final MutableComponent getMessage() {
         if(this.taxesPaid.isEmpty())
             return this.getNormalMessage();
-        return this.getNormalMessage().append("\n").append(EasyText.translatable("notifications.message.taxes.paid", this.taxesPaid.getText("ERROR")));
+        return this.getNormalMessage().append("\n").append(LCText.NOTIFICATION_TAXES_PAID.get(this.taxesPaid.getText("ERROR")));
     }
 
     @Nonnull

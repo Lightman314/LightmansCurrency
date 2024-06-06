@@ -25,7 +25,14 @@ import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class PlayerReference {
-	
+
+	public static final PlayerReference NULL;
+
+	static {
+		NULL = new PlayerReference(new UUID(0,0),"NULL");
+		NULL.forceName = true;
+	}
+
 	public final UUID id;
 	private boolean forceName = false;
 	private final String name;
@@ -63,6 +70,13 @@ public class PlayerReference {
 		if(player == null)
 			return false;
 		return is(player.id);
+	}
+
+	public boolean isExact(PlayerReference player)
+	{
+		if(player == null)
+			return false;
+		return is(player.id) && !this.forceName && !player.forceName;
 	}
 	
 	public boolean is(GameProfile profile)

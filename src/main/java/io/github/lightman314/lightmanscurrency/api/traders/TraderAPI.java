@@ -31,7 +31,7 @@ public final class TraderAPI {
         String t = type.type.toString();
         if(traderRegistry.containsKey(t))
         {
-            LightmansCurrency.LogWarning("Attempted to registerNotification duplicate TraderType '" + t + "'!");
+            LightmansCurrency.LogWarning("Attempted to register duplicate TraderType '" + t + "'!");
             return;
         }
         traderRegistry.put(t, type);
@@ -46,7 +46,7 @@ public final class TraderAPI {
         String t = type.type.toString();
         if(tradeRuleRegistry.containsKey(t))
         {
-            LightmansCurrency.LogWarning("Attempted to registerNotification duplicate TradeRuleType '" + type.type + "'!");
+            LightmansCurrency.LogWarning("Attempted to register duplicate TradeRuleType '" + type.type + "'!");
             return;
         }
         tradeRuleRegistry.put(t, type);

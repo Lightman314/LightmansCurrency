@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
@@ -507,9 +506,10 @@ public final class LCConfig {
         public final IntOption walletBankLevel = IntOption.create(5,0,6);
 
         //Item Capacity Upgrade Settings
-        public final IntOption itemCapacityUpgrade1 = IntOption.create(3*64, 1, 1728);
-        public final IntOption itemCapacityUpgrade2 = IntOption.create(6*64, 2, 1728);
-        public final IntOption itemCapacityUpgrade3 = IntOption.create(9*64, 3, 1728);
+        public final IntOption itemCapacityUpgrade1 = IntOption.create(3*64, 1, 100*64);
+        public final IntOption itemCapacityUpgrade2 = IntOption.create(6*64, 2, 100*64);
+        public final IntOption itemCapacityUpgrade3 = IntOption.create(9*64, 3, 100*64);
+        public final IntOption itemCapacityUpgrade4 = IntOption.create(18*64, 4, 100*64);
 
         //Money Chest Upgrades
         public final IntOption coinChestMagnetRange1 = IntOption.create(4,1,50);
@@ -519,11 +519,12 @@ public final class LCConfig {
 
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
-        public final IntOption enchantmentMaxTickDelay = IntOption.create(200, 1);
+        public final IntOption enchantmentMaxTickDelay = IntOption.create(40, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
-        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(MoneyValue::empty, v -> v.sameType(this.moneyMendingRepairCost.get()));
+        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.sameType(this.moneyMendingRepairCost.get()));
         public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
         public final IntOption coinMagnetLeveledRange = IntOption.create(2,1,50);
+        public final IntOption coinMagnetCalculationCap = IntOption.create(10,3, Integer.MAX_VALUE);
 
         //Auction House Settings
         public final BooleanOption auctionHouseEnabled = BooleanOption.createTrue();
@@ -532,12 +533,17 @@ public final class LCConfig {
         public final IntOption auctionHouseDurationMax = IntOption.create(30,1);
 
         //Bank Account Settings
-        public final IntOption bankAccountInterestRate = IntOption.create(0,0,100);
+        public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d,0d,1d);
+        public final BooleanOption bankAccountForceInterest = BooleanOption.createTrue();
+        public final BooleanOption bankAccountInterestNotification = BooleanOption.createTrue();
         public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
         public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
 
         //Terminal Options
         public final BooleanOption moveUnnamedTradersToBottom = BooleanOption.createFalse();
+
+        //Paygate Options
+        public final IntOption paygateMaxDuration = IntOption.create(1200, 0);
 
         //Player Trading Options
         public final DoubleOption playerTradingRange = DoubleOption.create(-1d,-1d);
@@ -666,6 +672,8 @@ public final class LCConfig {
                     .add("itemCapacity2", this.itemCapacityUpgrade2);
             builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
                     .add("itemCapacity3", this.itemCapacityUpgrade3);
+            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
+                    .add("itemCapacity4", this.itemCapacityUpgrade4);
 
             builder.pop().comment("Money Chest Magnet Upgrade").push("money_chest_magnet");
 
@@ -703,6 +711,10 @@ public final class LCConfig {
                     .add("coinMagnetBaseRange", this.coinMagnetBaseRange);
             builder.comment("The increase in the coin collection radius added by each additional level of the Coin Magnet enchantment.")
                     .add("coinMagnetLeveledRange", this.coinMagnetLeveledRange);
+            builder.comment("The final level of Coin Magnet that will result in increased range calculations.",
+                            "Increase if you have another mod that increases the max level of the Coin Magnet enchantment",
+                            "and you wish for those levels to actually apply an effect.")
+                    .add("coinMagnetCalculationLevelCap", this.coinMagnetCalculationCap);
 
             builder.pop();
 
@@ -729,8 +741,18 @@ public final class LCConfig {
             builder.comment("Bank Account Settings").push("bank_accounts");
 
             builder.comment("The interest rate that bank accounts will earn just by existing.",
-                        "Setting to 0 will disable interesting and all interest-related ticks from happening.")
-                    .add("interestRate", this.bankAccountInterestRate);
+                        "Setting to 0 will disable interesting and all interest-related ticks from happening.",
+                        "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
+                        "Rate of 0.01 is equal to a 1% interest rate.")
+                    .add("interest", this.bankAccountInterestRate);
+
+            builder.comment("Whether interest applied to small amounts of money are guaranteed to give at least *some* money as long as there's money in the account.",
+                            "Example 1% interest applied to a bank account with only 1 copper coin will always give *at least* 1 copper coin.")
+                    .add("forceInterest", this.bankAccountForceInterest);
+
+            builder.comment("Whether players will receive a personal notification whenever their bank account collects interest.",
+                            "Regardless of this value, the bank accounts logs will always display the interest interaction.")
+                    .add("interestNotification", this.bankAccountInterestNotification);
 
             builder.comment("The number of minecraft ticks that will pass before interest is applied.",
                             "Helpful Notes:",
@@ -754,6 +776,14 @@ public final class LCConfig {
 
             builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
                     .add("sortUnnamedTradersToBottom", this.moveUnnamedTradersToBottom);
+
+            builder.pop();
+
+            builder.comment("Paygate Settings").push("paygate");
+
+            builder.comment("The maximum number of ticks that a paygate can be set to output a redstone signal for.",
+                            "Note: 20t = 1s")
+                    .add("maxRedstoneDuration", this.paygateMaxDuration);
 
             builder.pop();
 

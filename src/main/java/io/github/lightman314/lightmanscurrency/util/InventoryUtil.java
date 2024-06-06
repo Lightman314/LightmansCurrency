@@ -532,24 +532,7 @@ public class InventoryUtil {
 		}
     }
     
-    public static List<ItemStack> combineQueryItems(ItemStack... items)
-    {
-    	List<ItemStack> itemList = new ArrayList<>();
-    	for(ItemStack item : items)
-    	{
-    		boolean addNew = true;
-			if(item.isEmpty())
-				continue;
-    		for(int i = 0; i < itemList.size() && addNew; ++i)
-    		{
-    			if(ItemMatches(item, itemList.get(i)))
-    				itemList.get(i).grow(item.getCount());
-    		}
-    		if(addNew && !item.isEmpty())
-    			itemList.add(item.copy());
-    	}
-    	return itemList;
-    }
+    public static List<ItemStack> combineQueryItems(ItemStack... items) { return combineQueryItems(Lists.newArrayList(items)); }
 
 	public static List<ItemStack> combineQueryItems(List<ItemStack> items)
 	{
@@ -560,7 +543,10 @@ public class InventoryUtil {
 			for(int i = 0; i < itemList.size() && addNew; ++i)
 			{
 				if(ItemMatches(item, itemList.get(i)))
+				{
 					itemList.get(i).grow(item.getCount());
+					addNew = false;
+				}
 			}
 			if(addNew && !item.isEmpty())
 				itemList.add(item.copy());
@@ -646,5 +632,13 @@ public class InventoryUtil {
      	else
      		return 0;
     }
+
+	public static int totalItemCount(@Nonnull List<ItemStack> list)
+	{
+		int count = 0;
+		for(ItemStack s : list)
+			count += s.getCount();
+		return count;
+	}
     
 }

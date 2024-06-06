@@ -2,16 +2,18 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderinterface.bas
 
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.TradeSelectClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class TradeSelectTab extends TraderInterfaceTab {
 
@@ -41,20 +43,14 @@ public class TradeSelectTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().setTradeIndex(tradeIndex);
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewTradeIndex", tradeIndex);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewTradeIndex", tradeIndex));
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void handleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("NewTradeIndex"))
-		{
 			this.setTradeIndex(message.getInt("NewTradeIndex"));
-		}
 	}
 	
 }

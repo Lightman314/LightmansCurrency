@@ -8,16 +8,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public class ColorArgument implements ArgumentType<Integer> {
 
-    private static final SimpleCommandExceptionType ERROR_NOT_VALID = new SimpleCommandExceptionType(Component.translatable("command.argument.color.invalid"));
+    private static final SimpleCommandExceptionType ERROR_NOT_VALID = new SimpleCommandExceptionType(LCText.ARGUMENT_COLOR_INVALID.get());
 
     private ColorArgument() {}
 

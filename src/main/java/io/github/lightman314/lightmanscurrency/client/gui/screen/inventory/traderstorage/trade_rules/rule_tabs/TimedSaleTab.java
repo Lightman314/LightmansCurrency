@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
@@ -43,7 +44,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
 
         this.buttonStartSale = this.addChild(new EasyTextButton(screenArea.pos.offset(25, 45), 156, 20, this::getButtonText, this::PressStartButton)
                 .withAddons(EasyAddonHelper.tooltip(this::getButtonTooltip)));
@@ -60,12 +61,12 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
             return;
 
         gui.pushOffset(this.discountInput);
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
         gui.popOffset();
 
-        Component infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeUtil.TimeData(this.getRule().getDuration()).getShortString());
+        Component infoText = LCText.GUI_TIMED_SALE_INFO_INACTIVE.get(new TimeUtil.TimeData(this.getRule().getDuration()).getShortString());
         if(this.getRule().timerActive())
-            infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().getShortString(3));
+            infoText = LCText.GUI_TIMED_SALE_INFO_ACTIVE.get(this.getRule().getTimeRemaining().getShortString(3));
 
         gui.drawString(infoText, 25, 35, 0xFFFFFF);
 
@@ -82,13 +83,13 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
     private Component getButtonText()
     {
         TimedSale rule = this.getRule();
-        return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start"));
+        return rule != null && rule.timerActive() ? LCText.BUTTON_TIMED_SALE_STOP.get() : LCText.BUTTON_TIMED_SALE_START.get();
     }
 
     private Component getButtonTooltip()
     {
         TimedSale rule = this.getRule();
-        return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start") + ".tooltip");
+        return rule != null && rule.timerActive() ? LCText.TOOLTIP_TIMED_SALE_STOP.get() : LCText.TOOLTIP_TIMED_SALE_START.get();
     }
 
     void PressSetDiscountButton(EasyButton button)

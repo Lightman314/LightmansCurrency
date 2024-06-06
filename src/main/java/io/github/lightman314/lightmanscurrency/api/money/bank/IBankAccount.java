@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
@@ -60,13 +62,21 @@ public interface IBankAccount extends IMoneyHolder {
     /**
      * Pushes the given {@link Notification} to the Bank Accounts local logger <b>AND</b> to all relevant players.
      */
-    void pushNotification(@Nonnull NonNullSupplier<Notification> notification);
+    default void pushNotification(@Nonnull NonNullSupplier<Notification> notification) { this.pushNotification(notification,true); }
+    /**
+     * Pushes the given {@link Notification} to the Bank Accounts local logger.<br>
+     * @param notifyPlayers Whether to also push the notification to all relevant players.
+     */
+    void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers);
 
     /**
      * All {@link Notification Notifications} stored on the Bank Accounts local logger.
      */
     @Nonnull
     List<Notification> getNotifications();
+
+    @Nonnull
+    default Component getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
 
 
     /**
@@ -85,9 +95,9 @@ public interface IBankAccount extends IMoneyHolder {
 
     /**
      * Applies interest to all money contained in this bank account.
-     * @param interestRate The percentage-based interest to be applied to the money total.
+     * @param interestRate The multiplier-based interest to be applied to the money total.
      * @param limits A list of upper limits of money that can be earned from interest.
      */
-    void applyInterest(int interestRate, @Nonnull List<MoneyValue> limits);
+    void applyInterest(double interestRate, @Nonnull List<MoneyValue> limits, boolean forceInterst, boolean notifyPlayers);
 
 }

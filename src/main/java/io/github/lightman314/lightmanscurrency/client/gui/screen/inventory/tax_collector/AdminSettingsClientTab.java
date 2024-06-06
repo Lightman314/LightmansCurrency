@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_collector;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.AdminTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
@@ -24,7 +24,7 @@ public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
 
     @Nullable
     @Override
-    public Component getTooltip() { return EasyText.translatable("gui.lightmanscurrency.tax_collector.admin"); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -39,9 +39,9 @@ public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
         //Title
         gui.drawString(this.getTooltip(), 8, 6, 0x404040);
         //Force Acceptance Label
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.force_acceptance"), 20, 34, 0x404040);
+        gui.drawString(LCText.GUI_TAX_COLLECTOR_FORCE_ACCEPTANCE.get(), 20, 34, 0x404040);
         //Infinite Range Label
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.tax_collector.infinite_range"), 20, 44, 0x404040);
+        gui.drawString(LCText.GUI_TAX_COLLECTOR_INFINITE_RANGE.get(), 20, 44, 0x404040);
 
     }
 

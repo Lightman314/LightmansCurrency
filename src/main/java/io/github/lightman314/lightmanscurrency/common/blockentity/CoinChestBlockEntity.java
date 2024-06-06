@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
@@ -9,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -73,7 +73,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     private Component customName = null;
     public void setCustomName(Component name) { this.customName = name; this.markCustomNameDirty(); }
-    public Component getDisplayName() { return this.customName != null ? this.customName : EasyText.translatable("block.lightmanscurrency.coin_chest"); }
+    public Component getDisplayName() { return this.customName != null ? this.customName : LCText.BLOCK_MONEY_CHEST.get(); }
 
     private CoinContainer storage;
     public final CoinContainer getStorage() { return this.storage; }

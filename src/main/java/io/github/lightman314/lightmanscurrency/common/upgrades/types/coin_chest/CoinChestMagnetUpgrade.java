@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -71,6 +71,6 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
 
     @Nonnull
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) { return ImmutableList.of(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.magnet", data.getIntValue(RANGE))); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) { return ImmutableList.of(LCText.TOOLTIP_UPGRADE_MAGNET.get(data.getIntValue(RANGE))); }
 
 }

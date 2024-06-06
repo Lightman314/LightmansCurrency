@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -64,7 +65,7 @@ public class AuctionBidTab extends TraderClientTab {
 		this.bidAmount.allowFreeInput = false;
 		this.bidAmount.drawBG = false;
 		
-		this.bidButton = this.addChild(new EasyTextButton(screenArea.pos.offset(22, 119), 68, 20, EasyText.translatable("gui.lightmanscurrency.auction.bid"), this::SubmitBid));
+		this.bidButton = this.addChild(new EasyTextButton(screenArea.pos.offset(22, 119), 68, 20, LCText.BUTTON_TRADER_AUCTION_BID.get(), this::SubmitBid));
 		
 		this.closeButton = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 25, 5), 20, 20, EasyText.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close));
 		

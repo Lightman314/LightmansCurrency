@@ -2,15 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringListOption;
-import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.ISpawnTracker;
-import io.github.lightman314.lightmanscurrency.common.capability.spawn_tracker.SpawnTrackerCapability;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
@@ -27,9 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -167,7 +161,7 @@ public class LootManager {
 		List<String> list = config.get();
 		for(String value : list)
 		{
-			if(buffer.length() > 0)
+			if(!buffer.isEmpty())
 				buffer.append(", ");
 			buffer.append("\"").append(value).append("\"");
 		}
@@ -204,35 +198,6 @@ public class LootManager {
 	}
 
 	@SubscribeEvent
-	public static void onEntitySpawned(MobSpawnEvent.FinalizeSpawn event)
-	{
-		LivingEntity entity = event.getEntity();
-		if(entity instanceof Player)
-			return;
-
-		ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(entity);
-		if(tracker == null)
-			LightmansCurrency.LogDebug("Entity of type '" + ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString() + "' does not have a ISpawnTracker attached. Unable to flag it's SpawnReason.");
-		else
-		{
-			if(event.getSpawnType() == null)
-				LightmansCurrency.LogError("Entity of type '" + ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString() + "' was spawned with a null `MobSpawnType`, which should never happen. Please report this to the developer of that mod, and have them correct this.");
-			else
-				tracker.setSpawnReason(event.getSpawnType());
-		}
-	}
-
-	@SubscribeEvent
-	public static void attachSpawnTrackerCapability(AttachCapabilitiesEvent<Entity> event)
-	{
-		//Attach the spawn trader capability to all LivingEntities that aren't players
-		if(event.getObject() instanceof Mob)
-		{
-			event.addCapability(CurrencyCapabilities.ID_SPAWN_TRACKER, SpawnTrackerCapability.createProvider((LivingEntity)event.getObject()));
-		}
-	}
-
-	@SubscribeEvent
 	public static void onEntityDeath(LivingDeathEvent event)
 	{
 		LivingEntity entity = event.getEntity();
@@ -243,8 +208,7 @@ public class LootManager {
 		if(!LCConfig.COMMON.allowSpawnerEntityDrops.get())
 		{
 			//Spawner drops aren't allowed. Check if the entity was spawner-spawned
-			ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(entity);
-			if(tracker != null && tracker.spawnReason() == MobSpawnType.SPAWNER)
+			if(entity instanceof Mob mob && mob.getSpawnType() == MobSpawnType.SPAWNER)
 			{
 				LightmansCurrency.LogDebug(entity.getName().getString() + " did not drop coins, as it was spawned by a spawner.");
 				return;
@@ -288,8 +252,6 @@ public class LootManager {
 		if(server == null)
 			return results;
 		LootTable table = server.getLootData().getLootTable(lootTable);
-		if(table == null)
-			return results;
 		//Filter results
 		List<ItemStack> loot = safelyGetLoot(table, context);
 		//Attempt to replace with event coins

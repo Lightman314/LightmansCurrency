@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
@@ -41,7 +42,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         if(rule != null)
             this.fluctuationInput.setValue(Integer.toString(rule.getFluctuation()));
 
-        this.buttonSetFluctuation = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton));
+        this.buttonSetFluctuation = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetFluctuationButton));
 
         this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
         this.durationInput.setTime(this.getRule().getDuration());
@@ -56,10 +57,10 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
             return;
 
         gui.pushOffset(this.fluctuationInput);
-        gui.drawString(EasyText.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PRICE_FLUCTUATION_LABEL.get(), this.fluctuationInput.getWidth() + 4, 3, 0xFFFFFF);
         gui.popOffset();
 
-        TextRenderUtil.drawCenteredMultilineText(gui, EasyText.translatable("gui.button.lightmanscurrency.price_fluctuation.info", this.getRule().getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), 10, this.screen.getXSize() - 20, 35, 0xFFFFFF);
+        TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_PRICE_FLUCTUATION_INFO.get(rule.getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), 10, this.screen.getXSize() - 20, 35, 0xFFFFFF);
 
     }
 

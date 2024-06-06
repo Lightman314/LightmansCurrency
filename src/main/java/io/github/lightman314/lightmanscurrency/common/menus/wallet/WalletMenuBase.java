@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
@@ -198,7 +198,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 		{
 			if(!WalletItem.isWallet(CoinAPI.API.getEquippedWallet(player)))
 			{
-				player.sendSystemMessage(EasyText.translatable("message.lightmanscurrency.wallet.none_equipped"));
+				player.sendSystemMessage(LCText.MESSAGE_WALLET_NONE_EQUIPPED.get());
                 return;
 			}
 			NetworkHooks.openScreen(player, menu, dataWriter);
