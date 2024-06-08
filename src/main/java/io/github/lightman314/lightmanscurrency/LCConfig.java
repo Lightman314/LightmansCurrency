@@ -70,6 +70,9 @@ public final class LCConfig {
 
         public final BooleanOption moneyMendingClink = BooleanOption.createTrue();
 
+        public final IntOption terminalColumnLimit = IntOption.create(4,2,100);
+        public final IntOption terminalRowLimit = IntOption.create(16,4,100);
+
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -115,6 +118,15 @@ public final class LCConfig {
 
             builder.comment("Whether the wallets contents should be displayed as a coin item, or as value text.")
                     .add("displayType", this.walletOverlayType);
+
+            builder.pop();
+
+            builder.comment("Network Terminal Settings").push("network_terminal");
+
+            builder.comment("The maximum number of columns the Network Terminal is allowed to display")
+                            .add("columnLimit", this.terminalColumnLimit);
+            builder.comment("The maximum number of rows the Network Terminal is allowed to display")
+                    .add("rowLimit", this.terminalRowLimit);
 
             builder.pop();
 

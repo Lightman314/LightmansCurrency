@@ -451,15 +451,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public int getMaxTradeCount() { return 1; }
 	public abstract int getTradeStock(int tradeIndex);
 	public boolean hasValidTrade() { return this.getTradeData().stream().anyMatch(TradeData::isValid); }
-	public boolean allTradesHaveStock()
+	public boolean anyTradeHasStock()
 	{
 		TradeContext context = TradeContext.createStorageMode(this);
-		for(TradeData trade : this.getTradeData())
-		{
-			if(trade.isValid() && !trade.hasStock(context))
-				return false;
-		}
-		return true;
+		return this.getTradeData().stream().anyMatch(t -> t.isValid() && t.hasStock(context));
 	}
 
 	private int acceptableTaxRate = 99;
@@ -1375,11 +1370,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	public int getTerminalTextColor()
 	{
-		if(this.hasValidTrade() && this.isCreative())
-			return 0x00FF00;
 		if(!this.hasValidTrade())
 			return 0xFF0000;
-		if(!this.allTradesHaveStock())
+		if(this.isCreative())
+			return 0x00FF00;
+		if(!this.anyTradeHasStock())
 			return 0xFFAA00;
 		return 0x404040;
 	}

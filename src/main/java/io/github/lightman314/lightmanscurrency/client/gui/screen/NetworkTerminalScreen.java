@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
@@ -61,20 +62,22 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		if(this.minecraft == null)
 			return this.getArea();
 		this.columns = 1;
+		int columnLimit = LCConfig.CLIENT.terminalColumnLimit.get();
 		int availableWidth = this.minecraft.getWindow().getGuiScaledWidth() - NetworkTraderButton.WIDTH - 30;
-		while(availableWidth >= NetworkTraderButton.WIDTH)
+		while(availableWidth >= NetworkTraderButton.WIDTH && this.columns < columnLimit)
 		{
 			availableWidth -= NetworkTraderButton.WIDTH;
 			this.columns++;
 		}
 		int availableHeight = this.minecraft.getWindow().getGuiScaledHeight() - NetworkTraderButton.HEIGHT - 37;
 		this.rows = 1;
-		while(availableHeight >= NetworkTraderButton.HEIGHT)
+		int rowLimit = LCConfig.CLIENT.terminalRowLimit.get();
+		while(availableHeight >= NetworkTraderButton.HEIGHT && this.rows < rowLimit)
 		{
 			availableHeight -= NetworkTraderButton.HEIGHT;
 			this.rows++;
 		}
-		this.resize((this.columns * NetworkTraderButton.WIDTH) + 30, (this.rows * NetworkTraderButton.HEIGHT) + 37);
+		this.resize((this.columns * NetworkTraderButton.WIDTH) + 30, (this.rows * NetworkTraderButton.HEIGHT) + 36);
 		return this.getArea();
 	}
 	

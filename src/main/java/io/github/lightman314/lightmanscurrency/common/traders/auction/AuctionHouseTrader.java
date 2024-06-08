@@ -209,6 +209,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 					this.storage.put(storageEntry.getOwner().id, storageEntry);
 			}
 		}
+
+		//Reset fake owner name
+		this.getOwner().SetOwner(FakeOwner.of(LCText.GUI_TRADER_AUCTION_HOUSE_OWNER.get()));
 		
 	}
 
