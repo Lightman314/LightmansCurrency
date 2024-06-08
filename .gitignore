@@ -26,7 +26,11 @@ forge*changelog.txt
 
 # Custom
 Build Backups
-generated
+/src/generated/resources/.cache
+/src/generated/resources/data
+/src/generated/resources/CloserItemsPack
+/src/generated/resources/assets/*/*
+!/src/generated/resources/assets/*/lang
 *.zip
 *.pxf
 optional_assets
