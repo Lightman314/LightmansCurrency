@@ -7,6 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
@@ -25,7 +27,7 @@ public class ChangeOwnerNotification extends Notification {
 	
 	private ChangeOwnerNotification() { }
 
-	public ChangeOwnerNotification(PlayerReference player, Owner newOwner, Owner oldOwner) {
+	public ChangeOwnerNotification(@Nonnull PlayerReference player, @Nonnull Owner newOwner, @Nonnull Owner oldOwner) {
 		this.player = player;
 		this.newOwner = newOwner;
 		this.oldOwner = oldOwner;
@@ -60,8 +62,30 @@ public class ChangeOwnerNotification extends Notification {
 	@Override
 	protected void loadAdditional(@Nonnull CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.newOwner = Owner.load(compound.getCompound("NewOwner"));
-		this.oldOwner = Owner.load(compound.getCompound("OldOwner"));
+		this.newOwner = safeLoad(compound.getCompound("NewOwner"));
+		this.oldOwner = safeLoad(compound.getCompound("OldOwner"));
+	}
+
+	@Nonnull
+	private static Owner safeLoad(@Nonnull CompoundTag tag)
+	{
+		if(tag.contains("Type"))
+		{
+			Owner o = Owner.load(tag);
+			return o != null ? o : Owner.NULL;
+		}
+		if(tag.contains("Player"))
+		{
+			PlayerReference pr = PlayerReference.load(tag.getCompound("Player"));
+			if(pr != null)
+				return PlayerOwner.of(pr);
+		}
+		if(tag.contains("Team"))
+		{
+			long teamID = tag.getLong("Team");
+			return TeamOwner.of(teamID);
+		}
+		return Owner.NULL;
 	}
 
 	@Override
@@ -73,8 +97,4 @@ public class ChangeOwnerNotification extends Notification {
 		return false;
 	}
 
-
-	
-	
-	
 }

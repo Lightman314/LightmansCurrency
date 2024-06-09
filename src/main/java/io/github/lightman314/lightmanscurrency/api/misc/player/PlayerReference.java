@@ -79,10 +79,7 @@ public class PlayerReference {
 		return is(player.id) && !this.forceName && !player.forceName;
 	}
 	
-	public boolean is(GameProfile profile)
-	{
-		return is(profile.getId());
-	}
+	public boolean is(GameProfile profile) { return is(profile.getId()); }
 	
 	public boolean is(UUID entityID)
 	{
