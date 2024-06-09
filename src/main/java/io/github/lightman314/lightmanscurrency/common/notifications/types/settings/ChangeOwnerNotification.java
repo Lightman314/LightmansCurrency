@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.setti
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
@@ -44,6 +43,9 @@ public class ChangeOwnerNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
+		//Assume this is client-side
+		this.newOwner.flagAsClient();
+		this.oldOwner.flagAsClient();
 		if(this.newOwner.asPlayerReference().isExact(this.player))
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TAKEN.get(this.newOwner.getName(), this.oldOwner.getName());
 		if(this.oldOwner.asPlayerReference().isExact(this.player))

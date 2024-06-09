@@ -826,7 +826,7 @@
   "tooltip.lightmanscurrency.settings.owner": "Transfer Ownership",
   "tooltip.lightmanscurrency.slot_machine.money": "Pays %s",
   "tooltip.lightmanscurrency.slot_machine.odds": "%s%% change of receiving",
-  "tooltip.lightmanscurrency.slot_machine.roll.free": "nothing!",
+  "tooltip.lightmanscurrency.slot_machine.roll.free": "nothing",
   "tooltip.lightmanscurrency.slot_machine.roll.multi.1": "Try your luck %1$s times!",
   "tooltip.lightmanscurrency.slot_machine.roll.multi.2": "Costs %2$s per roll",
   "tooltip.lightmanscurrency.slot_machine.roll.normal_price": "Normally costs %s",
