@@ -24,7 +24,7 @@ public class ClientBankData {
 			return loadedBankAccounts.get(playerID);
 		//Return an empty account until the server notifies us of the new accounts creation.
 		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
-		return new BankAccount();
+		return new BankAccount().flagAsClient();
 	}
 	
 	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
@@ -32,7 +32,7 @@ public class ClientBankData {
 	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {
-			BankAccount account = new BankAccount(compound);
+			BankAccount account = new BankAccount(compound).flagAsClient();
 			if(player != null && account != null)
 				loadedBankAccounts.put(player, account);
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading bank account on client!",e); }

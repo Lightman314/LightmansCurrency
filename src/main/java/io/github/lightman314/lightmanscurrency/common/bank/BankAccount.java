@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.L
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -35,7 +36,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
-	
+
+	private boolean isClient = false;
+	@Override
+	public boolean isClient() { return this.isClient; }
+	@Nonnull
+	public BankAccount flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this; }
+
 	private final Runnable markDirty;
 	
 	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);

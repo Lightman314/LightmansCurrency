@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nonnull;
 
-public class NotificationData {
+public class NotificationData implements IClientTracker {
+
+	private boolean isClient = false;
+	@Override
+	public boolean isClient() { return this.isClient; }
 
 	List<Notification> notifications = new ArrayList<>();
 	public List<Notification> getNotifications() { return this.notifications; }
@@ -79,8 +84,9 @@ public class NotificationData {
 		compound.put("Notifications", notificationList);
 		return compound;
 	}
-	
-	public static NotificationData loadFrom(CompoundTag compound) {
+
+	@Nonnull
+	public static NotificationData loadFrom(@Nonnull CompoundTag compound) {
 		NotificationData data = new NotificationData();
 		data.load(compound);
 		return data;
@@ -99,7 +105,16 @@ public class NotificationData {
 					this.notifications.add(not);
 			}
 			this.validateListSize();
+			if(this.isClient)
+				this.flagAsClient();
 		}
+	}
+
+	public final void flagAsClient()
+	{
+		this.isClient = true;
+		for(Notification n : this.notifications)
+			n.flagAsClient();
 	}
 	
 }

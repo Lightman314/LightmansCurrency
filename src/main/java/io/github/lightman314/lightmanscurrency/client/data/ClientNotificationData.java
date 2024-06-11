@@ -17,6 +17,7 @@ public class ClientNotificationData {
 	
 	public static void UpdateNotifications(NotificationData data) {
 		myNotifications = data;
+		myNotifications.flagAsClient();
 		Minecraft mc = Minecraft.getInstance();
 		if(mc.screen instanceof NotificationScreen screen)
 			screen.reinit();

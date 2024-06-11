@@ -62,7 +62,7 @@ public class PlayerOwner extends Owner {
 
     @Nullable
     @Override
-    public BankReference asBankReference() { return PlayerBankReference.of(this.player); }
+    public BankReference asBankReference() { return PlayerBankReference.of(this.player).flagAsClient(this.isClient()); }
 
     @Override
     public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }

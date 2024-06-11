@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -131,7 +132,13 @@ public abstract class EasyWidget extends AbstractWidget {
     protected void renderTick() { }
 
     @Override
-    protected final void renderWidget(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) { this.renderWidget(EasyGuiGraphics.create(gui, mouseX, mouseY, partialTicks).pushOffset(this.getPosition())); }
+    protected final void renderWidget(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        try {
+            this.renderWidget(EasyGuiGraphics.create(gui, mouseX, mouseY, partialTicks).pushOffset(this.getPosition()));
+        } catch (Throwable t) {
+            LightmansCurrency.LogError("Error occurred while rendering " + this.getClass().getName(),t);
+        }
+    }
 
     protected abstract void renderWidget(@Nonnull EasyGuiGraphics gui);
 

@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -11,7 +13,13 @@ import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 
-public abstract class Notification {
+public abstract class Notification implements IClientTracker {
+
+	private boolean isClient = false;
+	@Override
+	public final boolean isClient() { return this.isClient; }
+	@Override
+	public final boolean isServer() { return IClientTracker.super.isServer(); }
 
 	private long timeStamp;
 	public long getTimeStamp() { return this.timeStamp; }
@@ -57,7 +65,9 @@ public abstract class Notification {
 		compound.putString("Type", this.getType().type.toString());
 		if(this.timeStamp > 0)
 			compound.putLong("TimeStamp", this.timeStamp);
-		this.saveAdditional(compound);
+		try {
+			this.saveAdditional(compound);
+		} catch (Throwable t) { LightmansCurrency.LogError("Error saving Notification of type '" + this.getType().type.toString() + "'",t); }
 		return compound;
 	}
 	
@@ -97,5 +107,7 @@ public abstract class Notification {
 	 * Whether the other notification should be merged with this one.
 	 */
 	protected abstract boolean canMerge(@Nonnull Notification other);
-	
+
+	public void flagAsClient() { this.isClient = true; }
+
 }

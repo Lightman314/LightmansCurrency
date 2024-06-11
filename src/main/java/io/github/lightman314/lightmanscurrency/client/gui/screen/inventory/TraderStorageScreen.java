@@ -169,6 +169,8 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> imple
 
 	@Override
 	protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+		if(this.menu.getTrader() == null)
+			return;
 		try { this.currentTab().renderAfterWidgets(gui);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), t); }
 	}

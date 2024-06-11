@@ -44,8 +44,8 @@ public class ChangeOwnerNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		//Assume this is client-side
-		this.newOwner.flagAsClient();
-		this.oldOwner.flagAsClient();
+		this.newOwner.flagAsClient(this.isClient());
+		this.oldOwner.flagAsClient(this.isClient());
 		if(this.newOwner.asPlayerReference().isExact(this.player))
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TAKEN.get(this.newOwner.getName(), this.oldOwner.getName());
 		if(this.oldOwner.asPlayerReference().isExact(this.player))

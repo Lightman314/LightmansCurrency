@@ -61,7 +61,7 @@ public class TaxEntry implements ITaxCollector {
 
     private boolean isClient = false;
     public final boolean isClient() { return this.isClient; }
-    public final TaxEntry flagAsClient() { this.isClient = true; return this.unlock(); }
+    public final TaxEntry flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this.unlock(); }
 
     public final boolean isServerEntry() { return this.id == TaxSaveData.SERVER_TAX_ID; }
 

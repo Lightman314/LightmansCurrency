@@ -45,7 +45,14 @@ public class NotificationAPI {
         {
             String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
             if(notificationRegistry.containsKey(type))
-                return notificationRegistry.get(type).load(compound);
+            {
+                try {
+                    return notificationRegistry.get(type).load(compound);
+                } catch (Throwable t) {
+                    LightmansCurrency.LogError("Error loading Notification of type '" + type + "'", t);
+                    return null;
+                }
+            }
             else
             {
                 LightmansCurrency.LogError("Cannot load notification type " + type + " as no NotificationType has been registered.");

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -13,7 +14,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-public interface IBankAccount extends IMoneyHolder {
+public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
 
     /**

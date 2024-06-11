@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
@@ -83,7 +84,10 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, this.font, mouseX, mouseY, partialTicks).pushOffset(this.getCorner());
         //Trigger Pre-Render ticks
         for(IPreRender r : ImmutableList.copyOf(this.preRenders))
-            r.preRender(gui);
+        {
+            try { r.preRender(gui); }
+            catch (Throwable t) { LightmansCurrency.LogError("Error occurred while early rendering " + r.getClass().getName(), t); }
+        }
         //Render background tint
         this.renderBackground(mcgui);
         //Render background
@@ -91,8 +95,12 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         //Render Widgets
         super.render(mcgui, mouseX, mouseY, partialTicks);
         //Render Late Renders
+        //Render Late Renders
         for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
-            r.lateRender(gui);
+        {
+            try {r.lateRender(gui);}
+            catch (Throwable t) { LightmansCurrency.LogError("Error occurred while late rendering " + r.getClass().getName(), t); }
+        }
         //Render After Widgets
         this.renderAfterWidgets(gui);
         //Render Tooltips

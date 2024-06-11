@@ -157,7 +157,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean isCreative() { return this.creative; }
 	
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); }
+	public void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); this.logger.flagAsClient(); }
 	public boolean isClient() { return this.isClient; }
 	
 	private final OwnerData owner = new OwnerData(this, o -> this.markDirty(this::saveOwner));

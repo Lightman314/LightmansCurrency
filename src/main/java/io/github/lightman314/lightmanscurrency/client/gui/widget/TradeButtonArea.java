@@ -126,7 +126,10 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	
 	public List<List<Pair<TraderData,TradeData>>> getTradesInRows() {
 		List<List<Pair<TraderData,TradeData>>> result = new ArrayList<>();
-		List<TraderData> traders = this.traderSource.get().getTraders();
+		ITraderSource source = this.traderSource.get();
+		if(source == null)
+			return new ArrayList<>();
+		List<TraderData> traders = source.getTraders();
 		
 		int currentRowWidth = 0;
 		List<Pair<TraderData,TradeData>> currentRow = new ArrayList<>();

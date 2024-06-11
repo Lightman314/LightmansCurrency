@@ -23,6 +23,7 @@ public abstract class Owner implements IClientTracker {
     @Override
     public final boolean isClient() { return this.isClient; }
     public final Owner flagAsClient() { this.isClient = true; return this; }
+    public final void flagAsClient(boolean isClient) { this.isClient = isClient; }
 
 
     @Nonnull
