@@ -8,13 +8,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamBankAccountTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamMemberEditTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamMemberListTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamNameTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamOwnerTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamSelectionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.team.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -45,7 +39,7 @@ public class TeamManagerScreen extends EasyScreen {
 	}
 	public void setActiveTeam(long teamID) { this.activeTeamID = teamID; }
 	
-	private final List<TeamTab> tabs = ImmutableList.of(new TeamSelectionTab(this), new TeamMemberListTab(this), new TeamNameTab(this), new TeamMemberEditTab(this), new TeamBankAccountTab(this), new TeamOwnerTab(this));
+	private final List<TeamTab> tabs = ImmutableList.of(new TeamSelectionTab(this), new TeamMemberListTab(this), new TeamNameTab(this), new TeamMemberEditTab(this), new TeamBankAccountTab(this), new TeamStatsTab(this), new TeamOwnerTab(this));
 	public TeamTab currentTab() { return tabs.get(MathUtil.clamp(currentTabIndex, 0, this.tabs.size() - 1)); }
 	List<TabButton> tabButtons = Lists.newArrayList();
 	int currentTabIndex = 0;

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
@@ -346,6 +347,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TEAM_BANK,"Bank Account Settings");
         this.translate(LCText.BUTTON_TEAM_BANK_CREATE,"Create Bank Account");
         this.translate(LCText.BUTTON_TEAM_BANK_LIMIT,"Limit To: %s");
+        this.translate(LCText.TOOLTIP_TEAM_STATS,"Team Statistics");
         this.translate(LCText.TOOLTIP_TEAM_OWNER,"Transfer Team Ownership");
         this.translate(LCText.BUTTON_TEAM_DISBAND,"Disband Team");
         this.translate(LCText.GUI_TEAM_ID,"Team ID: %s");
@@ -383,6 +385,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_PLAYER_TRADING_PROPOSE,"Propose");
         this.translate(LCText.BUTTON_PLAYER_TRADING_ACCEPT,"Accept");
         this.translate(LCText.BUTTON_PLAYER_TRADING_CANCEL,"Cancel");
+        this.translate(LCText.TOOLTIP_PLAYER_TRADING_CHAT_OPEN,"Open Chat");
+        this.translate(LCText.TOOLTIP_PLAYER_TRADING_CHAT_CLOSE,"Close Chat");
 
         //Tax Collector Menu
         this.translate(LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER,"Traders in this area are susceptible to taxes!");
@@ -511,6 +515,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES,"Ignore All Taxes");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_INPUT_GENERIC,"External Input & Output");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM,"External Item Input & Output");
+        this.translate(LCText.TOOLTIP_TRADER_STATS,"Trader Stats");
+        this.translate(LCText.BUTTON_TRADER_STATS_CLEAR,"Clear Data");
+        this.translate(LCText.GUI_TRADER_STATS_EMPTY,"No Statistics Recorded");
         this.translate(LCText.TOOLTIP_TRADER_TAXES,"Tax Information");
         this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE,"Total Tax Rate: %s%%");
         this.translate(LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS,"No active Tax Collectors in range");
@@ -798,6 +805,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_SLOT_MACHINE,"%1$s paid %2$s and won %3$s");
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
+
+        //LC Statistics
+        this.translate(StatKeys.Traders.MONEY_EARNED,"Trader Earned: %s");
+        this.translate(StatKeys.Traders.MONEY_PAID,"Trader Paid: %s");
+        this.translate(StatKeys.Traders.TRADES_EXECUTED,"Trades Handled: %s");
+        this.translate(StatKeys.Taxables.TAXES_PAID,"Taxes Paid: %s");
 
         //Command Arguments
         this.translate(LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN,"'%s' is not a valid coin!");

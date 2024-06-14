@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -76,6 +77,8 @@ public abstract class Owner implements IClientTracker {
      *                          2: Only the owner should receive the notification.
      */
     public abstract void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat);
+
+    public <T> void incrementStat(@Nonnull StatKey<?,T> key, @Nonnull T addValue) {}
 
     @Nonnull
     public abstract OwnerType getType();

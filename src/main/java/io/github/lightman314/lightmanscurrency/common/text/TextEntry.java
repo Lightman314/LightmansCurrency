@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.text;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
+import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -72,6 +74,7 @@ public final class TextEntry {
     public static TextEntry chain(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain); }
     public static TextEntry chainDisplay(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
     public static TextEntry chainDisplayWordy(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display.wordy"); }
+    public static TextEntry lcStat(@Nonnull StatKey<?,?> statKey) { return new TextEntry(StatType.getTranslationKey(statKey.key)); }
 
     public static TextEntry resourcePack(@Nonnull String modid, @Nonnull String name) { return new TextEntry("resourcepack." + modid + "." + name); }
 

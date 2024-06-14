@@ -319,6 +319,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		//Clear unwanted tabs
 		menu.clearTab(TraderStorageTab.TAB_TRADER_LOGS);
 		menu.clearTab(TraderStorageTab.TAB_TRADER_SETTINGS);
+		menu.clearTab(TraderStorageTab.TAB_TRADER_STATS);
 		menu.clearTab(TraderStorageTab.TAB_TAX_INFO);
 		menu.clearTab(TraderStorageTab.TAB_RULES_TRADER);
 		menu.clearTab(TraderStorageTab.TAB_RULES_TRADE);

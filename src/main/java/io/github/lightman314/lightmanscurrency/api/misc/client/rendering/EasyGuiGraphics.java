@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -21,6 +22,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +57,9 @@ public final class EasyGuiGraphics {
     //Color Rendering
     public void setColor(float r, float g, float b) { this.setColor(r,g,b,1f); }
     public void setColor(float r, float g, float b, float a) { this.gui.setColor(r,g,b,a); }
+    public void setColor(int color) { this.setColor(OutlineUtil.decodeColor(color)); }
+    public void setColor(int color, float alpha) { this.setColor(OutlineUtil.decodeColor(color,alpha)); }
+    public void setColor(@Nonnull Vector4f color) { this.gui.setColor(color.x,color.y,color.z,color.w); }
     public void resetColor() { this.setColor(1f,1f,1f,1f); }
 
 
@@ -131,10 +136,11 @@ public final class EasyGuiGraphics {
         this.blit(image, x + width - edge, y + height - edge, u + uWidth - edge, v + vHeight - edge, edge, edge);
     }
 
-    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY)
+    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY) { this.renderButtonBG(x,y,width,height,alpha,textureY,0xFFFFFF); }
+    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY, int color)
     {
         Minecraft minecraft = Minecraft.getInstance();
-        this.setColor(1f, 1f, 1f, alpha);
+        this.setColor(color, alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         this.gui.blitNineSliced(AbstractWidget.WIDGETS_LOCATION, this.offset.x + x, this.offset.y + y, width, height, 20, 4, 200, 20, 0, textureY);

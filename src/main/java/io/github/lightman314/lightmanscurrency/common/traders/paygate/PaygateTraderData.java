@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -323,6 +324,11 @@ public class PaygateTraderData extends TraderData {
 				//Give the paid cost to storage
 				taxesPaid = this.addStoredMoney(price, true);
 			}
+
+			//Handle Stats
+			this.incrementStat(StatKeys.Traders.MONEY_EARNED, price);
+			if(!taxesPaid.isEmpty())
+				this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
 
 			//Push Notification
 			this.pushNotification(PaygateNotification.createMoney(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));

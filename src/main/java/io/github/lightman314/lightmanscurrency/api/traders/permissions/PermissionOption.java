@@ -14,7 +14,7 @@ public abstract class PermissionOption {
 	
 	protected PermissionOption(String permission) { this.permission = permission; }
 	
-	public MutableComponent widgetName() { return Component.translatable("permission." + permission); }
+	public MutableComponent widgetName() { return Component.translatable("permission.lightmanscurrency." + permission); }
 	
 	protected SettingsSubTab tab;
 	

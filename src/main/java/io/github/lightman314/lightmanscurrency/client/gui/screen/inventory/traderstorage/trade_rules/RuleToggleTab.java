@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -41,6 +43,9 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
             })));
         }
 
+        if(this.commonTab.getHost().isTrade())
+            this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::ClickBackButton, IconAndButtonUtil.ICON_BACK));
+
     }
 
     @Override
@@ -77,6 +82,11 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
                 this.commonTab.EditTradeRule(rule.type, LazyPacketData.simpleBoolean("SetActive",!rule.isActive()));
             }
         }
+    }
+
+    private void ClickBackButton(@Nonnull EasyButton button)
+    {
+        this.screen.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, true,null);
     }
 
 }

@@ -18,6 +18,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHold
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -155,14 +158,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 	}
 	public boolean isCreative() { return this.creative; }
-	
+
 	private boolean isClient = false;
 	public void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); this.logger.flagAsClient(); }
 	public boolean isClient() { return this.isClient; }
-	
+
 	private final OwnerData owner = new OwnerData(this, o -> this.markDirty(this::saveOwner));
 	public final OwnerData getOwner() { return this.owner; }
-	
+
+	public final StatTracker statTracker = new StatTracker(() -> {},this);
+
 	private final List<PlayerReference> allies = new ArrayList<>();
 	public final List<PlayerReference> getAllies() { return new ArrayList<>(this.allies); }
 	
@@ -341,6 +346,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		MoneyValue taxesPaid = MoneyValue.empty();
 		if(shouldTax)
 		{
+			//Then pay taxes
 			taxesPaid = this.payTaxesOn(amount);
 			if(!taxesPaid.isEmpty())
 				amount = amount.addValue(taxesPaid);
@@ -375,7 +381,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			//Obey ignored tax settings
 			if(!this.ShouldIgnoreTaxEntry(tax))
-				paidCache = tax.CalculateAndPayTaxes(this, amount);
+			{
+				MoneyValue paid = tax.CalculateAndPayTaxes(this, amount);
+				MoneyValue temp = paidCache.addValue(paid);
+				if(!temp.isEmpty())
+					paidCache = temp;
+			}
 		}
 		return paidCache;
 	}
@@ -577,6 +588,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.saveLogger(compound);
 		this.saveNotificationData(compound);
 		this.saveTaxSettings(compound);
+		this.saveStatistics(compound);
 		
 		//Save persistent trader id
 		if(!this.persistentID.isEmpty())
@@ -642,6 +654,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		compound.putBoolean("IgnoreAllTaxCollectors", this.ignoreAllTaxes);
 		compound.putLongArray("IgnoreTaxCollectors", this.ignoredTaxCollectors);
 	}
+
+	protected final void saveStatistics(CompoundTag tag) {
+		tag.put("Stats", this.statTracker.save());
+	}
 	
 	protected abstract void saveTrades(CompoundTag compound);
 	
@@ -650,7 +666,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
 	public void markTradeRulesDirty() { this.markDirty(this::saveRules); }
-	
+
+	public void markStatsDirty() { this.markDirty(this::saveStatistics); }
+
 	public final JsonObject saveToJson(String id, String ownerName) throws Exception
 	{
 		if(!this.canMakePersistent())
@@ -766,6 +784,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			for(long val : compound.getLongArray("IgnoreTaxCollectors"))
 				this.ignoredTaxCollectors.add(val);
 		}
+
+		if(compound.contains("Stats"))
+			this.statTracker.load(compound.getCompound("Stats"));
 
 		//Load trader-specific data
 		this.loadAdditional(compound);
@@ -1065,7 +1086,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	{
 		if(this.exceedsAcceptableTaxRate())
 			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
-		return this.ExecuteTrade(context, tradeIndex);
+		TradeResult result = this.ExecuteTrade(context,tradeIndex);
+		if(result.isSuccess())
+		{
+			//Increment trades executed
+			this.incrementStat(StatKeys.Traders.TRADES_EXECUTED,1);
+			//Mark Stats as changed
+			this.markStatsDirty();
+		}
+		return result;
 	}
 
 	/**
@@ -1335,6 +1364,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		//Push notifications is now handled by owner
 		this.owner.getValidOwner().pushNotification(notificationSource, this.teamNotificationLevel, this.notificationsToChat);
 		
+	}
+
+	public final <T> void incrementStat(@Nonnull StatKey<?,T> key, @Nonnull T addValue)
+	{
+		this.statTracker.incrementStat(key,addValue);
+		this.owner.getValidOwner().incrementStat(key,addValue);
 	}
 	
 	public final TraderCategory getNotificationCategory() {

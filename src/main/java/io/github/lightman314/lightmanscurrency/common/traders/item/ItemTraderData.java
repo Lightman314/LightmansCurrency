@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -552,6 +553,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 			}
 
+			//Handle Stats
+			this.incrementStat(StatKeys.Traders.MONEY_EARNED, price);
+			if(!taxesPaid.isEmpty())
+				this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
+
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
@@ -606,6 +612,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 				
 			}
+
+			//Handle Stats
+			this.incrementStat(StatKeys.Traders.MONEY_PAID, price);
+			if(!taxesPaid.isEmpty())
+				this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
 
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));

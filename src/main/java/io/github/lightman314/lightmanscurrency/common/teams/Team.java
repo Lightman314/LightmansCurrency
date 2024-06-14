@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -79,7 +80,11 @@ public class Team implements ITeam {
 	@Nullable
 	public IBankAccount getBankAccount() { return this.bankAccount; }
 	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
-	
+
+	private final StatTracker statTracker = new StatTracker(this::markDirty,this);
+	@Nonnull
+	@Override
+	public StatTracker getStats() { return this.statTracker; }
 
 	@Override
 	public boolean isOwner(@Nonnull Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
@@ -241,6 +246,11 @@ public class Team implements ITeam {
 		return result;
 	}
 
+	public void clearStats(Player requestor) {
+		if(this.isAdmin(requestor))
+			this.statTracker.clear();
+	}
+
 	public final void HandleEditRequest(@Nonnull ServerPlayer requestor, @Nonnull LazyPacketData request)
 	{
 		if(request.contains("Disband") && this.isOwner(requestor))
@@ -259,6 +269,8 @@ public class Team implements ITeam {
 			this.createBankAccount(requestor);
 		if(request.contains("ChangeBankLimit", LazyPacketData.TYPE_INT))
 			this.changeBankLimit(requestor, request.getInt("ChangeBankLimit"));
+		if(request.contains("ClearStats"))
+			this.clearStats(requestor);
 	}
 	
 	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
@@ -293,6 +305,8 @@ public class Team implements ITeam {
 			compound.put("BankAccount", this.bankAccount.save());
 			compound.putInt("BankLimit", this.bankAccountLimit);
 		}
+
+		compound.put("Stats", this.statTracker.save());
 		
 		return compound;
 	}
@@ -323,7 +337,10 @@ public class Team implements ITeam {
 				team.bankAccount.updateOwnersName(team.teamName);
 				team.bankAccount.setNotificationConsumer(team::notificationSender);
 			}
-			
+
+			if(compound.contains("Stats"))
+				team.statTracker.load(compound.getCompound("Stats"));
+
 			return team;
 			
 		}

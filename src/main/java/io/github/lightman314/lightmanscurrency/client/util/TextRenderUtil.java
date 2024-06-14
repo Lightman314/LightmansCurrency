@@ -95,7 +95,7 @@ public class TextRenderUtil {
 		Font font = getFont();
 		if(font.width(Component.literal(text).withStyle(style)) <= width)
 			return Component.literal(text).withStyle(style);
-		while(font.width(Component.literal(text + edge).withStyle(style)) > width && text.length() > 0)
+		while(font.width(Component.literal(text + edge).withStyle(style)) > width && !text.isEmpty())
 			text = text.substring(0, text.length() - 1);
 		return Component.literal(text + edge).withStyle(style);
 	}
@@ -121,7 +121,7 @@ public class TextRenderUtil {
 		{
 			FormattedCharSequence line = lines.get(i);
 			int lineWidth = font.width(line);
-			gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), (int)(topPos + font.lineHeight * i), color);
+			gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), topPos + (font.lineHeight * i), color);
 		}
 	}
 	

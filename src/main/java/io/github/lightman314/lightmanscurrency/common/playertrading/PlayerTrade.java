@@ -48,12 +48,22 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
     public boolean isHost(@Nonnull Player player) { return player.getUUID() == this.hostPlayerID; }
     public boolean isGuest(@Nonnull Player player) { return player.getUUID() == this.guestPlayerID; }
     private final UUID hostPlayerID;
+    @Nonnull
+    @Override
+    public UUID getHostID() { return this.hostPlayerID; }
+
+    @Nonnull
     @Override
     public Component getHostName() {
         ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
         return hostPlayer == null ? Component.literal("NULL") : hostPlayer.getName();
     }
     private final UUID guestPlayerID;
+    @Nonnull
+    @Override
+    public UUID getGuestID() { return this.guestPlayerID; }
+
+    @Nonnull
     @Override
     public Component getGuestName() {
         ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
@@ -70,16 +80,20 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
     }
 
     private MoneyValue hostMoney = MoneyValue.empty();
+    @Nonnull
     @Override
     public MoneyValue getHostMoney() { return this.hostMoney; }
     private MoneyValue guestMoney = MoneyValue.empty();
+    @Nonnull
     @Override
     public MoneyValue getGuestMoney() { return this.guestMoney; }
 
     private final SimpleContainer hostItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
+    @Nonnull
     @Override
     public Container getHostItems() { return this.hostItems; }
     private final SimpleContainer guestItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
+    @Nonnull
     @Override
     public Container getGuestItems() { return this.guestItems; }
 
@@ -302,7 +316,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     }
 
-    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
+    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.guestPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
 
     public void handleInteraction(Player player, CompoundTag message) {
         if(!this.isHost(player) && !this.isGuest(player))

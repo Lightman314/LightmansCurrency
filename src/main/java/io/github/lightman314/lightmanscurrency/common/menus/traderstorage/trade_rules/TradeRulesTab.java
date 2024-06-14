@@ -58,6 +58,10 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         }
     }
 
+    protected boolean hasBackButton() { return false; }
+
+    public void goBack() {}
+
     public static class Trader extends TradeRulesTab {
 
         public Trader(TraderStorageMenu menu) { super(menu); }
@@ -85,6 +89,14 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         @Override
         public boolean canOpen(Player player) { return super.canOpen(player) && this.menu.hasPermission(Permissions.EDIT_TRADES); }
 
+        @Override
+        protected boolean hasBackButton() { return true; }
+
+        @Override
+        public void goBack() {
+            this.menu.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", this.tradeIndex));
+        }
+
         @Nullable
         @Override
         public ITradeRuleHost getHost() {
@@ -100,6 +112,8 @@ public abstract class TradeRulesTab extends TraderStorageTab {
             if(message.contains("TradeIndex"))
                 this.tradeIndex = message.getInt("TradeIndex");
         }
+
+
     }
 
 }

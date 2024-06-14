@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
+import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.text.*;
@@ -59,6 +61,11 @@ public abstract class TranslationProvider extends LanguageProvider {
     {
         this.translate(entry.titleText,title);
         this.translate(entry.descriptionText,description);
+    }
+
+    protected final void translate(@Nonnull StatKey<?,?> statistic, @Nonnull String text)
+    {
+        this.add(StatType.getTranslationKey(statistic.key), text);
     }
 
     protected final void translateWooden(@Nonnull TextEntryBundle<WoodType> bundle, @Nonnull String format)

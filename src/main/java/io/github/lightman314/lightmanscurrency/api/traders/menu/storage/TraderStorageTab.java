@@ -20,6 +20,7 @@ public abstract class TraderStorageTab {
 	//10-49 "Settings and Logs"
 	public static final int TAB_TRADER_LOGS = 10;
 	public static final int TAB_TRADER_SETTINGS = 11;
+	public static final int TAB_TRADER_STATS = 12;
 
 	//50 "Tax Info"
 	public static final int TAB_TAX_INFO = 50;

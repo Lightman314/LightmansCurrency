@@ -16,6 +16,7 @@ public interface ITraderStorageMenu extends IClientTracker {
     void setTab(int slot, @Nonnull TraderStorageTab tab);
     void clearTab(int slot);
     void changeTab(int slot);
+    void changeTab(int slot, @Nullable LazyPacketData.Builder message);
 
     @Nonnull
     TradeContext getContext();

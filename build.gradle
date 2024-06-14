@@ -133,6 +133,7 @@ dependencies {
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
+    //Claim Compats
     //FTB Chunks claim purchase compat
     compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
     compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
@@ -146,7 +147,7 @@ dependencies {
     //Flan claim purchase compat
     compileOnly fg.deobf("curse.maven:flan-forge-493246:4920923")
 
-    //Wood Compatibility
+    //Wood Compatibility (should be implementation for dataGen)
     //Biomes O' Plenty
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
     implementation fg.deobf("curse.maven:terrablender-563928:4647094")
@@ -154,13 +155,14 @@ dependencies {
     implementation fg.deobf("curse.maven:quark-243121:5084013")
     implementation fg.deobf("curse.maven:zeta-968868:5078215")
 
+    //Other Compats
     //Supplementaries RedMerchant compat
     compileOnly fg.deobf("curse.maven:supplementaries-412082:5068158")
     compileOnly fg.deobf("curse.maven:selene-499980:5068161")
 
-    //Farming For Blockheads compat
-    implementation fg.deobf("curse.maven:farming-for-blockheads-261924:4749360")
-    implementation fg.deobf("curse.maven:balm-531761:5140912")
+    //Farming For Blockheads trader compat
+    compileOnly fg.deobf("curse.maven:farming-for-blockheads-261924:4749360")
+    compileOnly fg.deobf("curse.maven:balm-531761:5140912")
 
 }
 

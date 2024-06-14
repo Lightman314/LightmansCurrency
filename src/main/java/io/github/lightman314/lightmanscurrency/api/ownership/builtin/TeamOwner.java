@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import net.minecraft.nbt.CompoundTag;
@@ -116,6 +117,13 @@ public class TeamOwner extends Owner {
             if(player != null && player.id != null)
                 NotificationSaveData.PushNotification(player.id, notificationSource.get(), sendToChat);
         }
+    }
+
+    @Override
+    public <T> void incrementStat(@Nonnull StatKey<?, T> key, @Nonnull T addValue) {
+        ITeam team = this.getTeam();
+        if(team != null)
+            team.getStats().incrementStat(key,addValue);
     }
 
     @Nonnull

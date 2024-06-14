@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStatsTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
@@ -131,6 +132,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_STATS, new TraderStatsTab(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
 		this.setTab(TraderStorageTab.TAB_TAX_INFO, new TaxInfoTab(this));
@@ -285,6 +287,14 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		}
 		else
 			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
+	}
+
+	public void changeTab(int key, @Nullable LazyPacketData.Builder message)
+	{
+		this.changeTab(key);
+		if(message != null)
+			this.HandleMessage(message.build());
+		this.SendMessage(this.createTabChangeMessage(key,message));
 	}
 
 	@Nonnull

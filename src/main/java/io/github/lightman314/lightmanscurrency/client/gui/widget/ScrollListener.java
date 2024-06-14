@@ -15,6 +15,7 @@ public class ScrollListener implements IScrollListener {
 	private final IScrollListener deprecatedListener;
 	
 	public boolean active = true;
+	public boolean inverted = false;
 
 	private static Function<Double,Boolean> convertConsumer(Consumer<Double> consumer) { return d -> { consumer.accept(d); return false; }; }
 
@@ -53,7 +54,7 @@ public class ScrollListener implements IScrollListener {
 			if(this.deprecatedListener != null)
 				return this.deprecatedListener.mouseScrolled(mouseX, mouseY, delta);
 			else
-				return this.listener.apply(delta);
+				return this.listener.apply(this.inverted ? -delta : delta);
 		}
 		return false;
 	}

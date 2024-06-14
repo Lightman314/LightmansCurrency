@@ -132,6 +132,8 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     }
 
+    protected boolean hasBackButton() { return false; }
+
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) { this.getCurrentTab().renderBG(gui); }
 

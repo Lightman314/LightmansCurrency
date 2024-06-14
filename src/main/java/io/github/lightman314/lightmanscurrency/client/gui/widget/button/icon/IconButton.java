@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
 
 import javax.annotation.Nonnull;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -22,7 +20,9 @@ public class IconButton extends EasyButton {
 	public static final int SIZE = 20;
 	
 	private NonNullFunction<IconButton, IconData> iconSource;
-	
+
+	public int bgColor = 0xFFFFFF;
+
 	public IconButton(ScreenPosition pos, Consumer<EasyButton> pressable, @Nonnull IconData icon) { this(pos.x, pos.y, pressable, icon); }
 	public IconButton(int x, int y, Consumer<EasyButton> pressable, @Nonnull IconData icon)
 	{
@@ -69,14 +69,14 @@ public class IconButton extends EasyButton {
 	public void renderWidget(@NotNull EasyGuiGraphics gui)
 	{
 
-		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY());
+		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY(), this.bgColor);
 
         if(!this.active)
-            gui.setColor(0.5f,0.5f,0.5f);
+            gui.setColor(0.5f, 0.5f, 0.5f,this.alpha);
         
         this.iconSource.apply(this).render(gui, 2, 2);
 
-		RenderSystem.setShaderColor(1f,1f,1f,1f);
+		gui.resetColor();
 
 	}
 

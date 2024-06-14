@@ -8,6 +8,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -392,6 +393,13 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
                 if(!this.hasStock())
                     this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), -1));
             }
+
+            //Handle Stats
+            this.incrementStat(StatKeys.Traders.MONEY_EARNED,price);
+            if(!taxesPaid.isEmpty())
+                this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
+            if(loot.isMoney())
+                this.incrementStat(StatKeys.Traders.MONEY_PAID, loot.getMoneyValue());
 
             //Push Notification
             this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));

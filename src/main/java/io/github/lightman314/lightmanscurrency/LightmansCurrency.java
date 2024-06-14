@@ -17,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PlayerOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.TeamOwnerProvider;
+import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
@@ -264,6 +266,10 @@ public class LightmansCurrency {
 
 		//Register Loot Modifiers
 		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
+
+		//Register Stat Types
+		StatType.register(IntegerStat.INSTANCE);
+		StatType.register(MultiMoneyStat.INSTANCE);
 
 		//Register Advancement Triggers
 		LCAdvancementTriggers.setup();

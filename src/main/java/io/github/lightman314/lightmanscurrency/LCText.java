@@ -363,6 +363,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TEAM_BANK = TextEntry.tooltip(MODID,"team.bank");
     public static final TextEntry BUTTON_TEAM_BANK_CREATE = TextEntry.button(MODID,"team.bank.create");
     public static final TextEntry BUTTON_TEAM_BANK_LIMIT = TextEntry.button(MODID,"team.bank.limit");
+    public static final TextEntry TOOLTIP_TEAM_STATS = TextEntry.tooltip(MODID,"team.stats");
     public static final TextEntry TOOLTIP_TEAM_OWNER = TextEntry.tooltip(MODID,"team.owner");
     public static final TextEntry BUTTON_TEAM_DISBAND = TextEntry.button(MODID,"team.disband");
     public static final TextEntry GUI_TEAM_ID = TextEntry.gui(MODID,"team.id");
@@ -400,6 +401,8 @@ public class LCText {
     public static final TextEntry BUTTON_PLAYER_TRADING_PROPOSE = TextEntry.button(MODID,"player_trading.propose");
     public static final TextEntry BUTTON_PLAYER_TRADING_ACCEPT = TextEntry.button(MODID,"player_trading.accept");
     public static final TextEntry BUTTON_PLAYER_TRADING_CANCEL = TextEntry.button(MODID,"player_trading.cancel");
+    public static final TextEntry TOOLTIP_PLAYER_TRADING_CHAT_OPEN = TextEntry.tooltip(MODID,"player_trading.chat.open");
+    public static final TextEntry TOOLTIP_PLAYER_TRADING_CHAT_CLOSE = TextEntry.tooltip(MODID,"player_trading.chat.close");
 
     //Tax Collector Menu
     public static final TextEntry MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER = TextEntry.message(MODID,"tax_collector.placement.trader");
@@ -514,6 +517,9 @@ public class LCText {
     public static final TextEntry GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES = TextEntry.tooltip(MODID,"trader.settings.ignoretaxes");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_INPUT_GENERIC = TextEntry.tooltip(MODID,"trader.settings.input");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_INPUT_ITEM = TextEntry.tooltip(MODID,"trader.settings.iteminput");
+    public static final TextEntry TOOLTIP_TRADER_STATS = TextEntry.tooltip(MODID,"trader.stats");
+    public static final TextEntry BUTTON_TRADER_STATS_CLEAR = TextEntry.button(MODID,"trader.stats.clear");
+    public static final TextEntry GUI_TRADER_STATS_EMPTY = TextEntry.gui(MODID,"trader.stats.empty");
     public static final TextEntry TOOLTIP_TRADER_TAXES = TextEntry.tooltip(MODID,"trader.tax_info");
     public static final TextEntry GUI_TRADER_TAXES_TOTAL_RATE = TextEntry.tooltip(MODID,"trader.tax_info.total_rate");
     public static final TextEntry GUI_TRADER_TAXES_NO_TAX_COLLECTORS = TextEntry.gui(MODID,"trade.tax_info.no_tax_collectors");
