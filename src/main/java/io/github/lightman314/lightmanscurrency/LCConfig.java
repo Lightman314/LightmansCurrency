@@ -684,7 +684,7 @@ public final class LCConfig {
                     .add("itemCapacity2", this.itemCapacityUpgrade2);
             builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
                     .add("itemCapacity3", this.itemCapacityUpgrade3);
-            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
+            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Netherite)")
                     .add("itemCapacity4", this.itemCapacityUpgrade4);
 
             builder.pop().comment("Money Chest Magnet Upgrade").push("money_chest_magnet");
