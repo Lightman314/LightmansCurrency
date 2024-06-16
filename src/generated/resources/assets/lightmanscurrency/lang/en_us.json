@@ -668,7 +668,7 @@
   "lightmanscurrency.money.chain.emeralds.display": "{value}E",
   "lightmanscurrency.money.chain.emeralds.display.wordy": "{value} Emeralds",
   "lightmanscurrency.money.chain.main": "Main",
-  "message.lightmanscurrency.cash_register.not_linked": "Cash Register is not linked to any traders",
+  "message.lightmanscurrency.cash_register.notlinked": "Cash Register is not linked to any traders",
   "message.lightmanscurrency.coin_chest.protection.warning": "You do not have permission to access this chest",
   "message.lightmanscurrency.persistent.auction.add": "Added Persistent Auction with id %s",
   "message.lightmanscurrency.persistent.auction.fail": "Error occurred when attempting to add the Persistent Auction",
