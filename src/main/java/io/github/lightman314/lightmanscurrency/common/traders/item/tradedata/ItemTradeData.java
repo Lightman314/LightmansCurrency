@@ -260,7 +260,7 @@ public class ItemTradeData extends TradeData {
 	
 	public void RemoveItemsFromStorage(TraderItemStorage storage, List<ItemStack> soldItems)
 	{
-		this.restriction.removeItemsFromStorage(storage, InventoryUtil.combineQueryItems(soldItems));
+		this.restriction.removeItemsFromStorage(storage, soldItems);
 	}
 	
 	@Override

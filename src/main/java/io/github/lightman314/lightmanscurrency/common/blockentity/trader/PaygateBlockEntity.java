@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
@@ -26,8 +28,15 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	public PaygateBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.PAYGATE.get(), pos, state); }
 	
 	protected PaygateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
-	
-	
+
+	@Nullable
+	@Override
+	protected PaygateTraderData castOrNullify(@Nonnull TraderData trader) {
+		if(trader instanceof PaygateTraderData pg)
+			return pg;
+		return null;
+	}
+
 	@Override
 	public void saveAdditional(@NotNull CompoundTag compound) {
 		

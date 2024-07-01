@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import net.minecraft.network.chat.Component;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
@@ -66,11 +65,10 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		return newTrader;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected final D initCustomTrader()
 	{
 		try {
-			return (D)TraderData.Deserialize(false, this.customTrader);
+			return this.castOrNullify(TraderData.Deserialize(false, this.customTrader));
 		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
 		return null;
 	}
@@ -137,15 +135,19 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
 
-	@SuppressWarnings("unchecked")
+	@Nullable
 	public D getTraderData()
 	{
 		//Get from trading office
 		TraderData rawData = this.getRawTraderData();
-		try {
-			return (D)rawData;
-		} catch(Throwable t) { LightmansCurrency.LogError("Error casting trader data to the correct type.", t); return null; }
+		if(rawData == null)
+			return null;
+		else
+			return this.castOrNullify(rawData);
 	}
+
+	@Nullable
+	protected abstract D castOrNullify(@Nonnull TraderData trader);
 
 	@Override
 	public void saveAdditional(@Nonnull CompoundTag compound) {

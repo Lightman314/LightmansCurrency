@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -14,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
@@ -36,7 +38,15 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.tradeCount = tradeCount;
 		this.networkTrader = networkTrader;
 	}
-	
+
+	@Nullable
+	@Override
+	protected ItemTraderData castOrNullify(@Nonnull TraderData trader) {
+		if(trader instanceof ItemTraderData it)
+            return it;
+		return null;
+	}
+
 	@Nonnull
     public ItemTraderData buildNewTrader() {
 		ItemTraderData trader = new ItemTraderData(this.tradeCount, this.level, this.worldPosition);
