@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.stats;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -42,14 +43,14 @@ public final class StatTracker implements IClientTracker
     public void setChanged() { this.onChange.run(); }
 
     @Nonnull
-    public CompoundTag save()
+    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
-        this.stats.forEach((key,stat) -> tag.put(key,stat.save()));
+        this.stats.forEach((key,stat) -> tag.put(key,stat.save(lookup)));
         return tag;
     }
 
-    public void load(@Nonnull CompoundTag tag)
+    public void load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         //Clear all stats before loading, just in case they're not present in the existing data
         this.stats.forEach((key,stat) -> stat.clear());
@@ -57,11 +58,11 @@ public final class StatTracker implements IClientTracker
         {
             try {
                 CompoundTag entry = tag.getCompound(key);
-                ResourceLocation typeID = new ResourceLocation(entry.getString("Type"));
+                ResourceLocation typeID = ResourceLocation.parse(entry.getString("Type"));
                 StatType.Instance<?,?> instance = this.getStat(key);
                 if(instance != null && instance.getType().getID().equals(typeID))
                 {
-                    instance.load(entry);
+                    instance.load(entry, lookup);
                 }
                 else
                 {
@@ -69,7 +70,7 @@ public final class StatTracker implements IClientTracker
                     if(type == null)
                         throw new RuntimeException(typeID + " is not a registered StatType!");
                     instance = type.create();
-                    instance.load(entry);
+                    instance.load(entry, lookup);
                     this.addStat(key,instance);
                 }
             } catch (Throwable t) {LightmansCurrency.LogError("Error loading stat!",t);}

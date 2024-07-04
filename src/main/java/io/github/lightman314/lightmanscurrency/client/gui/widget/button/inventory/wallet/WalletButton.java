@@ -6,8 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.InventoryButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
@@ -26,9 +25,7 @@ public class WalletButton extends InventoryButton {
 
 	@Override
 	protected boolean canShow() {
-		Minecraft mc = Minecraft.getInstance();
-		assert mc.player != null;
-		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(mc.player);
+		WalletHandler walletHandler = WalletHandler.get( Minecraft.getInstance().player);
 		return walletHandler != null && !walletHandler.getWallet().isEmpty();
 	}
 

@@ -23,7 +23,7 @@ public final class MoneyView {
         builder.values.forEach((name,list) -> {
             if(!list.isEmpty())
             {
-                MoneyValue firstVal = list.get(0);
+                MoneyValue firstVal = list.getFirst();
                 MoneyValue sum = firstVal.getCurrency().sumValues(list);
                 if(sum != null && !sum.isEmpty() && !sum.isFree() && !sum.isInvalid())
                     results.put(name, sum);

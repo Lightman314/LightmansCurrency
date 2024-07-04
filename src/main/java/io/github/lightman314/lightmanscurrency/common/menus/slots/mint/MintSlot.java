@@ -17,8 +17,6 @@ public class MintSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) {
-        return this.tileEntity.validMintInput(stack);
-	}
+	public boolean mayPlace(@NotNull ItemStack stack) { return this.tileEntity.validMintInput(stack); }
 
 }

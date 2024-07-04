@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nonnull;
@@ -11,6 +13,12 @@ public final class DatePredicate {
 
     public final int month;
     public final int date;
+
+    public static final Codec<DatePredicate> CODEC = RecordCodecBuilder.create(builder ->
+            builder.group(
+                    Codec.INT.fieldOf("month").forGetter(dp -> dp.month),
+                    Codec.INT.fieldOf("day").forGetter(dp -> dp.date)
+            ).apply(builder,DatePredicate::new));
 
     public DatePredicate(int month, int date) {
         this.month = month;

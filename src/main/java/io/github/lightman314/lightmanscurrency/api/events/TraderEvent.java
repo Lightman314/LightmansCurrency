@@ -4,9 +4,9 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
-public abstract class TraderEvent extends Event{
+public abstract class TraderEvent extends Event {
 	
 	private final long traderID;
 	public final long getID() { return this.traderID; }

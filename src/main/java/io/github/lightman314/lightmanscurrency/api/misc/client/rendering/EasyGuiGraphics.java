@@ -14,14 +14,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.ContainerScreenEvent;
-import net.minecraftforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
@@ -31,10 +32,18 @@ import java.util.List;
 
 public final class EasyGuiGraphics {
 
+    public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(
+            ResourceLocation.withDefaultNamespace("widget/button"),
+            ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+            ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+    );
+
     private final GuiGraphics gui;
     public GuiGraphics getGui() { return this.gui; }
     public final Font font;
     public PoseStack getPose() { return this.gui.pose(); }
+    public int guiWidth() { return this.gui.guiWidth(); }
+    public int guiHeight() { return this.gui.guiHeight(); }
 
     public final ScreenPosition mousePos;
     public final float partialTicks;
@@ -43,14 +52,14 @@ public final class EasyGuiGraphics {
     private ScreenPosition offset = ScreenPosition.ZERO;
 
     public EasyGuiGraphics pushOffsetZero() { return this.pushOffset(ScreenPosition.ZERO); }
-    public EasyGuiGraphics pushOffset(@Nonnull ScreenPosition offset) { this.offsetStack.add(0, offset); return this.refactorOffset(); }
-    public EasyGuiGraphics pushOffset(@Nonnull AbstractWidget widget) { this.offsetStack.add(0, ScreenPosition.of(widget.getX(), widget.getY())); return this.refactorOffset(); }
-    public EasyGuiGraphics popOffset() { if(this.offsetStack.size() > 0) this.offsetStack.remove(0); return this.refactorOffset(); }
-    private EasyGuiGraphics refactorOffset() { this.offset = this.offsetStack.size() > 0 ? this.offsetStack.get(0) : ScreenPosition.ZERO; return this; }
+    public EasyGuiGraphics pushOffset(@Nonnull ScreenPosition offset) { this.offsetStack.addFirst(offset); return this.refactorOffset(); }
+    public EasyGuiGraphics pushOffset(@Nonnull AbstractWidget widget) { this.offsetStack.addFirst(ScreenPosition.of(widget.getX(), widget.getY())); return this.refactorOffset(); }
+    public EasyGuiGraphics popOffset() { if(!this.offsetStack.isEmpty()) this.offsetStack.removeFirst(); return this.refactorOffset(); }
+    private EasyGuiGraphics refactorOffset() { this.offset = !this.offsetStack.isEmpty() ? this.offsetStack.getFirst() : ScreenPosition.ZERO; return this; }
 
-    private EasyGuiGraphics(@Nonnull GuiGraphics gui, Font font, int mouseX, int mouseY, float partialTicks) { this.gui = gui; this.font = font; this.mousePos = ScreenPosition.of(mouseX, mouseY); this.partialTicks = partialTicks; }
+    private EasyGuiGraphics(@Nonnull GuiGraphics gui, @Nonnull Font font, int mouseX, int mouseY, float partialTicks) { this.gui = gui; this.font = font; this.mousePos = ScreenPosition.of(mouseX, mouseY); this.partialTicks = partialTicks; }
     public static EasyGuiGraphics create(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) { return create(gui, Minecraft.getInstance().font, mouseX, mouseY, partialTicks); }
-    public static EasyGuiGraphics create(@Nonnull GuiGraphics gui, Font font, int mouseX, int mouseY, float partialTicks) { return new EasyGuiGraphics(gui, font, mouseX, mouseY, partialTicks); }
+    public static EasyGuiGraphics create(@Nonnull GuiGraphics gui, @Nonnull Font font, int mouseX, int mouseY, float partialTicks) { return new EasyGuiGraphics(gui, font, mouseX, mouseY, partialTicks); }
     public static EasyGuiGraphics create(@Nonnull ScreenEvent.Render event) { return new EasyGuiGraphics(event.getGuiGraphics(), event.getScreen().getMinecraft().font, event.getMouseX(), event.getMouseY(), event.getPartialTick()); }
     public static EasyGuiGraphics create(@Nonnull ContainerScreenEvent.Render event) { return new EasyGuiGraphics(event.getGuiGraphics(), event.getContainerScreen().getMinecraft().font, event.getMouseX(), event.getMouseY(), 0f); }
 
@@ -136,14 +145,14 @@ public final class EasyGuiGraphics {
         this.blit(image, x + width - edge, y + height - edge, u + uWidth - edge, v + vHeight - edge, edge, edge);
     }
 
-    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY) { this.renderButtonBG(x,y,width,height,alpha,textureY,0xFFFFFF); }
-    public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY, int color)
+    public void renderButtonBG(int x, int y, int width, int height, float alpha, @Nonnull AbstractWidget widget) { this.renderButtonBG(x,y,width,height,alpha,widget,0xFFFFFF); }
+    public void renderButtonBG(int x, int y, int width, int height, float alpha, @Nonnull AbstractWidget widget, int color)
     {
         Minecraft minecraft = Minecraft.getInstance();
         this.setColor(color, alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        this.gui.blitNineSliced(AbstractWidget.WIDGETS_LOCATION, this.offset.x + x, this.offset.y + y, width, height, 20, 4, 200, 20, 0, textureY);
+        this.gui.blitSprite(BUTTON_SPRITES.get(widget.active, widget.isHoveredOrFocused()), x + this.offset.x, y + this.offset.y, width, height);
         this.resetColor();
     }
 
@@ -155,9 +164,9 @@ public final class EasyGuiGraphics {
     public void renderTooltip(@Nonnull Component tooltip) { this.pushOffset(this.mousePos).renderTooltip(tooltip, 0, 0); this.popOffset(); }
     public void renderTooltip(@Nonnull Component tooltip, int x, int y) { this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderComponentTooltip(@Nonnull List<Component> tooltip) { this.pushOffset(this.mousePos).renderComponentTooltip(tooltip, 0, 0); this.popOffset(); }
-    public void renderComponentTooltip(@Nonnull List<Component> tooltip, int x, int y) { if(tooltip.size() == 0) return; this.gui.renderComponentTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
+    public void renderComponentTooltip(@Nonnull List<Component> tooltip, int x, int y) { if(tooltip.isEmpty()) return; this.gui.renderComponentTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip) { this.pushOffset(this.mousePos).renderTooltip(tooltip, 0,0); this.popOffset(); }
-    public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip, int x, int y) { if(tooltip.size() == 0) return; this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
+    public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip, int x, int y) { if(tooltip.isEmpty()) return; this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderTooltip(@Nonnull ItemStack item) { this.pushOffset(this.mousePos).renderTooltip(item, 0,0); this.popOffset(); }
     public void renderTooltip(@Nonnull ItemStack item, int x, int y) { this.gui.renderTooltip(this.font, item, x, y); }
 

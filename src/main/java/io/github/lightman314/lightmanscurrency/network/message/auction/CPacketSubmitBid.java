@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -7,13 +8,15 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketSubmitBid extends ClientToServerPacket {
 
+	private static final Type<CPacketSubmitBid> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_auction_submit_bid"));
 	public static final Handler<CPacketSubmitBid> HANDLER = new H();
 
 	final long auctionHouseID;
@@ -21,30 +24,30 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 	final MoneyValue bidAmount;
 	
 	public CPacketSubmitBid(long auctionHouseID, int tradeIndex, MoneyValue bidAmount) {
+		super(TYPE);
 		this.auctionHouseID = auctionHouseID;
 		this.tradeIndex = tradeIndex;
 		this.bidAmount = bidAmount;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		buffer.writeLong(this.auctionHouseID);
-		buffer.writeInt(this.tradeIndex);
-		this.bidAmount.encode(buffer);
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketSubmitBid message) {
+		buffer.writeLong(message.auctionHouseID);
+		buffer.writeInt(message.tradeIndex);
+		message.bidAmount.encode(buffer);
 	}
+	private static CPacketSubmitBid decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(),MoneyValue.decode(buffer)); }
 
 	private static class H extends Handler<CPacketSubmitBid>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketSubmitBid::encode,CPacketSubmitBid::decode)); }
 		@Override
-		public CPacketSubmitBid decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(), MoneyValue.decode(buffer)); }
-		@Override
-		protected void handle(@Nonnull CPacketSubmitBid message, @Nullable ServerPlayer sender) {
-			if(sender != null && sender.containerMenu instanceof TraderMenu menu)
+		protected void handle(@Nonnull CPacketSubmitBid message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			if(player.containerMenu instanceof TraderMenu menu)
 			{
 				//Get the auction house
 				TraderData data = TraderSaveData.GetTrader(false, message.auctionHouseID);
 				if(data instanceof AuctionHouseTrader ah)
-					ah.makeBid(sender, menu, message.tradeIndex, message.bidAmount);
+					ah.makeBid(player, menu, message.tradeIndex, message.bidAmount);
 			}
 		}
 	}

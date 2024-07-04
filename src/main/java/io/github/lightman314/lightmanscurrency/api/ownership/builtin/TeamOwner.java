@@ -13,20 +13,21 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TeamOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(MoneyAPI.MODID,"team"),
-            (tag) -> of(tag.getLong("Team")));
+    public static final OwnerType TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID,"team"),
+            (tag,lookup) -> of(tag.getLong("Team")));
 
     public final long teamID;
     @Nullable
@@ -102,7 +103,7 @@ public class TeamOwner extends Owner {
     public boolean hasNotificationLevels() { return true; }
 
     @Override
-    public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
+    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
         ITeam team = this.getTeam();
         if(team == null)
             return;
@@ -130,7 +131,7 @@ public class TeamOwner extends Owner {
     @Override
     public OwnerType getType() { return TYPE; }
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putLong("Team", this.teamID); }
+    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putLong("Team", this.teamID); }
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof TeamOwner to && to.teamID == this.teamID; }
 

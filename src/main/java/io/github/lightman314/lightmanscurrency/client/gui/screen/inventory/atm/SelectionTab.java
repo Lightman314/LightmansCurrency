@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketATMSetPlayerAccount;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -44,7 +45,7 @@ public class SelectionTab extends ATMTab {
 	
 	EditBox playerAccountSelect;
 	EasyButton buttonSelectPlayerAccount;
-	MutableComponent responseMessage = EasyText.empty();
+	Component responseMessage = EasyText.empty();
 	
 	boolean adminMode = false;
 	
@@ -139,7 +140,7 @@ public class SelectionTab extends ATMTab {
 			new CPacketATMSetPlayerAccount(playerName).send();
 	}
 	
-	public void ReceiveSelectPlayerResponse(MutableComponent message) {
+	public void ReceiveSelectPlayerResponse(Component message) {
 		this.responseMessage = message;
 	}
 
@@ -174,8 +175,6 @@ public class SelectionTab extends ATMTab {
 	public void tick() {
 		this.buttonPersonalAccount.active = !this.isSelfSelected();
 		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
-		if(this.adminMode)
-			this.playerAccountSelect.tick();
 	}
 
 	@Override

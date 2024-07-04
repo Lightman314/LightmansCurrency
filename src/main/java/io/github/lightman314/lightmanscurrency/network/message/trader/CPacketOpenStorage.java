@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
@@ -7,37 +8,35 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketOpenStorage extends ClientToServerPacket {
 
+	private static final Type<CPacketOpenStorage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_trader_menu_storage"));
 	public static final Handler<CPacketOpenStorage> HANDLER = new H();
 
 	private final long traderID;
 	
-	public CPacketOpenStorage(long traderID) { this.traderID = traderID; }
+	public CPacketOpenStorage(long traderID) { super(TYPE); this.traderID = traderID; }
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeLong(this.traderID); }
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketOpenStorage message) { buffer.writeLong(message.traderID); }
+	private static CPacketOpenStorage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenStorage(buffer.readLong()); }
 
 	private static class H extends Handler<CPacketOpenStorage>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketOpenStorage::encode,CPacketOpenStorage::decode)); }
 		@Override
-		public CPacketOpenStorage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenStorage(buffer.readLong()); }
-		@Override
-		protected void handle(@Nonnull CPacketOpenStorage message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				MenuValidator validator = SimpleValidator.NULL;
-				if(sender.containerMenu instanceof IValidatedMenu tm)
-					validator = tm.getValidator();
-				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
-				if(trader != null)
-					trader.openStorageMenu(sender, validator);
-			}
+		protected void handle(@Nonnull CPacketOpenStorage message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			MenuValidator validator = SimpleValidator.NULL;
+			if(player.containerMenu instanceof IValidatedMenu tm)
+				validator = tm.getValidator();
+			TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+			if(trader != null)
+				trader.openStorageMenu(player, validator);
 		}
 	}
 

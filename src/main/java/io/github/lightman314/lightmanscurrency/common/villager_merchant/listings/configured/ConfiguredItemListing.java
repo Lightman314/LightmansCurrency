@@ -6,9 +6,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ConfiguredItemListing implements VillagerTrades.ItemListing
@@ -54,8 +56,10 @@ public class ConfiguredItemListing implements VillagerTrades.ItemListing
 
             assert offer != null;
             VillagerTradeMod mod = this.modSupplier.get();
-            ItemStack itemA = mod.modifyCost(trader,offer.getBaseCostA());
-            ItemStack itemB = mod.modifyCost(trader,offer.getCostB());
+            ItemCost itemA = mod.modifyCost(trader,offer.getItemCostA());
+            Optional<ItemCost> itemB = offer.getItemCostB();
+            if(itemB.isPresent())
+                itemB = Optional.of(mod.modifyCost(trader,itemB.get()));
             ItemStack itemC = mod.modifyResult(trader,offer.getResult());
 
             return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());

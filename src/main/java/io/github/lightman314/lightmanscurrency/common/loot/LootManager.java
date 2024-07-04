@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -13,6 +14,9 @@ import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -22,24 +26,24 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class LootManager {
 
-	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
+	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.ATTACKING_ENTITY).build();
 
 	private static final List<ILootModifier> LOOT_MODIFIERS = new ArrayList<>();
 
@@ -47,6 +51,8 @@ public class LootManager {
 	{
 		//Have the loot manager validate the entity loot contents
 		LCConfig.COMMON.addListener(LootManager::debugLootConfigs);
+		//Register our custom param set to the map, so they can be saved and loaded
+		LootContextParamSets.REGISTRY.put(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"entity_addon"), ENTITY_PARAMS);
 	}
 
 	public static void addLootModifier(@Nonnull ILootModifier modifier)
@@ -231,9 +237,7 @@ public class LootManager {
 	}
 
 	private static String getSafeId(@Nonnull Entity entity) {
-		ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
-		if(id == null)
-			return "null";
+		ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 		return id.toString().replace(':','_');
 	}
 
@@ -251,7 +255,7 @@ public class LootManager {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server == null)
 			return results;
-		LootTable table = server.getLootData().getLootTable(lootTable);
+		LootTable table = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,lootTable));
 		//Filter results
 		List<ItemStack> loot = safelyGetLoot(table, context);
 		//Attempt to replace with event coins
@@ -291,10 +295,10 @@ public class LootManager {
 		LootParams.Builder parameterBuilder = new LootParams.Builder(level);
 		//Add the KilledByPlayer condition to the Loot Context
 		if(player != null)
-			parameterBuilder.withParameter(LootContextParams.KILLER_ENTITY, player);
+			parameterBuilder.withParameter(LootContextParams.ATTACKING_ENTITY, player);
 
 		LootParams params = parameterBuilder.create(ENTITY_PARAMS);
-		return new LootContext.Builder(params).create(new ResourceLocation(LightmansCurrency.MODID, "generated_entity_loot/" + getSafeId(entity)));
+		return new LootContext.Builder(params).create(Optional.empty());
 	}
 
 	@Nullable
@@ -345,7 +349,7 @@ public class LootManager {
 
 	public static boolean ConfigContainsEntity(@Nonnull StringListOption configOption, @Nonnull EntityType<?> entityType)
 	{
-		ResourceLocation entityID = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+		ResourceLocation entityID = BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
 		if(entityID == null)
 			return false;
 		Stream<TagKey<EntityType<?>>> entityTags = entityType.getTags();
@@ -355,7 +359,7 @@ public class LootManager {
 				//Check entity tags
 				if(option.startsWith("#"))
 				{
-					ResourceLocation tagKey = new ResourceLocation(option.substring(1));
+					ResourceLocation tagKey = ResourceLocation.parse(option.substring(1));
 					if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
 						return true;
 				}
@@ -365,11 +369,11 @@ public class LootManager {
 					if(option.endsWith(":*"))
 					{
 						//Only check the namespace of the id
-						if(new ResourceLocation(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
+						if(ResourceLocation.parse(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
 							return true;
 					}
 					//Check entire entity id
-					else if(new ResourceLocation(option).equals(entityID))
+					else if(ResourceLocation.parse(option).equals(entityID))
 						return true;
 				}
 			} catch (ResourceLocationException ignored) {}

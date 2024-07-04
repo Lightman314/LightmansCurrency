@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
@@ -73,7 +72,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         PriceFluctuation rule = this.getRule();
         if(rule != null)
             rule.setFluctuation(fluctuation);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Fluctuation", fluctuation));
+        this.sendUpdateMessage(this.builder().setInt("Fluctuation", fluctuation));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)
@@ -81,7 +80,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         PriceFluctuation rule = this.getRule();
         if(rule != null)
             rule.setDuration(newTime.miliseconds);
-        this.sendUpdateMessage(LazyPacketData.simpleLong("Duration", newTime.miliseconds));
+        this.sendUpdateMessage(this.builder().setLong("Duration", newTime.miliseconds));
     }
 
 

@@ -9,17 +9,18 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -33,7 +34,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)
 	{
 		if(TicketItem.isTicket(sellItem) && !customName.isBlank())
-			sellItem.setHoverName(EasyText.literal(customName));
+			sellItem.set(DataComponents.CUSTOM_NAME,EasyText.literal(customName));
 		return sellItem;
 	}
 	
@@ -50,7 +51,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 		{
-			TicketData data = TicketData.getForMaster(itemStack);
+			TicketGroupData data = TicketGroupData.getForMaster(itemStack);
 			if(data != null)
 				return TicketItem.CraftTicket(itemStack, data.ticket.asItem());
 		}
@@ -72,7 +73,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 
 	@Override
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
-		List<Pair<TicketData,Integer>> countByCategory = new ArrayList<>();
+		List<Pair<TicketGroupData,Integer>> countByCategory = new ArrayList<>();
 		boolean foundTicket = false;
 		int minStock = Integer.MAX_VALUE;
 		for(ItemStack sellItem : Lists.newArrayList(trade.getSellItem(0), trade.getSellItem(1))) {
@@ -80,7 +81,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			int count = sellItem.getCount();
 			if(TicketItem.isTicket(sellItem))
 			{
-				TicketData data = TicketData.getForTicket(sellItem);
+				TicketGroupData data = TicketGroupData.getForTicket(sellItem);
 				if(data != null)
 				{
 					foundTicket = true;
@@ -88,7 +89,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 					continue;
 				}
 			}
-			TicketData data = TicketData.getForMaterial(sellItem);
+			TicketGroupData data = TicketGroupData.getForMaterial(sellItem);
 			if(data != null)
 				addToList(data, count, countByCategory);
 			minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
@@ -98,11 +99,11 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		return minStock;
 	}
 
-	private void addToList(@Nonnull TicketData data, int count, @Nonnull List<Pair<TicketData,Integer>> countByCategory)
+	private void addToList(@Nonnull TicketGroupData data, int count, @Nonnull List<Pair<TicketGroupData,Integer>> countByCategory)
 	{
 		for(int i = 0; i < countByCategory.size(); ++i)
 		{
-			Pair<TicketData,Integer> pair = countByCategory.get(i);
+			Pair<TicketGroupData,Integer> pair = countByCategory.get(i);
 			if(pair.getFirst() == data)
 			{
 				countByCategory.set(i, Pair.of(data,pair.getSecond() + count));
@@ -112,7 +113,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		countByCategory.add(Pair.of(data, count));
 	}
 
-	protected final int getTicketStock(List<Pair<TicketData,Integer>> data, @Nonnull TraderItemStorage traderStorage)
+	protected final int getTicketStock(List<Pair<TicketGroupData,Integer>> data, @Nonnull TraderItemStorage traderStorage)
 	{
 		int minStock = Integer.MAX_VALUE;
 		for(var pair : data)
@@ -144,7 +145,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			printCount += ticketStack.getCount() - traderStorage.removeItem(ticketStack).getCount();
 			if(printCount > 0)
 			{
-				TicketData data = TicketData.getForTicket(ticketStack);
+				TicketGroupData data = TicketGroupData.getForTicket(ticketStack);
 				if(data == null)
 					LightmansCurrency.LogWarning("Missing Ticket Kiosk Data for " + ticketStack.getHoverName().getString());
 				else

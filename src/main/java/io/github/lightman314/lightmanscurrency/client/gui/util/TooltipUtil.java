@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.util;
 
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -20,7 +19,7 @@ public class TooltipUtil {
         return list;
     }
 
-    public static @NotNull Supplier<List<Component>> createToggleTooltip(@NotNull NonNullSupplier<Boolean> toggle, List<Component> trueTooltip, List<Component> falseTooltip) {
+    public static @NotNull Supplier<List<Component>> createToggleTooltip(@NotNull Supplier<Boolean> toggle, List<Component> trueTooltip, List<Component> falseTooltip) {
         return () -> {
             if(toggle.get())
                 return trueTooltip;
@@ -28,7 +27,7 @@ public class TooltipUtil {
         };
     }
 
-    public static @NotNull Supplier<List<Component>> createToggleSingleTooltip(@NotNull NonNullSupplier<Boolean> toggle, Component trueTooltip, Component falseTooltip) {
+    public static @NotNull Supplier<List<Component>> createToggleSingleTooltip(@NotNull Supplier<Boolean> toggle, Component trueTooltip, Component falseTooltip) {
         return () -> {
             if(toggle.get())
                 return lazyList(trueTooltip);
@@ -36,7 +35,7 @@ public class TooltipUtil {
         };
     }
 
-    public static @NotNull Supplier<List<Component>> createToggleTooltip(@NotNull NonNullSupplier<Boolean> toggle, Supplier<List<Component>> trueTooltip, Supplier<List<Component>> falseTooltip) {
+    public static @NotNull Supplier<List<Component>> createToggleTooltip(@NotNull Supplier<Boolean> toggle, Supplier<List<Component>> trueTooltip, Supplier<List<Component>> falseTooltip) {
         return () -> {
             if(toggle.get())
                 return trueTooltip.get();
@@ -44,7 +43,7 @@ public class TooltipUtil {
         };
     }
 
-    public static @NotNull Supplier<List<Component>> createToggleSingleTooltip(@NotNull NonNullSupplier<Boolean> toggle, Supplier<Component> trueTooltip, Supplier<Component> falseTooltip) {
+    public static @NotNull Supplier<List<Component>> createToggleSingleTooltip(@NotNull Supplier<Boolean> toggle, Supplier<Component> trueTooltip, Supplier<Component> falseTooltip) {
         return () -> {
             if(toggle.get())
                 return lazyList(trueTooltip.get());

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -10,15 +9,12 @@ import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -26,9 +22,8 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -38,28 +33,24 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import javax.annotation.Nonnull;
 
@@ -80,33 +71,7 @@ public class ClientProxy extends CommonProxy{
 		ConfigFile.loadClientFiles(ConfigFile.LoadPhase.SETUP);
 
     	//Register Screens
-    	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
-    	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
-
-		MenuScreens.register(ModMenus.NETWORK_TERMINAL.get(), NetworkTerminalScreen::new);
-    	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
-
-    	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
-
-    	MenuScreens.register(ModMenus.SLOT_MACHINE.get(), SlotMachineScreen::new);
-
-    	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
-    	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
-    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketStationScreen::new);
-    	
-    	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
-    	
-    	MenuScreens.register(ModMenus.EJECTION_RECOVERY.get(), EjectionRecoveryScreen::new);
-
-		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
-
-		MenuScreens.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
-
-		MenuScreens.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
-
-		MenuScreens.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
+    	//DONEin ClientModEvents#registerScreens
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -131,8 +96,8 @@ public class ClientProxy extends CommonProxy{
 		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
 
 		//Register Curios Render Layers
-		if(LightmansCurrency.isCuriosLoaded())
-			LCCuriosClient.registerRenderLayers();
+		//if(LightmansCurrency.isCuriosLoaded())
+		//	LCCuriosClient.registerRenderLayers();
 
 	}
 
@@ -183,7 +148,7 @@ public class ClientProxy extends CommonProxy{
 		
 		Minecraft mc = Minecraft.getInstance();
 		assert mc.player != null;
-		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)))
+		if(NeoForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)).isCanceled())
 			return;
 		
 		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
@@ -234,36 +199,32 @@ public class ClientProxy extends CommonProxy{
 	public void loadAdminPlayers(List<UUID> serverAdminList) { LCAdminMode.loadAdminPlayers(serverAdminList); }
 	
 	@SubscribeEvent
-	public void openScreenOnRenderTick(RenderTickEvent event)
+	public void openScreenOnRenderTick(RenderFrameEvent.Pre event)
 	{
-		if(event.phase == TickEvent.Phase.START)
+		if(this.openTeamManager)
 		{
-			if(this.openTeamManager)
-			{
-				this.openTeamManager = false;
-				Minecraft.getInstance().setScreen(new TeamManagerScreen());
-			}
-			else if(this.openNotifications)
-			{
-				this.openNotifications = false;
-				//Open easy notification screen
-				Minecraft.getInstance().setScreen(new NotificationScreen());
-			}
+			this.openTeamManager = false;
+			Minecraft.getInstance().setScreen(new TeamManagerScreen());
+		}
+		else if(this.openNotifications)
+		{
+			this.openNotifications = false;
+			//Open easy notification screen
+			Minecraft.getInstance().setScreen(new NotificationScreen());
 		}
 	}
 	
 	@SubscribeEvent
 	//Add coin value tooltips to non CoinItem coins.
 	public void onItemTooltip(ItemTooltipEvent event) {
-		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())
+		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable() || event.getContext().registries() == null)
 			return;
 		ItemStack stack = event.getItemStack();
 		if(CoinAPI.API.IsCoin(stack, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
+
 		//If item has money mending, display money mending tooltip
-		Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(event.getItemStack());
-		if(enchantments.getOrDefault(ModEnchantments.MONEY_MENDING.get(),0) > 0)
-			event.getToolTip().add(LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText()).withStyle(ChatFormatting.YELLOW));
+		MoneyMendingEnchantment.addEnchantmentTooltips(stack,event.getToolTip(),event.getContext());
 
 		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && stack.getItem() instanceof BlockItem bi)
 		{
@@ -305,7 +266,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void syncEventUnlocks(@Nonnull List<String> unlocksList) {
 		Minecraft mc = Minecraft.getInstance();
-		IEventUnlocks unlocks = CapabilityEventUnlocks.getCapability(mc.player);
+		EventUnlocks unlocks = mc.player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
 		if(unlocks != null)
 			unlocks.sync(unlocksList);
 	}
@@ -324,4 +285,8 @@ public class ClientProxy extends CommonProxy{
 			return super.getPlayerList(logicalClient);
 		return Minecraft.getInstance().getConnection().getOnlinePlayers().stream().map(PlayerInfo::getProfile).toList();
 	}
+
+	@Override
+	public RegistryAccess getClientRegistryHolder() { return Minecraft.getInstance().level.registryAccess(); }
+
 }

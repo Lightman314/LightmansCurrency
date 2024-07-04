@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 
@@ -10,16 +9,11 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 public class NetworkItemTraderBlock extends TraderBlockRotatable {
 
@@ -45,10 +39,6 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
-	{
-		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ITEM_TRADER_NETWORK.asTooltip(this.tradeCount));
-		super.appendHoverText(stack, level, tooltip, flagIn);
-	}
+	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_NETWORK.asTooltip(this.tradeCount); }
 	
 }

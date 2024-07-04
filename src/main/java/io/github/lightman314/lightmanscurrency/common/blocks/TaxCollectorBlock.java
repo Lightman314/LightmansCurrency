@@ -17,13 +17,12 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -31,9 +30,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 
@@ -47,8 +46,9 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
             taxBlock.initialize(player);
     }
 
+    @Nonnull
     @Override
-    public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity be)
         {
             TaxEntry entry = be.getTaxEntry();
@@ -60,14 +60,13 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
                     InventoryUtil.dumpContents(level, pos, be.getContents(!player.isCreative()));
                 }
                 else
-                    return;
+                    return state;
             }
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean flag) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
             taxBlock.onRemove();
@@ -76,8 +75,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
 
     @Nonnull
     @Override
-    @SuppressWarnings("deprecation")
-    public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+    public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult hit) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
         {
             TaxEntry entry = taxBlock.getTaxEntry();
@@ -119,9 +117,10 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new TaxBlockEntity(pos, state); }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
+    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
         TooltipItem.addTooltip(tooltips, LCText.TOOLTIP_TAX_COLLECTOR.asTooltip());
         if(LCConfig.SERVER.taxCollectorAdminOnly.get())
             tooltips.add(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN.get().withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));
+        super.appendHoverText(stack,context,tooltips,flag);
     }
 }

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -15,8 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.types.Blo
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -48,6 +45,7 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
+		//this.setTab(TraderInterfaceTab.TAB_STATS, new InterfaceStatsTab(this));
 		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
 		if(this.blockEntity != null)
 			this.blockEntity.initMenuTabs(this);
@@ -157,49 +155,13 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 	public void changeMode(ActiveMode newMode) {
 		this.blockEntity.setMode(newMode);
 		if(this.isClient())
-		{
-			CompoundTag message = new CompoundTag();
-			message.putInt("ModeChange", newMode.index);
-			this.sendMessage(message);
-		}
+			this.SendMessage(this.builder().setInt("ModeChange", newMode.index));
 	}
 	
 	public void setOnlineMode(boolean newMode) {
 		this.blockEntity.setOnlineMode(newMode);
 		if(this.isClient())
-		{
-			CompoundTag message = new CompoundTag();
-			message.putBoolean("OnlineModeChange", newMode);
-			this.sendMessage(message);
-		}
-	}
-	
-	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
-		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
-		message.putInt("ChangeTab", newTab);
-		return message;
-	}
-
-	@Deprecated(since = "2.2.1.4")
-	public void sendMessage(CompoundTag message) {
-		if(this.isClient())
-		{
-			this.SendMessageToServer(LazyPacketData.simpleTag("OldMessage", message));
-			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
-		}
-	}
-
-	@Deprecated(since = "2.2.1.4")
-	private void receiveMessage(CompoundTag message) {
-		//LightmansCurrency.LogInfo("Received nessage:\n" + message.getAsString());
-		if(message.contains("ChangeTab", Tag.TAG_INT))
-			this.changeTab(message.getInt("ChangeTab"));
-		if(message.contains("ModeChange"))
-			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
-		if(message.contains("OnlineModeChange"))
-			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
-		try { this.getCurrentTab().receiveMessage(message); }
-		catch(Throwable ignored) { }
+			this.SendMessage(this.builder().setBoolean("OnlineModeChange", newMode));
 	}
 
 	@Override
@@ -210,8 +172,6 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
 		if(message.contains("OnlineModeChange"))
 			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
-		if(message.contains("OldMessage"))
-			this.receiveMessage(message.getNBT("OldMessage"));
 		try {
 			this.getCurrentTab().handleMessage(message);
 		} catch (Throwable t) { LightmansCurrency.LogError("Error handling Trader Interface Message!",t); }

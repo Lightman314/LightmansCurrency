@@ -1,48 +1,35 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketSetVisible extends ClientToServerPacket {
 
+	private static final Type<CPacketSetVisible> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_wallet_set_visible"));
 	public static final Handler<CPacketSetVisible> HANDLER = new H();
 
-	int entityID;
 	boolean visible;
 	
-	public CPacketSetVisible(int entityID, boolean visible) {
-		this.entityID = entityID;
-		this.visible = visible;
-	}
-	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.entityID);
-		buffer.writeBoolean(this.visible);
-	}
+	public CPacketSetVisible(boolean visible) { super(TYPE); this.visible = visible; }
+
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketSetVisible message) { buffer.writeBoolean(message.visible); }
+	private static CPacketSetVisible decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSetVisible(buffer.readBoolean()); }
 
 	private static class H extends Handler<CPacketSetVisible>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketSetVisible::encode,CPacketSetVisible::decode)); }
 		@Override
-		public CPacketSetVisible decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSetVisible(buffer.readInt(), buffer.readBoolean()); }
-		@Override
-		protected void handle(@Nonnull CPacketSetVisible message, @Nullable ServerPlayer sender) {
-			if(sender == null)
-				return;
-			Entity entity = sender.level().getEntity(message.entityID);
-			if(entity != null)
-			{
-				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
-				if(walletHandler != null)
-					walletHandler.setVisible(message.visible);
-			}
+		protected void handle(@Nonnull CPacketSetVisible message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			WalletHandler walletHandler = WalletHandler.get(player);
+			if(walletHandler != null)
+				walletHandler.setVisible(message.visible);
 		}
 	}
 

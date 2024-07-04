@@ -14,20 +14,23 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
+
+import javax.annotation.Nonnull;
 
 public class BlockEntityBlockHelper {
 
-	public static final ResourceLocation ITEM_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
-	public static final ResourceLocation FREEZER_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "freezer_trader");
-	public static final ResourceLocation BOOKSHELF_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "bookshelf_trader");
-	public static final ResourceLocation SLOT_MACHINE_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader");
-	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = new ResourceLocation(LightmansCurrency.MODID, "capability_interface");
-	public static final ResourceLocation AUCTION_STAND_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand");
+	public static final ResourceLocation ITEM_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trader");
+	public static final ResourceLocation ARMOR_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "armor_trader");
+	public static final ResourceLocation TICKET_KIOSK_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "ticket_trader");
+	public static final ResourceLocation FREEZER_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "freezer_trader");
+	public static final ResourceLocation BOOKSHELF_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bookshelf_trader");
+	public static final ResourceLocation SLOT_MACHINE_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trader");
+	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "capability_interface");
+	public static final ResourceLocation AUCTION_STAND_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "auction_stand");
 
 	private static final Map<ResourceLocation,List<Supplier<Block>>> blockList = new HashMap<>();
 	
-	public static Block[] getBlocksForBlockEntity(ResourceLocation beType) {
+	public static Block[] getBlocksForBlockEntity(@Nonnull ResourceLocation beType) {
 		List<Block> result = new ArrayList<>();
 		for(Supplier<Block> blockSource : blockList.getOrDefault(beType, new ArrayList<>()))
 		{
@@ -40,13 +43,30 @@ public class BlockEntityBlockHelper {
 		return result.toArray(new Block[0]);
 	}
 
+	public static Block[] getBlocksForBlockEntities(@Nonnull ResourceLocation... beTypes)
+	{
+		List<Block> result = new ArrayList<>();
+		for(ResourceLocation type : beTypes)
+		{
+			for(Supplier<Block> blockSource : blockList.getOrDefault(type,new ArrayList<>()))
+			{
+				try {
+					Block b = blockSource.get();
+					if(b != null)
+						result.add(b);
+				} catch (Throwable ignore) {}
+			}
+		}
+		return result.toArray(new Block[0]);
+	}
+
 	public static <T extends Block> void addBlockToBlockEntity(ResourceLocation beType, Supplier<T> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }
 	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<T,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBiBundle<T,?,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	@SafeVarargs
-	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObject<T>... blocks) {
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, Supplier<T>... blocks) {
 		List<Supplier<Block>> blockSources = new ArrayList<>();
-		for(RegistryObject<T> block : blocks)
+		for(Supplier<T> block : blocks)
 		{
 			if(block != null)
 				blockSources.add(block::get);
@@ -74,7 +94,9 @@ public class BlockEntityBlockHelper {
 		//Freezer Blocks
 		addBlocksToBlockEntity(FREEZER_TRADER_TYPE, ModBlocks.FREEZER);
 
-		//Bookshelf Blocks
+		//Specialty Traders
+		addBlocksToBlockEntity(ARMOR_TRADER_TYPE, ModBlocks.ARMOR_DISPLAY);
+		addBlocksToBlockEntity(TICKET_KIOSK_TYPE, ModBlocks.TICKET_KIOSK);
 		addBlocksToBlockEntity(BOOKSHELF_TRADER_TYPE, ModBlocks.BOOKSHELF_TRADER);
 
 		//Slot Machine Blocks

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader_interface.blocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,27 +21,25 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
-	
+
 	@Override
-	public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	public @Nonnull InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -68,22 +67,22 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 		if(blockEntity != null)
 		{
 			if(!blockEntity.isOwner(player))
-				return;
+				return state;
 			InventoryUtil.dumpContents(level, pos, blockEntity.getContents(level, pos, state, !player.isCreative()));
 			blockEntity.flagAsRemovable();
 		}
-		super.playerWillDestroy(level, pos, state, player);
+		return super.playerWillDestroy(level, pos, state, player);
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
@@ -105,7 +104,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 					//Remove the rest of the multi-block structure.
 					try {
 						this.onInvalidRemoval(state, level, pos, blockEntity);
-					} catch(Throwable t) { t.printStackTrace(); }
+					} catch(Throwable t) { LightmansCurrency.LogError("Error while triggering invalid removal code!",t); }
 				}
 				else
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
@@ -144,10 +143,10 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		return null;
 	}
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
+	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Item.TooltipContext level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);

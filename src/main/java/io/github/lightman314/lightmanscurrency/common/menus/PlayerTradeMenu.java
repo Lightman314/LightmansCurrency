@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.common.playertrading.IPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -128,7 +128,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 
-    public MoneyView getAvailableFunds() { return WalletCapability.getWalletMoney(this.player); }
+    public MoneyView getAvailableFunds() { return WalletHelpers.getWalletMoney(this.player); }
 
     public void onTradeChange() { }
 
@@ -141,7 +141,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
             LightmansCurrency.LogWarning("Attempted to reload the trade on the server-side menu.");
     }
 
-    public void SendChatToServer(@Nonnull String message) { this.SendMessageToServer(LazyPacketData.simpleString("AddChat", message)); }
+    public void SendChatToServer(@Nonnull String message) { this.SendMessageToServer(this.builder().setString("AddChat", message)); }
 
     @Override
     public void HandleMessage(@Nonnull LazyPacketData message) {
@@ -172,7 +172,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         if(player == null)
             return;
         if(player.containerMenu instanceof PlayerTradeMenu menu)
-            menu.SendMessage(LazyPacketData.simpleText("ReceiveChat", message));
+            menu.SendMessage(this.builder().setText("ReceiveChat", message));
     }
 
 }

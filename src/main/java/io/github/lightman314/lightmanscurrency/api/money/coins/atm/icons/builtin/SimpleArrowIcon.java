@@ -13,14 +13,14 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIcon
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class SimpleArrowIcon extends ATMIconData {
 
-	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "small_arrow");
+	public static final ResourceLocation TYPE_NAME = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "small_arrow");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, SimpleArrowIcon::new);
 
 	public enum ArrowType{

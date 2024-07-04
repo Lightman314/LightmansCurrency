@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.traders.blocks;
 
 import java.util.function.BiFunction;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
@@ -32,7 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
+public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock {
 
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
@@ -102,8 +101,9 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Deprecated
 	public boolean getReplacable(Level level, BlockPos pos, BlockState ignored, LivingEntity player, ItemStack stack) { return level.getBlockState(pos).getBlock() == Blocks.AIR; }
 
+	@Nonnull
 	@Override
-	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		
 		//Run base functionality first to prevent the removal of the block containing the block entity
@@ -113,13 +113,14 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		if(blockEntity instanceof TraderBlockEntity<?> trader)
 		{
 			if(!trader.canBreak(player))
-				return;
+                return state;
 		}
 		
 		//Destroy the other half of the Tall Block
 		setAir(level, this.getOtherHeight(pos, state), player);
-		
-	}
+
+        return state;
+    }
 	
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {

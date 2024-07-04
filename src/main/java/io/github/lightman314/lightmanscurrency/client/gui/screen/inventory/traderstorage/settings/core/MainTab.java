@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentTrader;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -169,12 +168,10 @@ public class MainTab extends SettingsSubTab {
         if(this.persistentTraderIDInput != null)
         {
             this.persistentTraderIDInput.visible = isAdmin;
-            this.persistentTraderIDInput.tick();
         }
         if(this.persistentTraderOwnerInput != null)
         {
             this.persistentTraderOwnerInput.visible = isAdmin;
-            this.persistentTraderOwnerInput.tick();
         }
     }
 
@@ -186,7 +183,7 @@ public class MainTab extends SettingsSubTab {
         String customName = trader.getCustomName();
         if(!customName.contentEquals(this.nameInput.getValue()))
         {
-            this.sendMessage(LazyPacketData.simpleString("ChangeName", this.nameInput.getValue()));
+            this.sendMessage(this.builder().setString("ChangeName", this.nameInput.getValue()));
             //LightmansCurrency.LogInfo("Sent 'Change Name' message with value:" + this.nameInput.getValue());
         }
     }
@@ -202,7 +199,7 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(LazyPacketData.simpleBoolean("MakeCreative", !trader.isCreative()));
+        this.sendMessage(this.builder().setBoolean("MakeCreative", !trader.isCreative()));
     }
 
     private void ToggleBankLink(EasyButton button)
@@ -210,7 +207,7 @@ public class MainTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(LazyPacketData.simpleBoolean("LinkToBankAccount", !trader.getLinkedToBank()));
+        this.sendMessage(this.builder().setBoolean("LinkToBankAccount", !trader.getLinkedToBank()));
     }
 
     private void AddTrade(EasyButton button)

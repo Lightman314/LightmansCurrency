@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -26,14 +27,14 @@ import java.util.List;
 
 public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> implements IScrollable {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
 
 	public static final Sprite SPRITE_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 176, 0, 24, 16);
 
 	private static final ScreenArea SELECTION_AREA = ScreenArea.of(153, 7, 16, 16);
 
-	private TicketStationRecipe selectedRecipe = null;
-	public List<TicketStationRecipe> getMatchingRecipes() { return this.menu.getAllRecipes().stream().filter(r -> r.matches(this.menu.blockEntity.getStorage(), this.menu.blockEntity.getLevel())).toList(); }
+	private RecipeHolder<TicketStationRecipe> selectedRecipe = null;
+	public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() { return this.menu.getAllRecipes().stream().filter(r -> r.value().matches(this.menu.blockEntity.getStorage(), this.menu.blockEntity.getLevel())).toList(); }
 
 	public TicketStationScreen(TicketStationMenu container, Inventory inventory, Component title)
 	{
@@ -51,7 +52,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		gui.drawString(this.playerInventoryTitle, 8, (this.getYSize() - 94), 0x404040);
 
 		if(this.selectedRecipe != null)
-			gui.renderItem(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()), SELECTION_AREA.pos);
+			gui.renderItem(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage()), SELECTION_AREA.pos);
 		
 	}
 
@@ -61,7 +62,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		if(this.selectedRecipe != null && SELECTION_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))
 		{
 			List<Component> tooltip = new ArrayList<>();
-			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName()));
+			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage()).getHoverName()));
 			if(this.getMatchingRecipes().size() > 1)
 				tooltip.add(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE.get());
 			gui.renderComponentTooltip(tooltip);
@@ -73,7 +74,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	{
 		this.addChild(new PlainButton(screenArea.x + 79, screenArea.y + 21, this::craftTicket, SPRITE_ARROW)
 				.withAddons(
-						EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.menu.roomForOutput(this.selectedRecipe)),
+						EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.menu.roomForOutput(this.selectedRecipe.value())),
 						EasyAddonHelper.tooltip(this::getArrowTooltip)
 				));
 		//Add scroll area for recipe selection.
@@ -86,31 +87,31 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	private Component getArrowTooltip()
 	{
 		if(this.selectedRecipe != null)
-			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
+			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
 		return EasyText.empty();
 	}
 
 	private void validateSelectedRecipe()
 	{
 		//Auto-void and select matching recipes
-		List<TicketStationRecipe> matchingRecipes = this.getMatchingRecipes();
+		List<RecipeHolder<TicketStationRecipe>> matchingRecipes = this.getMatchingRecipes();
 		if(this.selectedRecipe != null && !matchingRecipes.contains(this.selectedRecipe))
 		{
 			if(!matchingRecipes.isEmpty())
-				this.selectedRecipe = matchingRecipes.get(0);
+				this.selectedRecipe = matchingRecipes.getFirst();
 			else
 				this.selectedRecipe = null;
 			return;
 		}
 		if(this.selectedRecipe == null && !matchingRecipes.isEmpty())
-			this.selectedRecipe = matchingRecipes.get(0);
+			this.selectedRecipe = matchingRecipes.getFirst();
 	}
 
 	private void craftTicket(EasyButton button) {
 		this.validateSelectedRecipe();
 		if(this.selectedRecipe == null)
 			return;
-		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(), this.selectedRecipe.getId());
+		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(), this.selectedRecipe.id());
 	}
 
 	@Override
@@ -123,7 +124,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 
 	@Override
 	public void setScroll(int newScroll) {
-		List<TicketStationRecipe> matchingRecipes = this.getMatchingRecipes();
+		List<RecipeHolder<TicketStationRecipe>> matchingRecipes = this.getMatchingRecipes();
 		if(matchingRecipes.isEmpty())
 			this.selectedRecipe = null;
 		else if(newScroll < 0 || newScroll >= matchingRecipes.size())

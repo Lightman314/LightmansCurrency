@@ -1,16 +1,19 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class SPacketSyncUsers extends ServerToClientPacket {
 
+	private static final Type<SPacketSyncUsers> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_trader_sync_users"));
 	public static final Handler<SPacketSyncUsers> HANDLER = new H();
 
 	long traderID;
@@ -18,22 +21,22 @@ public class SPacketSyncUsers extends ServerToClientPacket {
 	
 	public SPacketSyncUsers(long traderID, int userCount)
 	{
+		super(TYPE);
 		this.traderID = traderID;
 		this.userCount = userCount;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		buffer.writeLong(this.traderID);
-		buffer.writeInt(this.userCount);
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketSyncUsers message) {
+		buffer.writeLong(message.traderID);
+		buffer.writeInt(message.userCount);
 	}
+	private static SPacketSyncUsers decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncUsers(buffer.readLong(), buffer.readInt()); }
 
 	private static class H extends Handler<SPacketSyncUsers>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(SPacketSyncUsers::encode,SPacketSyncUsers::decode)); }
 		@Override
-		public SPacketSyncUsers decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncUsers(buffer.readLong(), buffer.readInt()); }
-		@Override
-		protected void handle(@Nonnull SPacketSyncUsers message, @Nullable ServerPlayer sender) {
+		protected void handle(@Nonnull SPacketSyncUsers message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			TraderData trader = TraderSaveData.GetTrader(true, message.traderID);
 			if(trader != null)
 				trader.updateUserCount(message.userCount);

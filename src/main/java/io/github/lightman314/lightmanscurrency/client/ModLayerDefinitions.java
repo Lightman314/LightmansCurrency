@@ -6,6 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModLayerDefinitions {
 
-	public static final ModelLayerLocation WALLET = new ModelLayerLocation(new ResourceLocation(LightmansCurrency.MODID,"wallet"),"wallet");
+	public static final ModelLayerLocation WALLET = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"wallet"),"wallet");
 	
 }

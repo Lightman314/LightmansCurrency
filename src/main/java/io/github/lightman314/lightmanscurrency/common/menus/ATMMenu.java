@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,7 +37,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public SimpleContainer getCoinInput() { return this.coinInput; }
 	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
 	
-	private MutableComponent transferMessage = null;
+	private Component transferMessage = null;
 	
 	public ATMMenu(int windowId, Inventory inventory, MenuValidator validator)
 	{
@@ -127,7 +128,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	public void SendCoinExchangeMessage(String command) {
-		this.SendMessageToServer(LazyPacketData.builder().setString("ExchangeCoinCommand", command));
+		this.SendMessageToServer(this.builder().setString("ExchangeCoinCommand", command));
 	}
 
 	public void ExchangeCoins(String command)
@@ -155,10 +156,10 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
 	
-	public MutableComponent getTransferMessage() { return this.transferMessage; }
+	public Component getTransferMessage() { return this.transferMessage; }
 	
 	@Override
-	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
+	public void setTransferMessage(Component message) { this.transferMessage = message; }
 	
 	public void clearMessage() { this.transferMessage = null; }
 
@@ -167,7 +168,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		IBankAccount ba = this.getBankAccount();
 		if(ba != null)
 			ba.setNotificationLevel(type, newValue);
-		this.SendMessageToServer(LazyPacketData.builder().setString("NotificationValueType", type).setMoneyValue("NotificationValueChange", newValue));
+		this.SendMessageToServer(this.builder().setString("NotificationValueType", type).setMoneyValue("NotificationValueChange", newValue));
 	}
 
 	@Override

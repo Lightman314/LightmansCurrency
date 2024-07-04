@@ -23,10 +23,10 @@ import javax.annotation.Nonnull;
 
 public class TeamManagerScreen extends EasyScreen {
 
-	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teammanager.png");
+	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/teammanager.png");
 
 	public TeamManagerScreen() { super(); this.resize(200, 200);}
-	
+
 	private long activeTeamID = -1;
 	public Team getActiveTeam()
 	{

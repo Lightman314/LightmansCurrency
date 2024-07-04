@@ -1,21 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTeamData {
 
 	private static final Map<Long,Team> loadedTeams = new HashMap<>();
@@ -29,7 +29,7 @@ public class ClientTeamData {
 	
 	public static void UpdateTeam(CompoundTag compound)
 	{
-		Team updatedTeam = Team.load(compound);
+		Team updatedTeam = Team.load(compound, LookupHelper.getRegistryAccess(true));
 		loadedTeams.put(updatedTeam.getID(), updatedTeam.flagAsClient());
 	}
 	

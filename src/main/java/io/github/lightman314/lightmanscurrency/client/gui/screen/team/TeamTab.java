@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 
-public abstract class TeamTab extends EasyTab {
+public abstract class TeamTab extends EasyTab implements LazyPacketData.IBuilderProvider {
 
 
 	public int getColor() { return 0xFFFFFF; }

@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,13 +37,11 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
 
     @Override
     @Nonnull
-    @SuppressWarnings("deprecation")
     public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return LazyShapes.BOX; }
 
     @Override
     @Nonnull
-    @SuppressWarnings("deprecation")
-    public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result) {
+    public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result) {
         if(!level.isClientSide && AuctionHouseTrader.isEnabled())
         {
             TraderData ah = TraderSaveData.GetAuctionHouse(false);
@@ -62,16 +59,16 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
     @Override
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new AuctionStandBlockEntity(pos, state); }
 
+    @Nonnull
     @Override
-    public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
-        super.playerWillDestroy(level, pos, state, player);
+    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
         //Flag it to not drop if the player was in creative mode
         if(player.isCreative() && level.getBlockEntity(pos) instanceof AuctionStandBlockEntity be)
             be.dropItem = false;
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
         if(state.is(newState.getBlock()))
         {

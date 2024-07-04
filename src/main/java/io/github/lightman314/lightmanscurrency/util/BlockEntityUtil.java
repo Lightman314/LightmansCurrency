@@ -23,14 +23,7 @@ public class BlockEntityUtil
     public static void sendUpdatePacket(BlockEntity tileEntity)
     {
     	ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(tileEntity);
-        if(packet != null)
-        {
-            sendUpdatePacket(tileEntity.getLevel(), tileEntity.getBlockPos(), packet);
-        }
-        else
-        {
-        	LightmansCurrency.LogError(tileEntity.getClass().getName() + ".getUpdatePacket() returned null!");
-        }
+        sendUpdatePacket(tileEntity.getLevel(), tileEntity.getBlockPos(), packet);
     }
 
     /**
@@ -40,7 +33,7 @@ public class BlockEntityUtil
      */
     public static void sendUpdatePacket(BlockEntity tileEntity, CompoundTag compound)
     {
-    	ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(tileEntity, be -> compound);
+    	ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(tileEntity, (be,lookup) -> compound);
         sendUpdatePacket(tileEntity.getLevel(), tileEntity.getBlockPos(), packet);
     }
 

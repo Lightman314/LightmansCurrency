@@ -9,8 +9,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -42,7 +42,7 @@ public class SlotMachinePriceTab extends TraderStorageTab {
         {
             trader.setPrice(newPrice);
             if(this.menu.isClient())
-                this.menu.SendMessage(LazyPacketData.simpleMoneyValue("SetPrice", newPrice));
+                this.menu.SendMessage(this.builder().setMoneyValue("SetPrice", newPrice));
         }
     }
 

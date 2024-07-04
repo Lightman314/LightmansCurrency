@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -45,6 +46,10 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     protected EasyScreen() { this(EasyText.empty()); }
     protected EasyScreen(Component title) { super(title); }
+
+    @Nonnull
+    @Override
+    public RegistryAccess registryAccess() { return this.getPlayer().registryAccess(); }
 
     @Override
     public boolean isPauseScreen() { return false; }
@@ -79,6 +84,11 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected abstract void initialize(ScreenArea screenArea);
 
     @Override
+    public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
+        //super.renderBackground(mcgui, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
     public final void render(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
         this.renderTick();
         EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, this.font, mouseX, mouseY, partialTicks).pushOffset(this.getCorner());
@@ -89,12 +99,14 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             catch (Throwable t) { LightmansCurrency.LogError("Error occurred while early rendering " + r.getClass().getName(), t); }
         }
         //Render background tint
-        this.renderBackground(mcgui);
+        this.renderBlurredBackground(partialTicks);
+        this.renderMenuBackground(mcgui);
+        //Manually run the forge BackgroundRendered event
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ScreenEvent.BackgroundRendered(this, mcgui));
         //Render background
         this.renderBG(gui);
         //Render Widgets
         super.render(mcgui, mouseX, mouseY, partialTicks);
-        //Render Late Renders
         //Render Late Renders
         for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
         {
@@ -129,8 +141,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.renderables.add(r);
         if(child instanceof GuiEventListener && child instanceof NarratableEntry)
             super.addWidget((GuiEventListener & NarratableEntry)child);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        if(ticker != null && !this.guiTickers.contains(ticker))
+        if(child instanceof IEasyTickable ticker && !this.guiTickers.contains(ticker))
             this.guiTickers.add(ticker);
         if(child instanceof ITooltipSource t && !this.tooltipSources.contains(t))
             this.tooltipSources.add(t);
@@ -155,8 +166,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.renderables.remove(r);
         if(child instanceof GuiEventListener l)
             super.removeWidget(l);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        this.guiTickers.remove(ticker);
+        if(child instanceof IEasyTickable ticker)
+            this.guiTickers.remove(ticker);
         if(child instanceof ITooltipSource t)
             this.tooltipSources.remove(t);
         if(child instanceof IMouseListener l)
@@ -203,13 +214,13 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected final void removeWidget(@Nonnull GuiEventListener widget) { this.removeChild(widget); }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         for(IScrollListener l : ImmutableList.copyOf(this.scrollListeners))
         {
-            if(l.mouseScrolled(mouseX, mouseY, scroll))
+            if(l.mouseScrolled(mouseX, mouseY, deltaY))
                 return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scroll);
+        return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
     }
 
     @Override

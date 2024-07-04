@@ -1,16 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModItems {
 	
@@ -111,64 +110,64 @@ public class ModItems {
 	}
 	
 	//Hold the items for public access
-	public static final RegistryObject<Item> COIN_COPPER;
-	public static final RegistryObject<Item> COIN_IRON;
-	public static final RegistryObject<Item> COIN_GOLD;
-	public static final RegistryObject<Item> COIN_EMERALD;
-	public static final RegistryObject<Item> COIN_DIAMOND;
-	public static final RegistryObject<Item> COIN_NETHERITE;
+	public static final Supplier<Item> COIN_COPPER;
+	public static final Supplier<Item> COIN_IRON;
+	public static final Supplier<Item> COIN_GOLD;
+	public static final Supplier<Item> COIN_EMERALD;
+	public static final Supplier<Item> COIN_DIAMOND;
+	public static final Supplier<Item> COIN_NETHERITE;
 
-	public static final RegistryObject<Item> COIN_CHOCOLATE_COPPER;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_IRON;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_GOLD;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_EMERALD;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_DIAMOND;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_NETHERITE;
+	public static final Supplier<Item> COIN_CHOCOLATE_COPPER;
+	public static final Supplier<Item> COIN_CHOCOLATE_IRON;
+	public static final Supplier<Item> COIN_CHOCOLATE_GOLD;
+	public static final Supplier<Item> COIN_CHOCOLATE_EMERALD;
+	public static final Supplier<Item> COIN_CHOCOLATE_DIAMOND;
+	public static final Supplier<Item> COIN_CHOCOLATE_NETHERITE;
 	
-	public static final RegistryObject<Item> TRADING_CORE;
-	public static final RegistryObject<Item> TICKET;
-	public static final RegistryObject<Item> TICKET_PASS;
-	public static final RegistryObject<Item> TICKET_MASTER;
-	public static final RegistryObject<Item> TICKET_STUB;
+	public static final Supplier<Item> TRADING_CORE;
+	public static final Supplier<Item> TICKET;
+	public static final Supplier<Item> TICKET_PASS;
+	public static final Supplier<Item> TICKET_MASTER;
+	public static final Supplier<Item> TICKET_STUB;
 
-	public static final RegistryObject<Item> GOLDEN_TICKET;
-	public static final RegistryObject<Item> GOLDEN_TICKET_PASS;
-	public static final RegistryObject<Item> GOLDEN_TICKET_MASTER;
-	public static final RegistryObject<Item> GOLDEN_TICKET_STUB;
+	public static final Supplier<Item> GOLDEN_TICKET;
+	public static final Supplier<Item> GOLDEN_TICKET_PASS;
+	public static final Supplier<Item> GOLDEN_TICKET_MASTER;
+	public static final Supplier<Item> GOLDEN_TICKET_STUB;
 	
-	public static final RegistryObject<WalletItem> WALLET_COPPER;
-	public static final RegistryObject<WalletItem> WALLET_IRON;
-	public static final RegistryObject<WalletItem> WALLET_GOLD;
-	public static final RegistryObject<WalletItem> WALLET_EMERALD;
-	public static final RegistryObject<WalletItem> WALLET_DIAMOND;
-	public static final RegistryObject<WalletItem> WALLET_NETHERITE;
+	public static final Supplier<WalletItem> WALLET_COPPER;
+	public static final Supplier<WalletItem> WALLET_IRON;
+	public static final Supplier<WalletItem> WALLET_GOLD;
+	public static final Supplier<WalletItem> WALLET_EMERALD;
+	public static final Supplier<WalletItem> WALLET_DIAMOND;
+	public static final Supplier<WalletItem> WALLET_NETHERITE;
 	
-	public static final RegistryObject<Item> PORTABLE_TERMINAL;
-	public static final RegistryObject<Item> PORTABLE_GEM_TERMINAL;
-	public static final RegistryObject<Item> PORTABLE_ATM;
+	public static final Supplier<Item> PORTABLE_TERMINAL;
+	public static final Supplier<Item> PORTABLE_GEM_TERMINAL;
+	public static final Supplier<Item> PORTABLE_ATM;
 	
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_1;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_2;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_3;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_4;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_1;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_2;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_3;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_4;
 
-	public static final RegistryObject<Item> SPEED_UPGRADE_1;
-	public static final RegistryObject<Item> SPEED_UPGRADE_2;
-	public static final RegistryObject<Item> SPEED_UPGRADE_3;
-	public static final RegistryObject<Item> SPEED_UPGRADE_4;
-	public static final RegistryObject<Item> SPEED_UPGRADE_5;
+	public static final Supplier<Item> SPEED_UPGRADE_1;
+	public static final Supplier<Item> SPEED_UPGRADE_2;
+	public static final Supplier<Item> SPEED_UPGRADE_3;
+	public static final Supplier<Item> SPEED_UPGRADE_4;
+	public static final Supplier<Item> SPEED_UPGRADE_5;
 	
-	public static final RegistryObject<Item> NETWORK_UPGRADE;
+	public static final Supplier<Item> NETWORK_UPGRADE;
 	
-	public static final RegistryObject<Item> HOPPER_UPGRADE;
+	public static final Supplier<Item> HOPPER_UPGRADE;
 
-	public static final RegistryObject<Item> COIN_CHEST_EXCHANGE_UPGRADE;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_1;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_2;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_3;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_4;
-	public static final RegistryObject<Item> COIN_CHEST_SECURITY_UPGRADE;
+	public static final Supplier<Item> COIN_CHEST_EXCHANGE_UPGRADE;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_1;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_2;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_3;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_4;
+	public static final Supplier<Item> COIN_CHEST_SECURITY_UPGRADE;
 
-	public static final RegistryObject<Item> UPGRADE_SMITHING_TEMPLATE;
+	public static final Supplier<Item> UPGRADE_SMITHING_TEMPLATE;
 
 }

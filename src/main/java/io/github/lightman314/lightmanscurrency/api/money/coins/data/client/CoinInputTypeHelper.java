@@ -5,8 +5,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputTyp
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinDisplayInput;
 import io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinValueInput;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 

@@ -140,27 +140,27 @@ public class OutlineUtil {
         Vector4f posTransformTemp = new Vector4f(pos0.x(), pos0.y(), pos0.z(), 1);
         posTransformTemp.set(pos0.x(), pos0.y(), pos0.z(), 1);
         posTransformTemp.mul(posMatrix);
-        double x0 = posTransformTemp.x();
-        double y0 = posTransformTemp.y();
-        double z0 = posTransformTemp.z();
+        float x0 = posTransformTemp.x();
+        float y0 = posTransformTemp.y();
+        float z0 = posTransformTemp.z();
 
         posTransformTemp.set(pos1.x(), pos1.y(), pos1.z(), 1);
         posTransformTemp.mul(posMatrix);
-        double x1 = posTransformTemp.x();
-        double y1 = posTransformTemp.y();
-        double z1 = posTransformTemp.z();
+        float x1 = posTransformTemp.x();
+        float y1 = posTransformTemp.y();
+        float z1 = posTransformTemp.z();
 
         posTransformTemp.set(pos2.x(), pos2.y(), pos2.z(), 1);
         posTransformTemp.mul(posMatrix);
-        double x2 = posTransformTemp.x();
-        double y2 = posTransformTemp.y();
-        double z2 = posTransformTemp.z();
+        float x2 = posTransformTemp.x();
+        float y2 = posTransformTemp.y();
+        float z2 = posTransformTemp.z();
 
         posTransformTemp.set(pos3.x(), pos3.y(), pos3.z(), 1);
         posTransformTemp.mul(posMatrix);
-        double x3 = posTransformTemp.x();
-        double y3 = posTransformTemp.y();
-        double z3 = posTransformTemp.z();
+        float x3 = posTransformTemp.x();
+        float y3 = posTransformTemp.y();
+        float z3 = posTransformTemp.z();
 
         float r = color.x();
         float g = color.y();
@@ -174,37 +174,33 @@ public class OutlineUtil {
         float ny = normalTransformTemp.y();
         float nz = normalTransformTemp.z();
 
-        consumer.vertex(x0,y0,z0)
-                .color(r,g,b,a)
-                .uv(0, 0)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .normal(nx, ny, nz)
-                .endVertex();
+        consumer.addVertex(x0,y0,z0)
+                .setColor(r,g,b,a)
+                .setUv(0, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(nx, ny, nz);
 
-        consumer.vertex(x1, y1, z1)
-                .color(r, g, b, a)
-                .uv(0, 2)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .normal(nx, ny, nz)
-                .endVertex();
+        consumer.addVertex(x1, y1, z1)
+                .setColor(r, g, b, a)
+                .setUv(0, 2)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(nx, ny, nz);
 
-        consumer.vertex(x2, y2, z2)
-                .color(r, g, b, a)
-                .uv(1, 1)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .normal(nx, ny, nz)
-                .endVertex();
+        consumer.addVertex(x2, y2, z2)
+                .setColor(r, g, b, a)
+                .setUv(1, 1)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(nx, ny, nz);
 
-        consumer.vertex(x3, y3, z3)
-                .color(r, g, b, a)
-                .uv(1, 0)
-                .overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT)
-                .normal(nx, ny, nz)
-                .endVertex();
+        consumer.addVertex(x3, y3, z3)
+                .setColor(r, g, b, a)
+                .setUv(1, 0)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(LightTexture.FULL_BRIGHT)
+                .setNormal(nx, ny, nz);
 
     }
 

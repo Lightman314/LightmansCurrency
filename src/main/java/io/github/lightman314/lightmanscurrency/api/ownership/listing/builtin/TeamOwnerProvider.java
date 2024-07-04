@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.ownership.listing.IPotentialO
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;

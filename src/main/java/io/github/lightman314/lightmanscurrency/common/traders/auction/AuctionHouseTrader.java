@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
@@ -32,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -41,16 +43,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
-	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house"),AuctionHouseTrader::new);
+	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "auction_house"),AuctionHouseTrader::new);
 	
-	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
+	public static final IconData ICON = IconData.of(IconAndButtonUtil.ICON_TEXTURE, 96, 16);
 	
 	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
@@ -164,29 +166,29 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		this.saveTrades(compound);
-		this.saveStorage(compound);
+		this.saveTrades(compound,lookup);
+		this.saveStorage(compound,lookup);
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound) {
+	protected final void saveTrades(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		for (AuctionTradeData trade : this.trades) {
-			list.add(trade.getAsNBT());
+			list.add(trade.getAsNBT(lookup));
 		}
 		compound.put("Trades", list);
 	}
 	
-	protected final void saveStorage(CompoundTag compound) {
+	protected final void saveStorage(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
-		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundTag())));
+		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundTag(),lookup)));
 		compound.put("StorageData", list);
 	}
 	
 	@Override
-	public void loadAdditional(CompoundTag compound) {
+	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		//Load trades
 		if(compound.contains("Trades"))
@@ -194,7 +196,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			this.trades.clear();
 			ListTag tradeList = compound.getList("Trades", Tag.TAG_COMPOUND);
 			for(int i = 0; i < tradeList.size(); ++i)
-				this.trades.add(new AuctionTradeData(tradeList.getCompound(i)));
+				this.trades.add(new AuctionTradeData(tradeList.getCompound(i),lookup));
 		}
 		
 		//Load storage
@@ -204,7 +206,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			ListTag storageList = compound.getList("StorageData", Tag.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); ++i)
 			{
-				AuctionPlayerStorage storageEntry = new AuctionPlayerStorage(storageList.getCompound(i));
+				AuctionPlayerStorage storageEntry = new AuctionPlayerStorage(storageList.getCompound(i),lookup);
 				if(storageEntry.getOwner() != null)
 					this.storage.put(storageEntry.getOwner().id, storageEntry);
 			}
@@ -224,7 +226,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public void addTrade(AuctionTradeData trade, boolean persistent) {
 		
 		CreateAuctionEvent.Pre e1 = new CreateAuctionEvent.Pre(this, trade, persistent);
-		if(MinecraftForge.EVENT_BUS.post(e1))
+		if(NeoForge.EVENT_BUS.post(e1).isCanceled())
 			return;
 		trade = e1.getAuction();
 		
@@ -235,7 +237,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			this.markTradesDirty();
 			
 			CreateAuctionEvent.Post e2 = new CreateAuctionEvent.Post(this, trade, persistent);
-			MinecraftForge.EVENT_BUS.post(e2);
+			NeoForge.EVENT_BUS.post(e2);
 		}
 		else
 			LightmansCurrency.LogError("Auction Trade is not fully valid. Unable to add it to the list.");
@@ -263,7 +265,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			return;
 		
 		AuctionBidEvent.Pre e1 = new AuctionBidEvent.Pre(this, trade, player, bidAmount);
-		if(MinecraftForge.EVENT_BUS.post(e1))
+		if(NeoForge.EVENT_BUS.post(e1).isCanceled())
 			return;
 		
 		bidAmount = e1.getBidAmount();
@@ -282,7 +284,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 			this.markDirty(this::saveStorage);
 			
 			AuctionBidEvent.Post e2 = new AuctionBidEvent.Post(this, trade, player, bidAmount);
-			MinecraftForge.EVENT_BUS.post(e2);
+			NeoForge.EVENT_BUS.post(e2);
 		}
 
 	}
@@ -298,10 +300,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public boolean canMakePersistent() { return false; }
 	
 	@Override
-	public void saveAdditionalPersistentData(CompoundTag compound) { }
+	public void saveAdditionalPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	public void loadAdditionalPersistentData(CompoundTag data) { }
+	public void loadAdditionalPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
 	public Function<TradeData,Boolean> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) {
@@ -338,10 +340,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public boolean hasValidTrade() { return true; }
 
 	@Override
-	protected void saveAdditionalToJson(JsonObject json) { }
+	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) {}
+	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) {}
 
 	@Override
 	protected boolean allowAdditionalUpgradeType(UpgradeType type) { return false; }

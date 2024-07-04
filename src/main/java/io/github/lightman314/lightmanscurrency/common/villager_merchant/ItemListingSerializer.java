@@ -9,8 +9,8 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +22,9 @@ public class ItemListingSerializer {
     private static final Map<Class<? extends ItemListing>, IItemListingSerializer> serializers = new HashMap<>();
     private static final Map<ResourceLocation, IItemListingDeserializer> deserializers = new HashMap<>();
 
-    public static <L extends ItemListing,T extends IItemListingSerializer & IItemListingDeserializer> void registerItemListing(@NotNull ResourceLocation type, @NotNull Class<L> clazz, @NotNull T serializer) { registerItemListing(type, clazz, serializer, serializer); }
+    public static <L extends ItemListing,T extends IItemListingSerializer & IItemListingDeserializer> void registerItemListing(@Nonnull ResourceLocation type, @Nonnull Class<L> clazz, @Nonnull T serializer) { registerItemListing(type, clazz, serializer, serializer); }
 
-    public static <T extends ItemListing> void registerItemListing(@NotNull ResourceLocation type, Class<T> clazz, @NotNull IItemListingSerializer serializer, @NotNull IItemListingDeserializer deserializer) {
+    public static <T extends ItemListing> void registerItemListing(@Nonnull ResourceLocation type, Class<T> clazz, @Nonnull IItemListingSerializer serializer, @Nonnull IItemListingDeserializer deserializer) {
         if(serializers.containsKey(clazz))
             LightmansCurrency.LogWarning("Attempted to register a duplicate ItemListing Serializer of class '" + clazz.getName() + "'!");
         else if(deserializers.containsKey(type))
@@ -90,7 +90,7 @@ public class ItemListingSerializer {
     }
 
     public static ItemListing deserializeTrade(JsonObject json) throws JsonSyntaxException, ResourceLocationException{
-        ResourceLocation type = new ResourceLocation(GsonHelper.getAsString(json,"Type"));
+        ResourceLocation type = ResourceLocation.parse(GsonHelper.getAsString(json,"Type"));
         IItemListingDeserializer deserializer = deserializers.get(type);
         if(deserializer == null)
             throw new JsonSyntaxException("Could not deserialize entry as no deserializer was found of type '" + type + "'!");

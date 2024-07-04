@@ -18,6 +18,6 @@ public class TicketMaterialSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(@Nonnull ItemStack stack) { return this.menu.getAllRecipes().stream().anyMatch(r -> r.validIngredient(stack)); }
+	public boolean mayPlace(@Nonnull ItemStack stack) { return this.menu.getRecipeList().stream().anyMatch(r -> r.validIngredient(stack)); }
 
 }

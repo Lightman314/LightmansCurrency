@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,11 +21,10 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSav
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.Range;
 
 public class Team implements ITeam {
@@ -213,7 +213,7 @@ public class Team implements ITeam {
 		this.markDirty();
 	}
 	
-	private void notificationSender(NonNullSupplier<Notification> notification) {
+	private void notificationSender(Supplier<Notification> notification) {
 		List<PlayerReference> sendTo = new ArrayList<>();
 		if(this.bankAccountLimit < 1)
 			sendTo.addAll(this.members);
@@ -251,7 +251,7 @@ public class Team implements ITeam {
 			this.statTracker.clear();
 	}
 
-	public final void HandleEditRequest(@Nonnull ServerPlayer requestor, @Nonnull LazyPacketData request)
+	public final void HandleEditRequest(@Nonnull Player requestor, @Nonnull LazyPacketData request)
 	{
 		if(request.contains("Disband") && this.isOwner(requestor))
 			TeamSaveData.RemoveTeam(this.getID());
@@ -287,7 +287,7 @@ public class Team implements ITeam {
 	}
 
 	@Nonnull
-	public CompoundTag save()
+	public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
 	{
 		CompoundTag compound = new CompoundTag();
 		compound.putLong("ID", this.id);
@@ -302,16 +302,16 @@ public class Team implements ITeam {
 		//Bank Account
 		if(this.bankAccount != null)
 		{
-			compound.put("BankAccount", this.bankAccount.save());
+			compound.put("BankAccount", this.bankAccount.save(lookup));
 			compound.putInt("BankLimit", this.bankAccountLimit);
 		}
 
-		compound.put("Stats", this.statTracker.save());
+		compound.put("Stats", this.statTracker.save(lookup));
 		
 		return compound;
 	}
 	
-	public static Team load(@Nonnull CompoundTag compound)
+	public static Team load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		PlayerReference owner = null;
 		long id = -1;
@@ -331,7 +331,7 @@ public class Team implements ITeam {
 			
 			if(compound.contains("BankAccount", Tag.TAG_COMPOUND))
 			{
-				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"));
+				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"), lookup);
 				if(compound.contains("BankLimit", Tag.TAG_INT))
 					team.bankAccountLimit = compound.getInt("BankLimit");
 				team.bankAccount.updateOwnersName(team.teamName);
@@ -339,7 +339,7 @@ public class Team implements ITeam {
 			}
 
 			if(compound.contains("Stats"))
-				team.statTracker.load(compound.getCompound("Stats"));
+				team.statTracker.load(compound.getCompound("Stats"), lookup);
 
 			return team;
 			

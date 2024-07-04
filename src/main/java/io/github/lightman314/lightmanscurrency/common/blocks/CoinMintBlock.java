@@ -15,22 +15,19 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -49,15 +46,13 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 	
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
-	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
-			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CoinMintBlockEntity mint)
+			if(level.getBlockEntity(pos) instanceof CoinMintBlockEntity mint)
 			{
-				NetworkHooks.openScreen((ServerPlayer)player, new CoinMintMenuProvider(mint), pos);
+				player.openMenu(new CoinMintMenuProvider(mint),pos);
 				return InteractionResult.SUCCESS;
 			}
 		}
@@ -66,7 +61,6 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onRemove(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -76,7 +70,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, () -> {
 			List<Component> t = new ArrayList<>();
@@ -86,7 +80,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 				t.add(LCText.TOOLTIP_COIN_MINT_MELTABLE.get());
 			return t;
 		});
-		super.appendHoverText(stack, level, tooltip, flagIn);
+		super.appendHoverText(stack, context, tooltip, flagIn);
 	}
 
 	private record CoinMintMenuProvider(CoinMintBlockEntity blockEntity) implements MenuProvider {

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -65,7 +64,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.setLimit(limit);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Limit", limit));
+        this.sendUpdateMessage(this.builder().setInt("Limit", limit));
     }
 
     void PressClearMemoryButton(EasyButton button)
@@ -73,7 +72,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.resetCount();
-        this.sendUpdateMessage(LazyPacketData.simpleFlag("ClearMemory"));
+        this.sendUpdateMessage(this.builder().setFlag("ClearMemory"));
     }
 
 }

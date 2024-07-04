@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 
 public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_bank.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/wallet_bank.png");
 	
 	int currentTabIndex = 0;
 	List<WalletBankTab> tabs = Lists.newArrayList(new InteractionTab(this), new SelectionTab(this));

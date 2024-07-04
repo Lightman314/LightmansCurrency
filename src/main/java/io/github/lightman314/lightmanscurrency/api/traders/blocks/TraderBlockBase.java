@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.blocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,11 +27,11 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -42,7 +43,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock, IEasyEntityBlock {
 
@@ -58,7 +58,6 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
@@ -77,10 +76,9 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 			return this.makeTrader(pos, state);
 		return this.makeDummy(pos, state);
 	}
-	@Override
+
 	@Nonnull
-	@SuppressWarnings("deprecation")
-	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -130,10 +128,12 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		this.playerWillDestroyBase(level, pos, state, player);
+		return state;
 	}
 	
 	public final void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
@@ -160,7 +160,6 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
@@ -206,19 +205,18 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	
 	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader);
 	
-	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
+	public boolean canEntityDestroy(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Entity entity) { return false; }
 	
 	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level.getBlockEntity(pos); }
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
-	
+	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
+
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
-	{
+	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
-		super.appendHoverText(stack, level, tooltip, flagIn);
+		super.appendHoverText(stack, context, tooltip, flag);
 	}
 
 	protected static void replaceTraderBlock(Level level, BlockPos pos, BlockState newState) { level.setBlock(pos, newState, 35); }

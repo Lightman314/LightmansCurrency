@@ -19,19 +19,19 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class PlayerTradeLimit extends TradeRule{
 
-	public static final TradeRuleType<PlayerTradeLimit> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "player_trade_limit"),PlayerTradeLimit::new);
+	public static final TradeRuleType<PlayerTradeLimit> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "player_trade_limit"),PlayerTradeLimit::new);
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
@@ -125,7 +125,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		compound.putInt("Limit", this.limit);
 		ListTag memoryList = new ListTag();
@@ -140,7 +140,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		json.addProperty("Limit", this.limit);
 		if(this.enforceTimeLimit())
 			json.addProperty("ForgetTime", this.timeLimit);
@@ -148,7 +148,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Limit", Tag.TAG_INT))
 			this.limit = compound.getInt("Limit");
@@ -197,7 +197,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() {
+	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag data = new CompoundTag();
 		ListTag memoryList = new ListTag();
 		this.memory.forEach((id, eventTimes) ->{
@@ -211,7 +211,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public void loadPersistentData(CompoundTag data) {
+	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
 		if(data.contains("Memory", Tag.TAG_LIST))
 		{
 			this.memory.clear();
@@ -244,7 +244,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		if(json.has("Limit"))
 			this.limit = json.get("Limit").getAsInt();
 		if(json.has("ForgetTime"))

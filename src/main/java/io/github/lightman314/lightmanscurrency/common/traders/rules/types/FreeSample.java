@@ -21,19 +21,20 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public class FreeSample extends PriceTweakingTradeRule {
 	
-	public static final TradeRuleType<FreeSample> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "free_sample"),FreeSample::new);
+	public static final TradeRuleType<FreeSample> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "free_sample"),FreeSample::new);
 	
 	List<UUID> memory = new ArrayList<>();
 	public int getSampleCount() { return this.memory.size(); }
@@ -83,7 +84,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	private boolean givenFreeSample(UUID playerID) { return this.memory.contains(playerID); }
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag memoryList = new ListTag();
 		for(UUID entry : this.memory)
@@ -96,10 +97,10 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json) { return json; }
+	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { return json; }
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Memory", Tag.TAG_LIST))
 		{
@@ -117,7 +118,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() {
+	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag data = new CompoundTag();
 		ListTag memoryList = new ListTag();
 		for(UUID entry : this.memory)
@@ -131,7 +132,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadPersistentData(CompoundTag data) {
+	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
 		if(data.contains("Memory", Tag.TAG_LIST))
 		{
 			this.memory.clear();
@@ -148,7 +149,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json) { }
+	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { }
 	
 	@Override
 	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {

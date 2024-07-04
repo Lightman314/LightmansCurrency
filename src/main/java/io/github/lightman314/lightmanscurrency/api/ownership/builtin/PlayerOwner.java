@@ -9,19 +9,20 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class PlayerOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(MoneyAPI.MODID,"player"),
-            (tag) -> of(PlayerReference.load(tag.getCompound("Player"))));
+    public static final OwnerType TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID,"player"),
+            (tag,lookup) -> of(PlayerReference.load(tag.getCompound("Player"))));
 
     public final PlayerReference player;
     private PlayerOwner(@Nonnull PlayerReference player) { this.player = player; }
@@ -65,14 +66,14 @@ public class PlayerOwner extends Owner {
     public BankReference asBankReference() { return PlayerBankReference.of(this.player).flagAsClient(this.isClient()); }
 
     @Override
-    public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }
+    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }
 
     @Nonnull
     @Override
     public OwnerType getType() { return TYPE; }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.put("Player", this.player.save()); }
+    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.put("Player", this.player.save()); }
 
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof PlayerOwner po && po.player.is(this.player); }

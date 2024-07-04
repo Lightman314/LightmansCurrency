@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.events;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

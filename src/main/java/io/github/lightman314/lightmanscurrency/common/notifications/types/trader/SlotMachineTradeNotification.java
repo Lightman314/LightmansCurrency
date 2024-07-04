@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.Taxabl
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,15 +20,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SlotMachineTradeNotification extends TaxableNotification {
 
-    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trade"),SlotMachineTradeNotification::new);
+    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trade"),SlotMachineTradeNotification::new);
 
     TraderCategory traderData;
 
@@ -56,7 +57,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         this.customer = customer.getName(false);
     }
 
-    public static NonNullSupplier<Notification> create(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
+    public static Supplier<Notification> create(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
 
 
     @Nonnull
@@ -80,12 +81,12 @@ public class SlotMachineTradeNotification extends TaxableNotification {
     }
 
     @Override
-    protected void saveNormal(CompoundTag compound) {
+    protected void saveNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 
-        compound.put("TraderInfo", this.traderData.save());
+        compound.put("TraderInfo", this.traderData.save(lookup));
         ListTag itemList = new ListTag();
         for(ItemData item : this.items)
-            itemList.add(item.save());
+            itemList.add(item.save(lookup));
         compound.put("Items", itemList);
         compound.put("Money", this.money.save());
         compound.put("Price", this.cost.save());
@@ -94,13 +95,13 @@ public class SlotMachineTradeNotification extends TaxableNotification {
     }
 
     @Override
-    protected void loadNormal(CompoundTag compound) {
+    protected void loadNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 
-        this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
+        this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
         ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
         this.items = new ArrayList<>();
         for(int i = 0; i < itemList.size(); ++i)
-            this.items.add(ItemData.load(itemList.getCompound(i)));
+            this.items.add(ItemData.load(itemList.getCompound(i),lookup));
         this.money = MoneyValue.safeLoad(compound,"Money");
         this.cost = MoneyValue.safeLoad(compound, "Price");
         this.customer = compound.getString("Customer");

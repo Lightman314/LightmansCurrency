@@ -5,12 +5,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValid
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -27,13 +27,13 @@ public class BlockValidator extends MenuValidator {
     @Override
     protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.pos);
-        buffer.writeUtf(ForgeRegistries.BLOCKS.getKey(this.block).toString());
+        buffer.writeUtf(BuiltInRegistries.BLOCK.getKey(this.block).toString());
     }
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) {
         tag.put("Position", TagUtil.saveBlockPos(this.pos));
-        tag.putString("Block", ForgeRegistries.BLOCKS.getKey(this.block).toString());
+        tag.putString("Block", BuiltInRegistries.BLOCK.getKey(this.block).toString());
     }
 
     @Override
@@ -44,13 +44,13 @@ public class BlockValidator extends MenuValidator {
 
     private static final class Type extends MenuValidatorType
     {
-        private Type() { super(new ResourceLocation(LightmansCurrency.MODID, "block")); }
+        private Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block")); }
         @Nonnull
         @Override
-        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), ForgeRegistries.BLOCKS.getValue(new ResourceLocation(buffer.readUtf()))); }
+        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), BuiltInRegistries.BLOCK.get(ResourceLocation.parse(buffer.readUtf()))); }
         @Nonnull
         @Override
-        public MenuValidator load(@Nonnull CompoundTag tag) { return of(TagUtil.loadBlockPos(tag.getCompound("Position")), ForgeRegistries.BLOCKS.getValue(new ResourceLocation(tag.getString("Block")))); }
+        public MenuValidator load(@Nonnull CompoundTag tag) { return of(TagUtil.loadBlockPos(tag.getCompound("Position")), BuiltInRegistries.BLOCK.get(ResourceLocation.parse(tag.getString("Block")))); }
     }
 
 }

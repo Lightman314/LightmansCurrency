@@ -17,15 +17,15 @@ public class ModGameRules {
 
 	private static final List<RuleData<?>> GAME_RULES = Lists.newArrayList();
 	
-	public static final GameRules.Key<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet", GameRules.Category.PLAYER, GameRules.BooleanValue.create(false));
-	public static final GameRules.Key<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.Category.PLAYER, GameRules.IntegerValue.create(0, keepWithinLimits(0, 100)));
+	public static final GameRules.Key<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet", GameRules.BooleanValue.create(false));
+	public static final GameRules.Key<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.IntegerValue.create(0, keepWithinLimits(0, 100)));
 	
-	private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Category category, GameRules.Type<T> ruleType)
+	private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Type<T> ruleType)
 	{
 		if(ruleType == null)
 			return null;
-		GameRules.Key<T> ruleKey = new GameRules.Key<>(name, category);
-		GAME_RULES.add(new RuleData<>(name, category, ruleType));
+		GameRules.Key<T> ruleKey = new GameRules.Key<>(name, GameRules.Category.PLAYER);
+		GAME_RULES.add(new RuleData<>(name, GameRules.Category.PLAYER, ruleType));
 		return ruleKey;
 	}
 	

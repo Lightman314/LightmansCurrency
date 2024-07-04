@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 
 public class AuctionHouseSellerNobidNotification extends AuctionHouseNotification{
 
-	public static final NotificationType<AuctionHouseSellerNobidNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house_seller_nobid"),AuctionHouseSellerNobidNotification::new);
+	public static final NotificationType<AuctionHouseSellerNobidNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "auction_house_seller_nobid"),AuctionHouseSellerNobidNotification::new);
 	
 	List<ItemData> items;
 
@@ -49,22 +50,22 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag itemList = new ListTag();
 		for(ItemData item : this.items)
-			itemList.add(item.save());
+			itemList.add(item.save(lookup));
 		compound.put("Items", itemList);
 		
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(ItemData.load(itemList.getCompound(i)));
+			this.items.add(ItemData.load(itemList.getCompound(i),lookup));
 		
 	}
 	

@@ -31,7 +31,7 @@ public abstract class TaxableReference {
     @Nullable
     public static TaxableReference load(@Nonnull CompoundTag tag)
     {
-        ResourceLocation type = new ResourceLocation(tag.getString("Type"));
+        ResourceLocation type = ResourceLocation.parse(tag.getString("Type"));
         TaxReferenceType t = TaxAPI.getReferenceType(type);
         if(t != null)
             return t.load(tag);

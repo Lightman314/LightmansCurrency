@@ -14,21 +14,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.BrightnessCombiner;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ChestType;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEntity> {
 
-    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, new ResourceLocation(LightmansCurrency.MODID, "entity/chest/coin_chest"));
+    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "entity/chest/coin_chest"));
 
     private final ModelPart lid;
     private final ModelPart bottom;
@@ -42,7 +39,7 @@ public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEnti
     }
 
     @Override
-    public void render(@Nonnull CoinChestBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id) {
+    public void render(@Nonnull CoinChestBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
         Level level = blockEntity.getLevel();
         boolean flag = level != null;
         BlockState blockstate = flag ? blockEntity.getBlockState() : ModBlocks.COIN_CHEST.get().defaultBlockState().setValue(ChestBlock.FACING, Direction.NORTH);

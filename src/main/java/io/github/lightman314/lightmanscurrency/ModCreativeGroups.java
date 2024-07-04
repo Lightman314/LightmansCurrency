@@ -9,15 +9,15 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -25,15 +25,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
 public class ModCreativeGroups {
 
-    public static final ResourceLocation COIN_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"coins");
-    public static final ResourceLocation MACHINE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"machines");
-    public static final ResourceLocation TRADER_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"traders");
-    public static final ResourceLocation UPGRADE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"upgrades");
+    public static final ResourceLocation COIN_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"coins");
+    public static final ResourceLocation MACHINE_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"machines");
+    public static final ResourceLocation TRADER_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"traders");
+    public static final ResourceLocation UPGRADE_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"upgrades");
 
-    public static final ResourceLocation EXTRA_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID, "extra");
+    public static final ResourceLocation EXTRA_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "extra");
 
     /**
      * Placeholder function to force the static class loading
@@ -223,12 +223,12 @@ public class ModCreativeGroups {
     public static void buildVanillaTabContents(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS)
         {
-            event.accept(ModBlocks.PIGGY_BANK);
-            event.accept(ModBlocks.COINJAR_BLUE);
+            event.accept(ModBlocks.PIGGY_BANK.get());
+            event.accept(ModBlocks.COINJAR_BLUE.get());
         }
         if(event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS)
         {
-            event.accept(ModBlocks.PAYGATE);
+            event.accept(ModBlocks.PAYGATE.get());
         }
         if(event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS)
         {
@@ -236,21 +236,19 @@ public class ModCreativeGroups {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.CARD_DISPLAY.getAllSorted()));
-            if(ModBlocks.SUS_JAR.get().asItem() instanceof DyeableLeatherItem susItem)
+            for(Color c : Color.values())
             {
-                for(Color c : Color.values())
-                {
-                    ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
-                    if(c != Color.WHITE)
-                        susItem.setColor(stack, c.hexColor);
-                    event.accept(stack);
-                }
+                ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
+                if(c != Color.WHITE)
+                    CoinJarItem.setJarColor(stack,c.hexColor);
+                event.accept(stack);
+
             }
 
         }
     }
 
-    private static Supplier<ItemStack> ezIcon(RegistryObject<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
+    private static Supplier<ItemStack> ezIcon(Supplier<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
     private static Supplier<ItemStack> ezRandomIcon(Supplier<CreativeModeTab> tabSource) {
         return () -> {
             CreativeModeTab tab = tabSource.get();
@@ -259,7 +257,7 @@ public class ModCreativeGroups {
         };
     }
 
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
+    public static void ezPop(CreativeModeTab.Output populator, Supplier<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
@@ -272,11 +270,11 @@ public class ModCreativeGroups {
     }
 
 
-    public static final RegistryObject<CreativeModeTab> COIN_GROUP;
-    public static final RegistryObject<CreativeModeTab> MACHINE_GROUP;
-    public static final RegistryObject<CreativeModeTab> TRADER_GROUP;
-    public static final RegistryObject<CreativeModeTab> UPGRADE_GROUP;
+    public static final Supplier<CreativeModeTab> COIN_GROUP;
+    public static final Supplier<CreativeModeTab> MACHINE_GROUP;
+    public static final Supplier<CreativeModeTab> TRADER_GROUP;
+    public static final Supplier<CreativeModeTab> UPGRADE_GROUP;
     @Nullable
-    public static RegistryObject<CreativeModeTab> EXTRA_GROUP;
+    public static Supplier<CreativeModeTab> EXTRA_GROUP;
 
 }

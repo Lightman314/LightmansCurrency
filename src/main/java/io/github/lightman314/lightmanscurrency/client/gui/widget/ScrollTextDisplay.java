@@ -1,17 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.List;
-
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -104,19 +101,19 @@ public class ScrollTextDisplay extends EasyWidget {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
 	{
 		if(!this.visible)
 			return false;
 		
-		if(delta < 0)
+		if(deltaY < 0)
 		{			
 			if(this.canScrollDown())
 				scroll++;
 			else
 				return false;
 		}
-		else if(delta > 0)
+		else if(deltaY > 0)
 		{
 			if(scroll > 0)
 				scroll--;
@@ -126,9 +123,6 @@ public class ScrollTextDisplay extends EasyWidget {
 		
 		return true;
 	}
-
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 
 }

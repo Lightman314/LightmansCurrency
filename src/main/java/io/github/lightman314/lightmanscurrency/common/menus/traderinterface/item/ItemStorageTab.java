@@ -20,8 +20,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -149,7 +149,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			}
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("ClickedSlot",storageSlot)
 						.setBoolean("HeldShift", isShiftHeld)
 						.setBoolean("LeftClick", leftClick));
@@ -211,7 +211,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 				be.setItemBufferDirty();
 			
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
+				this.menu.SendMessage(this.builder().setInt("QuickTransfer", type));
 			
 		}
 	}

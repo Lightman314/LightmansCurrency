@@ -20,8 +20,6 @@ public class CapacityUpgradeItem extends UpgradeItem{
 	}
 
 	@Override
-	public void fillUpgradeData(@Nonnull UpgradeData data) {
-		data.setValue(CapacityUpgrade.CAPACITY, Math.max(this.capacityAmount.get(), 1));
-	}
+	public void setDefaultValues(@Nonnull UpgradeData.Mutable data) { data.setIntValue(CapacityUpgrade.CAPACITY, Math.max(this.capacityAmount.get(), 1)); }
 	
 }

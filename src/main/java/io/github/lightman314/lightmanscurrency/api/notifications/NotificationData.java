@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -55,14 +56,14 @@ public class NotificationData implements IClientTracker {
 	
 	public void addNotification(@Nonnull Notification newNotification) {
 		boolean shouldAdd = true;
-		if(this.notifications.size() > 0)
+		if(!this.notifications.isEmpty())
 		{
-			Notification mostRecent = this.notifications.get(0);
+			Notification mostRecent = this.notifications.getFirst();
 			if(mostRecent.onNewNotification(newNotification))
 				shouldAdd = false;
 		}
 		if(shouldAdd)
-			this.notifications.add(0, newNotification);
+			this.notifications.addFirst(newNotification);
 		
 		this.validateListSize();
 		
@@ -72,27 +73,27 @@ public class NotificationData implements IClientTracker {
 	{
 		int limit = LCConfig.SERVER.notificationLimit.get();
 		while(this.notifications.size() > limit)
-			this.notifications.remove(this.notifications.size() - 1);
+			this.notifications.removeLast();
 	}
 
 	@Nonnull
-	public CompoundTag save() {
+	public CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		ListTag notificationList = new ListTag();
 		for (Notification notification : notifications)
-			notificationList.add(notification.save());
+			notificationList.add(notification.save(lookup));
 		compound.put("Notifications", notificationList);
 		return compound;
 	}
 
 	@Nonnull
-	public static NotificationData loadFrom(@Nonnull CompoundTag compound) {
+	public static NotificationData loadFrom(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		NotificationData data = new NotificationData();
-		data.load(compound);
+		data.load(compound, lookup);
 		return data;
 	}
 	
-	public void load(CompoundTag compound) {
+	public void load(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("Notifications", Tag.TAG_LIST))
 		{
 			this.notifications = new ArrayList<>();
@@ -100,7 +101,7 @@ public class NotificationData implements IClientTracker {
 			for(int i = 0; i < notificationList.size(); ++i)
 			{
 				CompoundTag notTag = notificationList.getCompound(i);
-				Notification not = NotificationAPI.loadNotification(notTag);
+				Notification not = NotificationAPI.loadNotification(notTag, lookup);
 				if(not != null)
 					this.notifications.add(not);
 			}

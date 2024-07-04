@@ -22,12 +22,13 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEv
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class TradeData implements ITradeRuleHost {
@@ -136,16 +137,16 @@ public abstract class TradeData implements ITradeRuleHost {
 			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
-	public CompoundTag getAsNBT()
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup)
 	{
 		CompoundTag tradeNBT = new CompoundTag();
 		tradeNBT.put("Price", this.cost.save());
-		TradeRule.saveRules(tradeNBT, this.rules, "RuleData");
+		TradeRule.saveRules(tradeNBT, this.rules, "RuleData", lookup);
 		
 		return tradeNBT;
 	}
 	
-	protected void loadFromNBT(CompoundTag nbt)
+	protected void loadFromNBT(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
 		this.flagPriceAsChanged();
@@ -159,11 +160,11 @@ public abstract class TradeData implements ITradeRuleHost {
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
 		{
-			this.rules = TradeRule.loadRules(nbt, "TradeRules", this);
+			this.rules = TradeRule.loadRules(nbt, "TradeRules", this, lookup);
 			for(TradeRule r : this.rules) r.setActive(true);
 		}
 		else
-			this.rules = TradeRule.loadRules(nbt, "RuleData", this);
+			this.rules = TradeRule.loadRules(nbt, "RuleData", this, lookup);
 		
 		if(this.validateRules)
 			TradeRule.ValidateTradeRuleList(this.rules, this);
@@ -261,8 +262,6 @@ public abstract class TradeData implements ITradeRuleHost {
 	 */
 	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
 
-	@Deprecated(since = "2.1.2.4")
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.

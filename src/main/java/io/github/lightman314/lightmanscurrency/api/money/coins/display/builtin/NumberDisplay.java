@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -13,7 +14,9 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -27,7 +30,7 @@ import java.util.List;
 
 public class NumberDisplay extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(MoneyAPI.MODID, "number");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID, "number");
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
     private final Component format;
@@ -146,14 +149,14 @@ public class NumberDisplay extends ValueDisplayData {
         @Override
         public void resetBuilder() { this.format = null; this.wordyFormat = null; this.baseUnit = null; }
         @Override
-        public void parseAdditional(@Nonnull JsonObject chainJson) {
-            this.format = Component.Serializer.fromJson(chainJson.get("displayFormat"));
+        public void parseAdditional(@Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException {
+            this.format = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,chainJson.get("displayFormat")).getOrThrow(JsonSyntaxException::new);
             if(chainJson.has("displayFormatWordy"))
-                this.wordyFormat = Component.Serializer.fromJson(chainJson.get("displayFormatWordy"));
+                this.wordyFormat = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,chainJson.get("displayFormatWordy")).getOrThrow(JsonSyntaxException::new);
         }
 
         @Override
-        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) {
+        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
             if(GsonHelper.getAsBoolean(coinEntry, "baseUnit", false))
             {
                 if(this.baseUnit != null)
@@ -166,9 +169,9 @@ public class NumberDisplay extends ValueDisplayData {
         public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) {
             if(data instanceof NumberDisplay display)
             {
-                chainJson.add("displayFormat", Component.Serializer.toJsonTree(display.format));
+                chainJson.add("displayFormat", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,display.format).getOrThrow());
                 if(display.wordyFormat != null)
-                    chainJson.add("displayFormatWordy", Component.Serializer.toJsonTree(display.wordyFormat));
+                    chainJson.add("displayFormatWordy", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,display.wordyFormat).getOrThrow());
             }
         }
 

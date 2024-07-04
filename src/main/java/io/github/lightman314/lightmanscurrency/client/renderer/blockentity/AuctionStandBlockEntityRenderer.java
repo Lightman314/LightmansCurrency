@@ -13,10 +13,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<AuctionStandBlockEntity> {
@@ -26,10 +26,10 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
     public AuctionStandBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.itemRenderer = context.getItemRenderer(); }
 
     @Override
-    public void render(@NotNull AuctionStandBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id) {
+    public void render(@Nonnull AuctionStandBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
 
         ImmutableList<ItemStack> displayItems = AuctionStandBlockEntity.getDisplayItems();
-        if(displayItems.size() < 1)
+        if(displayItems.isEmpty())
             return;
 
         pose.pushPose();
@@ -38,9 +38,9 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
 
         ItemPositionData data = ItemPositionBlockManager.getDataForBlock(state);
         List<Vector3f> positions = data.getPositions(state, 0);
-        if(positions.size() == 0)
+        if(positions.isEmpty())
             return;
-        Vector3f pos = positions.get(0);
+        Vector3f pos = positions.getFirst();
         pose.translate(pos.x, pos.y, pos.z);
 
         for(Quaternionf r : data.getRotation(state, 0, partialTicks))
@@ -52,14 +52,14 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
         if(displayItems.size() < 2)
         {
             //Only renderBG 1 item
-            this.itemRenderer.renderStatic(displayItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+            this.itemRenderer.renderStatic(displayItems.getFirst(), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
         }
         else
         {
             //Render Item 1
             pose.pushPose();
             pose.translate(-0.55f,0f,0f);
-            this.itemRenderer.renderStatic(displayItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+            this.itemRenderer.renderStatic(displayItems.getFirst(), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
             pose.popPose();
 
             //Render Item 2

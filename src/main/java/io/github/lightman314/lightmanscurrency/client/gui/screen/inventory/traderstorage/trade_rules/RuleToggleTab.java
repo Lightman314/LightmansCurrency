@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -79,7 +78,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
             if(ruleIndex < rules.size())
             {
                 TradeRule rule = rules.get(ruleIndex);
-                this.commonTab.EditTradeRule(rule.type, LazyPacketData.simpleBoolean("SetActive",!rule.isActive()));
+                this.commonTab.EditTradeRule(rule.type, this.builder().setBoolean("SetActive",!rule.isActive()));
             }
         }
     }

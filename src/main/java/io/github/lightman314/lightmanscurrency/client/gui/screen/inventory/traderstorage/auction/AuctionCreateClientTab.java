@@ -162,7 +162,6 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		{
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = !this.locked;
 			this.buttonSubmitPersistentAuction.active = this.pendingAuction.isValid();
-			this.persistentAuctionIDInput.tick();
 		}
 		else
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = false;
@@ -206,7 +205,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	}
 	
 	private void submitPersistentAuction(EasyButton button) {
-		new CPacketCreatePersistentAuction(this.pendingAuction.getAsNBT(), this.persistentAuctionIDInput.getValue()).send();
+		new CPacketCreatePersistentAuction(this.pendingAuction.getAsNBT(this.registryAccess()), this.persistentAuctionIDInput.getValue()).send();
 	}
 	
 	@Override

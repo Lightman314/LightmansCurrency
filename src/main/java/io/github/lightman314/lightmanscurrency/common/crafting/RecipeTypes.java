@@ -5,9 +5,9 @@ import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class RecipeTypes {
 
@@ -23,13 +23,13 @@ public class RecipeTypes {
 		
 	}
 
-	private static <T extends Recipe<?>> RegistryObject<RecipeType<T>> register(@Nonnull String id)
+	private static <T extends Recipe<?>> Supplier<RecipeType<T>> register(@Nonnull String id)
 	{
-		return ModRegistries.RECIPE_TYPES.register(id, () -> RecipeType.simple(new ResourceLocation(LightmansCurrency.MODID,id)));
+		return ModRegistries.RECIPE_TYPES.register(id, () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id)));
 	}
 	
-	public static final RegistryObject<RecipeType<CoinMintRecipe>> COIN_MINT;
+	public static final Supplier<RecipeType<CoinMintRecipe>> COIN_MINT;
 
-	public static final RegistryObject<RecipeType<TicketStationRecipe>> TICKET;
+	public static final Supplier<RecipeType<TicketStationRecipe>> TICKET;
 
 }

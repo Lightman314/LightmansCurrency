@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderI
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -41,7 +41,7 @@ public class InfoTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().acceptTradeChanges();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("AcceptTradeChanges"));
+				this.menu.SendMessage(this.builder().setFlag("AcceptTradeChanges"));
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class InfoTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().setInteractionType(newType);
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewInteractionType", newType.index));
+				this.menu.SendMessage(this.builder().setInt("NewInteractionType", newType.index));
 		}
 	}
 

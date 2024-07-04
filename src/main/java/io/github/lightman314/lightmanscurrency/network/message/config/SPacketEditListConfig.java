@@ -10,14 +10,16 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketEditListConfig extends ServerToClientPacket {
 
+    private static final Type<SPacketEditListConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_edit_list"));
     public static final Handler<SPacketEditListConfig> HANDLER = new H();
 
 
@@ -29,6 +31,7 @@ public class SPacketEditListConfig extends ServerToClientPacket {
 
     public SPacketEditListConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input, int listIndex, boolean isEdit)
     {
+        super(TYPE);
         this.fileName = fileName;
         this.option = option;
         this.input = input;
@@ -36,30 +39,22 @@ public class SPacketEditListConfig extends ServerToClientPacket {
         this.isEdit = isEdit;
     }
 
-    @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.fileName);
-        buffer.writeUtf(this.option);
-        buffer.writeInt(this.input.length());
-        buffer.writeUtf(this.input, this.input.length());
-        buffer.writeInt(this.listIndex);
-        buffer.writeBoolean(this.isEdit);
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketEditListConfig message) {
+        buffer.writeUtf(message.fileName);
+        buffer.writeUtf(message.option);
+        buffer.writeUtf(message.input);
+        buffer.writeInt(message.listIndex);
+        buffer.writeBoolean(message.isEdit);
+    }
+    private static SPacketEditListConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        return new SPacketEditListConfig(buffer.readUtf(),buffer.readUtf(), buffer.readUtf(), buffer.readInt(), buffer.readBoolean());
     }
 
     private static class H extends Handler<SPacketEditListConfig>
     {
-
-        @Nonnull
+        protected H() { super(TYPE, easyCodec(SPacketEditListConfig::encode,SPacketEditListConfig::decode)); }
         @Override
-        public SPacketEditListConfig decode(@Nonnull FriendlyByteBuf buffer) {
-            String fileName = buffer.readUtf();
-            String option = buffer.readUtf();
-            int inputLength = buffer.readInt();
-            return new SPacketEditListConfig(fileName, option, buffer.readUtf(inputLength), buffer.readInt(), buffer.readBoolean());
-        }
-
-        @Override
-        protected void handle(@Nonnull SPacketEditListConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(@Nonnull SPacketEditListConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             for(ConfigFile file : ConfigFile.getAvailableFiles())
             {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
@@ -85,7 +80,6 @@ public class SPacketEditListConfig extends ServerToClientPacket {
                 }
             }
         }
-
     }
 
 }

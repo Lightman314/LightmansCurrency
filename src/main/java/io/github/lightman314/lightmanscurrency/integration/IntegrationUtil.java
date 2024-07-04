@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.integration;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

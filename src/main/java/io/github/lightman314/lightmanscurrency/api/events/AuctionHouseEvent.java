@@ -8,8 +8,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
 
 import javax.annotation.Nonnull;
 
@@ -39,7 +39,7 @@ public class AuctionHouseEvent extends Event {
 				this.persistent = persistent;
 			}
 			
-			public static final class Pre extends CreateAuctionEvent {
+			public static final class Pre extends CreateAuctionEvent implements ICancellableEvent {
 
 				public Pre(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, boolean persistent) { super(auctionHouse, auction, persistent); }
 				
@@ -47,10 +47,13 @@ public class AuctionHouseEvent extends Event {
 					Objects.requireNonNull(auction);
 					this.auction = auction;
 				}
-				
+
 				@Override
-				public boolean isCancelable() { return !this.isPersistent(); }
-				
+				public void setCanceled(boolean canceled) {
+					if(this.isPersistent())
+						return;
+					ICancellableEvent.super.setCanceled(canceled);
+				}
 			}
 			
 			public static final class Post extends CreateAuctionEvent {
@@ -112,9 +115,8 @@ public class AuctionHouseEvent extends Event {
 				this.bidder = bidder;
 				this.bidAmount = bidAmount;
 			}
-			
-			@Cancelable
-			public static class Pre extends AuctionBidEvent {
+
+			public static class Pre extends AuctionBidEvent implements ICancellableEvent{
 
 				public void setBidAmount(@Nonnull MoneyValue bidAmount) { this.bidAmount = Objects.requireNonNull(bidAmount); }
 				

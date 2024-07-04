@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Supplier;
-
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
@@ -17,10 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class TeamButton extends EasyButton {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teambutton.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/teambutton.png");
 
 	public enum Size { WIDE(180, 0), NORMAL(156, 1), NARROW(90, 2);
 		public final int width;

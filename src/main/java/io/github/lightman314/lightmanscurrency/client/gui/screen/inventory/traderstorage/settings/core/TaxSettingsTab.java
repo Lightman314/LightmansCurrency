@@ -11,10 +11,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +84,7 @@ public class TaxSettingsTab extends SettingsSubTab {
     {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            this.sendMessage(LazyPacketData.simpleBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
+            this.sendMessage(this.builder().setBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
     }
 
     private void increaseAcceptableTaxRate(EasyButton button)
@@ -96,7 +94,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate + 10 : oldRate + 1;
-            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
+            this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }
     }
 
@@ -107,7 +105,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate - 10 : oldRate - 1;
-            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
+            this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }
     }
 

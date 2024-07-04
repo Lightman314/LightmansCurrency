@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -83,7 +82,7 @@ public class OwnershipTab extends SettingsSubTab {
 
     protected void setOwner(@Nonnull Owner newOwner)
     {
-        this.sendMessage(LazyPacketData.simpleTag("ChangeOwner", newOwner.save()));
+        this.sendMessage(this.builder().setOwner("ChangeOwner", newOwner));
     }
 
     @Override
@@ -107,7 +106,7 @@ public class OwnershipTab extends SettingsSubTab {
     {
         if(this.playerOwnerInput.getValue().isBlank())
             return;
-        this.sendMessage(LazyPacketData.simpleString("ChangePlayerOwner", this.playerOwnerInput.getValue()));
+        this.sendMessage(this.builder().setString("ChangePlayerOwner", this.playerOwnerInput.getValue()));
         this.playerOwnerInput.setValue("");
     }
 

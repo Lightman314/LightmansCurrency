@@ -1,13 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.gui.Font;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 
-public interface IEasyScreen {
+public interface IEasyScreen extends LazyPacketData.IBuilderProvider {
+
+    @Nonnull
+    RegistryAccess registryAccess();
+    @Nonnull
+    default LazyPacketData.Builder builder() { return LazyPacketData.builder(this.registryAccess()); }
 
     default int getGuiLeft() { return this.getArea().x; }
     default int getGuiTop() { return this.getArea().y; }

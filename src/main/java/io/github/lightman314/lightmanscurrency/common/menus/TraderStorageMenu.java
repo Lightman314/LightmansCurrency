@@ -301,7 +301,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	public LazyPacketData.Builder createTabChangeMessage(int newTab) { return this.createTabChangeMessage(newTab, null); }
 	@Nonnull
 	public LazyPacketData.Builder createTabChangeMessage(int newTab, @Nullable LazyPacketData.Builder extraData) {
-		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		LazyPacketData.Builder message = extraData == null ? this.builder() : extraData;
 		message.setInt("ChangeTab", newTab);
 		return message;
 	}
@@ -316,7 +316,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	}
 
 	public LazyPacketData.Builder createCoinSlotActiveMessage(boolean nowActive, @Nullable LazyPacketData.Builder extraData) {
-		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		LazyPacketData.Builder message = extraData == null ? this.builder() : extraData;
 		message.setBoolean("SetCoinSlotsActive", nowActive);
 		return message;
 	}

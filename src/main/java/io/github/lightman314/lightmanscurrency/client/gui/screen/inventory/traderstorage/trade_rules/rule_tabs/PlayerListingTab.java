@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -84,7 +83,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", true)
                     .setString("Name", name));
         }
@@ -96,7 +95,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", false)
                     .setString("Name", name));
         }
@@ -107,7 +106,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         PlayerListing rule = this.getRule();
         if(rule == null)
             return;
-        this.sendUpdateMessage(LazyPacketData.simpleBoolean("ChangeMode", rule.isBlacklistMode()));
+        this.sendUpdateMessage(this.builder().setBoolean("ChangeMode", rule.isBlacklistMode()));
     }
 
 }

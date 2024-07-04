@@ -17,12 +17,13 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHo
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ import java.util.List;
 
 public class PlayerListing extends TradeRule {
 
-    public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "player_list"),PlayerListing::new);
+    public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "player_list"),PlayerListing::new);
 
     public static final IRuleLoadListener LISTENER = new DataListener();
 
@@ -85,13 +86,13 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         compound.putBoolean("WhitelistMode", this.whitelistMode);
         PlayerReference.saveList(compound,this.playerList, "Players");
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound) {
+    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         if(compound.contains("Players", Tag.TAG_LIST))
             this.playerList = PlayerReference.loadList(compound,"Players");
         if(compound.contains("WhitelistMode"))
@@ -99,21 +100,21 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    public JsonObject saveToJson(@Nonnull JsonObject json) { return json; }
+    public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { return json; }
 
     @Override
-    public void loadFromJson(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException { }
+    public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { }
 
     @Override
-    public CompoundTag savePersistentData() {
+    public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
         CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
+        this.saveAdditional(tag,lookup);
         return tag;
     }
 
     @Override
-    public void loadPersistentData(CompoundTag data) {
-        this.loadAdditional(data);
+    public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
+        this.loadAdditional(data,lookup);
     }
 
     @Override

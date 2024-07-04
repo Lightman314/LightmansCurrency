@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class ChangeNameNotification extends Notification {
 
-	public static final NotificationType<ChangeNameNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "changed_name"),ChangeNameNotification::new);
+	public static final NotificationType<ChangeNameNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "changed_name"),ChangeNameNotification::new);
 
 	private PlayerReference player;
 	private String oldName;
@@ -44,14 +45,14 @@ public class ChangeNameNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		compound.put("Player", this.player.save());
 		compound.putString("OldName", this.oldName);
 		compound.putString("NewName", this.newName);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.oldName = compound.getString("OldName");
 		this.newName = compound.getString("NewName");

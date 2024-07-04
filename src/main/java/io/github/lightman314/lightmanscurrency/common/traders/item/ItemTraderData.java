@@ -45,6 +45,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -56,10 +57,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,7 +68,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
-	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader"), ItemTraderData::new);
+	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trader"), ItemTraderData::new);
 	
 	TraderItemHandler itemHandler = new TraderItemHandler(this);
 	
@@ -100,34 +98,34 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		this.trades = ItemTradeData.listOfSize(tradeCount, true);
 		this.validateTradeRestrictions();
 	}
+
+	@Override
+	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
+		
+		this.saveStorage(compound, lookup);
+		this.saveTrades(compound, lookup);
+		
+	}
+	
+	protected final void saveStorage(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.storage.save(compound, "ItemStorage", lookup);
+	}
+	
+	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		ItemTradeData.saveAllData(compound, this.trades, lookup);
+	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
-		super.saveAdditional(compound);
-		
-		this.saveStorage(compound);
-		this.saveTrades(compound);
-		
-	}
-	
-	protected final void saveStorage(CompoundTag compound) {
-		this.storage.save(compound, "ItemStorage");
-	}
-	
-	protected final void saveTrades(CompoundTag compound) {
-		ItemTradeData.saveAllData(compound, this.trades);
-	}
-	
-	@Override
-	public void loadAdditional(CompoundTag compound) {
-		super.loadAdditional(compound);
+	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 		
 		if(compound.contains("ItemStorage"))
-			this.storage.load(compound, "ItemStorage");
+			this.storage.load(compound, "ItemStorage", lookup);
 		
 		if(compound.contains(TradeData.DEFAULT_KEY))
 		{
-			this.trades = ItemTradeData.loadAllData(compound, !this.isPersistent());
+			this.trades = ItemTradeData.loadAllData(compound, !this.isPersistent(), lookup);
 			this.validateTradeRestrictions();
 		}
 		
@@ -242,7 +240,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER; }
 
 	@Override
-	protected void saveAdditionalToJson(JsonObject json) {
+	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		
 		JsonArray trades = new JsonArray();
 		for(ItemTradeData trade : this.trades)
@@ -308,7 +306,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				if(!ignoreNBTData.isEmpty())
 					tradeData.add("IgnoreNBT", ignoreNBTData);
 				
-				JsonArray ruleData = TradeRule.saveRulesToJson(trade.getRules());
+				JsonArray ruleData = TradeRule.saveRulesToJson(trade.getRules(),lookup);
 				if(!ruleData.isEmpty())
 					tradeData.add("Rules", ruleData);
 				
@@ -338,7 +336,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
 		JsonArray trades = GsonHelper.getAsJsonArray(json, "Trades");
 		this.trades = new ArrayList<>();
@@ -386,7 +384,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				if(tradeData.has("DisplayName2"))
 					newTrade.setCustomName(1, GsonHelper.getAsString(tradeData, "DisplayName2"));
 				if(tradeData.has("Rules"))
-					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "Rules"), newTrade));
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "Rules"), newTrade, lookup));
 				if(tradeData.has("IgnoreNBT"))
 				{
 					JsonArray ignoreNBTData = GsonHelper.getAsJsonArray(tradeData,"IgnoreNBT");
@@ -423,12 +421,12 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
+	protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
 		for (ItemTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData", lookup))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}
@@ -437,7 +435,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("PersistentTradeData"))
 		{
 			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
@@ -445,7 +443,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			{
 				ItemTradeData trade = this.trades.get(i);
 				CompoundTag ptTag = tradePersistentData.getCompound(i);
-				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
+				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData", lookup);
 			}
 		}
 	}
@@ -748,13 +746,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			}
 		}
 		return limit;
-	}
-	
-	
-	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
-		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 
 	@Override

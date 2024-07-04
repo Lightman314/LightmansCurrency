@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,8 +32,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -260,13 +261,13 @@ public class ItemTradeData extends TradeData {
 	
 	public void RemoveItemsFromStorage(TraderItemStorage storage, List<ItemStack> soldItems)
 	{
-		this.restriction.removeItemsFromStorage(storage, InventoryUtil.combineQueryItems(soldItems));
+		this.restriction.removeItemsFromStorage(storage, soldItems);
 	}
 	
 	@Override
-	public CompoundTag getAsNBT() {
-		CompoundTag tradeNBT = super.getAsNBT();
-		InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup) {
+		CompoundTag tradeNBT = super.getAsNBT(lookup);
+		InventoryUtil.saveAllItems("Items", tradeNBT, this.items, lookup);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("CustomName1", this.customName1);
 		tradeNBT.putString("CustomName2", this.customName2);
@@ -281,69 +282,54 @@ public class ItemTradeData extends TradeData {
 		return tradeNBT;
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data)
+	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data, @Nonnull HolderLookup.Provider lookup)
 	{
-		saveAllData(nbt, data, DEFAULT_KEY);
+		saveAllData(nbt, data, DEFAULT_KEY, lookup);
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data, String key)
+	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data, String key, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag listNBT = new ListTag();
 
 		for (ItemTradeData datum : data) {
-			listNBT.add(datum.getAsNBT());
+			listNBT.add(datum.getAsNBT(lookup));
 		}
 		
 		nbt.put(key, listNBT);
 	}
 	
-	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules) {
+	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup) {
 		ItemTradeData trade = new ItemTradeData(validateRules);
-		trade.loadFromNBT(compound);
+		trade.loadFromNBT(compound, lookup);
 		return trade;
 	}
 	
-	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
-		return loadAllData(DEFAULT_KEY, nbt, validateRules);
+		return loadAllData(DEFAULT_KEY, nbt, validateRules, lookup);
 	}
 	
-	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
 		List<ItemTradeData> data = new ArrayList<>();
 		
 		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
 		
 		for(int i = 0; i < listNBT.size(); i++)
-			data.add(loadData(listNBT.getCompound(i), validateRules));
+			data.add(loadData(listNBT.getCompound(i), validateRules, lookup));
 		
 		return data;
 	}
 	
 	@Override
-	public void loadFromNBT(CompoundTag nbt)
+	public void loadFromNBT(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{
 		
-		super.loadFromNBT(nbt);
+		super.loadFromNBT(nbt, lookup);
 		
 		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
 		{
-			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
-		}
-		else //Load from old format back when only 1 sell & barter item were allowed
-		{
-			this.items = new SimpleContainer(4);
-			//Load the Sell Item
-			if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
-				this.items.setItem(0, ItemStack.of(nbt.getCompound("SellItem")));
-			else //Load old format from before the bartering system was made
-				this.items.setItem(0, ItemStack.of(nbt));
-			
-			//Load the Barter Item
-			if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
-				this.items.setItem(2, ItemStack.of(nbt.getCompound("BarterItem")));
-			else
-				this.items.setItem(2, ItemStack.EMPTY);
+			this.items = InventoryUtil.loadAllItems("Items", nbt, 4, lookup);
 		}
 		
 		//Set the Trade Direction
@@ -558,7 +544,7 @@ public class ItemTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 						.setInt("TradeIndex", tradeIndex)
 						.setInt("StartingSlot", -1));
 			}
@@ -569,7 +555,7 @@ public class ItemTradeData extends TradeData {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
@@ -596,7 +582,7 @@ public class ItemTradeData extends TradeData {
 				if(barterItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index + 2));
 				}
@@ -677,7 +663,7 @@ public class ItemTradeData extends TradeData {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
@@ -699,7 +685,7 @@ public class ItemTradeData extends TradeData {
 			}
 			else if(this.isPurchase())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 						.setInt("TradeIndex", tradeIndex)
 						.setInt("StartingSlot", -1));
 			}
@@ -714,7 +700,7 @@ public class ItemTradeData extends TradeData {
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 	}
 

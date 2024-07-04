@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -17,7 +18,7 @@ import javax.annotation.Nonnull;
 
 public class BankTransferNotification extends Notification {
 
-	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_transfer"),BankTransferNotification::new);
+	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_transfer"),BankTransferNotification::new);
 	
 	PlayerReference player;
 	MoneyValue amount = MoneyValue.empty();
@@ -49,20 +50,20 @@ public class BankTransferNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		compound.put("Player", this.player.save());
 		compound.put("Amount", this.amount.save());
-		compound.putString("Account", Component.Serializer.toJson(this.accountName));
-		compound.putString("Other", Component.Serializer.toJson(this.otherAccount));
+		compound.putString("Account", Component.Serializer.toJson(this.accountName,lookup));
+		compound.putString("Other", Component.Serializer.toJson(this.otherAccount,lookup));
 		compound.putBoolean("Received", this.wasReceived);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.amount = MoneyValue.safeLoad(compound, "Amount");
-		this.accountName = Component.Serializer.fromJson(compound.getString("Account"));
-		this.otherAccount = Component.Serializer.fromJson(compound.getString("Other"));
+		this.accountName = Component.Serializer.fromJson(compound.getString("Account"),lookup);
+		this.otherAccount = Component.Serializer.fromJson(compound.getString("Other"),lookup);
 		this.wasReceived = compound.getBoolean("Received");
 	}
 

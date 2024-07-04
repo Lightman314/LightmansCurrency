@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -47,6 +46,9 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	}
 
 	@Override
+	protected CoinBlock build(@Nonnull Properties p) { return new CoinpileBlock(p,this.coinItem,this.shape); }
+
+	@Override
 	protected boolean isFullBlock() { return false; }
 
 	@Override
@@ -61,7 +63,6 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 
 	@Override
 	@Nonnull
-	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 	
 	@Override
@@ -83,23 +84,19 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	
 	@Override
 	@Nonnull
-	@SuppressWarnings("deprecation")
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext contect) { return shape; }
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext contect) { return this.shape; }
 
 	@Override
 	@Nonnull
-	@SuppressWarnings("deprecation")
 	public FluidState getFluidState(BlockState state) {
 		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
-	
+
 	@Override
-	@SuppressWarnings("deprecation")
-	public boolean isPathfindable(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull PathComputationType type) {
-		if (type == PathComputationType.WATER) {
-			return level.getFluidState(pos).is(FluidTags.WATER);
-		}
-		return false;
+	protected boolean isPathfindable(@Nonnull BlockState state, @Nonnull PathComputationType type) {
+		if(type == PathComputationType.WATER)
+			return state.getValue(WATERLOGGED);
+		return super.isPathfindable(state, type);
 	}
 	
 }

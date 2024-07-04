@@ -286,7 +286,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> imple
 	{
 		if(this.currentTab().getTradeRuleTradeIndex() < 0)
 			return;
-		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, LazyPacketData.simpleInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex()));
+		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, this.builder().setInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex()));
 	}
 	
 }

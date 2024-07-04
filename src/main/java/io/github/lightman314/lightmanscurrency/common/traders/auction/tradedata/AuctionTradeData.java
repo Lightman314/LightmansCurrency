@@ -31,7 +31,9 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -39,10 +41,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
@@ -128,7 +130,7 @@ public class AuctionTradeData extends TradeData {
 	
 	public AuctionTradeData(Player owner) { super(false); this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
 	
-	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
+	public AuctionTradeData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { super(false); this.loadFromNBT(compound,lookup); }
 	
 	/**
 	 * Used to create an auction trade from persistent auction data
@@ -217,7 +219,7 @@ public class AuctionTradeData extends TradeData {
 		
 		//Throw auction completed event
 		AuctionCompletedEvent event = new AuctionCompletedEvent(trader, this);
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
 		
 		if(this.lastBidPlayer != null)
 		{
@@ -275,7 +277,8 @@ public class AuctionTradeData extends TradeData {
 		if(giveToPlayer)
 		{
 			//Return items to the player who cancelled the trade
-			for(ItemStack stack : this.auctionItems) ItemHandlerHelper.giveItemToPlayer(player, stack);
+			for(ItemStack stack : this.auctionItems)
+				ItemHandlerHelper.giveItemToPlayer(player, stack);
 		}
 		else
 		{
@@ -288,17 +291,17 @@ public class AuctionTradeData extends TradeData {
 		}
 		
 		CancelAuctionEvent event = new CancelAuctionEvent(trader, this, player);
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
 			
 	}
 	
 	@Override
-	public CompoundTag getAsNBT() {
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup) {
 		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
 		CompoundTag compound = new CompoundTag();
 		ListTag itemList = new ListTag();
 		for (ItemStack auctionItem : this.auctionItems) {
-			itemList.add(auctionItem.save(new CompoundTag()));
+			itemList.add(InventoryUtil.saveItemNoLimits(auctionItem,lookup));
 		}
 		compound.put("SellItems", itemList);
 		compound.put("LastBid", this.lastBidAmount.save());
@@ -337,13 +340,13 @@ public class AuctionTradeData extends TradeData {
 	}
 	
 	@Override
-	public void loadFromNBT(CompoundTag compound) {
+	public void loadFromNBT(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		//Do not run super.loadFromNBT() as we didn't saveItem the default data in the first place
 		ListTag itemList = compound.getList("SellItems", Tag.TAG_COMPOUND);
 		this.auctionItems.clear();
 		for(int i = 0; i < itemList.size(); ++i)
 		{
-			ItemStack stack = ItemStack.of(itemList.getCompound(i));
+			ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
 			if(!stack.isEmpty())
 				this.auctionItems.add(stack);
 		}
@@ -388,7 +391,7 @@ public class AuctionTradeData extends TradeData {
 			int tradeIndex = ah.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 	}
 

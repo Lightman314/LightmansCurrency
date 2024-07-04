@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class LCRenderTypes extends RenderStateShard {
 
-    public static final ResourceLocation BLANK_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/blank.png");
+    public static final ResourceLocation BLANK_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/blank.png");
 
     private LCRenderTypes() { super(null, null, null); }
 

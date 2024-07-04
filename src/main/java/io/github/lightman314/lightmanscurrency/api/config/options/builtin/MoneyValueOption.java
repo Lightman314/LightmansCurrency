@@ -8,11 +8,11 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class MoneyValueOption extends ConfigOption<MoneyValue> {
 
@@ -22,7 +22,7 @@ public class MoneyValueOption extends ConfigOption<MoneyValue> {
 
     private final ConfigParser<MoneyValue> parser;
 
-    protected MoneyValueOption(@Nonnull NonNullSupplier<MoneyValue> defaultValue, @Nonnull Predicate<MoneyValue> allowed) { super(defaultValue); this.parser = createParser(allowed); }
+    protected MoneyValueOption(@Nonnull Supplier<MoneyValue> defaultValue, @Nonnull Predicate<MoneyValue> allowed) { super(defaultValue); this.parser = createParser(allowed); }
 
     @Nonnull
     @Override
@@ -32,9 +32,9 @@ public class MoneyValueOption extends ConfigOption<MoneyValue> {
     @Override
     protected String bonusComment() { return bonusComment; }
 
-    public static MoneyValueOption create(@Nonnull NonNullSupplier<MoneyValue> defaultValue) { return create(defaultValue, v -> true); }
-    public static MoneyValueOption createNonEmpty(@Nonnull NonNullSupplier<MoneyValue> defaultValue) { return create(defaultValue, v -> !v.isEmpty()); }
-    public static MoneyValueOption create(@Nonnull NonNullSupplier<MoneyValue> defaultValue, @Nonnull Predicate<MoneyValue> allowed) { return new MoneyValueOption(defaultValue, allowed); }
+    public static MoneyValueOption create(@Nonnull Supplier<MoneyValue> defaultValue) { return create(defaultValue, v -> true); }
+    public static MoneyValueOption createNonEmpty(@Nonnull Supplier<MoneyValue> defaultValue) { return create(defaultValue, v -> !v.isEmpty()); }
+    public static MoneyValueOption create(@Nonnull Supplier<MoneyValue> defaultValue, @Nonnull Predicate<MoneyValue> allowed) { return new MoneyValueOption(defaultValue, allowed); }
 
     private static class Parser implements ConfigParser<MoneyValue>
     {

@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPa
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,13 +21,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -222,8 +220,8 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
                 return false;
             }
             //Open the Player Trading menu for both involved parties
-            NetworkHooks.openScreen(host, this, this::writeAdditionalMenuData);
-            NetworkHooks.openScreen(guest, this, this::writeAdditionalMenuData);
+            host.openMenu(this, this::writeAdditionalMenuData);
+            guest.openMenu(this, this::writeAdditionalMenuData);
             LightmansCurrency.LogInfo("Trade Request accepted, and Player Trading menu should be open for both players.");
             return true;
         }
@@ -397,13 +395,14 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     //Menu Handling/Opening
     @Override
-    public @NotNull Component getDisplayName() { return Component.empty(); }
+    @Nonnull
+    public Component getDisplayName() { return Component.empty(); }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
+    public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
 
-    private void writeAdditionalMenuData(FriendlyByteBuf buffer) {
+    private void writeAdditionalMenuData(RegistryFriendlyByteBuf buffer) {
         buffer.writeInt(this.tradeID);
         this.getData().encode(buffer);
     }

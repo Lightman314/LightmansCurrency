@@ -5,12 +5,11 @@ import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandl
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
@@ -18,7 +17,7 @@ public class CoinPlayerMoneyHandler extends MoneyHandler implements IPlayerMoney
 
 
     private Player player;
-    private IWalletHandler walletHandler;
+    private WalletHandler walletHandler;
     private ItemStack cachedWallet = ItemStack.EMPTY;
 
     public CoinPlayerMoneyHandler(@Nonnull Player player) { this.updatePlayer(player); }
@@ -55,7 +54,7 @@ public class CoinPlayerMoneyHandler extends MoneyHandler implements IPlayerMoney
     @Override
     public void updatePlayer(@Nonnull Player player) {
         this.player = player;
-        this.walletHandler = WalletCapability.lazyGetWalletHandler(player);
+        this.walletHandler = WalletHandler.get(player);
     }
 
     @Override

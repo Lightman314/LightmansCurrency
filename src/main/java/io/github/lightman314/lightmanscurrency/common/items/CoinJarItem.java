@@ -1,33 +1,33 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.Block;
 
 public class CoinJarItem extends BlockItem {
 	
 	public CoinJarItem(Block block, Properties properties) { super(block, properties); }
-	
+
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_COIN_JAR);
 
-		List<ItemStack> jarStorage = readJarData(stack);
+		List<ItemStack> jarStorage = getJarContents(stack);
 
 		if(!jarStorage.isEmpty())
 		{
@@ -44,48 +44,49 @@ public class CoinJarItem extends BlockItem {
 				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.get().withStyle(ChatFormatting.YELLOW));
 		}
 
-	}
-	
-	private static List<ItemStack> readJarData(ItemStack stack)
-	{
-		List<ItemStack> storage = new ArrayList<>();
-		if(stack.hasTag())
-		{
-			CompoundTag compound = stack.getTag();
-			if(compound.contains("JarData", Tag.TAG_COMPOUND))
-			{
-				CompoundTag jarData = compound.getCompound("JarData");
-				if(jarData.contains("Coins"))
-				{
-					ListTag storageList = jarData.getList("Coins", Tag.TAG_COMPOUND);
-					for(int i = 0; i < storageList.size(); i++)
-					{
-						CompoundTag thisItem = storageList.getCompound(i);
-						storage.add(ItemStack.of(thisItem));
-					}
-				}
-			}
-		}
-		return storage;
+		if(InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
+			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.get(getJarColor(stack)));
+
 	}
 
-	public static class Colored extends CoinJarItem implements DyeableLeatherItem
+	public boolean canDye(@Nonnull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE); }
+
+	/**
+	 * Gets the contents of the Coin Jar<br>
+	 * Note: List returned is immutable and cannot be edited as Coin Jars cannot be interacted with in item form<br>
+	 * Returns an empty list of the given item stack is not for a Coin Jar item, even if it does contain the relevant data component.
+	 */
+	public static List<ItemStack> getJarContents(@Nonnull ItemStack stack)
 	{
+		if(!(stack.getItem() instanceof CoinJarItem))
+			return ImmutableList.of();
+		if(stack.has(ModDataComponents.COIN_JAR_CONTENTS))
+			return stack.get(ModDataComponents.COIN_JAR_CONTENTS);
+		return ImmutableList.of();
+	}
 
-		public Colored(Block block, Properties properties) { super(block, properties); }
+	public static void setJarContents(@Nonnull ItemStack stack, @Nonnull List<ItemStack> jarContents)
+	{
+		if(!(stack.getItem() instanceof CoinJarItem))
+			return;
+		if(jarContents.isEmpty())
+			stack.remove(ModDataComponents.COIN_JAR_CONTENTS);
+		//Copy list & contents and then make them immutable just in case someone tries to edit the result of getJarContents later.
+		stack.set(ModDataComponents.COIN_JAR_CONTENTS,ImmutableList.copyOf(InventoryUtil.copyList(jarContents)));
+	}
 
-		//Copied from DyeableLeatherItem, except default color is now white instead of leather brown.
-		@Override
-		public int getColor(ItemStack stack) {
-			CompoundTag compoundtag = stack.getTagElement("display");
-			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
-		}
+	public static int getJarColor(@Nonnull ItemStack stack)
+	{
+		if(!(stack.getItem() instanceof CoinJarItem jar) || !jar.canDye(stack))
+			return 0xFFFFFF;
+		return DyedItemColor.getOrDefault(stack, 0xFFFFFF);
+	}
 
-		@Override
-		public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.get());
-			super.appendHoverText(stack, level, tooltip, flagIn);
-		}
+	public static void setJarColor(@Nonnull ItemStack stack, int color)
+	{
+		if(!(stack.getItem() instanceof CoinJarItem jar) || !InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
+			return;
+		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color,true));
 	}
 
 }

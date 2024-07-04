@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBl
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -40,14 +39,13 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
 			if(blockEntity instanceof CashRegisterBlockEntity register)
-                register.loadDataFromItems(stack.getTag());
+                register.loadDataFromItems(stack);
 		}
 	}
-	
+
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
-	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{

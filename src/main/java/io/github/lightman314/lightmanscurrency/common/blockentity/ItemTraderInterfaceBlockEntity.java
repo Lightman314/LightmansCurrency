@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
@@ -27,15 +26,17 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nonnull;
 
 public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
 	
@@ -152,30 +153,30 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	protected ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, false); } 
+	protected ItemTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return ItemTradeData.loadData(compound, false, lookup); }
 	
 	@Override
-	protected void saveAdditional(@NotNull CompoundTag compound) {
-		super.saveAdditional(compound);
-		this.saveItemBuffer(compound);
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
+		this.saveItemBuffer(compound,lookup);
 	}
 	
-	protected final CompoundTag saveItemBuffer(CompoundTag compound) {
-		this.itemBuffer.save(compound, "Storage");
+	protected final CompoundTag saveItemBuffer(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.itemBuffer.save(compound, "Storage",lookup);
 		return compound;
 	}
 	
 	public void setItemBufferDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveItemBuffer(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveItemBuffer(new CompoundTag(),this.registryAccess()));
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	public void loadAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 		if(compound.contains("Storage"))
-			this.itemBuffer.load(compound, "Storage");
+			this.itemBuffer.load(compound, "Storage",lookup);
 	}
 
 	@Override
@@ -323,70 +324,61 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	
 	@Override
 	protected void hopperTick() {
-		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
+		boolean markBufferDirty = false;
 		for(Direction relativeSide : Direction.values())
 		{
 			if(this.itemHandler.getInputSides().get(relativeSide) || this.itemHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
-				{
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
-				BlockEntity be = this.level.getBlockEntity(queryPos);
-				if(be != null)
+				IItemHandler itemHandler = this.level.getCapability(Capabilities.ItemHandler.BLOCK, queryPos, actualSide.getOpposite());
+				if(itemHandler != null)
 				{
-					be.getCapability(ForgeCapabilities.ITEM_HANDLER, actualSide.getOpposite()).ifPresent(itemHandler -> {
-						//Collect items from neighboring blocks
-						if(this.itemHandler.getInputSides().get(relativeSide))
+					//Collect items from neighboring blocks
+					if(this.itemHandler.getInputSides().get(relativeSide))
+					{
+						boolean query = true;
+						for(int i = 0; query && i < itemHandler.getSlots(); ++i)
 						{
-							boolean query = true;
-							for(int i = 0; query && i < itemHandler.getSlots(); ++i)
+							ItemStack stack = itemHandler.getStackInSlot(i);
+							int fittableAmount = this.itemBuffer.getFittableAmount(stack);
+							if(fittableAmount > 0)
 							{
-								ItemStack stack = itemHandler.getStackInSlot(i);
-								int fittableAmount = this.itemBuffer.getFittableAmount(stack);
-								if(fittableAmount > 0)
-								{
-									query = false;
-									ItemStack result = itemHandler.extractItem(i, fittableAmount, false);
-									this.itemBuffer.forceAddItem(result);
-									markBufferDirty.set(true);
-								}
+								query = false;
+								ItemStack result = itemHandler.extractItem(i, fittableAmount, false);
+								this.itemBuffer.forceAddItem(result);
+								markBufferDirty = true;
 							}
 						}
-						if(this.itemHandler.getOutputSides().get(relativeSide))
-						{
-							List<ItemStack> buffer = this.itemBuffer.getContents();
-							boolean query = true;
-							for(int i = 0; query && i < buffer.size(); ++i)
-							{
-								ItemStack stack = buffer.get(i).copy();
-								if(this.allowOutput(stack))
-								{
-									for(int slot = 0; query && slot < itemHandler.getSlots(); ++slot)
-									{
-										ItemStack result = itemHandler.insertItem(slot, stack.copy(), false);
-										int placed = stack.getCount() - result.getCount();
-										if(placed > 0)
-										{
-											query = false;
-											stack.setCount(placed);
-											this.itemBuffer.removeItem(stack);
-											markBufferDirty.set(true);
-										}
+					}
+					//Attempt to place items to neighboring blocks
+					if(this.itemHandler.getOutputSides().get(relativeSide)) {
+						List<ItemStack> buffer = this.itemBuffer.getContents();
+						boolean query = true;
+						for (int i = 0; query && i < buffer.size(); ++i) {
+							ItemStack stack = buffer.get(i).copy();
+							if (this.allowOutput(stack)) {
+								for (int slot = 0; query && slot < itemHandler.getSlots(); ++slot) {
+									ItemStack result = itemHandler.insertItem(slot, stack.copy(), false);
+									int placed = stack.getCount() - result.getCount();
+									if (placed > 0) {
+										query = false;
+										stack.setCount(placed);
+										this.itemBuffer.removeItem(stack);
+										markBufferDirty = true;
 									}
 								}
 							}
-							
 						}
-					});
+					}
 				}
 				
 			}
 		}
-		if(markBufferDirty.get())
+		if(markBufferDirty)
 			this.setItemBufferDirty();
 		
 	}

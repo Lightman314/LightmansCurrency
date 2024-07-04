@@ -3,38 +3,29 @@ package io.github.lightman314.lightmanscurrency.network.message.emergencyejectio
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.EjectionRecoveryMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketOpenEjectionMenu extends ClientToServerPacket {
 
+
+	private static final Type<CPacketOpenEjectionMenu> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_ejection_data_open"));
+	private static final CPacketOpenEjectionMenu INSTANCE = new CPacketOpenEjectionMenu();
 	public static final Handler<CPacketOpenEjectionMenu> HANDLER = new H();
 
-	private CPacketOpenEjectionMenu() {}
+	private CPacketOpenEjectionMenu() { super(TYPE); }
 
 	public static void sendToServer() { new CPacketOpenEjectionMenu().send(); }
 
-	@Override
-	public void encode(@Nonnull FriendlyByteBuf buffer) { }
-
-	private static class H extends Handler<CPacketOpenEjectionMenu>
+	private static class H extends SimpleHandler<CPacketOpenEjectionMenu>
 	{
-		@Nonnull
+		protected H() { super(TYPE, INSTANCE); }
 		@Override
-		public CPacketOpenEjectionMenu decode(@Nonnull FriendlyByteBuf buffer) {
-			LightmansCurrency.LogDebug("Decoded ejection packet!");
-			return new CPacketOpenEjectionMenu();
-		}
-
-		@Override
-		protected void handle(@Nonnull CPacketOpenEjectionMenu message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.LogDebug("Opening ejection menu!");
-			if(sender != null)
-				NetworkHooks.openScreen(sender, EjectionRecoveryMenu.PROVIDER);
+		protected void handle(@Nonnull CPacketOpenEjectionMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			player.openMenu(EjectionRecoveryMenu.PROVIDER);
 		}
 	}
 	

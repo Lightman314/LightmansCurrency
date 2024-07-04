@@ -1,42 +1,40 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketOpenNetworkTerminal extends ClientToServerPacket {
 
+	private static final Type<CPacketOpenNetworkTerminal> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_open_terminal"));
 	public static final Handler<CPacketOpenNetworkTerminal> HANDLER = new H();
 
 	private final boolean ignoreExistingValidation;
 
 	public CPacketOpenNetworkTerminal() { this(false); }
-	public CPacketOpenNetworkTerminal(boolean ignoreExistingValidation) { this.ignoreExistingValidation = ignoreExistingValidation; }
+	public CPacketOpenNetworkTerminal(boolean ignoreExistingValidation) { super(TYPE); this.ignoreExistingValidation = ignoreExistingValidation; }
 
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.ignoreExistingValidation); }
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketOpenNetworkTerminal message) { buffer.writeBoolean(message.ignoreExistingValidation); }
+	private static CPacketOpenNetworkTerminal decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenNetworkTerminal(buffer.readBoolean()); }
 
 	private static class H extends Handler<CPacketOpenNetworkTerminal>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketOpenNetworkTerminal::encode,CPacketOpenNetworkTerminal::decode)); }
 		@Override
-		public CPacketOpenNetworkTerminal decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenNetworkTerminal(buffer.readBoolean()); }
-
-		@Override
-		protected void handle(@Nonnull CPacketOpenNetworkTerminal message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				MenuValidator validator = SimpleValidator.NULL;
-				if(sender.containerMenu instanceof IValidatedMenu menu && !message.ignoreExistingValidation)
-					validator = menu.getValidator();
-				TerminalMenuProvider.OpenMenu(sender, validator);
-			}
+		protected void handle(@Nonnull CPacketOpenNetworkTerminal message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			MenuValidator validator = SimpleValidator.NULL;
+			if(!message.ignoreExistingValidation && player.containerMenu instanceof IValidatedMenu menu)
+				validator = menu.getValidator();
+			TerminalMenuProvider.OpenMenu(player, validator);
 		}
 	}
 

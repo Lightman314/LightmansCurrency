@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -94,6 +93,6 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(LINE_COUNT,this.getLines().size()); }
 
-    private void clearStats() { this.RequestChange(LazyPacketData.simpleFlag("ClearStats")); }
+    private void clearStats() { this.RequestChange(this.builder().setFlag("ClearStats")); }
 
 }

@@ -2,30 +2,29 @@ package io.github.lightman314.lightmanscurrency.common.loot.glm;
 
 import java.util.List;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.*;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 
 import javax.annotation.Nonnull;
 
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
 	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
-	
+
+	public static final MapCodec<CoinsInChestsModifier> SERIALIZER = MapCodec.unit(new CoinsInChestsModifier());
+
 	@Override
 	@Nonnull
-	public ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+	public ObjectArrayList<ItemStack> apply(@Nonnull ObjectArrayList<ItemStack> generatedLoot, @Nonnull LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
 		if(!LCConfig.COMMON.enableChestLoot.get())
@@ -40,29 +39,15 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 			LightmansCurrency.LogDebug("Loot table '" + lootTable + "' has " + lootLevel + " level chest loot. Adding coins to the spawned loot.");
 			List<ItemStack> coinLoot = LootManager.getLoot(lootLevel.lootTable, context);
 			for(ItemStack coin : coinLoot) {
-				LightmansCurrency.LogDebug("Adding " + coin.getCount() + "x " + ForgeRegistries.ITEMS.getKey(coin.getItem()).toString() + " to the chest loot.");
+				LightmansCurrency.LogDebug("Adding " + coin.getCount() + "x " + BuiltInRegistries.ITEM.getKey(coin.getItem()) + " to the chest loot.");
 				generatedLoot.add(coin);
 			}
 		}
 		
 		return generatedLoot;
 	}
-	
-	@Override
-	public Codec<? extends IGlobalLootModifier> codec() { return new Serializer(); }
 
-	public static class Serializer implements Codec<CoinsInChestsModifier> {
-
-		@Override
-		public <T> DataResult<T> encode(CoinsInChestsModifier input, DynamicOps<T> ops, T prefix) {
-			return DataResult.success(prefix);
-		}
-
-		@Override
-		public <T> DataResult<Pair<CoinsInChestsModifier, T>> decode(DynamicOps<T> ops, T input) {
-			return DataResult.success(Pair.of(new CoinsInChestsModifier(), input));
-		}
-		
-	}
+	@Nonnull
+	public MapCodec<? extends IGlobalLootModifier> codec() { return SERIALIZER; }
 	
 }

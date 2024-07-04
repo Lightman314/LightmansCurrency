@@ -12,7 +12,7 @@ public class TradeComparisonResult {
     //Incompatible comparison result
     private boolean compatible = false;
     /**
-     * Whether the two trades were able to be compared at all.
+     * Whether the two trades were able to be compared at all
      */
     public boolean isCompatible() { return this.compatible; }
 

@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 public abstract class NotificationCategory implements ITab
 {
 	
-	public static final NotificationCategoryType<?> GENERAL_TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID, "general"), NotificationCategory::getGeneral);
+	public static final NotificationCategoryType<?> GENERAL_TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "general"), NotificationCategory::getGeneral);
 
 	@Nonnull
 	public final MutableComponent getTooltip() { return this.getName(); }
@@ -27,7 +27,7 @@ public abstract class NotificationCategory implements ITab
 	
 	public abstract boolean matches(NotificationCategory other);
 
-	private static NotificationCategory getGeneral(CompoundTag ignored) { return GENERAL; }
+	private static NotificationCategory getGeneral(CompoundTag _tag,HolderLookup.Provider _lookup) { return GENERAL; }
 
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
 		@Nonnull
@@ -42,17 +42,17 @@ public abstract class NotificationCategory implements ITab
 		@Override
 		protected NotificationCategoryType<?> getType() { return GENERAL_TYPE; }
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {}
+		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {}
 	};
 	
-	public final CompoundTag save() {
+	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		compound.putString("type", this.getType().toString());
-		this.saveAdditional(compound);
+		this.saveAdditional(compound,lookup);
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(CompoundTag compound);
+	protected abstract void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 
 	public final boolean notGeneral() { return this != GENERAL; }
 	

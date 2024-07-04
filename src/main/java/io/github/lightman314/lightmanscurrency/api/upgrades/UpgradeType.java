@@ -2,34 +2,36 @@ package io.github.lightman314.lightmanscurrency.api.upgrades;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.RegistryObject;
 
 public abstract class UpgradeType {
 
 	private final List<Component> possibleTargets = new ArrayList<>();
 
 	@Nonnull
-	protected abstract List<String> getDataTags();
-	@Nullable
-	protected abstract Object defaultTagValue(String tag);
-	@Nonnull
 	public List<Component> getTooltip(@Nonnull UpgradeData data) { return new ArrayList<>(); }
-	@Nonnull
-	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 
-	public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return false; }
+	public boolean clearDataFromStack(@Nonnull ItemStack stack) { return false; }
+    protected final boolean clearData(@Nonnull ItemStack stack, @Nonnull Supplier<? extends DataComponentType<?>> type)
+	{
+		if(stack.has(type))
+		{
+			stack.remove(type);
+			return true;
+		}
+		return false;
+	}
 	
 	public static boolean hasUpgrade(@Nonnull UpgradeType type, @Nonnull Container upgradeContainer) {
 		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
@@ -46,10 +48,10 @@ public abstract class UpgradeType {
 
 	public final void addTarget(@Nonnull Component target) { this.possibleTargets.add(target); }
 	public final void addTarget(@Nonnull ItemLike target) { this.addTarget(formatTarget(target)); }
-	public final void addTarget(@Nonnull RegistryObject<? extends ItemLike> target) { this.addTarget(formatTarget(target)); }
+	public final void addTarget(@Nonnull Supplier<? extends ItemLike> target) { this.addTarget(formatTarget(target)); }
 
 	protected static Component formatTarget(@Nonnull ItemLike target) { return new ItemStack(target).getHoverName(); }
-	protected static Component formatTarget(@Nonnull RegistryObject<? extends ItemLike> target) { return formatTarget(target.get()); }
+	protected static Component formatTarget(@Nonnull Supplier<? extends ItemLike> target) { return formatTarget(target.get()); }
 
 	@Nonnull
 	public final List<Component> getPossibleTargets() {
@@ -71,13 +73,6 @@ public abstract class UpgradeType {
 		
 		@Nonnull
 		@Override
-		protected List<String> getDataTags() { return new ArrayList<>(); }
-
-		@Override
-		protected Object defaultTagValue(String tag) { return null; }
-		
-		@Nonnull
-		@Override
 		public List<Component> getTooltip(@Nonnull UpgradeData data) { return this.tooltips; }
 
 		@Nonnull
@@ -86,7 +81,7 @@ public abstract class UpgradeType {
 
 		public final Simple withTarget(@Nonnull Component target) { this.targets.add(target); return this; }
 		public final Simple withTarget(@Nonnull ItemLike target) { this.targets.add(formatTarget(target)); return this; }
-		public final Simple withTarget(@Nonnull RegistryObject<? extends ItemLike> target) { this.targets.add(formatTarget(target)); return this; }
+		public final Simple withTarget(@Nonnull Supplier<? extends ItemLike> target) { this.targets.add(formatTarget(target)); return this; }
 
 	}
 	

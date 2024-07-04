@@ -8,20 +8,20 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.UUID;
+import java.util.function.Supplier;
 
 public class FakeOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(MoneyAPI.MODID,"fake"),
-            (tag) -> of(Component.Serializer.fromJson(tag.getString("Name"))));
+    public static final OwnerType TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID,"fake"),
+            (tag,lookup) -> of(Component.Serializer.fromJson(tag.getString("Name"),lookup)));
 
     private final MutableComponent name;
     private FakeOwner(@Nonnull MutableComponent name) { this.name = name; }
@@ -59,14 +59,14 @@ public class FakeOwner extends Owner {
     public BankReference asBankReference() { return null; }
 
     @Override
-    public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
+    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
 
     @Nonnull
     @Override
     public OwnerType getType() { return TYPE; }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putString("Name", Component.Serializer.toJson(this.name)); }
+    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putString("Name", Component.Serializer.toJson(this.name,lookup)); }
 
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof FakeOwner fo && fo.name.equals(this.name); }

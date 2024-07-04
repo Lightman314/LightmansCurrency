@@ -32,7 +32,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 	private final int BASEHEIGHT = 114;
 	
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/wallet.png");
 
 	public static final Sprite SPRITE_QUICK_COLLECT = Sprite.SimpleSprite(GUI_TEXTURE, 192, 0, 10, 10);
 

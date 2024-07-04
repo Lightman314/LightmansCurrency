@@ -12,34 +12,32 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
-public class BasicTradeEditTab extends TraderStorageTab {
+public class BasicTradeEditTab extends TraderStorageTab implements IClientTracker {
 
 	public BasicTradeEditTab(TraderStorageMenu menu) { super(menu); }
 
 	public static final int INTERACTION_INPUT = 0;
 	public static final int INTERACTION_OUTPUT = 1;
 	public static final int INTERACTION_OTHER = 2;
-	
-	Consumer<CompoundTag> oldClientHandler = null;
+
 	Consumer<LazyPacketData.Builder> clientHandler = null;
-	
+
+	@Override
+	public boolean isClient() { return this.menu.isClient(); }
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Object createClientTab(Object screen) { return new BasicTradeEditClientTab<>(screen, this); }
 
-	public void setClient(Consumer<LazyPacketData.Builder> clientHandler)
-	{
-		this.clientHandler = clientHandler;
-		if(this.oldClientHandler == null)
-			this.oldClientHandler = c -> this.clientHandler.accept(LazyPacketData.simpleTag("OldMessage",c));
-	}
+	public void setClient(Consumer<LazyPacketData.Builder> clientHandler) { this.clientHandler = clientHandler; }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }
@@ -61,34 +59,34 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	}
 	
 	public void sendInputInteractionMessage(int tradeIndex, int interactionIndex, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Input Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
+		//LightmansCurrency.LogDebug("Trade Input Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(this.builder()
 				.setInt("TradeIndex", tradeIndex)
 				.setInt("InteractionType", INTERACTION_INPUT)
 				.setInt("InteractionIndex", interactionIndex)
 				.setInt("Button", button)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setItem("HeldItem", heldItem));
 	}
 	
 	public void sendOutputInteractionMessage(int tradeIndex, int interactionIndex, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Output Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
+		//LightmansCurrency.LogDebug("Trade Output Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(this.builder()
 				.setInt("TradeIndex", tradeIndex)
 				.setInt("InteractionType", INTERACTION_OUTPUT)
 				.setInt("InteractionIndex", interactionIndex)
 				.setInt("Button", button)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setItem("HeldItem", heldItem));
 	}
 	
 	public void sendOtherInteractionMessage(int tradeIndex, int mouseX, int mouseY, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Misc Interaction sent.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
+		//LightmansCurrency.LogDebug("Trade Misc Interaction sent.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(this.builder()
 				.setInt("TradeIndex", tradeIndex)
 				.setInt("InteractionType", INTERACTION_OTHER)
 				.setInt("Button", button)
 				.setInt("MouseX", mouseX)
 				.setInt("MouseY", mouseY)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setItem("HeldItem", heldItem));
 	}
 	
 	public void addTrade() {
@@ -97,7 +95,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 		{
 			this.menu.getTrader().addTrade(this.menu.getPlayer());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("AddTrade"));
+				this.menu.SendMessage(this.builder().setFlag("AddTrade"));
 		}
 		
 	}
@@ -108,7 +106,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 		{
 			this.menu.getTrader().removeTrade(this.menu.getPlayer());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("RemoveTrade"));
+				this.menu.SendMessage(this.builder().setFlag("RemoveTrade"));
 		}
 		
 	}
@@ -125,7 +123,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 			int button = message.getInt("Button");
 			int mouseX = message.contains("MouseX", LazyPacketData.TYPE_INT) ? message.getInt("MouseX") : 0;
 			int mouseY = message.contains("MouseY", LazyPacketData.TYPE_INT) ? message.getInt("MouseY") : 0;
-			ItemStack heldItem = ItemStack.of(message.getNBT("HeldItem"));
+			ItemStack heldItem = message.getItem("HeldItem");
 			TradeData trade = this.menu.getTrader().getTradeData().get(tradeIndex);
 			switch (interaction) {
 				case INTERACTION_INPUT ->

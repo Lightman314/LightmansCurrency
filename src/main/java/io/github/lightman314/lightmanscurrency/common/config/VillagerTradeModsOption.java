@@ -6,20 +6,20 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOp
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMods;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class VillagerTradeModsOption extends ConfigOption<VillagerTradeMods> {
 
     public static final ConfigParser<VillagerTradeMods> PARSER = new Parser();
 
 
-    private VillagerTradeModsOption(@Nonnull NonNullSupplier<VillagerTradeMods> defaultValue) { super(defaultValue); }
+    private VillagerTradeModsOption(@Nonnull Supplier<VillagerTradeMods> defaultValue) { super(defaultValue); }
 
     @Nonnull
-    public static VillagerTradeModsOption create(@Nonnull NonNullSupplier<VillagerTradeMods> mods) { return new VillagerTradeModsOption(mods); }
+    public static VillagerTradeModsOption create(@Nonnull Supplier<VillagerTradeMods> mods) { return new VillagerTradeModsOption(mods); }
 
     @Nonnull
     @Override

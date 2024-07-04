@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
@@ -39,7 +38,7 @@ public abstract class EasyButton extends EasyWidget {
     public static void playClick(@Nonnull SoundManager manager) { manager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
 
     @Override
-    public void onClick(double mouseX, double mouseY) { this.onPress(); }
+    public void onClick(double mouseX, double mouseY, int button) { this.onPress(); }
 
     @Override
     public boolean keyPressed(int p_93374_, int p_93375_, int p_93376_) {

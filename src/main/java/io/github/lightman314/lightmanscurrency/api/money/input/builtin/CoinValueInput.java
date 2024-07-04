@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -45,7 +45,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
     @Nonnull
     @Override
-    public MutableComponent inputName() { return this.chain.getDisplayName(); }
+    public Component inputName() { return this.chain.getDisplayName(); }
 
     @Nonnull
     @Override

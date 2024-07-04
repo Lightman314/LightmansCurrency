@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration.curios.client.renderer;
-
+/*
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import net.minecraft.client.model.EntityModel;
@@ -20,7 +20,6 @@ public class WalletCurioRenderer implements ICurioRenderer {
     private WalletCurioRenderer() { }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack itemStack, SlotContext slotContext, PoseStack poseStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource multiBufferSource, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         WalletLayer<T,M> layer = new WalletLayer<>(renderLayerParent);
@@ -29,3 +28,4 @@ public class WalletCurioRenderer implements ICurioRenderer {
 
     }
 }
+//*/

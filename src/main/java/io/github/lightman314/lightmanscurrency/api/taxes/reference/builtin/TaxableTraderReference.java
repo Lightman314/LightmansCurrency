@@ -31,7 +31,7 @@ public class TaxableTraderReference extends TaxableReference {
 
     private static class TraderType extends TaxReferenceType
     {
-        private TraderType() { super(new ResourceLocation(LightmansCurrency.MODID, "trader")); }
+        private TraderType() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "trader")); }
 
         @Override
         public TaxableReference load(CompoundTag tag) { return new TaxableTraderReference(tag.getLong("TraderID")); }

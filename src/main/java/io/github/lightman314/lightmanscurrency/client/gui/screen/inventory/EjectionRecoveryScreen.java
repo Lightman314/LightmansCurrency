@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 	
 	public EjectionRecoveryScreen(EjectionRecoveryMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);

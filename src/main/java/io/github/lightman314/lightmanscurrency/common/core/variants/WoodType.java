@@ -96,7 +96,7 @@ public class WoodType implements IOptionalKey {
     }
     public static List<WoodType> moddedValues(String modid) { return ImmutableList.copyOf(moddedValues().stream().filter(t -> t.isMod(modid)).toList()); }
 
-    public static boolean hasModdedValues() { return moddedValues().size() > 0; }
+    public static boolean hasModdedValues() { return !moddedValues().isEmpty(); }
 
     public static int sortByWood(WoodType w1, WoodType w2) { return Integer.compare(ALL_TYPES.indexOf(w1), ALL_TYPES.indexOf(w2)); }
 
@@ -171,6 +171,7 @@ public class WoodType implements IOptionalKey {
         public Builder ofColor(@Nonnull MapColor color) { this.color = color; return this; }
         public Builder ofName(@Nonnull String displayName) { this.displayName = displayName; return this; }
         public Builder withAttributes(@Nonnull Attributes attributes) { this.attributes = attributes; return this; }
+        public Builder withData(@Nonnull WoodData data) { this.data = data; return this; }
 
         public WoodType build()
         {

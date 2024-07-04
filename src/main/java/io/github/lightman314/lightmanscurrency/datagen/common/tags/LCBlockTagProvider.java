@@ -7,18 +7,20 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class LCBlockTagProvider extends BlockTagsProvider {
 
@@ -132,11 +134,12 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         ///OTHER MODS TAGS
         //Add Multi-block to other mods immovable tags
-        this.cTag(new ResourceLocation("forge","immovable")).addTag(LCTags.Blocks.MULTI_BLOCK);
-        this.cTag(new ResourceLocation("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
+        this.cTag(Tags.Blocks.RELOCATION_NOT_SUPPORTED).addTag(LCTags.Blocks.MULTI_BLOCK);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
 
         //Add Safe-Interactable to ftb chunks interact whitelist
-        this.cTag(new ResourceLocation("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("cadmus", "allows_claim_interactions")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
 
     }
 
@@ -147,8 +150,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
     private record CustomTagAppender(IntrinsicTagAppender<Block> appender) {
 
         public CustomTagAppender add(Block block) { this.appender.add(block); return this; }
-        public CustomTagAppender add(RegistryObject<? extends Block> block) { this.appender.add(block.get()); return this; }
-        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) { this.appender.addOptional(block.getId()); return this; }
+        public CustomTagAppender add(Supplier<? extends Block> block) { this.appender.add(block.get()); return this; }
+        public CustomTagAppender addOptional(Supplier<? extends Block> block) { this.appender.addOptional(BuiltInRegistries.BLOCK.getKey(block.get())); return this; }
         public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) {
             bundle.forEach((key,block) -> {
                 if(key instanceof IOptionalKey ok)

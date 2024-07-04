@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTraderData {
 
 	private static final Map<Long, TraderData> loadedTraders = new HashMap<>();
@@ -32,11 +33,11 @@ public class ClientTraderData {
 		long traderID = compound.getLong("ID");
 		if(loadedTraders.containsKey(traderID))
 		{
-			loadedTraders.get(traderID).load(compound);
+			loadedTraders.get(traderID).load(compound, LookupHelper.getRegistryAccess(true));
 		}
 		else
 		{
-			TraderData trader = TraderData.Deserialize(true, compound);
+			TraderData trader = TraderData.Deserialize(true, compound, LookupHelper.getRegistryAccess(true));
 			if(trader != null)
 			{
 				loadedTraders.put(traderID, trader);

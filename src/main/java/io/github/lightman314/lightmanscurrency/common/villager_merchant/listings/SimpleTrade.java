@@ -1,11 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -14,28 +17,18 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SuspiciousStewItem;
-import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.component.SuspiciousStewEffects;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
-public class SimpleTrade implements VillagerTrades.ItemListing
+public class SimpleTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "simple");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "simple");
     public static final Serializer SERIALIZER = new Serializer();
 
-    protected final ItemStack price;
-    protected final ItemStack price2;
     protected final ItemStack forSale;
-    protected final int maxTrades;
-    protected final int xp;
-    protected final float priceMult;
-
-    protected static final int MAX_TRADES = 12;
-    protected static final float PRICE_MULT = 0.05f;
 
     public SimpleTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem)
     {
@@ -90,24 +83,23 @@ public class SimpleTrade implements VillagerTrades.ItemListing
     public SimpleTrade(ItemStack price, ItemStack forSale, int xp) { this(price, ItemStack.EMPTY, forSale, MAX_TRADES, xp, PRICE_MULT); }
 
     public SimpleTrade(ItemStack price, ItemStack price2, ItemStack forSale, int maxTrades, int xp, float priceMult) {
-        this.price = price;
-        this.price2 = price2;
+        super(price,price2,maxTrades,xp,priceMult);
         this.forSale = forSale;
-        this.maxTrades = maxTrades;
-        this.xp = xp;
-        this.priceMult = priceMult;
+    }
+    private SimpleTrade(@Nonnull DeserializedData data, @Nonnull ItemStack forSale)
+    {
+        super(data);
+        this.forSale = forSale;
     }
 
-    public static ItemStack createSuspiciousStew(MobEffect effect, int duration) {
+    public static ItemStack createSuspiciousStew(Holder<MobEffect> effect, int duration) {
         ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW, 1);
-        SuspiciousStewItem.saveMobEffect(stew, effect, duration);
+        stew.set(DataComponents.SUSPICIOUS_STEW_EFFECTS,new SuspiciousStewEffects(ImmutableList.of(new SuspiciousStewEffects.Entry(effect,duration))));
         return stew;
     }
 
-    @Nullable
-    public MerchantOffer getOffer(@NotNull Entity villager, @NotNull RandomSource random) {
-        return new MerchantOffer(this.price, this.price2, this.forSale, this.maxTrades, this.xp, this.priceMult);
-    }
+    @Override
+    protected ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand) { return this.forSale; }
 
     public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
 
@@ -118,26 +110,20 @@ public class SimpleTrade implements VillagerTrades.ItemListing
         public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade) {
             if(trade instanceof SimpleTrade t)
             {
-                json.add("Price", FileUtil.convertItemStack(t.price));
-                if(!t.price2.isEmpty())
-                    json.add("Price2", FileUtil.convertItemStack(t.price2));
+                t.serializeData(json);
                 json.add("Sell", FileUtil.convertItemStack(t.forSale));
-                json.addProperty("MaxTrades", t.maxTrades);
-                json.addProperty("XP", t.xp);
-                json.addProperty("PriceMult", t.priceMult);
+
                 return json;
             }
             return null;
         }
         @Override
         public VillagerTrades.ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            ItemStack price = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"));
-            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2")) : ItemStack.EMPTY;
+
+            DeserializedData data = deserializeData(json);
             ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"));
-            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
-            int xp = GsonHelper.getAsInt(json,"XP");
-            float priceMult = GsonHelper.getAsFloat(json, "PriceMult");
-            return new SimpleTrade(price, price2, forSale, maxTrades, xp, priceMult);
+
+            return new SimpleTrade(data, forSale);
         }
     }
 

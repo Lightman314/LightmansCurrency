@@ -15,10 +15,7 @@ public interface ILootModifier {
     @Nonnull
     static ItemStack replaceItem(@Nonnull ItemStack stack, @Nonnull ItemLike replacement)
     {
-        ItemStack newStack = new ItemStack(replacement, stack.getCount());
-        if(stack.hasTag())
-            newStack.setTag(stack.getTag().copy());
-        return newStack;
+        return stack.transmuteCopy(replacement);
     }
 
     static void replaceItems(@Nonnull List<ItemStack> loot, @Nonnull Item toReplace, @Nonnull ItemLike replacement)

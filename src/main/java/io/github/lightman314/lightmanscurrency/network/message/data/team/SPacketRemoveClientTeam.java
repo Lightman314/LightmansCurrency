@@ -3,28 +3,29 @@ package io.github.lightman314.lightmanscurrency.network.message.data.team;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class SPacketRemoveClientTeam extends ServerToClientPacket {
 
+	private static final Type<SPacketRemoveClientTeam> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_team_delete_client"));
 	public static final Handler<SPacketRemoveClientTeam> HANDLER = new H();
 
 	long teamID;
 	
-	public SPacketRemoveClientTeam(long teamID) { this.teamID = teamID; }
+	public SPacketRemoveClientTeam(long teamID) { super(TYPE); this.teamID = teamID; }
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeLong(this.teamID); }
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketRemoveClientTeam message) { buffer.writeLong(message.teamID); }
+	private static SPacketRemoveClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketRemoveClientTeam(buffer.readLong()); }
 
 	private static class H extends Handler<SPacketRemoveClientTeam>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(SPacketRemoveClientTeam::encode,SPacketRemoveClientTeam::decode)); }
 		@Override
-		public SPacketRemoveClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketRemoveClientTeam(buffer.readLong()); }
-		@Override
-		protected void handle(@Nonnull SPacketRemoveClientTeam message, @Nullable ServerPlayer sender) {
+		protected void handle(@Nonnull SPacketRemoveClientTeam message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			LightmansCurrency.PROXY.removeTeam(message.teamID);
 		}
 	}

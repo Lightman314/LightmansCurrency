@@ -5,7 +5,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -53,14 +53,14 @@ public final class ItemRequirement implements Predicate<ItemStack> {
         if(requirement1.isNull())
         {
             List<ItemStack> validItems = getValidItems(container, requirement2);
-            if(validItems.size() == 0)
+            if(validItems.isEmpty())
                 return null;
             return Lists.newArrayList(getRandomItem(validItems, requirement2.count));
         }
         else if(requirement2.isNull())
         {
             List<ItemStack> validItems = getValidItems(container, requirement1);
-            if(validItems.size() == 0)
+            if(validItems.isEmpty())
                 return null;
             return Lists.newArrayList(getRandomItem(validItems, requirement1.count));
         }
@@ -97,7 +97,7 @@ public final class ItemRequirement implements Predicate<ItemStack> {
                 }
             }
         }
-        if(validItems1.size() > 0 && validItems2.size() > 0)
+        if(!validItems1.isEmpty() && !validItems2.isEmpty())
             return Lists.newArrayList(getRandomItem(validItems1, requirement1.count), getRandomItem(validItems2, requirement2.count));
         else
             return null;
@@ -126,7 +126,7 @@ public final class ItemRequirement implements Predicate<ItemStack> {
     }
 
     public static ItemStack getRandomItem(List<ItemStack> validItems, int count) {
-        if(validItems.size() == 0)
+        if(validItems.isEmpty())
             return ItemStack.EMPTY;
         ItemStack stack = validItems.get(new Random().nextInt(validItems.size()));
         stack.setCount(count);

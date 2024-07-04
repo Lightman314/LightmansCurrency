@@ -50,7 +50,7 @@ public class TeamBankReference extends BankReference {
 
     private static class Type extends BankReferenceType
     {
-        protected Type() { super(new ResourceLocation(LightmansCurrency.MODID, "team_account")); }
+        protected Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "team_account")); }
 
         @Override
         public BankReference load(CompoundTag tag) { return of(tag.getLong("TeamID")); }

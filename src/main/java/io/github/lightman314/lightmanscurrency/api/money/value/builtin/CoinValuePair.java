@@ -6,14 +6,13 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,25 +39,17 @@ public final class CoinValuePair
     public CompoundTag save()
     {
         CompoundTag tag = new CompoundTag();
-        tag.putString("Coin", ForgeRegistries.ITEMS.getKey(this.coin).toString());
+        tag.putString("Coin", BuiltInRegistries.ITEM.getKey(this.coin).toString());
         tag.putInt("Amount", this.amount);
         return tag;
     }
 
-    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Coin"))), tag.getInt("Amount")); }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        buffer.writeItem(new ItemStack(this.coin));
-        buffer.writeInt(this.amount);
-    }
-
-    public static CoinValuePair decode(@Nonnull ChainData chainData, @Nonnull FriendlyByteBuf buffer) { return from(chainData, buffer.readItem().getItem(), buffer.readInt()); }
+    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("Coin"))), tag.getInt("Amount")); }
 
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
-        json.addProperty("Coin", ForgeRegistries.ITEMS.getKey(this.coin).toString());
+        json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(this.coin).toString());
         json.addProperty("Amount", this.amount);
         return json;
     }
@@ -66,12 +57,12 @@ public final class CoinValuePair
     @Nullable
     public static CoinValuePair fromJson(@Nonnull ChainData chainData, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json, "Coin")));
+        Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json, "Coin")));
         int quantity = GsonHelper.getAsInt(json, "Amount", 1);
         if(quantity <= 0)
             throw new JsonSyntaxException("Coin Amount (" + quantity + ") is <= 0!");
         else if(CoinAPI.API.ChainDataOfCoin(coin) == null)
-            throw new JsonSyntaxException("Coin Item " + ForgeRegistries.ITEMS.getKey(coin) + " is not a valid coin!");
+            throw new JsonSyntaxException("Coin Item " + BuiltInRegistries.ITEM.getKey(coin) + " is not a valid coin!");
         return from(chainData, coin, quantity);
     }
 

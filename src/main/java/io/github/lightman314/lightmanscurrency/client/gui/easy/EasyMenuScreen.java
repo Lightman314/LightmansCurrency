@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -42,6 +43,10 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     @Nonnull
     @Override
     public Player getPlayer() { return this.minecraft.player; }
+
+    @Nonnull
+    @Override
+    public RegistryAccess registryAccess() { return this.getPlayer().registryAccess(); }
 
     ScreenArea screenArea = ScreenArea.of(0, 0, 100, 100);
 
@@ -86,6 +91,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
 
     protected abstract void initialize(ScreenArea screenArea);
 
+
+
     @Override
     public final void render(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
         this.renderTick();
@@ -97,7 +104,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             catch (Throwable t) { LightmansCurrency.LogError("Error occurred while early rendering " + r.getClass().getName(), t); }
         }
         //Render background tint
-        this.renderBackground(mcgui);
+        this.renderTransparentBackground(mcgui);
         //Render Background
         this.renderBG(gui);
         //Render Widgets, Slots, etc.
@@ -120,7 +127,10 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     protected void renderTick() {}
 
     @Override
+    public final void renderBackground(@Nonnull GuiGraphics gui, int mouseX, int mouseY,float partialTicks) { }
+    @Override
     protected final void renderBg(@Nonnull GuiGraphics gui, float partialTicks, int mouseX, int mouseY) { }
+
     protected abstract void renderBG(@Nonnull EasyGuiGraphics gui);
 
     //Don't renderBG labels using the vanilla method
@@ -143,8 +153,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.renderables.add(r);
         if(child instanceof GuiEventListener && child instanceof NarratableEntry)
             super.addWidget((GuiEventListener & NarratableEntry)child);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        if(ticker != null && !this.guiTickers.contains(ticker))
+        if(child instanceof IEasyTickable ticker && !this.guiTickers.contains(ticker))
             this.guiTickers.add(ticker);
         if(child instanceof ITooltipSource t && !this.tooltipSources.contains(t))
             this.tooltipSources.add(t);
@@ -169,8 +178,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.renderables.remove(r);
         if(child instanceof GuiEventListener l)
             super.removeWidget(l);
-        IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
-        this.guiTickers.remove(ticker);
+        if(child instanceof IEasyTickable ticker)
+            this.guiTickers.remove(ticker);
         if(child instanceof ITooltipSource t)
             this.tooltipSources.remove(t);
         if(child instanceof IMouseListener l)
@@ -216,13 +225,13 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     protected final void removeWidget(@Nonnull GuiEventListener widget) { this.removeChild(widget); }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         for(IScrollListener l : ImmutableList.copyOf(this.scrollListeners))
         {
-            if(l.mouseScrolled(mouseX, mouseY, scroll))
+            if(l.mouseScrolled(mouseX, mouseY, deltaY))
                 return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scroll);
+        return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
     }
 
     @Override

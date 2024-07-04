@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.network.message.data.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
-import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.event.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.menu.*;
@@ -24,163 +23,154 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.*;
+import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.network.simple.SimpleChannel;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-
-import javax.annotation.Nonnull;
-
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD,modid = LightmansCurrency.MODID)
 public class LightmansCurrencyPacketHandler {
 	
 	public static final String PROTOCOL_VERSION = "1";
-	
-	public static SimpleChannel instance;
-	private static int nextId = 0;
 
-	public static void init()
-	{
-		
-		instance = NetworkRegistry.ChannelBuilder
-				.named(new ResourceLocation(LightmansCurrency.MODID,"network"))
-				.networkProtocolVersion(() -> PROTOCOL_VERSION)
-				.clientAcceptedVersions(PROTOCOL_VERSION::equals)
-				.serverAcceptedVersions(PROTOCOL_VERSION::equals)
-				.simpleChannel();
-		
+	private static PayloadRegistrar registrar = null;
+
+	@SubscribeEvent
+	public static void onPayloadRegister(RegisterPayloadHandlersEvent event) {
+
+		registrar = event.registrar(PROTOCOL_VERSION);
+
 		//ATM & Bank
-		register(CPacketOpenATM.class, CPacketOpenATM.HANDLER);
-		register(CPacketSelectBankAccount.class, CPacketSelectBankAccount.HANDLER);
-		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
-		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
-		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
-		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
-		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
-		register(SPacketBankTransferResponse.class, SPacketBankTransferResponse.HANDLER);
-		register(CPacketATMSetPlayerAccount.class, CPacketATMSetPlayerAccount.HANDLER);
-		register(SPacketATMPlayerAccountResponse.class, SPacketATMPlayerAccountResponse.HANDLER);
-		register(SPacketSyncSelectedBankAccount.class, SPacketSyncSelectedBankAccount.HANDLER);
+		registerC2S(CPacketOpenATM.HANDLER);
+		registerC2S(CPacketSelectBankAccount.HANDLER);
+		registerC2S(CPacketBankInteraction.HANDLER);
+		registerS2C(SPacketClearClientBank.HANDLER);
+		registerS2C(SPacketUpdateClientBank.HANDLER);
+		registerC2S(CPacketBankTransferTeam.HANDLER);
+		registerC2S(CPacketBankTransferPlayer.HANDLER);
+		registerS2C(SPacketBankTransferResponse.HANDLER);
+		registerC2S(CPacketATMSetPlayerAccount.HANDLER);
+		registerS2C(SPacketATMPlayerAccountResponse.HANDLER);
+		registerS2C(SPacketSyncSelectedBankAccount.HANDLER);
 		
 		//Trader
-		register(CPacketExecuteTrade.class, CPacketExecuteTrade.HANDLER);
-		register(CPacketCollectCoins.class, CPacketCollectCoins.HANDLER);
-		register(CPacketStoreCoins.class, CPacketStoreCoins.HANDLER);
-		register(CPacketOpenStorage.class, CPacketOpenStorage.HANDLER);
-		register(CPacketOpenTrades.class, CPacketOpenTrades.HANDLER);
-		register(CPacketOpenNetworkTerminal.class, CPacketOpenNetworkTerminal.HANDLER);
-		register(SPacketSyncUsers.class, SPacketSyncUsers.HANDLER);
-		register(CPacketAddOrRemoveTrade.class, CPacketAddOrRemoveTrade.HANDLER);
+		registerC2S(CPacketExecuteTrade.HANDLER);
+		registerC2S(CPacketCollectCoins.HANDLER);
+		registerC2S(CPacketStoreCoins.HANDLER);
+		registerC2S(CPacketOpenStorage.HANDLER);
+		registerC2S(CPacketOpenTrades.HANDLER);
+		registerC2S(CPacketOpenNetworkTerminal.HANDLER);
+		registerS2C(SPacketSyncUsers.HANDLER);
+		registerC2S(CPacketAddOrRemoveTrade.HANDLER);
 
 		//Paygate
-		register(CPacketCollectTicketStubs.class, CPacketCollectTicketStubs.HANDLER);
+		registerC2S(CPacketCollectTicketStubs.HANDLER);
 
 		//Wallet
-		register(SPacketPlayPickupSound.class, SPacketPlayPickupSound.HANDLER);
-		register(CPacketWalletExchangeCoins.class, CPacketWalletExchangeCoins.HANDLER);
-		register(CPacketWalletToggleAutoExchange.class, CPacketWalletToggleAutoExchange.HANDLER);
-		register(CPacketOpenWallet.class, CPacketOpenWallet.HANDLER);
-		register(CPacketOpenWalletBank.class, CPacketOpenWalletBank.HANDLER);
-		register(CPacketWalletQuickCollect.class, CPacketWalletQuickCollect.HANDLER);
-		register(CPacketChestQuickCollect.class, CPacketChestQuickCollect.HANDLER);
+		registerS2C(SPacketPlayCoinSound.HANDLER);
+		registerC2S(CPacketWalletExchangeCoins.HANDLER);
+		registerC2S(CPacketWalletToggleAutoExchange.HANDLER);
+		registerC2S(CPacketOpenWallet.HANDLER);
+		registerC2S(CPacketOpenWalletBank.HANDLER);
+		registerC2S(CPacketWalletQuickCollect.HANDLER);
+		registerC2S(CPacketChestQuickCollect.HANDLER);
 
 		//Wallet Inventory Slot
-		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
-		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
-		register(CPacketCreativeWalletEdit.class, CPacketCreativeWalletEdit.HANDLER);
+		registerS2C(SPacketSyncWallet.HANDLER);
+		registerC2S(CPacketSetVisible.HANDLER);
+		registerC2S(CPacketCreativeWalletEdit.HANDLER);
 
 		//Trader Data Sync
-		register(SPacketClearClientTraders.class, SPacketClearClientTraders.HANDLER);
-		register(SPacketUpdateClientTrader.class, SPacketUpdateClientTrader.HANDLER);
-		register(SPacketMessageRemoveClientTrader.class, SPacketMessageRemoveClientTrader.HANDLER);
+		registerS2C(SPacketClearClientTraders.HANDLER);
+		registerS2C(SPacketUpdateClientTrader.HANDLER);
+		registerS2C(SPacketMessageRemoveClientTrader.HANDLER);
 		
 		//Auction House
-		register(SPacketStartBid.class, SPacketStartBid.HANDLER);
-		register(CPacketSubmitBid.class, CPacketSubmitBid.HANDLER);
-		register(SPacketSyncAuctionStandDisplay.class, SPacketSyncAuctionStandDisplay.HANDLER);
+		registerS2C(SPacketStartBid.HANDLER);
+		registerC2S(CPacketSubmitBid.HANDLER);
+		registerS2C(SPacketSyncAuctionStandDisplay.HANDLER);
 		
 		//Trader Interfaces
-		register(CPacketInterfaceHandlerMessage.class, CPacketInterfaceHandlerMessage.HANDLER);
+		registerC2S(CPacketInterfaceHandlerMessage.HANDLER);
 		
 		//Teams
-		register(SPacketClearClientTeams.class, SPacketClearClientTeams.HANDLER);
-		register(SPacketRemoveClientTeam.class, SPacketRemoveClientTeam.HANDLER);
-		register(SPacketUpdateClientTeam.class, SPacketUpdateClientTeam.HANDLER);
-		register(CPacketEditTeam.class, CPacketEditTeam.HANDLER);
-		register(CPacketCreateTeam.class, CPacketCreateTeam.HANDLER);
-		register(SPacketCreateTeamResponse.class, SPacketCreateTeamResponse.HANDLER);
+		registerS2C(SPacketClearClientTeams.HANDLER);
+		registerS2C(SPacketRemoveClientTeam.HANDLER);
+		registerS2C(SPacketUpdateClientTeam.HANDLER);
+		registerC2S(CPacketEditTeam.HANDLER);
+		registerC2S(CPacketCreateTeam.HANDLER);
+		registerS2C(SPacketCreateTeamResponse.HANDLER);
 
 		//Lazy Menu Interaction
-		register(SPacketLazyMenu.class, SPacketLazyMenu.HANDLER);
-		register(CPacketLazyMenu.class, CPacketLazyMenu.HANDLER);
+		registerS2C(SPacketLazyMenu.HANDLER);
+		registerC2S(CPacketLazyMenu.HANDLER);
 
 		//Notifications
-		register(SPacketSyncNotifications.class, SPacketSyncNotifications.HANDLER);
-		register(CPacketFlagNotificationsSeen.class, CPacketFlagNotificationsSeen.HANDLER);
-		register(SPacketChatNotification.class, SPacketChatNotification.HANDLER);
+		registerS2C(SPacketSyncNotifications.HANDLER);
+		registerC2S(CPacketFlagNotificationsSeen.HANDLER);
+		registerS2C(SPacketChatNotification.HANDLER);
 
 		//Taxes
-		register(SPacketSyncClientTax.class, SPacketSyncClientTax.HANDLER);
-		register(SPacketRemoveTax.class, SPacketRemoveTax.HANDLER);
+		registerS2C(SPacketUpdateClientTax.HANDLER);
+		registerS2C(SPacketRemoveTax.HANDLER);
 
 		//Core
-		register(CPacketRequestNBT.class, CPacketRequestNBT.HANDLER);
-		register(SPacketSyncTime.class, SPacketSyncTime.HANDLER);
+		registerC2S(CPacketRequestNBT.HANDLER);
+		registerS2C(SPacketSyncTime.HANDLER);
 		
 		//Command/Admin
-		register(SPacketSyncAdminList.class, SPacketSyncAdminList.HANDLER);
-		register(SPacketDebugTrader.class, SPacketDebugTrader.HANDLER);
+		registerS2C(SPacketSyncAdminList.HANDLER);
+		registerS2C(SPacketDebugTrader.HANDLER);
 		
 		//Coin Data
-		register(SPacketSyncCoinData.class, SPacketSyncCoinData.HANDLER);
-		
-		//Enchantments
-		register(SPacketMoneyMendingClink.class, SPacketMoneyMendingClink.HANDLER);
+		registerConfigS2C(SPacketSyncCoinData.HANDLER);
+		registerS2C(SPacketSyncCoinData.HANDLER);
 		
 		//Persistent Data
-		register(CPacketCreatePersistentTrader.class, CPacketCreatePersistentTrader.HANDLER);
-		register(CPacketCreatePersistentAuction.class, CPacketCreatePersistentAuction.HANDLER);
+		registerC2S(CPacketCreatePersistentTrader.HANDLER);
+		registerC2S(CPacketCreatePersistentAuction.HANDLER);
 		
 		//Ejection data
-		register(SPacketSyncEjectionData.class, SPacketSyncEjectionData.HANDLER);
-		register(CPacketOpenEjectionMenu.class, CPacketOpenEjectionMenu.HANDLER);
+		registerS2C(SPacketSyncEjectionData.HANDLER);
+		registerC2S(CPacketOpenEjectionMenu.HANDLER);
 
 		//Player Trading
-		register(SPacketSyncPlayerTrade.class, SPacketSyncPlayerTrade.HANDLER);
-		register(CPacketPlayerTradeInteraction.class, CPacketPlayerTradeInteraction.HANDLER);
+		registerS2C(SPacketSyncPlayerTrade.HANDLER);
+		registerC2S(CPacketPlayerTradeInteraction.HANDLER);
 
 		//Event Tracker Syncing
-		register(SPacketSyncEventUnlocks.class, SPacketSyncEventUnlocks.HANDLER);
+		registerS2C(SPacketSyncEventUnlocks.HANDLER);
 
 		//Config System
-		register(SPacketSyncConfig.class, SPacketSyncConfig.HANDLER);
-		register(SPacketReloadConfig.class, SPacketReloadConfig.HANDLER);
-		register(SPacketEditConfig.class, SPacketEditConfig.HANDLER);
-		register(SPacketEditListConfig.class, SPacketEditListConfig.HANDLER);
-		register(SPacketResetConfig.class, SPacketResetConfig.HANDLER);
-		register(SPacketViewConfig.class, SPacketViewConfig.HANDLER);
+		registerS2C(SPacketSyncConfig.HANDLER);
+		registerS2C(SPacketReloadConfig.HANDLER);
+		registerS2C(SPacketEditConfig.HANDLER);
+		registerS2C(SPacketEditListConfig.HANDLER);
+		registerS2C(SPacketResetConfig.HANDLER);
+		registerS2C(SPacketViewConfig.HANDLER);
 
+		registrar = null;
 
 	}
 
-	private static <T extends CustomPacket> void register(@Nonnull Class<T> clazz, @Nonnull CustomPacket.Handler<T> handler)
+	private static <T extends ServerToClientPacket> void registerS2C(CustomPacket.AbstractHandler<T> handler)
 	{
-		instance.registerMessage(nextId++, clazz, CustomPacket::encode, handler::decode, handler::handlePacket);
+		registrar.playToClient(handler.type, handler.codec, handler);
 	}
-	
-	public static PacketTarget getTarget(Player player)
+
+	private static <T extends ClientToServerPacket> void registerC2S(CustomPacket.AbstractHandler<T> handler)
 	{
-		if(player instanceof ServerPlayer sp)
-			return getTarget(sp);
-		return null;
+		registrar.playToServer(handler.type, handler.codec, handler);
 	}
-	
-	public static PacketTarget getTarget(ServerPlayer player) { return PacketDistributor.PLAYER.with(() -> player); }
+
+	private static <T extends ServerToClientPacket> void registerConfigS2C(CustomPacket.ConfigHandler<T> handler)
+	{
+		registrar.configurationToClient(handler.type,handler.configCodec,handler);
+	}
 	
 }

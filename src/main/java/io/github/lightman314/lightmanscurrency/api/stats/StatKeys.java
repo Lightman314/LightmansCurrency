@@ -9,6 +9,12 @@ public class StatKeys {
 
     private StatKeys(){}
 
+    public static class Generic
+    {
+        public static final StatKey<MoneyView,MoneyValue> MONEY_EARNED = MultiMoneyStat.INSTANCE.createKey("generic.money_earned");
+        public static final StatKey<MoneyView,MoneyValue> MONEY_PAID = MultiMoneyStat.INSTANCE.createKey("generic.money_paid");
+    }
+
     public static class Traders
     {
         public static final StatKey<MoneyView, MoneyValue> MONEY_EARNED = MultiMoneyStat.INSTANCE.createKey("traders.money_earned");

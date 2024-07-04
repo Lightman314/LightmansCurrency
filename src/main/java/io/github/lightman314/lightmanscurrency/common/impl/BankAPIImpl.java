@@ -24,9 +24,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +40,7 @@ public class BankAPIImpl extends BankAPI {
     public static final BankAPIImpl INSTANCE = new BankAPIImpl();
 
     private BankAPIImpl() {
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
         //Register built-in bank account sources
         this.RegisterBankAccountSource(PlayerBankAccountSource.INSTANCE);
         this.RegisterBankAccountSource(TeamBankAccountSource.INSTANCE);
@@ -208,10 +208,8 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @SubscribeEvent
-    public void ServerTick(@Nonnull TickEvent.ServerTickEvent event)
+    public void ServerTick(@Nonnull ServerTickEvent.Pre event)
     {
-        if(event.phase != TickEvent.Phase.START)
-            return;
         double interestRate = LCConfig.SERVER.bankAccountInterestRate.get();
         if(interestRate > 0)
         {

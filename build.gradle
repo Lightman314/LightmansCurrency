@@ -1,16 +1,10 @@
-buildscript {
-    dependencies {
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-    }
-}
 plugins {
+    id 'java-library'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.neoforged.gradle.userdev' version '7.0.151'
 }
-
 
 version = mod_version
 group = mod_group_id
@@ -19,150 +13,147 @@ base {
     archivesName = mod_id
 }
 
-mixin {
-    add sourceSets.main, "lightmanscurrency.refmap.json"
-    config "lightmanscurrency.mixins.json"
+// Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+minecraft {
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
 }
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+// Default run configurations.
+// These can be tweaked, removed, or duplicated as needed.
+runs {
+    // applies to all the run configs below
+    configureEach {
+        // Recommended logging data for a userdev environment
+        // The markers can be added/remove as needed separated by commas.
+        // "SCAN": For mods scan.
+        // "REGISTRIES": For firing of registry events.
+        // "REGISTRYDUMP": For getting the contents of all registries.
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
+        // Recommended logging level for the console
+        // You can set various levels here.
+        // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+        systemProperty 'forge.logging.console.level', 'debug'
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        modSource project.sourceSets.main
+    }
 
-    // This property allows configuring Gradle's ProcessResources task(s) to run on IDE output locations before launching the game.
-    // It is REQUIRED to be set to true for this template to function.
-    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
-    copyIdeResources = true
+    client {
+        // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
 
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run')
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        programArgument '--nogui'
+    }
 
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
+    // This run config launches GameTestServer and runs all registered gametests, then exits.
+    // By default, the server will crash when no gametests are provided.
+    // The gametest system is also enabled by default for other run configs under the /test command.
+    gameTestServer {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
 
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
+    data {
+        // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
+        // workingDirectory project.file('run-data')
 
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', mod_id
-
-            //Fix other mods mixins
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
-                    '--existing', file('optional_assets/1.20/biomesoplenty'),
-                    '--existing', file('optional_assets/1.20/quark')
-
-            //Fix other mods mixins
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
+        // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath(),
+                '--existing', file('optional_assets/1.21/biomesoplenty').getAbsolutePath()
     }
 }
 
 // Include resources generated by data generators.
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+// Sets up a dependency configuration called 'localRuntime'.
+// This configuration should be used instead of 'runtimeOnly' to declare
+// a dependency that will be present for runtime testing but that is
+// "optional", meaning it will not be pulled by dependents of this mod.
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
 repositories {
     maven {
-        url = "https://www.cursemaven.com"
-    }
-    //JEI repository when working on plugin
-    /*maven {
-    	name = "Progwm17 maven"
-    	url = "https://dvs1.progwm16.com/files/maven/"
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
     }
     maven {
-    	name = "ModMaven"
-    	url = "https://modmaven.k-4u.nl"
-    }*/
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+    maven {
+        url "https://cursemaven.com"
+    }
 }
 
 dependencies {
+    // Specify the version of Minecraft to use.
+    // Depending on the plugin applied there are several options. We will assume you applied the userdev plugin as shown above.
+    // The group for userdev is net.neoforged, the module name is neoforge, and the version is the same as the neoforge version.
+    // You can however also use the vanilla plugin (net.neoforged.gradle.vanilla) to use a version of Minecraft without the neoforge loader.
+    // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
+    // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
+    implementation "net.neoforged:neoforge:${neo_version}"
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    //JEI when actually working on plugin
-    //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
-    //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
-    //JEI when not working on plugin, to save compile/runClient time
-    implementation fg.deobf("curse.maven:jei-238222:4595492")
+    //JEI
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     //Curios API
-    compileOnly fg.deobf("curse.maven:curios-309927:4583413")
+    //Waiting for curios update
+    //compileOnly "curse.maven:curios-309927:4583413"
 
     //Immersive Engineering API
-    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")
+    //Waiting for IE update
+    //compileOnly "curse.maven:immersive-engineering-231951:4782978"
 
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
+    //Put LDI dependency on hold until it gets updated to neoforge, as otherwise it's events won't compile
+    //compileOnly 'curse.maven:lightmans-discord-integration-545459:4660940'
 
     //Claim Compats
     //FTB Chunks claim purchase compat
-    compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
-    compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
-    compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
-    compileOnly fg.deobf('curse.maven:architectury-api-419699:4663010')
+    compileOnly 'curse.maven:ftb-chunks-forge-314906:5448646'
+    compileOnly 'curse.maven:ftb-teams-forge-404468:5448371'
+    compileOnly 'curse.maven:ftb-library-forge-404465:5454538'
+    compileOnly 'curse.maven:architectury-api-419699:5424664'
 
     //Cadmus claim purchase compat
-    compileOnly fg.deobf('curse.maven:cadmus-845832:4718413')
-    compileOnly fg.deobf('curse.maven:resourceful-lib-570073:4927082')
+    //Waiting for update
+    //compileOnly 'curse.maven:cadmus-845832:4718413'
+    //compileOnly 'curse.maven:resourceful-lib-570073:4927082'
 
     //Flan claim purchase compat
-    compileOnly fg.deobf("curse.maven:flan-forge-493246:4920923")
+    compileOnly "curse.maven:flan-forge-493246:5451218"
 
     //Wood Compatibility (should be implementation for dataGen)
     //Biomes O' Plenty
-    implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
-    implementation fg.deobf("curse.maven:terrablender-563928:4647094")
+    implementation "curse.maven:biomes-o-plenty-220318:5437861"
+    implementation "curse.maven:glitchcore-955399:5429863"
+    implementation "curse.maven:terrablender-neoforge-940057:5429865"
     //Quark
-    implementation fg.deobf("curse.maven:quark-243121:5084013")
-    implementation fg.deobf("curse.maven:zeta-968868:5078215")
+    //Waiting for update
+    //implementation "curse.maven:quark-243121:5084013"
+    //implementation "curse.maven:zeta-968868:5078215"
 
     //Other Compats
     //Supplementaries RedMerchant compat
-    compileOnly fg.deobf("curse.maven:supplementaries-412082:5068158")
-    compileOnly fg.deobf("curse.maven:selene-499980:5068161")
+    //compileOnly "curse.maven:supplementaries-412082:5068158"
+    //compileOnly "curse.maven:selene-499980:5068161"
 
     //Farming For Blockheads trader compat
-    compileOnly fg.deobf("curse.maven:farming-for-blockheads-261924:4749360")
-    compileOnly fg.deobf("curse.maven:balm-531761:5140912")
+    compileOnly "curse.maven:farming-for-blockheads-261924:5426962"
+    compileOnly "curse.maven:balm-531761:5442096"
 
 }
 
@@ -170,59 +161,50 @@ dependencies {
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
 // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
-def replaceProperties = [
-        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-        forge_version: forge_version, forge_version_range: forge_version_range,
-        loader_version_range: loader_version_range,
-        mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-        mod_authors: mod_authors, mod_description: mod_description,
-        //Custom Properties
-        ldi_version_range: ldi_version_range
-]
-processResources {
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            ldi_version_range      : ldi_version_range
+    ]
     inputs.properties replaceProperties
-    replaceProperties.put 'project', project
 
-    filesMatching(resourceTargets) {
+    filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
     }
 }
 
-// Example for how to get properties into the manifest for reading at runtime.
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : mod_id,
-                "Specification-Vendor"    : mod_authors,
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
 // Example configuration to allow publishing using the maven-publish plugin
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-// publish.dependsOn('reobfJar')
-
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifact jar
+        register('mavenJava', MavenPublication) {
+            from components.java
         }
     }
     repositories {
         maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+            url "file://${project.projectDir}/repo"
         }
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }

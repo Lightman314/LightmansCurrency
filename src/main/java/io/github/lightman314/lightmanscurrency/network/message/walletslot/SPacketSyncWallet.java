@@ -1,20 +1,20 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class SPacketSyncWallet extends ServerToClientPacket {
 
+	private static final Type<SPacketSyncWallet> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_wallet_sync"));
 	public static final Handler<SPacketSyncWallet> HANDLER = new H();
 
 	int entityID;
@@ -23,37 +23,29 @@ public class SPacketSyncWallet extends ServerToClientPacket {
 	
 	public SPacketSyncWallet(int entityID, ItemStack wallet, boolean visible)
 	{
+		super(TYPE);
 		this.entityID = entityID;
 		this.walletItem = wallet;
 		this.visible = visible;
 	}
-	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		buffer.writeInt(this.entityID);
-		buffer.writeItemStack(this.walletItem, false);
-		buffer.writeBoolean(this.visible);
+
+	private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketSyncWallet message) {
+		buffer.writeInt(message.entityID);
+		writeItem(buffer,message.walletItem);
+		buffer.writeBoolean(message.visible);
 	}
+	private static SPacketSyncWallet decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketSyncWallet(buffer.readInt(),readItem(buffer),buffer.readBoolean()); }
 
 	private static class H extends Handler<SPacketSyncWallet>
 	{
-		@Nonnull
+		protected H() { super(TYPE, fancyCodec(SPacketSyncWallet::encode,SPacketSyncWallet::decode)); }
 		@Override
-		public SPacketSyncWallet decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean()); }
-		@Override
-		protected void handle(@Nonnull SPacketSyncWallet message, @Nullable ServerPlayer sender) {
-			Minecraft minecraft = Minecraft.getInstance();
-			if(minecraft != null)
+		protected void handle(@Nonnull SPacketSyncWallet message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			if(player.level().getEntity(message.entityID) instanceof LivingEntity entity)
 			{
-				Entity entity = minecraft.level.getEntity(message.entityID);
-				if(entity instanceof LivingEntity livingEntity)
-				{
-					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
-					if(walletHandler != null)
-					{
-						walletHandler.syncWallet(message.walletItem);
-						walletHandler.setVisible(message.visible);
-					}
-				}
+				WalletHandler walletHandler = WalletHandler.get(entity);
+				walletHandler.syncWallet(message.walletItem);
+				walletHandler.setVisible(message.visible);
 			}
 		}
 	}

@@ -303,7 +303,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_OWNER_TEAM,"Team: %1$s","%2$s members");
 
         //Enchantment Tooltips
-        this.translate(LCText.TOOLTIP_MONEY_MENDING_COST, "Costs %s to mend 1 durability unit");
+        this.translate(LCText.TOOLTIP_MONEY_MENDING_COST, "Costs %s per durability repaired");
 
         //Trader Tooltips
         this.translate(LCText.TOOLTIP_OUT_OF_STOCK,"No Stock");
@@ -488,6 +488,7 @@ public class EnglishProvider extends TranslationProvider {
         //Trader Menu
         this.translate(LCText.GUI_TRADER_TITLE,"%1$s (%2$s)");
         this.translate(LCText.GUI_TRADER_DEFAULT_NAME, "Trader");
+        this.translate(LCText.GUI_TRADER_ALL_NETWORK_TRADERS, "All Network Traders");
         this.translate(LCText.TOOLTIP_TRADER_OPEN_STORAGE,"Open Trader Storage");
         this.translate(LCText.TOOLTIP_TRADER_COLLECT_COINS,"Collect Stored Money:");
         this.translate(LCText.TOOLTIP_TRADER_NETWORK_BACK,"Back to Network Terminal");
@@ -656,6 +657,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_NOTIFICATION_BUTTON,"Open Notification Manager");
         this.translate(LCText.TOOLTIP_TEAM_MANAGER_BUTTON,"Open Team Manager");
         this.translate(LCText.TOOLTIP_EJECTION_BUTTON,"Open Ejection Manager");
+        this.translate(LCText.TOOLTIP_CHEST_COIN_COLLECTION_BUTTON,"Quick Move Coins Into Wallet");
 
         //Generic Settings
         this.translate(LCText.BUTTON_SETTINGS_CHANGE_NAME,"Change Name");
@@ -807,9 +809,14 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
 
         //LC Statistics
+        //Generic
+        this.translate(StatKeys.Generic.MONEY_EARNED,"Money Earned: %s");
+        this.translate(StatKeys.Generic.MONEY_PAID,"Money Paid: %s");
+        //Trader
         this.translate(StatKeys.Traders.MONEY_EARNED,"Trader Earned: %s");
         this.translate(StatKeys.Traders.MONEY_PAID,"Trader Paid: %s");
         this.translate(StatKeys.Traders.TRADES_EXECUTED,"Trades Handled: %s");
+        //Taxable
         this.translate(StatKeys.Taxables.TAXES_PAID,"Taxes Paid: %s");
 
         //Command Arguments

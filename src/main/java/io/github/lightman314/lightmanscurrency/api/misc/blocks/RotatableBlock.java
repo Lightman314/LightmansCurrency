@@ -40,7 +40,6 @@ public class RotatableBlock extends EasyBlock implements IRotatableBlock {
 	
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 	
 	@Override
@@ -52,7 +51,6 @@ public class RotatableBlock extends EasyBlock implements IRotatableBlock {
 	
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
 	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return shape.apply(this.getFacing(state)); }
 	
 }

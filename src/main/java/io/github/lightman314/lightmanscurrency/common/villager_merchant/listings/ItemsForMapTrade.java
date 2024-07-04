@@ -4,10 +4,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,60 +20,57 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MapItem;
-import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 import javax.annotation.Nonnull;
 
-public class ItemsForMapTrade implements ItemListing
+public class ItemsForMapTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "items_for_map");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "items_for_map");
     public static final Serializer SERIALIZER = new Serializer();
 
-    protected final ItemStack price1;
-    protected final ItemStack price2;
+
     protected final TagKey<Structure> destination;
     protected final String displayName;
-    protected final MapDecoration.Type mapDecorationType;
-    protected final int maxTrades;
-    protected final int xp;
-    protected final float priceMult;
+    protected final Holder<MapDecorationType> mapDecorationType;
 
-    public ItemsForMapTrade(ItemStack price, TagKey<Structure> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+    public ItemsForMapTrade(ItemStack price, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> mapDecorationType, int maxUses, int xpValue)
     {
         this(price, ItemStack.EMPTY, destination, displayName, mapDecorationType, maxUses, xpValue, SimpleTrade.PRICE_MULT);
     }
 
-    public ItemsForMapTrade(ItemStack price1, ItemStack price2, TagKey<Structure> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue, float priceMult)
+    public ItemsForMapTrade(ItemStack price1, ItemStack price2, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> mapDecorationType, int maxUses, int xpValue, float priceMult)
     {
-        this.price1 = price1;
-        this.price2 = price2;
+        super(price1,price2,maxUses,xpValue,priceMult);
         this.destination = destination;
         this.displayName = displayName;
         this.mapDecorationType = mapDecorationType;
-        this.maxTrades = maxUses;
-        this.xp = xpValue;
-        this.priceMult = priceMult;
+    }
+    private ItemsForMapTrade(@Nonnull DeserializedData data, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> mapDecorationType)
+    {
+        super(data);
+        this.destination = destination;
+        this.displayName = displayName;
+        this.mapDecorationType = mapDecorationType;
     }
 
     @Override
-    public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
-
-        if(trader == null || !(trader.level() instanceof ServerLevel serverworld))
+    protected ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand) {
+        if(trader == null || (!(trader.level() instanceof ServerLevel level)))
             return null;
         else
         {
-            BlockPos blockPos = serverworld.findNearestMapStructure(this.destination, trader.blockPosition(), 100, true);
+            BlockPos blockPos = level.findNearestMapStructure(this.destination, trader.blockPosition(), 100, true);
             if(blockPos != null)
             {
-                ItemStack itemstack = MapItem.create(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
-                MapItem.lockMap(serverworld, itemstack);
+                ItemStack itemstack = MapItem.create(level, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
+                MapItem.lockMap(level, itemstack);
                 MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
-                itemstack.setHoverName(Component.translatable(this.displayName));
-                return new MerchantOffer(this.price1, this.price2, itemstack, this.maxTrades, this.xp, this.priceMult);
+                itemstack.set(DataComponents.CUSTOM_NAME,Component.translatable(this.displayName));
+                return itemstack;
             }
             else
                 return null;
@@ -90,15 +88,10 @@ public class ItemsForMapTrade implements ItemListing
         public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
             if(trade instanceof ItemsForMapTrade t)
             {
-                json.add("Price", FileUtil.convertItemStack(t.price1));
-                if(!t.price2.isEmpty())
-                    json.add("Price2", FileUtil.convertItemStack(t.price2));
+                t.serializeData(json);
                 json.addProperty("Destination", t.destination.location().toString());
                 json.addProperty("MapName", t.displayName);
-                json.addProperty("Decoration", t.mapDecorationType.toString());
-                json.addProperty("MaxTrades", t.maxTrades);
-                json.addProperty("XP", t.xp);
-                json.addProperty("PriceMult", t.priceMult);
+                json.addProperty("Decoration", BuiltInRegistries.MAP_DECORATION_TYPE.getKey(t.mapDecorationType.value()).toString());
                 return json;
             }
             return null;
@@ -106,15 +99,11 @@ public class ItemsForMapTrade implements ItemListing
 
         @Override
         public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            ItemStack price1 = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"));
-            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2")) : ItemStack.EMPTY;
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, new ResourceLocation(GsonHelper.getAsString(json,"Destination")));
+            DeserializedData data = deserializeData(json);
+            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, ResourceLocation.parse(GsonHelper.getAsString(json,"Destination")));
             String displayName = GsonHelper.getAsString(json,"MapName");
-            MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(GsonHelper.getAsString(json,"Decoration"), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
-            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
-            int xp = GsonHelper.getAsInt(json,"XP");
-            float priceMult = GsonHelper.getAsFloat(json,"PriceMult");
-            return new ItemsForMapTrade(price1, price2, destination, displayName, mapDecorationType, maxTrades, xp, priceMult);
+            Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(ResourceLocation.parse(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));
+            return new ItemsForMapTrade(data, destination, displayName, mapDecorationType);
         }
     }
 

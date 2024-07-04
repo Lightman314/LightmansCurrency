@@ -16,16 +16,14 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -36,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -52,13 +51,14 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public class CommandLCAdmin {
 
@@ -89,7 +89,7 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
-				.then(Commands.literal("replaceWallet").requires((c) -> !LightmansCurrency.isCuriosLoaded())
+				.then(Commands.literal("replaceWallet").requires((c) -> !LCCurios.isCuriosLoaded())
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
@@ -199,7 +199,7 @@ public class CommandLCAdmin {
 
 		String searchText = StringArgumentType.getString(commandContext,"searchText");
 
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.filterTrader(trader, searchText)).toList();
+		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, searchText)).toList();
 		if(!results.isEmpty())
 		{
 
@@ -277,7 +277,7 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
-		EasyText.sendCommandSucess(source, EasyText.literal(trader.save().getAsString()), false);
+		EasyText.sendCommandSucess(source, EasyText.literal(trader.save(source.registryAccess()).getAsString()), false);
 		if(commandContext.getSource().isPlayer())
 			new SPacketDebugTrader(trader.getID()).sendTo(commandContext.getSource().getPlayerOrException());
 		return 1;
@@ -329,11 +329,11 @@ public class CommandLCAdmin {
 		ItemInput input = ItemArgument.getItem(commandContext,"wallet");
 		if(!(input.getItem() instanceof WalletItem) && input.getItem() != Items.AIR)
 			throw new CommandSyntaxException(new CommandExceptionType() {}, LCText.COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET.get());
-		for(Entity entity : EntityArgument.getEntities(commandContext,"entity"))
+		for(Entity e : EntityArgument.getEntities(commandContext,"entity"))
 		{
-			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
-			if(walletHandler != null)
+			if(e instanceof LivingEntity entity && (entity.hasData(ModAttachmentTypes.WALLET_HANDLER) || e instanceof Player))
 			{
+				WalletHandler walletHandler = WalletHandler.get(entity);
 				ItemStack newWallet = input.createItemStack(1, true);
 				if(newWallet.isEmpty() && walletHandler.getWallet().isEmpty())
 					continue;
@@ -341,7 +341,7 @@ public class CommandLCAdmin {
 				{
 					ItemStack oldWallet = walletHandler.getWallet();
 					if(WalletItem.isWallet(oldWallet))
-						newWallet.setTag(oldWallet.getOrCreateTag().copy());
+						newWallet = oldWallet.transmuteCopy(newWallet.getItem(),1);
 				}
 				walletHandler.setWallet(newWallet);
 			}
@@ -464,27 +464,22 @@ public class CommandLCAdmin {
 	{
 		Player player = EntityArgument.getPlayer(commandContext, "player");
 
-		IEventUnlocks eventUnlocks = CapabilityEventUnlocks.getCapability(player);
-		if(eventUnlocks != null)
+		EventUnlocks eventUnlocks = player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
+		List<String> unlocks = eventUnlocks.getUnlockedList();
+		if(!unlocks.isEmpty())
 		{
-			List<String> unlocks = eventUnlocks.getUnlockedList();
-			if(!unlocks.isEmpty())
+			StringBuilder list = new StringBuilder();
+			for(String v : eventUnlocks.getUnlockedList())
 			{
-				StringBuilder list = new StringBuilder();
-				for(String v : eventUnlocks.getUnlockedList())
-				{
-					if(!list.isEmpty())
-						list.append(", ");
-					list.append(v);
-				}
-				EasyText.sendCommandSucess(commandContext.getSource(), EasyText.literal(list.toString()), false);
+				if(!list.isEmpty())
+					list.append(", ");
+				list.append(v);
 			}
-			else
-				EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LIST_NONE.get(), false);
-			return 1;
+			EasyText.sendCommandSucess(commandContext.getSource(), EasyText.literal(list.toString()), false);
 		}
 		else
-			return 0;
+			EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LIST_NONE.get(), false);
+		return 1;
 	}
 
 	static int unlockEvent(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -493,13 +488,13 @@ public class CommandLCAdmin {
 
 		String event = StringArgumentType.getString(commandContext, "event");
 
-		if(CapabilityEventUnlocks.isUnlocked(player, event))
+		if(EventUnlocks.isUnlocked(player, event))
 		{
 			EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_UNLOCK_FAIL.get(event));
 			return 0;
 		}
 
-		CapabilityEventUnlocks.unlock(player, event);
+		EventUnlocks.unlock(player,event);
 		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_UNLOCK_SUCCESS.get(event), false);
 
 		return 1;
@@ -511,13 +506,13 @@ public class CommandLCAdmin {
 
 		String event = StringArgumentType.getString(commandContext, "event");
 
-		if(!CapabilityEventUnlocks.isUnlocked(player, event))
+		if(!EventUnlocks.isUnlocked(player, event))
 		{
 			EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LOCK_FAIL.get(event));
 			return 0;
 		}
 
-		CapabilityEventUnlocks.lock(player, event);
+		EventUnlocks.lock(player, event);
 		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LOCK_SUCCESS.get(event), false);
 
 		return 1;

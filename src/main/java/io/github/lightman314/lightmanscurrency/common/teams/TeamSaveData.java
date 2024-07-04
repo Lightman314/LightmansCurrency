@@ -8,10 +8,11 @@ import java.util.Map;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketUpdateClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.data.team.SPacketClearClientTeams;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -20,15 +21,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
+@EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TeamSaveData extends SavedData {
 
 	private long nextID = 0;
@@ -42,14 +42,14 @@ public class TeamSaveData extends SavedData {
 	
 	
 	private TeamSaveData() {}
-	private TeamSaveData(CompoundTag compound) {
+	private TeamSaveData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		this.nextID = compound.getLong("NextID");
 		
 		ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
 		for(int i = 0; i < teamList.size(); ++i)
 		{
-			Team team = Team.load(teamList.getCompound(i));
+			Team team = Team.load(teamList.getCompound(i),lookup);
 			if(team != null)
 				this.teams.put(team.getID(), team);
 		}
@@ -57,14 +57,14 @@ public class TeamSaveData extends SavedData {
 	}
 	
 	@Nonnull
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		compound.putLong("NextID", this.nextID);
 		
 		ListTag teamList = new ListTag();
 		this.teams.forEach((teamID, team) ->{
 			if(team != null)
-				teamList.add(team.save());
+				teamList.add(team.save(lookup));
 		});
 		compound.put("Teams", teamList);
 		
@@ -77,7 +77,7 @@ public class TeamSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(TeamSaveData::new, TeamSaveData::new, "lightmanscurrency_team_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(TeamSaveData::new, TeamSaveData::new), "lightmanscurrency_team_data");
 		}
 		return null;
 	}
@@ -125,7 +125,7 @@ public class TeamSaveData extends SavedData {
 			Team team = GetTeam(false, teamID);
 			if(team != null)
 			{
-				CompoundTag compound = team.save();
+				CompoundTag compound = team.save(LookupHelper.getRegistryAccess(false));
 				new SPacketUpdateClientTeam(compound).sendToAll();
 			}
 		}
@@ -164,15 +164,15 @@ public class TeamSaveData extends SavedData {
 	}
 	
 	@SubscribeEvent
-	public static void OnPlayerLogin(PlayerLoggedInEvent event)
+	public static void OnPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
+
+		Player player = event.getEntity();
 		TeamSaveData tsd = get();
 
-		SPacketClearClientTeams.INSTANCE.sendToTarget(target);
+		SPacketClearClientTeams.INSTANCE.sendTo(player);
 
-		tsd.teams.forEach((id, team) -> new SPacketUpdateClientTeam(team.save()).sendToTarget(target));
+		tsd.teams.forEach((id, team) -> new SPacketUpdateClientTeam(team.save(player.registryAccess())).sendTo(player));
 		
 	}
 	

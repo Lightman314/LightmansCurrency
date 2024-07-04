@@ -9,14 +9,16 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketEditConfig extends ServerToClientPacket {
 
+    private static final Type<SPacketEditConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_edit"));
     public static final Handler<SPacketEditConfig> HANDLER = new H();
 
     private final String fileName;
@@ -25,33 +27,26 @@ public class SPacketEditConfig extends ServerToClientPacket {
 
     public SPacketEditConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input)
     {
+        super(TYPE);
         this.fileName = fileName;
         this.option = option;
         this.input = input;
     }
 
-    @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.fileName);
-        buffer.writeUtf(this.option);
-        buffer.writeInt(this.input.length());
-        buffer.writeUtf(this.input, this.input.length());
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketEditConfig message) {
+        buffer.writeUtf(message.fileName);
+        buffer.writeUtf(message.option);
+        buffer.writeUtf(message.input);
     }
+
+    private static SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketEditConfig(buffer.readUtf(),buffer.readUtf(),buffer.readUtf()); }
 
     private static class H extends Handler<SPacketEditConfig>
     {
 
-        @Nonnull
+        protected H() { super(TYPE, easyCodec(SPacketEditConfig::encode,SPacketEditConfig::decode)); }
         @Override
-        public SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) {
-            String fileName = buffer.readUtf();
-            String option = buffer.readUtf();
-            int inputLength = buffer.readInt();
-            return new SPacketEditConfig(fileName, option, buffer.readUtf(inputLength));
-        }
-
-        @Override
-        protected void handle(@Nonnull SPacketEditConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(@Nonnull SPacketEditConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             for(ConfigFile file : ConfigFile.getAvailableFiles())
             {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
@@ -74,7 +69,6 @@ public class SPacketEditConfig extends ServerToClientPacket {
                 }
             }
         }
-
     }
 
 }

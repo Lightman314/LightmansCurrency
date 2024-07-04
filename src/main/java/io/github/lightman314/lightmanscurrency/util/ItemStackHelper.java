@@ -1,27 +1,30 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ItemStackHelper {
 
 	public static ItemStack skullForPlayer(@Nonnull String playerName)
 	{
 		ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-		CompoundTag tag = new CompoundTag();
-		tag.putString("SkullOwner", playerName);
-		stack.setTag(tag);
+		stack.set(DataComponents.PROFILE, new ResolvableProfile(Optional.of(playerName),Optional.empty(),new PropertyMap()));
 		return stack;
 	}
 
-	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
+	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list, HolderLookup.Provider lookup)
 	{
 		ListTag listTag = new ListTag();
 		for(int i = 0; i < list.size(); ++i)
@@ -29,17 +32,16 @@ public class ItemStackHelper {
 			ItemStack stack = list.get(i);
 			if(!stack.isEmpty())
 			{
-				CompoundTag itemCompound = new CompoundTag();
-				itemCompound.putByte("Slot", (byte)i);
-				stack.save(itemCompound);
-				listTag.add(itemCompound);
+				CompoundTag stackTag = InventoryUtil.saveItemNoLimits(stack,lookup);
+				stackTag.putByte("Slot", (byte)i);
+				listTag.add(stackTag);
 			}
 		}
 		tag.put(key, listTag);
 		return tag;
 	}
 	
-	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
+	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list, HolderLookup.Provider lookup)
 	{
 		ListTag listTag = tag.getList(key, Tag.TAG_COMPOUND);
 		for(int i = 0; i < listTag.size(); i++)
@@ -48,11 +50,7 @@ public class ItemStackHelper {
 			int index = slotCompound.getByte("Slot") & 255;
 			if(index < list.size())
 			{
-				ItemStack stack = ItemStack.of(slotCompound);
-				//Manual override to force tickets to be converted on load
-				if(stack.getItem() instanceof TicketItem)
-					TicketItem.GetTicketID(stack);
-				//Normal operations
+				ItemStack stack = InventoryUtil.loadItemNoLimits(slotCompound,lookup);
 				list.set(index, stack);
 			}
 		}
@@ -60,7 +58,7 @@ public class ItemStackHelper {
 	
 	public static boolean TagEquals(ItemStack stack1, ItemStack stack2)
 	{
-		return stack1.hasTag() == stack2.hasTag() && (!stack1.hasTag() && !stack2.hasTag() || stack1.getTag().equals(stack2.getTag()));
+		return Objects.equals(stack1.getComponents(),stack2.getComponents());
 	}
 	
 }

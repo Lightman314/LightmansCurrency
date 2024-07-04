@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public class CoinMintRecipe implements Recipe<Container>{
+public class CoinMintRecipe implements Recipe<RecipeContainerWrapper>{
 
 	public enum MintType { MINT, MELT, OTHER }
 	
@@ -29,17 +29,16 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		return MintType.OTHER;
 	}
-	
-	private final ResourceLocation id;
+
 	private final MintType type;
 	private final int duration;
 	private final Ingredient ingredient;
 	public final int ingredientCount;
 	private final ItemStack result;
 	
-	public CoinMintRecipe(ResourceLocation id, MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
+	private CoinMintRecipe(String type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result) { this(readType(type),duration,ingredient,ingredientCount,result); }
+	public CoinMintRecipe(MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
-		this.id = id;
 		this.type = type;
 		this.duration = duration;
 		this.ingredient = ingredient;
@@ -58,7 +57,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
 	
 	@Override
-	public boolean matches(@Nonnull Container inventory, @Nonnull Level level) {
+	public boolean matches(@Nonnull RecipeContainerWrapper inventory, @Nonnull Level level) {
 		if(!this.isValid())
 			return false;
 		ItemStack firstStack = inventory.getItem(0);
@@ -66,7 +65,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	@Override
-	public @Nonnull ItemStack assemble(@Nonnull Container inventory, @Nonnull RegistryAccess registryAccess) { return this.getResultItem(registryAccess); }
+	public @Nonnull ItemStack assemble(@Nonnull RecipeContainerWrapper inventory, @Nonnull HolderLookup.Provider lookup) { return this.getResultItem(lookup); }
 	
 	@Override
 	public boolean canCraftInDimensions(int width, int height) { return true; }
@@ -74,13 +73,10 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public ItemStack getOutputItem() { return this.result.copy(); }
 
 	@Override
-	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+	public @Nonnull ItemStack getResultItem(@Nonnull HolderLookup.Provider registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	public int getInternalDuration() { return this.duration; }
 	public int getDuration() { return this.duration > 0 ? this.duration : LCConfig.SERVER.coinMintDefaultDuration.get(); }
-
-	@Override
-	public @Nonnull ResourceLocation getId() { return this.id; }
 
 	@Override
 	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
@@ -90,41 +86,39 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
 
 		@Nonnull
-		@Override
-		public CoinMintRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
-			Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
-			int ingredientCount = GsonHelper.getAsInt(json, "count", 1);
-
-			ItemStack result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
-			if(result.isEmpty())
-				throw new JsonSyntaxException("Result is empty.");
-			MintType type = MintType.OTHER;
-			if(json.has("mintType"))
-				type = CoinMintRecipe.readType(GsonHelper.getAsString(json, "mintType", "OTHER"));
-
-			int duration = GsonHelper.getAsInt(json, "duration", 0);
-
-			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
-		}
-
-		@Override
-		public CoinMintRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+		private static CoinMintRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
 			CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
-			Ingredient ingredient = Ingredient.fromNetwork(buffer);
+			Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
 			int ingredientCount = buffer.readInt();
-			ItemStack result = buffer.readItem();
+			ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
 			int duration = buffer.readInt();
-			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+			return new CoinMintRecipe(type, duration, ingredient, ingredientCount, result);
 		}
 
-		@Override
-		public void toNetwork(FriendlyByteBuf buffer, CoinMintRecipe recipe) {
+		private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CoinMintRecipe recipe) {
 			buffer.writeUtf(recipe.getMintType().name());
-			recipe.getIngredient().toNetwork(buffer);
+			Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getIngredient());
 			buffer.writeInt(recipe.ingredientCount);
-			buffer.writeItemStack(recipe.getOutputItem(), false);
+			ItemStack.STREAM_CODEC.encode(buffer, recipe.getOutputItem());
 			buffer.writeInt(recipe.getInternalDuration());
 		}
+
+		@Nonnull
+		@Override
+		public MapCodec<CoinMintRecipe> codec() {
+			return RecordCodecBuilder.mapCodec(builder -> builder.group(
+					Codec.STRING.optionalFieldOf("mintType","OTHER").forGetter(r -> r.type.name()),
+					Codec.INT.optionalFieldOf("duration",0).forGetter(r -> r.duration),
+					Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CoinMintRecipe::getIngredient),
+					Codec.INT.optionalFieldOf("count",1).forGetter(r -> r.ingredientCount),
+					ItemStack.STRICT_CODEC.fieldOf("result").forGetter(r -> r.result)
+					).apply(builder,CoinMintRecipe::new)
+		 	);
+		}
+
+		@Nonnull
+		@Override
+		public StreamCodec<RegistryFriendlyByteBuf, CoinMintRecipe> streamCodec() { return StreamCodec.of(Serializer::toNetwork,Serializer::fromNetwork); }
 
 	}
 	

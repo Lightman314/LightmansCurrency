@@ -6,8 +6,8 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
 
 /**
  * Events called when a {@link Notification} is given to a player.
@@ -40,8 +40,7 @@ public class NotificationEvent extends Event {
 		 * Can be used to modify and/or replace the notification.<br>
 		 * Cancel the event to prevent the notification from being sent.
 		 */
-		@Cancelable
-		public static class Pre extends NotificationSent
+		public static class Pre extends NotificationSent implements ICancellableEvent
 		{
 			public Pre(UUID playerID, NotificationData data, Notification notification) { super(playerID, data, notification); }
 			
@@ -68,8 +67,7 @@ public class NotificationEvent extends Event {
 	 * Sent when a notification is received on the client.<br>
 	 * Cancel to prevent the notification from being posted in chat.
 	 */
-	@Cancelable
-	public static class NotificationReceivedOnClient extends NotificationEvent {
+	public static class NotificationReceivedOnClient extends NotificationEvent implements ICancellableEvent{
 		
 		public NotificationReceivedOnClient(UUID playerID, NotificationData data, Notification notification) { super(playerID, data, notification); }
 		

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -9,15 +10,16 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
@@ -26,12 +28,19 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	public PaygateBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.PAYGATE.get(), pos, state); }
 	
 	protected PaygateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
-	
-	
+
+	@Nullable
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound) {
+	protected PaygateTraderData castOrNullify(@Nonnull TraderData trader) {
+		if(trader instanceof PaygateTraderData pg)
+			return pg;
+		return null;
+	}
+
+	@Override
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 		
 		this.saveTimer(compound);
 		
@@ -43,13 +52,13 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound) {
+	public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		
 		//Load the timer
 		if(compound.contains("Timer", Tag.TAG_INT))
 			this.timer = Math.max(compound.getInt("Timer"), 0);
 		
-		super.load(compound);
+		super.loadAdditional(compound,lookup);
 		
 	}
 	

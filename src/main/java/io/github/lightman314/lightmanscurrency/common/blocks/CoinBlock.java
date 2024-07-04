@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.function.Supplier;
 
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -22,7 +24,7 @@ import javax.annotation.Nonnull;
 
 public class CoinBlock extends FallingBlock {
 	
-	private final Supplier<Item> coinItem;
+	protected final Supplier<Item> coinItem;
 	
 	public CoinBlock(Properties properties, Supplier<Item> coinItem)
 	{
@@ -34,9 +36,14 @@ public class CoinBlock extends FallingBlock {
 	
 	protected int getCoinCount() { return 36; }
 
+	protected CoinBlock build(@Nonnull BlockBehaviour.Properties p) { return new CoinBlock(p,this.coinItem); }
+
 	@Nonnull
 	@Override
-	@SuppressWarnings("deprecation")
+	protected MapCodec<? extends FallingBlock> codec() { return simpleCodec(this::build); }
+
+	@Nonnull
+	@Override
 	public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos) {
 		if(this.isFullBlock())
 			return super.getOcclusionShape(state, level, pos);

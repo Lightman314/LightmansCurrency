@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -34,7 +33,7 @@ public abstract class PermissionOption {
 		if(this.tab.menu.getTrader() == null)
 			return;
 		this.tab.menu.getTrader().setAllyPermissionLevel(this.tab.menu.getPlayer(), this.permission, newValue);
-		this.tab.sendMessage(LazyPacketData.builder()
+		this.tab.sendMessage(tab.builder()
 				.setString("ChangeAllyPermissions", this.permission)
 				.setInt("NewLevel", newValue));
 	}

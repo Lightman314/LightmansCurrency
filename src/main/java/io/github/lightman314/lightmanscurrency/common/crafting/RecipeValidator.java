@@ -1,14 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 
@@ -17,7 +14,7 @@ public class RecipeValidator {
 	public static List<CoinMintRecipe> getAllMintRecipes(Level level)
 	{
 		RecipeManager recipeManager = level.getRecipeManager();
-		return recipeManager.getAllRecipesFor(RecipeTypes.COIN_MINT.get());
+		return recipeManager.getAllRecipesFor(RecipeTypes.COIN_MINT.get()).stream().map(RecipeHolder::value).toList();
 	}
 
 	public static List<CoinMintRecipe> getValidMintRecipes(Level level)
@@ -31,10 +28,17 @@ public class RecipeValidator {
 		return ImmutableList.copyOf(results);
 	}
 
-	public static List<TicketStationRecipe> getValidTicketStationRecipes(Level level)
+	public static List<RecipeHolder<TicketStationRecipe>> getTicketStationRecipes(Level level)
 	{
 		RecipeManager recipeManager = level.getRecipeManager();
 		return recipeManager.getAllRecipesFor(RecipeTypes.TICKET.get());
 	}
+
+	public static List<TicketStationRecipe> getTicketStationRecipeList(Level level)
+	{
+		return getTicketStationRecipes(level).stream().map(RecipeHolder::value).toList();
+	}
+
+
 	
 }

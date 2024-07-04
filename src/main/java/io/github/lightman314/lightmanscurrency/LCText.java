@@ -489,7 +489,9 @@ public class LCText {
 
     //Trader Menu
     public static final TextEntry GUI_TRADER_TITLE = TextEntry.gui(MODID,"trader.title");
+
     public static final TextEntry GUI_TRADER_DEFAULT_NAME = TextEntry.gui(MODID,"trader.default_name");
+    public static final TextEntry GUI_TRADER_ALL_NETWORK_TRADERS = TextEntry.gui(MODID,"trader.all_network");
     public static final TextEntry TOOLTIP_TRADER_OPEN_STORAGE = TextEntry.tooltip(MODID,"trader.open_storage");
     public static final TextEntry TOOLTIP_TRADER_COLLECT_COINS = TextEntry.tooltip(MODID,"trader.collect_coins");
     public static final TextEntry TOOLTIP_TRADER_NETWORK_BACK = TextEntry.tooltip(MODID,"trader.network.back");
@@ -757,10 +759,10 @@ public class LCText {
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(new ResourceLocation(MODID,"bank_deposit_or_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(new ResourceLocation(MODID,"bank_deposit"));
-    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(new ResourceLocation(MODID,"bank_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(new ResourceLocation(MODID,"bank_deposit_or_withdraw"),"server");
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit"));
+    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
     //Ejection Notifications
     public static final TextEntry NOTIFICATION_EJECTION_ANARCHY = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"anarchy");
@@ -795,7 +797,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_MONEY = TextEntry.notification(PaygateNotification.TYPE,"money");
     public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE = TextEntry.notification(SlotMachineTradeNotification.TYPE);
     //Item Notification Parts
-    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(new ResourceLocation(MODID,"items"),"format");
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"items"),"format");
 
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");

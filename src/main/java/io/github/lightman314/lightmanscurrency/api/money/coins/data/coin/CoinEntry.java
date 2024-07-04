@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,14 +75,14 @@ public class CoinEntry {
     public boolean matches(@Nonnull CompoundTag tag)
     {
         if(tag.contains("coin"))
-            return this.matches(ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("coin"))));
+            return this.matches(BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("coin"))));
         return false;
     }
 
     public final JsonObject serialize(@Nonnull ValueDisplayData displayData)
     {
         JsonObject json = new JsonObject();
-        json.addProperty("Coin", ForgeRegistries.ITEMS.getKey(coin).toString());
+        json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(this.coin).toString());
         this.writeAdditional(json);
         displayData.getSerializer().writeAdditionalToCoin(displayData, this, json);
         return json;
@@ -92,9 +92,9 @@ public class CoinEntry {
 
     protected static Item parseBase(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        ResourceLocation itemID = new ResourceLocation(GsonHelper.getAsString(json, "Coin"));
-        Item item = ForgeRegistries.ITEMS.getValue(itemID);
-        if(item == null || item == Items.AIR)
+        ResourceLocation itemID = ResourceLocation.parse(GsonHelper.getAsString(json, "Coin"));
+        Item item = BuiltInRegistries.ITEM.get(itemID);
+        if(item == Items.AIR)
             throw new JsonSyntaxException(itemID + " is not a valid item!");
         return item;
     }

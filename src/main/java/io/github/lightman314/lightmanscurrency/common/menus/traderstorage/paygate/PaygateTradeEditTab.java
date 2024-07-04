@@ -10,12 +10,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTra
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -64,7 +63,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
+				this.menu.SendMessage(this.builder().setMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -76,9 +75,9 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setBoolean("NewTicket", true)
-						.setCompound("Ticket", ticket.save(new CompoundTag())));
+						.setItem("Ticket", ticket));
 			}
 		}
 	}
@@ -90,7 +89,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setDuration(duration);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewDuration", duration));
+				this.menu.SendMessage(this.builder().setInt("NewDuration", duration));
 		}
 	}
 
@@ -102,7 +101,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			trade.setStoreTicketStubs(storeTicketStubs);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleBoolean("StoreTicketStubs", storeTicketStubs));
+				this.menu.SendMessage(this.builder().setBoolean("StoreTicketStubs", storeTicketStubs));
 		}
 	}
 
@@ -120,7 +119,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		{
 			ItemStack ticket = ItemStack.EMPTY;
 			if(message.contains("Ticket"))
-				ticket = ItemStack.of(message.getNBT("Ticket"));
+				ticket = message.getItem("Ticket");
 			this.setTicket(ticket);
 		}
 		else if(message.contains("NewDuration"))

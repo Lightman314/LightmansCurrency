@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleD
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ public class CoinDisplayInput extends SimpleDisplayInput {
 
     @Nonnull
     @Override
-    public MutableComponent inputName() { return this.chain.getDisplayName(); }
+    public Component inputName() { return this.chain.getDisplayName(); }
 
     @Nonnull
     @Override

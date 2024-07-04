@@ -1,18 +1,13 @@
 package io.github.lightman314.lightmanscurrency.network.packet;
 
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 
 public abstract class ClientToServerPacket extends CustomPacket {
 
-    public final void send() { LightmansCurrencyPacketHandler.instance.sendToServer(this); }
+    protected ClientToServerPacket(@Nonnull Type<?> type) { super(type); }
 
-    public static class Simple extends ClientToServerPacket
-    {
-        @Override
-        public void encode(@Nonnull FriendlyByteBuf buffer) { }
-    }
+    public final void send() { PacketDistributor.sendToServer(this); }
 
 }

@@ -22,12 +22,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissio
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -109,7 +110,7 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		this.saveInputSides(compound);
 		this.saveOutputSides(compound);
 	}
@@ -137,7 +138,7 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("InputSides"))
 		{
 			this.inputSides.clear();

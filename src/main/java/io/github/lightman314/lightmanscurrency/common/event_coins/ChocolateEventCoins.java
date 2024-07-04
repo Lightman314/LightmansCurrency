@@ -9,18 +9,17 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public final class ChocolateEventCoins {
 
     public static final String CHAIN = "chocolate_coins";
@@ -74,6 +73,7 @@ public final class ChocolateEventCoins {
         }
         return CHAIN_DATA;
     }
+
     @SubscribeEvent
     public static void registerChain(@Nonnull ChainDataReloadedEvent.Pre event) {
         if(LCConfig.COMMON.chocolateEventCoins.get() && !event.chainExists(CHAIN))

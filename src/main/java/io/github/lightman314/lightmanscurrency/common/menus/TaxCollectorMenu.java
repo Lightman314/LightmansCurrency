@@ -63,7 +63,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
                 newTab.onTabOpen();
             //Send tab change packet to the client
             if(sendMessage)
-                this.SendMessage(LazyPacketData.builder().setInt("ChangeTab", this.currentTab));
+                this.SendMessage(this.builder().setInt("ChangeTab", this.currentTab));
             //Sync with screen (if client menu changed tab)
             this.tabChangeListener.accept(this.currentTab);
         }
@@ -82,7 +82,7 @@ public class TaxCollectorMenu extends LazyMessageMenu {
             if(!amountToGive.isEmpty())
                 entry.getStoredMoney().GiveToPlayer(this.player);
             if(this.isClient())
-                this.SendMessageToServer(LazyPacketData.simpleFlag("CollectStoredMoney"));
+                this.SendMessageToServer(this.builder().setFlag("CollectStoredMoney"));
         }
     }
 

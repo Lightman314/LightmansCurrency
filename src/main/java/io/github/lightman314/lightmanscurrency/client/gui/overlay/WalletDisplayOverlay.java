@@ -7,20 +7,21 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WalletDisplayOverlay implements IGuiOverlay {
+public class WalletDisplayOverlay implements LayeredDraw.Layer {
 
     public static final WalletDisplayOverlay INSTANCE = new WalletDisplayOverlay();
 
@@ -31,24 +32,24 @@ public class WalletDisplayOverlay implements IGuiOverlay {
     private WalletDisplayOverlay() {}
 
     @Override
-    public void render(ForgeGui fgui, GuiGraphics mcgui, float partialTick, int screenWidth, int screenHeight) {
+    public void render(@Nonnull GuiGraphics mcgui, @Nonnull DeltaTracker tracker) {
         if(!LCConfig.CLIENT.walletOverlayEnabled.get())
             return;
 
         try {
-            EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, fgui.getFont(), 0, 0, partialTick);
+            EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, Minecraft.getInstance().font, 0, 0, 0f);
 
             ScreenCorner corner = LCConfig.CLIENT.walletOverlayCorner.get();
             ScreenPosition offset = LCConfig.CLIENT.walletOverlayPosition.get();
 
-            ScreenPosition currentPosition = corner.getCorner(screenWidth, screenHeight).offset(offset);
+            ScreenPosition currentPosition = corner.getCorner(gui.guiWidth(), gui.guiHeight()).offset(offset);
             if(corner.isRightSide)
                 currentPosition = currentPosition.offset(ScreenPosition.of(-16,0));
             if(corner.isBottomSide)
                 currentPosition = currentPosition.offset(ScreenPosition.of(0, -16));
 
             //Draw the wallet
-            IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(fgui.getMinecraft().player);
+            WalletHandler walletHandler = WalletHandler.get(Minecraft.getInstance().player);
             if(walletHandler == null)
                 return;
             ItemStack wallet = walletHandler.getWallet();

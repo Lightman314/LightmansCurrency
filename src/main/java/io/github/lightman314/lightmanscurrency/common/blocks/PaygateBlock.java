@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -16,8 +15,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 
 public class PaygateBlock extends TraderBlockRotatable {
 	
@@ -44,44 +43,37 @@ public class PaygateBlock extends TraderBlockRotatable {
 				.setValue(POWERED, false)
 		);
 	}
-	
+
+	@Nonnull
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
-	{
+	protected ItemInteractionResult useItemOn(@Nonnull ItemStack stack, @Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
 		if(!level.isClientSide)
 		{
-			//Get the item in the players hand
-			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof PaygateBlockEntity paygate)
+			if(level.getBlockEntity(pos) instanceof PaygateBlockEntity paygate)
 			{
-				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
+				int tradeIndex = paygate.getValidTicketTrade(player,stack);
 				if(tradeIndex >= 0)
 				{
 					PaygateTraderData trader = paygate.getTraderData();
-					if(trader != null)
-					{
-						trader.TryExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
-						return InteractionResult.SUCCESS;
-					}
+					if(trader != null && trader.TryExecuteTrade(TradeContext.create(trader,player).build(),tradeIndex).isSuccess())
+						return ItemInteractionResult.SUCCESS;
 				}
 			}
 		}
-		return super.use(state, level, pos, player, hand, result);
+		return super.useItemOn(stack, state, level, pos, player, hand, hit);
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public int getSignal(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
 		if(state.getValue(POWERED))
 			return 15;
@@ -89,10 +81,10 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_PAYGATE.asTooltip());
-		super.appendHoverText(stack, level, tooltip, flagIn);
+		super.appendHoverText(stack, context, tooltip, flagIn);
 	}
 
 	@Override

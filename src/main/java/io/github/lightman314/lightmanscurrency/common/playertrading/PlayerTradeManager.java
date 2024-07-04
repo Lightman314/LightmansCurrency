@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class PlayerTradeManager {
 
     private static final Map<Integer,PlayerTrade> trades = new HashMap<>();
@@ -40,20 +40,17 @@ public class PlayerTradeManager {
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.START)
+    public static void onServerTick(ServerTickEvent.Pre event) {
+        List<Integer> removeTrades = new ArrayList<>();
+        trades.forEach((id,trade) -> {
+            if(trade.shouldCancel())
+                removeTrades.add(id);
+        });
+        for(int tradeID : removeTrades)
         {
-            List<Integer> removeTrades = new ArrayList<>();
-            trades.forEach((id,trade) -> {
-                if(trade.shouldCancel())
-                    removeTrades.add(id);
-            });
-            for(int tradeID : removeTrades)
-            {
-                PlayerTrade trade = trades.get(tradeID);
-                trades.remove(tradeID);
-                trade.onCancel();
-            }
+            PlayerTrade trade = trades.get(tradeID);
+            trades.remove(tradeID);
+            trade.onCancel();
         }
     }
 

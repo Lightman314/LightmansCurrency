@@ -22,9 +22,9 @@ import javax.annotation.Nonnull;
 
 public class ATMScreen extends EasyMenuScreen<ATMMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
-	public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm_buttons.png");
+	public static final ResourceLocation BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/atm_buttons.png");
 	
 	int currentTabIndex = 0;
 	List<ATMTab> tabs = ImmutableList.of(new ExchangeTab(this), new SelectionTab(this), new InteractionTab(this), new NotificationTab(this), new LogTab(this), new TransferTab(this));

@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplaySerializer;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +17,7 @@ import java.util.List;
 
 public class Null extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(MoneyAPI.MODID,"null");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID,"null");
     public static final Null INSTANCE = new Null();
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
@@ -37,9 +39,9 @@ public class Null extends ValueDisplayData {
         @Override
         public void resetBuilder() { }
         @Override
-        public void parseAdditional(@Nonnull JsonObject chainJson) { }
+        public void parseAdditional(@Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException { }
         @Override
-        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) { }
+        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException { }
         @Nonnull
         @Override
         public Null build() { return INSTANCE; }

@@ -3,13 +3,18 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -17,27 +22,34 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
-	
+public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderSource{
+
 	List<BlockPos> positions = new ArrayList<>();
+	Component customTitle = null;
 	
 	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.CASH_REGISTER.get(), pos, state);
 	}
 	
-	public void loadDataFromItems(CompoundTag itemTag)
+	public void loadDataFromItems(ItemStack stack)
 	{
-		if(itemTag == null)
+		if(stack == null || !stack.has(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS))
 			return;
-		readPositions(itemTag);
+
+		//Copy positions from the item
+		this.positions = new ArrayList<>(stack.get(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS));
+		//Copy name from the item
+		if(stack.has(DataComponents.CUSTOM_NAME))
+			this.customTitle = stack.getHoverName();
+
 	}
 	
 	public void OpenContainer(Player player)
@@ -49,9 +61,9 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			return;
 		}
 		if(!this.getTraders().isEmpty())
-			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
+			player.openMenu(provider, this.worldPosition);
 		else
-			player.sendSystemMessage(Component.translatable("message.lightmanscurrency.cash_register.notlinked"));
+			player.sendSystemMessage(LCText.MESSAGE_CASH_REGISTER_NOT_LINKED.get());
 	}
 	
 	@Override
@@ -59,7 +71,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	
 	@Nonnull
 	@Override
-	public @NotNull List<TraderData> getTraders() {
+	public List<TraderData> getTraders() {
 		List<TraderData> traders = new ArrayList<>();
 		for (BlockPos position : this.positions) {
 			BlockEntity be = this.level.getBlockEntity(position);
@@ -71,9 +83,17 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 		}
 		return traders;
 	}
-	
+
+	@Nullable
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public Component getCustomTitle() { return this.customTitle; }
+
+	//Only show the search bar if we actually expect for there to be more than 1 trader linked to this machine
+	@Override
+	public boolean showSearchBar() { return this.positions.size() > 1; }
+
+	@Override
+	public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
 	{
 		
 		ListTag storageList = new ListTag();
@@ -86,19 +106,22 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 		}
 		
 		if(!storageList.isEmpty())
-			compound.put("TraderPos", storageList);
+			tag.put("TraderPos", storageList);
+
+		if(this.customTitle != null)
+			tag.putString("CustomName", Component.Serializer.toJson(this.customTitle,lookup));
 		
-		super.saveAdditional(compound);
+		super.saveAdditional(tag,lookup);
 	}
-	
+
 	@Override
-	public void load(@NotNull CompoundTag compound)
-	{
-		
-		this.readPositions(compound);
-		
-		super.load(compound);
-		
+	protected void loadAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+		this.readPositions(tag);
+
+		if(tag.contains("CustomName"))
+			this.customTitle = Component.Serializer.fromJson(tag.getString("CustomName"),lookup);
+
+		super.loadAdditional(tag,lookup);
 	}
 	
 	private void readPositions(CompoundTag compound)
@@ -118,8 +141,5 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			}
 		}
 	}
-	
-	@Override
-	public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 }

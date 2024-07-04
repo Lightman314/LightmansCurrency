@@ -6,23 +6,19 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
-import net.minecraft.world.item.DyeableLeatherItem;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.ItemTags;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -39,6 +35,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	public void clearStorage() { this.storage.clear(); }
 	
 	private final ItemViewer viewer = new ItemViewer(this);
+	public IItemHandler getViewer() { return this.viewer; }
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -73,7 +70,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 		
 		if(!this.level.isClientSide)
 		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag(),this.level.registryAccess()));
 		}
 		return true;
 	}
@@ -87,108 +84,67 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	}
 	
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		this.writeStorage(compound);
+		this.writeStorage(compound, lookup);
 
 		if(this.color >= 0)
 			compound.putInt("Color", this.color);
 		
-		super.saveAdditional(compound);
+		super.saveAdditional(compound, lookup);
 	}
 	
-	protected CompoundTag writeStorage(CompoundTag compound)
+	protected CompoundTag writeStorage(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag storageList = new ListTag();
 		for (ItemStack stack : this.storage)
-			storageList.add(stack.save(new CompoundTag()));
+			storageList.add(InventoryUtil.saveItemNoLimits(stack,lookup));
 		compound.put("Coins", storageList);
 		
 		return compound;
 	}
-	
+
 	@Override
-	public void load(CompoundTag compound)
-	{
-		
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+
 		if(compound.contains("Coins"))
 		{
 			storage = new ArrayList<>();
 			ListTag storageList = compound.getList("Coins", Tag.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); i++)
 			{
-				CompoundTag thisItem = storageList.getCompound(i);
-				storage.add(ItemStack.of(thisItem));
+				ItemStack result = InventoryUtil.loadItemNoLimits(storageList.getCompound(i),lookup);
+				if(!result.isEmpty())
+					storage.add(result);
 			}
 		}
 
 		if(compound.contains("Color"))
 			this.color = compound.getInt("Color");
-		
-		super.load(compound);
-		
-	}
 
-	@Override
-	public void onLoad()
-	{
-		if(this.level.isClientSide)
-		{
-			BlockEntityUtil.requestUpdatePacket(this);
-		}
+		super.loadAdditional(compound, lookup);
 	}
 	
 	//For reading/writing the storage when silk touched.
-	public void writeItemTag(ItemStack item)
+	public void addFullData(ItemStack item)
 	{
 		if(!this.storage.isEmpty())
-			item.getOrCreateTag().put("JarData", this.writeStorage(new CompoundTag()));
-		this.writeSimpleItemTag(item);
+			CoinJarItem.setJarContents(item, this.storage);
+		this.addSimpleData(item);
 	}
 
 	//For writing the color when picked
-	public void writeSimpleItemTag(ItemStack item)
+	public void addSimpleData(ItemStack item)
 	{
 		if(this.color >= 0)
-		{
-			CompoundTag compound = item.getOrCreateTag();
-			CompoundTag displayTag = new CompoundTag();
-			displayTag.putInt(DyeableLeatherItem.TAG_COLOR, this.color);
-			compound.put(DyeableLeatherItem.TAG_DISPLAY, displayTag);
-		}
+			CoinJarItem.setJarColor(item,this.color);
 	}
 	
-	public void readItemTag(ItemStack item)
+	public void readItemData(ItemStack item)
 	{
-		if(item.hasTag())
-		{
-			CompoundTag compound = item.getTag();
-			if(compound.contains("JarData", Tag.TAG_COMPOUND))
-			{
-				CompoundTag jarData = compound.getCompound("JarData");
-				if(jarData.contains("Coins"))
-				{
-					this.storage = new ArrayList<>();
-					ListTag storageList = jarData.getList("Coins", Tag.TAG_COMPOUND);
-					for(int i = 0; i < storageList.size(); i++)
-					{
-						CompoundTag thisItem = storageList.getCompound(i);
-						this.storage.add(ItemStack.of(thisItem));
-					}
-				}
-			}
-			if(item.getItem() instanceof CoinJarItem.Colored coloredJar)
-				this.color = coloredJar.getColor(item);
-			this.setChanged();
-		}
-	}
-	
-	@Override
-    @Nonnull
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-		if(cap == ForgeCapabilities.ITEM_HANDLER)
-			return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.viewer));
-		return super.getCapability(cap, side);
+		this.storage = InventoryUtil.copyList(CoinJarItem.getJarContents(item));
+		if(item.getItem() instanceof CoinJarItem jar && jar.canDye(item))
+			this.color = CoinJarItem.getJarColor(item);
 	}
 
 	private record ItemViewer(CoinJarBlockEntity be) implements IItemHandler {

@@ -5,19 +5,20 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
 public class TraderCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"trader"),TraderCategory::new);
+	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"trader"),TraderCategory::new);
 	
 	private final Item trader;
 	private final long traderID;
@@ -29,15 +30,15 @@ public class TraderCategory extends NotificationCategory {
 		this.traderID = traderID;
 	}
 	
-	public TraderCategory(CompoundTag compound) {
+	public TraderCategory(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Icon"))
-			this.trader = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Icon")));
+			this.trader = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("Icon")));
 		else
 			this.trader = ModItems.TRADING_CORE.get();
 		
 		if(compound.contains("TraderName"))
-			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"));
+			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"),lookup);
 		else
 			this.traderName = Component.translatable("gui.lightmanscurrency.universaltrader.default");
 		
@@ -78,9 +79,9 @@ public class TraderCategory extends NotificationCategory {
 		return false;
 	}
 	
-	public void saveAdditional(CompoundTag compound) {
-		compound.putString("Icon", ForgeRegistries.ITEMS.getKey(this.trader).toString());
-		compound.putString("TraderName", Component.Serializer.toJson(this.traderName));
+	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		compound.putString("Icon", BuiltInRegistries.ITEM.getKey(this.trader).toString());
+		compound.putString("TraderName", Component.Serializer.toJson(this.traderName,lookup));
 		compound.putLong("TraderID", this.traderID);
 	}
 	

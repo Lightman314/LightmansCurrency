@@ -3,20 +3,20 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.trade
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class OutOfStockNotification extends Notification {
 
-	public static final NotificationType<OutOfStockNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "out_of_stock"),OutOfStockNotification::new);
+	public static final NotificationType<OutOfStockNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "out_of_stock"),OutOfStockNotification::new);
 	
 	TraderCategory traderData;
 	
@@ -29,7 +29,7 @@ public class OutOfStockNotification extends Notification {
 		this.tradeSlot = tradeIndex + 1;
 	}
 
-	public static NonNullSupplier<Notification> create(TraderCategory trader, int tradeIndex) { return () -> new OutOfStockNotification(trader, tradeIndex); }
+	public static Supplier<Notification> create(TraderCategory trader, int tradeIndex) { return () -> new OutOfStockNotification(trader, tradeIndex); }
 	
 	@Nonnull
     @Override
@@ -44,14 +44,14 @@ public class OutOfStockNotification extends Notification {
 	public MutableComponent getMessage() { return this.tradeSlot > 0 ? LCText.NOTIFICATION_TRADER_OUT_OF_STOCK.get(this.traderData.getTooltip(), this.tradeSlot) : LCText.NOTIFICATION_TRADER_OUT_OF_STOCK_INDEXLESS.get(); }
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
-		compound.put("TraderInfo", this.traderData.save());
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("TradeSlot", this.tradeSlot);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.tradeSlot = compound.getInt("TradeSlot");
 	}
 

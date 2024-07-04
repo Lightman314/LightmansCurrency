@@ -18,7 +18,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
     @Override
     protected void addEntries() {
         //Card Display
-        this.addData(new ResourceLocation(LightmansCurrency.MODID, "card_display"),ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "card_display"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(RotationHandler.FACING_UP)
                 .withGlobalExtraCount(2)
@@ -31,7 +31,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
         //Display Case
         //No change needed for this as it only draws 1 item regardless
         //Freezer
-        this.addData(new ResourceLocation(LightmansCurrency.MODID,"freezer"), ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"freezer"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(5)
@@ -46,7 +46,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withEntry(new Vector3f(11f/16f,7f/16f,6f/16f))
         );
         //Shelf
-        this.addData(new ResourceLocation(LightmansCurrency.MODID,"shelf"), ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"shelf"), ItemPositionBuilder.builder()
                 .withGlobalScale(14f/16f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(1)
@@ -54,7 +54,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withEntry(new Vector3f(0.5f, 9f/16f,14.5f/16f))
         );
         //Shelf 2x2
-        this.addData(new ResourceLocation(LightmansCurrency.MODID,"shelf_2x2"), ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"shelf_2x2"), ItemPositionBuilder.builder()
                 .withGlobalScale(5.5f/16f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(1)
@@ -65,7 +65,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withEntry(new Vector3f(0.75f, 5f/16f,14.5f/16f))
         );
         //Vending Machine
-        this.addData(new ResourceLocation(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(5)
@@ -78,7 +78,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withEntry(new Vector3f(9.5f/16f,13f/16f,6/16f))
         );
         //Large Vending Machine
-        this.addData(new ResourceLocation(LightmansCurrency.MODID,"large_vending_machine"), ItemPositionBuilder.builder()
+        this.addData(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"large_vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(5)

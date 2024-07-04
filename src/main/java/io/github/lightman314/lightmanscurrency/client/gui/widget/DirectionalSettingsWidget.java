@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -18,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +27,7 @@ public class DirectionalSettingsWidget {
 	private static final Map<Direction,Sprite> SPRITE_CACHE_TRUE = new HashMap<>();
 	private static final Map<Direction,Sprite> SPRITE_CACHE_FALSE = new HashMap<>();
 
-	public static final ResourceLocation BLOCK_SIDE_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/blocksides.png");
+	public static final ResourceLocation BLOCK_SIDE_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/blocksides.png");
 	
 	private static final List<Direction> DIRECTIONS = Lists.newArrayList(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
 	
@@ -58,7 +58,7 @@ public class DirectionalSettingsWidget {
 	}
 
 	@Nonnull
-	private static NonNullSupplier<Sprite> spriteForSide(@Nonnull Direction side, @Nonnull NonNullSupplier<Boolean> value) { return () -> getSprite(side,value.get()); }
+	private static Supplier<Sprite> spriteForSide(@Nonnull Direction side, @Nonnull Supplier<Boolean> value) { return () -> getSprite(side,value.get()); }
 
 	@Nonnull
 	private static Sprite getSprite(Direction side, boolean value) {

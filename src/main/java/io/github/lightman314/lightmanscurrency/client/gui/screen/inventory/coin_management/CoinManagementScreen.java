@@ -107,7 +107,7 @@ public class CoinManagementScreen extends EasyMenuScreen<CoinManagementMenu> {
             root.add("Chains",chainList);
             Gson g = new GsonBuilder().create();
             String json = g.toJson(root);
-            this.menu.SendMessageToServer(LazyPacketData.simpleString("SaveData",json));
+            this.menu.SendMessageToServer(this.builder().setString("SaveData",json));
         }
     }
 

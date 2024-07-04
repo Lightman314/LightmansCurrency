@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -12,24 +14,26 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.ChatFormatting;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class CoinDisplay extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = new ResourceLocation("lightmanscurrency", "coin");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath("lightmanscurrency", "coin");
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
     @Nonnull
@@ -115,15 +119,15 @@ public class CoinDisplay extends ValueDisplayData {
         @Override
         public void parseAdditional(@Nonnull JsonObject chainJson) { }
         @Override
-        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) { }
+        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException { }
 
         @Override
-        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) {
+        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
             ItemData data = new ItemData(coin.getCoin());
             if(coinEntry.has("initial"))
-                data.initial = Component.Serializer.fromJson(coinEntry.get("initial"));
+                data.initial = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,coinEntry.get("initial")).getOrThrow(JsonSyntaxException::new);
             if(coinEntry.has("plural"))
-                data.plural = Component.Serializer.fromJson(coinEntry.get("plural"));
+                data.plural = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,coinEntry.get("plural")).getOrThrow(JsonSyntaxException::new);
             this.displayData.add(data);
         }
 
@@ -133,9 +137,9 @@ public class CoinDisplay extends ValueDisplayData {
             {
                 ItemData d = display.getDataForCoin(coin);
                 if(d.initial != null)
-                    coinEntry.add("initial", Component.Serializer.toJsonTree(d.initial));
+                    coinEntry.add("initial", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,d.initial).getOrThrow());
                 if(d.plural != null)
-                    coinEntry.add("plural", Component.Serializer.toJsonTree(d.plural));
+                    coinEntry.add("plural", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,d.plural).getOrThrow());
             }
         }
 
@@ -171,17 +175,17 @@ public class CoinDisplay extends ValueDisplayData {
             String type = "item.";
             if(coin instanceof BlockItem)
                 type = "block.";
-            ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
+            ResourceLocation itemID = BuiltInRegistries.ITEM.getKey(coin);
             return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
         }, coin -> {
             String type = "item.";
             if(coin instanceof BlockItem)
                 type = "block.";
-            ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(coin);
+            ResourceLocation itemID = BuiltInRegistries.ITEM.getKey(coin);
             return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
         });
     }
-    public static CoinDisplay easyDefine(@Nonnull NonNullFunction<Item,Component> initialGenerator, @Nonnull NonNullFunction<Item,Component> pluralGenerator)
+    public static CoinDisplay easyDefine(@Nonnull Function<Item,Component> initialGenerator, @Nonnull Function<Item,Component> pluralGenerator)
     {
         Builder builder = builder();
         for(CoinEntry entry : builder.possibleCoinEntries())
@@ -212,7 +216,7 @@ public class CoinDisplay extends ValueDisplayData {
             return entries;
         }
 
-        public Builder defineFor(@Nonnull RegistryObject<? extends ItemLike> coin, @Nonnull Component initial, @Nonnull Component plural) { return defineFor(coin.get(), initial, plural); }
+        public Builder defineFor(@Nonnull Supplier<? extends ItemLike> coin, @Nonnull Component initial, @Nonnull Component plural) { return defineFor(coin.get(), initial, plural); }
         private void defineFor(@Nullable CoinEntry coin, @Nonnull Component initial, @Nonnull Component plural) { defineFor(coin.getCoin(), initial, plural); }
         public Builder defineFor(@Nullable ItemLike coin, @Nonnull Component initial, @Nonnull Component plural)
         {

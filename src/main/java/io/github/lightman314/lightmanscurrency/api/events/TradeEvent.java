@@ -10,12 +10,12 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
 
 import javax.annotation.Nonnull;
 
-public abstract class TradeEvent extends Event{
+public abstract class TradeEvent extends Event {
 
 	@Nonnull
 	public final PlayerReference getPlayerReference() { return this.context.getPlayerReference(); }
@@ -33,9 +33,8 @@ public abstract class TradeEvent extends Event{
 		this.trade = trade;
 		this.context = context;
 	}
-	
-	@Cancelable
-	public static class PreTradeEvent extends TradeEvent
+
+	public static class PreTradeEvent extends TradeEvent implements ICancellableEvent
 	{
 		
 		private final List<AlertData> alerts = new ArrayList<>();

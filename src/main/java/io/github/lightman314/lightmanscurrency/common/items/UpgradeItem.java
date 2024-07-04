@@ -14,9 +14,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeItem;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
@@ -46,16 +45,16 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
 		//Delete stored override data if crouching + right-click
 		ItemStack stack = player.getItemInHand(hand);
-		if(stack.hasTag() && player.isCrouching())
+		if(player.isCrouching())
 		{
-			CompoundTag tag = stack.getTag();
-			boolean success = this.upgradeType.clearDataFromStack(tag);
-			if(tag.contains("UpgradeData"))
+			boolean removed = false;
+			if(stack.has(ModDataComponents.UPGRADE_DATA))
 			{
-				tag.remove("UpgradeData");
-				success = true;
+				stack.remove(ModDataComponents.UPGRADE_DATA);
+				removed = true;
 			}
-			if(success)
+			removed = removed || this.upgradeType.clearDataFromStack(stack);
+			if(removed)
 			{
 				level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (level.random.nextFloat() - level.random.nextFloat()) * 0.35F + 0.9F, false);
 				return InteractionResultHolder.success(stack);
@@ -71,46 +70,22 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	@Nonnull
 	@Override
 	public UpgradeType getUpgradeType() { return this.upgradeType; }
-	
+
+
+	public abstract void setDefaultValues(@Nonnull UpgradeData.Mutable data);
+
 	@Nonnull
-	@Override
-	public UpgradeData getDefaultUpgradeData()
+	public static UpgradeData getUpgradeData(@Nonnull ItemStack stack)
 	{
-		UpgradeData data = this.upgradeType.getDefaultData();
-		this.fillUpgradeData(data);
-		return data;
-	}
-	
-	protected abstract void fillUpgradeData(UpgradeData data);
-	
-	public static UpgradeData getUpgradeData(ItemStack stack)
-	{
-		if(stack.getItem() instanceof UpgradeItem)
+		if(stack.getItem() instanceof IUpgradeItem upgrade)
 		{
-			UpgradeData data = ((UpgradeItem)stack.getItem()).getDefaultUpgradeData();
-			if(stack.hasTag())
-			{
-				CompoundTag tag = stack.getTag();
-				if(tag.contains("UpgradeData", Tag.TAG_COMPOUND))
-					data.read(tag.getCompound("UpgradeData"));
-			}
-			return data;
+			UpgradeData.Mutable data = UpgradeData.EMPTY.makeMutable();
+			upgrade.setDefaultValues(data);
+			if(stack.has(ModDataComponents.UPGRADE_DATA))
+				data.merge(stack.get(ModDataComponents.UPGRADE_DATA));
+			return data.makeImmutable();
 		}
 		return UpgradeData.EMPTY;
-	}
-	
-	public static void setUpgradeData(ItemStack stack, UpgradeData data)
-	{
-		if(stack.getItem() instanceof UpgradeItem upgradeItem)
-		{
-			CompoundTag tag = stack.getOrCreateTag();
-			tag.put("UpgradeData",  data.writeToNBT(upgradeItem.upgradeType));
-		}
-		else
-		{
-			CompoundTag tag = stack.getOrCreateTag();
-			tag.put("UpgradeData", data.writeToNBT());
-		}
 	}
 	
 	public static List<Component> getUpgradeTooltip(ItemStack stack)
@@ -149,22 +124,23 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		//Add upgrade tooltips
 		List<Component> upgradeTooltips = getUpgradeTooltip(stack);
 		if(upgradeTooltips != null)
 			tooltip.addAll(upgradeTooltips);
 		
-		super.appendHoverText(stack, level, tooltip, flagIn);
+		super.appendHoverText(stack, context, tooltip, flagIn);
 		
 	}
 	
 	public static class Simple extends UpgradeItem
 	{
 		public Simple(UpgradeType upgradeType, Properties properties) { super(upgradeType, properties); }
+
 		@Override
-		protected void fillUpgradeData(UpgradeData data) { }
+		public void setDefaultValues(@Nonnull UpgradeData.Mutable data) {}
 	}
 	
 }

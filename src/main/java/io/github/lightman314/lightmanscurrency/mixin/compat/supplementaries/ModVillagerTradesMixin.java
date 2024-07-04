@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.mixin.compat.supplementaries;
-
+/*
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
@@ -27,3 +27,4 @@ public class ModVillagerTradesMixin {
     }
 
 }
+//*/

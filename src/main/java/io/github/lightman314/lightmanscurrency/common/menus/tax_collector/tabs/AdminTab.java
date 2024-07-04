@@ -29,7 +29,7 @@ public class AdminTab extends TaxCollectorTab {
         {
             entry.setForceAcceptance(newState);
             if(this.menu.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleBoolean("ChangeForceAcceptance", newState));
+                this.menu.SendMessageToServer(this.builder().setBoolean("ChangeForceAcceptance", newState));
         }
     }
 
@@ -40,7 +40,7 @@ public class AdminTab extends TaxCollectorTab {
         {
             entry.setInfiniteRange(newState);
             if(this.menu.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleBoolean("ChangeInfiniteRange", newState));
+                this.menu.SendMessageToServer(this.builder().setBoolean("ChangeInfiniteRange", newState));
         }
     }
 

@@ -4,15 +4,16 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -23,15 +24,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker {
 
@@ -60,17 +63,16 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				return newTrader;
 		}
 		D newTrader = this.buildNewTrader();
-		newTrader.getOwner().SetOwner(PlayerReference.of(owner));
-		if(placementStack.hasCustomHoverName())
+		newTrader.getOwner().SetOwner(PlayerOwner.of(owner));
+		if(placementStack.has(DataComponents.CUSTOM_NAME))
 			newTrader.setCustomName(null, placementStack.getHoverName().getString());
 		return newTrader;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected final D initCustomTrader()
 	{
 		try {
-			return (D)TraderData.Deserialize(false, this.customTrader);
+			return (D)TraderData.Deserialize(false, this.customTrader, this.level.registryAccess());
 		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
 		return null;
 	}
@@ -99,7 +101,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
-			this.customTrader = trader.save();
+			this.customTrader = trader.save(this.level.registryAccess());
 			this.ignoreCustomTrader = true;
 			this.markDirty();
 		}
@@ -107,9 +109,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	@Nullable
 	private CompoundTag getCurrentTraderAsTag() {
-		TraderData trader = this.getTraderData();
+		TraderData trader = this.getRawTraderData();
 		if(trader != null)
-			return trader.save();
+			return trader.save(this.level.registryAccess());
 		return null;
 	}
 
@@ -126,7 +128,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(!taxes.isEmpty())
 		{
 			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
-			if(taxes.size() == 1 && taxes.get(0).isServerEntry())
+			if(taxes.size() == 1 && taxes.getFirst().isServerEntry())
 				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
 			EasyText.sendMessage(owner, firstMessage.get());
 			EasyText.sendMessage(owner, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
@@ -137,32 +139,34 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
 
-	@SuppressWarnings("unchecked")
 	public D getTraderData()
 	{
 		//Get from trading office
 		TraderData rawData = this.getRawTraderData();
-		try {
-			return (D)rawData;
-		} catch(Throwable t) { LightmansCurrency.LogError("Error casting trader data to the correct type.", t); return null; }
+		if(rawData == null)
+			return null;
+		else
+			return castOrNullify(rawData);
 	}
 
+	@Nullable
+	protected abstract D castOrNullify(@Nonnull TraderData trader);
+
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound) {
-		super.saveAdditional(compound);
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound, lookup);
 		compound.putLong("TraderID", this.traderID);
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
 	}
 
-	public void load(@Nonnull CompoundTag compound)
-	{
-		super.load(compound);
+	@Override
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound, lookup);
 		if(compound.contains("TraderID", Tag.TAG_LONG))
 			this.traderID = compound.getLong("TraderID");
 		if(compound.contains("CustomTrader"))
 			this.customTrader = compound.getCompound("CustomTrader");
-
 	}
 
 	@Override
@@ -212,23 +216,23 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		}
 	}
 
-	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
-    {
-		TraderData trader = this.getTraderData();
-		if(trader != null)
-		{
-			Direction relativeSide = side;
-			if(this.getBlockState().getBlock() instanceof IRotatableBlock block)
+	public static <X> void easyRegisterCapProvider(@Nonnull RegisterCapabilitiesEvent event, @Nonnull BlockCapability<X,Direction> cap, @Nonnull BiFunction<TraderData,Direction,X> getter, Block... blocks)
+	{
+		event.registerBlock(cap, (level,pos,state,be,side) -> {
+			if(be instanceof TraderBlockEntity<?> traderBE)
 			{
-				relativeSide = IRotatableBlock.getRelativeSide(block.getFacing(this.getBlockState()), side);
+				TraderData trader = traderBE.getRawTraderData();
+				if(trader != null)
+				{
+					Direction relativeSide = side;
+					if(state.getBlock() instanceof IRotatableBlock rb)
+						relativeSide = IRotatableBlock.getRelativeSide(rb.getFacing(state), side);
+					return getter.apply(trader, relativeSide);
+				}
 			}
-			return trader.getCapability(cap, relativeSide);
-		}
-
-		return super.getCapability(cap, side);
-    }
+			return null;
+		}, blocks);
+	}
 
 	public boolean canBreak(@Nullable Player player)
 	{
@@ -240,12 +244,12 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	public void onBreak() { TraderSaveData.DeleteTrader(this.traderID); }
 
-	@Override
-	public AABB getRenderBoundingBox()
+	@Nullable
+	public static AABB getRenderBoundingBox(@Nonnull TraderBlockEntity<?> be)
 	{
-		if(this.getBlockState() != null)
-			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
-		return super.getRenderBoundingBox();
+		if(be.getBlockState() != null)
+			return be.getBlockState().getCollisionShape(be.level, be.worldPosition).bounds().move(be.worldPosition);
+		return null;
 	}
 
 }

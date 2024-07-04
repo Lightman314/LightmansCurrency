@@ -8,14 +8,16 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketViewConfig extends ServerToClientPacket {
 
+    private static final Type<SPacketViewConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_view"));
     public static final Handler<SPacketViewConfig> HANDLER = new H();
 
     private final String fileName;
@@ -23,29 +25,22 @@ public class SPacketViewConfig extends ServerToClientPacket {
 
     public SPacketViewConfig(@Nonnull String fileName, @Nonnull String option)
     {
+        super(TYPE);
         this.fileName = fileName;
         this.option = option;
     }
 
-    @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.fileName);
-        buffer.writeUtf(this.option);
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketViewConfig message) {
+        buffer.writeUtf(message.fileName);
+        buffer.writeUtf(message.option);
     }
+    private static SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketViewConfig(buffer.readUtf(),buffer.readUtf()); }
 
     private static class H extends Handler<SPacketViewConfig>
     {
-
-        @Nonnull
+        protected H() { super(TYPE, easyCodec(SPacketViewConfig::encode,SPacketViewConfig::decode)); }
         @Override
-        public SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) {
-            String fileName = buffer.readUtf();
-            String option = buffer.readUtf();
-            return new SPacketViewConfig(fileName, option);
-        }
-
-        @Override
-        protected void handle(@Nonnull SPacketViewConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(@Nonnull SPacketViewConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             for(ConfigFile file : ConfigFile.getAvailableFiles())
             {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
@@ -62,7 +57,6 @@ public class SPacketViewConfig extends ServerToClientPacket {
                 }
             }
         }
-
     }
 
 }

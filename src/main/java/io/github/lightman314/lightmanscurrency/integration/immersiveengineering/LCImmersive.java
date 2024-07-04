@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration.immersiveengineering;
-
+/*
 import blusunrize.immersiveengineering.common.util.orientation.RotationUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
@@ -17,3 +17,4 @@ public class LCImmersive {
     }
 
 }
+//*/

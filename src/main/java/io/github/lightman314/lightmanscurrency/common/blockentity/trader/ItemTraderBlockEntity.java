@@ -1,19 +1,21 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
@@ -36,7 +38,15 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.tradeCount = tradeCount;
 		this.networkTrader = networkTrader;
 	}
-	
+
+	@Nullable
+	@Override
+	protected ItemTraderData castOrNullify(@Nonnull TraderData trader) {
+		if(trader instanceof ItemTraderData it)
+			return it;
+		return null;
+	}
+
 	@Nonnull
     public ItemTraderData buildNewTrader() {
 		ItemTraderData trader = new ItemTraderData(this.tradeCount, this.level, this.worldPosition);
@@ -55,17 +65,17 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.load(compound);
+		super.loadAdditional(compound,lookup);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}

@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,8 +48,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 
 import com.google.common.collect.Lists;
@@ -87,11 +93,10 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -112,14 +117,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 
 public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
 	
@@ -127,12 +127,17 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	private boolean canMarkDirty = false;
 	public final TraderData allowMarkingDirty() { this.canMarkDirty = true; return this; }
-	
+
+	public final RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(this.isClient()); }
+
 	public final TraderType<?> type;
 	private long id = -1;
 	public long getID() { return this.id; }
 	public void setID(long id) { this.id = id; }
-	
+
+	@Nullable
+	private PostTradeEvent latestTrade = null;
+
 	private boolean alwaysShowOnTerminal = false;
 	public void setAlwaysShowOnTerminal() { this.alwaysShowOnTerminal = true; this.markDirty(this::saveShowOnTerminal); }
 	public boolean shouldAlwaysShowOnTerminal() { return this.alwaysShowOnTerminal; }
@@ -556,17 +561,24 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		updateData.putLong("ID", this.id);
 		TraderSaveData.MarkTraderDirty(updateData);
 	}
-	
-	@SafeVarargs
-	protected final void markDirty(Consumer<CompoundTag>... updateWriters) {
+
+	protected final void markDirty(Consumer<CompoundTag> updateWriter) {
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		CompoundTag updateData = new CompoundTag();
-		for(Consumer<CompoundTag> u : updateWriters) u.accept(updateData);
+		updateWriter.accept(updateData);
+		this.markDirty(updateData);
+	}
+
+	protected final void markDirty(BiConsumer<CompoundTag,HolderLookup.Provider> updateWriter) {
+		if(this.isClient || !this.canMarkDirty)
+			return;
+		CompoundTag updateData = new CompoundTag();
+		updateWriter.accept(updateData, LookupHelper.getRegistryAccess(false));
 		this.markDirty(updateData);
 	}
 	
-	public final CompoundTag save() {
+	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		
 		CompoundTag compound = new CompoundTag();
 		
@@ -575,27 +587,27 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		this.saveLevelData(compound);
 		this.saveTraderItem(compound);
-		this.saveOwner(compound);
+		this.saveOwner(compound,lookup);
 		this.saveAllies(compound);
 		this.saveAllyPermissions(compound);
 		this.saveName(compound);
 		this.saveCreative(compound);
 		this.saveShowOnTerminal(compound);
-		this.saveRules(compound);
-		this.saveUpgrades(compound);
+		this.saveRules(compound,lookup);
+		this.saveUpgrades(compound, lookup);
 		this.saveStoredMoney(compound);
 		this.saveLinkedBankAccount(compound);
-		this.saveLogger(compound);
+		this.saveLogger(compound, lookup);
 		this.saveNotificationData(compound);
 		this.saveTaxSettings(compound);
-		this.saveStatistics(compound);
+		this.saveStatistics(compound, lookup);
 		
 		//Save persistent trader id
 		if(!this.persistentID.isEmpty())
 			compound.putString("PersistentTraderID", this.persistentID);
 		
 		//Save trader-specific data
-		this.saveAdditional(compound);
+		this.saveAdditional(compound, lookup);
 		
 		return compound;
 		
@@ -605,9 +617,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		compound.put("Location", this.worldPosition.save());
 	}
 	
-	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
+	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", BuiltInRegistries.ITEM.getKey(this.traderBlock).toString()); }
 	
-	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
+	protected final void saveOwner(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) { compound.put("OwnerData", this.owner.save(lookup)); }
 	
 	protected final void saveAllies(CompoundTag compound) {
 		PlayerReference.saveList(compound, this.allies, "Allies");
@@ -633,15 +645,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected final void saveShowOnTerminal(CompoundTag compound) { compound.putBoolean("AlwaysShowOnTerminal", this.alwaysShowOnTerminal); }
 	
-	protected final void saveRules(CompoundTag compound) { TradeRule.saveRules(compound, this.rules, "RuleData"); }
+	protected final void saveRules(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { TradeRule.saveRules(compound, this.rules, "RuleData", lookup); }
 	
-	protected final void saveUpgrades(CompoundTag compound) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades); }
+	protected final void saveUpgrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades, lookup); }
 	
 	protected final void saveStoredMoney(CompoundTag compound) { compound.put("StoredMoney", this.storedMoney.save()); }
 	
 	protected final void saveLinkedBankAccount(CompoundTag compound) { compound.putBoolean("LinkedToBank", this.linkedToBank); }
 	
-	protected final void saveLogger(CompoundTag compound) { compound.put("Logger", this.logger.save()); }
+	protected final void saveLogger(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { compound.put("Logger", this.logger.save(lookup)); }
 	
 	protected final void saveNotificationData(CompoundTag compound) {
 		compound.putBoolean("NotificationsEnabled", this.notificationsEnabled);
@@ -655,13 +667,13 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		compound.putLongArray("IgnoreTaxCollectors", this.ignoredTaxCollectors);
 	}
 
-	protected final void saveStatistics(CompoundTag tag) {
-		tag.put("Stats", this.statTracker.save());
+	protected final void saveStatistics(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+		tag.put("Stats", this.statTracker.save(lookup));
 	}
 	
-	protected abstract void saveTrades(CompoundTag compound);
+	protected abstract void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
-	protected abstract void saveAdditional(CompoundTag compound);
+	protected abstract void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
 	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
@@ -669,7 +681,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	public void markStatsDirty() { this.markDirty(this::saveStatistics); }
 
-	public final JsonObject saveToJson(String id, String ownerName) throws Exception
+	public final JsonObject saveToJson(@Nonnull String id, @Nonnull String ownerName, @Nonnull HolderLookup.Provider lookup) throws Exception
 	{
 		if(!this.canMakePersistent())
 			throw new Exception("Trader of type '" + this.type.toString() + "' cannot be saved to JSON!");
@@ -681,17 +693,17 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		json.addProperty("Name", this.hasCustomName() ? this.customName : "Trader");
 		json.addProperty("OwnerName", ownerName);
 		
-		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules);
+		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules, lookup);
 		if(!ruleData.isEmpty())
 			json.add("Rules", ruleData);
 		
-		this.saveAdditionalToJson(json);
+		this.saveAdditionalToJson(json, lookup);
 		return json;
 	}
 	
-	protected abstract void saveAdditionalToJson(JsonObject json);
+	protected abstract void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup);
 	
-	public final void load(CompoundTag compound) {
+	public final void load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(compound.contains("ID", Tag.TAG_LONG))
 			this.setID(compound.getLong("ID"));
@@ -705,7 +717,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			CompoundTag posTag = compound.getCompound("WorldPos");
 			BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
-			ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("Level")));
+			ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(compound.getString("Level")));
 			this.worldPosition = WorldPosition.of(dimension, pos);
 		}
 		else if(compound.contains("Location"))
@@ -714,12 +726,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("TraderBlock"))
 		{
 			try {
-				this.traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
+				this.traderBlock = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("TraderBlock")));
 			}catch (Throwable ignored) {}
 		}
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
-			this.owner.load(compound.getCompound("OwnerData"));
+			this.owner.load(compound.getCompound("OwnerData"),lookup);
 		
 		if(compound.contains("Allies"))
 		{
@@ -750,11 +762,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.alwaysShowOnTerminal = compound.getBoolean("AlwaysShowOnTerminal");
 		
 		if(compound.contains("RuleData"))
-			this.rules = TradeRule.loadRules(compound, "RuleData", this);
+			this.rules = TradeRule.loadRules(compound, "RuleData", this, lookup);
 		
 		if(compound.contains("Upgrades"))
 		{
-			this.upgrades = InventoryUtil.loadAllItems("Upgrades", compound, 5);
+			this.upgrades = InventoryUtil.loadAllItems("Upgrades", compound, 5, lookup);
 			this.upgrades.addListener(c -> this.markDirty(this::saveUpgrades));
 		}
 		
@@ -765,7 +777,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.linkedToBank = compound.getBoolean("LinkedToBank");
 		
 		if(compound.contains("Logger"))
-			this.logger.load(compound.getCompound("Logger"));
+			this.logger.load(compound.getCompound("Logger"), lookup);
 		
 		if(compound.contains("NotificationsEnabled"))
 			this.notificationsEnabled = compound.getBoolean("NotificationsEnabled");
@@ -786,10 +798,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 
 		if(compound.contains("Stats"))
-			this.statTracker.load(compound.getCompound("Stats"));
+			this.statTracker.load(compound.getCompound("Stats"), lookup);
 
 		//Load trader-specific data
-		this.loadAdditional(compound);
+		this.loadAdditional(compound,lookup);
 		
 	}
 
@@ -804,47 +816,47 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
-	protected abstract void loadAdditional(CompoundTag compound);
+	protected abstract void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
-	public final void loadFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	public final void loadFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		this.owner.SetOwner(FakeOwner.of(GsonHelper.getAsString(json, "OwnerName", "Server")));
 		
 		if(json.has("Name"))
 			this.customName = GsonHelper.getAsString(json, "Name");
 		
 		if(json.has("Rules"))
-			this.rules = TradeRule.Parse(GsonHelper.getAsJsonArray(json, "Rules"), this);
+			this.rules = TradeRule.Parse(GsonHelper.getAsJsonArray(json, "Rules"), this, lookup);
 		
-		this.loadAdditionalFromJson(json);
+		this.loadAdditionalFromJson(json, lookup);
 	}
 	
-	protected abstract void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException;
+	protected abstract void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException;
 	
-	public final CompoundTag savePersistentData() {
+	public final CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		//Save persistent trade rule data
-		TradeRule.savePersistentData(compound, this.rules, "RuleData");
+		TradeRule.savePersistentData(compound, this.rules, "RuleData", lookup);
 		//Save additional persistent data
-		this.saveAdditionalPersistentData(compound);
+		this.saveAdditionalPersistentData(compound, lookup);
 		return compound;
 	}
 	
-	protected abstract void saveAdditionalPersistentData(CompoundTag compound);
+	protected abstract void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
-	public final void loadPersistentData(CompoundTag compound) {
+	public final void loadPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		//Load persistent trade rule data
-		TradeRule.loadPersistentData(compound, this.rules, "RuleData");
+		TradeRule.loadPersistentData(compound, this.rules, "RuleData", lookup);
 		//Load additional persistent data
-		this.loadAdditionalPersistentData(compound);
+		this.loadAdditionalPersistentData(compound, lookup);
 	}
 	
-	protected abstract void loadAdditionalPersistentData(CompoundTag compound);
+	protected abstract void loadAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 
 	@Deprecated(since = "2.1.2.3")
 	public void openTraderMenu(Player player) { this.openTraderMenu(player, SimpleValidator.NULL); }
 	public void openTraderMenu(Player player, @Nonnull MenuValidator validator) {
-		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
+		if(player instanceof ServerPlayer)
+			player.openMenu(this.getTraderMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
 	protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new TraderMenuProvider(this.id, validator); }
@@ -862,7 +874,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
 			return;
 		if(player instanceof ServerPlayer sp)
-			NetworkHooks.openScreen(sp, this.getTraderStorageMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
+			player.openMenu(this.getTraderStorageMenuProvider(validator), EasyMenu.encoder(this.getMenuDataWriter(), validator));
 	}
 	
 	protected MenuProvider getTraderStorageMenuProvider(@Nonnull MenuValidator validator)  { return new TraderStorageMenuProvider(this.id, validator); }
@@ -874,7 +886,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	}
 
-	public Consumer<FriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
+	public Consumer<RegistryFriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
 	
 	public PreTradeEvent runPreTradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
@@ -891,7 +903,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		trade.beforeTrade(event);
 		
 		//Public posting
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
 		
 		return event;
 	}
@@ -911,7 +923,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		trade.tradeCost(event);
 		
 		//Public posting
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
 		
 		return event;
 	}
@@ -937,12 +949,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		event.clean();
 		
 		//Public posting
-		MinecraftForge.EVENT_BUS.post(event);
+		NeoForge.EVENT_BUS.post(event);
+
+		this.latestTrade = event;
 	}
-	
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction relativeSide) { return LazyOptional.empty(); }
-	
+
 	//Content drops
 	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) {
 		List<ItemStack> results = new ArrayList<>();
@@ -982,14 +993,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected abstract void getAdditionalContents(List<ItemStack> results);
 	
-	public static TraderData Deserialize(boolean isClient, CompoundTag compound)
+	public static TraderData Deserialize(boolean isClient, CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		if(compound.contains("Type"))
 		{
 			String type = compound.getString("Type");
-			TraderType<?> traderType = TraderAPI.getTraderType(new ResourceLocation(type));
+			TraderType<?> traderType = TraderAPI.API.GetTraderType(ResourceLocation.parse(type));
 			if(traderType != null)
-				return traderType.load(isClient, compound);
+				return traderType.load(isClient, compound, lookup);
 			else
 			{
 				LightmansCurrency.LogWarning("Could not deserialize TraderData of type '" + type + "' as no TraderType has been registered with that id!");
@@ -1003,12 +1014,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 	}
 	
-	public static TraderData Deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException
+	public static TraderData Deserialize(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
 	{
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TraderType<?> traderType = TraderAPI.getTraderType(new ResourceLocation(thisType));
+		TraderType<?> traderType = TraderAPI.API.GetTraderType(ResourceLocation.parse(thisType));
 		if(traderType != null)
-			return traderType.loadFromJson(json);
+			return traderType.loadFromJson(json,lookup);
 		throw new JsonSyntaxException("Trader type '" + thisType + "' is undefined.");
 	}
 	
@@ -1084,6 +1095,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
     public final TradeResult TryExecuteTrade(@Nonnull TradeContext context, int tradeIndex)
 	{
+		this.latestTrade = null;
 		if(this.exceedsAcceptableTaxRate())
 			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
 		TradeResult result = this.ExecuteTrade(context,tradeIndex);
@@ -1097,9 +1109,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return result;
 	}
 
-	/**
-	 * Should not be called directly. Call TryExecuteTrade when possible!
-	 */
+	@Nonnull
+	public final FullTradeResult TryExecuteTradeWithResults(@Nonnull TradeContext context, int tradeIndex)
+	{
+		TradeResult result = this.TryExecuteTrade(context,tradeIndex);
+		if(result.isSuccess() && this.latestTrade != null)
+			return FullTradeResult.success(this.latestTrade);
+		return FullTradeResult.failure(result);
+	}
+
 	protected abstract TradeResult ExecuteTrade(TradeContext context, int tradeIndex);
 	
 	public void addInteractionSlots(@Nonnull List<InteractionSlotData> interactionSlots) {}
@@ -1142,7 +1160,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
 			{
-				Owner newOwner = Owner.load(message.getNBT("ChangeOwner"));
+				Owner newOwner = message.getOwner("ChangeOwner");
 				Owner oldOwner = this.owner.getValidOwner();
 				if(newOwner != null && !oldOwner.matches(newOwner))
 				{
@@ -1350,7 +1368,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.markDirty(this::saveLogger);
 	}
 	
-	public final void pushNotification(@Nonnull NonNullSupplier<Notification> notificationSource) {
+	public final void pushNotification(@Nonnull Supplier<Notification> notificationSource) {
 		//Notifications are disabled
 		if(this.isClient)
 			return;
@@ -1387,6 +1405,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		@Override
 		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull  Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition, this.validator); }
 
+	}
+
+	public static MenuProvider getTraderMenuForAllNetworkTraders(@Nonnull MenuValidator validator) { return new TraderMenuAllNetworkProvider(validator); }
+
+	private record TraderMenuAllNetworkProvider(@Nonnull MenuValidator validator) implements EasyMenuProvider{
+		@Nullable
+		@Override
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) {
+			return new TraderMenu.TraderMenuAllNetwork(windowID,inventory,this.validator);
+		}
 	}
 
 	@Nonnull

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.atm.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -20,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 
@@ -194,7 +194,7 @@ public class ATMExchangeButtonData {
 		);
 	}
 	
-	private static ATMExchangeButtonData exchangeSingle(int x, int y, RegistryObject<? extends ItemLike> from, RegistryObject<? extends ItemLike> to, String command) {
+	private static ATMExchangeButtonData exchangeSingle(int x, int y, Supplier<? extends ItemLike> from, Supplier<? extends ItemLike> to, String command) {
 		return new ATMExchangeButtonData(x, y, 26, command,
 			Lists.newArrayList(
 				new ItemIcon(-2,1,from.get()),

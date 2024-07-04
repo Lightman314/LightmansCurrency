@@ -6,19 +6,19 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.CustomPathProvider;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public abstract class ItemPositionProvider implements DataProvider {
 
@@ -79,7 +79,7 @@ public abstract class ItemPositionProvider implements DataProvider {
                         this.addBlock(id,block);
                 }
             }
-            else if(obj instanceof RegistryObject<?> ro)
+            else if(obj instanceof Supplier<?> ro)
             {
                 if(ro.get() instanceof Block block)
                     this.addBlock(id, block);
@@ -98,7 +98,7 @@ public abstract class ItemPositionProvider implements DataProvider {
                 this.addBlocks(id, blockID);
         }
     }
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull Block block) { this.addBlock(id, ForgeRegistries.BLOCKS.getKey(block)); }
+    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull Block block) { this.addBlock(id, BuiltInRegistries.BLOCK.getKey(block)); }
 
     protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation blockID)
     {

@@ -33,7 +33,7 @@ public class TraderStatsTab extends TraderStorageTab {
         {
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.simpleFlag("ClearStats"));
+                this.menu.SendMessage(this.builder().setFlag("ClearStats"));
             }
             else
             {

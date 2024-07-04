@@ -11,17 +11,19 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemSto
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
 
 public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler> {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_interface");
+	public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_interface");
 	
 	protected final ItemTraderInterfaceBlockEntity blockEntity;
 	
 	protected final TraderItemStorage getItemBuffer() { return this.blockEntity.getItemBuffer(); }
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction, Handler>();
+	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
 	public ItemInterfaceHandler(ItemTraderInterfaceBlockEntity blockEntity, Supplier<TraderItemStorage> itemBufferSource) {
 		this.blockEntity = blockEntity;
@@ -59,13 +61,15 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 			return this.handler.getItemBuffer().getSlots();
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			return this.handler.getItemBuffer().getStackInSlot(slot);
 		}
 
+		@Nonnull
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
 			if(this.allowInputs() && this.handler.blockEntity.allowInput(stack))
 			{
 				ItemStack result = this.handler.getItemBuffer().insertItem(slot, stack, simulate);
@@ -76,6 +80,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 			return stack.copy();
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if(this.allowOutputs())
@@ -98,7 +103,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
 			return this.allowInputs() && this.handler.blockEntity.allowInput(stack);
 		}
 		

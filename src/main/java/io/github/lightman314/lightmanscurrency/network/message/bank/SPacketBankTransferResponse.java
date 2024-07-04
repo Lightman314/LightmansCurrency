@@ -1,50 +1,41 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class SPacketBankTransferResponse extends ServerToClientPacket {
 
+	private static final Type<SPacketBankTransferResponse> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_bank_transfer_reply"));
 	public static final Handler<SPacketBankTransferResponse> HANDLER = new H();
 
-	MutableComponent responseMessage;
+	Component responseMessage;
 	
-	public SPacketBankTransferResponse(MutableComponent responseMessage) {
+	public SPacketBankTransferResponse(Component responseMessage) {
+		super(TYPE);
 		this.responseMessage = responseMessage;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		String json = Component.Serializer.toJson(this.responseMessage);
-		buffer.writeInt(json.length());
-		buffer.writeUtf(json);
+	private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketBankTransferResponse message) {
+		ComponentSerialization.STREAM_CODEC.encode(buffer, message.responseMessage);
 	}
+	private static SPacketBankTransferResponse decode(@Nonnull RegistryFriendlyByteBuf buffer) { return  new SPacketBankTransferResponse(ComponentSerialization.STREAM_CODEC.decode(buffer)); }
 
 	private static class H extends Handler<SPacketBankTransferResponse>
 	{
-		@Nonnull
+		protected H() { super(TYPE, fancyCodec(SPacketBankTransferResponse::encode,SPacketBankTransferResponse::decode)); }
 		@Override
-		public SPacketBankTransferResponse decode(@Nonnull FriendlyByteBuf buffer) {
-			int length = buffer.readInt();
-			return new SPacketBankTransferResponse(Component.Serializer.fromJson(buffer.readUtf(length)));
-		}
-		@Override
-		protected void handle(@Nonnull SPacketBankTransferResponse message, @Nullable ServerPlayer sender) {
-			Minecraft minecraft = Minecraft.getInstance();
-			LocalPlayer player = minecraft.player;
-			if(player != null)
-			{
-				if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
-					menu.setTransferMessage(message.responseMessage);
-			}
+		protected void handle(@Nonnull SPacketBankTransferResponse message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
+				menu.setTransferMessage(message.responseMessage);
 		}
 	}
 

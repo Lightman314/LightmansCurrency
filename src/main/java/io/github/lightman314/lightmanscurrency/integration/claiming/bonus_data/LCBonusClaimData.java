@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.claiming.bonus_data;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -8,7 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class LCBonusClaimData extends SavedData {
     private final List<PlayerData> bonusClaimData = new ArrayList<>();
 
     private LCBonusClaimData() {}
-    private LCBonusClaimData(@Nonnull CompoundTag tag)
+    private LCBonusClaimData(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         ListTag dataList = tag.getList("BonusClaims", Tag.TAG_COMPOUND);
         for(int i = 0; i < dataList.size(); ++i)
@@ -36,7 +37,7 @@ public class LCBonusClaimData extends SavedData {
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag tag) {
+    public CompoundTag save(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
         ListTag dataList = new ListTag();
         for(var pd : bonusClaimData)
         {
@@ -137,7 +138,7 @@ public class LCBonusClaimData extends SavedData {
         {
             ServerLevel level = server.getLevel(Level.OVERWORLD);
             if(level != null)
-                return level.getDataStorage().computeIfAbsent(LCBonusClaimData::new, LCBonusClaimData::new, "lightmanscurrency_cadmus_data");
+                return level.getDataStorage().computeIfAbsent(new Factory<>(LCBonusClaimData::new, LCBonusClaimData::new), "lightmanscurrency_cadmus_data");
         }
         return null;
     }

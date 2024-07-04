@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -61,7 +61,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 			AuctionTradeData trade = trader.getTrade(this.tradeIndex);
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.simpleBoolean("CancelAuction", giveToPlayer));
+				this.menu.SendMessage(this.builder().setBoolean("CancelAuction", giveToPlayer));
 				//Don't run the cancel interaction while on the client
 				return;
 			}
@@ -70,7 +70,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 				trade.CancelTrade(trader, giveToPlayer, this.menu.getPlayer());
 				trader.markTradesDirty();
 				trader.markStorageDirty();
-				this.menu.SendMessage(LazyPacketData.simpleBoolean("CancelSuccess", true));
+				this.menu.SendMessage(this.builder().setBoolean("CancelSuccess", true));
 			}
 		}
 	}

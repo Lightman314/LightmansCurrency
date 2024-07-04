@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.rules;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -14,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class TaxEntryCategory extends NotificationCategory {
 
-    public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"tax_entry"),TaxEntryCategory::new);
+    public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"tax_entry"),TaxEntryCategory::new);
 
     private final long entryID;
     private final MutableComponent entryName;
@@ -22,10 +23,10 @@ public class TaxEntryCategory extends NotificationCategory {
 
     public TaxEntryCategory(MutableComponent entryName, long entryID) { this.entryID = entryID; this.entryName = entryName; }
 
-    public TaxEntryCategory(CompoundTag tag)
+    public TaxEntryCategory(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         if(tag.contains("EntryName"))
-            this.entryName = Component.Serializer.fromJson(tag.getString("EntryName"));
+            this.entryName = Component.Serializer.fromJson(tag.getString("EntryName"), lookup);
         else
             this.entryName = ModBlocks.TAX_COLLECTOR.get().getName();
         if(tag.contains("TraderID"))
@@ -54,8 +55,8 @@ public class TaxEntryCategory extends NotificationCategory {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound) {
-        compound.putString("EntryName", Component.Serializer.toJson(this.entryName));
+    protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        compound.putString("EntryName", Component.Serializer.toJson(this.entryName, lookup));
         compound.putLong("EntryID", this.entryID);
     }
 }

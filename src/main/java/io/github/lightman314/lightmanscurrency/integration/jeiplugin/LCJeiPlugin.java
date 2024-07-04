@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import mezz.jei.api.IModPlugin;
@@ -36,7 +35,7 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final RecipeType<TicketStationRecipe> TICKET_TYPE = RecipeType.create(LightmansCurrency.MODID, "ticket_station", TicketStationRecipe.class);
 
 	@Override
-	public @NotNull ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
+	public @NotNull ResourceLocation getPluginUid() { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, LightmansCurrency.MODID); }
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry)
@@ -52,7 +51,7 @@ public class LCJeiPlugin implements IModPlugin{
 		List<CoinMintRecipe> mintRecipes = RecipeValidator.getAllMintRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(COIN_MINT_TYPE, mintRecipes);
 
-		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getValidTicketStationRecipes(Minecraft.getInstance().level);
+		List<TicketStationRecipe> ticketRecipes = RecipeValidator.getTicketStationRecipeList(Minecraft.getInstance().level);
 		registration.addRecipes(TICKET_TYPE, ticketRecipes);
 
 		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, LCText.JEI_INFO_TICKET_STUB.get());

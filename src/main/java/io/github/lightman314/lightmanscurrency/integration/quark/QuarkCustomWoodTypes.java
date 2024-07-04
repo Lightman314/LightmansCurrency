@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.integration.quark;
-
+/*
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.violetmoon.quark.base.handler.WoodSetHandler;
 import org.violetmoon.quark.content.world.module.AncientWoodModule;
 import org.violetmoon.quark.content.world.module.BlossomTreesModule;
@@ -58,8 +58,8 @@ public class QuarkCustomWoodTypes {
     private static Supplier<ItemLike> slab(@Nonnull WoodType type) {
         return () -> {
             //Manually get slab block cause quark screwed this part up
-            ResourceLocation itemID = new ResourceLocation(MODID, type.id + "_planks_slab");
-            Item result = ForgeRegistries.ITEMS.getValue(itemID);
+            ResourceLocation itemID = ResourceLocation.fromNamespaceAndPath(MODID, type.id + "_planks_slab");
+            Item result = BuiltInRegistries.ITEM.get(itemID);
             if(result == Items.AIR)
                 return null;
             LightmansCurrency.LogDebug("Manually found the quark slab for wood type " + type.id + " since quark screwed this up and made their variant handler return the method input instead of the variant that was made...");
@@ -69,7 +69,7 @@ public class QuarkCustomWoodTypes {
 
     private static Supplier<ItemLike> item(@Nonnull String itemID) {
         return () -> {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MODID, itemID));
+            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(MODID, itemID));
             if(item == Items.AIR)
                 return null;
             return item;
@@ -77,3 +77,4 @@ public class QuarkCustomWoodTypes {
     }
 
 }
+//*/

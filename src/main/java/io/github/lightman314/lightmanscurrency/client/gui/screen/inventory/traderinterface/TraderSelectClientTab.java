@@ -135,8 +135,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	@Override
 	public void tick() {
-		
-		this.searchField.tick();
 
 		for (NetworkTraderButton button : this.traderButtons) {
 			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();
@@ -187,7 +185,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), this.searchField.getValue());
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())

@@ -13,12 +13,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -67,7 +66,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			trade.setTradeType(type);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewType", type.index));
+				this.menu.SendMessage(this.builder().setInt("NewType", type.index));
 		}
 	}
 	
@@ -79,7 +78,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("Slot", selectedSlot)
 						.setString("CustomName", customName));
 			}
@@ -94,7 +93,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.menu.getTrader().markTradesDirty();
 			LightmansCurrency.LogDebug("Setting price on the " + DebugUtil.getSideText(this.menu) + " as " + price.getText("Empty").getString());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
+				this.menu.SendMessage(this.builder().setMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -106,9 +105,9 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("Slot", selectedSlot)
-						.setCompound("NewItem", stack.save(new CompoundTag())));
+						.setItem("NewItem", stack));
 			}
 		}	
 	}
@@ -121,7 +120,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("Slot", selectedSlot)
 						.setBoolean("EnforceNBT", newValue));
 			}
@@ -135,10 +134,10 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			trade.onSlotInteraction(slotIndex, heldStack, mouseButton);
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("Interaction", slotIndex)
 						.setInt("Button", mouseButton)
-						.setCompound("Item", heldStack.save(new CompoundTag())));
+						.setItem("Item", heldStack));
 			}
 		}
 	}
@@ -158,7 +157,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			}
 			else if(message.contains("NewItem"))
 			{
-				this.setSelectedItem(slot, ItemStack.of(message.getNBT("NewItem")));
+				this.setSelectedItem(slot, message.getItem("NewItem"));
 			}
 			else if(message.contains("EnforceNBT"))
 			{
@@ -177,7 +176,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		{
 			int index = message.getInt("Interaction");
 			int button = message.getInt("Button");
-			this.defaultInteraction(index, ItemStack.of(message.getNBT("Item")), button);
+			this.defaultInteraction(index, message.getItem("Item"), button);
 		}
 	}
 

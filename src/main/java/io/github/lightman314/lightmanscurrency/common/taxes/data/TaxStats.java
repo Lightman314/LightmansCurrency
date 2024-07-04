@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -119,7 +120,7 @@ public final class TaxStats {
         this.markDirty();
     }
 
-    public CompoundTag save()
+    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
         tag.put("TotalCollected", this.totalCollected.save());
@@ -140,7 +141,7 @@ public final class TaxStats {
         return tag;
     }
 
-    public void load(CompoundTag tag)
+    public void load(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         if(tag.contains("TotalCollected"))
             this.totalCollected.safeLoad(tag, "TotalCollected");

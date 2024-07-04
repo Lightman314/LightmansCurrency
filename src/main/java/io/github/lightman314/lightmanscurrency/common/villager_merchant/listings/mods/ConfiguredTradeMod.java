@@ -16,8 +16,9 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -96,7 +97,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         LightmansCurrency.LogDebug("Attempting to parse '" + item + "' as an item!");
         if(item.isBlank() || item.equals("minecraft:air"))
             return null;
-        try { return ForgeRegistries.ITEMS.getValue(new ResourceLocation(item));
+        try { return BuiltInRegistries.ITEM.get(ResourceLocation.parse(item));
         } catch (ResourceLocationException e) { throw new ConfigParsingException(item + " is not a valid ResourceLocation!",e); }
     }
 
@@ -138,7 +139,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
     private static String getID(@Nullable Item item) {
         if(item == null)
             return "";
-        return ForgeRegistries.ITEMS.getKey(item).toString();
+        return BuiltInRegistries.ITEM.getKey(item).toString();
     }
 
     @Nullable
@@ -189,8 +190,8 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
 
     @Nonnull
     @Override
-    public ItemStack modifyCost(@Nullable Entity villager, @Nonnull ItemStack cost) {
-        if(cost.getItem() == Items.EMERALD)
+    public ItemCost modifyCost(@Nullable Entity villager, @Nonnull ItemCost cost) {
+        if(cost.item().is(Tags.Items.GEMS_EMERALD))
             return this.copyWithNewItem(cost, this.getCost(villager));
         return cost;
     }

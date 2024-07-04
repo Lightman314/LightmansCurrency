@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ public class LCItemRenderer extends BlockEntityWithoutLevelRenderer {
     public static final Supplier<BlockEntityWithoutLevelRenderer> INSTANCE = Suppliers.memoize(() -> new LCItemRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels()));
 
     public static final IClientItemExtensions USE_LC_RENDERER = new IClientItemExtensions() {
+        @Nonnull
         public BlockEntityWithoutLevelRenderer getCustomRenderer() { return INSTANCE.get(); }
     };
 

@@ -10,13 +10,14 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
@@ -26,21 +27,18 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	
 	public TraderItemStorage(@Nonnull ITraderItemFilter filter) { this.filter = filter; }
 	
-	public CompoundTag save(CompoundTag compound, String tag) {
+	public CompoundTag save(@Nonnull CompoundTag compound, @Nonnull String tag, @Nonnull HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		for (ItemStack item : this.storage) {
 			if (!item.isEmpty()) {
-				CompoundTag itemTag = new CompoundTag();
-				item.save(itemTag);
-				itemTag.putInt("Count", item.getCount());
-				list.add(itemTag);
+				list.add(InventoryUtil.saveItemNoLimits(item,lookup));
 			}
 		}
 		compound.put(tag, list);
 		return compound;
 	}
 	
-	public void load(CompoundTag compound, String tag) {
+	public void load(@Nonnull CompoundTag compound, @Nonnull String tag, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains(tag, Tag.TAG_LIST))
 		{
 			ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
@@ -48,8 +46,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			for(int i = 0; i < list.size(); ++i)
 			{
 				CompoundTag itemTag = list.getCompound(i);
-				ItemStack item = ItemStack.of(itemTag);
-				item.setCount(itemTag.getInt("Count"));
+				ItemStack item = InventoryUtil.loadItemNoLimits(itemTag,lookup);
 				if(!item.isEmpty())
 					this.storage.add(item);
 			}
@@ -330,9 +327,9 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	
 	@Override
 	public TraderItemStorage copy() {
-		CompoundTag tag = this.save(new CompoundTag(), "copy");
 		TraderItemStorage copy = new TraderItemStorage(this.filter);
-		copy.load(tag, "copy");
+		for(ItemStack stack : this.storage)
+			copy.forceAddItem(stack);
 		return copy;
 	}
 

@@ -6,12 +6,14 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlock
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class CoinChestUpgradeData {
 
@@ -56,11 +58,17 @@ public class CoinChestUpgradeData {
     }
 
     @Nonnull
-    public CompoundTag getItemTag() { return this.stack.getOrCreateTag(); }
-    public void setItemTag(@Nonnull CompoundTag tag)
+    public <T> T getData(@Nonnull Supplier<DataComponentType<T>> type,@Nonnull T defaultValue) { return this.stack.getOrDefault(type,defaultValue); }
+    public <T> void setData(@Nonnull Supplier<DataComponentType<T>> type, @Nonnull T data)
     {
-        this.stack.setTag(tag);
+        this.stack.set(type,data);
         this.onChange.run();
+    }
+    public <T> void editData(@Nonnull Supplier<DataComponentType<T>> type, @Nonnull T defaultValue, @Nonnull UnaryOperator<T> editor)
+    {
+        T data = this.getData(type,defaultValue);
+        data = editor.apply(data);
+        this.setData(type,data);
     }
 
     @Nonnull

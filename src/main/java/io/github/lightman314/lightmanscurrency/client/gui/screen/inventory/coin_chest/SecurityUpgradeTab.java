@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestSecurityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -103,12 +102,12 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     {
         if(this.playerOwnerInput.getValue().isBlank())
             return;
-        this.menu.SendMessageToServer(LazyPacketData.builder().setString("SetPlayerOwner", this.playerOwnerInput.getValue()));
+        this.menu.SendMessageToServer(this.builder().setString("SetPlayerOwner", this.playerOwnerInput.getValue()));
         this.playerOwnerInput.setValue("");
     }
 
     private void setOwner(Owner newOwner) {
-        this.menu.SendMessageToServer(LazyPacketData.simpleTag("SetOwner", newOwner.save()));
+        this.menu.SendMessageToServer(this.builder().setOwner("SetOwner", newOwner));
     }
 
     @Override

@@ -3,43 +3,45 @@ package io.github.lightman314.lightmanscurrency.network.message.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public final class SPacketSyncCoinData extends ServerToClientPacket {
 
-    public static final Handler<SPacketSyncCoinData> HANDLER = new H();
+    private static final Type<SPacketSyncCoinData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_sync_master_coin_list"));
+    public static final ConfigHandler<SPacketSyncCoinData> HANDLER = new H();
 
     private static final Gson GSON = new GsonBuilder().create();
 
     private final JsonObject json;
     public JsonObject getJson() { return this.json; }
-    public SPacketSyncCoinData(@Nonnull JsonObject json) { this.json = json; }
+    public SPacketSyncCoinData(@Nonnull JsonObject json) { super(TYPE); this.json = json; }
 
-    @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
-        String jsonString = GSON.toJson(this.json);
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketSyncCoinData message) {
+        String jsonString = GSON.toJson(message.json);
         buffer.writeInt(jsonString.length());
         buffer.writeUtf(jsonString, jsonString.length());
     }
+    private static SPacketSyncCoinData decode(@Nonnull FriendlyByteBuf buffer) {
+        int size = buffer.readInt();
+        String string = buffer.readUtf(size);
+        return new SPacketSyncCoinData(GsonHelper.parse(string).getAsJsonObject());
+    }
 
-    private static class H extends Handler<SPacketSyncCoinData>
+    private static class H extends ConfigHandler<SPacketSyncCoinData>
     {
-        @Nonnull
+        protected H() { super(TYPE, easyCodec(SPacketSyncCoinData::encode,SPacketSyncCoinData::decode)); }
         @Override
-        public SPacketSyncCoinData decode(@Nonnull FriendlyByteBuf buffer) {
-            int size = buffer.readInt();
-            String string = buffer.readUtf(size);
-            return new SPacketSyncCoinData(GsonHelper.parse(string).getAsJsonObject());
+        public void handle(@Nonnull SPacketSyncCoinData message, @Nonnull IPayloadContext context) {
+            CoinAPI.API.HandleSyncPacket(message);
         }
-        @Override
-        protected void handle(@Nonnull SPacketSyncCoinData message, @Nullable ServerPlayer sender) { CoinAPI.API.HandleSyncPacket(message); }
     }
 
 

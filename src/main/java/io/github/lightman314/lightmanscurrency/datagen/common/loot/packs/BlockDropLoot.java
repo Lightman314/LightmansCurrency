@@ -3,15 +3,12 @@ package io.github.lightman314.lightmanscurrency.datagen.common.loot.packs;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
-import io.github.lightman314.lightmanscurrency.datagen.common.loot.LootTableProviderTemplate;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import io.github.lightman314.lightmanscurrency.datagen.common.loot.SimpleSubProvider;
+import net.minecraft.advancements.critereon.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -21,17 +18,17 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
-public class BlockDropLoot extends LootTableProviderTemplate {
+public class BlockDropLoot extends SimpleSubProvider {
+
+    public BlockDropLoot(HolderLookup.Provider lookup) { super(lookup); }
 
     @Override
-    protected void generateLootTables() {
+    protected void generate() {
 
         this.tallBlock(ModBlocks.ATM);
         this.simpleBlock(ModBlocks.COIN_CHEST);
@@ -55,42 +52,41 @@ public class BlockDropLoot extends LootTableProviderTemplate {
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_EMERALD, ModBlocks.COINPILE_CHOCOLATE_EMERALD, ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_DIAMOND, ModBlocks.COINPILE_CHOCOLATE_DIAMOND, ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
         this.coinPilesAndBlocks(ModItems.COIN_CHOCOLATE_NETHERITE, ModBlocks.COINPILE_CHOCOLATE_NETHERITE, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
-
     }
 
     protected ResourceLocation getBlockTable(@Nonnull Block block)
     {
-        ResourceLocation blockID = ForgeRegistries.BLOCKS.getKey(block);
-        return new ResourceLocation(blockID.getNamespace(), "blocks/" + blockID.getPath());
+        ResourceLocation blockID = BuiltInRegistries.BLOCK.getKey(block);
+        return ResourceLocation.fromNamespaceAndPath(blockID.getNamespace(), "blocks/" + blockID.getPath());
     }
 
-    protected void simpleBlock(@Nonnull Block block) { this.define(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }
-    protected void simpleBlock(@Nonnull RegistryObject<? extends Block> block) { this.simpleBlock(block.get()); }
-    protected void tallBlock(@Nonnull RegistryObject<? extends Block> block) { this.tallBlock(block.get()); }
+    protected void simpleBlock(@Nonnull Block block) { this.register(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }
+    protected void simpleBlock(@Nonnull Supplier<? extends Block> block) { this.simpleBlock(block.get()); }
+    protected void tallBlock(@Nonnull Supplier<? extends Block> block) { this.tallBlock(block.get()); }
     protected void tallBlock(@Nonnull Block block)
     {
-        this.define(this.getBlockTable(block),LootTable.lootTable()
+        this.register(this.getBlockTable(block),LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(block)
                                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(ITallBlock.ISBOTTOM,true))))
                         .when(ExplosionCondition.survivesExplosion())));
     }
 
-    protected void coinPilesAndBlocks(@Nonnull RegistryObject<? extends ItemLike> coin, @Nonnull RegistryObject<? extends Block> pile, @Nonnull RegistryObject<? extends Block> block) { this.coinPilesAndBlocks(coin.get().asItem(), pile.get(), block.get());}
+    protected void coinPilesAndBlocks(@Nonnull Supplier<? extends ItemLike> coin, @Nonnull Supplier<? extends Block> pile, @Nonnull Supplier<? extends Block> block) { this.coinPilesAndBlocks(coin.get().asItem(), pile.get(), block.get());}
     protected void coinPilesAndBlocks(@Nonnull Item coin, @Nonnull Block pile, @Nonnull Block block)
     {
         //Coin Pile loot table
-        this.define(this.getBlockTable(pile),LootTable.lootTable()
+        this.register(this.getBlockTable(pile),LootTable.lootTable()
                 .withPool(LootPool.lootPool().add(AlternativesEntry.alternatives(
                         LootItem.lootTableItem(pile)
-                                .when(MatchTool.toolMatches(ItemPredicate.Builder.item().hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))))),
+                                .when(this.hasSilkTouch()),
                         LootItem.lootTableItem(coin)
                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(9)))
                 ))));
-        this.define(this.getBlockTable(block),LootTable.lootTable()
+        this.register(this.getBlockTable(block),LootTable.lootTable()
                 .withPool(LootPool.lootPool().add(AlternativesEntry.alternatives(
                         LootItem.lootTableItem(block)
-                                .when(MatchTool.toolMatches(ItemPredicate.Builder.item().hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))))),
+                                .when(this.hasSilkTouch()),
                         LootItem.lootTableItem(pile)
                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4)))
                 ))));

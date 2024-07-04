@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -88,21 +87,21 @@ public class NotificationTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(LazyPacketData.simpleBoolean("Notifications", !trader.notificationsEnabled()));
+        this.sendMessage(this.builder().setBoolean("Notifications", !trader.notificationsEnabled()));
     }
 
     private void ToggleChatNotifications(EasyButton button) {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(LazyPacketData.simpleBoolean("NotificationsToChat", !trader.notificationsToChat()));
+        this.sendMessage(this.builder().setBoolean("NotificationsToChat", !trader.notificationsToChat()));
     }
 
     private void ToggleTeamNotificationLevel(EasyButton button) {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(LazyPacketData.simpleInt("TeamNotificationLevel", Team.NextBankLimit(trader.teamNotificationLevel())));
+        this.sendMessage(this.builder().setInt("TeamNotificationLevel", Team.NextBankLimit(trader.teamNotificationLevel())));
     }
 
 }

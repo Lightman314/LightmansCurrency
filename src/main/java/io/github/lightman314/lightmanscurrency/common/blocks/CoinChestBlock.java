@@ -8,11 +8,10 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -32,10 +31,9 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -54,7 +52,6 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
     @Nonnull
     @Override
-    @SuppressWarnings("deprecation")
     public RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
 
     @Override
@@ -67,7 +64,7 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
-            if(stack.hasCustomHoverName())
+            if(stack.has(DataComponents.CUSTOM_NAME))
                 be.setCustomName(stack.getHoverName());
         }
         super.setPlacedBy(level, pos, state, player, stack);
@@ -75,13 +72,12 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
     @Nonnull
     @Override
-    @SuppressWarnings("deprecation")
-    public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result) {
-        if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be && player instanceof ServerPlayer sp)
+    protected InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult hit) {
+        if(!level.isClientSide && level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             if(be.allowAccess(player))
             {
-                NetworkHooks.openScreen(sp, CoinChestBlockEntity.getMenuProvider(be), pos);
+                player.openMenu(CoinChestBlockEntity.getMenuProvider(be),pos);
                 PiglinAi.angerNearbyPiglins(player, true);
             }
             else
@@ -90,20 +86,20 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         return InteractionResult.CONSUME;
     }
 
+    @Nonnull
     @Override
-    public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
         if (level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             if(be.allowAccess(player))
                 be.onValidBlockRemoval();
             else
-                return;
+                return state;
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean flag) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
@@ -123,7 +119,6 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinChestBlockEntity(pos, state); }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void tick(@Nonnull BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
         super.tick(state, level, pos, random);
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
@@ -131,7 +126,6 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean triggerEvent(@Nonnull BlockState p_49226_, @Nonnull Level p_49227_, @Nonnull BlockPos p_49228_, int p_49229_, int p_49230_) {
         super.triggerEvent(p_49226_, p_49227_, p_49228_, p_49229_, p_49230_);
         BlockEntity blockentity = p_49227_.getBlockEntity(p_49228_);

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
+import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketStationBlockEntity;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,13 +30,14 @@ public class TicketStationMenu extends LazyMessageMenu{
 	
 	public final TicketStationBlockEntity blockEntity;
 
-	public static List<TicketStationRecipe> getAllRecipes(@Nonnull Level level) { return level.getRecipeManager().getAllRecipesFor(RecipeTypes.TICKET.get()); }
-	public List<TicketStationRecipe> getAllRecipes() { return getAllRecipes(this.blockEntity.getLevel()); }
-	public TicketStationRecipe getRecipe(@Nonnull ResourceLocation recipeID)
+	public static List<RecipeHolder<TicketStationRecipe>> getAllRecipes(@Nonnull Level level) { return RecipeValidator.getTicketStationRecipes(level); }
+	public List<RecipeHolder<TicketStationRecipe>> getAllRecipes() { return getAllRecipes(this.blockEntity.getLevel()); }
+	public List<TicketStationRecipe> getRecipeList() { return RecipeValidator.getTicketStationRecipeList(this.blockEntity.getLevel()); }
+	public RecipeHolder<TicketStationRecipe> getRecipe(@Nonnull ResourceLocation recipeID)
 	{
-		for(TicketStationRecipe recipe : this.getAllRecipes())
+		for(RecipeHolder<TicketStationRecipe> recipe : this.getAllRecipes())
 		{
-			if(recipe.getId().equals(recipeID))
+			if(recipe.id().equals(recipeID))
 				return recipe;
 		}
 		return null;
@@ -113,7 +115,7 @@ public class TicketStationMenu extends LazyMessageMenu{
 		
 	}
 
-	public boolean validInputs() { return this.getAllRecipes().stream().anyMatch(r -> r.matches(this.blockEntity.getStorage(), this.blockEntity.getLevel())); }
+	public boolean validInputs() { return this.getAllRecipes().stream().anyMatch(r -> r.value().matches(this.blockEntity.getStorage(), this.blockEntity.getLevel())); }
 	
 	public boolean roomForOutput(TicketStationRecipe recipe)
 	{
@@ -127,9 +129,10 @@ public class TicketStationMenu extends LazyMessageMenu{
 	
 	public void craftTickets(boolean fullStack, @Nonnull ResourceLocation recipeID)
 	{
-		TicketStationRecipe recipe = this.getRecipe(recipeID);
-		if(recipe == null)
+		RecipeHolder<TicketStationRecipe> holder = this.getRecipe(recipeID);
+		if(holder == null)
 			return;
+		TicketStationRecipe recipe = holder.value();
 
 		if(!recipe.matches(this.blockEntity.getStorage(), this.blockEntity.getLevel()))
 			return;
@@ -171,7 +174,7 @@ public class TicketStationMenu extends LazyMessageMenu{
 
 	public void SendCraftTicketsMessage(boolean fullStack, @Nonnull ResourceLocation recipe)
 	{
-		this.SendMessageToServer(LazyPacketData.builder().setBoolean("CraftTickets", fullStack).setResourceLocation("Recipe", recipe));
+		this.SendMessageToServer(this.builder().setBoolean("CraftTickets", fullStack).setResourceLocation("Recipe", recipe));
 	}
 
 	@Override

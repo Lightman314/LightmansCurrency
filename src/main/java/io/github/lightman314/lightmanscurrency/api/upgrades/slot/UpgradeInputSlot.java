@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class UpgradeInputSlot extends SimpleSlot {
 
-	public static final ResourceLocation EMPTY_UPGRADE_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_upgrade_slot");
+	public static final ResourceLocation EMPTY_UPGRADE_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_upgrade_slot");
 	
 	private final IUpgradeable machine;
 	private final Runnable onModified;

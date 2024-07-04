@@ -192,17 +192,23 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			if(ts == null)
 				return;
 
-			MutableComponent text = EasyText.empty();
-			for(TraderData trader : ts.getTraders())
+			Component title = ts.getCustomTitle();
+			if(title == null)
 			{
-				if(text.getString().isEmpty())
-					text.append(this.renderNameOnly ? trader.getName() : trader.getTitle());
-				else
-					text.append(LCText.GUI_SEPERATOR.get()).append(this.renderNameOnly ? trader.getName() : trader.getTitle());
+				MutableComponent text = EasyText.empty();
+				for(TraderData trader : ts.getTraders())
+				{
+					if(text.getString().isEmpty())
+						text.append(this.renderNameOnly ? trader.getName() : trader.getTitle());
+					else
+						text.append(LCText.GUI_SEPERATOR.get()).append(this.renderNameOnly ? trader.getName() : trader.getTitle());
+				}
+				title = text;
 			}
 
+
 			gui.pushOffsetZero();
-			gui.drawString(TextRenderUtil.fitString(text, this.titleWidth), this.titlePosition, 0x404040);
+			gui.drawString(TextRenderUtil.fitString(title, this.titleWidth), this.titlePosition, 0x404040);
 			gui.popOffset();
 		}
 	}
@@ -352,8 +358,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		if(deltaY < 0)
 		{			
 			if(this.canScrollDown())
 			{
@@ -363,7 +369,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			else
 				return false;
 		}
-		else if(delta > 0)
+		else if(deltaY > 0)
 		{
 			if(this.scroll > 0)
 			{

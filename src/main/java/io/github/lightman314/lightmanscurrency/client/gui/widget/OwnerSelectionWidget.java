@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScrollable {
 
-    public static final ResourceLocation SEARCH_BOX_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/item_edit.png");
+    public static final ResourceLocation SEARCH_BOX_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/item_edit.png");
 
     private final Supplier<OwnerData> currentOwner;
     private final Consumer<Owner> setOwner;

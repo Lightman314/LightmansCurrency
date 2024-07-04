@@ -1,32 +1,34 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CPacketSelectBankAccount extends ClientToServerPacket {
 
+	private static final Type<CPacketSelectBankAccount> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_select_bank_account"));
 	public static final Handler<CPacketSelectBankAccount> HANDLER = new H();
 
 	final BankReference account;
 	
-	public CPacketSelectBankAccount(BankReference account) { this.account = account; }
+	public CPacketSelectBankAccount(BankReference account) { super(TYPE); this.account = account; }
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) { this.account.encode(buffer); }
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketSelectBankAccount message) { message.account.encode(buffer); }
+	private static CPacketSelectBankAccount decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSelectBankAccount(BankReference.decode(buffer)); }
+
 	private static class H extends Handler<CPacketSelectBankAccount>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketSelectBankAccount::encode,CPacketSelectBankAccount::decode)); }
 		@Override
-		public CPacketSelectBankAccount decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSelectBankAccount(BankReference.decode(buffer)); }
-		@Override
-		protected void handle(@Nonnull CPacketSelectBankAccount message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-				BankSaveData.SetSelectedBankAccount(sender, message.account);
+		protected void handle(@Nonnull CPacketSelectBankAccount message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			BankSaveData.SetSelectedBankAccount(player, message.account);
 		}
 	}
 

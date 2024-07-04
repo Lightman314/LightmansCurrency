@@ -1,34 +1,34 @@
 package io.github.lightman314.lightmanscurrency.network.message.menu;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class SPacketLazyMenu extends ServerToClientPacket {
 
+    private static final Type<SPacketLazyMenu> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_lazy_menu"));
     public static final Handler<SPacketLazyMenu> HANDLER = new H();
 
     private final LazyPacketData data;
-    public SPacketLazyMenu(LazyPacketData data) { this.data = data; }
+    public SPacketLazyMenu(LazyPacketData data) { super(TYPE); this.data = data; }
     public SPacketLazyMenu(LazyPacketData.Builder data) { this(data.build()); }
 
-    public void encode(@Nonnull FriendlyByteBuf buffer) { this.data.encode(buffer); }
+    private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketLazyMenu message) { message.data.encode(buffer); }
+    private static SPacketLazyMenu decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketLazyMenu(LazyPacketData.decode(buffer)); }
 
     private static class H extends Handler<SPacketLazyMenu>
     {
-        @Nonnull
+        protected H() { super(TYPE, fancyCodec(SPacketLazyMenu::encode,SPacketLazyMenu::decode)); }
         @Override
-        public SPacketLazyMenu decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketLazyMenu(LazyPacketData.decode(buffer)); }
-        @Override
-        protected void handle(@Nonnull SPacketLazyMenu message, @Nullable ServerPlayer sender) {
-            Minecraft mc = Minecraft.getInstance();
-            if(mc.player != null && mc.player.containerMenu instanceof LazyMessageMenu menu)
+        protected void handle(@Nonnull SPacketLazyMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+            if(player.containerMenu instanceof LazyMessageMenu menu)
                 menu.HandleMessage(message.data);
         }
     }

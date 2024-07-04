@@ -12,14 +12,17 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
+	private static final Type<CPacketCreatePersistentTrader> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_persistent_make_trader"));
 	public static final Handler<CPacketCreatePersistentTrader> HANDLER = new H();
 
 	private static final String GENERATE_ID_FORMAT = "trader_";
@@ -29,36 +32,38 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 	final String owner;
 	
 	public CPacketCreatePersistentTrader(long traderID, String id, String owner) {
+		super(TYPE);
 		this.traderID = traderID;
 		this.id = id;
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
-	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
-		buffer.writeLong(this.traderID);
-		buffer.writeUtf(this.id);
-		buffer.writeUtf(this.owner);
+
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketCreatePersistentTrader message) {
+		buffer.writeLong(message.traderID);
+		buffer.writeUtf(message.id);
+		buffer.writeUtf(message.owner);
 	}
+	private static CPacketCreatePersistentTrader decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentTrader(buffer.readLong(), buffer.readUtf(),buffer.readUtf()); }
 
 	private static class H extends Handler<CPacketCreatePersistentTrader>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketCreatePersistentTrader::encode,CPacketCreatePersistentTrader::decode)); }
 		@Override
-		public CPacketCreatePersistentTrader decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentTrader(buffer.readLong(), buffer.readUtf(), buffer.readUtf()); }
-		@Override
-		protected void handle(@Nonnull CPacketCreatePersistentTrader message, @Nullable ServerPlayer sender) {
-			if(LCAdminMode.isAdminPlayer(sender))
+		protected void handle(@Nonnull CPacketCreatePersistentTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			if(LCAdminMode.isAdminPlayer(player))
 			{
 				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
 				if(trader != null && trader.canMakePersistent())
 				{
+
+					RegistryAccess lookup = player.registryAccess();
 
 					boolean generateID = message.id.isBlank();
 
 					if(!generateID)
 					{
 						try {
-							JsonObject traderJson = trader.saveToJson(message.id, message.owner);
+							JsonObject traderJson = trader.saveToJson(message.id, message.owner,lookup);
 
 							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
 							//Check for traders with the same id, and replace any entries that match
@@ -69,16 +74,16 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								{
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
-									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
+									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders,lookup);
+									player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
 									return;
 								}
 							}
 
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
-							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
+							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders,lookup);
+							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
 						} catch (Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
 					else
@@ -102,9 +107,9 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								String genID = GENERATE_ID_FORMAT + i;
 								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 								{
-									persistentTraders.add(trader.saveToJson(genID, message.owner));
-									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
+									persistentTraders.add(trader.saveToJson(genID, message.owner, lookup));
+									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders, lookup);
+									player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
 									return;
 								}
 							}
@@ -113,8 +118,8 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 					}
 				}
 			}
-			else if(sender != null)
-				sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_FAIL.get());
+			else
+				player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_FAIL.get());
 		}
 	}
 	

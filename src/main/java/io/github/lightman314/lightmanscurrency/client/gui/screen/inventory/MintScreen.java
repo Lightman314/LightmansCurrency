@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class MintScreen extends EasyMenuScreen<MintMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");
 
 	public static final Sprite ARROW_SPRITE = Sprite.LockedSprite(GUI_TEXTURE, 176, 0, 22, 16);
 	

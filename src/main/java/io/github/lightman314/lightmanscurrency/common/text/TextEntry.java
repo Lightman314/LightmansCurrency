@@ -9,15 +9,15 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -39,12 +39,12 @@ public final class TextEntry {
     public IconData icon(Object... objects) { return IconData.of(this.get(objects)); }
 
     //Vanilla Objects
-    public static TextEntry item(@Nonnull RegistryObject<? extends ItemLike> item) { return new TextEntry(() -> item.get().asItem().getDescriptionId()); }
-    public static TextEntry block(@Nonnull RegistryObject<? extends Block> block) { return new TextEntry(() -> block.get().getDescriptionId()); }
-    public static TextEntry enchantment(@Nonnull RegistryObject<? extends Enchantment> enchantment) { return new TextEntry(() -> enchantment.get().getDescriptionId()); }
+    public static TextEntry item(@Nonnull Supplier<? extends ItemLike> item) { return new TextEntry(() -> item.get().asItem().getDescriptionId()); }
+    public static TextEntry block(@Nonnull Supplier<? extends Block> block) { return new TextEntry(() -> block.get().getDescriptionId()); }
+    public static TextEntry enchantment(@Nonnull ResourceKey<? extends Enchantment> enchantment) { return new TextEntry("enchantment." + enchantment.location().getNamespace() + "." + enchantment.location().getPath()); }
     public static TextEntry gamerule(@Nonnull String ruleKey) { return new TextEntry("gamerule." + ruleKey); }
-    public static TextEntry profession(@Nonnull RegistryObject<? extends VillagerProfession> profession) { return new TextEntry(() -> {
-        ResourceLocation id = ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession.get());
+    public static TextEntry profession(@Nonnull Supplier<? extends VillagerProfession> profession) { return new TextEntry(() -> {
+        ResourceLocation id = BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession.get());
         return "entity.minecraft.villager." + id.getNamespace() + "." + id.getPath();
     });}
     public static TextEntry creativeTab(@Nonnull String modid, @Nonnull String name) { return new TextEntry("itemGroup." + modid + "." + name); }

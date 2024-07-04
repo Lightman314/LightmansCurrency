@@ -4,6 +4,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.GoldenTicketColor;
 import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
@@ -11,15 +14,21 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.*;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+import javax.annotation.Nonnull;
+
+@EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
 
 	@SubscribeEvent
@@ -44,7 +53,7 @@ public class ClientModEvents {
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 	}
-	
+
 	@SubscribeEvent
 	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
 	{
@@ -54,12 +63,12 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void addLayers(EntityRenderersEvent.AddLayers event)
 	{
-		addWalletLayer(event,"default");
-		addWalletLayer(event,"slim");
+		addWalletLayer(event,PlayerSkin.Model.WIDE);
+		addWalletLayer(event,PlayerSkin.Model.SLIM);
 	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
+
+	@SuppressWarnings({ "rawtypes" })
+	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, PlayerSkin.Model skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
 		if(renderer instanceof LivingEntityRenderer livingRenderer) {
@@ -70,7 +79,7 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
-		if(LightmansCurrency.isCuriosLoaded())
+		if(LCCurios.isCuriosLoaded())
 		{
 			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
 			event.register(ClientEvents.KEY_PORTABLE_ATM);
@@ -78,8 +87,40 @@ public class ClientModEvents {
 	}
 
 	@SubscribeEvent
-	public static void registerWalletGuiOverlay(RegisterGuiOverlaysEvent event) {
-		event.registerAboveAll("wallet_hud", WalletDisplayOverlay.INSTANCE);
+	public static void registerWalletGuiOverlay(RegisterGuiLayersEvent event) {
+		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"wallet_hud"), WalletDisplayOverlay.INSTANCE);
+	}
+
+	@SubscribeEvent
+	public static void registerScreens(@Nonnull RegisterMenuScreensEvent event)
+	{
+		event.register(ModMenus.ATM.get(), ATMScreen::new);
+		event.register(ModMenus.MINT.get(), MintScreen::new);
+
+		event.register(ModMenus.NETWORK_TERMINAL.get(), NetworkTerminalScreen::new);
+		event.register(ModMenus.TRADER.get(), TraderScreen::new);
+		event.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
+		event.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
+
+		event.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
+
+		event.register(ModMenus.SLOT_MACHINE.get(), SlotMachineScreen::new);
+
+		event.register(ModMenus.WALLET.get(), WalletScreen::new);
+		event.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
+		event.register(ModMenus.TICKET_MACHINE.get(), TicketStationScreen::new);
+
+		event.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
+
+		event.register(ModMenus.EJECTION_RECOVERY.get(), EjectionRecoveryScreen::new);
+
+		event.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
+
+		event.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
+
+		event.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
+
+		event.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
 	}
 	
 }

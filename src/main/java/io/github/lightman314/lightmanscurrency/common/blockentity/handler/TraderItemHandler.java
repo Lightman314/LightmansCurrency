@@ -6,17 +6,16 @@ import java.util.Map;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
 public class TraderItemHandler{
 
 	private final ItemTraderData trader;
-	private final Map<Direction,IItemHandler> handlers = new HashMap<>();
+	private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 	
 	public TraderItemHandler(ItemTraderData trader)
 	{
@@ -98,11 +97,9 @@ public class TraderItemHandler{
 					this.getStorage().tryAddItem(copyStack);
 					this.trader.markStorageDirty();
 				}
-				return copyStack;
-			}
-			else
-				return copyStack;
-		}
+            }
+            return copyStack;
+        }
 		
 		@Nonnull
 		@Override

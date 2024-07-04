@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
@@ -40,14 +41,14 @@ public class NotificationAPI {
     }
 
     @Nullable
-    public static Notification loadNotification(@Nonnull CompoundTag compound) {
+    public static Notification loadNotification(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         if(compound.contains("Type") || compound.contains("type"))
         {
             String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
             if(notificationRegistry.containsKey(type))
             {
                 try {
-                    return notificationRegistry.get(type).load(compound);
+                    return notificationRegistry.get(type).load(compound, lookup);
                 } catch (Throwable t) {
                     LightmansCurrency.LogError("Error loading Notification of type '" + type + "'", t);
                     return null;
@@ -67,13 +68,13 @@ public class NotificationAPI {
     }
 
     @Nullable
-    public static NotificationCategory loadCategory(@Nonnull CompoundTag compound)
+    public static NotificationCategory loadCategory(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         if(compound.contains("Type") || compound.contains("type"))
         {
             String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
             if(categoryRegistry.containsKey(type))
-                return categoryRegistry.get(type).load(compound);
+                return categoryRegistry.get(type).load(compound, lookup);
             else
             {
                 LightmansCurrency.LogError("Cannot load notification category type " + type + " as no NotificationCategoryType has been registered.");

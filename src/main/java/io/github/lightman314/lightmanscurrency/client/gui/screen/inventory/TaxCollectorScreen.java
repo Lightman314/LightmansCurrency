@@ -23,7 +23,7 @@ import java.util.List;
 
 public class TaxCollectorScreen extends EasyMenuScreen<TaxCollectorMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/tax_collector.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/tax_collector.png");
 
     private int currentTab = 0;
     private final List<TaxCollectorClientTab<?>> tabs = new ArrayList<>();

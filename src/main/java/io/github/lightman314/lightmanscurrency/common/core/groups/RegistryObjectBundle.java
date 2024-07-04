@@ -5,8 +5,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 
@@ -19,9 +17,9 @@ public class RegistryObjectBundle<T,L> {
 
 	public RegistryObjectBundle(@Nonnull Comparator<L> sorter) { this.sorter = sorter; }
 
-	private final Map<L,RegistryObject<T>> values = new HashMap<>();
+	private final Map<L,Supplier<T>> values = new HashMap<>();
 	
-	public void put(L key, RegistryObject<T> value) {
+	public void put(L key, Supplier<T> value) {
 		if(this.locked)
 		{
 			LightmansCurrency.LogWarning("Attempted to put an object in the bundle after it's been locked.");
@@ -36,27 +34,26 @@ public class RegistryObjectBundle<T,L> {
 	}
 	
 	
-	public RegistryObject<T> getRegistryObject(L key) {
+	public Supplier<T> getRegistryObject(L key) {
 		if(this.values.containsKey(key))
 			return this.values.get(key);
 		return null;
 	}
 	
 	public T get(L key) {
-		RegistryObject<T> obj = this.getRegistryObject(key);
+		Supplier<T> obj = this.getRegistryObject(key);
 		if(obj != null)
 			return obj.get();
 		return null;
 	}
 	
-	public Collection<RegistryObject<T>> getAllRegistryObjects() { return this.values.values(); }
+	public Collection<Supplier<T>> getAllRegistryObjects() { return this.values.values(); }
 	public List<T> getAll() {
 		List<T> values = new ArrayList<>();
-		for(RegistryObject<T> value : this.getAllRegistryObjects())
+		for(Supplier<T> value : this.getAllRegistryObjects())
 			values.add(value.get());
 		return values;
 	}
-	public List<ResourceLocation> getAllKeys() { return this.values.values().stream().map(RegistryObject::getId).toList(); }
 
 	@SafeVarargs
 	public final List<T> getSome(L... keys) {
@@ -95,7 +92,7 @@ public class RegistryObjectBundle<T,L> {
 		return result;
 	}
 
-	public void forEach(BiConsumer<L,RegistryObject<T>> consumer) {
+	public void forEach(BiConsumer<L,Supplier<T>> consumer) {
 		List<L> keys = this.getKeysSorted(this.sorter);
 		for(L key : keys)
 			consumer.accept(key, this.values.get(key));

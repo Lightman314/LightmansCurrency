@@ -1,36 +1,37 @@
 package io.github.lightman314.lightmanscurrency.network.message.teams;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketCreateTeam extends ClientToServerPacket {
 
+	private static final Type<CPacketCreateTeam> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_team_create"));
 	public static final Handler<CPacketCreateTeam> HANDLER = new H();
 
 	String teamName;
 
-	public CPacketCreateTeam(String teamName)  { this.teamName = teamName; }
-	
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeUtf(this.teamName, Team.MAX_NAME_LENGTH); }
+	public CPacketCreateTeam(String teamName)  { super(TYPE); this.teamName = teamName; }
+
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketCreateTeam message) { buffer.writeUtf(message.teamName, Team.MAX_NAME_LENGTH); }
+	private static CPacketCreateTeam decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreateTeam(buffer.readUtf(Team.MAX_NAME_LENGTH)); }
 
 	private static class H extends Handler<CPacketCreateTeam>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketCreateTeam::encode,CPacketCreateTeam::decode)); }
+
 		@Override
-		public CPacketCreateTeam decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreateTeam(buffer.readUtf(Team.MAX_NAME_LENGTH)); }
-		@Override
-		protected void handle(@Nonnull CPacketCreateTeam message, @Nullable ServerPlayer sender) {
-			if(sender == null)
-				return;
-			Team newTeam = TeamSaveData.RegisterTeam(sender, message.teamName);
+		protected void handle(@Nonnull CPacketCreateTeam message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			Team newTeam = TeamSaveData.RegisterTeam(player, message.teamName);
 			if(newTeam != null)
-				new SPacketCreateTeamResponse(newTeam.getID()).sendTo(sender);
+				context.reply(new SPacketCreateTeamResponse(newTeam.getID()));
 		}
 	}
 

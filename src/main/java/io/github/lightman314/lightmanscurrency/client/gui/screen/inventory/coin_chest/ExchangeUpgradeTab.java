@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestExchangeUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -75,14 +74,14 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     private void SelectNewCommand(String command)
     {
-        this.screen.getMenu().SendMessageToServer(LazyPacketData.builder().setString("SetExchangeCommand", command));
+        this.screen.getMenu().SendMessageToServer(this.builder().setString("SetExchangeCommand", command));
     }
 
     private void ToggleExchangeWhileOpen(EasyButton button)
     {
         CoinChestUpgradeData data = this.getUpgradeData();
         boolean currentState = data != null && data.upgrade instanceof CoinChestExchangeUpgrade upgrade && upgrade.getExchangeWhileOpen(data);
-        this.screen.getMenu().SendMessageToServer(LazyPacketData.builder().setBoolean("SetExchangeWhileOpen", !currentState));
+        this.screen.getMenu().SendMessageToServer(this.builder().setBoolean("SetExchangeWhileOpen", !currentState));
     }
 
     @Override

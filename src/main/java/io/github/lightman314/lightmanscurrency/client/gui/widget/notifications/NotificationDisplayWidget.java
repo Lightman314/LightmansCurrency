@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.notifications;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,16 +19,15 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 
 public class NotificationDisplayWidget extends EasyWidget implements IScrollable, ITooltipWidget {
 
-	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
+	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/notifications.png");
 	
 	public static final int HEIGHT_PER_ROW = 22;
 	
-	private final NonNullSupplier<List<Notification>> notificationSource;
+	private final Supplier<List<Notification>> notificationSource;
 	private final int rowCount;
 	public boolean colorIfUnseen = false;
 	public int backgroundColor = 0xFFC6C6C6;
@@ -38,8 +38,8 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 	
 	Component tooltip = null;
 	
-	public NotificationDisplayWidget(ScreenPosition pos, int width, int rowCount, NonNullSupplier<List<Notification>> notificationSource) { this(pos.x, pos.y, width, rowCount, notificationSource); }
-	public NotificationDisplayWidget(int x, int y, int width, int rowCount, NonNullSupplier<List<Notification>> notificationSource) {
+	public NotificationDisplayWidget(ScreenPosition pos, int width, int rowCount, Supplier<List<Notification>> notificationSource) { this(pos.x, pos.y, width, rowCount, notificationSource); }
+	public NotificationDisplayWidget(int x, int y, int width, int rowCount, Supplier<List<Notification>> notificationSource) {
 		super(x, y, width, CalculateHeight(rowCount));
 		this.notificationSource = notificationSource;
 		this.rowCount = rowCount;
@@ -99,7 +99,7 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 			List<FormattedCharSequence> lines = gui.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
-				gui.drawString(lines.get(0), textXPos, yPos + (HEIGHT_PER_ROW / 2) - (gui.font.lineHeight / 2), textColor);
+				gui.drawString(lines.getFirst(), textXPos, yPos + (HEIGHT_PER_ROW / 2) - (gui.font.lineHeight / 2), textColor);
 			}
 			else
 			{
@@ -149,8 +149,8 @@ public class NotificationDisplayWidget extends EasyWidget implements IScrollable
 	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-		this.handleScrollWheel(scroll);
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		this.handleScrollWheel(scrollY);
 		return true;
 	}
 	

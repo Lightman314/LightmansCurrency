@@ -7,8 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class ChangeAllyPermissionNotification extends Notification {
 
-	public static final NotificationType<ChangeAllyPermissionNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"change_ally_permissions"),ChangeAllyPermissionNotification::new);
+	public static final NotificationType<ChangeAllyPermissionNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"change_ally_permissions"),ChangeAllyPermissionNotification::new);
 	
 	PlayerReference player;
 	String permission;
@@ -50,7 +50,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		compound.put("Player", this.player.save());
 		compound.putString("Permission", this.permission);
 		compound.putInt("NewValue", this.newValue);
@@ -58,7 +58,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.permission = compound.getString("Permission");
 		this.newValue = compound.getInt("NewValue");

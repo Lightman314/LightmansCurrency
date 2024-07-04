@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -21,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
@@ -28,24 +28,24 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
 	private static ItemEditWidget latestInstance = null;
 	private static boolean rebuilding = false;
@@ -64,8 +64,8 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@SafeVarargs
-	public static void BlacklistCreativeTabs(RegistryObject<CreativeModeTab>... tabs) {
-		for(RegistryObject<CreativeModeTab> tab : tabs)
+	public static void BlacklistCreativeTabs(Supplier<CreativeModeTab>... tabs) {
+		for(Supplier<CreativeModeTab> tab : tabs)
 			BlacklistCreativeTab(t -> tab.get() == t);
 	}
 
@@ -85,7 +85,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private static final List<Predicate<ItemStack>> ITEM_BLACKLIST = Lists.newArrayList((s) -> s.getItem() instanceof TicketItem);
 
-	public static void BlacklistItem(RegistryObject<? extends ItemLike> item) { BlacklistItem(item.get()); }
+	public static void BlacklistItem(Supplier<? extends ItemLike> item) { BlacklistItem(item.get()); }
 	public static void BlacklistItem(ItemLike item) { BlacklistItem((s) -> s.getItem() == item.asItem()); }
 
 	public static void BlacklistItem(Predicate<ItemStack> itemFilter) {
@@ -239,16 +239,19 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 							if(stack.getItem() == Items.ENCHANTED_BOOK)
 							{
 								//LightmansCurrency.LogInfo("Attempting to add lower levels of an enchanted book.");
-								Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-								enchantments.forEach((enchantment, level) ->{
-									for(int newLevel = level - 1; newLevel > 0; newLevel--)
+								ItemEnchantments enchantments = stack.getAllEnchantments(lookup.lookupOrThrow(Registries.ENCHANTMENT));
+								for(var entry : enchantments.entrySet())
+								{
+									for(int newLevel = entry.getIntValue() - 1; newLevel > 0; newLevel--)
 									{
 										ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
-										EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
+										ItemEnchantments.Mutable e = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+										e.set(entry.getKey(),newLevel);
+										newBook.set(DataComponents.ENCHANTMENTS,e.toImmutable());
 										if(isItemAllowed(newBook))
 											addToList(newBook);
 									}
-								});
+								}
 							}
 						}
 					}
@@ -381,22 +384,23 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 					this.searchResultItems.add(stack);
 				}
 				//Search the registry name
-				else if(ForgeRegistries.ITEMS.getKey(stack.getItem()).toString().contains(this.searchString))
+				else if(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().contains(this.searchString))
 				{
 					this.searchResultItems.add(stack);
 				}
 				//Search the enchantments?
 				else
 				{
-					AtomicReference<Boolean> enchantmentMatch = new AtomicReference<>(false);
-					Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-					enchantments.forEach((enchantment, level) ->{
-						if(ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString().contains(this.searchString))
-							enchantmentMatch.set(true);
-						else if(enchantment.getFullname(level).getString().toLowerCase().contains(this.searchString))
-							enchantmentMatch.set(true);
-					});
-					if(enchantmentMatch.get())
+					boolean enchantmentMatch = false;
+					ItemEnchantments enchantments = stack.getAllEnchantments(LookupHelper.getRegistryAccess(true).lookupOrThrow(Registries.ENCHANTMENT));
+					for(var entry : enchantments.entrySet())
+					{
+						if(entry.getKey().getRegisteredName().contains(this.searchString))
+							enchantmentMatch = true;
+						else if(Enchantment.getFullname(entry.getKey(),entry.getIntValue()).getString().toLowerCase().contains(this.searchString))
+							enchantmentMatch = true;
+					}
+					if(enchantmentMatch)
 						this.searchResultItems.add(stack);
 				}
 			}
@@ -544,15 +548,15 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		if(deltaY < 0)
 		{
 			if(this.scroll < this.getMaxScroll())
 				this.scroll++;
 			else
 				return false;
 		}
-		else if(delta > 0)
+		else if(deltaY > 0)
 		{
 			if(this.scroll > 0)
 				this.scroll--;

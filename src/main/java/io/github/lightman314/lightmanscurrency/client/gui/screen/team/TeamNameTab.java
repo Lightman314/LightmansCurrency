@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -62,8 +61,7 @@ public class TeamNameTab extends TeamTab {
 
 	@Override
 	public void tick() {
-		
-		this.nameInput.tick();
+
 		this.buttonChangeName.active = !this.nameInput.getValue().isBlank() && !this.nameInput.getValue().contentEquals(this.getActiveTeam().getName());
 		
 	}
@@ -74,7 +72,7 @@ public class TeamNameTab extends TeamTab {
 			return;
 		
 		this.getActiveTeam().changeName(this.getPlayer(), this.nameInput.getValue());
-		this.RequestChange(LazyPacketData.simpleString("ChangeName", this.nameInput.getValue()));
+		this.RequestChange(this.builder().setString("ChangeName", this.nameInput.getValue()));
 		
 	}
 	

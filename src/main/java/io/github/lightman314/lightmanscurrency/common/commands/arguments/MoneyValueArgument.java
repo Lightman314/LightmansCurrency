@@ -15,9 +15,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
 
     private MoneyValueArgument(HolderLookup<Item> items) { this.items = items; }
 
-    public static MoneyValueArgument argument(CommandBuildContext context) { return new MoneyValueArgument(context.holderLookup(ForgeRegistries.ITEMS.getRegistryKey())); }
+    public static MoneyValueArgument argument(CommandBuildContext context) { return new MoneyValueArgument(context.lookupOrThrow(Registries.ITEM)); }
     public static MoneyValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
     public static MoneyValue getMoneyValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {

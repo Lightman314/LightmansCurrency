@@ -44,7 +44,6 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 
 	@Override
 	@Nonnull
-	@SuppressWarnings("deprecation")
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 	
 	@Override

@@ -1,18 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.items.data.TicketData;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -27,7 +24,7 @@ public class TicketItem extends Item{
 	public TicketItem(Properties properties) { super(properties); }
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nonnull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		if(isPass(stack))
 			tooltip.add(LCText.TOOLTIP_PASS.get());
@@ -42,14 +39,14 @@ public class TicketItem extends Item{
 
 	public static boolean isTicket(ItemStack ticket)
 	{
-		if(ticket.isEmpty() ||!ticket.hasTag())
+		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_DATA))
 			return false;
 		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_TICKET);
 	}
 
 	public static boolean isPass(ItemStack ticket)
 	{
-		if(ticket.isEmpty() || !ticket.hasTag())
+		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_DATA))
 			return false;
 		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_PASS);
 	}
@@ -58,7 +55,7 @@ public class TicketItem extends Item{
 
 	public static boolean isMasterTicket(ItemStack ticket)
 	{
-		if(ticket.isEmpty() || !ticket.hasTag())
+		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_DATA))
 			return false;
 		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_MASTER);
 	}
@@ -66,30 +63,16 @@ public class TicketItem extends Item{
 	public static long GetTicketID(ItemStack ticket)
 	{
 		//Get the ticket item
-		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
+		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.has(ModDataComponents.TICKET_DATA))
 			return Long.MIN_VALUE;
-		CompoundTag ticketTag = ticket.getTag();
-		if(ticketTag.contains("TicketID", Tag.TAG_LONG))
-			return ticketTag.getLong("TicketID");
-		else if(ticketTag.contains("TicketID"))
-		{
-			UUID oldID = ticketTag.getUUID("TicketID");
-			long newID = TicketSaveData.getConvertedID(oldID);
-			ticketTag.putLong("TicketID", newID);
-			ticketTag.putInt("TicketColor", Color.getFromIndex(newID).hexColor);
-			return newID;
-		}
-		return Long.MIN_VALUE;
+		return ticket.get(ModDataComponents.TICKET_DATA).id();
 	}
 
 	public static int GetTicketColor(ItemStack ticket)
 	{
-		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
+		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.has(ModDataComponents.TICKET_DATA))
 			return 0xFFFFFF;
-		CompoundTag ticketTag = ticket.getTag();
-		if(!ticketTag.contains("TicketColor"))
-			return 0xFFFFFF;
-		return ticketTag.getInt("TicketColor");
+		return ticket.get(ModDataComponents.TICKET_DATA).color();
 	}
 
 	public static int GetDefaultTicketColor(long ticketID) {
@@ -112,25 +95,24 @@ public class TicketItem extends Item{
 	public static ItemStack CreateTicket(Item item, long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(item, count);
-		CompoundTag tag = ticket.getOrCreateTag();
-		tag.putLong("TicketID", ticketID);
-		tag.putInt("TicketColor", color);
+		ticket.set(ModDataComponents.TICKET_DATA, new TicketData(ticketID, color));
 		return ticket;
 	}
 
 	public static ItemStack CreateExampleTicket(@Nonnull Item item, @Nonnull Color color)
 	{
 		ItemStack ticket = new ItemStack(item);
-		CompoundTag tag = ticket.getOrCreateTag();
-		tag.putInt("TicketColor", color.hexColor);
+		ticket.set(ModDataComponents.TICKET_DATA, new TicketData(Long.MIN_VALUE,color.hexColor));
 		return ticket;
 	}
 
 	public static void SetTicketColor(ItemStack ticket, Color color) { SetTicketColor(ticket, color.hexColor); }
 
 	public static void SetTicketColor(ItemStack ticket, int color) {
-		CompoundTag tag = ticket.getOrCreateTag();
-		tag.putInt("TicketColor", color);
+		if(!ticket.has(ModDataComponents.TICKET_DATA))
+			return;
+		TicketData oldData = ticket.get(ModDataComponents.TICKET_DATA);
+		ticket.set(ModDataComponents.TICKET_DATA, new TicketData(oldData.id(),color));
 	}
 	
 }

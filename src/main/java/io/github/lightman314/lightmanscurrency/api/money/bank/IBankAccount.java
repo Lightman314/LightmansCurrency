@@ -8,11 +8,11 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
@@ -63,12 +63,12 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     /**
      * Pushes the given {@link Notification} to the Bank Accounts local logger <b>AND</b> to all relevant players.
      */
-    default void pushNotification(@Nonnull NonNullSupplier<Notification> notification) { this.pushNotification(notification,true); }
+    default void pushNotification(@Nonnull Supplier<Notification> notification) { this.pushNotification(notification,true); }
     /**
      * Pushes the given {@link Notification} to the Bank Accounts local logger.<br>
      * @param notifyPlayers Whether to also push the notification to all relevant players.
      */
-    void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers);
+    void pushNotification(@Nonnull Supplier<Notification> notification, boolean notifyPlayers);
 
     /**
      * All {@link Notification Notifications} stored on the Bank Accounts local logger.

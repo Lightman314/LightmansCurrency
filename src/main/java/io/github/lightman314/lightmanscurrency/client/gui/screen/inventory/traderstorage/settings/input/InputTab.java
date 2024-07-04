@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -117,14 +116,14 @@ public class InputTab extends SettingsSubTab {
 
     private void ToggleInputSide(Direction side)
     {
-        this.sendMessage(LazyPacketData.builder()
+        this.sendMessage(this.builder()
                 .setBoolean("SetInputSide", !this.getInputSideValue(side))
                 .setInt("Side", side.get3DDataValue()));
     }
 
     private void ToggleOutputSide(Direction side)
     {
-        this.sendMessage(LazyPacketData.builder()
+        this.sendMessage(this.builder()
                 .setBoolean("SetOutputSide", !this.getOutputSideValue(side))
                 .setInt("Side", side.get3DDataValue()));
     }

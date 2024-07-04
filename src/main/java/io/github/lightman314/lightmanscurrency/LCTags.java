@@ -1,11 +1,15 @@
 package io.github.lightman314.lightmanscurrency;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
+
+import javax.annotation.Nonnull;
 
 public class LCTags {
 
@@ -15,7 +19,7 @@ public class LCTags {
         public static final TagKey<Block> SAFE_INTERACTABLE = tag("safe_interactable");
         public static final TagKey<Block> OWNER_PROTECTED = tag("owner_protected");
 
-        private static TagKey<Block> tag(String id) { return BlockTags.create(new ResourceLocation(LightmansCurrency.MODID, id)); }
+        private static TagKey<Block> tag(String id) { return BlockTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
 
     }
 
@@ -28,6 +32,9 @@ public class LCTags {
         public static final TagKey<Item> COIN_MINTING_MATERIAL = tag("coin_minting_material");
         //Wallet Tag for Wallet Advancement
         public static final TagKey<Item> WALLET = tag("wallet");
+        public static final TagKey<Item> WALLET_PICKUP = tag("wallet/pickup");
+        public static final TagKey<Item> WALLET_EXCHANGE = tag("wallet/exchange");
+        public static final TagKey<Item> WALLET_BANK = tag("wallet/bank");
 
         //Trader Tags for Advancements
         public static final TagKey<Item> TRADER = tag("trader");
@@ -53,8 +60,6 @@ public class LCTags {
         public static final TagKey<Item> TRADER_INTERFACE = tag("trader_interface");
 
         public static final TagKey<Item> NETWORK_TERMINAL = tag("network_terminal");
-        @Deprecated
-        public static final TagKey<Item> TRADING_TERMINAL = tag("trading_terminal");
         public static final TagKey<Item> ATM = tag("atm");
         public static final TagKey<Item> AUCTION_STAND = tag("auction_stand");
 
@@ -76,11 +81,20 @@ public class LCTags {
         public static final TagKey<Item> TICKET_MATERIAL_PAPER = tag("ticket_material/paper");
         public static final TagKey<Item> TICKET_MATERIAL_GOLD = tag("ticket_material/gold");
 
-
         //Tradable tags
         public static final TagKey<Item> TRADABLE_BOOK = tag("tradable/book");
 
-        private static TagKey<Item> tag(String id) { return ItemTags.create(new ResourceLocation(LightmansCurrency.MODID, id)); }
+        private static TagKey<Item> tag(String id) { return ItemTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
+
+    }
+
+    public static class Enchantments {
+
+        public static final TagKey<Enchantment> EXCUSIVE_SET_MENDING = common("exclusive_set/mending");
+        public static final TagKey<Enchantment> MONEY_MENDING = tag("money_mending");
+
+        private static TagKey<Enchantment> common(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath("c",id)); }
+        private static TagKey<Enchantment> tag(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id)); }
 
     }
 

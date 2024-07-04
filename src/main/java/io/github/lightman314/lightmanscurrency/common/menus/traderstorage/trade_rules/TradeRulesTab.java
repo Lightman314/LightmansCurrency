@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +53,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("TradeRuleEdit"))
         {
-            ResourceLocation type = new ResourceLocation(message.getString("TradeRuleEdit"));
+            ResourceLocation type = ResourceLocation.parse(message.getString("TradeRuleEdit"));
             this.EditTradeRule(type, message.copyToBuilder());
         }
     }
@@ -94,7 +94,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
         @Override
         public void goBack() {
-            this.menu.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", this.tradeIndex));
+            this.menu.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, this.builder().setInt("TradeIndex", this.tradeIndex));
         }
 
         @Nullable

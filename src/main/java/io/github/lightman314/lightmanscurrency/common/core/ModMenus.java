@@ -11,8 +11,9 @@ import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.network.IContainerFactory;
+
+import java.util.function.Supplier;
 
 public class ModMenus {
 	
@@ -71,39 +72,39 @@ public class ModMenus {
 
 	}
 	
-	public static final RegistryObject<MenuType<ATMMenu>> ATM;
+	public static final Supplier<MenuType<ATMMenu>> ATM;
 	
-	public static final RegistryObject<MenuType<MintMenu>> MINT;
+	public static final Supplier<MenuType<MintMenu>> MINT;
 
-	public static final RegistryObject<MenuType<TerminalMenu>> NETWORK_TERMINAL;
+	public static final Supplier<MenuType<TerminalMenu>> NETWORK_TERMINAL;
 	
 	//Any Trader
-	public static final RegistryObject<MenuType<TraderMenu>> TRADER;
-	public static final RegistryObject<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
-	public static final RegistryObject<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
+	public static final Supplier<MenuType<TraderMenu>> TRADER;
+	public static final Supplier<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
+	public static final Supplier<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
 
 	//Slot Machine
-	public static final RegistryObject<MenuType<SlotMachineMenu>> SLOT_MACHINE;
+	public static final Supplier<MenuType<SlotMachineMenu>> SLOT_MACHINE;
 	
 	//Any Trader Storage
-	public static final RegistryObject<MenuType<TraderStorageMenu>> TRADER_STORAGE;
+	public static final Supplier<MenuType<TraderStorageMenu>> TRADER_STORAGE;
 	
-	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
-	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;
+	public static final Supplier<MenuType<WalletMenu>> WALLET;
+	public static final Supplier<MenuType<WalletBankMenu>> WALLET_BANK;
 	
-	public static final RegistryObject<MenuType<TicketStationMenu>> TICKET_MACHINE;
+	public static final Supplier<MenuType<TicketStationMenu>> TICKET_MACHINE;
 	
-	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
+	public static final Supplier<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	
-	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
+	public static final Supplier<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
 
-	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
+	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
 
-	public static final RegistryObject<MenuType<CoinChestMenu>> COIN_CHEST;
+	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST;
 
-	public static final RegistryObject<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
+	public static final Supplier<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
 
-	public static final RegistryObject<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
+	public static final Supplier<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 

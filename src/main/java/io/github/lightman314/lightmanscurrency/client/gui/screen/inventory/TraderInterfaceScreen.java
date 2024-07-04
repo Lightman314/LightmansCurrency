@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +27,7 @@ import javax.annotation.Nonnull;
 
 public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader_interface.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/trader_interface.png");
 	
 	public static final int WIDTH = 206;
 	public static final int HEIGHT = 236;
@@ -141,9 +140,9 @@ public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 		return null;
 	}
 	
-	public void changeTab(int newTab) { this.changeTab(newTab, true, null); }
+	public void changeTab(int newTab) { this.changeTab(newTab, true); }
 	
-	public void changeTab(int newTab, boolean sendMessage, CompoundTag selfMessage) {
+	public void changeTab(int newTab, boolean sendMessage) {
 		
 		if(newTab == this.menu.getCurrentTabIndex())
 			return;
@@ -166,13 +165,11 @@ public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 			button.active = false;
 		
 		//Open the new tab
-		if(selfMessage != null)
-			this.currentTab().receiveSelfMessage(selfMessage);
 		this.currentTab().onOpen();
-		
+
 		//Inform the server that the tab has been changed
 		if(oldTab != this.menu.getCurrentTabIndex() && sendMessage)
-			this.menu.sendMessage(this.menu.createTabChangeMessage(newTab, null));
+			this.menu.SendMessage(this.builder().setInt("ChangeTab",newTab));
 		
 	}
 	

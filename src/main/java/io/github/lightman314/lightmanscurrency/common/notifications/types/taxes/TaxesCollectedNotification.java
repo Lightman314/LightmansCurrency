@@ -8,17 +8,18 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class TaxesCollectedNotification extends Notification {
 
-    public static final NotificationType<TaxesCollectedNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "taxes_collected"),TaxesCollectedNotification::new);
+    public static final NotificationType<TaxesCollectedNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "taxes_collected"),TaxesCollectedNotification::new);
 
     private MutableComponent taxedName = EasyText.literal("NULL");
     private MoneyValue amount = MoneyValue.empty();
@@ -27,7 +28,7 @@ public class TaxesCollectedNotification extends Notification {
     private TaxesCollectedNotification() {}
     private TaxesCollectedNotification(MutableComponent taxedName, MoneyValue amount, TaxEntryCategory category) { this.taxedName = taxedName; this.amount = amount; this.category = category; }
 
-    public static NonNullSupplier<Notification> create(MutableComponent taxedName, MoneyValue amount, TaxEntryCategory category) { return () -> new TaxesCollectedNotification(taxedName, amount, category); }
+    public static Supplier<Notification> create(MutableComponent taxedName, MoneyValue amount, TaxEntryCategory category) { return () -> new TaxesCollectedNotification(taxedName, amount, category); }
 
     @Nonnull
     @Override
@@ -42,17 +43,17 @@ public class TaxesCollectedNotification extends Notification {
     public MutableComponent getMessage() { return LCText.NOTIFICATION_TAXES_COLLECTED.get(this.amount.getText("NULL"), this.taxedName); }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
-        compound.putString("TaxedName", Component.Serializer.toJson(this.taxedName));
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        compound.putString("TaxedName", Component.Serializer.toJson(this.taxedName, lookup));
         compound.put("Amount", this.amount.save());
-        compound.put("Category", this.category.save());
+        compound.put("Category", this.category.save(lookup));
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound) {
-        this.taxedName = Component.Serializer.fromJson(compound.getString("TaxedName"));
+    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        this.taxedName = Component.Serializer.fromJson(compound.getString("TaxedName"), lookup);
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = new TaxEntryCategory(compound.getCompound("Category"));
+        this.category = new TaxEntryCategory(compound.getCompound("Category"), lookup);
     }
 
     @Override

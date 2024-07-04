@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
@@ -88,18 +89,18 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	}
 	
 	@Override
-	public final CompoundTag save() {
+	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		compound.put("InputSides", this.inputSides.save(new CompoundTag()));
 		compound.put("OutputSides", this.outputSides.save(new CompoundTag()));
-		this.saveAdditional(compound);
+		this.saveAdditional(compound, lookup);
 		return compound;
 	}
 	
-	protected void saveAdditional(CompoundTag compound) { }
+	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	public void load(CompoundTag compound) {
+	public void load(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("InputSides", Tag.TAG_COMPOUND))
 			this.inputSides.load(compound.getCompound("InputSides"));
 		if(compound.contains("OutputSides", Tag.TAG_COMPOUND))

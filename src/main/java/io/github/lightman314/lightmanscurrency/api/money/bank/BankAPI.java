@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.BankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.impl.BankAPIImpl;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -24,17 +23,9 @@ public abstract class BankAPI {
 
     /**
      * Method used to register a {@link BankReferenceType}.<br>
-     * I recommend calling during the {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent Common Setup Event}
+     * I recommend calling during the {@link net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent Common Setup Event}
      */
     public abstract void RegisterReferenceType(@Nonnull BankReferenceType type);
-
-
-    /**
-     * @deprecated Use {@link #RegisterReferenceType(BankReferenceType)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static void registerType(@Nonnull BankReferenceType type) { API.RegisterReferenceType(type); }
 
     public abstract void RegisterBankAccountSource(@Nonnull BankAccountSource source);
 
@@ -44,13 +35,6 @@ public abstract class BankAPI {
      */
     @Nullable
     public abstract BankReferenceType GetReferenceType(@Nonnull ResourceLocation type);
-    /**
-     * @deprecated Use {@link #RegisterReferenceType(BankReferenceType)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    @Nullable
-    public static BankReferenceType getType(@Nonnull ResourceLocation type) { return API.GetReferenceType(type); }
 
     public abstract List<IBankAccount> GetAllBankAccounts(boolean isClient);
     public abstract List<BankReference> GetAllBankReferences(boolean isClient);
@@ -71,21 +55,6 @@ public abstract class BankAPI {
      * @param requestedAmount The amount the player has requested to deposit. If not enough funds are available, the largest available amount will be deposited.
      */
     public abstract void BankDeposit(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference account, @Nonnull MoneyValue requestedAmount);
-
-    /**
-     * @deprecated Use {@link #BankDeposit(IBankAccountMenu, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static void DepositCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { API.BankDeposit(menu,amount); }
-
-    /**
-     * @deprecated Use {@link #BankDeposit(Player, Container, BankReference, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    @SuppressWarnings("unused")
-    public static void DepositCoins(@Nonnull Player player, @Nonnull Container coinInput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount) { }
 
     /**
      * Called by admins/commands to forcibly create and deposit money into the given bank account.
@@ -116,20 +85,6 @@ public abstract class BankAPI {
     @Nonnull
     public abstract Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers);
     /**
-     * @deprecated Use {@link #BankDepositFromServer(IBankAccount, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static boolean ServerGiveCoins(@Nonnull IBankAccount account, @Nonnull MoneyValue amount) {return API.BankDepositFromServer(account,amount); }
-
-    /**
-     * @deprecated Use {@link #BankWithdrawFromServer(IBankAccount, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static Pair<Boolean, MoneyValue> ServerTakeCoins(@Nonnull IBankAccount account, MoneyValue amount) { return API.BankWithdrawFromServer(account,amount); }
-
-    /**
      * Executes a bank withdraw interaction.
      * This is the shortcut method called from the context of a player interacting with a {@link IBankAccountMenu} menu.
      * @param amount The amount the player has requested to withdraw. If not enough funds are available, the largest available amount will be withdrawn.
@@ -144,20 +99,6 @@ public abstract class BankAPI {
      * @param amount The amount the player has requested to withdraw. If not enough funds are available, the largest available amount will be withdrawn.
      */
     public abstract void BankWithdraw(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference account, @Nonnull MoneyValue amount);
-
-    /**
-     * @deprecated Use {@link #BankWithdraw(IBankAccountMenu, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static void WithdrawCoins(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { API.BankWithdraw(menu,amount); }
-    /**
-     * @deprecated Use {@link #BankWithdraw(Player,Container,BankReference, MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    @SuppressWarnings("unused")
-    public static void WithdrawCoins(@Nonnull Player player, @Nonnull Container coinOutput, @Nonnull IBankAccount account, @Nonnull MoneyValue amount) { }
 
     /**
      * Executes a bank account money transfer interaction.
@@ -178,21 +119,5 @@ public abstract class BankAPI {
      */
     @Nonnull
     public abstract MutableComponent BankTransfer(@Nonnull Player player, BankReference fromAccount, @Nonnull MoneyValue amount, IBankAccount destination);
-
-    /**
-     * @deprecated Use {@link #BankTransfer(IBankAccountAdvancedMenu, MoneyValue, IBankAccount)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    public static MutableComponent TransferCoins(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, BankReference destination) { return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination == null ? null : destination.get()); }
-
-    /**
-     * @deprecated Use {@link #BankTransfer(Player,BankReference, MoneyValue, IBankAccount)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.1.1")
-    @SuppressWarnings("unused")
-    public static MutableComponent TransferCoins(@Nonnull Player player, @Nonnull IBankAccount fromAccount, @Nonnull MoneyValue amount, @Nonnull IBankAccount destinationAccount) { return EasyText.literal("Outdated API usage!"); }
-
 
 }

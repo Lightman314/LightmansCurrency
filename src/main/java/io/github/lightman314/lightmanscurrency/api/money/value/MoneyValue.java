@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -23,8 +24,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -171,7 +172,7 @@ public abstract class MoneyValue {
      * @return <code>null</code> if the added value is incompatible,
      * otherwise it should return a new MoneyValue instance with a total value equal to
      * <code>this#</code>{@link #getCoreValue()} + <code>addedValue#</code>{@link #getCoreValue()}
-     * @see #sameType(MoneyValue) 
+     * @see #sameType(MoneyValue)
      * @see #containsValue(MoneyValue)
      * @see #subtractValue(MoneyValue)
      * @see #getCoreValue()
@@ -253,8 +254,8 @@ public abstract class MoneyValue {
 
     /**
      * Saves this {@link MoneyValue} data into an NBT tag.
-     * @see #load(CompoundTag) 
-     * @see #safeLoad(CompoundTag, String)
+     * @see #load(CompoundTag)
+     * @see #safeLoad(CompoundTag,String)
      */
     @Nonnull
     public final CompoundTag save()
@@ -299,7 +300,7 @@ public abstract class MoneyValue {
      */
     @Nonnull
     public static MoneyValue decode(@Nonnull FriendlyByteBuf buffer) {
-        CompoundTag tag = buffer.readAnySizeNbt();
+        CompoundTag tag = (CompoundTag)buffer.readNbt(NbtAccounter.unlimitedHeap());
         MoneyValue loadedValue = load(tag);
         return Objects.requireNonNullElse(loadedValue, EMPTY);
     }
@@ -316,7 +317,7 @@ public abstract class MoneyValue {
         if(tag.contains("type", Tag.TAG_STRING))
         {
             ResourceLocation valueType;
-            try { valueType = new ResourceLocation(tag.getString("type"));
+            try { valueType = ResourceLocation.parse(tag.getString("type"));
             } catch (ResourceLocationException e) {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
                 return null;
@@ -365,7 +366,7 @@ public abstract class MoneyValue {
     {
         if(json.has("type"))
         {
-            ResourceLocation valueType = new ResourceLocation(GsonHelper.getAsString(json, "type"));
+            ResourceLocation valueType = ResourceLocation.parse(GsonHelper.getAsString(json, "type"));
             CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
                 return currencyType.loadMoneyValueJson(json);

@@ -107,7 +107,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeAddMember(this.getPlayer(), this.memberNameInput.getValue());
-		this.RequestChange(LazyPacketData.simpleString("AddMember", this.memberNameInput.getValue()));
+		this.RequestChange(this.builder().setString("AddMember", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 		
 	}
@@ -119,7 +119,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeAddAdmin(this.getPlayer(), this.memberNameInput.getValue());
-		this.RequestChange(LazyPacketData.simpleString("AddAdmin", this.memberNameInput.getValue()));
+		this.RequestChange(this.builder().setString("AddAdmin", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 	}
 	
@@ -130,7 +130,7 @@ public class TeamMemberEditTab extends TeamTab {
 		
 		Team team = this.getActiveTeam();
 		team.changeRemoveMember(this.getPlayer(), this.memberNameInput.getValue());
-		this.RequestChange(LazyPacketData.simpleString("RemoveMember", this.memberNameInput.getValue()));
+		this.RequestChange(this.builder().setString("RemoveMember", this.memberNameInput.getValue()));
 		this.memberNameInput.setValue("");
 	}
 

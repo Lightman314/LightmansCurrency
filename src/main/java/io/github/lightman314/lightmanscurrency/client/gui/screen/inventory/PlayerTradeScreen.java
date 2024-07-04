@@ -33,8 +33,8 @@ import java.util.List;
 
 public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading.png");
-    public static final ResourceLocation GUI_CHAT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading_chat.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/player_trading.png");
+    public static final ResourceLocation GUI_CHAT_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/player_trading_chat.png");
 
     private int scroll = 0;
     private static final int CHAT_ROWS = 11;
@@ -228,7 +228,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         //Split the message into multiple lines so that scrolling doesn't have to factor in message size
         List<FormattedCharSequence> newLines = this.font.split(chat, this.getXSize() - 14);
         for(FormattedCharSequence line : newLines)
-            this.chatHistory.add(0,line);
+            this.chatHistory.addFirst(line);
         if(!this.chatMode)
             this.chatWarning = true;
     }

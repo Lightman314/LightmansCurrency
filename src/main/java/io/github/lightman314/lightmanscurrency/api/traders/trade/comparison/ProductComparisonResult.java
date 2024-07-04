@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade.comparison;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +42,7 @@ public class ProductComparisonResult {
         boolean isItemEqual = trueItem.getItem() == expectedItem.getItem();
         boolean isTagEqual;
         if(checkNBT)
-        {
-            if(trueItem.getTag() != null)
-                isTagEqual = trueItem.getTag().equals(expectedItem.getTag());
-            else
-                isTagEqual = expectedItem.getTag() == null || expectedItem.getTag().isEmpty();
-        }
+            isTagEqual = trueItem.getComponents().equals(expectedItem.getComponents());
         else
             isTagEqual = true;
         int quantityDifference = trueItem.getCount() - expectedItem.getCount();
@@ -76,11 +71,7 @@ public class ProductComparisonResult {
 
     public static ProductComparisonResult CompareFluid(FluidStack trueFluid, FluidStack expectedFluid) {
         boolean isFluidEqual = trueFluid.getFluid() == expectedFluid.getFluid();
-        boolean isTagEqual;
-        if(trueFluid.getTag() != null)
-            isTagEqual = trueFluid.getTag().equals(expectedFluid.getTag());
-        else
-            isTagEqual = expectedFluid.getTag() == null;
+        boolean isTagEqual = trueFluid.getComponents().equals(expectedFluid.getComponents());
         int quantityDifference = trueFluid.getAmount() - expectedFluid.getAmount();
         return new ProductComparisonResult(isFluidEqual, isTagEqual, quantityDifference);
     }

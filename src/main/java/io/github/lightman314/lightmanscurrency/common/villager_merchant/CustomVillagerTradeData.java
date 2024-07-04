@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class CustomVillagerTradeData {
 
-    private static final ResourceLocation WANDERING_TRADER_ID = new ResourceLocation(LightmansCurrency.MODID, "wandering_trader");
+    private static final ResourceLocation WANDERING_TRADER_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "wandering_trader");
 
     private static final Map<ResourceLocation,Map<Integer,List<ItemListing>>> defaultValues = new HashMap<>();
 

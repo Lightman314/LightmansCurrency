@@ -19,7 +19,6 @@ public class EasyBlock extends Block {
 
     @Nonnull
     @Override
-    @SuppressWarnings("deprecation")
     public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos) {
         if(this.isBlockOpaque(state))
             return super.getOcclusionShape(state, level, pos);

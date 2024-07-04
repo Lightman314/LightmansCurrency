@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
@@ -78,8 +77,7 @@ public class TeamOwnerTab extends TeamTab{
 
 	@Override
 	public void tick() {
-		
-		this.newOwnerName.tick();
+
 		this.buttonChangeOwner.active = !this.newOwnerName.getValue().isBlank();
 		
 	}
@@ -91,7 +89,7 @@ public class TeamOwnerTab extends TeamTab{
 		
 		Team team = this.getActiveTeam();
 		team.changeOwner(this.getPlayer(), this.newOwnerName.getValue());
-		this.RequestChange(LazyPacketData.simpleString("ChangeOwner", this.newOwnerName.getValue()));
+		this.RequestChange(this.builder().setString("ChangeOwner", this.newOwnerName.getValue()));
 		this.newOwnerName.setValue("");
 		
 	}
@@ -101,7 +99,7 @@ public class TeamOwnerTab extends TeamTab{
 		if(this.getActiveTeam() == null)
 			return;
 
-		this.RequestChange(LazyPacketData.simpleFlag("Disband"));
+		this.RequestChange(this.builder().setFlag("Disband"));
 	}
 
 }

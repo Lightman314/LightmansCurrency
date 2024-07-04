@@ -4,9 +4,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import net.minecraft.client.gui.Font;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.chat.Component;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public abstract class MoneyInputHandler {
 
     @Nonnull
-    public abstract MutableComponent inputName();
+    public abstract Component inputName();
     @Nonnull
     public abstract String getUniqueName();
 

@@ -9,11 +9,12 @@ import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEnt
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -23,21 +24,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber
 public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicker {
 
+	private final RecipeContainerWrapper recipeContainer = new RecipeContainerWrapper(() -> this.storage);
 	SimpleContainer storage = new SimpleContainer(2);
-	public SimpleContainer getStorage() { return this.storage; }
+	public RecipeContainerWrapper getStorage() { return this.recipeContainer; }
 
 	private CoinMintRecipe lastRelevantRecipe = null;
 	private int mintTime = 0;
@@ -46,7 +42,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	public int getExpectedMintTime() { if(this.lastRelevantRecipe != null) return this.lastRelevantRecipe.getDuration(); return -1; }
 	
 	private final MintItemCapability itemHandler = new MintItemCapability(this);
-	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> this.itemHandler);
+	public IItemHandler getItemHandler() { return this.itemHandler; }
 	
 	private List<CoinMintRecipe> getCoinMintRecipes()
 	{
@@ -66,19 +62,19 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		InventoryUtil.saveAllItems("Storage", compound, this.storage);
+		InventoryUtil.saveAllItems("Storage", compound, this.storage, lookup);
 		compound.putInt("MintTime", this.mintTime);
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.load(compound);
+		super.loadAdditional(compound, lookup);
 		
-		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
+		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2, lookup);
 		this.storage.addListener(this::onInventoryChanged);
 
 		if(compound.contains("MintTime"))
@@ -140,11 +136,11 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	//Coin Minting Functions
 	public boolean validMintInput(ItemStack item)
 	{
-		Container tempInv = new SimpleContainer(2);
-		tempInv.setItem(0, item);
+		RecipeContainerWrapper temp = new RecipeContainerWrapper(2);
+		temp.setItem(0, item);
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			if(recipe.matches(tempInv, this.level))
+			if(recipe.matches(temp, this.level))
 				return true;
 		}
 		return false;
@@ -176,7 +172,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			return null;
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			if(recipe.matches(this.storage, this.level))
+			if(recipe.matches(this.recipeContainer, this.level))
 				return recipe;
 		}
 		return null;
@@ -217,19 +213,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		this.setChanged();
 		
 	}
-	
-	//Item capability for hopper and item automation
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) { return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, this.inventoryHandlerLazyOptional); }
-	
-	@Override
-	public void invalidateCaps()
-	{
-		super.invalidateCaps();
-		this.inventoryHandlerLazyOptional.invalidate();
-	}
-	
+
 	public static class MintItemCapability implements IItemHandler
 	{
 
@@ -327,7 +311,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		public int getSlotLimit(int slot) { return 64; }
 
 		@Override
-		public boolean isItemValid(int slot, @NotNull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
 		
 	}
 	

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 public final class NullCurrencyType extends CurrencyType {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(MoneyAPI.MODID, "null");
+    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID, "null");
     public static final NullCurrencyType INSTANCE = new NullCurrencyType();
 
     private NullCurrencyType() { super(TYPE); }

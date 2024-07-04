@@ -23,7 +23,7 @@ public abstract class EasyMultiBGSlot extends EasySlot {
         //Use the game time as a timer. Divide by 20 ticks to make the timer change the index once a second.
         int timer = (int)(mc.level.getGameTime() / 20);
         List<Pair<ResourceLocation,ResourceLocation>> bgs = this.getPossibleNoItemIcons();
-        if(bgs == null || bgs.size() == 0)
+        if(bgs == null || bgs.isEmpty())
             return null;
         return bgs.get(timer % bgs.size());
     }

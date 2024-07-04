@@ -28,7 +28,7 @@ import net.minecraft.world.inventory.Slot;
 
 public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderScreen {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
 	public static final int WIDTH = 206;
 	public static final int HEIGHT = 236;

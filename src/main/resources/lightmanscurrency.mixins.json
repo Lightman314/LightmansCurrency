@@ -8,9 +8,7 @@
     "AbstractContainerMenuAccessor",
     "InventoryMenuMixin",
     "MerchantMenuMixin",
-    "compat.farmingforblockheads.MarketMenuMixin",
-    "compat.supplementaries.ModVillagerTradesMixin",
-    "compat.supplementaries.RedMerchantMenuMixin"
+    "compat.farmingforblockheads.MarketMenuMixin"
   ],
   "client": [
     "SlotWrapperMixin"

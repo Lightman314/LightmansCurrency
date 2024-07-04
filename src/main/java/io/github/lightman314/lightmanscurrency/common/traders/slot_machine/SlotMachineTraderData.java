@@ -33,9 +33,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissio
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -48,8 +50,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,7 +62,7 @@ import java.util.Random;
 
 public class SlotMachineTraderData extends TraderData implements TraderItemStorage.ITraderItemFilter {
 
-    public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader"),SlotMachineTraderData::new);
+    public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trader"),SlotMachineTraderData::new);
 
     private MoneyValue price = MoneyValue.empty();
     public final MoneyValue getPrice() { return this.price; }
@@ -182,7 +184,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     public boolean hasValidTrade() { return this.entries.stream().anyMatch(SlotMachineEntry::isValid) && this.isPriceValid(); }
 
     @Override
-    protected void saveTrades(CompoundTag compound) { }
+    protected void saveTrades(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
 
     @Override
     protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
@@ -200,47 +202,47 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     public final void markPriceDirty() { this.markDirty(this::savePrice); }
 
     @Override
-    protected void saveAdditional(CompoundTag compound) {
-        this.saveStorage(compound);
-        this.saveLastRewards(compound);
-        this.saveEntries(compound);
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        this.saveStorage(compound,lookup);
+        this.saveLastRewards(compound,lookup);
+        this.saveEntries(compound,lookup);
         this.savePrice(compound);
     }
 
-    protected final void saveStorage(CompoundTag compound) { this.storage.save(compound,"Storage"); }
+    protected final void saveStorage(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { this.storage.save(compound,"Storage",lookup); }
 
-    protected final void saveLastRewards(CompoundTag compound) {
+    protected final void saveLastRewards(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         ListTag itemList = new ListTag();
         for(ItemStack reward : this.lastReward)
         {
             if(reward.isEmpty())
                 continue;
-            itemList.add(reward.save(new CompoundTag()));
+            itemList.add(InventoryUtil.saveItemNoLimits(reward,lookup));
         }
         compound.put("LastReward", itemList);
     }
 
-    protected final void saveEntries(CompoundTag compound) {
+    protected final void saveEntries(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         ListTag list = new ListTag();
         for(SlotMachineEntry entry : this.entries)
-            list.add(entry.save());
+            list.add(entry.save(lookup));
         compound.put("Entries", list);
     }
 
     protected final void savePrice(CompoundTag compound) { compound.put("Price", this.price.save()); }
 
     @Override
-    protected void loadAdditional(CompoundTag compound) {
+    protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 
         if(compound.contains("Storage"))
-            this.storage.load(compound, "Storage");
+            this.storage.load(compound, "Storage", lookup);
         if(compound.contains("LastReward"))
         {
             this.lastReward.clear();
             ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
             {
-                ItemStack stack = ItemStack.of(itemList.getCompound(i));
+                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     this.lastReward.add(stack);
             }
@@ -250,7 +252,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.entries.clear();
             ListTag list = compound.getList("Entries", Tag.TAG_COMPOUND);
             for(int i = 0; i < list.size(); ++i)
-                this.entries.add(SlotMachineEntry.load(list.getCompound(i)));
+                this.entries.add(SlotMachineEntry.load(list.getCompound(i),lookup));
             this.entriesChanged = true;
         }
         if(compound.contains("Price"))
@@ -258,7 +260,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     @Override
-    protected void saveAdditionalToJson(JsonObject json) {
+    protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
         //Price
         json.add("Price", this.price.toJson());
         //Entries
@@ -272,7 +274,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     @Override
-    protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+    protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
         if(json.has("Price"))
             this.price = MoneyValue.loadFromJson(json.get("Price"));
@@ -294,19 +296,19 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     //No need for persistent data
     @Override
-    protected void saveAdditionalPersistentData(CompoundTag compound) {
-        this.saveLastRewards(compound);
+    protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        this.saveLastRewards(compound,lookup);
     }
 
     @Override
-    protected void loadAdditionalPersistentData(CompoundTag compound) {
+    protected void loadAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         if(compound.contains("LastReward"))
         {
             this.lastReward = new ArrayList<>();
             ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
             {
-                ItemStack stack = ItemStack.of(itemList.getCompound(i));
+                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     this.lastReward.add(stack);
             }
@@ -322,7 +324,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     @Nullable
     @Override
-    public SlotMachineTrade getTrade(int tradeIndex) { return this.trade.get(0); }
+    public SlotMachineTrade getTrade(int tradeIndex) { return this.trade.getFirst(); }
 
     //Trades are not added/removed like other traders
     @Override
@@ -336,7 +338,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         if(!this.hasValidTrade())
             return TradeResult.FAIL_INVALID_TRADE;
 
-        SlotMachineTrade trade = this.trade.get(0);
+        SlotMachineTrade trade = this.trade.getFirst();
         if(trade == null)
         {
             LightmansCurrency.LogError("Slot Machine somehow doesn't have a valid trade!");

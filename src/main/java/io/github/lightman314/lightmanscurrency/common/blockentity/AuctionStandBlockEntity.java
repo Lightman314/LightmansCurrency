@@ -14,17 +14,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.List;
 import java.util.Random;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class AuctionStandBlockEntity extends EasyBlockEntity {
 
     public boolean dropItem = true;
@@ -48,16 +48,16 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     private static boolean randomizeNextOpportunity = false;
 
     @SubscribeEvent
-    public static void serverTick(TickEvent.ServerTickEvent event)
+    public static void serverTick(ServerTickEvent.Pre event)
     {
         if(AuctionHouseTrader.isEnabled() && event.getServer().getTickCount() % 1200 == 0)
         {
-            if(event.haveTime())
+            if(event.hasTime())
                 RandomizeDisplayItems();
             else
                 randomizeNextOpportunity = true;
         }
-        else if(event.haveTime() && randomizeNextOpportunity)
+        else if(event.hasTime() && randomizeNextOpportunity)
         {
             randomizeNextOpportunity = false;
             RandomizeDisplayItems();

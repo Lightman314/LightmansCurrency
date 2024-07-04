@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -23,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -32,9 +34,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -53,7 +54,7 @@ public class PaygateTradeData extends TradeData {
 	public Item getTicketItem() { return this.ticketItem; }
 	public long getTicketID() { return this.ticketID; }
 	public void setTicket(ItemStack ticket) {
-		TicketData data = TicketData.getForMaster(ticket);
+		TicketGroupData data = TicketGroupData.getForMaster(ticket);
 		if(data != null && TicketItem.isMasterTicket(ticket))
 		{
 			this.ticketItem = data.ticket;
@@ -76,7 +77,7 @@ public class PaygateTradeData extends TradeData {
 	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
 	public void setStoreTicketStubs(boolean value) { this.storeTicketStubs = value; }
 	public ItemStack getTicketStub() {
-		TicketData data = TicketData.getForTicket(new ItemStack(this.ticketItem));
+		TicketGroupData data = TicketGroupData.getForTicket(new ItemStack(this.ticketItem));
 		if(data != null)
 			return new ItemStack(data.ticketStub);
 		return ItemStack.EMPTY;
@@ -97,41 +98,41 @@ public class PaygateTradeData extends TradeData {
 		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid());
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data)
+	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, @Nonnull HolderLookup.Provider lookup)
 	{
-		saveAllData(nbt, data, DEFAULT_KEY);
+		saveAllData(nbt, data, DEFAULT_KEY,lookup);
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key)
+	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag listNBT = new ListTag();
 
 		for (PaygateTradeData datum : data)
-			listNBT.add(datum.getAsNBT());
+			listNBT.add(datum.getAsNBT(lookup));
 		
 		if(!listNBT.isEmpty())
 			nbt.put(key, listNBT);
 	}
 	
-	public static PaygateTradeData loadData(CompoundTag nbt) {
+	public static PaygateTradeData loadData(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup) {
 		PaygateTradeData trade = new PaygateTradeData();
-		trade.loadFromNBT(nbt);
+		trade.loadFromNBT(nbt,lookup);
 		return trade;
 	}
 	
-	public static List<PaygateTradeData> loadAllData(CompoundTag nbt)
+	public static List<PaygateTradeData> loadAllData(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{
-		return loadAllData(DEFAULT_KEY, nbt);
+		return loadAllData(DEFAULT_KEY, nbt,lookup);
 	}
 	
-	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt)
+	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
 		
 		List<PaygateTradeData> data = listOfSize(listNBT.size());
 		
 		for(int i = 0; i < listNBT.size(); i++)
-			data.get(i).loadFromNBT(listNBT.getCompound(i));
+			data.get(i).loadFromNBT(listNBT.getCompound(i),lookup);
 		
 		return data;
 	}
@@ -145,13 +146,13 @@ public class PaygateTradeData extends TradeData {
 	}
 	
 	@Override
-	public CompoundTag getAsNBT() {
-		CompoundTag compound = super.getAsNBT();
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup) {
+		CompoundTag compound = super.getAsNBT(lookup);
 		
 		compound.putInt("Duration", this.getDuration());
 		if(this.ticketID >= -1)
 		{
-			compound.putString("TicketItem", ForgeRegistries.ITEMS.getKey(this.ticketItem).toString());
+			compound.putString("TicketItem", BuiltInRegistries.ITEM.getKey(this.ticketItem).toString());
 			compound.putLong("TicketID", this.ticketID);
 			compound.putInt("TicketColor", this.ticketColor);
 			compound.putBoolean("StoreTicketStubs", this.storeTicketStubs);
@@ -161,8 +162,8 @@ public class PaygateTradeData extends TradeData {
 	}
 	
 	@Override
-	protected void loadFromNBT(CompoundTag compound) {
-		super.loadFromNBT(compound);
+	protected void loadFromNBT(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadFromNBT(compound,lookup);
 		
 		this.duration = compound.getInt("Duration");
 
@@ -170,7 +171,7 @@ public class PaygateTradeData extends TradeData {
 		{
 			this.ticketID = compound.getLong("TicketID");
 			if(compound.contains("TicketItem"))
-				this.ticketItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TicketItem")));
+				this.ticketItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("TicketItem")));
 			else
 				this.ticketItem = ModItems.TICKET.get();
 		}
@@ -316,7 +317,7 @@ public class PaygateTradeData extends TradeData {
 			}
 			else
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 			}
 		}
 	}
@@ -328,7 +329,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 	}
 
@@ -340,7 +341,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 		
 	}

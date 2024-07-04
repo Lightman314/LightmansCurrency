@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -21,7 +20,7 @@ public class BookTraderBlockEntityRenderer implements BlockEntityRenderer<BookTr
     public BookTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 
     @Override
-    public void render(@Nonnull BookTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
+    public void render(@Nonnull BookTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)
     {
         ItemTraderData trader = blockEntity.getTraderData();
         if(trader == null)

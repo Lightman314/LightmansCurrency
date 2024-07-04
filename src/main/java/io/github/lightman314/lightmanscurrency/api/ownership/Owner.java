@@ -7,18 +7,19 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public abstract class Owner implements IClientTracker {
 
     public static final Owner NULL = new NullOwner();
-    public static final OwnerType NULL_TYPE = OwnerType.create(new ResourceLocation(LightmansCurrency.MODID,"null"), t -> NULL);
+    public static final OwnerType NULL_TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null"), (t,l) -> NULL);
 
     private boolean isClient = false;
     @Override
@@ -76,7 +77,7 @@ public abstract class Owner implements IClientTracker {
      *                          1: Only Admins should receive the notification.
      *                          2: Only the owner should receive the notification.
      */
-    public abstract void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat);
+    public abstract void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat);
 
     public <T> void incrementStat(@Nonnull StatKey<?,T> key, @Nonnull T addValue) {}
 
@@ -84,23 +85,23 @@ public abstract class Owner implements IClientTracker {
     public abstract OwnerType getType();
 
     @Nonnull
-    public final CompoundTag save()
+    public final CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
         tag.putString("Type", this.getType().getID().toString());
-        this.saveAdditional(tag);
+        this.saveAdditional(tag, lookup);
         return tag;
     }
 
-    protected abstract void saveAdditional(@Nonnull CompoundTag tag);
+    protected abstract void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
 
     @Nullable
-    public static Owner load(@Nonnull CompoundTag tag)
+    public static Owner load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
-        ResourceLocation id = new ResourceLocation(tag.getString("Type"));
+        ResourceLocation id = ResourceLocation.parse(tag.getString("Type"));
         OwnerType type = OwnershipAPI.API.getOwnerType(id);
         if(type != null)
-            return type.load(tag);
+            return type.load(tag,lookup);
         LightmansCurrency.LogError("No owner type " + id + " is registered!\nCould not load the owner!");
         return null;
     }
@@ -136,12 +137,12 @@ public abstract class Owner implements IClientTracker {
         @Override
         public BankReference asBankReference() { return null; }
         @Override
-        public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
+        public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
         @Nonnull
         @Override
         public OwnerType getType() { return NULL_TYPE; }
         @Override
-        protected void saveAdditional(@Nonnull CompoundTag tag) { }
+        protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { }
         @Override
         public boolean matches(@Nonnull Owner other) { return other.isNull(); }
     }

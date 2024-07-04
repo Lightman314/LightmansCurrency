@@ -19,19 +19,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
-    public static final ResourceLocation NBT_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_nbt_highlight");
+    public static final ResourceLocation NBT_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_nbt_highlight");
     public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,NBT_SLOT);
 
     public ItemTradeButtonRenderer(ItemTradeData trade) { super(trade); }
@@ -40,7 +40,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     public int tradeButtonWidth(TradeContext context) { return 94; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }

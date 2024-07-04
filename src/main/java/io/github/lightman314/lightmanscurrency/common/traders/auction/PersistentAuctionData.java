@@ -53,7 +53,7 @@ public class PersistentAuctionData {
 		if(json.has("Item2"))
 			items.add(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Item2")));
 		
-		if(items.size() == 0)
+		if(items.isEmpty())
 			throw new JsonSyntaxException("Auction has no 'Item1' or 'Item2' entry!");
 		
 		long duration = Math.max(GsonHelper.getAsLong(json, "Duration", AuctionTradeData.GetDefaultDuration()), AuctionTradeData.GetMinimumDuration());

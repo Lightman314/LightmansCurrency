@@ -8,9 +8,11 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -19,7 +21,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -134,7 +136,7 @@ public class InventoryUtil {
     /**
      * Removes the quantity of a specific item in the given inventory
      * Ignores NBT data as none is given
-     * @return Whether the full amount of items were successfully taken.
+     * @return Whether the full amount of items is successfully taken.
      */
     public static boolean RemoveItemCount(Container inventory, Item item, int count)
     {
@@ -160,7 +162,7 @@ public class InventoryUtil {
 	
     /**
      * Removes the given item stack from the given inventory, validating nbt data.
-     * @return Whether the full amount of items were successfully taken.
+     * @return Whether the full amount of items is successfully taken.
      */
     public static boolean RemoveItemCount(Container inventory, ItemStack item)
     {
@@ -185,7 +187,7 @@ public class InventoryUtil {
     
     /**
      * Removes the given item stack from the given inventory, validating nbt data.
-     * @return Whether the full amount of items were successfully taken.
+     * @return Whether the full amount of items is successfully taken.
      */
     public static boolean RemoveItemCount(IItemHandler itemHandler, ItemStack item)
     {
@@ -301,7 +303,7 @@ public class InventoryUtil {
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, inventoryStack.getMaxStackSize() - inventoryStack.getCount());
 				//Define the orders
-				mergeOrders.add(new Pair<Integer,Integer>(i,amountToPlace));
+				mergeOrders.add(new Pair<>(i,amountToPlace));
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -315,7 +317,7 @@ public class InventoryUtil {
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, stack.getMaxStackSize());
 				//Define the orders
-				mergeOrders.add(new Pair<Integer,Integer>(i,amountToPlace));
+				mergeOrders.add(new Pair<>(i,amountToPlace));
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -329,9 +331,7 @@ public class InventoryUtil {
 			ItemStack itemStack = inventory.getItem(order.getFirst());
 			if(itemStack.isEmpty())
 			{
-				ItemStack newStack = new ItemStack(mergeItem, order.getSecond());
-				if(stack.hasTag())
-					newStack.setTag(stack.getTag().copy());
+				ItemStack newStack = stack.copyWithCount(order.getSecond());
 				inventory.setItem(order.getFirst(), newStack);
 			}
 			else
@@ -434,11 +434,10 @@ public class InventoryUtil {
     	Container copyInventory = new SimpleContainer(inventory.getContainerSize());
     	for(int i = 0; i < inventory.getContainerSize(); ++i)
     		copyInventory.setItem(i, inventory.getItem(i).copy());
-    	for(int i = 0; i < stacks.size(); ++i)
-    	{
-    		if(!InventoryUtil.PutItemStack(copyInventory, stacks.get(i)))
-    			return false;
-    	}
+        for (ItemStack stack : stacks) {
+            if (!InventoryUtil.PutItemStack(copyInventory, stack))
+                return false;
+        }
     	return true;
     }
     
@@ -474,28 +473,45 @@ public class InventoryUtil {
 		}
 	}
 
-	public static void saveAllItems(String key, CompoundTag compound, Container inventory)
+	public static void saveAllItems(String key, CompoundTag compound, Container inventory, HolderLookup.Provider lookup)
 	{
-		ItemStackHelper.saveAllItems(key, compound, buildList(inventory));
+		ItemStackHelper.saveAllItems(key, compound, buildList(inventory), lookup);
 	}
 
-    public static SimpleContainer loadAllItems(String key, CompoundTag compound, int inventorySize)
+    public static SimpleContainer loadAllItems(String key, CompoundTag compound, int inventorySize, HolderLookup.Provider lookup)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
-    	ItemStackHelper.loadAllItems(key, compound, tempInventory);
+    	ItemStackHelper.loadAllItems(key, compound, tempInventory, lookup);
     	return buildInventory(tempInventory);
     }
 
-	public static void encodeItems(Container inventory, FriendlyByteBuf buffer) {
+	public static CompoundTag saveItemNoLimits(@Nonnull ItemStack stack, @Nonnull HolderLookup.Provider lookup)
+	{
+		if(stack.isEmpty())
+			return new CompoundTag();
+		CompoundTag tag = (CompoundTag)stack.copyWithCount(1).save(lookup);
+		tag.putInt("Count", stack.getCount());
+		return tag;
+	}
+
+	public static ItemStack loadItemNoLimits(@Nonnull CompoundTag itemTag, @Nonnull HolderLookup.Provider lookup)
+	{
+		ItemStack result = ItemStack.parseOptional(lookup,itemTag);
+		if(!result.isEmpty() && itemTag.contains("Count"))
+			result.setCount(itemTag.getInt("Count"));
+		return result;
+	}
+
+	public static void encodeItems(Container inventory, RegistryFriendlyByteBuf buffer) {
 		CompoundTag tag = new CompoundTag();
-		saveAllItems("ITEMS", tag, inventory);
+		saveAllItems("ITEMS", tag, inventory, buffer.registryAccess());
 		buffer.writeInt(inventory.getContainerSize());
 		buffer.writeNbt(tag);
 	}
 
-	public static SimpleContainer decodeItems(FriendlyByteBuf buffer) {
+	public static SimpleContainer decodeItems(RegistryFriendlyByteBuf buffer) {
 		int inventorySize = buffer.readInt();
-		return loadAllItems("ITEMS", buffer.readAnySizeNbt(), inventorySize);
+		return loadAllItems("ITEMS", (CompoundTag)buffer.readNbt(NbtAccounter.unlimitedHeap()), inventorySize, buffer.registryAccess());
 	}
 
 	public static SimpleContainer copy(Container inventory) {
@@ -542,9 +558,10 @@ public class InventoryUtil {
 			boolean addNew = true;
 			for(int i = 0; i < itemList.size() && addNew; ++i)
 			{
-				if(ItemMatches(item, itemList.get(i)))
+				ItemStack existingStack = itemList.get(i);
+				if(ItemMatches(item, existingStack))
 				{
-					itemList.get(i).grow(item.getCount());
+					existingStack.grow(item.getCount());
 					addNew = false;
 				}
 			}

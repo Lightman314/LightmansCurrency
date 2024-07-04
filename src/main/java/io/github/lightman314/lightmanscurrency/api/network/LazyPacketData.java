@@ -1,13 +1,18 @@
 package io.github.lightman314.lightmanscurrency.api.network;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,8 +35,9 @@ public final class LazyPacketData {
     public static final byte TYPE_NBT = 65;
 
     private final ImmutableMap<String,Data> dataMap;
+    public final HolderLookup.Provider lookup;
 
-    private LazyPacketData(Map<String,Data> data) { this.dataMap = ImmutableMap.copyOf(data); }
+    private LazyPacketData(@Nonnull Map<String,Data> data, @Nonnull HolderLookup.Provider lookup) { this.dataMap = ImmutableMap.copyOf(data); this.lookup = lookup; }
 
     @Nonnull
     private Data getData(String key) { return this.dataMap.getOrDefault(key, Data.NULL); }
@@ -100,7 +106,7 @@ public final class LazyPacketData {
     {
         Data d = this.getData(key);
         if(d.type == TYPE_STRING)
-            return new ResourceLocation((String)d.value);
+            return ResourceLocation.parse((String)d.value);
         return defaultValue;
     }
 
@@ -122,6 +128,13 @@ public final class LazyPacketData {
         return defaultValue;
     }
 
+    public ItemStack getItem(String key) { return this.getItem(key,ItemStack.EMPTY); }
+    public ItemStack getItem(String key, ItemStack defaultValue) {
+        Data d = this.getData(key);
+        if(d.type == TYPE_NBT)
+            return InventoryUtil.loadItemNoLimits((CompoundTag)d.value,this.lookup);
+        return defaultValue;
+    }
     public MoneyValue getMoneyValue(String key) { return this.getMoneyValue(key, MoneyValue.empty()); }
     public MoneyValue getMoneyValue(String key, MoneyValue defaultValue)
     {
@@ -130,8 +143,16 @@ public final class LazyPacketData {
             return MoneyValue.load((CompoundTag)d.value);
         return defaultValue;
     }
+    public Owner getOwner(String key) { return this.getOwner(key,null); }
+    public Owner getOwner(String key, Owner defaultValue)
+    {
+        Data d = this.getData(key);
+        if(d.type == TYPE_NBT)
+            return Owner.load((CompoundTag)d.value,this.lookup);
+        return defaultValue;
+    }
 
-    public void encode(FriendlyByteBuf buffer)
+    public void encode(RegistryFriendlyByteBuf buffer)
     {
         //Write the entry count
         buffer.writeInt(this.dataMap.entrySet().size());
@@ -143,7 +164,7 @@ public final class LazyPacketData {
         });
     }
 
-    public static LazyPacketData decode(FriendlyByteBuf buffer) {
+    public static LazyPacketData decode(RegistryFriendlyByteBuf buffer) {
         int count = buffer.readInt();
         HashMap<String,Data> dataMap = new HashMap<>();
         for(int i = 0; i < count; ++i)
@@ -152,48 +173,47 @@ public final class LazyPacketData {
             Data data = Data.decode(buffer);
             dataMap.put(key, data);
         }
-        return new LazyPacketData(dataMap);
+        return new LazyPacketData(dataMap, buffer.registryAccess());
     }
 
     public Builder copyToBuilder()
     {
-        Builder b = new Builder();
+        Builder b = new Builder(this.lookup);
         this.dataMap.forEach(b::addData);
         return b;
     }
-    public static Builder builder() { return new Builder(); }
-    public static Builder simpleFlag(String key) { return simpleBoolean(key, true); }
-    public static Builder simpleBoolean(String key, boolean value) { return builder().setBoolean(key, value); }
-    public static Builder simpleInt(String key, int value) { return builder().setInt(key, value); }
-    public static Builder simpleLong(String key, long value) { return builder().setLong(key, value); }
-    public static Builder simpleFloat(String key, float value) { return builder().setFloat(key, value); }
-    public static Builder simpleDouble(String key, double value) { return builder().setDouble(key, value); }
-    public static Builder simpleString(String key, String value) { return builder().setString(key, value); }
-    public static Builder simpleText(String key, Component value) { return builder().setText(key, value); }
-    public static Builder simpleTag(String key, CompoundTag value) { return builder().setCompound(key, value); }
-    public static Builder simpleMoneyValue(String key, MoneyValue value) { return builder().setMoneyValue(key, value); }
-
+    public static Builder builder(@Nonnull HolderLookup.Provider lookup) { return new Builder(lookup); }
     public static final class Builder
     {
-        private Builder() {}
+        private final HolderLookup.Provider lookup;
+        private Builder(@Nonnull HolderLookup.Provider lookup) { this.lookup = lookup; }
         Map<String,Data> data = new HashMap<>();
 
         private void addData(@Nonnull String key, @Nonnull Data data) { this.data.put(key, data); }
+        public Builder setFlag(@Nonnull String key) { this.data.put(key, Data.ofBoolean(true)); return this; }
         public Builder setBoolean(@Nonnull String key, boolean value) { this.data.put(key, Data.ofBoolean(value)); return this; }
         public Builder setInt(@Nonnull String key, int value) { this.data.put(key, Data.ofInt(value)); return this; }
         public Builder setLong(@Nonnull String key, long value) { this.data.put(key, Data.ofLong(value)); return this; }
         public Builder setFloat(@Nonnull String key, float value) { this.data.put(key, Data.ofFloat(value)); return this; }
         public Builder setDouble(@Nonnull String key, double value) { this.data.put(key, Data.ofDouble(value)); return this; }
-        public Builder setString(@Nonnull String key, String value) { this.data.put(key, Data.ofString(value)); return this; }
+        public Builder setString(@Nonnull String key, @Nonnull String value) { this.data.put(key, Data.ofString(value)); return this; }
 
-        public Builder setResourceLocation(String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
-        public Builder setText(String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
-        public Builder setCompound(String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
-        public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value)); return this; }
+        public Builder setResourceLocation(@Nonnull String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
+        public Builder setText(@Nonnull String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
+        public Builder setCompound(@Nonnull String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
+        public Builder setItem(@Nonnull String key, ItemStack value) { this.data.put(key, Data.ofItem(value,this.lookup)); return this; }
+        public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value,this.lookup)); return this; }
+        public Builder setOwner(String key, Owner value) { this.data.put(key, Data.ofOwner(value,this.lookup)); return this; }
 
 
-        public LazyPacketData build() { return new LazyPacketData(this.data); }
+        public LazyPacketData build() { return new LazyPacketData(this.data, this.lookup); }
 
+    }
+
+    public interface IBuilderProvider
+    {
+        @Nonnull
+        Builder builder();
     }
 
     private record Data(byte type, Object value) {
@@ -210,16 +230,25 @@ public final class LazyPacketData {
         static Data ofResourceLocation(@Nullable ResourceLocation value) { return value == null ? NULL : new Data(TYPE_STRING, value.toString()); }
         static Data ofText(@Nullable Component value) { return value == null ? NULL : new Data(TYPE_TEXT, value); }
         static Data ofNBT(@Nullable CompoundTag value) { return value == null ? NULL : new Data(TYPE_NBT, value); }
-        static Data ofMoneyValue(@Nullable MoneyValue value) {
+        static Data ofItem(@Nullable ItemStack value, @Nonnull HolderLookup.Provider lookup) {
+            return value == null ? NULL : ofNBT(InventoryUtil.saveItemNoLimits(value,lookup));
+        }
+        static Data ofMoneyValue(@Nullable MoneyValue value, @Nonnull HolderLookup.Provider lookup) {
             //return value == null ? NULL : ofNBT(value.save());
             if(value == null)
                 return NULL;
             CompoundTag tag = value.save();
-            LightmansCurrency.LogDebug("Saving Money Value to tag!\n" + tag.getAsString());
+            //LightmansCurrency.LogDebug("Saving Money Value to tag!\n" + tag.getAsString());
+            return ofNBT(tag);
+        }
+        static Data ofOwner(@Nullable Owner value, @Nonnull HolderLookup.Provider lookup) {
+            if(value == null)
+                return NULL;
+            CompoundTag tag = value.save(lookup);
             return ofNBT(tag);
         }
 
-        void encode(FriendlyByteBuf buffer)
+        void encode(RegistryFriendlyByteBuf buffer)
         {
             //Normal Values
             if(this.type == TYPE_BOOLEAN)
@@ -241,12 +270,12 @@ public final class LazyPacketData {
 
             //MC values
             if(this.type == TYPE_TEXT)
-                buffer.writeUtf(Component.Serializer.toJson((Component)this.value));
+                ComponentSerialization.STREAM_CODEC.encode(buffer,(Component)this.value);
             if(this.type == TYPE_NBT)
                 buffer.writeNbt((CompoundTag)this.value);
         }
 
-        static Data decode(FriendlyByteBuf buffer)
+        static Data decode(RegistryFriendlyByteBuf buffer)
         {
             byte type = buffer.readByte();
             //Normal Values
@@ -270,9 +299,9 @@ public final class LazyPacketData {
 
             //Minecraft Values
             if(type == TYPE_TEXT)
-                return ofText(Component.Serializer.fromJson(buffer.readUtf()));
+                return ofText(ComponentSerialization.STREAM_CODEC.decode(buffer));
             if(type == TYPE_NBT)
-                return ofNBT(buffer.readAnySizeNbt());
+                return ofNBT((CompoundTag)buffer.readNbt(NbtAccounter.unlimitedHeap()));
             throw new RuntimeException("Could not decode entry of type " + type + "as it is not a valid data entry type!");
         }
 

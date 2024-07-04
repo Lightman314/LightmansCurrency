@@ -3,17 +3,17 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -37,8 +37,9 @@ public class CashRegisterItem extends BlockItem{
 		super(block, properties.stacksTo(1));
 	}
 	
+	@Nonnull
 	@Override
-	public @NotNull InteractionResult useOn(UseOnContext context) {
+	public InteractionResult useOn(UseOnContext context) {
 		
 		BlockPos lookPos = context.getClickedPos();
 		Level level = context.getLevel();
@@ -74,89 +75,38 @@ public class CashRegisterItem extends BlockItem{
 	{
 		
 		//Get the tag
-		if(!stack.hasTag())
-			return false;
-		
-		CompoundTag tag = stack.getTag();
 
-		assert tag != null;
-		if(!tag.contains("TraderPos"))
+		if(!stack.has(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS))
 			return false;
-		
-		ListTag storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);
-		
-		for(int i = 0; i < storageList.size(); i++)
-		{
-			CompoundTag thisEntry = storageList.getCompound(i);
-			if(thisEntry.contains("x") && thisEntry.contains("y") && thisEntry.contains("z"))
-			{
-				if(thisEntry.getInt("x") == blockEntity.getBlockPos().getX() && thisEntry.getInt("y") == blockEntity.getBlockPos().getY() && thisEntry.getInt("z") == blockEntity.getBlockPos().getZ())
-					return true;
-			}
-		}
-		
-		return false;
+
+		return stack.get(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS).stream().anyMatch(p -> p.equals(blockEntity.getBlockPos()));
 		
 	}
 	
-	private void AddEntity(ItemStack stack, BlockEntity blockEntity)
+	private void AddEntity(@Nonnull ItemStack stack, BlockEntity blockEntity)
 	{
-		//Get the tag
-		CompoundTag tag = stack.getOrCreateTag();
-		
-		//If the tag contains the TraderPos list, get it, otherwise create a new list
-		ListTag storageList;
-		if(tag.contains("TraderPos"))
-			storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);
-		else
-			storageList = new ListTag();
-		
-		//Create the new entry to the list
-		CompoundTag newEntry = new CompoundTag();
-		newEntry.putInt("x", blockEntity.getBlockPos().getX());
-		newEntry.putInt("y", blockEntity.getBlockPos().getY());
-		newEntry.putInt("z", blockEntity.getBlockPos().getZ());
-		
-		//Add the new entry to the list
-		storageList.add(newEntry);
-		
-		//Put the modified list into the tag
-		tag.put("TraderPos", storageList);
+		//Get the current list (or an empty list if not present)
+		List<BlockPos> editableList = new ArrayList<>(getNonnullData(stack));
+
+		//Add the positoin to it
+		editableList.add(blockEntity.getBlockPos());
+
+		//Put the modified result back into the stack
+		stack.set(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS, ImmutableList.copyOf(editableList));
 		
 	}
-	
-	private List<BlockPos> readNBT(ItemStack stack)
+
+	@Nonnull
+	public static List<BlockPos> getNonnullData(@Nonnull ItemStack stack)
 	{
-		List<BlockPos> positions = new ArrayList<>();
-		
-		//Get the tag
-		if(!stack.hasTag())
-			return positions;
-		
-		CompoundTag tag = stack.getTag();
-		assert tag != null;
-		if(tag.contains("TraderPos"))
-		{
-			ListTag list = tag.getList("TraderPos", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); i++)
-			{
-				CompoundTag thisPos = list.getCompound(i);
-				if(thisPos.contains("x") && thisPos.contains("y") && thisPos.contains("z"))
-				{
-					positions.add(new BlockPos(thisPos.getInt("x"),thisPos.getInt("y"),thisPos.getInt("z")));
-				}
-			}
-		}
-		
-		return positions;
-		
+		return stack.has(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS) ? stack.get(ModDataComponents.CASH_REGISTER_TRADER_POSITIONS) : new ArrayList<>();
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
-		super.appendHoverText(stack,  level,  tooltip,  flagIn);
-		List<BlockPos> data = this.readNBT(stack);
+		super.appendHoverText(stack,  context,  tooltip,  flagIn);
+		List<BlockPos> data = getNonnullData(stack);
 
 		tooltip.addAll(LCText.TOOLTIP_CASH_REGISTER.get());
 

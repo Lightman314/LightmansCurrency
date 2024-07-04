@@ -483,7 +483,7 @@ public final class LCConfig {
 
     public static final class Server extends SyncedConfigFile
     {
-        private Server() { super("lightmanscurrency-server", new ResourceLocation(LightmansCurrency.MODID,"server")); }
+        private Server() { super("lightmanscurrency-server", ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"server")); }
 
         //Notification Limit
         public final IntOption notificationLimit = IntOption.create(500, 0);
@@ -531,7 +531,6 @@ public final class LCConfig {
 
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
-        public final IntOption enchantmentMaxTickDelay = IntOption.create(40, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
         public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.sameType(this.moneyMendingRepairCost.get()));
         public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
@@ -678,13 +677,13 @@ public final class LCConfig {
 
             builder.comment("Upgrade Settings").push("upgrades").comment("Item Capacity Upgrade").push("item_capacity");
 
-            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Iron)")
+            builder.comment("The amount of item storage added by the Item Capacity Upgrade (Iron)")
                     .add("itemCapacity1", this.itemCapacityUpgrade1);
-            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Gold)")
+            builder.comment("The amount of item storage added by the Item Capacity Upgrade (Gold)")
                     .add("itemCapacity2", this.itemCapacityUpgrade2);
-            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
+            builder.comment("The amount of item storage added by the Item Capacity Upgrade (Diamond)")
                     .add("itemCapacity3", this.itemCapacityUpgrade3);
-            builder.comment("The amount of item storage added by the first Item Capacity Upgrade (Diamond)")
+            builder.comment("The amount of item storage added by the Item Capacity Upgrade (Netherite)")
                     .add("itemCapacity4", this.itemCapacityUpgrade4);
 
             builder.pop().comment("Money Chest Magnet Upgrade").push("money_chest_magnet");
@@ -703,15 +702,10 @@ public final class LCConfig {
 
             builder.comment("Enchantment Settings").push("enchantments");
 
-            builder.comment("The desired delay (in ticks) between Money Mending & Coin Magnet ticks. This value will be ignored in favor of 'maxTickDelay' if the server is overloaded and/or falling behind.",
+            builder.comment("The delay (in ticks) between Money Mending & Coin Magnet ticks.",
                             "Increase if my enchantments are causing extreme lag.",
                             "Note: 20 ticks = 1s")
                     .add("tickDelay", this.enchantmentTickDelay);
-
-            builder.comment("The maximum delay (in ticks) between Money Mending & Coin Magnet ticks.",
-                            "If greater than 0, will run the Money Mending & Coin Magnet ticks this frequently even if the server is falling behind.",
-                            "Note: 20 ticks = 1s")
-                    .add("maxTickDelay", this.enchantmentMaxTickDelay);
 
             builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
                     .add("moneyMendingRepairCost", this.moneyMendingRepairCost);

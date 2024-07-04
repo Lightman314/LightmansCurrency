@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration.discord.listeners;
-
+/*
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.integration.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.integration.discord.data.CurrencyBotData;
 import io.github.lightman314.lightmanscurrency.integration.discord.data.CurrencyBotSaveData;
@@ -43,12 +44,14 @@ import io.github.lightman314.lightmansdiscord.discord.links.AccountManager;
 import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansdiscord.message.MessageManager;
 import net.dv8tion.jda.api.entities.User;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 public class CurrencyListener extends SafeSingleChannelListener {
 	
@@ -213,7 +216,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				traderList.forEach(trader -> {
 					try {
 						if(searchType.acceptTrader(trader, searchText))
-							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
+							NeoForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
 					} catch(Throwable e) { LightmansCurrency.LogError("Error during the DiscordTraderSearchEvent!", e); }
 				});
 				if(!output.isEmpty())
@@ -229,22 +232,24 @@ public class CurrencyListener extends SafeSingleChannelListener {
 		if(item.isEmpty())
 			return "";
 		//Ignore custom names on purchases
-		StringBuffer itemName = new StringBuffer();
+		StringBuilder itemName = new StringBuilder();
 		if(customName.isEmpty())
 			itemName.append(item.getHoverName().getString());
 		else
 			itemName.append("*").append(customName).append("*");
 		//Get enchantment data (if present)
 		AtomicBoolean firstEnchantment = new AtomicBoolean(true);
-		EnchantmentHelper.getEnchantments(item).forEach((enchantment, level) ->{
+		ItemEnchantments enchantments = item.getAllEnchantments(LookupHelper.getRegistryAccess(false).lookupOrThrow(Registries.ENCHANTMENT));
+		for(var entry : enchantments.entrySet())
+		{
 			if(firstEnchantment.get())
 			{
-				itemName.append(" [").append(enchantment.getFullname(level).getString());
+				itemName.append(" [").append(Enchantment.getFullname(entry.getKey(),entry.getIntValue()).getString());
 				firstEnchantment.set(false);
 			}
 			else
-				itemName.append(", ").append(enchantment.getFullname(level).getString());
-		});
+				itemName.append(", ").append(Enchantment.getFullname(entry.getKey(),entry.getIntValue()).getString());
+		}
 		if(!firstEnchantment.get()) //If an enchantment was gotten, append the end
 			itemName.append("]");
 		
@@ -509,38 +514,5 @@ public class CurrencyListener extends SafeSingleChannelListener {
 		
 	}
 	
-	public enum SearchCategory
-	{
-		TRADE_SALE(trade -> trade.getTradeDirection() == TradeDirection.SALE),
-		TRADE_PURCHASE(trade -> trade.getTradeDirection() == TradeDirection.PURCHASE),
-		TRADE_BARTER(trade -> trade.getTradeDirection() == TradeDirection.BARTER),
-		TRADE_ANY(trade -> true),
-		
-		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getName().getString().toLowerCase().contains(search)),
-		TRADER_NAME((trader,search) -> search.isEmpty() || trader.getName().getString().toLowerCase().contains(search)),
-		TRADER_ANY((trader,search) -> true);
-		
-		private final boolean filterByTrade;
-		public boolean filterByTrade() { return this.filterByTrade; }
-		
-		private final Function<TradeData,Boolean> tradeFilter;
-		public boolean acceptTradeType(TradeData trade) { return this.tradeFilter.apply(trade); }
-		
-		private final BiFunction<TraderData,String,Boolean> acceptTrader;
-		public boolean acceptTrader(TraderData trader, String searchText) { return this.acceptTrader.apply(trader, searchText); }
-		
-		SearchCategory(Function<TradeData,Boolean> tradeFilter) {
-			this.filterByTrade = true;
-			this.tradeFilter = tradeFilter;
-			this.acceptTrader = (t,s) -> true;
-		}
-		
-		SearchCategory(BiFunction<TraderData,String,Boolean> acceptTrader) {
-			this.filterByTrade = false;
-			this.tradeFilter = (t) -> true;
-			this.acceptTrader = acceptTrader;
-		}
-		
-	}
-	
 }
+//*/

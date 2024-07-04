@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -88,14 +89,14 @@ public class TaxBlockEntity extends EasyBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         compound.putLong("EntryID", this.taxEntryID);
-        super.saveAdditional(compound);
+        super.saveAdditional(compound,lookup);
     }
 
     @Override
-    public void load(@Nonnull CompoundTag compound) {
-        super.load(compound);
+    public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+        super.loadAdditional(compound,lookup);
         if(compound.contains("EntryID"))
             this.taxEntryID = compound.getLong("EntryID");
     }

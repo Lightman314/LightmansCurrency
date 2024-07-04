@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 

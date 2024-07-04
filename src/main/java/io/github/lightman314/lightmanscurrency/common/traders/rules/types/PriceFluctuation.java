@@ -16,16 +16,17 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakin
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class PriceFluctuation extends PriceTweakingTradeRule {
 
-	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "price_fluctuation"),PriceFluctuation::new);
+	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "price_fluctuation"),PriceFluctuation::new);
 	
 	long duration = TimeUtil.DURATION_DAY;
 	public long getDuration() { return this.duration; }
@@ -78,7 +79,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		compound.putLong("Duration", this.duration);
 		compound.putInt("Fluctuation", this.fluctuation);
@@ -86,7 +87,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		this.duration = compound.getLong("Duration");
 		if(this.duration <= 0)
@@ -97,7 +98,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		
 		json.addProperty("Duration", this.duration);
 		json.addProperty("Fluctuation", this.fluctuation);
@@ -106,7 +107,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		if(json.has("Duration"))
 			this.duration = json.get("Duration").getAsLong();
 		if(json.has("Fluctuation"))
@@ -114,9 +115,9 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() { return null; }
+	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) { return null; }
 	@Override
-	public void loadPersistentData(CompoundTag data) {}
+	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {}
 	
 	@Override
 	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {

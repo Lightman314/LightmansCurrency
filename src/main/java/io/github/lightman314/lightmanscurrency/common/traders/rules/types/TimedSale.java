@@ -16,17 +16,18 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEv
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class TimedSale extends PriceTweakingTradeRule {
 
-	public static final TradeRuleType<TimedSale> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "timed_sale"),TimedSale::new);
+	public static final TradeRuleType<TimedSale> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "timed_sale"),TimedSale::new);
 	
 	long startTime = 0;
 	public void setStartTime(long time) { this.startTime = time; }
@@ -88,7 +89,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		//Write start time
 		compound.putLong("startTime", this.startTime);
@@ -99,7 +100,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json) {
+	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		
 		json.addProperty("duration", this.duration);
 		json.addProperty("discount", this.discount);
@@ -108,7 +109,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		//Load start time
 		if(compound.contains("startTime", Tag.TAG_LONG))
@@ -123,7 +124,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json) {
+	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		if(json.has("duration"))
 			this.duration = json.get("duration").getAsLong();
 		if(json.has("discount"))
@@ -153,13 +154,13 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() {
+	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		compound.putLong("startTime", this.startTime);
 		return compound;
 	}
 	@Override
-	public void loadPersistentData(CompoundTag data) {
+	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
 		if(data.contains("startTime", Tag.TAG_LONG))
 			this.startTime = data.getLong("startTime");
 	}

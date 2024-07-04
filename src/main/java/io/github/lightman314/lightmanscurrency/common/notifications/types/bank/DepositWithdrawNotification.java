@@ -8,19 +8,20 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public abstract class DepositWithdrawNotification extends Notification {
 
-	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_deposit_player"),DepositWithdrawNotification::createPlayer);
-	public static final NotificationType<Trader> TRADER_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);
-	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_deposit_server"),DepositWithdrawNotification::createServer);
+	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_player"),DepositWithdrawNotification::createPlayer);
+	public static final NotificationType<Trader> TRADER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);
+	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_server"),DepositWithdrawNotification::createServer);
 
 	protected MutableComponent accountName;
 	protected boolean isDeposit;
@@ -34,15 +35,15 @@ public abstract class DepositWithdrawNotification extends Notification {
 	public NotificationCategory getCategory() { return new BankCategory(this.accountName); }
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
-		compound.putString("Name", Component.Serializer.toJson(this.accountName));
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		compound.putString("Name", Component.Serializer.toJson(this.accountName,lookup));
 		compound.putBoolean("Deposit", this.isDeposit);
 		compound.put("Amount", this.amount.save());
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
-		this.accountName = Component.Serializer.fromJson(compound.getString("Name"));
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.accountName = Component.Serializer.fromJson(compound.getString("Name"),lookup);
 		this.isDeposit = compound.getBoolean("Deposit");
 		this.amount = MoneyValue.safeLoad(compound, "Amount");
 	}
@@ -72,14 +73,14 @@ public abstract class DepositWithdrawNotification extends Notification {
 		protected NotificationType<Player> getType() { return PLAYER_TYPE; }
 		
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {
-			super.saveAdditional(compound);
+		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.saveAdditional(compound,lookup);
 			compound.put("Player", this.player.save());
 		}
 		
 		@Override
-		protected void loadAdditional(@Nonnull CompoundTag compound) {
-			super.loadAdditional(compound);
+		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.loadAdditional(compound,lookup);
 			this.player = PlayerReference.load(compound.getCompound("Player"));
 		}
 		
@@ -106,15 +107,15 @@ public abstract class DepositWithdrawNotification extends Notification {
 		protected NotificationType<Trader> getType() { return TRADER_TYPE; }
 		
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {
-			super.saveAdditional(compound);
-			compound.putString("Trader", Component.Serializer.toJson(this.traderName));
+		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.saveAdditional(compound,lookup);
+			compound.putString("Trader", Component.Serializer.toJson(this.traderName,lookup));
 		}
 		
 		@Override
-		protected void loadAdditional(@Nonnull CompoundTag compound) {
-			super.loadAdditional(compound);
-			this.traderName = Component.Serializer.fromJson(compound.getString("Trader"));
+		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.loadAdditional(compound,lookup);
+			this.traderName = Component.Serializer.fromJson(compound.getString("Trader"),lookup);
 		}
 		
 		@Override
@@ -131,7 +132,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 		private Server() {}
 		private Server(MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); }
 
-		public static NonNullSupplier<Notification> create(@Nonnull MutableComponent accountName, boolean isDeposit, @Nonnull MoneyValue amount) { return () -> new Server(accountName,isDeposit,amount); }
+		public static Supplier<Notification> create(@Nonnull MutableComponent accountName, boolean isDeposit, @Nonnull MoneyValue amount) { return () -> new Server(accountName,isDeposit,amount); }
 
 		@Override
 		protected MutableComponent getName() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER.get(); }

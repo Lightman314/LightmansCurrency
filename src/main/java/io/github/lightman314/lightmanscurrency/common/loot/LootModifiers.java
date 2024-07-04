@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.loot;
 
-import com.mojang.serialization.Codec;
-
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.loot.glm.CoinsInChestsModifier;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+
+import java.util.function.Supplier;
 
 public class LootModifiers {
 	
@@ -12,10 +13,10 @@ public class LootModifiers {
 	
 	static {
 		
-		COINS_IN_CHESTS = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("coins_in_chests", CoinsInChestsModifier.Serializer::new);
+		COINS_IN_CHESTS = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("coins_in_chests", () -> CoinsInChestsModifier.SERIALIZER);
 		
 	}
 	
-	public static final RegistryObject<Codec<CoinsInChestsModifier>> COINS_IN_CHESTS;
+	public static final Supplier<MapCodec<? extends IGlobalLootModifier>> COINS_IN_CHESTS;
 	
 }

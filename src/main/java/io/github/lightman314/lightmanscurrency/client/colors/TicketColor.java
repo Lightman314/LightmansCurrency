@@ -9,16 +9,17 @@ public class TicketColor implements ItemColor{
 
 	@Override
 	public int getColor(@NotNull ItemStack itemStack, int color) {
+		//Apparently these now require an alpha channel, so now adding 0xFF000000 to all colors to ensure alpha is always full
 		//Get the Ticket's Color
 		if(color == 0)
-			return TicketItem.GetTicketColor(itemStack);
+			return 0xFF000000 + TicketItem.GetTicketColor(itemStack);
 
 		//Get the Ticket's Inverted Color
 		if(color == 1)
-			return 0xFFFFFF - TicketItem.GetTicketColor(itemStack);
+			return 0xFFFFFFFF - TicketItem.GetTicketColor(itemStack);
 
 		//N/A
-		return 0xFFFFFF;
+		return 0xFFFFFFFF;
 	}
 	
 }

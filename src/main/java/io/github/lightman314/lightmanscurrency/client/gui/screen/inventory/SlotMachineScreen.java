@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,7 +39,7 @@ import java.util.List;
 
 public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/slot_machine.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/slot_machine.png");
 
     public static final int WIDTH = 176;
     public static final int HEIGHT = 222;
@@ -222,7 +221,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         return ImmutableList.of();
     }
 
-    private void ExecuteTrade(int count) { this.menu.SendMessageToServer(LazyPacketData.builder().setInt("ExecuteTrade", count)); }
+    private void ExecuteTrade(int count) { this.menu.SendMessageToServer(this.builder().setInt("ExecuteTrade", count)); }
 
     private void OpenStorage(EasyButton button) {
         if(this.menu.getTrader() != null)

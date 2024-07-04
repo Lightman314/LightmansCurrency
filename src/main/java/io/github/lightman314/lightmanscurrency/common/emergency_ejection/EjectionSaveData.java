@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,26 +21,26 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class EjectionSaveData extends SavedData {
 
 	private final List<EjectionData> emergencyEjectionData = new ArrayList<>();
 	
 	private EjectionSaveData() {}
-	private EjectionSaveData(CompoundTag compound) {
+	private EjectionSaveData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag ejectionData = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < ejectionData.size(); ++i)
 		{
 			try {
-				EjectionData e = EjectionData.loadData(ejectionData.getCompound(i));
+				EjectionData e = EjectionData.loadData(ejectionData.getCompound(i),lookup);
 				if(e != null && !e.isEmpty())
 					this.emergencyEjectionData.add(e);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
@@ -48,10 +50,10 @@ public class EjectionSaveData extends SavedData {
 	}
 	
 	@Nonnull
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag ejectionData = new ListTag();
-		this.emergencyEjectionData.forEach(data -> ejectionData.add(data.save()));
+		this.emergencyEjectionData.forEach(data -> ejectionData.add(data.save(lookup)));
 		compound.put("EmergencyEjectionData", ejectionData);
 		
 		return compound;
@@ -63,7 +65,7 @@ public class EjectionSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(EjectionSaveData::new, EjectionSaveData::new, "lightmanscurrency_ejection_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(EjectionSaveData::new, EjectionSaveData::new), "lightmanscurrency_ejection_data");
 		}
 		return null;
 	}
@@ -85,9 +87,7 @@ public class EjectionSaveData extends SavedData {
 	public static List<EjectionData> GetValidEjectionData(boolean isClient, Player player)
 	{
 		List<EjectionData> ejectionData = GetEjectionData(isClient);
-		if(ejectionData != null)
-			return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
-		return new ArrayList<>();
+		return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
 	}
 
 	/** @deprecated Use only to transfer ejection data from the old Trading Office. */
@@ -145,7 +145,7 @@ public class EjectionSaveData extends SavedData {
 			//Send update packet to all connected clients
 			CompoundTag compound = new CompoundTag();
 			ListTag ejectionList = new ListTag();
-			esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save()));
+			esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save(LookupHelper.getRegistryAccess(false))));
 			compound.put("EmergencyEjectionData", ejectionList);
 			new SPacketSyncEjectionData(compound).sendToAll();
 		}
@@ -159,7 +159,7 @@ public class EjectionSaveData extends SavedData {
 		//Send ejection data
 		CompoundTag compound = new CompoundTag();
 		ListTag ejectionList = new ListTag();
-		esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save()));
+		esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save(LookupHelper.getRegistryAccess(false))));
 		compound.put("EmergencyEjectionData", ejectionList);
 		new SPacketSyncEjectionData(compound).sendTo(event.getEntity());
 	}

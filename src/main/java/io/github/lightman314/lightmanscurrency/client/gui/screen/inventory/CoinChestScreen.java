@@ -24,7 +24,7 @@ import java.util.List;
 
 public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coin_chest.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/coin_chest.png");
 
     int currentTabIndex = 0;
     List<CoinChestTab> tabs = Lists.newArrayList(new DefaultTab(this));

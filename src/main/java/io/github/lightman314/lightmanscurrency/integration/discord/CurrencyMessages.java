@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.discord;
-
+/*
 import io.github.lightman314.lightmansdiscord.events.LoadMessageEntriesEvent;
 import io.github.lightman314.lightmansdiscord.message.MessageEntry;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,3 +55,4 @@ public class CurrencyMessages {
 	public static void registerMessages(LoadMessageEntriesEvent event) { event.register(ENTRIES); }
 
 }
+//*/

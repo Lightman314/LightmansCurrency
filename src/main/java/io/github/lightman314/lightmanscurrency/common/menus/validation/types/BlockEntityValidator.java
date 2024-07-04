@@ -55,7 +55,7 @@ public class BlockEntityValidator extends MenuValidator {
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(new ResourceLocation(LightmansCurrency.MODID, "block_entity")); }
+        protected Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block_entity")); }
 
         @Nonnull
         @Override

@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 
 public class ItemTraderDataArmor extends ItemTraderData {
 
-	public static final TraderType<ItemTraderDataArmor> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader_armor"),ItemTraderDataArmor::new);
+	public static final TraderType<ItemTraderDataArmor> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trader_armor"),ItemTraderDataArmor::new);
 	
 	private ItemTraderDataArmor() { super(TYPE); }
 	public ItemTraderDataArmor(Level level, BlockPos pos) { super(TYPE, 4, level, pos); }

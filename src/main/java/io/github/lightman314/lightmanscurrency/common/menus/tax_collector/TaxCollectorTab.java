@@ -4,12 +4,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public abstract class TaxCollectorTab implements IClientTracker {
+public abstract class TaxCollectorTab implements IClientTracker, LazyPacketData.IBuilderProvider {
 
     @Override
     public boolean isClient() { return this.menu.isClient(); }
@@ -20,6 +22,12 @@ public abstract class TaxCollectorTab implements IClientTracker {
     public final boolean isOwner() { return this.menu.isOwner(); }
     public final boolean isServerEntry() { return this.menu.isServerEntry(); }
     protected TaxCollectorTab(TaxCollectorMenu menu) { this.menu = menu; }
+
+    @Nonnull
+    public final RegistryAccess registryAccess() { return this.menu.registryAccess(); }
+    @Nonnull
+    @Override
+    public final LazyPacketData.Builder builder() { return this.menu.builder(); }
 
     public abstract Object createClientTab(Object screen);
 

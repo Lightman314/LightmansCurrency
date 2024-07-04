@@ -47,7 +47,7 @@ public class PlayerBankReference extends BankReference {
     public boolean canPersist(@Nonnull Player player) { return this.playerID.equals(player.getUUID()); }
 
     private static final class Type extends BankReferenceType {
-        Type() { super(new ResourceLocation(LightmansCurrency.MODID, "personal")); }
+        Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "personal")); }
         @Override
         public BankReference load(CompoundTag tag) { return of(tag.getUUID("PlayerID")); }
         @Override

@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -32,7 +33,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -140,7 +140,7 @@ public final class CoinValue extends MoneyValue
 			for(int i = 0; i < valueList.size(); ++i)
 			{
 				CompoundTag entry = valueList.getCompound(i);
-				Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(entry.getString("Coin")));
+				Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(entry.getString("Coin")));
 				int amount = entry.getInt("Amount");
 				if(chainData == null)
 					chainData = CoinAPI.API.ChainDataOfCoin(coin);
@@ -172,7 +172,7 @@ public final class CoinValue extends MoneyValue
 			for(int i = 0; i < listNBT.size(); i++)
 			{
 				CompoundTag thisCompound = listNBT.getCompound(i);
-				Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(thisCompound.getString("id")));
+				Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(thisCompound.getString("id")));
 				int amount = thisCompound.getInt("amount");
 				if(chainData == null)
 					chainData = CoinAPI.API.ChainDataOfCoin(coin);
@@ -366,7 +366,7 @@ public final class CoinValue extends MoneyValue
 		while(!list.isEmpty())
 		{
 			//Get the largest index
-			long largestValue = chainData.getCoreValue(list.get(0).coin);
+			long largestValue = chainData.getCoreValue(list.getFirst().coin);
 			int largestIndex = 0;
 			for(int i = 1; i < list.size(); i++)
 			{
@@ -523,7 +523,7 @@ public final class CoinValue extends MoneyValue
 				try {
 					JsonObject coinData = list.get(i).getAsJsonObject();
 					//Parse coin
-					Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(coinData, "Coin")));
+					Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(coinData, "Coin")));
 					if(chainData == null)
 						chainData = CoinAPI.API.ChainDataOfCoin(coin);
 					//Parse count
@@ -566,7 +566,7 @@ public final class CoinValue extends MoneyValue
 					try {
 						JsonObject coinData = valueList.get(i).getAsJsonObject();
 						//Parse coin
-						Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(coinData, "Coin")));
+						Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(coinData, "Coin")));
 						if(chainData == null)
 							chainData = CoinAPI.API.ChainDataOfCoin(coin);
 						//Parse count
@@ -613,7 +613,7 @@ public final class CoinValue extends MoneyValue
 		{
 			if(!sb.isEmpty())
 				sb.append(',');
-			sb.append(pair.amount).append('x').append(ForgeRegistries.ITEMS.getKey(pair.coin));
+			sb.append(pair.amount).append('x').append(BuiltInRegistries.ITEM.getKey(pair.coin));
 		}
 		return "CoinValue:" + sb;
 	}

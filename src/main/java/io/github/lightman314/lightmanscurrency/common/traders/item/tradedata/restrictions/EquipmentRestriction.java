@@ -3,14 +3,15 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.re
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EquipmentRestriction extends ItemTradeRestriction {
 
@@ -43,8 +44,12 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	}
 
 	private boolean vanillaEquippable(ItemStack item) {
-		try { return Mob.getEquipmentSlotForItem(item) == this.equipmentType;
-		} catch(Throwable t) { t.printStackTrace(); return false; }
+		try {
+			Equipable equipable = Equipable.get(item);
+			if(equipable != null)
+				return equipable.getEquipmentSlot() == this.equipmentType;
+			return false;
+		} catch(Throwable t) { LightmansCurrency.LogError("Error attempting to get equipment slot for " + BuiltInRegistries.ITEM.getKey(item.getItem()) + "!",t); return false; }
 	}
 	
 	@Override

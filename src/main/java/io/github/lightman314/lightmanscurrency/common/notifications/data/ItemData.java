@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.notifications.data;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -56,31 +57,31 @@ public class ItemData
     }
 
     @Nonnull
-    public CompoundTag save()
+    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
-        tag.put("Stack", this.stack.save(new CompoundTag()));
+        tag.put("Stack", InventoryUtil.saveItemNoLimits(this.stack,lookup));
         tag.putString("CustomName", this.customName);
         if(this.deprecatedName != null)
-            tag.putString("DeprecatedName", Component.Serializer.toJson(this.deprecatedName));
+            tag.putString("DeprecatedName", Component.Serializer.toJson(this.deprecatedName,lookup));
         return tag;
     }
 
-    public static ItemData load(@Nonnull CompoundTag tag)
+    public static ItemData load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         if(tag.contains("Empty"))
             return new ItemData(ItemStack.EMPTY,"");
         if(tag.contains("Name"))
         {
-            MutableComponent deprecatedName = Component.Serializer.fromJson(tag.getString("Name"));
+            MutableComponent deprecatedName = Component.Serializer.fromJson(tag.getString("Name"),lookup);
             int count = tag.getInt("Count");
             return new ItemData(deprecatedName,count);
         }
-        ItemStack stack = ItemStack.of(tag.getCompound("Stack"));
+        ItemStack stack = InventoryUtil.loadItemNoLimits(tag.getCompound("Stack"),lookup);
         String customName = tag.getString("CustomName");
         MutableComponent deprecatedName = null;
         if(tag.contains("DeprecatedName"))
-            deprecatedName = Component.Serializer.fromJson(tag.getString("DeprecatedName"));
+            deprecatedName = Component.Serializer.fromJson(tag.getString("DeprecatedName"),lookup);
         return new ItemData(stack,deprecatedName,customName);
     }
 

@@ -4,10 +4,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class FloatOption extends ConfigOption<Float> {
 
@@ -17,7 +17,7 @@ public class FloatOption extends ConfigOption<Float> {
     private final float upperLimit;
     private final ConfigParser<Float> parser;
 
-    protected FloatOption(@Nonnull NonNullSupplier<Float> defaultValue, float lowerLimit, float upperLimit) {
+    protected FloatOption(@Nonnull Supplier<Float> defaultValue, float lowerLimit, float upperLimit) {
         super(defaultValue);
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -33,9 +33,9 @@ public class FloatOption extends ConfigOption<Float> {
     public static FloatOption create(float defaultValue) { return new FloatOption(() -> defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
     public static FloatOption create(float defaultValue, float lowerLimit) { return new FloatOption(() -> defaultValue, lowerLimit, Float.MAX_VALUE); }
     public static FloatOption create(float defaultValue, float lowerLimit, float upperLimit) { return new FloatOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static FloatOption create(@Nonnull NonNullSupplier<Float> defaultValue) { return new FloatOption(defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
-    public static FloatOption create(@Nonnull NonNullSupplier<Float> defaultValue, float lowerLimit) { return new FloatOption(defaultValue, lowerLimit, Float.MAX_VALUE); }
-    public static FloatOption create(@Nonnull NonNullSupplier<Float> defaultValue, float lowerLimit, float upperLimit) { return new FloatOption(defaultValue, lowerLimit, upperLimit); }
+    public static FloatOption create(@Nonnull Supplier<Float> defaultValue) { return new FloatOption(defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
+    public static FloatOption create(@Nonnull Supplier<Float> defaultValue, float lowerLimit) { return new FloatOption(defaultValue, lowerLimit, Float.MAX_VALUE); }
+    public static FloatOption create(@Nonnull Supplier<Float> defaultValue, float lowerLimit, float upperLimit) { return new FloatOption(defaultValue, lowerLimit, upperLimit); }
 
 
 

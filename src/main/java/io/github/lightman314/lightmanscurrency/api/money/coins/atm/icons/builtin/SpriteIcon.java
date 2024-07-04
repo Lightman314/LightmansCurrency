@@ -12,14 +12,14 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIcon
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class SpriteIcon extends ATMIconData {
 
-	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "sprite");
+	public static final ResourceLocation TYPE_NAME = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "sprite");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, SpriteIcon::new);
 	
 	private final Sprite sprite;
@@ -29,7 +29,7 @@ public class SpriteIcon extends ATMIconData {
 		super(data);
 
 		this.sprite = Sprite.SimpleSprite(
-				new ResourceLocation(GsonHelper.getAsString(data, "texture")),
+				ResourceLocation.parse(GsonHelper.getAsString(data, "texture")),
 				GsonHelper.getAsInt(data, "u"),
 				GsonHelper.getAsInt(data, "v"),
 				GsonHelper.getAsInt(data, "width"),

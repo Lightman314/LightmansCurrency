@@ -6,12 +6,14 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
@@ -27,22 +29,22 @@ public class AuctionPlayerStorage {
 	
 	public AuctionPlayerStorage(PlayerReference player) { this.owner = player; }
 	
-	public AuctionPlayerStorage(CompoundTag compound) { this.load(compound); }
+	public AuctionPlayerStorage(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) { this.load(compound,lookup); }
 	
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		compound.put("Owner", this.owner.save());
 
 		compound.put("StoredMoney", this.storedCoins.save());
 		ListTag itemList = new ListTag();
 		for (ItemStack storedItem : this.storedItems)
-			itemList.add(storedItem.save(new CompoundTag()));
+			itemList.add(InventoryUtil.saveItemNoLimits(storedItem,lookup));
 		compound.put("StoredItems", itemList);
 		
 		return compound;
 	}
 	
-	protected void load(CompoundTag compound) {
+	protected void load(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		
 		this.owner = PlayerReference.load(compound.getCompound("Owner"));
 
@@ -52,7 +54,7 @@ public class AuctionPlayerStorage {
 		ListTag itemList = compound.getList("StoredItems", Tag.TAG_COMPOUND);
 		for(int i = 0; i < itemList.size(); ++i)
 		{
-			ItemStack stack = ItemStack.of(itemList.getCompound(i));
+			ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
 			if(!stack.isEmpty())
 				this.storedItems.add(stack);
 		}
@@ -70,14 +72,6 @@ public class AuctionPlayerStorage {
 		{
 			this.storedItems.add(item);
 		}
-	}
-	
-	public void removePartial(int itemSlot, int count) {
-		if(this.storedItems.size() >= itemSlot || itemSlot < 0)
-			return;
-		this.storedItems.get(itemSlot).shrink(count);
-		if(this.storedItems.get(itemSlot).isEmpty())
-			this.storedItems.remove(itemSlot);
 	}
 	
 	public void collectItems(Player player) {

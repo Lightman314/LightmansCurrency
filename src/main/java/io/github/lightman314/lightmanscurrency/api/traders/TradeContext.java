@@ -30,15 +30,15 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 
@@ -405,8 +405,7 @@ public class TradeContext {
 			return ItemHandlerHelper.insertItemStacked(this.itemHandler, item, true).isEmpty();
 		return this.hasPlayer();
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public boolean canFitItems(ItemStack... items)
 	{
 		if(this.hasItemHandler())
@@ -435,7 +434,6 @@ public class TradeContext {
 		return this.hasPlayer();
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean canFitItems(List<ItemStack> items)
 	{
 		if(this.hasItemHandler())
@@ -581,9 +579,11 @@ public class TradeContext {
 		else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-			AtomicBoolean hasEnergy = new AtomicBoolean(false);
-			batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> hasEnergy.set(energyHandler.extractEnergy(amount, true) == amount));
-			return hasEnergy.get();
+			boolean hasEnergy = false;
+			IEnergyStorage energyHandler = batteryStack.getCapability(Capabilities.EnergyStorage.ITEM);
+			if(energyHandler != null)
+				return energyHandler.extractEnergy(amount, true) == amount;
+			return false;
 		}
 		return false;
 	}
@@ -600,7 +600,9 @@ public class TradeContext {
 			if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 			{
 				ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-				batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> energyHandler.extractEnergy(amount, false));
+				IEnergyStorage energyHandler = batteryStack.getCapability(Capabilities.EnergyStorage.ITEM);
+				if(energyHandler != null)
+					energyHandler.extractEnergy(amount,false);
 				return true;
 			}
 		}
@@ -614,9 +616,10 @@ public class TradeContext {
 		else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-			AtomicBoolean fitsEnergy = new AtomicBoolean(false);
-			batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> fitsEnergy.set(energyHandler.receiveEnergy(amount, true) == amount));
-			return fitsEnergy.get();
+			IEnergyStorage energyHandler = batteryStack.getCapability(Capabilities.EnergyStorage.ITEM);
+			if(energyHandler != null)
+				return energyHandler.receiveEnergy(amount,true) == amount;
+			return false;
 		}
 		return false;
 	}
@@ -633,7 +636,9 @@ public class TradeContext {
 			else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 			{
 				ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-				batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> energyHandler.receiveEnergy(amount, false));
+				IEnergyStorage energyHandler = batteryStack.getCapability(Capabilities.EnergyStorage.ITEM);
+				if(energyHandler != null)
+					energyHandler.receiveEnergy(amount,false);
 				return true;
 			}
 		}

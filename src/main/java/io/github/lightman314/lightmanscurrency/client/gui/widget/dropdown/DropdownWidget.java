@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 
 public class DropdownWidget extends EasyWidgetWithChildren implements IMouseListener {
 	
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/dropdown.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/dropdown.png");
 	
 	public static final int HEIGHT = 12;
 	

@@ -80,7 +80,6 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	}
 	
 	@Nonnull
-	@SuppressWarnings("deprecation")
 	@Override
 	public BlockState updateShape(@Nonnull BlockState stateIn, @Nonnull Direction facing, @Nonnull BlockState facingState, @Nonnull LevelAccessor worldIn, @Nonnull BlockPos currentPos, @Nonnull BlockPos facingPos)
 	{

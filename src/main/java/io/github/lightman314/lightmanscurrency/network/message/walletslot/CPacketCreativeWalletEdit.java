@@ -1,39 +1,41 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CPacketCreativeWalletEdit extends ClientToServerPacket {
 
+    private static final Type<CPacketCreativeWalletEdit> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_wallet_creative_edit"));
     public static final Handler<CPacketCreativeWalletEdit> HANDLER = new H();
 
     private final ItemStack newWallet;
-    public CPacketCreativeWalletEdit(@Nonnull ItemStack wallet) { this.newWallet = wallet; }
+    public CPacketCreativeWalletEdit(@Nonnull ItemStack wallet) { super(TYPE); this.newWallet = wallet; }
 
-    @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeItemStack(this.newWallet, false); }
+    private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CPacketCreativeWalletEdit message) { writeItem(buffer,message.newWallet); }
+    private static CPacketCreativeWalletEdit decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new CPacketCreativeWalletEdit(readItem(buffer)); }
 
     private static class H extends Handler<CPacketCreativeWalletEdit>
     {
-        @Nonnull
+        protected H() { super(TYPE, fancyCodec(CPacketCreativeWalletEdit::encode,CPacketCreativeWalletEdit::decode)); }
         @Override
-        public CPacketCreativeWalletEdit decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreativeWalletEdit(buffer.readItem()); }
-
-        @Override
-        protected void handle(@Nonnull CPacketCreativeWalletEdit message, @Nullable ServerPlayer sender) {
-            if(sender != null)
+        protected void handle(@Nonnull CPacketCreativeWalletEdit message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+            if(player.isCreative())
             {
-                IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(sender);
+                WalletHandler walletHandler = WalletHandler.get(player);
                 LightmansCurrency.LogDebug("Updated wallet stack on server from client-side interaction.");
                 walletHandler.setWallet(message.newWallet);
+            }
+            else
+            {
+                LightmansCurrency.LogWarning(player.getName().getString() + " attempted to set their wallet stack from the client, but they're not currently in creative mode!");
             }
         }
     }

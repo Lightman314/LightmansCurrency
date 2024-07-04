@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -208,12 +209,12 @@ public final class SlotMachineEntry {
         return this.items.stream().anyMatch(i -> InventoryUtil.ItemMatches(i, item));
     }
 
-    public CompoundTag save()
+    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag compound = new CompoundTag();
         ListTag itemList = new ListTag();
         for(ItemStack item : this.items)
-            itemList.add(item.save(new CompoundTag()));
+            itemList.add(InventoryUtil.saveItemNoLimits(item,lookup));
         compound.put("Items",itemList);
         compound.putInt("Weight", this.weight);
         return compound;
@@ -232,7 +233,7 @@ public final class SlotMachineEntry {
 
     public static SlotMachineEntry create() { return new SlotMachineEntry(new ArrayList<>(), 1); }
 
-    public static SlotMachineEntry load(CompoundTag compound)
+    public static SlotMachineEntry load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         List<ItemStack> items = new ArrayList<>();
         if(compound.contains("Items"))
@@ -240,7 +241,7 @@ public final class SlotMachineEntry {
             ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
             {
-                ItemStack stack = ItemStack.of(itemList.getCompound(i));
+                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     items.add(stack);
             }

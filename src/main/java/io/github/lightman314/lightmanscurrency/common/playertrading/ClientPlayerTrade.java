@@ -2,8 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.Container;
 
 import javax.annotation.Nonnull;
@@ -73,30 +74,30 @@ public class ClientPlayerTrade implements IPlayerTrade {
         this.guestState = guestState;
     }
 
-    public final void encode(FriendlyByteBuf data) {
-        data.writeUUID(this.hostID);
-        data.writeUUID(this.guestID);
-        data.writeComponent(this.hostName);
-        data.writeComponent(this.guestName);
-        this.hostMoney.encode(data);
-        this.guestMoney.encode(data);
-        InventoryUtil.encodeItems(this.hostItems, data);
-        InventoryUtil.encodeItems(this.guestItems, data);
-        data.writeInt(this.hostState);
-        data.writeInt(this.guestState);
+    public final void encode(RegistryFriendlyByteBuf buffer) {
+        buffer.writeUUID(this.hostID);
+        buffer.writeUUID(this.guestID);
+        ComponentSerialization.STREAM_CODEC.encode(buffer,this.hostName);
+        ComponentSerialization.STREAM_CODEC.encode(buffer,this.guestName);
+        this.hostMoney.encode(buffer);
+        this.guestMoney.encode(buffer);
+        InventoryUtil.encodeItems(this.hostItems, buffer);
+        InventoryUtil.encodeItems(this.guestItems, buffer);
+        buffer.writeInt(this.hostState);
+        buffer.writeInt(this.guestState);
     }
 
-    public static ClientPlayerTrade decode(FriendlyByteBuf data) {
-        UUID hostID = data.readUUID();
-        UUID guestID = data.readUUID();
-        Component hostName = data.readComponent();
-        Component guestName = data.readComponent();
-        MoneyValue hostMoney = MoneyValue.decode(data);
-        MoneyValue guestMoney = MoneyValue.decode(data);
-        Container hostItems = InventoryUtil.decodeItems(data);
-        Container guestItems = InventoryUtil.decodeItems(data);
-        int hostState = data.readInt();
-        int guestState = data.readInt();
+    public static ClientPlayerTrade decode(RegistryFriendlyByteBuf buffer) {
+        UUID hostID = buffer.readUUID();
+        UUID guestID = buffer.readUUID();
+        Component hostName = ComponentSerialization.STREAM_CODEC.decode(buffer);
+        Component guestName = ComponentSerialization.STREAM_CODEC.decode(buffer);
+        MoneyValue hostMoney = MoneyValue.decode(buffer);
+        MoneyValue guestMoney = MoneyValue.decode(buffer);
+        Container hostItems = InventoryUtil.decodeItems(buffer);
+        Container guestItems = InventoryUtil.decodeItems(buffer);
+        int hostState = buffer.readInt();
+        int guestState = buffer.readInt();
         return new ClientPlayerTrade(hostID, guestID, hostName, guestName, hostMoney, guestMoney, hostItems, guestItems, hostState, guestState);
     }
 

@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -78,7 +77,7 @@ public class TeamBankAccountTab extends TeamTab {
 			return;
 		
 		this.getActiveTeam().createBankAccount(this.getPlayer());
-		this.RequestChange(LazyPacketData.simpleFlag("CreateBankAccount"));
+		this.RequestChange(this.builder().setFlag("CreateBankAccount"));
 		
 	}
 	
@@ -89,7 +88,7 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		int newLimit = Team.NextBankLimit(this.getActiveTeam().getBankLimit());
 		this.getActiveTeam().changeBankLimit(this.getPlayer(), newLimit);
-		this.RequestChange(LazyPacketData.simpleInt("ChangeBankLimit", newLimit));
+		this.RequestChange(this.builder().setInt("ChangeBankLimit", newLimit));
 		
 		this.updateBankLimitText();
 		

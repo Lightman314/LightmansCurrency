@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.integration.discord;
-
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+/*
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class LCDiscord {
 
-    public static void setup() {
-        MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-        FMLJavaModLoadingContext.get().getModEventBus().register(CurrencyMessages.class);
+    public static void setup(IEventBus modBus) {
+        NeoForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+        modBus.register(CurrencyMessages.class);
     }
 
 }
+//*/

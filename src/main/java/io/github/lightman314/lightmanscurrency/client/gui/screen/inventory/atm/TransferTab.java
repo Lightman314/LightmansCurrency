@@ -185,7 +185,7 @@ public class TransferTab extends ATMTab {
 	
 	private boolean hasMessage() { return this.screen.getMenu().hasTransferMessage(); }
 	
-	private MutableComponent getMessage() { return this.screen.getMenu().getTransferMessage(); }
+	private Component getMessage() { return this.screen.getMenu().getTransferMessage(); }
 
 	@Override
 	public void closeAction() {

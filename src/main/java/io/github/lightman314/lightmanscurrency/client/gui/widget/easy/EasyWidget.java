@@ -109,9 +109,9 @@ public abstract class EasyWidget extends AbstractWidget {
     }
 
     @Override
-    public final void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+    public void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
         this.renderTickInternal();
-        super.render(gui, mouseX, mouseY, partialTick);
+        super.render(gui,mouseX,mouseY,partialTick);
     }
 
     private void visibleTickInternal() {

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CoinSlot extends SimpleSlot{
 	
-	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_coin_slot");
+	public static final ResourceLocation EMPTY_COIN_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_coin_slot");
 	
 	private final boolean acceptSideChains;
 	

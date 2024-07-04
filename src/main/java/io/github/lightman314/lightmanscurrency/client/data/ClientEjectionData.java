@@ -5,15 +5,16 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEjectionData {
 
 	private static final List<EjectionData> emergencyEjectionData = new ArrayList<>();
@@ -26,22 +27,15 @@ public class ClientEjectionData {
 		for(int i = 0; i < ejectionList.size(); ++i)
 		{
 			try {
-				EjectionData e = EjectionData.loadData(ejectionList.getCompound(i));
-				if(e != null)
-				{
-					emergencyEjectionData.add(e);
-					e.flagAsClient();
-				}
-				else
-					throw new RuntimeException("EmergencyEjectionData entry " + i + " loaded as null.");
-			} catch(Throwable t) { t.printStackTrace(); }
+				EjectionData e = EjectionData.loadData(ejectionList.getCompound(i), LookupHelper.getRegistryAccess(true));
+				emergencyEjectionData.add(e);
+				e.flagAsClient();
+			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data!"); }
 		}
 		LightmansCurrency.LogDebug("Client loaded " + emergencyEjectionData.size() + " ejection data entries from the server.");
 	}
 	
 	@SubscribeEvent
-	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-		emergencyEjectionData.clear();
-	}
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) { emergencyEjectionData.clear(); }
 	
 }

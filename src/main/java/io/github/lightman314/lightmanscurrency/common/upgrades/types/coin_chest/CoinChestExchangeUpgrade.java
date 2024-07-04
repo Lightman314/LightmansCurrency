@@ -6,11 +6,13 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.ExchangeUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.ExchangeUpgradeData;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -19,20 +21,16 @@ import java.util.function.Consumer;
 
 public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
 
-
     @Override
-    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message)
-    {
-        if(message.contains("SetExchangeWhileOpen"))
-        {
+    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
+        if (message.contains("SetExchangeWhileOpen")) {
             this.setExchangeWhileOpen(data, message.getBoolean("SetExchangeWhileOpen"));
         }
-        if(message.contains("SetExchangeCommand"))
-        {
+        if (message.contains("SetExchangeCommand")) {
             String newCommand = message.getString("SetExchangeCommand");
             String oldCommand = this.getExchangeCommand(data);
 
-            if(Objects.equals(newCommand, oldCommand))
+            if (Objects.equals(newCommand, oldCommand))
                 this.setExchangeCommand(data, "");
             else
                 this.setExchangeCommand(data, newCommand);
@@ -40,66 +38,56 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public void OnStorageChanged(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data)
-    {
+    public void OnStorageChanged(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         ExecuteExchangeCommand(be, data);
     }
 
     @Override
-    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { ExecuteExchangeCommand(be, data); }
-
-    public boolean getExchangeWhileOpen(CoinChestUpgradeData data)
-    {
-        CompoundTag compound = data.getItemTag();
-        if(compound.contains("ExchangeWhileOpen"))
-            return compound.getBoolean("ExchangeWhileOpen");
-        return true;
+    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+        ExecuteExchangeCommand(be, data);
     }
 
-    public void setExchangeWhileOpen(CoinChestUpgradeData data, boolean newValue)
-    {
-        CompoundTag compound = data.getItemTag();
-        compound.putBoolean("ExchangeWhileOpen", newValue);
-        data.setItemTag(compound);
+    public boolean getExchangeWhileOpen(@Nonnull CoinChestUpgradeData data) {
+        return data.getData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT).exchangeWhileOpen();
     }
 
-    public String getExchangeCommand(CoinChestUpgradeData data)
-    {
-        CompoundTag compound = data.getItemTag();
-        if(compound.contains("ExchangeCommand"))
-            return compound.getString("ExchangeCommand");
-        return "";
+    public void setExchangeWhileOpen(@Nonnull CoinChestUpgradeData data, boolean newValue) {
+        data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withExchangeWhileOpen(newValue));
     }
 
-    public void setExchangeCommand(CoinChestUpgradeData data, String newValue)
-    {
-        CompoundTag compound = data.getItemTag();
-        compound.putString("ExchangeCommand", newValue);
-        data.setItemTag(compound);
+    public String getExchangeCommand(@Nonnull CoinChestUpgradeData data) {
+        return data.getData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT).exchangeCommand();
     }
 
-    public void ExecuteExchangeCommand(CoinChestBlockEntity be, CoinChestUpgradeData data)
-    {
+    public void setExchangeCommand(@Nonnull CoinChestUpgradeData data, @Nonnull String newValue) {
+        data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withExchangeCommand(newValue));
+    }
+
+    public void ExecuteExchangeCommand(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         boolean executeWhileOpen = this.getExchangeWhileOpen(data);
-        if(executeWhileOpen || be.getOpenerCount() <= 0)
-        {
+        if (executeWhileOpen || be.getOpenerCount() <= 0) {
             String command = this.getExchangeCommand(data);
-            if(command != null && !command.isBlank())
-            {
-                if(ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
+            if (command != null && !command.isBlank()) {
+                if (ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
                     CoinAPI.API.SortCoinsByValue(be.getStorage());
             }
         }
     }
 
     @Override
-    public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { consumer.accept(new ExchangeUpgradeTab(data, screen)); }
+    public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) {
+        consumer.accept(new ExchangeUpgradeTab(data, screen));
+    }
 
     @Nonnull
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE.get()); }
+    public List<Component> getTooltip(@Nonnull UpgradeData data) {
+        return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE.get());
+    }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }
+    public boolean clearDataFromStack(@Nonnull ItemStack stack) {
+        return this.clearData(stack, ModDataComponents.EXCHANGE_UPGRADE_DATA);
+    }
 
 }

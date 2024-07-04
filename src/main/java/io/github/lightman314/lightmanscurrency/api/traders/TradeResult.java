@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
@@ -51,5 +52,8 @@ public enum TradeResult {
     public boolean isSuccess() { return this == SUCCESS; }
     public boolean hasMessage() { return this.getMessage() != null; }
     @Nullable
-    public final MutableComponent getMessage() { return LCText.GUI_TRADE_RESULT.get(this).get(); }
+    public final MutableComponent getMessage() {
+        TextEntry entry = LCText.GUI_TRADE_RESULT.get(this);
+        return entry != null ? entry.get() : null;
+    }
 }

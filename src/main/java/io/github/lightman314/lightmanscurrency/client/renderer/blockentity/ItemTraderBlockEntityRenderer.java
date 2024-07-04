@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -21,15 +22,18 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+import javax.annotation.Nonnull;
+
+@EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
@@ -106,7 +110,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(0.25, 0.25, 0d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+							itemRenderer.renderStatic(renderItems.getFirst(), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
 
 							pose.popPose();
 
@@ -136,9 +140,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public static Quaternionf getRotation(float partialTicks) { return new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
 
 	@SubscribeEvent
-	public static void onClientTick(TickEvent.ClientTickEvent event) {
-		if(event.phase == TickEvent.Phase.START)
-			rotationTime++;
+	public static void onClientTick(ClientTickEvent.Pre event) { rotationTime++; }
+
+	@Nonnull
+	@Override
+	public AABB getRenderBoundingBox(@Nonnull ItemTraderBlockEntity blockEntity) {
+		AABB result = TraderBlockEntity.getRenderBoundingBox(blockEntity);
+		return result != null ? result : BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
 	}
-	
 }

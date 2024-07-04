@@ -34,8 +34,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -47,16 +49,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
 public class PaygateTraderData extends TraderData {
 
-	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "paygate"),PaygateTraderData::new);
+	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "paygate"),PaygateTraderData::new);
 	
 	public static final int DURATION_MIN = 1;
 	public static int getMaxDuration() {
@@ -340,33 +342,30 @@ public class PaygateTraderData extends TraderData {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		this.saveTrades(compound);
-		this.saveTicketStubs(compound);
+	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.saveTrades(compound,lookup);
+		this.saveTicketStubs(compound,lookup);
 	}
 
-	protected final void saveTicketStubs(CompoundTag compound) {
+	protected final void saveTicketStubs(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		for(ItemStack stub : this.storedTicketStubs)
-		{
-			CompoundTag tag = stub.save(new CompoundTag());
-			list.add(tag);
-		}
+			list.add(InventoryUtil.saveItemNoLimits(stub,lookup));
 		compound.put("Stubs", list);
 	}
 
-	protected final void saveTrades(CompoundTag compound) { PaygateTradeData.saveAllData(compound, this.trades); }
+	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { PaygateTradeData.saveAllData(compound, this.trades,lookup); }
 
 	public void markTicketStubsDirty() { this.markDirty(this::saveTicketStubs); }
 
 	@Override
-	protected void saveAdditionalToJson(JsonObject json) { }
+	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		//Load Trades
 		if(compound.contains(PaygateTradeData.DEFAULT_KEY))
-			this.trades = PaygateTradeData.loadAllData(compound);
+			this.trades = PaygateTradeData.loadAllData(compound,lookup);
 		//Load Ticket Stubs
 		if(compound.contains("TicketStubs"))
 		{
@@ -381,7 +380,7 @@ public class PaygateTraderData extends TraderData {
 			this.storedTicketStubs.clear();
 			for(int i = 0; i < list.size(); ++i)
 			{
-				ItemStack stack = ItemStack.of(list.getCompound(i));
+				ItemStack stack = InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup);
 				if(!stack.isEmpty())
 					this.storedTicketStubs.add(stack);
 			}
@@ -389,13 +388,13 @@ public class PaygateTraderData extends TraderData {
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) { }
+	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) { }
+	protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) { }
+	protected void loadAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
 
 	@Override
 	protected void getAdditionalContents(List<ItemStack> results) { }

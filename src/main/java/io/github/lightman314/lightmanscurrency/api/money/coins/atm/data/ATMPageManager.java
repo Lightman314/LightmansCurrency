@@ -49,7 +49,7 @@ public final class ATMPageManager {
             this.selectedData = mapTemp.get(lastSelected);
         else if(!this.validData.isEmpty())
         {
-            this.selectedData = this.validData.get(0);
+            this.selectedData = this.validData.getFirst();
             lastSelected = this.selectedData.chain.chain;
         }
 

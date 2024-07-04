@@ -31,7 +31,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 
-	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/network_terminal.png");
+	private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/network_terminal.png");
 	
 	private EditBox searchField;
 	private static int scroll = 0;
@@ -154,10 +154,10 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(this.handleScrollWheel(delta))
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+		if(this.handleScrollWheel(deltaY))
 			return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 	}
 	
 	private void OpenTrader(EasyButton button)
@@ -177,7 +177,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderAPI.API.FilterTraders(this.traderList(), this.searchField.getValue());
 		//Validate the scroll
 		this.validateScroll();
 		//Update the trader buttons
@@ -207,5 +207,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.columns * this.rows, this.columns, this.filteredTraderList.size()); }
+
+	private void OpenAllTraders() { new CPacketOpenTrades(-1).send(); }
 
 }

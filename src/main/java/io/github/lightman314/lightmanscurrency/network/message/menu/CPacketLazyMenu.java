@@ -1,33 +1,34 @@
 package io.github.lightman314.lightmanscurrency.network.message.menu;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
-import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketLazyMenu extends ClientToServerPacket {
 
+    private static final Type<CPacketLazyMenu> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_lazy_menu"));
     public static final Handler<CPacketLazyMenu> HANDLER = new H();
 
     private final LazyPacketData data;
-    public CPacketLazyMenu(LazyPacketData data) { this.data = data; }
+    public CPacketLazyMenu(LazyPacketData data) { super(TYPE); this.data = data; }
     public CPacketLazyMenu(LazyPacketData.Builder data) { this(data.build()); }
 
-    public void encode(@Nonnull FriendlyByteBuf buffer) { this.data.encode(buffer); }
+    private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CPacketLazyMenu message) { message.data.encode(buffer); }
+    private static CPacketLazyMenu decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new CPacketLazyMenu(LazyPacketData.decode(buffer)); }
 
-    private static class H extends CustomPacket.Handler<CPacketLazyMenu>
+    private static class H extends Handler<CPacketLazyMenu>
     {
-        @Nonnull
+        protected H() { super(TYPE, fancyCodec(CPacketLazyMenu::encode,CPacketLazyMenu::decode)); }
         @Override
-        public CPacketLazyMenu decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketLazyMenu(LazyPacketData.decode(buffer)); }
-        @Override
-        protected void handle(@Nonnull CPacketLazyMenu message, @Nullable ServerPlayer sender) {
-            if(sender != null && sender.containerMenu instanceof LazyMessageMenu menu)
+        protected void handle(@Nonnull CPacketLazyMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+            if(player.containerMenu instanceof LazyMessageMenu menu)
                 menu.HandleMessage(message.data);
         }
     }

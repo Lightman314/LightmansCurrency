@@ -7,8 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,8 +16,8 @@ import javax.annotation.Nonnull;
 
 public abstract class ChangeSettingNotification extends Notification {
 
-	public static final NotificationType<Advanced> ADVANCED_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_settings_advanced"),ChangeSettingNotification::createAdvanced);
-	public static final NotificationType<Simple> SIMPLE_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_settings_simple"),ChangeSettingNotification::createSimple);
+	public static final NotificationType<Advanced> ADVANCED_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "change_settings_advanced"),ChangeSettingNotification::createAdvanced);
+	public static final NotificationType<Simple> SIMPLE_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "change_settings_simple"),ChangeSettingNotification::createSimple);
 	
 	protected PlayerReference player;
 	protected String setting;
@@ -30,13 +30,13 @@ public abstract class ChangeSettingNotification extends Notification {
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		compound.put("Player", this.player.save());
 		compound.putString("Setting", this.setting);
 	}
 	
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.setting = compound.getString("Setting");
 	}
@@ -63,15 +63,15 @@ public abstract class ChangeSettingNotification extends Notification {
 		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(true), this.setting, this.oldValue, this.newValue); }
 
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {
-			super.saveAdditional(compound);
+		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.saveAdditional(compound,lookup);
 			compound.putString("NewValue", this.newValue);
 			compound.putString("OldValue", this.oldValue);
 		}
 		
 		@Override
-		protected void loadAdditional(@Nonnull CompoundTag compound) {
-			super.loadAdditional(compound);
+		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.loadAdditional(compound,lookup);
 			this.newValue = compound.getString("NewValue");
 			this.oldValue = compound.getString("OldValue");
 		}
@@ -106,14 +106,14 @@ public abstract class ChangeSettingNotification extends Notification {
 		}
 		
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {
-			super.saveAdditional(compound);
+		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.saveAdditional(compound,lookup);
 			compound.putString("NewValue", this.newValue);
 		}
 		
 		@Override
-		protected void loadAdditional(@Nonnull CompoundTag compound) {
-			super.loadAdditional(compound);
+		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			super.loadAdditional(compound,lookup);
 			this.newValue = compound.getString("NewValue");
 		}
 

@@ -6,10 +6,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,8 +21,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
     public boolean isServerOnly() { return true; }
 
     public static void playerJoined(@Nonnull ServerPlayer player) {
-        PacketDistributor.PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
-        fileMap.values().forEach(c -> c.sendSyncPacket(target));
+        fileMap.values().forEach(c -> c.sendSyncPacket(player));
     }
 
     public static void handleSyncData(@Nonnull ResourceLocation configID, @Nonnull Map<String,String> data)
@@ -51,9 +50,9 @@ public abstract class SyncedConfigFile extends ConfigFile {
     public boolean isLoaded() { return super.isLoaded() || this.loadedSyncData; }
 
     @Override
-    protected void afterReload() { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
+    protected void afterReload() { this.sendSyncPacket(null); }
     @Override
-    protected void afterOptionChanged(@Nonnull ConfigOption<?> option) { this.sendSyncPacket(PacketDistributor.ALL.noArg()); }
+    protected void afterOptionChanged(@Nonnull ConfigOption<?> option) { this.sendSyncPacket(null); }
 
     public final void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); this.loadedSyncData = false; }
 
@@ -65,9 +64,11 @@ public abstract class SyncedConfigFile extends ConfigFile {
         return ImmutableMap.copyOf(map);
     }
 
-    private void sendSyncPacket(@Nonnull PacketDistributor.PacketTarget target) {
-        if(ServerLifecycleHooks.getCurrentServer() != null)
-            new SPacketSyncConfig(this.id, this.getSyncData()).sendToTarget(target);
+    private void sendSyncPacket(@Nullable Player target) {
+        if(target != null)
+            new SPacketSyncConfig(this.id,this.getSyncData()).sendTo(target);
+        else
+            new SPacketSyncConfig(this.id,this.getSyncData()).sendToAll();
     }
 
     private void loadSyncData(@Nonnull Map<String,String> syncData)

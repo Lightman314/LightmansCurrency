@@ -16,8 +16,10 @@ import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
-import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
@@ -28,29 +30,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class LCRecipeProvider extends RecipeProvider {
 
-    public LCRecipeProvider(PackOutput output) { super(output); }
+    public LCRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> pRegistries) { super(output, pRegistries); }
 
     private static final String ADV_PREFIX = "recipes/misc/";
 
     @Override
-    protected void buildRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
-
-        //Register Crafting Conditions
-        LCCraftingConditions.register();
+    protected void buildRecipes(@Nonnull RecipeOutput consumer) {
 
         //Trading Core
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.TRADING_CORE.get())
@@ -85,9 +83,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("sgs")
                 .pattern("iei")
                 .define('e', Items.ENDER_EYE)
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
-                .define('s', Tags.Items.STONE)
+                .define('s', Tags.Items.STONES)
                 .save(consumer, ItemID(ModBlocks.TERMINAL));
         //Terminal <-> Portable Terminal
         GenerateSwapRecipes(consumer, ModBlocks.TERMINAL.get(), ModItems.PORTABLE_TERMINAL.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge()),Pair.of("trader", TraderKnowledge())));
@@ -101,7 +99,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("asa")
                 .define('e', Items.ENDER_EYE)
                 .define('a', Tags.Items.GEMS_AMETHYST)
-                .define('s', Tags.Items.STONE)
+                .define('s', Tags.Items.STONES)
                 .save(consumer, ItemID(ModBlocks.GEM_TERMINAL));
         //Gem Terminal <-> Portable Gem Terminal
         GenerateSwapRecipes(consumer, ModBlocks.GEM_TERMINAL.get(), ModItems.PORTABLE_GEM_TERMINAL.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge()),Pair.of("trader", TraderKnowledge())));
@@ -172,7 +170,6 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID(ModBlocks.CASH_REGISTER));
 
         //Coin Chest
-        ConditionalRecipe.Builder conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChest.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.COIN_CHEST.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .pattern("ppp")
@@ -180,8 +177,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("ppp")
                 .define('p', ItemTags.PLANKS)
                 .define('r', Items.COMPARATOR)
-                .save(conditional::addRecipe, ItemID(ModBlocks.COIN_CHEST));
-        conditional.generateAdvancement(ItemID(ADV_PREFIX, ModBlocks.COIN_CHEST)).build(consumer, ItemID(ModBlocks.COIN_CHEST));
+                .save(consumer.withConditions(LCCraftingConditions.CoinChest.INSTANCE), ItemID(ModBlocks.COIN_CHEST));
 
         //Trader Recipes
         //Display Case
@@ -192,7 +188,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("x")
                 .pattern("w")
                 .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('w', Items.WHITE_WOOL)
                 .save(consumer, ItemID("traders/", ModBlocks.DISPLAY_CASE));
 
@@ -206,7 +202,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("igi")
                 .pattern("cxc")
                 .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
                 .save(consumer, ItemID("traders/", ModBlocks.VENDING_MACHINE.get(Color.WHITE)));
@@ -222,7 +218,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("igi")
                 .pattern("cxc")
                 .define('x', ModBlocks.VENDING_MACHINE.get(Color.WHITE))
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
                 .save(consumer, ItemID("traders/", ModBlocks.VENDING_MACHINE_LARGE.get(Color.WHITE)));
@@ -231,23 +227,23 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Shelf
         ModBlocks.SHELF.forEach((woodType,shelf) -> {
-            ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
-            Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
+            ICondition condition = woodType.isVanilla() ? null : new ModLoadedCondition(woodType.getModID());
             WoodData data = woodType.getData();
             Item slab = data == null ? null : data.getSlab();
             if(slab != null)
             {
                 ResourceLocation id = WoodID("traders/shelf/", woodType);
-                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, shelf.get())
+                ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, shelf.get())
                         .group("shelf_trader")
                         .unlockedBy("money", MoneyKnowledge())
                         .unlockedBy("trader", TraderKnowledge())
                         .pattern("x").pattern("s")
                         .define('x', ModItems.TRADING_CORE.get())
-                        .define('s', slab)
-                        .save(c, id);
-                if(tempConditional != null)
-                    tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                        .define('s', slab);
+                if(condition != null)
+                    builder.save(consumer.withConditions(condition), id);
+                else
+                    builder.save(consumer, id);
             }
             else
                 LightmansCurrency.LogDebug("Could not generate shelf recipe for WoodType '" + woodType.id + "' as it has no defined slab item.");
@@ -256,15 +252,14 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Shelf
         ModBlocks.SHELF_2x2.forEach((woodType,shelf) -> {
-            ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
-            Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
+            ICondition condition = woodType.isVanilla() ? null : new ModLoadedCondition(woodType.getModID());
             WoodData data = woodType.getData();
             Item slab = data == null ? null : data.getSlab();
             ItemLike trader = ModBlocks.SHELF.get(woodType);
             if(slab != null && trader != null)
             {
                 ResourceLocation id = WoodID("traders/shelf2/", woodType);
-                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, shelf.get())
+                ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, shelf.get())
                         .group("shelf_trader_2x2")
                         .unlockedBy("money", MoneyKnowledge())
                         .unlockedBy("trader", TraderKnowledge())
@@ -272,10 +267,11 @@ public class LCRecipeProvider extends RecipeProvider {
                         .pattern("c").pattern("x").pattern("s")
                         .define('c', Tags.Items.CHESTS_WOODEN)
                         .define('x', trader)
-                        .define('s', slab)
-                        .save(c, id);
-                if(tempConditional != null)
-                    tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                        .define('s', slab);
+                if(condition != null)
+                    builder.save(consumer.withConditions(condition), id);
+                else
+                    builder.save(consumer, id);
             }
             else
                 LightmansCurrency.LogDebug("Could not generate 2x2 shelf recipe for WoodType '" + woodType.id + "' as it has no defined slab item.");
@@ -284,14 +280,13 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Card Display Crafting
         ModBlocks.CARD_DISPLAY.forEach((woodType,color,card_display) -> {
-            ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
-            Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
+            ICondition condition = woodType.isVanilla() ? null : new ModLoadedCondition(woodType.getModID());
             WoodData data = woodType.getData();
             Item log = data == null ? null : data.getLog();
             if(log != null)
             {
                 ResourceLocation id = ColoredWoodID("traders/card_display/", woodType, color);
-                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, card_display.get())
+                ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, card_display.get())
                         .group("card_display_trader_" + woodType.id)
                         .unlockedBy("money", MoneyKnowledge())
                         .unlockedBy("trader", TraderKnowledge())
@@ -301,10 +296,11 @@ public class LCRecipeProvider extends RecipeProvider {
                         .define('x', ModItems.TRADING_CORE.get())
                         .define('l', log)
                         .define('w', ColorHelper.GetWoolOfColor(color))
-                        .define('c', Tags.Items.CHESTS_WOODEN)
-                        .save(c, id);
-                if(tempConditional != null)
-                    tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                        .define('c', Tags.Items.CHESTS_WOODEN);
+                if(condition != null)
+                    builder.save(consumer.withConditions(condition), id);
+                else
+                    builder.save(consumer, id);
             }
             else
                 LightmansCurrency.LogDebug("Could not generate card display recipe for WoodType '" + woodType.id + "' as it has no defined log item.");
@@ -322,7 +318,7 @@ public class LCRecipeProvider extends RecipeProvider {
                     .pattern("igi")
                     .pattern("cxc")
                     .define('x', ModItems.TRADING_CORE.get())
-                    .define('g', Tags.Items.GLASS_COLORLESS)
+                    .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                     .define('i', cp)
                     .define('c', Tags.Items.CHESTS_WOODEN)
                     .save(consumer, ID("traders/freezer/" + c.getResourceSafeName()));
@@ -330,7 +326,6 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Network Traders
         //T1
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.NetworkTrader.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_1.get())
                 .group("item_network_trader")
                 .unlockedBy("money", MoneyKnowledge())
@@ -343,11 +338,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ID("network/item_network_trader_1").withPrefix(ADV_PREFIX)).build(consumer, ID("network/item_network_trader_1"));
+                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_1"));
 
         //T2
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.NetworkTrader.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_2.get())
                 .group("item_network_trader")
                 .unlockedBy("money", MoneyKnowledge())
@@ -360,11 +353,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_1.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ID("network/item_network_trader_2").withPrefix(ADV_PREFIX)).build(consumer, ID("network/item_network_trader_2"));
+                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_2"));
 
         //T3
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.NetworkTrader.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_3.get())
                 .group("item_network_trader")
                 .unlockedBy("money", MoneyKnowledge())
@@ -377,11 +368,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_2.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ID("network/item_network_trader_3").withPrefix(ADV_PREFIX)).build(consumer, ID("network/item_network_trader_3"));
+                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_3"));
 
         //T4
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.NetworkTrader.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_4.get())
                 .group("item_network_trader")
                 .unlockedBy("money", MoneyKnowledge())
@@ -394,8 +383,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_3.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ID("network/item_network_trader_4").withPrefix(ADV_PREFIX)).build(consumer, ID("network/item_network_trader_4"));
+                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_4"));
 
         //Specialty Traders
         //Armor Display
@@ -406,7 +394,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("gag")
                 .pattern("ixi")
                 .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('a', Items.ARMOR_STAND)
                 .save(consumer, ItemID("traders/", ModBlocks.ARMOR_DISPLAY));
@@ -426,15 +414,14 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Bookshelves
         ModBlocks.BOOKSHELF_TRADER.forEach((woodType,bookshelf) -> {
-            ConditionalRecipe.Builder tempConditional = woodType.isVanilla() ? null : ConditionalRecipe.builder().addCondition(new ModLoadedCondition(woodType.getModID()));
-            Consumer<FinishedRecipe> c = tempConditional == null ? consumer : tempConditional::addRecipe;
+            ICondition condition = woodType.isVanilla() ? null : new ModLoadedCondition(woodType.getModID());
             WoodData data = woodType.getData();
             Item plank = data == null ? null : data.getPlank();
             Item slab = data == null ? null : data.getSlab();
             if(plank != null && slab != null)
             {
                 ResourceLocation id = WoodID("traders/bookshelf/", woodType);
-                ShapedRecipeBuilder.shaped(RecipeCategory.MISC, bookshelf.get())
+                ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, bookshelf.get())
                         .group("bookshelf_trader")
                         .unlockedBy("money", MoneyKnowledge())
                         .unlockedBy("trader", TraderKnowledge())
@@ -443,10 +430,11 @@ public class LCRecipeProvider extends RecipeProvider {
                         .pattern("ppp")
                         .define('x', ModItems.TRADING_CORE.get())
                         .define('p', plank)
-                        .define('s', slab)
-                        .save(c, id);
-                if(tempConditional != null)
-                    tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                        .define('s', slab);
+                if(condition == null)
+                    builder.save(consumer,id);
+                else
+                    builder.save(consumer.withConditions(condition), id);
             }
             else
                 LightmansCurrency.LogDebug("Could not generate bookshelf recipe for WoodType '" + woodType.id + "' as it has no defined plank and/or slab item.");
@@ -460,7 +448,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("idi")
                 .pattern("rxr")
                 .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('r', Items.COMPARATOR)
                 .define('d', Tags.Items.DUSTS_GLOWSTONE)
@@ -482,7 +470,6 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID("traders/", ModBlocks.PAYGATE));
 
         //Item Trader Interface
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TraderInterface.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_TRADER_INTERFACE.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("trader", TraderKnowledge())
@@ -493,14 +480,11 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ItemID(ModBlocks.ITEM_TRADER_INTERFACE).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.ITEM_TRADER_INTERFACE));
+                .save(consumer.withConditions(LCCraftingConditions.TraderInterface.INSTANCE),ItemID(ModBlocks.ITEM_TRADER_INTERFACE));
 
         //Auction Stands
         ModBlocks.AUCTION_STAND.forEach((woodType, auction_stand) -> {
-            ConditionalRecipe.Builder tempConditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.AuctionStand.INSTANCE);
-            if(!woodType.isVanilla())
-                tempConditional.addCondition(new ModLoadedCondition(woodType.getModID()));
+            ICondition[] conditions = woodType.isModded() ? new ICondition[] { new ModLoadedCondition(woodType.getModID()), LCCraftingConditions.AuctionStand.INSTANCE } : new ICondition[] { LCCraftingConditions.AuctionStand.INSTANCE };
             WoodData data = woodType.getData();
             Item log = data == null ? null : data.getLog();
             if(log != null)
@@ -515,10 +499,9 @@ public class LCRecipeProvider extends RecipeProvider {
                         .pattern("x")
                         .pattern("l")
                         .define('x', ModItems.TRADING_CORE.get())
-                        .define('g', Tags.Items.GLASS_COLORLESS)
+                        .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                         .define('l', log)
-                        .save(tempConditional::addRecipe, id);
-                tempConditional.generateAdvancement(id.withPrefix(ADV_PREFIX)).build(consumer, id);
+                        .save(consumer.withConditions(conditions), id);
             }
             else
                 LightmansCurrency.LogDebug("Could not generate auction stand recipe for WoodType '" + woodType.id + "' as it has no defined log item.");
@@ -532,7 +515,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("b  ")
                 .pattern("bbb")
                 .pattern("bdb")
-                .define('b', Tags.Items.INGOTS_BRICK)
+                .define('b', Tags.Items.BRICKS)
                 .define('d', Tags.Items.DYES_PINK)
                 .save(consumer, ItemID("coin_jar/", ModBlocks.PIGGY_BANK));
 
@@ -543,7 +526,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("b b")
                 .pattern("bdb")
                 .pattern(" b ")
-                .define('b', Tags.Items.INGOTS_BRICK)
+                .define('b', Tags.Items.BRICKS)
                 .define('d', Tags.Items.DYES_BLUE)
                 .save(consumer, ID("coin_jar/blue"));
 
@@ -700,7 +683,6 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Coin Chest Upgrades
         //Exchange Upgrade
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeExchange.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
                 Ingredient.of(ModBlocks.ATM.get()),
@@ -709,10 +691,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_EXCHANGE_UPGRADE.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE));
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeExchange.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE));
+
         //Magnet Upgrades
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
                 Ingredient.of(Tags.Items.ENDER_PEARLS),
@@ -721,9 +702,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_MAGNET_UPGRADE_1.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1));
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1));
+
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
                 Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_1.get()),
@@ -733,9 +713,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_1))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2));
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2));
+
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
                         Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_2.get()),
@@ -745,9 +724,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_2))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3));
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE);
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3));
+
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
                         Ingredient.of(ModItems.COIN_CHEST_MAGNET_UPGRADE_3.get()),
@@ -757,11 +735,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_3))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4));
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4));
 
         //Security Upgrade
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.CoinChestUpgradeSecurity.INSTANCE);
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
                 Ingredient.of(Items.OBSIDIAN),
@@ -770,8 +746,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_SECURITY_UPGRADE.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(conditional::addRecipe, "null:null");
-        conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeSecurity.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
         //2.1.2.2
         //The Jar of Sus
@@ -783,7 +758,6 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID("coin_jar/", ModBlocks.SUS_JAR));
 
         //Tax Block
-        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.TaxCollector.INSTANCE);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TAX_COLLECTOR.get())
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("trader", TraderKnowledge())
@@ -795,8 +769,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModItems.TRADING_CORE.get())
                 .define('h', Items.HOPPER)
                 .define('e', Tags.Items.ENDER_PEARLS)
-                .save(conditional::addRecipe);
-        conditional.generateAdvancement(ItemID(ModBlocks.TAX_COLLECTOR).withPrefix(ADV_PREFIX)).build(consumer, ItemID(ModBlocks.TAX_COLLECTOR));
+                .save(consumer.withConditions(LCCraftingConditions.TaxCollector.INSTANCE), ItemID(ModBlocks.TAX_COLLECTOR));
 
         //2.2.0.0
         //Ticket Station crafting as an actual recipe
@@ -843,16 +816,16 @@ public class LCRecipeProvider extends RecipeProvider {
 
     }
 
-    private static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, RegistryObject<? extends ItemLike>>> ingredientWalletPairs)
+    private static void GenerateWalletRecipes(@Nonnull RecipeOutput consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)
     {
-        Ingredient leather = Ingredient.of(Tags.Items.LEATHER);
+        Ingredient leather = Ingredient.of(Tags.Items.LEATHERS);
         List<Ingredient> ingredients = ingredientWalletPairs.stream().map(Pair::getFirst).toList();
         List<? extends ItemLike> wallets = ingredientWalletPairs.stream().map(p -> p.getSecond().get()).toList();
         //Default Wallet Recipes
         for(int w = 0; w < wallets.size(); ++w)
         {
             ItemLike wallet = wallets.get(w);
-            ShapelessRecipeBuilder b = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, wallets.get(w))
+            ShapelessRecipeBuilder b = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, wallet)
                     .group("wallet_crafting")
                     .unlockedBy("coin", MoneyKnowledge())
                     .unlockedBy("wallet", LazyTrigger(LCTags.Items.WALLET))
@@ -882,14 +855,14 @@ public class LCRecipeProvider extends RecipeProvider {
         }
     }
 
-    private static void GenerateSwapRecipes(@Nonnull Consumer<FinishedRecipe> consumer, ItemLike item1, ItemLike item2, List<Pair<String, CriterionTriggerInstance>> criteria)
+    private static void GenerateSwapRecipes(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, List<Pair<String, Criterion<?>>> criteria)
     {
         String group = ItemPath(item2) + "_swap";
         GenerateSwapRecipe(consumer, item1, item2, group, criteria);
         GenerateSwapRecipe(consumer, item2, item1, group, criteria);
     }
 
-    private static void GenerateSwapRecipe(@Nonnull Consumer<FinishedRecipe> consumer, ItemLike item1, ItemLike item2, @Nullable String group, List<Pair<String, CriterionTriggerInstance>> criteria)
+    private static void GenerateSwapRecipe(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, @Nullable String group, List<Pair<String, Criterion<?>>> criteria)
     {
         ShapelessRecipeBuilder b = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item2)
                 .group(group);
@@ -899,8 +872,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID(ItemPath(item1) + "_swap"));
     }
 
-    private static void GenerateCoinBlockRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, RegistryObject<? extends ItemLike> coinPile, RegistryObject<? extends ItemLike> coinBlock) { GenerateCoinBlockRecipes(consumer,coin,coinPile,coinBlock,"",MoneyKnowledge()); }
-    private static void GenerateCoinBlockRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, RegistryObject<? extends ItemLike> coinPile, RegistryObject<? extends ItemLike> coinBlock, @Nonnull String prefix, @Nonnull CriterionTriggerInstance moneyKnowledge)
+    private static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock) { GenerateCoinBlockRecipes(consumer,coin,coinPile,coinBlock,"",MoneyKnowledge()); }
+    private static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock, @Nonnull String prefix, @Nonnull Criterion<?> moneyKnowledge)
     {
         //Coin -> Pile
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, coinPile.get())
@@ -933,7 +906,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID("coins/" + ItemPath(coin) + "_from_pile"));
     }
 
-    private static void GenerateColoredDyeAndWashRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObjectBundle<? extends ItemLike,Color> bundle, ItemLike cleanItem, @Nullable String dyeGroup, String prefix, List<Pair<String, CriterionTriggerInstance>> criteria)
+    private static void GenerateColoredDyeAndWashRecipes(@Nonnull RecipeOutput consumer, RegistryObjectBundle<? extends ItemLike,Color> bundle, ItemLike cleanItem, @Nullable String dyeGroup, String prefix, List<Pair<String, Criterion<?>>> criteria)
     {
         List<ItemLike> coloredSet = new ArrayList<>();
         for(Color color : Color.values())
@@ -959,7 +932,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID(prefix + "washing"));
     }
 
-    private static void GenerateMintAndMeltRecipes(@Nonnull Consumer<FinishedRecipe> consumer, RegistryObject<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem)
+    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem)
     {
         MintRecipeBuilder.mint(coin.get())
                 .unlockedBy("money", MoneyKnowledge())
@@ -973,30 +946,29 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID("coin_mint/melt_", coin));
     }
 
-    private static CriterionTriggerInstance MoneyKnowledge() { return LazyTrigger(LCTags.Items.COINS); }
-    private static CriterionTriggerInstance TraderKnowledge() { return LazyTrigger(LCTags.Items.TRADER); }
-    private static CriterionTriggerInstance TerminalKnowledge() { return LazyTrigger(LCTags.Items.NETWORK_TERMINAL); }
+    private static Criterion<?> MoneyKnowledge() { return LazyTrigger(LCTags.Items.COINS); }
+    private static Criterion<?> TraderKnowledge() { return LazyTrigger(LCTags.Items.TRADER); }
+    private static Criterion<?> TerminalKnowledge() { return LazyTrigger(LCTags.Items.NETWORK_TERMINAL); }
 
-    private static CriterionTriggerInstance LazyTrigger(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(item).build()); }
-    private static CriterionTriggerInstance LazyTrigger(List<? extends ItemLike> items) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items.toArray(new ItemLike[0])).build()); }
-    private static CriterionTriggerInstance LazyTrigger(RegistryObject<? extends ItemLike> item) { return LazyTrigger(item.get()); }
-    private static CriterionTriggerInstance LazyTrigger(TagKey<Item> tag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag).build()); }
+    private static Criterion<?> LazyTrigger(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(item).build()); }
+    private static Criterion<?> LazyTrigger(List<? extends ItemLike> items) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items.toArray(new ItemLike[0])).build()); }
+    private static Criterion<?> LazyTrigger(Supplier<? extends ItemLike> item) { return LazyTrigger(item.get()); }
+    private static Criterion<?> LazyTrigger(TagKey<Item> tag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag).build()); }
 
-    private static void ApplyCriteria(ShapelessRecipeBuilder builder, List<Pair<String,CriterionTriggerInstance>> criteria)
+    private static void ApplyCriteria(ShapelessRecipeBuilder builder, List<Pair<String,Criterion<?>>> criteria)
     {
-        for(Pair<String,CriterionTriggerInstance> c : criteria)
+        for(Pair<String,Criterion<?>> c : criteria)
             builder.unlockedBy(c.getFirst(), c.getSecond());
     }
 
-    private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }
-    private static String ItemPath(RegistryObject<? extends ItemLike> item) { return ItemPath(item.get()); }
+    private static String ItemPath(ItemLike item) { return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath(); }
+    private static String ItemPath(Supplier<? extends ItemLike> item) { return ItemPath(item.get()); }
     private static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
-    private static ResourceLocation ItemID(RegistryObject<? extends ItemLike> item) { return ID(ItemPath(item)); }
-    private static ResourceLocation ItemID(String prefix, RegistryObject<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
+    private static ResourceLocation ItemID(Supplier<? extends ItemLike> item) { return ID(ItemPath(item)); }
+    private static ResourceLocation ItemID(String prefix, Supplier<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
     private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
     private static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
     private static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
-    private static ResourceLocation ID(String path) { return new ResourceLocation(LightmansCurrency.MODID, path); }
-
+    private static ResourceLocation ID(String path) { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, path); }
 
 }

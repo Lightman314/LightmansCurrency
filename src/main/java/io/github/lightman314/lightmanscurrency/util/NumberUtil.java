@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import javax.swing.text.NumberFormatter;
 import java.text.DecimalFormat;
 
 public class NumberUtil {

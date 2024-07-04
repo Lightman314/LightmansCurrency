@@ -32,7 +32,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public static final int HEIGHT = 69;
     public static final int WIDTH = 176;
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
     public static final Sprite SPRITE_FREE_TOGGLE = Sprite.SimpleSprite(GUI_TEXTURE, 40, HEIGHT, 10, 10);
     public static final Sprite SPRITE_UP_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 0, HEIGHT, 20, 10);
     public static final Sprite SPRITE_DOWN_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 20, HEIGHT, 20, 10);
@@ -124,7 +124,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
                 return this.availableHandlers.get(id);
         }
         //Could not find a valid handler. Just return the first one.
-        return this.availableHandlers.values().stream().toList().get(0);
+        return this.availableHandlers.values().stream().toList().getFirst();
     }
 
     @Override

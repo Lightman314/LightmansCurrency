@@ -3,7 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraftforge.common.util.LazyOptional;
+
+import java.util.Optional;
 
 public final class ScreenPosition {
 
@@ -35,7 +36,7 @@ public final class ScreenPosition {
     public static ScreenPosition of(double x, double y) { return of((int)x,(int)y); }
     public static ScreenPosition of(ScreenPosition offset, int x, int y) { return offset != null ? offset.offset(x,y) : of(x,y); }
     public static ScreenPosition of(IEasyScreen screen, int x, int y) { return screen != null ? screen.getCorner().offset(x,y) : of(x,y); }
-    public static LazyOptional<ScreenPosition> ofOptional(int x, int y) { return LazyOptional.of(() -> of(x, y)); }
+    public static Optional<ScreenPosition> ofOptional(int x, int y) { return Optional.of(of(x, y)); }
     public static ScreenPosition getScreenCorner(AbstractContainerScreen<?> screen) { return screen != null ? of(screen.getGuiLeft(), screen.getGuiTop()) : ScreenPosition.ZERO; }
 
 }

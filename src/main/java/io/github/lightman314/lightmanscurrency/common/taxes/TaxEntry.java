@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
@@ -26,22 +27,23 @@ import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class TaxEntry implements ITaxCollector {
 
@@ -192,7 +194,7 @@ public class TaxEntry implements ITaxCollector {
     private final NotificationData logger = new NotificationData();
     public final List<Notification> getNotifications() { return this.logger.getNotifications(); }
 
-    public final void PushNotification(NonNullSupplier<Notification> notification) {
+    public final void PushNotification(Supplier<Notification> notification) {
         if(this.isClient)
             return;
 
@@ -252,6 +254,7 @@ public class TaxEntry implements ITaxCollector {
 
     protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxSaveData.MarkTaxEntryDirty(this.id, packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
+    protected final void markDirty(BiFunction<CompoundTag,HolderLookup.Provider,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag(),LookupHelper.getRegistryAccess(this.isClient)));}
 
     public TaxEntry() { }
     public TaxEntry(long id, @Nullable BlockEntity core, @Nullable Player owner)
@@ -259,26 +262,26 @@ public class TaxEntry implements ITaxCollector {
         this.id = id;
         if(core != null)
             this.center = WorldPosition.ofBE(core);
-        this.owner.SetOwner(PlayerOwner.of(owner));
+        this.owner.SetOwner(owner != null ? PlayerOwner.of(owner) : FakeOwner.of("NULL"));
     }
 
     public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
     {
-        if(player instanceof ServerPlayer sp && this.canAccess(player))
-            NetworkHooks.openScreen(sp, new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
+        if(this.canAccess(player))
+            player.openMenu(new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
-    public CompoundTag save()
+    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
         tag.putLong("ID", this.id);
 
         this.saveTaxRate(tag);
-        this.saveStoredMoney(tag);
+        this.saveStoredMoney(tag, lookup);
         this.saveActiveState(tag);
         this.saveName(tag);
-        this.saveNotifications(tag);
-        this.saveStats(tag);
+        this.saveNotifications(tag, lookup);
+        this.saveStats(tag, lookup);
 
         if(!this.isServerEntry())
         {
@@ -286,7 +289,7 @@ public class TaxEntry implements ITaxCollector {
             this.saveCenter(tag);
             this.saveArea(tag);
             this.saveRenderMode(tag);
-            this.saveOwner(tag);
+            this.saveOwner(tag,lookup);
             this.saveAdminState(tag);
             this.saveAcceptedEntries(tag);
             this.saveBankState(tag);
@@ -332,13 +335,13 @@ public class TaxEntry implements ITaxCollector {
 
     public final void markOwnerDirty() { this.markDirty(this::saveOwner); }
 
-    protected final CompoundTag saveOwner(CompoundTag tag) {
-        tag.put("Owner", this.owner.save());
+    protected final CompoundTag saveOwner(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+        tag.put("Owner", this.owner.save(lookup));
         return tag;
     }
 
     public final void markStoredMoneyDirty() { this.markDirty(this::saveStoredMoney); }
-    protected final CompoundTag saveStoredMoney(CompoundTag tag) {
+    protected final CompoundTag saveStoredMoney(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
         tag.put("StoredMoney", this.storedMoney.save());
         return tag;
     }
@@ -369,16 +372,16 @@ public class TaxEntry implements ITaxCollector {
     }
 
     public final void markNotificationsDirty() { this.markDirty(this::saveNotifications); }
-    protected final CompoundTag saveNotifications(CompoundTag tag)
+    protected final CompoundTag saveNotifications(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
-        tag.put("Notifications", this.logger.save());
+        tag.put("Notifications", this.logger.save(lookup));
         return tag;
     }
 
     public final void markStatsDirty() { this.markDirty(this::saveStats); }
-    protected final CompoundTag saveStats(CompoundTag tag)
+    protected final CompoundTag saveStats(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
-        tag.put("Statistics", this.stats.save());
+        tag.put("Statistics", this.stats.save(lookup));
         return tag;
     }
 
@@ -389,7 +392,7 @@ public class TaxEntry implements ITaxCollector {
         return tag;
     }
 
-    public void load(CompoundTag tag)
+    public void load(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
         if(tag.contains("ID"))
             this.id = tag.getLong("ID");
@@ -408,7 +411,7 @@ public class TaxEntry implements ITaxCollector {
         if(tag.contains("CustomName"))
             this.name = tag.getString("CustomName");
         if(tag.contains("Owner"))
-            this.owner.load(tag.getCompound("Owner"));
+            this.owner.load(tag.getCompound("Owner"),lookup);
         if(tag.contains("StoredMoney"))
             this.storedMoney.safeLoad(tag, "StoredMoney");
         if(tag.contains("ForceAcceptance"))
@@ -429,9 +432,9 @@ public class TaxEntry implements ITaxCollector {
             }
         }
         if(tag.contains("Notifications"))
-            this.logger.load(tag.getCompound("Notifications"));
+            this.logger.load(tag.getCompound("Notifications"), lookup);
         if(tag.contains("Statistics"))
-            this.stats.load(tag.getCompound("Statistics"));
+            this.stats.load(tag.getCompound("Statistics"), lookup);
     }
 
 }

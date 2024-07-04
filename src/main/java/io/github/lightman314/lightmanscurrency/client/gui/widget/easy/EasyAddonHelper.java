@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -21,10 +20,10 @@ public class EasyAddonHelper {
 
     //Widget Active Modifiers
     public static WidgetAddon activeCheck(@Nonnull Function<EasyWidget,Boolean> shouldBeActive) { return new ActiveCheckAddon(shouldBeActive); }
-    public static WidgetAddon activeCheck(@Nonnull NonNullSupplier<Boolean> shouldBeActive) { return new ActiveCheckAddon(b -> shouldBeActive.get()); }
+    public static WidgetAddon activeCheck(@Nonnull Supplier<Boolean> shouldBeActive) { return new ActiveCheckAddon(b -> shouldBeActive.get()); }
     //Widget Visible Modifiers
     public static WidgetAddon visibleCheck(@Nonnull Function<EasyWidget,Boolean> shouldBeVisible) { return new VisibleCheckAddon(shouldBeVisible); }
-    public static WidgetAddon visibleCheck(@Nonnull NonNullSupplier<Boolean> shouldBeVisible) { return new VisibleCheckAddon(b -> shouldBeVisible.get()); }
+    public static WidgetAddon visibleCheck(@Nonnull Supplier<Boolean> shouldBeVisible) { return new VisibleCheckAddon(b -> shouldBeVisible.get()); }
 
     //Widget Tooltip Modifiers
     public static WidgetAddon tooltip(@Nonnull Component tooltip) { return new TooltipAddon(Suppliers.memoize(() -> ImmutableList.of(tooltip))); }
@@ -42,9 +41,9 @@ public class EasyAddonHelper {
     public static WidgetAddon additiveTooltip(@Nonnull String translationKey, @Nonnull Supplier<Object[]> inputSource) { return tooltip(() -> Component.translatable(translationKey, inputSource.get())); }
     @Deprecated
     public static WidgetAddon additiveTooltip2(@Nonnull String translationKey, @Nonnull Supplier<Object> inputSource) { return tooltip(() -> Component.translatable(translationKey, inputSource.get())); }
-    public static WidgetAddon toggleTooltip(@Nonnull NonNullSupplier<Boolean> toggle, Component trueTooltip, Component falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip : falseTooltip); }
-    public static WidgetAddon toggleTooltip(@Nonnull NonNullSupplier<Boolean> toggle, Supplier<Component> trueTooltip, Supplier<Component> falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip.get() : falseTooltip.get()); }
-    public static WidgetAddon changingTooltip(@Nonnull NonNullSupplier<Integer> indicator, Component... tooltips)
+    public static WidgetAddon toggleTooltip(@Nonnull Supplier<Boolean> toggle, Component trueTooltip, Component falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip : falseTooltip); }
+    public static WidgetAddon toggleTooltip(@Nonnull Supplier<Boolean> toggle, Supplier<Component> trueTooltip, Supplier<Component> falseTooltip) { return tooltip(() -> toggle.get() ? trueTooltip.get() : falseTooltip.get()); }
+    public static WidgetAddon changingTooltip(@Nonnull Supplier<Integer> indicator, Component... tooltips)
     {
         if(tooltips.length == 0)
             return tooltip(EasyText.empty());

@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public class NotificationScreen extends EasyScreen implements IScrollable {
 
-	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
+	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/notifications.png");
 	
 	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
 
@@ -162,7 +162,7 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
-				gui.drawString(lines.get(0), textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (this.font.lineHeight / 2), textColor);
+				gui.drawString(lines.getFirst(), textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (this.font.lineHeight / 2), textColor);
 			}
 			else
 			{
@@ -275,18 +275,18 @@ public class NotificationScreen extends EasyScreen implements IScrollable {
 	public int getMaxScroll() { return this.getMaxNotificationScroll(); }
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
 		//If mouse is over the screen, scroll the notifications
 		if(this.getCorner().offset(TabButton.SIZE, 0).isMouseInArea(mouseX, mouseY, this.getXSize() - TabButton.SIZE, this.getYSize()))
 		{
-			if(this.notificationScrolled(delta))
+			if(this.notificationScrolled(deltaY))
 				return true;
 			//Don't scroll the tabs while the mouse is over the center of the screen.
-			return super.mouseScrolled(mouseX, mouseY, delta);
+			return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 		}
-		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
+		else if(this.tabScrolled(deltaY)) //Otherwise scroll the tabs
 			return true;
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
 	}
 	
 	@Override

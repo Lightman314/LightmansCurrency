@@ -7,7 +7,8 @@ import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderA
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModCommandArguments {
 
@@ -22,9 +23,9 @@ public class ModCommandArguments {
 
 	}
 	
-	public static final RegistryObject<ArgumentTypeInfo<TraderArgument, ?>> TRADER_ARGUMENT;
-	public static final RegistryObject<ArgumentTypeInfo<TradeIDArgument, ?>> TRADE_ID_ARGUMENT;
-	public static final RegistryObject<ArgumentTypeInfo<ColorArgument, ?>> COLOR_ARGUMENT;
-	public static final RegistryObject<ArgumentTypeInfo<MoneyValueArgument,?>> COIN_VALUE_ARGUMENT;
+	public static final Supplier<ArgumentTypeInfo<TraderArgument, ?>> TRADER_ARGUMENT;
+	public static final Supplier<ArgumentTypeInfo<TradeIDArgument, ?>> TRADE_ID_ARGUMENT;
+	public static final Supplier<ArgumentTypeInfo<ColorArgument, ?>> COLOR_ARGUMENT;
+	public static final Supplier<ArgumentTypeInfo<MoneyValueArgument,?>> COIN_VALUE_ARGUMENT;
 
 }

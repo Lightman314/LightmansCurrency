@@ -1,77 +1,72 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.Optional;
 
-import io.github.lightman314.lightmanscurrency.LCConfig;
+import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.*;
 
 import javax.annotation.Nonnull;
 
-@SuppressWarnings("removal")
-public class MoneyMendingEnchantment extends Enchantment {
+public class MoneyMendingEnchantment {
 
-	public MoneyMendingEnchantment(Rarity rarity, EquipmentSlot... slots) { super(rarity, EnchantmentCategory.BREAKABLE, slots); }
-
-	@Override
-	public int getMinCost(int level) { return level * 25; }
-
-	@Override
-	public int getMaxCost(int level) { return this.getMinCost(level) + 50; }
-
-	@Override
-	public boolean isTreasureOnly() { return true; }
-
-	@Override
-	public int getMaxLevel() { return 1; }
-
-	@Override
-	protected boolean checkCompatibility(@Nonnull Enchantment otherEnchant) {
-		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
-	}
-
-	public static MoneyValue getRepairCost(@Nonnull ItemStack item)
+	public static MoneyValue getRepairCost(@Nonnull ItemStack item, @Nonnull RepairWithMoneyData data, @Nonnull HolderLookup.Provider lookup)
 	{
-		MoneyValue baseCost = LCConfig.SERVER.moneyMendingRepairCost.get();
+		MoneyValue baseCost = data.getBaseCost();
 		MoneyValue cost = baseCost;
-		Map<Enchantment,Integer> enchantments = item.getAllEnchantments();
-		if(enchantments.getOrDefault(Enchantments.INFINITY_ARROWS,0) > 0)
-			cost = baseCost.addValue(LCConfig.SERVER.moneyMendingInfinityCost.get());
+		Holder<Enchantment> infinity = LookupHelper.lookupEnchantment(lookup, Enchantments.INFINITY);
+		ItemEnchantments enchantments = item.getItem() == Items.ENCHANTED_BOOK ? item.getOrDefault(DataComponents.STORED_ENCHANTMENTS,ItemEnchantments.EMPTY) : item.getAllEnchantments(lookup.lookupOrThrow(Registries.ENCHANTMENT));
+		if(infinity != null && enchantments.getLevel(infinity) > 0)
+			cost = baseCost.addValue(data.getInfinityExtraCost());
+
 		return cost == null ? baseCost : cost;
 	}
 	
 	public static void runEntityTick(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler handler)
 	{
 		//Go through the players inventory searching for items with the money mending enchantment
-		Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING.get(), entity, ItemStack::isDamaged);
-		ItemStack item;
-		if(entry == null)
+		Optional<EnchantedItemInUse> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.REPAIR_WITH_MONEY.get(), entity, ItemStack::isDamaged);
+		ItemStack item = null;
+		if(entry.isEmpty())
 		{
 			//If we failed to get a vanilla entry, check the curios slots (if applicable)
-			if(LightmansCurrency.isCuriosLoaded())
-				item = LCCurios.getMoneyMendingItem(entity);
-			else
-				item = null;
+			if(LCCurios.isCuriosLoaded())
+				item = LCCurios.getRandomFromCuriosSlot(entity,s -> EnchantmentHelper.has(s, ModEnchantments.REPAIR_WITH_MONEY.get()));
 		}
 		else
-			item = entry.getValue();
+			item = entry.get().itemStack();
 		if(item != null)
 		{
+			Pair<RepairWithMoneyData,Integer> dataPair = EnchantmentHelper.getHighestLevel(item, ModEnchantments.REPAIR_WITH_MONEY.get());
+			if(dataPair == null)
+			{
+				LightmansCurrency.LogWarning("Money Mending item was missing its RepairWithMoney data");
+				return;
+			}
+			RepairWithMoneyData data = dataPair.getFirst();
 			//Only bother calculating the repair cost until we have a confirmed mending target to reduce lag
 			//That and the cost can now be modified based on other enchantments such as infinity, etc.
-			MoneyValue repairCost = getRepairCost(item);
+			MoneyValue repairCost = getRepairCost(item, data, entity.registryAccess());
 			MoneyView availableFunds = handler.getStoredMoney();
 			if(!availableFunds.containsValue(repairCost))
 				return;
@@ -94,6 +89,44 @@ public class MoneyMendingEnchantment extends Enchantment {
 				item.setDamageValue(currentDamage - repairAmount);
 			}
 		}
+	}
+
+	public static void addEnchantmentTooltips(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip, @Nonnull Item.TooltipContext context)
+	{
+		if(context.registries() == null)
+			return;
+		if(stack.getItem() == Items.ENCHANTED_BOOK)
+		{
+			//Manually display tootip for enchanted books so that players can identify which type of book it is.
+			if(!stack.has(DataComponents.STORED_ENCHANTMENTS))
+				return;
+			ItemEnchantments enchantments = stack.get(DataComponents.STORED_ENCHANTMENTS);
+			for(var entry : enchantments.entrySet())
+			{
+				try {
+					Enchantment enchantment = entry.getKey().value();
+					ResourceKey<Enchantment> key = entry.getKey().unwrapKey().orElse(null);
+					if(enchantment != null)
+					{
+						RepairWithMoneyData data = entry.getKey().value().effects().get(ModEnchantments.REPAIR_WITH_MONEY.get());
+						if(data != null)
+							tooltip.add(infoTooltip(stack, data, context.registries()));
+					}
+				}catch (Throwable t) { LightmansCurrency.LogDebug("Error checking item enchantments.",t);}
+			}
+		}
+		else
+		{
+			//Add tooltip to item with enchantments
+			Pair<RepairWithMoneyData,Integer> data = EnchantmentHelper.getHighestLevel(stack,ModEnchantments.REPAIR_WITH_MONEY.get());
+			if(data != null)
+				tooltip.add(infoTooltip(stack, data.getFirst(), context.registries()));
+		}
+	}
+
+	private static Component infoTooltip(@Nonnull ItemStack stack, @Nonnull RepairWithMoneyData data, @Nonnull HolderLookup.Provider lookup)
+	{
+		return LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack, data, lookup).getText().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD));
 	}
 	
 }

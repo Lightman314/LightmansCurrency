@@ -1,19 +1,16 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.display;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.RegisterValueDisplayTypes;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.CoinDisplay;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.Null;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.NumberDisplay;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.fml.ModLoader;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ValueDisplayAPI {
 
     private static Map<ResourceLocation, ValueDisplaySerializer> REGISTRY = null;
@@ -28,7 +25,7 @@ public class ValueDisplayAPI {
         event.register(CoinDisplay.SERIALIZER);
         event.register(NumberDisplay.SERIALIZER);
         //Register others
-        ModLoader.get().postEvent(event);
+        ModLoader.postEvent(event);
         REGISTRY = event.getResults();
     }
 

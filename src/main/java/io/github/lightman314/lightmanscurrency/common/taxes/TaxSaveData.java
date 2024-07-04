@@ -3,9 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.taxes;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTaxData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.tax.SPacketRemoveTax;
-import io.github.lightman314.lightmanscurrency.network.message.tax.SPacketSyncClientTax;
+import io.github.lightman314.lightmanscurrency.network.message.tax.SPacketUpdateClientTax;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -13,11 +14,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
+@EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TaxSaveData extends SavedData {
 
     public static final long SERVER_TAX_ID = -9;
@@ -33,14 +33,14 @@ public class TaxSaveData extends SavedData {
     private long nextID = 0;
     private final Map<Long,TaxEntry> entries = new HashMap<>();
     private TaxSaveData() {}
-    private TaxSaveData(CompoundTag compound)
+    private TaxSaveData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         this.nextID = compound.getLong("NextID");
         ListTag list = compound.getList("TaxEntries", Tag.TAG_COMPOUND);
         for(int i = 0; i < list.size(); ++i)
         {
             TaxEntry entry = new TaxEntry();
-            entry.load(list.getCompound(i));
+            entry.load(list.getCompound(i), lookup);
             if(entry.getID() >= 0 || entry.isServerEntry())
             {
                 this.entries.put(entry.getID(), entry.unlock());
@@ -50,11 +50,11 @@ public class TaxSaveData extends SavedData {
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag compound) {
+    public CompoundTag save(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
         compound.putLong("NextID", this.nextID);
         ListTag entryList = new ListTag();
         this.entries.forEach((id,entry) -> {
-            CompoundTag entryTag = entry.save();
+            CompoundTag entryTag = entry.save(lookup);
             if(entryTag != null)
                 entryList.add(entryTag);
         });
@@ -65,7 +65,7 @@ public class TaxSaveData extends SavedData {
     private static TaxSaveData get() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(TaxSaveData::new, TaxSaveData::new, "lightmanscurrency_tax_data");
+            return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(TaxSaveData::new, TaxSaveData::new), "lightmanscurrency_tax_data");
         return null;
     }
 
@@ -103,7 +103,7 @@ public class TaxSaveData extends SavedData {
             {
                 entry = new TaxEntry(SERVER_TAX_ID, null, null);
                 data.entries.put(SERVER_TAX_ID, entry);
-                MarkTaxEntryDirty(SERVER_TAX_ID, entry.save());
+                MarkTaxEntryDirty(SERVER_TAX_ID, entry.save(LookupHelper.getRegistryAccess(false)));
             }
             return entry;
         }
@@ -122,7 +122,7 @@ public class TaxSaveData extends SavedData {
         {
             data.setDirty();
             syncData.putLong("ID", id);
-            new SPacketSyncClientTax(syncData).sendToAll();
+            new SPacketUpdateClientTax(syncData).sendToAll();
         }
     }
 
@@ -134,7 +134,7 @@ public class TaxSaveData extends SavedData {
             long id = data.nextID++;
             TaxEntry entry = new TaxEntry(id, spawnBE, player);
             data.entries.put(id, entry.unlock());
-            MarkTaxEntryDirty(id, entry.save());
+            MarkTaxEntryDirty(id, entry.save(LookupHelper.getRegistryAccess(false)));
             return id;
         }
         return -1;
@@ -158,8 +158,8 @@ public class TaxSaveData extends SavedData {
         TaxSaveData data = get();
         if(data != null)
         {
-            PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
-            data.entries.forEach((id,entry) -> new SPacketSyncClientTax(entry.save()).sendToTarget(target));
+            Player player = event.getEntity();
+            data.entries.forEach((id,entry) -> new SPacketUpdateClientTax(entry.save(player.registryAccess())).sendTo(player));
         }
     }
 

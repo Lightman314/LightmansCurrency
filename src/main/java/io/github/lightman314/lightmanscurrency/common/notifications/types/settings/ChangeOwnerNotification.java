@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +19,7 @@ import javax.annotation.Nonnull;
 
 public class ChangeOwnerNotification extends Notification {
 
-	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_ownership"),ChangeOwnerNotification::new);
+	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "change_ownership"),ChangeOwnerNotification::new);
 	
 	PlayerReference player;
 	Owner newOwner;
@@ -55,25 +56,25 @@ public class ChangeOwnerNotification extends Notification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		compound.put("Player", this.player.save());
-		compound.put("NewOwner", this.newOwner.save());
-		compound.put("OldOwner", this.oldOwner.save());
+		compound.put("NewOwner", this.newOwner.save(lookup));
+		compound.put("OldOwner", this.oldOwner.save(lookup));
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.newOwner = safeLoad(compound.getCompound("NewOwner"));
-		this.oldOwner = safeLoad(compound.getCompound("OldOwner"));
+		this.newOwner = safeLoad(compound.getCompound("NewOwner"),lookup);
+		this.oldOwner = safeLoad(compound.getCompound("OldOwner"),lookup);
 	}
 
 	@Nonnull
-	private static Owner safeLoad(@Nonnull CompoundTag tag)
+	private static Owner safeLoad(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
 	{
 		if(tag.contains("Type"))
 		{
-			Owner o = Owner.load(tag);
+			Owner o = Owner.load(tag,lookup);
 			return o != null ? o : Owner.NULL;
 		}
 		if(tag.contains("Player"))

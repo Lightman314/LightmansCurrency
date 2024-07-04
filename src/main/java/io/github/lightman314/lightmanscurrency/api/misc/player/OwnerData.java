@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.misc.player;
 
 import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.api.ownership.IOwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
@@ -11,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 
 
-public final class OwnerData implements IOwnerData {
+public final class OwnerData {
 
 	private Owner backupOwner = Owner.NULL;
 	private Owner currentOwner = Owner.NULL;
@@ -38,21 +38,22 @@ public final class OwnerData implements IOwnerData {
 		this.backupOwner.flagAsClient();
 		this.currentOwner.flagAsClient();
 	}
-	
-	public CompoundTag save()
+
+	@Nonnull
+	public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
 	{
 		CompoundTag compound = new CompoundTag();
-		compound.put("BackupOwner", this.backupOwner.save());
-		compound.put("Owner", this.currentOwner.save());
+		compound.put("BackupOwner", this.backupOwner.save(lookup));
+		compound.put("Owner", this.currentOwner.save(lookup));
 		return compound;
 	}
 	
-	public void load(CompoundTag compound)
+	public void load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		if(compound.contains("BackupOwner") && compound.contains("Owner"))
 		{
-			this.backupOwner = Owner.load(compound.getCompound("BackupOwner"));
-			this.currentOwner = Owner.load(compound.getCompound("Owner"));
+			this.backupOwner = Owner.load(compound.getCompound("BackupOwner"), lookup);
+			this.currentOwner = Owner.load(compound.getCompound("Owner"), lookup);
 			if(this.parent.isClient())
 			{
 				this.backupOwner.flagAsClient();
@@ -65,7 +66,7 @@ public final class OwnerData implements IOwnerData {
 			//Load deprecated save data
 			if(compound.contains("Custom"))
 			{
-				MutableComponent custom = Component.Serializer.fromJson(compound.getString("Custom"));
+				MutableComponent custom = Component.Serializer.fromJson(compound.getString("Custom"), lookup);
 				this.backupOwner = FakeOwner.of(custom.copy());
 				this.currentOwner = FakeOwner.of(custom);
 			}
@@ -86,7 +87,6 @@ public final class OwnerData implements IOwnerData {
 		this.backupOwner = owner.backupOwner;
 		this.currentOwner = owner.currentOwner;
 	}
-
 
 	@Deprecated(since = "2.2.1.4")
 	public boolean hasPlayer() { return this.getPlayer() != null; }

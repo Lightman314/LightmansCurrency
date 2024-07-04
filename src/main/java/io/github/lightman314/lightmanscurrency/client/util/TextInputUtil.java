@@ -139,7 +139,7 @@ public class TextInputUtil {
 	public static void whitelistInteger(EditBox textInput, long minValue, long maxValue)
 	{
 		whitelistInteger(textInput);
-		if(textInput.getValue().length() > 0)
+		if(!textInput.getValue().isEmpty())
 		{
 			long currentValue = getLongValue(textInput);
 			if(currentValue < minValue || currentValue > maxValue)
@@ -164,10 +164,12 @@ public class TextInputUtil {
 		for(int i = 0; i < newText.length(); i++)
 		{
 			boolean allowed = false;
-			for(int x = 0; x < allowedChars.length() && !allowed; x++)
+			for(int x = 0; x < allowedChars.length(); x++)
 			{
-				if(allowedChars.charAt(x) == newText.charAt(i))
-					allowed = true;
+                if (allowedChars.charAt(x) == newText.charAt(i)) {
+                    allowed = true;
+                    break;
+                }
 			}
 			if(!allowed)
 			{

@@ -6,13 +6,14 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ClientBankData {
 
 	private static final Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
@@ -32,7 +33,7 @@ public class ClientBankData {
 	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {
-			BankAccount account = new BankAccount(compound).flagAsClient();
+			BankAccount account = new BankAccount(compound, LookupHelper.getRegistryAccess(true)).flagAsClient();
 			if(player != null && account != null)
 				loadedBankAccounts.put(player, account);
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading bank account on client!",e); }

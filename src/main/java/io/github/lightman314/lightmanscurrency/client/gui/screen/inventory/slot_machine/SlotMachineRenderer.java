@@ -7,11 +7,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +22,7 @@ import java.util.List;
 
 public final class SlotMachineRenderer implements IEasyTickable {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/slot_machine_overlay.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/slot_machine_overlay.png");
 
     public Font getFont() { return this.screen.getFont(); }
     private final SlotMachineScreen screen;
@@ -127,7 +125,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
                     //Send message if this is the last reward known to the client to let the server know that we think we're done
                     //Shouldn't be strictly needed, but it's here as a failsafe
                     if(!this.menu.hasPendingReward())
-                        this.menu.SendMessageToServer(LazyPacketData.builder().setBoolean("AnimationsCompleted", true));
+                        this.menu.SendMessageToServer(this.menu.builder().setBoolean("AnimationsCompleted", true));
                 }
             }
             else
@@ -144,7 +142,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
         if(this.animationTick >= GetAnimationTime())
         {
             this.menu.getAndRemoveNextReward();
-            this.menu.SendMessageToServer(LazyPacketData.builder().setBoolean("GiveNextReward", true));
+            this.menu.SendMessageToServer(this.menu.builder().setBoolean("GiveNextReward", true));
         }
 
     }
@@ -189,8 +187,8 @@ public final class SlotMachineRenderer implements IEasyTickable {
             lockDelay.add(rand.nextInt(GetAnimationTime() - 11, GetAnimationTime() - 1));
         while(!randomLines.isEmpty())
         {
-            SlotMachineLine line = randomLines.size() > 1 ? randomLines.remove(rand.nextInt(randomLines.size())) : randomLines.remove(0);
-            line.lockAtResult(resultBlocks.remove(0), lockDelay.remove(0));
+            SlotMachineLine line = randomLines.size() > 1 ? randomLines.remove(rand.nextInt(randomLines.size())) : randomLines.removeFirst();
+            line.lockAtResult(resultBlocks.removeFirst(), lockDelay.removeFirst());
         }
     }
 

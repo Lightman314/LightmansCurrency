@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class TicketSlot extends Slot{
 	
-	public static final ResourceLocation EMPTY_TICKET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_ticket_slot");
+	public static final ResourceLocation EMPTY_TICKET_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_ticket_slot");
 	
 	public TicketSlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
 	

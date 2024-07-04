@@ -13,8 +13,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 
 			//LightmansCurrency.LogDebug("Light level is " + lightLevel);
 
-			ResourceLocation lightModel = block.getLightModel();
+			ModelResourceLocation lightModel = block.getLightModel();
 			if(lightModel == null)
 				return;
 

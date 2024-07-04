@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 
 public class ItemTraderDataTicket extends ItemTraderData {
 
-	public static final TraderType<ItemTraderDataTicket> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader_ticket"), ItemTraderDataTicket::new);
+	public static final TraderType<ItemTraderDataTicket> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trader_ticket"), ItemTraderDataTicket::new);
 	
 	private ItemTraderDataTicket() { super(TYPE); }
 	

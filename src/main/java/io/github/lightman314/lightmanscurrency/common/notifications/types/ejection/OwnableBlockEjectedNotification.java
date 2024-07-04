@@ -9,17 +9,18 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class OwnableBlockEjectedNotification extends Notification {
 
-    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"block_ejected"),OwnableBlockEjectedNotification::new);
+    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"block_ejected"),OwnableBlockEjectedNotification::new);
 
     private Component name = EasyText.empty();
     private boolean ejected = false;
@@ -33,7 +34,7 @@ public class OwnableBlockEjectedNotification extends Notification {
     }
 
     @Nonnull
-    public static NonNullSupplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
+    public static Supplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
 
     @Nonnull
     @Override
@@ -55,8 +56,8 @@ public class OwnableBlockEjectedNotification extends Notification {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
-        compound.putString("Name", Component.Serializer.toJson(this.name));
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        compound.putString("Name", Component.Serializer.toJson(this.name,lookup));
         if(this.ejected)
             compound.putBoolean("Ejected", this.ejected);
         if(this.anarchy)
@@ -64,8 +65,8 @@ public class OwnableBlockEjectedNotification extends Notification {
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound) {
-        this.name = Component.Serializer.fromJson(compound.getString("Name"));
+    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        this.name = Component.Serializer.fromJson(compound.getString("Name"),lookup);
         if(compound.contains("Ejected"))
             this.ejected = compound.getBoolean("Ejected");
         if(compound.contains("Anarchy"))

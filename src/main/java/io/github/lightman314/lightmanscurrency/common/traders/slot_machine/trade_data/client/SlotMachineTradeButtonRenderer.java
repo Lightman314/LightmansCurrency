@@ -15,10 +15,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRen
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachineTrade> {
 
@@ -28,7 +28,7 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     public int tradeButtonWidth(TradeContext context) { return 128; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
@@ -65,8 +65,8 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
             return null;
 
         List<Component> tooltips = EasyScreenHelper.getTooltipFromItem(stack);
-        tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
-        tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
+        tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
+        tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
 
         return tooltips;
 

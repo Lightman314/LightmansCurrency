@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -13,8 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -34,7 +35,7 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
 			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
@@ -42,6 +43,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_ARMOR.asTooltip(ArmorDisplayTraderBlockEntity.TRADE_COUNT); }
+	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_ARMOR.asTooltip(ArmorDisplayTraderBlockEntity.TRADE_COUNT); }
 	
 }

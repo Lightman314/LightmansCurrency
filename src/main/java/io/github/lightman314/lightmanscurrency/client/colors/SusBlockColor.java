@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.colors;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,9 +26,9 @@ public class SusBlockColor implements BlockColor {
     public static class Item implements ItemColor {
         @Override
         public int getColor(@Nonnull ItemStack stack, int layer) {
-            if(layer == 0 && stack.getItem() instanceof DyeableLeatherItem dyeable)
-                return dyeable.getColor(stack);
-            return 0xFFFFFF;
+            if(layer == 0 && InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
+                return 0xFF000000 + CoinJarItem.getJarColor(stack);
+            return 0xFFFFFFFF;
         }
     }
 

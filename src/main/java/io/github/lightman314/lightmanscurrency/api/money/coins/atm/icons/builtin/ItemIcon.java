@@ -11,19 +11,19 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATME
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
 public class ItemIcon extends ATMIconData {
 	
-	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "item");
+	public static final ResourceLocation TYPE_NAME = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, ItemIcon::new);
 	
 	private final boolean simpleItem;
@@ -36,7 +36,7 @@ public class ItemIcon extends ATMIconData {
 		String itemID = GsonHelper.getAsString(data, "item", "NO_RESULT");
 		if(!itemID.equals("NO_RESULT"))
 		{
-			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemID)));
+			this.item = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemID)));
 			this.simpleItem = true;
 		}
 		else
@@ -65,7 +65,7 @@ public class ItemIcon extends ATMIconData {
 	protected void saveAdditional(@Nonnull JsonObject data) {
 		
 		if(this.simpleItem)
-			data.addProperty("item", ForgeRegistries.ITEMS.getKey(this.item.getItem()).toString());
+			data.addProperty("item", BuiltInRegistries.ITEM.getKey(this.item.getItem()).toString());
 		else
 			data.add("item", FileUtil.convertItemStack(this.item));
 	}

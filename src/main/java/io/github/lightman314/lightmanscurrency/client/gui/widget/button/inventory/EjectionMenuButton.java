@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class EjectionMenuButton extends InventoryButton {
 	
-	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/misc.png");
+	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/misc.png");
 	
 	private static EjectionMenuButton lastButton = null;
 	

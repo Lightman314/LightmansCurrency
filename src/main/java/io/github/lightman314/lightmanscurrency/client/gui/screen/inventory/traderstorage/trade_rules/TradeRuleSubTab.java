@@ -16,7 +16,6 @@ public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesCli
     public TradeRuleSubTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<T> ruleType) { super(parent); this.ruleType = ruleType; }
 
     @Nullable
-    @SuppressWarnings("unchecked")
     protected final T getRule()
     {
         ITradeRuleHost host = this.commonTab.getHost();

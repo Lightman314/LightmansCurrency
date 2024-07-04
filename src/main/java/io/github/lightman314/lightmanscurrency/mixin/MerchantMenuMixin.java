@@ -7,8 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
+import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
@@ -20,7 +20,7 @@ import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -35,14 +35,14 @@ import javax.annotation.Nullable;
 public abstract class MerchantMenuMixin {
 
     @Unique
-    protected MerchantMenu self() { return (MerchantMenu)(Object)this; }
+    private MerchantMenu self() { return (MerchantMenu)(Object)this; }
 
     @Accessor("trader")
     public abstract Merchant getTrader();
     @Accessor("tradeContainer")
     public abstract MerchantContainer getTradeContainer();
     @Unique
-    public Player getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
+    private Player getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
 
     @Inject(at = @At("HEAD"), method = "tryMoveItems")
     private void tryMoveItemsEarly(int trade, CallbackInfo info)
@@ -89,7 +89,7 @@ public abstract class MerchantMenuMixin {
                         //LightmansCurrency.LogDebug("Coin Value of the selected trade is " + tradeValue.getString());
                         Player player = this.getPlayer();
 
-                        MoneyView availableFunds = WalletCapability.getWalletMoney(player);
+                        MoneyView availableFunds = WalletHelpers.getWalletMoney(player);
 
                         MoneyValue fundsToExtractA = MoneyValue.empty();
                         MoneyValue fundsToExtractB = MoneyValue.empty();
@@ -172,7 +172,7 @@ public abstract class MerchantMenuMixin {
     }
 
     @Unique
-    protected boolean isPlayerAliveAndValid(Player player)
+    private boolean isPlayerAliveAndValid(Player player)
     {
         if(player.isAlive())
         {
@@ -189,7 +189,7 @@ public abstract class MerchantMenuMixin {
         MerchantContainer tradeContainer = this.getTradeContainer();
         ItemStack item = tradeContainer.getItem(0);
         if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
-            IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+            WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {
                 ItemStack wallet = walletHandler.getWallet();
@@ -209,7 +209,7 @@ public abstract class MerchantMenuMixin {
         }
         item = tradeContainer.getItem(1);
         if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
-            IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+            WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {
                 ItemStack wallet = walletHandler.getWallet();

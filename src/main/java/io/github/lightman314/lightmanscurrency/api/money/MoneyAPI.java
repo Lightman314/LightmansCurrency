@@ -2,17 +2,14 @@ package io.github.lightman314.lightmanscurrency.api.money;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.PlayerMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.impl.MoneyAPIImpl;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,14 +32,6 @@ public abstract class MoneyAPI {
     public abstract List<CurrencyType> AllCurrencyTypes();
 
     /**
-     * @deprecated Use {@link #AllCurrencyTypes()} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static List<CurrencyType> getAllCurrencyTypes() { return API.AllCurrencyTypes(); }
-
-    /**
      * Returns the {@link CurrencyType} registered with the given id.
      * Will return <code>null</code> if no type was registered with that id.
      */
@@ -50,26 +39,11 @@ public abstract class MoneyAPI {
     public abstract CurrencyType GetRegisteredCurrencyType(@Nonnull ResourceLocation id);
 
     /**
-     * @deprecated Use {@link #GetRegisteredCurrencyType(ResourceLocation)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nullable
-    public static CurrencyType getCurrencyType(@Nonnull ResourceLocation id) { return API.GetRegisteredCurrencyType(id); }
-
-    /**
      * Registers the given {@link CurrencyType} to the system.
      * Required before loading any custom {@link MoneyValue} data.
-     * I recommend registering these during the {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent FMLCommonSetupEvent}
+     * I recommend registering these during the {@link net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent FMLCommonSetupEvent}
      */
     public abstract void RegisterCurrencyType(@Nonnull CurrencyType type);
-
-    /**
-     * @deprecated Use {@link #RegisterCurrencyType(CurrencyType)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static void registerCurrencyType(@Nonnull CurrencyType type) { API.RegisterCurrencyType(type); }
 
     ///Player related functions
 
@@ -79,56 +53,6 @@ public abstract class MoneyAPI {
      */
     @Nonnull
     public abstract IMoneyHolder GetPlayersMoneyHandler(@Nonnull Player player);
-
-    /**
-     * @deprecated Use {@link #GetPlayersMoneyHandler(Player)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static PlayerMoneyHolder getPlayersMoneyHolder(@Nonnull Player player) { return new PlayerMoneyHolder(API.GetPlayersMoneyHandler(player)); }
-
-    /**
-     * @deprecated Use {@link #GetPlayersMoneyHandler(Player)}'s {@link IMoneyHolder#getStoredMoney()} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static MoneyView getPlayersAvailableFunds(@Nonnull Player player) { return API.GetPlayersMoneyHandler(player).getStoredMoney(); }
-
-    /**
-     * @deprecated Use {@link #GetPlayersMoneyHandler(Player)}'s {@link IMoneyHolder#getStoredMoney()} {@link MoneyView#containsValue(MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean canPlayerAfford(@Nonnull Player player, @Nonnull MoneyValue price) { return API.GetPlayersMoneyHandler(player).getStoredMoney().containsValue(price); }
-
-    /**
-     * @deprecated Use {@link #GetPlayersMoneyHandler(Player)} 's {@link IMoneyHolder#insertMoney(MoneyValue, boolean)} function instead as it will catch any partial insertions.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static void giveMoneyToPlayer(@Nonnull Player player, @Nonnull MoneyValue value)
-    {
-        IMoneyHolder holder = API.GetPlayersMoneyHandler(player);
-        holder.insertMoney(value, false);
-    }
-
-    /**
-     * @deprecated Use {@link #GetPlayersMoneyHandler(Player)}'s {@link IMoneyHolder#extractMoney(MoneyValue, boolean)} function instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean takeMoneyFromPlayer(@Nonnull Player player, @Nonnull MoneyValue value)
-    {
-        IMoneyHolder holder = API.GetPlayersMoneyHandler(player);
-        if(holder.getStoredMoney().containsValue(value) && holder.extractMoney(value,true).isEmpty())
-        {
-            holder.extractMoney(value,false);
-            return true;
-        }
-        return false;
-    }
 
     ///Container related functions
 
@@ -155,91 +79,5 @@ public abstract class MoneyAPI {
      */
     @Nonnull
     public abstract IMoneyHandler GetATMMoneyHandler(@Nonnull Player player, @Nonnull Container container);
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#getStoredMoney()} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static MoneyView valueOfContainer(@Nonnull List<ItemStack> container) { return API.GetContainersMoneyHandler(InventoryUtil.buildInventory(container),s -> {}).getStoredMoney(); }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#getStoredMoney()} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static MoneyView valueOfContainer(@Nonnull Container container) { return API.GetContainersMoneyHandler(container,s -> {}).getStoredMoney(); }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#isMoneyTypeValid(MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean canAddMoneyToContainer(@Nonnull Container container, @Nonnull MoneyValue moneyToAdd) { return API.GetContainersMoneyHandler(container,s -> {}).isMoneyTypeValid(moneyToAdd); }
-
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Player)}'s {@link IMoneyHandler#insertMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean addMoneyToContainer(@Nonnull Container container, @Nonnull Player player, @Nonnull MoneyValue moneyToAdd)
-    {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,player);
-        if(handler.insertMoney(moneyToAdd, true).isEmpty())
-        {
-            handler.insertMoney(moneyToAdd,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#insertMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean addMoneyToContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull MoneyValue moneyToAdd) {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,overflowHandler);
-        if(handler.insertMoney(moneyToAdd, true).isEmpty())
-        {
-            handler.insertMoney(moneyToAdd,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Player)}'s {@link IMoneyHandler#extractMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean takeMoneyFromContainer(@Nonnull Container container, @Nonnull Player player, @Nonnull MoneyValue moneyToTake)
-    {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,player);
-        if(handler.extractMoney(moneyToTake, true).isEmpty())
-        {
-            handler.extractMoney(moneyToTake,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#extractMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean takeMoneyFromContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull MoneyValue moneyToTake) {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,overflowHandler);
-        if(handler.extractMoney(moneyToTake, true).isEmpty())
-        {
-            handler.extractMoney(moneyToTake,false);
-            return true;
-        }
-        return false;
-    }
 
 }

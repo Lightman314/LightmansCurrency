@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
@@ -93,7 +92,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", true)
                     .setString("Name", name));
         }
@@ -105,7 +104,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", false)
                     .setString("Name", name));
         }
@@ -117,7 +116,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             rule.setDiscount(discount);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Discount", discount));
+        this.sendUpdateMessage(this.builder().setInt("Discount", discount));
     }
 
 }

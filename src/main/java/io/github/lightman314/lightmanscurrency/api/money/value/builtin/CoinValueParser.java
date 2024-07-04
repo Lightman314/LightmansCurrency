@@ -11,16 +11,16 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -67,7 +67,7 @@ public class CoinValueParser extends MoneyValueParser {
                     builder.append(',');
                 else
                     comma = true;
-                builder.append(pair.amount).append('-').append(ForgeRegistries.ITEMS.getKey(pair.coin).toString());
+                builder.append(pair.amount).append('-').append(BuiltInRegistries.ITEM.getKey(pair.coin));
             }
             return builder.toString();
         }
@@ -76,10 +76,9 @@ public class CoinValueParser extends MoneyValueParser {
 
     private static MoneyValue TryParseCoin(MoneyValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
     {
-        if(ResourceLocation.isValidResourceLocation(coinIDString))
-        {
-            ResourceLocation coinID = new ResourceLocation(coinIDString);
-            Item coin = ForgeRegistries.ITEMS.getValue(coinID);
+        try {
+            ResourceLocation coinID = ResourceLocation.parse(coinIDString);
+            Item coin = BuiltInRegistries.ITEM.get(coinID);
             ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
             if(chainData == null)
                 throw NotACoinException(coinID.toString(), reader);
@@ -87,9 +86,7 @@ public class CoinValueParser extends MoneyValueParser {
             if(entry == null || entry.isSideChain())
                 throw NotACoinException(coinID.toString(), reader);
             return result.addValue(CoinValue.fromNumber(chainData.chain, entry.getCoreValue() * count));
-        }
-        else
-            throw NotACoinException(coinIDString, reader);
+        } catch (ResourceLocationException e) { throw NotACoinException(coinIDString, reader); }
     }
 
     public static CommandSyntaxException NotACoinException(String item, StringReader reader) {
@@ -151,7 +148,7 @@ public class CoinValueParser extends MoneyValueParser {
 
     private static boolean isCoin(ResourceLocation itemID)
     {
-        return CoinAPI.API.IsCoin(ForgeRegistries.ITEMS.getValue(itemID), false);
+        return CoinAPI.API.IsCoin(BuiltInRegistries.ITEM.get(itemID), false);
     }
 
     @Override
@@ -168,7 +165,7 @@ public class CoinValueParser extends MoneyValueParser {
                 Item coin = coins.get(i);
                 if(i > 0)
                     result.append(",");
-                result.append(suggestedCount++).append("-").append(ForgeRegistries.ITEMS.getKey(coin).toString());
+                result.append(suggestedCount++).append("-").append(BuiltInRegistries.ITEM.getKey(coin));
             }
             examples.add(result.toString());
         }

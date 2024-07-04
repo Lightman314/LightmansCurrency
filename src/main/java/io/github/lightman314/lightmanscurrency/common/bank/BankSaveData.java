@@ -9,11 +9,12 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketClearClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketSyncSelectedBankAccount;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -22,15 +23,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
+@EventBusSubscriber()
 public class BankSaveData extends SavedData {
 
 	
@@ -38,14 +38,14 @@ public class BankSaveData extends SavedData {
 	private int interestTick = 0;
 	
 	private BankSaveData() {}
-	private BankSaveData(CompoundTag compound) {
+	private BankSaveData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag bankData = compound.getList("PlayerBankData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < bankData.size(); ++i)
 		{
 			CompoundTag tag = bankData.getCompound(i);
 			UUID player = tag.getUUID("Player");
-			BankAccount bankAccount = loadBankAccount(player, tag.getCompound("BankAccount"));
+			BankAccount bankAccount = loadBankAccount(player, tag.getCompound("BankAccount"), lookup);
 			BankReference lastSelected = BankReference.load(tag.getCompound("LastSelected"));
 			playerBankData.put(player, Pair.of(bankAccount, lastSelected));
 		}
@@ -54,13 +54,13 @@ public class BankSaveData extends SavedData {
 	}
 	
 	@Nonnull
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		ListTag bankData = new ListTag();
 		this.playerBankData.forEach((player,data) -> {
 			CompoundTag tag = new CompoundTag();
 			tag.putUUID("Player", player);
-			tag.put("BankAccount", data.getFirst().save());
+			tag.put("BankAccount", data.getFirst().save(lookup));
 			tag.put("LastSelected", data.getSecond().save());
 			bankData.add(tag);
 		});
@@ -71,8 +71,8 @@ public class BankSaveData extends SavedData {
 		return compound;
 	}
 	
-	private static BankAccount loadBankAccount(UUID player, CompoundTag compound) {
-		BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(player), compound);
+	private static BankAccount loadBankAccount(UUID player, CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(player), compound, lookup);
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
 			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
@@ -95,7 +95,7 @@ public class BankSaveData extends SavedData {
 		{
 			ServerLevel level = server.getLevel(Level.OVERWORLD);
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(BankSaveData::new, BankSaveData::new, "lightmanscurrency_bank_data");
+				return level.getDataStorage().computeIfAbsent(new Factory<>(BankSaveData::new, BankSaveData::new), "lightmanscurrency_bank_data");
 		}
 		return null;
 	}
@@ -145,7 +145,7 @@ public class BankSaveData extends SavedData {
 			bsd.setDirty();
 			//Send update packet to all connected clients
 			BankAccount bankAccount = GetBankAccount(false, player);
-			new SPacketUpdateClientBank(player, bankAccount.save()).sendToAll();
+			new SPacketUpdateClientBank(player, bankAccount.save(LookupHelper.getRegistryAccess(false))).sendToAll();
 		}
 	}
 	
@@ -215,22 +215,21 @@ public class BankSaveData extends SavedData {
 	}
 	
 	@SubscribeEvent
-	public static void OnPlayerLogin(PlayerLoggedInEvent event)
+	public static void OnPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
-		
+
+		Player player = event.getEntity();
 		BankSaveData bsd = get();
 		
 		//Confirm the presence of the loading players bank account
 		GetBankAccount(event.getEntity());
 
-		SPacketClearClientBank.INSTANCE.sendToTarget(target);
-		bsd.playerBankData.forEach((id, data) -> new SPacketUpdateClientBank(id, data.getFirst().save()).sendToTarget(target));
+		SPacketClearClientBank.INSTANCE.sendTo(player);
+		bsd.playerBankData.forEach((id, data) -> new SPacketUpdateClientBank(id, data.getFirst().save(player.registryAccess())).sendTo(player));
 		
 		//Update to let them know their selected bank account
 		BankReference selectedAccount = GetSelectedBankAccount(event.getEntity());
-		new SPacketSyncSelectedBankAccount(selectedAccount).sendToTarget(target);
+		new SPacketSyncSelectedBankAccount(selectedAccount).sendTo(player);
 		
 	}
 

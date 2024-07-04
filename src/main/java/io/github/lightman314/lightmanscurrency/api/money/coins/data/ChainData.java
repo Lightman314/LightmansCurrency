@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -19,13 +20,15 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisp
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.Null;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -34,15 +37,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ChainData {
 
@@ -51,8 +53,8 @@ public class ChainData {
 
     public final boolean isEvent;
     public final String chain;
-    private final MutableComponent displayName;
-    public MutableComponent getDisplayName() { return this.displayName; }
+    private final Component displayName;
+    public Component getDisplayName() { return this.displayName; }
 
     private final CoinInputType inputType;
     public CoinInputType getInputType() { return this.inputType; }
@@ -60,7 +62,7 @@ public class ChainData {
     private final ValueDisplayData displayData;
     public ValueDisplayData getDisplayData() { return this.displayData; }
 
-    public boolean isVisibleTo(@Nonnull Player player) { return !this.isEvent || CapabilityEventUnlocks.isUnlocked(player, this.chain) || LCAdminMode.isAdminPlayer(player); }
+    public boolean isVisibleTo(@Nonnull Player player) { return !this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCAdminMode.isAdminPlayer(player); }
 
     private final ATMData atmData;
     public boolean hasATMData() { return this.atmData != null && !this.atmData.getExchangeButtons().isEmpty(); }
@@ -111,7 +113,7 @@ public class ChainData {
         //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
         Map<ResourceLocation,CoinEntry> temp2 = new HashMap<>();
         for(CoinEntry entry : this.allEntryList)
-            temp2.put(ForgeRegistries.ITEMS.getKey(entry.getCoin()), entry);
+            temp2.put(BuiltInRegistries.ITEM.getKey(entry.getCoin()), entry);
         this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
         //Cache coin exchange rates in the CoinEntry data
         this.cacheCoinExchanges();
@@ -122,11 +124,11 @@ public class ChainData {
         this.chain = GsonHelper.getAsString(json, "chain");
         if(this.chain.equalsIgnoreCase("null"))
             throw new JsonSyntaxException("Chain id cannot be null!");
-        this.displayName = Component.Serializer.fromJson(json.get("name"));
+        this.displayName = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE,json.get("name")).getOrThrow(JsonSyntaxException::new).getFirst();
 
         this.isEvent = GsonHelper.getAsBoolean(json, "EventChain", false);
 
-        ResourceLocation displayType = new ResourceLocation(GsonHelper.getAsString(json, "displayType"));
+        ResourceLocation displayType = ResourceLocation.parse(GsonHelper.getAsString(json, "displayType"));
         ValueDisplaySerializer displaySerializer = ValueDisplayAPI.get(displayType);
         if(displaySerializer == null)
             throw new JsonSyntaxException(displayType + " is not a valid displayType");
@@ -215,7 +217,7 @@ public class ChainData {
         //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
         Map<ResourceLocation,CoinEntry> temp2 = new HashMap<>();
         for(CoinEntry entry : this.allEntryList)
-            temp2.put(ForgeRegistries.ITEMS.getKey(entry.getCoin()), entry);
+            temp2.put(BuiltInRegistries.ITEM.getKey(entry.getCoin()), entry);
         this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
 
         //Cache coin exchange rates in the CoinEntry data
@@ -258,7 +260,7 @@ public class ChainData {
         JsonObject json = new JsonObject();
         //Write base data
         json.addProperty("chain", this.chain);
-        json.add("name", Component.Serializer.toJsonTree(this.displayName));
+        json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, this.displayName).getOrThrow(JsonSyntaxException::new));
         json.addProperty("displayType", this.displayData.getType().toString());
         this.displayData.getSerializer().writeAdditional(this.displayData, json);
         json.addProperty("InputType", this.inputType.name());
@@ -310,7 +312,7 @@ public class ChainData {
     @Nullable
     public CoinEntry findEntry(@Nonnull ItemStack item) { return this.findEntry(item.getItem()); }
     @Nullable
-    public CoinEntry findEntry(@Nonnull Item item) { return this.itemIdToEntryMap.get(ForgeRegistries.ITEMS.getKey(item)); }
+    public CoinEntry findEntry(@Nonnull Item item) { return this.itemIdToEntryMap.get(BuiltInRegistries.ITEM.getKey(item)); }
 
     /**
      * Returns a list of all entries.
@@ -487,7 +489,7 @@ public class ChainData {
 
         public Builder asEvent() { this.isEvent = true; return this; }
 
-        public ChainBuilder withCoreChain(@Nonnull RegistryObject<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
+        public ChainBuilder withCoreChain(@Nonnull Supplier<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
         public ChainBuilder withCoreChain(@Nonnull ItemLike baseCoin)
         {
             if(this.coreChain != null)
@@ -498,7 +500,7 @@ public class ChainData {
 
         public ChainBuilder getCoreChain() { if(this.coreChain == null) throw new IllegalArgumentException("Core Chain has not yet been built!"); return this.coreChain; }
 
-        public ChainBuilder withSideChain(@Nonnull RegistryObject<? extends ItemLike> baseCoin, int exchangeRate, @Nonnull RegistryObject<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
+        public ChainBuilder withSideChain(@Nonnull Supplier<? extends ItemLike> baseCoin, int exchangeRate, @Nonnull Supplier<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
         public ChainBuilder withSideChain(@Nonnull ItemLike baseCoin, int exchangeRate, @Nonnull ItemLike parentCoin) {
             if(this.coreChain == null)
                 throw new IllegalArgumentException("Cannot build a side chain until the core chain has been built!");
@@ -540,7 +542,7 @@ public class ChainData {
                 this.parent.validateNoDuplicateEntries(baseCoin);
                 this.entries.add(baseCoin);
             }
-            public ChainBuilder withCoin(@Nonnull RegistryObject<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
+            public ChainBuilder withCoin(@Nonnull Supplier<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
             public ChainBuilder withCoin(@Nonnull ItemLike coin, int exchangeRate) {
                 CoinEntry newEntry = new MainCoinEntry(coin.asItem(), exchangeRate);
                 this.parent.validateNoDuplicateEntries(newEntry);

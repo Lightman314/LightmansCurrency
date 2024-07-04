@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.SecurityUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
@@ -14,8 +15,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.SecurityUpgradeData;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -31,12 +32,12 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
         if(message.contains("SetOwner"))
         {
-            Owner owner = Owner.load(message.getNBT("SetOwner"));
+            Owner owner = message.getOwner("SetOwner");
             if(owner != null)
             {
                 OwnerData ownerData = this.parseOwnerData(menu.be, data);
                 ownerData.SetOwner(owner);
-                this.saveOwnerData(data, ownerData);
+                this.saveOwnerData(menu.be,data, ownerData);
             }
         }
         else if(message.contains("SetPlayerOwner"))
@@ -46,7 +47,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
             {
                 OwnerData owner = this.parseOwnerData(menu.be, data);
                 owner.SetOwner(PlayerOwner.of(player));
-                this.saveOwnerData(data, owner);
+                this.saveOwnerData(menu.be,data, owner);
             }
         }
     }
@@ -74,36 +75,28 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     @Nonnull
     public OwnerData parseOwnerData(CoinChestBlockEntity be, CoinChestUpgradeData data)
     {
-        OwnerData owner = new OwnerData(be, o -> {});
-        CompoundTag compound = data.getItemTag();
-        if(compound.contains("Owner"))
-            owner.load(compound.getCompound("Owner"));
-        return owner;
+        return data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).parseData(be);
     }
 
-    public void saveOwnerData(CoinChestUpgradeData data, OwnerData newOwner)
+    public void saveOwnerData(@Nonnull CoinChestBlockEntity be, CoinChestUpgradeData data, OwnerData newOwner)
     {
-        CompoundTag compound = data.getItemTag();
-        compound.put("Owner", newOwner.save());
-        data.setItemTag(compound);
+        data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withOwner(newOwner,be.registryAccess()));
     }
 
     @Override
     public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nonnull Player player) { return !this.isMember(be, data, player); }
 
     @Override
-    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { data.getItemTag().remove("BreakIsValid"); }
+    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { data.editData(ModDataComponents.SECURITY_UPGRADE_DATA, SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(false)); }
 
     @Override
     public void OnValidBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
-        CompoundTag compound = data.getItemTag();
-        compound.putBoolean("BreakIsValid", true);
-        data.setItemTag(compound);
+        data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(true));
     }
 
     @Override
     public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
-        if(data.getItemTag().getBoolean("BreakIsValid"))
+        if(data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).breakIsValid)
             return;
         OwnerData owner = this.parseOwnerData(be, data);
         if(owner.hasOwner())
@@ -127,6 +120,6 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }
+    public boolean clearDataFromStack(@Nonnull ItemStack stack) { return this.clearData(stack, ModDataComponents.SECURITY_UPGRADE_DATA); }
 
 }

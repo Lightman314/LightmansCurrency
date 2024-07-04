@@ -18,14 +18,14 @@ import java.util.List;
 
 public class TicketModifierSlot extends EasyMultiBGSlot {
 
-    public static final ResourceLocation EMPTY_DYE_SLOT =  new ResourceLocation(LightmansCurrency.MODID, "item/empty_dye_slot");
+    public static final ResourceLocation EMPTY_DYE_SLOT =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_dye_slot");
 
     private final TicketStationMenu menu;
 
     public TicketModifierSlot(TicketStationMenu menu, Container inventory, int index, int x, int y) { super(inventory, index, x, y); this.menu = menu; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) { return this.menu.getAllRecipes().stream().anyMatch(r -> r.validModifier(stack)); }
+    public boolean mayPlace(@NotNull ItemStack stack) { return this.menu.getRecipeList().stream().anyMatch(r -> r.validModifier(stack)); }
 
     @Override
     protected List<Pair<ResourceLocation, ResourceLocation>> getPossibleNoItemIcons() {

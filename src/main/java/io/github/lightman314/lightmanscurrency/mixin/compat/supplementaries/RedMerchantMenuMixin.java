@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.mixin.compat.supplementaries;
-
+/*
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -8,8 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -20,7 +19,7 @@ import net.minecraft.world.inventory.MerchantContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -90,7 +89,7 @@ public abstract class RedMerchantMenuMixin {
                         //LightmansCurrency.LogDebug("Coin Value of the selected trade is " + tradeValue.getString());
                         Player player = this.getPlayer();
 
-                        MoneyView availableFunds = WalletCapability.getWalletMoney(player);
+                        MoneyView availableFunds = WalletHandler.get(player).getStoredMoney();
 
                         MoneyValue fundsToExtractA = MoneyValue.empty();
                         MoneyValue fundsToExtractB = MoneyValue.empty();
@@ -190,7 +189,7 @@ public abstract class RedMerchantMenuMixin {
         MerchantContainer tradeContainer = this.getTradeContainer();
         ItemStack item = tradeContainer.getItem(0);
         if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
-            IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+            WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {
                 ItemStack wallet = walletHandler.getWallet();
@@ -210,7 +209,7 @@ public abstract class RedMerchantMenuMixin {
         }
         item = tradeContainer.getItem(1);
         if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
-            IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+            WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {
                 ItemStack wallet = walletHandler.getWallet();
@@ -230,3 +229,4 @@ public abstract class RedMerchantMenuMixin {
     }
 
 }
+//*/

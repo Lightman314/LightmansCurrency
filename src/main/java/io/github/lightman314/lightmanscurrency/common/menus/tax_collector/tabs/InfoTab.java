@@ -28,7 +28,7 @@ public class InfoTab extends TaxCollectorTab {
         {
             entry.stats.clear();
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleFlag("ClearInfoCache"));
+                this.menu.SendMessageToServer(this.builder().setFlag("ClearInfoCache"));
         }
     }
 

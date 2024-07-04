@@ -3,9 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -107,8 +108,8 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		ArmorStand armorStand = this.getArmorStand();
 		if(armorStand != null)
 		{
-			ItemTraderData trader = this.getTraderData();
-			if(trader != null)
+			TraderData data = this.getRawTraderData();
+			if(data instanceof ItemTraderData trader)
 			{
 				List<ItemTradeData> trades = trader.getTradeData();
 				for(int i = 0; i < 4 && i < trades.size(); i++)
@@ -173,38 +174,37 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		this.writeArmorStandData(compound);
 		
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 	}
-	
-	protected CompoundTag writeArmorStandData(CompoundTag compound)
+
+
+	protected void writeArmorStandData(CompoundTag compound)
 	{
 		if(this.armorStandID != null)
 			compound.putUUID("ArmorStand", this.armorStandID);
-		return compound;
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup)
 	{
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))
 			this.armorStandID = compound.getUUID("ArmorStand");
-		super.load(compound);
+		super.loadAdditional(compound,lookup);
 	}
 	
 	protected ArmorStand getArmorStand()
 	{
-		if(this.level instanceof ServerLevel)
+		if(this.level instanceof ServerLevel sl)
 		{
-			Entity entity = ((ServerLevel)level).getEntity(this.armorStandID);
-			if(entity instanceof ArmorStand)
-				return (ArmorStand)entity;
+			Entity entity = sl.getEntity(this.armorStandID);
+			if(entity instanceof ArmorStand armorStand)
+				return armorStand;
 		}
-		
 		return null;
 	}
 	

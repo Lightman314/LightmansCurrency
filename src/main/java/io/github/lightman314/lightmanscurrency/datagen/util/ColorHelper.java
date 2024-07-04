@@ -2,11 +2,8 @@ package io.github.lightman314.lightmanscurrency.datagen.util;
 
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
@@ -56,6 +53,6 @@ public class ColorHelper {
         };
     }
 
-    public static ResourceLocation GetWoolTextureOfColor(@Nonnull Color color) { return new ResourceLocation("block/" + color.getResourceSafeName() + "_wool"); }
+    public static ResourceLocation GetWoolTextureOfColor(@Nonnull Color color) { return ResourceLocation.withDefaultNamespace("block/" + color.getResourceSafeName() + "_wool"); }
 
 }

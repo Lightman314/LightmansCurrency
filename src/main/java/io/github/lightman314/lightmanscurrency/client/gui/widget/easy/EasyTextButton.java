@@ -6,14 +6,14 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class EasyTextButton extends EasyButton {
 
-    private NonNullSupplier<Component> text;
+    private Supplier<Component> text;
 
 
     public EasyTextButton(int x, int y, int width, int height, @Nonnull Component text, @Nonnull Consumer<EasyButton> press) { this(ScreenArea.of(x,y,width,height), () -> text, press); }
@@ -22,13 +22,13 @@ public class EasyTextButton extends EasyButton {
     public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull Component text, @Nonnull Runnable press) { this(pos.asArea(width,height), () -> text, b -> press.run()); }
     public EasyTextButton(@Nonnull ScreenArea area, @Nonnull Component text, @Nonnull Consumer<EasyButton> press) { this(area, () -> text, press); }
     public EasyTextButton(@Nonnull ScreenArea area, @Nonnull Component text, @Nonnull Runnable press) { this(area, () -> text, b -> press.run()); }
-    public EasyTextButton(int x, int y, int width, int height, @Nonnull NonNullSupplier<Component> text, @Nonnull Consumer<EasyButton> press) { this(ScreenArea.of(x,y,width,height), text, press); }
-    public EasyTextButton(int x, int y, int width, int height, @Nonnull NonNullSupplier<Component> text, @Nonnull Runnable press) { this(ScreenArea.of(x,y,width,height), text, b -> press.run()); }
-    public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull NonNullSupplier<Component> text, @Nonnull Consumer<EasyButton> press) { this(pos.asArea(width,height), text, press); }
-    public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull NonNullSupplier<Component> text, @Nonnull Runnable press) { this(pos.asArea(width,height), text, b -> press.run()); }
+    public EasyTextButton(int x, int y, int width, int height, @Nonnull Supplier<Component> text, @Nonnull Consumer<EasyButton> press) { this(ScreenArea.of(x,y,width,height), text, press); }
+    public EasyTextButton(int x, int y, int width, int height, @Nonnull Supplier<Component> text, @Nonnull Runnable press) { this(ScreenArea.of(x,y,width,height), text, b -> press.run()); }
+    public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull Supplier<Component> text, @Nonnull Consumer<EasyButton> press) { this(pos.asArea(width,height), text, press); }
+    public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull Supplier<Component> text, @Nonnull Runnable press) { this(pos.asArea(width,height), text, b -> press.run()); }
 
-    public EasyTextButton(@Nonnull ScreenArea area, @Nonnull NonNullSupplier<Component> text, @Nonnull Runnable press) { this(area, text, b -> press.run()); }
-    public EasyTextButton(@Nonnull ScreenArea area, @Nonnull NonNullSupplier<Component> text, @Nonnull Consumer<EasyButton> press) {
+    public EasyTextButton(@Nonnull ScreenArea area, @Nonnull Supplier<Component> text, @Nonnull Runnable press) { this(area, text, b -> press.run()); }
+    public EasyTextButton(@Nonnull ScreenArea area, @Nonnull Supplier<Component> text, @Nonnull Consumer<EasyButton> press) {
         super(area, press);
         this.text = text;
     }
@@ -37,7 +37,7 @@ public class EasyTextButton extends EasyButton {
 
     @Override
     public final void setMessage(@Nonnull Component text) { this.text = () -> text; }
-    public final void setMessage(@Nonnull NonNullSupplier<Component> text) { this.text = text; }
+    public final void setMessage(@Nonnull Supplier<Component> text) { this.text = text; }
 
     //Copy/pasted from AbstractButton.getTextureY()
     private int getTextureY() {
@@ -53,7 +53,7 @@ public class EasyTextButton extends EasyButton {
 
     @Override
     protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
-        gui.renderButtonBG(0, 0, this.getWidth(), this.getHeight(), this.alpha, this.getTextureY());
+        gui.renderButtonBG(0, 0, this.getWidth(), this.getHeight(), this.alpha, this);
         int i = getFGColor();
         this.renderScrollingString(gui.getGui(), gui.font, 2, i | Mth.ceil(this.alpha * 255.0F) << 24);
     }

@@ -5,19 +5,19 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class TaxesPaidNotification extends Notification {
 
-    public static final NotificationType<TaxesPaidNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "taxes_paid"),TaxesPaidNotification::new);
+    public static final NotificationType<TaxesPaidNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "taxes_paid"),TaxesPaidNotification::new);
 
     private MoneyValue amount = MoneyValue.empty();
     private NotificationCategory category = NotificationCategory.GENERAL;
@@ -25,7 +25,7 @@ public class TaxesPaidNotification extends Notification {
     private TaxesPaidNotification() {}
     private TaxesPaidNotification(MoneyValue amount, NotificationCategory category) { this.amount = amount; this.category = category;  }
 
-    public static NonNullSupplier<Notification> create(MoneyValue amount, NotificationCategory category) { return () -> new TaxesPaidNotification(amount, category); }
+    public static Supplier<Notification> create(MoneyValue amount, NotificationCategory category) { return () -> new TaxesPaidNotification(amount, category); }
 
     @Nonnull
     @Override
@@ -45,17 +45,17 @@ public class TaxesPaidNotification extends Notification {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound)
+    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         compound.put("Amount", this.amount.save());
-        compound.put("Category", this.category.save());
+        compound.put("Category", this.category.save(lookup));
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound)
+    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = NotificationAPI.loadCategory(compound.getCompound("Category"));
+        this.category = NotificationAPI.loadCategory(compound.getCompound("Category"),lookup);
     }
 
     @Override

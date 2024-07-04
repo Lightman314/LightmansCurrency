@@ -18,12 +18,12 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class ItemTradeRestriction {
 
-	public static final ResourceLocation NO_RESTRICTION_KEY = new ResourceLocation(LightmansCurrency.MODID, "none");
+	public static final ResourceLocation NO_RESTRICTION_KEY = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "none");
 
 	public static void init() {
 		register(NO_RESTRICTION_KEY, NONE);
@@ -37,7 +37,7 @@ public class ItemTradeRestriction {
 
 	private static final Map<ResourceLocation,ItemTradeRestriction> registeredRestrictions = new HashMap<>();
 
-	private static void register(String type, ItemTradeRestriction restriction) { register(new ResourceLocation(LightmansCurrency.MODID, type), restriction); }
+	private static void register(String type, ItemTradeRestriction restriction) { register(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, type), restriction); }
 
 	public static void register(ResourceLocation type, ItemTradeRestriction restriction) {
 		if(registeredRestrictions.containsKey(type))

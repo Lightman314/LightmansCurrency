@@ -9,11 +9,16 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
@@ -22,8 +27,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventor
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TeamManagerButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.EjectionMenuButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.wallet.WalletButton;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWallet;
@@ -41,17 +44,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ContainerScreenEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
-	public static final ResourceLocation WALLET_SLOT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
+	public static final ResourceLocation WALLET_SLOT_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
 	
 	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(), GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
 	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
@@ -79,20 +76,20 @@ public class ClientEvents {
 				ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
 				if(!wallet.isEmpty())
 				{
-					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level().random.nextFloat() * 0.5f, 0.75f));
+					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER.value(), 1.25f + player.level().random.nextFloat() * 0.5f, 0.75f));
 
 					if(!WalletItem.isEmpty(wallet))
 						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 				}
 			}
 			//Open portable terminal/atm from curios slot
-			if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS)
+			/*if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS)
 			{
 				if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
 					new CPacketOpenNetworkTerminal(true).send();
 				else if(event.getKey() == KEY_PORTABLE_ATM.getKey().getValue() && LCCurios.hasPortableATM(minecraft.player))
 					CPacketOpenATM.sendToServer();
-			}
+			}//*/
 		}
 		
 	}
@@ -115,7 +112,8 @@ public class ClientEvents {
 			event.addListener(new EjectionMenuButton(gui));
 
 			Minecraft mc = Minecraft.getInstance();
-			if(LightmansCurrency.isCuriosValid(mc.player))
+			//Don't add wallet buttons if curios is installed so that we mirror the behaviour of InventoryMenuMixin
+			if(LCCurios.isCuriosLoaded())
 				return;
 
 			//Add Wallet-Related buttons if Curios doesn't exist or is somehow broken
@@ -135,13 +133,10 @@ public class ClientEvents {
 	private static void toggleVisibility(EasyButton button) {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
-		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
-		if(handler != null)
-		{
-			boolean nowVisible = !handler.visible();
-			handler.setVisible(nowVisible);
-			new CPacketSetVisible(player.getId(), nowVisible).send();
-		}
+		WalletHandler handler = WalletHandler.get(player);
+		boolean nowVisible = !handler.visible();
+		handler.setVisible(nowVisible);
+		new CPacketSetVisible(nowVisible).send();
 	}
 	
 	//Renders empty gui slot
@@ -150,7 +145,7 @@ public class ClientEvents {
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
-		if(LightmansCurrency.isCuriosValid(mc.player))
+		if(LCCurios.isCuriosLoaded())
 			return;
 		
 		AbstractContainerScreen<?> screen = event.getContainerScreen();

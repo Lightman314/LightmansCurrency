@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
@@ -12,8 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -107,7 +106,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 	}
 	
 	public final void reloadWalletContents() {
-		Container walletInventory = WalletItem.getWalletInventory(getWallet());
+		Container walletInventory = WalletItem.getDataWrapper(getWallet()).getContents();
 		for(int i = 0; i < this.coinInput.getContainerSize() && i < walletInventory.getContainerSize(); i++)
 		{
 			this.coinInput.setItem(i, walletInventory.getItem(i));
@@ -139,7 +138,9 @@ public abstract class WalletMenuBase extends EasyMenu {
 		if(this.validateHasWallet())
 			return;
 		//Write the bag contents back into the item stack
-		WalletItem.putWalletInventory(this.getWallet(), this.coinInput);
+		WalletDataWrapper data = WalletItem.getDataWrapper(this.getWallet());
+		if(data != null)
+			data.setContents(this.coinInput, null);
 		
 		if(this.autoConvert != WalletItem.getAutoExchange(this.getWallet()))
 			WalletItem.toggleAutoExchange(this.getWallet());
@@ -187,13 +188,13 @@ public abstract class WalletMenuBase extends EasyMenu {
 			menu.reloadWalletContents();
 	}
 
-	public static void SafeOpenWalletMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
+	public static void SafeOpenWalletMenu(@Nonnull Player player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
 
-	public static void SafeOpenWalletBankMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletBankMenuProvider(walletIndex));}
+	public static void SafeOpenWalletBankMenu(@Nonnull Player player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletBankMenuProvider(walletIndex));}
 
-	public static void SafeOpenWallet(@Nonnull ServerPlayer player, int walletIndex, @Nonnull MenuProvider menu) { SafeOpenWallet(player, walletIndex, menu, new WalletDataWriter(walletIndex)); }
+	public static void SafeOpenWallet(@Nonnull Player player, int walletIndex, @Nonnull MenuProvider menu) { SafeOpenWallet(player, walletIndex, menu, new WalletDataWriter(walletIndex)); }
 
-	public static void SafeOpenWallet(@Nonnull ServerPlayer player, int walletIndex, @Nonnull MenuProvider menu, @Nonnull Consumer<FriendlyByteBuf> dataWriter) {
+	public static void SafeOpenWallet(@Nonnull Player player, int walletIndex, @Nonnull MenuProvider menu, @Nonnull Consumer<RegistryFriendlyByteBuf> dataWriter) {
 		if (walletIndex < 0)
 		{
 			if(!WalletItem.isWallet(CoinAPI.API.getEquippedWallet(player)))
@@ -201,7 +202,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 				player.sendSystemMessage(LCText.MESSAGE_WALLET_NONE_EQUIPPED.get());
                 return;
 			}
-			NetworkHooks.openScreen(player, menu, dataWriter);
+			player.openMenu(menu, dataWriter);
 		}
         else
 		{
@@ -210,14 +211,14 @@ public abstract class WalletMenuBase extends EasyMenu {
 				return;
 			if(!WalletItem.isWallet(inventory.getItem(walletIndex)))
 				return;
-			NetworkHooks.openScreen(player, menu, dataWriter);
+			player.openMenu(menu,dataWriter);
 		}
 	}
 
-	public record WalletDataWriter(int walletIndex) implements Consumer<FriendlyByteBuf>
+	public record WalletDataWriter(int walletIndex) implements Consumer<RegistryFriendlyByteBuf>
 	{
 		@Override
-		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
+		public void accept(RegistryFriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
 	}
 
 

@@ -16,8 +16,8 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -74,7 +74,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 		{
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.simpleTag("CreateAuction", trade.getAsNBT()));
+				this.menu.SendMessage(this.builder().setCompound("CreateAuction", trade.getAsNBT(this.registryAccess())));
 				return;
 			}
 			//Set the trade's auction items based on the items currently in the auction item slots
@@ -82,7 +82,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			if(!trade.isValid())
 			{
 				//Send failure message to the client.
-				this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", false));
+				this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", false));
 				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
 				return;
 			}
@@ -90,7 +90,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			//Delete the contents of the auctionItems
 			this.auctionItems.clearContent();
 			//Send response message to the client
-			this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", true));
+			this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", true));
 			for(SimpleSlot slot : this.slots) slot.locked = true;
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}
@@ -101,7 +101,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 		if(message.contains("CreateAuction"))
 		{
 			//LightmansCurrency.LogInfo("Received Auction from the client.\n" + message.getCompound("CreateAuction").getAsString());
-			this.createAuction(new AuctionTradeData(message.getNBT("CreateAuction")));
+			this.createAuction(new AuctionTradeData(message.getNBT("CreateAuction"),message.lookup));
 		}
 	}
 

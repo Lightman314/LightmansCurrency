@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,7 +42,7 @@ public abstract class BookRenderer {
 
     public abstract void render(BlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id);
 
-    protected final void renderModel(ResourceLocation modelResource, PoseStack pose, MultiBufferSource buffer, int lightLevel) {
+    protected final void renderModel(ModelResourceLocation modelResource, PoseStack pose, MultiBufferSource buffer, int lightLevel) {
         Minecraft mc = Minecraft.getInstance();
         BakedModel model = mc.getModelManager().getModel(modelResource);
         ItemRenderer itemRenderer = mc.getItemRenderer();

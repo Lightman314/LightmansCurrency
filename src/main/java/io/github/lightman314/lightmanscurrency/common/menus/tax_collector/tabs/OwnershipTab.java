@@ -34,7 +34,7 @@ public class OwnershipTab extends TaxCollectorTab {
         {
             entry.getOwner().SetOwner(newOwner);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleTag("SetOwner", newOwner.save()));
+                this.menu.SendMessageToServer(this.builder().setOwner("SetOwner", newOwner));
         }
     }
 
@@ -50,14 +50,14 @@ public class OwnershipTab extends TaxCollectorTab {
                     entry.getOwner().SetOwner(PlayerOwner.of(newOwner));
             }
             else
-                this.menu.SendMessageToServer(LazyPacketData.simpleString("SetOwnerPlayer", playerName));
+                this.menu.SendMessageToServer(this.builder().setString("SetOwnerPlayer", playerName));
         }
     }
 
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("SetOwner"))
-            this.SetOwner(Owner.load(message.getNBT("SetOwner")));
+            this.SetOwner(message.getOwner("SetOwner"));
         if(message.contains("SetOwnerPlayer"))
             this.SetOwnerPlayer(message.getString("SetOwnerPlayer"));
     }

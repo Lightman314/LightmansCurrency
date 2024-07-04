@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.integration.supplementaries;
-
+/*
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
 import net.mehvahdjukaar.supplementaries.api.forge.RedMerchantTradesEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.EventPriority;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.common.NeoForge;
 
 public final class LCSupplementaries {
 
@@ -16,7 +16,7 @@ public final class LCSupplementaries {
     private LCSupplementaries() {}
 
     public static void setup() {
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, LCSupplementaries::modifyRedMerchant);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, LCSupplementaries::modifyRedMerchant);
         LightmansCurrency.LogDebug("Registered Red Merchant Trade event listener!");
     }
 
@@ -31,3 +31,4 @@ public final class LCSupplementaries {
     }
 
 }
+//*/

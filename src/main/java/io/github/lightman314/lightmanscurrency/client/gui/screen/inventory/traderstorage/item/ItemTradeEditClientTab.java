@@ -165,8 +165,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	
 	@Override
 	public void tick() {
-		if(this.customNameInput.visible)
-			this.customNameInput.tick();
 		//Change NBT toggle button visibility
 		this.buttonToggleNBTEnforcement.visible = this.isNBTButtonVisible();
 	}

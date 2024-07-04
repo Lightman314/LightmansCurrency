@@ -6,10 +6,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class InventoryButton extends PlainButton {
 
@@ -18,7 +18,7 @@ public abstract class InventoryButton extends PlainButton {
     private ScreenPosition getScreenCorner() { return ScreenPosition.getScreenCorner(this.inventoryScreen); }
 
     protected InventoryButton(@Nonnull AbstractContainerScreen<?> inventoryScreen, @Nonnull Consumer<EasyButton> pressable, @Nonnull Sprite sprite) { this(inventoryScreen, pressable, () -> sprite); }
-    protected InventoryButton(@Nonnull AbstractContainerScreen<?> inventoryScreen, @Nonnull Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<Sprite> sprite) {
+    protected InventoryButton(@Nonnull AbstractContainerScreen<?> inventoryScreen, @Nonnull Consumer<EasyButton> pressable, @Nonnull Supplier<Sprite> sprite) {
         super(0, 0, pressable, sprite);
         this.inventoryScreen = inventoryScreen;
         this.isCreativeScreen = this.inventoryScreen instanceof CreativeModeInventoryScreen;

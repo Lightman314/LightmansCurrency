@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -22,11 +23,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.LazyOptional;
 
 public class TradeButton extends EasyButton implements ITooltipSource {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/trade.png");
 	
 	public static  final int ARROW_WIDTH = 22;
 	public static  final int ARROW_HEIGHT = 18;
@@ -86,7 +86,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		
 		this.renderBackground(gui, !context.isStorageMode && !this.displayOnly && this.isHovered);
 
-		LazyOptional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
+		Optional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
 		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(gui, arrowPos, !context.isStorageMode && !this.displayOnly && this.isHovered));
 
 		//Render custom display stuff in front of the arrow, not behind it.
@@ -151,7 +151,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			return;
 		alerts.sort(AlertData::compare);
 
-		alerts.get(0).setShaderColor(gui, this.active ? 1f : 0.5f);
+		alerts.getFirst().setShaderColor(gui, this.active ? 1f : 0.5f);
 		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}

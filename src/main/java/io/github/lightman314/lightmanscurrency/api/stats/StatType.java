@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.stats;
 
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -40,15 +41,15 @@ public abstract class StatType<A,B>
         @Nonnull
         protected final ResourceLocation getID() { return this.getType().getID(); }
         @Nonnull
-        public final CompoundTag save()
+        public final CompoundTag save(@Nonnull HolderLookup.Provider lookup)
         {
             CompoundTag tag = new CompoundTag();
-            this.saveAdditional(tag);
+            this.saveAdditional(tag, lookup);
             tag.putString("Type", this.getType().getID().toString());
             return tag;
         }
-        protected abstract void saveAdditional(@Nonnull CompoundTag tag);
-        public abstract void load(@Nonnull CompoundTag tag);
+        protected abstract void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
+        public abstract void load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
 
         public abstract A get();
         public final void add(@Nonnull B addAmount) {

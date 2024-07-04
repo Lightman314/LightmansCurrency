@@ -1,57 +1,57 @@
 package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
-    public static final ResourceLocation ID = new ResourceLocation(LightmansCurrency.MODID, "date_range");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "date_range");
     public static final DateTrigger INSTANCE = new DateTrigger();
+    private static final Codec<DateTrigger.Instance> CODEC = RecordCodecBuilder.create(builder ->
+            builder.group(
+                    EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(Instance::player),
+                    DatePredicate.CODEC.fieldOf("start").forGetter(i -> i.startDate),
+                    DatePredicate.CODEC.fieldOf("end").forGetter(i -> i.endDate)
+            ).apply(builder,Instance::new));
 
     private DateTrigger() {}
 
-    public static AbstractCriterionTriggerInstance ofRange(int startMonth, int startDate, int endMonth, int endDate) { return new Instance(ContextAwarePredicate.ANY, new DatePredicate(startMonth, startDate), new DatePredicate(endMonth, endDate)); }
-    public static AbstractCriterionTriggerInstance ofRange(@Nonnull DatePredicate startDate, @Nonnull DatePredicate endDate) { return new Instance(ContextAwarePredicate.ANY, startDate, endDate); }
+    public static Criterion<DateTrigger.Instance> ofRange(int startMonth, int startDate, int endMonth, int endDate) { return INSTANCE.createCriterion(new Instance(Optional.empty(), new DatePredicate(startMonth, startDate), new DatePredicate(endMonth, endDate))); }
+    public static Criterion<DateTrigger.Instance> ofRange(@Nonnull DatePredicate startDate, @Nonnull DatePredicate endDate) { return INSTANCE.createCriterion(new Instance(Optional.empty(), startDate, endDate)); }
 
     @Nonnull
     @Override
-    protected Instance createInstance(@Nonnull JsonObject json, @Nonnull ContextAwarePredicate predicate, @Nonnull DeserializationContext context) {
-        return new Instance(predicate, DatePredicate.fromJson(json.get("start")), DatePredicate.fromJson(json.get("end")));
-    }
-
-    @Nonnull
-    @Override
-    public ResourceLocation getId() { return ID; }
-
+    public Codec<Instance> codec() { return CODEC; }
     public void trigger(@Nonnull ServerPlayer player) { this.trigger(player, Instance::test); }
 
-    protected static class Instance extends AbstractCriterionTriggerInstance
-    {
+    public static class Instance implements SimpleCriterionTrigger.SimpleInstance {
 
+        private final Optional<ContextAwarePredicate> player;
         private final DatePredicate startDate;
         private final DatePredicate endDate;
 
-        public Instance(ContextAwarePredicate playerPred, DatePredicate startDate, DatePredicate endDate) {
-            super(ID, playerPred);
+        public Instance(Optional<ContextAwarePredicate> player, DatePredicate startDate, DatePredicate endDate) {
+            this.player = player;
             this.startDate = startDate;
             this.endDate = endDate;
         }
 
+        public boolean test() { return DatePredicate.isInRange(this.startDate, this.endDate); }
+
+        @Override
+        public void validate(@Nonnull CriterionValidator validator) { }
+
         @Nonnull
         @Override
-        public JsonObject serializeToJson(@Nonnull SerializationContext context) {
-            JsonObject json = super.serializeToJson(context);
-            json.add("start", this.startDate.toJson());
-            json.add("end", this.endDate.toJson());
-            return json;
-        }
-
-        public boolean test() { return DatePredicate.isInRange(this.startDate, this.endDate); }
+        public Optional<ContextAwarePredicate> player() { return this.player; }
 
     }
 

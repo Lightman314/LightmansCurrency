@@ -33,13 +33,13 @@ public abstract class ConfigFile {
          */
         NULL,
         /**
-         * File will be loaded during the {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent FMLCommonSetupEvent},<br>
-         * or the {@link net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent FMLClientSetupEvent} (if flagged as client-only)
+         * File will be loaded during the {@link net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent FMLCommonSetupEvent},<br>
+         * or the {@link net.neoforged.fml.event.lifecycle.FMLClientSetupEvent FMLClientSetupEvent} (if flagged as client-only)
          */
         SETUP,
         /**
-         * File will be loaded during the {@link net.minecraftforge.event.server.ServerStartedEvent ServerStartedEvent},<br>
-         * or the {@link net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn ClientPlayerNetworkEvent.LoggingIn} (if flagged as client-only)
+         * File will be loaded during the {@link net.neoforged.neoforge.event.server.ServerStartedEvent ServerStartedEvent},<br>
+         * or the {@link net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingIn ClientPlayerNetworkEvent.LoggingIn} (if flagged as client-only)
          */
         GAME_START
     }

@@ -8,7 +8,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class CustomProfessions {
 	
@@ -25,8 +26,8 @@ public class CustomProfessions {
 		
 	}
 	
-	public static final RegistryObject<VillagerProfession> BANKER;
-	public static final RegistryObject<VillagerProfession> CASHIER;
+	public static final Supplier<VillagerProfession> BANKER;
+	public static final Supplier<VillagerProfession> CASHIER;
 	
 	private static VillagerProfession create(String name, ResourceKey<PoiType> poi, SoundEvent sound) {
 		return new VillagerProfession(name, p -> p.is(poi), p -> p.is(poi), ImmutableSet.of(), ImmutableSet.of(), sound);

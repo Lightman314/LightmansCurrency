@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -57,7 +57,7 @@ public abstract class Notification implements IClientTracker {
 	public Component getTimeStampMessage() { return LCText.NOTIFICATION_TIMESTAMP.get(TimeUtil.formatTime(this.timeStamp)); }
 
 	@Nonnull
-	public final CompoundTag save() {
+	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		if(this.seen)
 			compound.putBoolean("Seen", true);
@@ -66,14 +66,14 @@ public abstract class Notification implements IClientTracker {
 		if(this.timeStamp > 0)
 			compound.putLong("TimeStamp", this.timeStamp);
 		try {
-			this.saveAdditional(compound);
+			this.saveAdditional(compound, lookup);
 		} catch (Throwable t) { LightmansCurrency.LogError("Error saving Notification of type '" + this.getType().type.toString() + "'",t); }
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(@Nonnull CompoundTag compound);
+	protected abstract void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
-	public final void load(@Nonnull CompoundTag compound) {
+	public final void load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("Seen"))
 			this.seen = true;
 		if(compound.contains("Count", Tag.TAG_INT))
@@ -82,10 +82,10 @@ public abstract class Notification implements IClientTracker {
 			this.timeStamp = compound.getLong("TimeStamp");
 		else
 			this.timeStamp = 0;
-		this.loadAdditional(compound);
+		this.loadAdditional(compound, lookup);
 	}
 	
-	protected abstract void loadAdditional(@Nonnull CompoundTag compound);
+	protected abstract void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
 	/**
 	 * Determines whether the new notification should stack or not.

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
@@ -11,9 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -81,8 +81,8 @@ public abstract class IconData {
 	
 	public static IconData of(@Nonnull ItemLike item) { return of(new ItemStack(item)); }
 	public static IconData of(@Nonnull ItemLike item, @Nullable String countTextOverride) { return of(new ItemStack(item),countTextOverride); }
-	public static IconData of(@Nonnull RegistryObject<? extends ItemLike> item) { return of(new ItemStack(item.get())); }
-	public static IconData of(@Nonnull RegistryObject<? extends ItemLike> item, @Nullable String countTextOverride) { return of(new ItemStack(item.get()),countTextOverride); }
+	public static IconData of(@Nonnull Supplier<? extends ItemLike> item) { return of(new ItemStack(item.get())); }
+	public static IconData of(@Nonnull Supplier<? extends ItemLike> item, @Nullable String countTextOverride) { return of(new ItemStack(item.get()),countTextOverride); }
 	public static IconData of(@Nonnull ItemStack iconStack) { return of(iconStack,null); }
 	public static IconData of(@Nonnull ItemStack iconStack, @Nullable String countTextOverride) { return new ItemIcon(iconStack,countTextOverride); }
 	public static IconData of(@Nonnull ResourceLocation iconImage, int u, int v) { return new ImageIcon(Sprite.SimpleSprite(iconImage, u, v, 16, 16)); }

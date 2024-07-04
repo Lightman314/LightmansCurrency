@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
@@ -7,36 +9,39 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
 public class CPacketOpenTrades extends ClientToServerPacket {
 
+	private static final Type<CPacketOpenTrades> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_trader_menu_trades"));
 	public static final Handler<CPacketOpenTrades> HANDLER = new H();
 
 	private final long traderID;
 
-	public CPacketOpenTrades(long traderID) { this.traderID = traderID; }
+	public CPacketOpenTrades(long traderID) { super(TYPE); this.traderID = traderID; }
 
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeLong(this.traderID); }
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketOpenTrades message) { buffer.writeLong(message.traderID); }
+	private static CPacketOpenTrades decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenTrades(buffer.readLong()); }
 
 	private static class H extends Handler<CPacketOpenTrades>
 	{
-		@Nonnull
+		protected H() { super(TYPE, easyCodec(CPacketOpenTrades::encode,CPacketOpenTrades::decode)); }
 		@Override
-		public CPacketOpenTrades decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenTrades(buffer.readLong()); }
-		@Override
-		protected void handle(@Nonnull CPacketOpenTrades message, @Nullable ServerPlayer sender) {
-			if(sender != null)
+		protected void handle(@Nonnull CPacketOpenTrades message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+			MenuValidator validator = SimpleValidator.NULL;
+			if(player.containerMenu instanceof IValidatedMenu tm)
+				validator = tm.getValidator();
+			if(message.traderID < 0) //If trader ID is -1, open all network traders
+				player.openMenu(TraderData.getTraderMenuForAllNetworkTraders(validator), EasyMenu.encoder(validator));
+			else
 			{
-				MenuValidator validator = SimpleValidator.NULL;
-				if(sender.containerMenu instanceof IValidatedMenu tm)
-					validator = tm.getValidator();
 				TraderData data = TraderSaveData.GetTrader(false, message.traderID);
 				if(data != null)
-					data.openTraderMenu(sender, validator);
+					data.openTraderMenu(player, validator);
 			}
 		}
 	}

@@ -4,16 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class ListOption<T> extends ConfigOption<List<T>> {
 
 
-    protected ListOption(@Nonnull NonNullSupplier<List<T>> defaultValue) { super(defaultValue); }
+    protected ListOption(@Nonnull Supplier<List<T>> defaultValue) { super(defaultValue); }
 
     public static <T> ConfigParser<List<T>> makeParser(ConfigParser<T> partialParser) { return new ListParser<>(partialParser); }
 
@@ -68,7 +68,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
         @Nonnull
         @Override
         public List<T> tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
-            if(cleanLine.length() == 0)
+            if(cleanLine.isEmpty())
                 throw new ConfigParsingException("Empty input received!");
             char c1 = cleanLine.charAt(0);
             if(c1 != '[')
@@ -113,7 +113,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
             }
             if(!temp.isEmpty())
                 sections.add(temp.toString());
-            if(sections.size() == 0)
+            if(sections.isEmpty())
                 return new ArrayList<>();
             List<T> results = new ArrayList<>();
             for(int s = 0; s < sections.size(); ++s)

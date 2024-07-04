@@ -4,10 +4,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class IntOption extends ConfigOption<Integer> {
 
@@ -17,7 +17,7 @@ public class IntOption extends ConfigOption<Integer> {
     private final int upperLimit;
     private final ConfigParser<Integer> parser;
 
-    protected IntOption(@Nonnull NonNullSupplier<Integer> defaultValue, int lowerLimit, int upperLimit) {
+    protected IntOption(@Nonnull Supplier<Integer> defaultValue, int lowerLimit, int upperLimit) {
         super(defaultValue);
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -33,9 +33,9 @@ public class IntOption extends ConfigOption<Integer> {
     public static IntOption create(int defaultValue) { return new IntOption(() -> defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
     public static IntOption create(int defaultValue, int lowerLimit) { return new IntOption(() -> defaultValue, lowerLimit, Integer.MAX_VALUE); }
     public static IntOption create(int defaultValue, int lowerLimit, int upperLimit) { return new IntOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static IntOption create(@Nonnull NonNullSupplier<Integer> defaultValue) { return new IntOption(defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
-    public static IntOption create(@Nonnull NonNullSupplier<Integer> defaultValue, int lowerLimit) { return new IntOption(defaultValue, lowerLimit, Integer.MAX_VALUE); }
-    public static IntOption create(@Nonnull NonNullSupplier<Integer> defaultValue, int lowerLimit, int upperLimit) { return new IntOption(defaultValue, lowerLimit, upperLimit); }
+    public static IntOption create(@Nonnull Supplier<Integer> defaultValue) { return new IntOption(defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
+    public static IntOption create(@Nonnull Supplier<Integer> defaultValue, int lowerLimit) { return new IntOption(defaultValue, lowerLimit, Integer.MAX_VALUE); }
+    public static IntOption create(@Nonnull Supplier<Integer> defaultValue, int lowerLimit, int upperLimit) { return new IntOption(defaultValue, lowerLimit, upperLimit); }
 
 
 

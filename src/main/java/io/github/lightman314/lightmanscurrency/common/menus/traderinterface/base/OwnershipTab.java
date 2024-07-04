@@ -13,8 +13,8 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderI
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -45,7 +45,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 		{
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.simpleString("NewPlayerOwner", newOwner));
+				this.menu.SendMessage(this.builder().setString("NewPlayerOwner", newOwner));
 			}
 			else
 			{
@@ -61,7 +61,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 		{
 			this.menu.getBE().owner.SetOwner(newOwner);
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleTag("NewOwner", newOwner.save()));
+				this.menu.SendMessage(this.builder().setOwner("NewOwner", newOwner));
 		}
 	}
 
@@ -70,7 +70,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 		if(message.contains("NewPlayerOwner"))
 			this.setPlayerOwner(message.getString("NewPlayerOwner"));
 		if(message.contains("NewOwner"))
-			this.setOwner(Owner.load(message.getNBT("NewOwner")));
+			this.setOwner(message.getOwner("NewOwner"));
 	}
 
 }

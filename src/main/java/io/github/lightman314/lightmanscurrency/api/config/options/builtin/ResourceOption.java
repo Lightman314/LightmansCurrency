@@ -6,18 +6,18 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class ResourceOption extends ConfigOption<ResourceLocation> {
 
     public static final ConfigParser<ResourceLocation> PARSER = new Parser();
 
-    protected ResourceOption(@Nonnull NonNullSupplier<ResourceLocation> defaultValue) { super(defaultValue); }
+    protected ResourceOption(@Nonnull Supplier<ResourceLocation> defaultValue) { super(defaultValue); }
 
     public static ResourceOption create(@Nonnull ResourceLocation defaultValue) { return new ResourceOption(() -> defaultValue); }
-    public static ResourceOption create(@Nonnull NonNullSupplier<ResourceLocation> defaultValue) { return new ResourceOption(defaultValue); }
+    public static ResourceOption create(@Nonnull Supplier<ResourceLocation> defaultValue) { return new ResourceOption(defaultValue); }
 
     @Nonnull
     @Override
@@ -30,7 +30,7 @@ public class ResourceOption extends ConfigOption<ResourceLocation> {
         @Override
         public ResourceLocation tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
             String s = StringOption.PARSER.tryParse(cleanLine);
-            try { return new ResourceLocation(s);
+            try { return ResourceLocation.parse(s);
             } catch (ResourceLocationException e) { throw new ConfigParsingException(s + " is not a valid Resource Location!", e); }
         }
 

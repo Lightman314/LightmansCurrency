@@ -3,7 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModSounds {
 
@@ -11,10 +12,10 @@ public class ModSounds {
 	
 	static {
 		
-		COINS_CLINKING = ModRegistries.SOUND_EVENTS.register("coins_clinking", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(LightmansCurrency.MODID, "coins_clinking")));
+		COINS_CLINKING = ModRegistries.SOUND_EVENTS.register("coins_clinking", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "coins_clinking")));
 		
 	}
 	
-	public static final RegistryObject<SoundEvent> COINS_CLINKING;
+	public static final Supplier<SoundEvent> COINS_CLINKING;
 	
 }

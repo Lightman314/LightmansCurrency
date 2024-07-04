@@ -19,7 +19,6 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
@@ -56,17 +55,6 @@ public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
         }
         if(playSound)
             be.getLevel().playSound(null, be.getBlockPos(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
-    }
-
-    @Nonnull
-    @Override
-    protected List<String> getDataTags() { return ImmutableList.of(RANGE); }
-
-    @Override
-    protected Object defaultTagValue(String tag) {
-        if(Objects.equals(tag, RANGE))
-            return 1;
-        return null;
     }
 
     @Nonnull

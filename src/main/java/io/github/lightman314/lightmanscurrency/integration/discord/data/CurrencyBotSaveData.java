@@ -1,11 +1,14 @@
 package io.github.lightman314.lightmanscurrency.integration.discord.data;
 
+/*
 import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -17,16 +20,18 @@ public class CurrencyBotSaveData extends SavedData {
 
     private CurrencyBotSaveData() {}
 
-    private CurrencyBotSaveData(CompoundTag tag)
+    private CurrencyBotSaveData(CompoundTag tag,@Nonnull HolderLookup.Provider lookup)
     {
-
+        ListTag dataList = tag.getList("Data", Tag.TAG_COMPOUND);
+        for(int i = 0; i < dataList.size(); ++i)
+            this.data.add(new CurrencyBotData(dataList.getCompound(i)));
     }
 
     @Nonnull
     @Override
-    public CompoundTag save(@Nonnull CompoundTag tag) {
+    public CompoundTag save(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
         ListTag dataList = new ListTag();
-        for(CurrencyBotData d : data)
+        for(CurrencyBotData d : this.data)
             dataList.add(d.save());
         tag.put("Data", dataList);
         return tag;
@@ -36,7 +41,7 @@ public class CurrencyBotSaveData extends SavedData {
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(CurrencyBotSaveData::new, CurrencyBotSaveData::new, "lightmanscurrency_discord_data");
+            return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(CurrencyBotSaveData::new, CurrencyBotSaveData::new), "lightmanscurrency_discord_data");
         return null;
     }
 
@@ -67,3 +72,4 @@ public class CurrencyBotSaveData extends SavedData {
 
 
 }
+//*/

@@ -7,17 +7,18 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class LowBalanceNotification extends Notification{
 
-	public static final NotificationType<LowBalanceNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_low_balance"),LowBalanceNotification::new);
+	public static final NotificationType<LowBalanceNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_low_balance"),LowBalanceNotification::new);
 	
 	private MutableComponent accountName;
 	private MoneyValue value = MoneyValue.empty();
@@ -29,7 +30,7 @@ public class LowBalanceNotification extends Notification{
 		this.value = value;
 	}
 
-	public static NonNullSupplier<Notification> create(@Nonnull MutableComponent accountName, @Nonnull MoneyValue value) { return () -> new LowBalanceNotification(accountName,value); }
+	public static Supplier<Notification> create(@Nonnull MutableComponent accountName, @Nonnull MoneyValue value) { return () -> new LowBalanceNotification(accountName,value); }
 
 	@Nonnull
     @Override
@@ -44,14 +45,14 @@ public class LowBalanceNotification extends Notification{
 	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_LOW_BALANCE.get(this.value.getString()); }
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
-		compound.putString("Name", Component.Serializer.toJson(this.accountName));
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		compound.putString("Name", Component.Serializer.toJson(this.accountName,lookup));
 		compound.put("Amount", this.value.save());
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
-		this.accountName = Component.Serializer.fromJson(compound.getString("Name"));
+	protected void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+		this.accountName = Component.Serializer.fromJson(compound.getString("Name"),lookup);
 		this.value = MoneyValue.safeLoad(compound, "Amount");
 	}
 

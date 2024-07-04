@@ -54,7 +54,7 @@ public class WorldPosition {
     {
         if(tag.contains("Dimension"))
         {
-            ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString("Dimension")));
+            ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("Dimension")));
             BlockPos pos = new BlockPos(tag.getInt("X"),tag.getInt("Y"),tag.getInt("Z"));
             return of(dimension, pos);
         }

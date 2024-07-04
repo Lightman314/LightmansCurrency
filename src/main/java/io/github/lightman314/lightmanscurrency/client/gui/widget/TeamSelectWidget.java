@@ -14,9 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.sounds.SoundManager;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -109,19 +106,19 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
 	{
 		if(!this.visible)
 			return false;
 		
-		if(delta < 0)
+		if(deltaY < 0)
 		{			
 			if(this.canScrollDown())
 				scroll++;
 			else
 				return false;
 		}
-		else if(delta > 0)
+		else if(deltaY > 0)
 		{
 			if(scroll > 0)
 				scroll--;
@@ -142,13 +139,4 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 		this.onPress.accept(this.scroll + index);
 	}
 
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
-
-	@Override
-	protected boolean isValidClickButton(int button) { return false; }
-	
-	@Override
-	public void playDownSound(@NotNull SoundManager soundManager) { }
-	
 }

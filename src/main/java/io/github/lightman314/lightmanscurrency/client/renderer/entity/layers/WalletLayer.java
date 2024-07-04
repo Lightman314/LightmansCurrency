@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
 import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
+import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -46,7 +46,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 					   float netHeadYaw,
 					   float headPitch) {
 		
-		IWalletHandler handler = WalletCapability.getRenderWalletHandler(entity);
+		WalletHandler handler = entity.getData(ModAttachmentTypes.WALLET_HANDLER);
 		if(handler == null || !handler.visible())
 			return;
 		
@@ -59,7 +59,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 			this.getParentModel().copyPropertiesTo(this.model);
 			VertexConsumer vertexConsumer = ItemRenderer
 					.getFoilBuffer(bufferSource, this.model.renderType(walletItem.getModelTexture()), false, wallet.hasFoil());
-			this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+			this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
 			
 		}
 		

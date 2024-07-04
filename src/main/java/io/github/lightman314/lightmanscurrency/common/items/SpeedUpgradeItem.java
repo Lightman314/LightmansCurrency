@@ -17,8 +17,6 @@ public class SpeedUpgradeItem extends UpgradeItem{
 	}
 
 	@Override
-	public void fillUpgradeData(@Nonnull UpgradeData data) {
-		data.setValue(SpeedUpgrade.DELAY_AMOUNT, Math.max(this.delayAmount, 1));
-	}
+	public void setDefaultValues(@Nonnull UpgradeData.Mutable data) { data.setIntValue(SpeedUpgrade.DELAY_AMOUNT, Math.max(this.delayAmount, 1)); }
 	
 }

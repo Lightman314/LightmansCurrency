@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
@@ -19,16 +18,15 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.money.coins.old_compat.OldCoinData;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -37,12 +35,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+
 
 public final class CoinAPIImpl extends CoinAPI {
 
@@ -73,9 +70,9 @@ public final class CoinAPIImpl extends CoinAPI {
         if(setup)
             return;
         setup = true;
-        MinecraftForge.EVENT_BUS.addListener(this::onServerStart);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onJoinServer);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::generateDefaultCoins);
+        NeoForge.EVENT_BUS.addListener(this::onServerStart);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onJoinServer);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::generateDefaultCoins);
         ValueDisplayAPI.Setup();
         ATMAPI.Setup();
     }
@@ -99,7 +96,7 @@ public final class CoinAPIImpl extends CoinAPI {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
         }
-        this.SyncCoinDataWith(PacketDistributor.ALL.noArg());
+        this.SyncCoinDataWith(null);
     }
 
     public static void LoadEditedData(@Nonnull String customJson) {
@@ -113,7 +110,7 @@ public final class CoinAPIImpl extends CoinAPI {
     private void loadData(@Nonnull Map<String,ChainData> dataMap)
     {
         ChainDataReloadedEvent.Pre event = new ChainDataReloadedEvent.Pre(dataMap);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         loadedChains = event.getChainMap();
         Map<ResourceLocation,ChainData> temp = new HashMap<>();
         //Store chain data in an item to chain map so that we don't have to be manually searching through lists for matching entries.
@@ -121,12 +118,12 @@ public final class CoinAPIImpl extends CoinAPI {
         {
             for(CoinEntry entry : chain.getAllEntries(true))
             {
-                ResourceLocation coinID = ForgeRegistries.ITEMS.getKey(entry.getCoin());
+                ResourceLocation coinID = BuiltInRegistries.ITEM.getKey(entry.getCoin());
                 temp.put(coinID, chain);
             }
         }
         this.itemIdToChainMap = ImmutableMap.copyOf(temp);
-        MinecraftForge.EVENT_BUS.post(new ChainDataReloadedEvent.Post(loadedChains));
+        NeoForge.EVENT_BUS.post(new ChainDataReloadedEvent.Post(loadedChains));
     }
 
     @SuppressWarnings("deprecation")
@@ -282,7 +279,7 @@ public final class CoinAPIImpl extends CoinAPI {
     private Map<String,ChainData> generateDefaultMoneyData()
     {
         BuildDefaultMoneyDataEvent event = new BuildDefaultMoneyDataEvent();
-        try { MinecraftForge.EVENT_BUS.post(event);
+        try { NeoForge.EVENT_BUS.post(event);
         } catch(RuntimeException e) { LightmansCurrency.LogError("Error generating default money data!", e); return new HashMap<>(); }
 
         Map<String,ChainData> results = new HashMap<>();
@@ -346,10 +343,8 @@ public final class CoinAPIImpl extends CoinAPI {
     @Nonnull
     @Override
     public ItemStack getEquippedWallet(@Nonnull Player player) {
-        ItemStack wallet = ItemStack.EMPTY;
-        IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
-        if(walletHandler != null)
-            wallet = walletHandler.getWallet();
+        WalletHandler walletHandler = WalletHandler.get(player);
+        ItemStack wallet = walletHandler.getWallet();
         //Safety check to confirm that the Item Stack found is a valid wallet
         if(!WalletItem.validWalletStack(wallet))
         {
@@ -385,7 +380,7 @@ public final class CoinAPIImpl extends CoinAPI {
     public ChainData ChainDataOfCoin(@Nonnull Item coin) {
         if(this.NoDataAvailable())
             return null;
-        return this.itemIdToChainMap.get(ForgeRegistries.ITEMS.getKey(coin));
+        return this.itemIdToChainMap.get(BuiltInRegistries.ITEM.getKey(coin));
     }
 
     @Override
@@ -515,8 +510,8 @@ public final class CoinAPIImpl extends CoinAPI {
         int index = 0;
         while(!oldInventory.isEmpty())
         {
-            container.setItem(index++, oldInventory.get(0));
-            oldInventory.remove(0);
+            container.setItem(index++, oldInventory.getFirst());
+            oldInventory.removeFirst();
         }
     }
 
@@ -528,11 +523,25 @@ public final class CoinAPIImpl extends CoinAPI {
         LightmansCurrency.LogDebug("PlayerLoggedInEvent was called!");
         if(this.NoDataAvailable())
             this.ReloadCoinDataFromFile();
-        this.SyncCoinDataWith(LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
+        this.SyncCoinDataWith(event.getEntity());
+    }
+
+    @Nonnull
+    @Override
+    public SPacketSyncCoinData getSyncPacket() {
+        if(this.NoDataAvailable())
+            this.ReloadCoinDataFromFile();
+        return new SPacketSyncCoinData(getDataJson(this.loadedChains, false));
     }
 
     @Override
-    public void SyncCoinDataWith(@Nonnull PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(this.loadedChains, false)).sendToTarget(target); }
+    public void SyncCoinDataWith(@Nullable Player target) {
+        SPacketSyncCoinData packet = this.getSyncPacket();
+        if(target == null)
+            packet.sendToAll();
+        else
+            packet.sendTo(target);
+    }
 
     @Override
     public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson()); }

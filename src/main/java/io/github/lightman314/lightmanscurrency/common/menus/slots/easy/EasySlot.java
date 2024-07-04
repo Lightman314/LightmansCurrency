@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class EasySlot extends Slot {
 
-    public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "item/empty_item_slot");
+    public static final ResourceLocation EMPTY_SLOT_BG = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_item_slot");
     public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
 
     public boolean active = true;

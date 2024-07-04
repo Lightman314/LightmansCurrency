@@ -15,8 +15,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +29,7 @@ public class LCClaiming {
         if(currentHandler != null && currentHandler != handler)
             LightmansCurrency.LogWarning("Multiple compatible Claim Mods are available!");
         if(currentHandler == null)
-            MinecraftForge.EVENT_BUS.addListener(LCClaiming::registerCommand);
+            NeoForge.EVENT_BUS.addListener(LCClaiming::registerCommand);
         currentHandler = handler;
     }
 

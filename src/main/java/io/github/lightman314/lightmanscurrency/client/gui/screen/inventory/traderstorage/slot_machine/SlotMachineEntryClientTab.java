@@ -29,8 +29,6 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public static final int ENTRY_COLUMNS = 2;
     public static final int ENTRIES_PER_PAGE = ENTRY_ROWS * ENTRY_COLUMNS;
 
-
-
     private int scroll = 0;
     private EasyButton buttonAddEntry;
 

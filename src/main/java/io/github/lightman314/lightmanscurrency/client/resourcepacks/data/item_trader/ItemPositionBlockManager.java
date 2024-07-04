@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -10,7 +11,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
     public static ResourceLocation getResourceForBlock(@Nonnull BlockState state) { return getResourceForBlock(state.getBlock()); }
     @Nullable
     public static ResourceLocation getResourceForBlock(@Nonnull Block block) {
-        ResourceLocation blockID = ForgeRegistries.BLOCKS.getKey(block);
+        ResourceLocation blockID = BuiltInRegistries.BLOCK.getKey(block);
         for(var d : INSTANCE.data.entrySet())
         {
             if(d.getValue().contains(blockID))
@@ -61,7 +61,7 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
                 List<ResourceLocation> results = new ArrayList<>();
                 for(int i = 0; i < valueList.size(); ++i)
                 {
-                    ResourceLocation rl = new ResourceLocation(GsonHelper.convertToString(valueList.get(i),"values["+i+"]"));
+                    ResourceLocation rl = ResourceLocation.parse(GsonHelper.convertToString(valueList.get(i),"values["+i+"]"));
                     if(rl != null)
                         results.add(rl);
                 }

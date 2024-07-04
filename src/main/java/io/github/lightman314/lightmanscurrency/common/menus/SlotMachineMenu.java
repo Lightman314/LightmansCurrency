@@ -25,8 +25,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,13 +46,13 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     private final List<RewardCache> rewards = new ArrayList<>();
     public final boolean hasPendingReward() { return !this.rewards.isEmpty(); }
-    public final RewardCache getNextReward() { if(this.rewards.isEmpty()) return null; return this.rewards.get(0); }
+    public final RewardCache getNextReward() { if(this.rewards.isEmpty()) return null; return this.rewards.getFirst(); }
 
     public final RewardCache getAndRemoveNextReward()
     {
         if(this.rewards.isEmpty())
             return null;
-        return this.rewards.remove(0);
+        return this.rewards.removeFirst();
     }
 
     private final MenuValidator validator;
@@ -143,7 +143,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     @Override
     public void removed(@Nonnull Player player) {
         super.removed(player);
-        MinecraftForge.EVENT_BUS.unregister(this);
+        NeoForge.EVENT_BUS.unregister(this);
         //Force-give rewards if closed before reward is handled
         for(RewardCache reward : this.rewards)
             reward.giveToPlayer();
@@ -206,7 +206,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
                 for(RewardCache result : this.rewards)
                     resultList.add(result.save());
                 rewardData.put("Rewards", resultList);
-                this.SendMessageToClient(LazyPacketData.builder().setCompound("SyncRewards", rewardData));
+                this.SendMessageToClient(this.builder().setCompound("SyncRewards", rewardData));
             }
         }
 
@@ -253,7 +253,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     public final RewardCache loadReward(CompoundTag tag) {
         MoneyStorage storage = new MoneyStorage(() -> {}, Integer.MIN_VALUE / 2);
         storage.load(tag.getList("Money", Tag.TAG_COMPOUND));
-        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), storage);
+        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT,this.player.registryAccess()), storage);
     }
 
     public final class RewardCache
@@ -298,7 +298,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         public CompoundTag save()
         {
             CompoundTag tag = new CompoundTag();
-            InventoryUtil.saveAllItems("Items", tag, this.itemHolder);
+            InventoryUtil.saveAllItems("Items", tag, this.itemHolder,SlotMachineMenu.this.player.registryAccess());
             tag.put("Money", this.moneyHolder.save());
             return tag;
         }

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -15,14 +16,14 @@ import javax.annotation.Nonnull;
 
 public class BankCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<BankCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID, "bank"),BankCategory::new);
+	public static final NotificationCategoryType<BankCategory> TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank"),BankCategory::new);
 	
 	private final MutableComponent name;
 	
 	public BankCategory(MutableComponent name) { this.name = name; }
 	
-	public BankCategory(CompoundTag compound) {
-		this.name = Component.Serializer.fromJson(compound.getString("Name"));
+	public BankCategory(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.name = Component.Serializer.fromJson(compound.getString("Name"),lookup);
 	}
 
 	@Nonnull
@@ -47,8 +48,8 @@ public class BankCategory extends NotificationCategory {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		compound.putString("Name", Component.Serializer.toJson(this.name));
+	protected void saveAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+		compound.putString("Name", Component.Serializer.toJson(this.name,lookup));
 	}
 	
 }

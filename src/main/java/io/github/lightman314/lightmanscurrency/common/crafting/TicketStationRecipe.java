@@ -2,6 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -11,14 +15,13 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public interface TicketStationRecipe extends Recipe<Container> {
+public interface TicketStationRecipe extends Recipe<RecipeContainerWrapper> {
 
     @Nonnull
     @Override
@@ -30,13 +33,18 @@ public interface TicketStationRecipe extends Recipe<Container> {
         List<ItemStack> result = new ArrayList<>();
         for(Item extraItem : extra)
             result.add(new ItemStack(extraItem));
-        for(Item modifier : ForgeRegistries.ITEMS.tags().getTag(tag))
-            result.add(new ItemStack(modifier));
+        for(HolderSet<Item> set : BuiltInRegistries.ITEM.getTag(tag).stream().toList())
+        {
+            for(Holder<Item> item : set.stream().toList())
+            {
+                result.add(new ItemStack(item.value()));
+            }
+        }
         return result;
     }
 
     @Nonnull
-    static List<ItemStack> exampleTicketList(@Nonnull RegistryObject<? extends ItemLike> item) { return exampleTicketList(item.get().asItem()); }
+    static List<ItemStack> exampleTicketList(@Nonnull Supplier<? extends ItemLike> item) { return exampleTicketList(item.get().asItem()); }
     @Nonnull
     static List<ItemStack> exampleTicketList(@Nonnull Ingredient ingredient)
     {
@@ -68,6 +76,6 @@ public interface TicketStationRecipe extends Recipe<Container> {
     ItemStack exampleResult();
 
     @Override
-    default boolean matches(@Nonnull Container container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+    default boolean matches(@Nonnull RecipeContainerWrapper container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
 
 }

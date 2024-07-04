@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -17,23 +18,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class LCItemTagProvider extends ItemTagsProvider {
 
-    public LCItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTagProvider, @Nullable ExistingFileHelper existingFileHelper) {
+    public LCItemTagProvider(@Nonnull PackOutput output, @Nonnull CompletableFuture<HolderLookup.Provider> lookupProvider, @Nonnull CompletableFuture<TagLookup<Block>> blockTagProvider, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, blockTagProvider, LightmansCurrency.MODID, existingFileHelper);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void addTags(@Nonnull HolderLookup.Provider lookup) {
 
         ///LIGHTMANS CURRENCY TAGS
@@ -74,6 +74,22 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.WALLET_GOLD)
                 .add(ModItems.WALLET_EMERALD)
                 .add(ModItems.WALLET_DIAMOND)
+                .add(ModItems.WALLET_NETHERITE);
+        //Wallets with Exchange Ability
+        this.cTag(LCTags.Items.WALLET_EXCHANGE)
+                .add(ModItems.WALLET_IRON)
+                .add(ModItems.WALLET_GOLD)
+                .add(ModItems.WALLET_EMERALD)
+                .add(ModItems.WALLET_DIAMOND)
+                .add(ModItems.WALLET_NETHERITE);
+        //Wallets with Pickup Ability
+        this.cTag(LCTags.Items.WALLET_PICKUP)
+                .add(ModItems.WALLET_GOLD)
+                .add(ModItems.WALLET_EMERALD)
+                .add(ModItems.WALLET_DIAMOND)
+                .add(ModItems.WALLET_NETHERITE);
+        //Wallets with Bank Ability
+        this.cTag(LCTags.Items.WALLET_BANK)
                 .add(ModItems.WALLET_NETHERITE);
 
         //Trader Tags
@@ -131,8 +147,6 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.PORTABLE_TERMINAL)
                 .add(ModBlocks.GEM_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL);
-        //Deprecated Trading Terminal Tag
-        this.cTag(LCTags.Items.TRADING_TERMINAL).addTag(LCTags.Items.NETWORK_TERMINAL);
 
         //ATM
         this.cTag(LCTags.Items.ATM)
@@ -201,12 +215,15 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.COIN_GOLD)
                 .add(ModBlocks.COINPILE_GOLD)
                 .add(ModBlocks.COINBLOCK_GOLD);
+        //Add Sus Jar to Dyeable tag so that it can be colored in the crafting menu
+        this.cTag(ItemTags.DYEABLE)
+                .add(ModBlocks.SUS_JAR);
 
         ///MODDED TAGS
         //Add Wallets to Wallet Slot
-        this.cTag(new ResourceLocation("curios","wallet")).addTag(LCTags.Items.WALLET);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("curios","wallet")).addTag(LCTags.Items.WALLET);
         //Add Portable Terminals to Charm Slot
-        this.cTag(new ResourceLocation("curios","charm"))
+        this.cTag(ResourceLocation.fromNamespaceAndPath("curios","charm"))
                 .add(ModItems.PORTABLE_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL)
                 .add(ModItems.PORTABLE_ATM);
@@ -219,8 +236,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
     private record CustomTagAppender(IntrinsicTagAppender<Item> appender) {
 
         public CustomTagAppender add(ItemLike item) { this.appender.add(item.asItem()); return this; }
-        public CustomTagAppender add(RegistryObject<? extends ItemLike> item) { this.add(item.get()); return this; }
-        public CustomTagAppender addOptional(RegistryObject<? extends ItemLike> item) { this.appender.addOptional(item.getId()); return this; }
+        public CustomTagAppender add(Supplier<? extends ItemLike> item) { this.add(item.get()); return this; }
+        public CustomTagAppender addOptional(Supplier<? extends ItemLike> item) { this.appender.addOptional(BuiltInRegistries.ITEM.getKey(item.get().asItem())); return this; }
         public CustomTagAppender add(RegistryObjectBundle<? extends ItemLike,?> bundle) {
             bundle.forEach((key,item) -> {
                 if(key instanceof IOptionalKey ok)

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/buttons.png");
+    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/buttons.png");
 
     private final Supplier<OwnerData> currentOwner;
     private final Supplier<PotentialOwner> ownerSupplier;

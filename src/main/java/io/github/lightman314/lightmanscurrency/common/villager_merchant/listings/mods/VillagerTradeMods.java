@@ -7,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod.ModBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class VillagerTradeMods {
         private Builder() {}
 
         @Nonnull
-        public ModBuilder forProfession(@Nonnull VillagerProfession profession) { return this.forProfession(ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession)); }
+        public ModBuilder forProfession(@Nonnull VillagerProfession profession) { return this.forProfession(BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession)); }
         public ModBuilder forProfession(@Nonnull ResourceLocation profession) { return this.forProfession(profession.toString()); }
         @Nonnull
         public ModBuilder forProfession(@Nonnull String profession)

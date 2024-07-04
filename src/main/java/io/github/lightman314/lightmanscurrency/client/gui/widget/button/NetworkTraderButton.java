@@ -11,8 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 @OnlyIn(Dist.CLIENT)
 public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	
-	public static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universaltraderbuttons.png");
+	public static final ResourceLocation BUTTON_TEXTURES = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/universaltraderbuttons.png");
 	
 	public static final int WIDTH = 146;
 	public static final int HEIGHT = 30;

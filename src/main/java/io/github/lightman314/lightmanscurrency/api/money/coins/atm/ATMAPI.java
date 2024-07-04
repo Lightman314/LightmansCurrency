@@ -12,13 +12,13 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -83,13 +83,8 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeUp-".length());
-                coinID = new ResourceLocation(id);
-                Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
-                if(coinItem == null)
-                {
-                    LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a registered item.");
-                    return false;
-                }
+                coinID = ResourceLocation.parse(id);
+                Item coinItem = BuiltInRegistries.ITEM.get(coinID);
                 ChainData chain = CoinAPI.API.ChainDataOfCoin(coinItem);
                 if(chain == null && !chain.findEntry(coinItem).isSideChain())
                 {
@@ -115,8 +110,8 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeDown-".length());
-                ResourceLocation coinID = new ResourceLocation(id);
-                Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
+                ResourceLocation coinID = ResourceLocation.parse(id);
+                Item coinItem = BuiltInRegistries.ITEM.get(coinID);
                 if(coinItem == null || coinItem == Items.AIR)
                 {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is not a registered item.");

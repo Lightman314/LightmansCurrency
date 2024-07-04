@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderI
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -41,9 +41,9 @@ public class TraderSelectTab extends TraderInterfaceTab {
 		if(this.menu.isClient())
 		{
 			if(traderID >= 0)
-				this.menu.SendMessage(LazyPacketData.simpleLong("NewTrader", traderID));
+				this.menu.SendMessage(this.builder().setLong("NewTrader", traderID));
 			else
-				this.menu.SendMessage(LazyPacketData.simpleFlag("NullTrader"));
+				this.menu.SendMessage(this.builder().setFlag("NullTrader"));
 		}
 	}
 	

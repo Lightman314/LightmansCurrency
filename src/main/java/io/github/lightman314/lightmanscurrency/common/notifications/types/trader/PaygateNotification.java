@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -12,16 +11,17 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.Taxabl
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class PaygateNotification extends TaxableNotification {
 
-	public static final NotificationType<PaygateNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "paygate_trade"),PaygateNotification::new);
+	public static final NotificationType<PaygateNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "paygate_trade"),PaygateNotification::new);
 	
 	TraderCategory traderData;
 	
@@ -53,8 +53,8 @@ public class PaygateNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, MoneyValue.empty(), usedPass, customer, traderData, MoneyValue.empty()); }
-	public static NonNullSupplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, MoneyValue.empty(), usedPass, customer, traderData, MoneyValue.empty()); }
+	public static Supplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
 	
 	@Nonnull
     @Override
@@ -81,9 +81,9 @@ public class PaygateNotification extends TaxableNotification {
 	}
 
 	@Override
-	protected void saveNormal(CompoundTag compound) {
+	protected void saveNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 
-		compound.put("TraderInfo", this.traderData.save());
+		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("Duration", this.duration);
 		if(this.ticketID >= -1)
 		{
@@ -97,9 +97,9 @@ public class PaygateNotification extends TaxableNotification {
 	}
 
 	@Override
-	protected void loadNormal(CompoundTag compound) {
+	protected void loadNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
+		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.duration = compound.getInt("Duration");
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");

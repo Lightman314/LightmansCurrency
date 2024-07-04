@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;

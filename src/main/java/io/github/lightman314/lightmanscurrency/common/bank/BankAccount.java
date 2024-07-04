@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -23,14 +24,13 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.L
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,8 +70,8 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.markDirty();
 	}
 	
-	private Consumer<NonNullSupplier<Notification>> notificationSender;
-	public void setNotificationConsumer(Consumer<NonNullSupplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
+	private Consumer<Supplier<Notification>> notificationSender;
+	public void setNotificationConsumer(Consumer<Supplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
 
 	@Override
 	public void pushLocalNotification(@Nonnull Notification notification) {
@@ -79,13 +79,13 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.markDirty();
 	}
 	@Override
-	public void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers) {
+	public void pushNotification(@Nonnull Supplier<Notification> notification, boolean notifyPlayers) {
 		this.pushLocalNotification(notification.get());
 		if(notifyPlayers && this.notificationSender != null)
 			this.notificationSender.accept(notification);
 	}
 	
-	public static Consumer<NonNullSupplier<Notification>> generateNotificationAcceptor(UUID playerID) {
+	public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
 		return (notification) -> NotificationSaveData.PushNotification(playerID, notification.get());
 	}
 	
@@ -142,14 +142,14 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	
 
 	
-	public BankAccount() { this((Runnable)null); }
+	public BankAccount() { this(null); }
 	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
 	
-	public BankAccount(CompoundTag compound) { this(null, compound); }
-	public BankAccount(Runnable markDirty, CompoundTag compound) {
+	public BankAccount(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) { this(null, compound, lookup); }
+	public BankAccount(Runnable markDirty, CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.markDirty = markDirty;
 		this.coinStorage.safeLoad(compound, "CoinStorage");
-		this.logger.load(compound.getCompound("AccountLogs"));
+		this.logger.load(compound.getCompound("AccountLogs"),lookup);
 		this.ownerName = compound.getString("OwnerName");
 		if(compound.contains("NotificationLevel"))
 		{
@@ -175,10 +175,10 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			this.markDirty.run();
 	}
 	
-	public final CompoundTag save() {
+	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		compound.put("CoinStorage", this.coinStorage.save());
-		compound.put("AccountLogs", this.logger.save());
+		compound.put("AccountLogs", this.logger.save(lookup));
 		compound.putString("OwnerName", this.ownerName);
 		ListTag notificationLevelList = new ListTag();
 		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));

@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.traderinterface.handlers;
 
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 public abstract class SidedHandler<H>{
 	
@@ -16,8 +19,8 @@ public abstract class SidedHandler<H>{
 	public abstract ResourceLocation getType();
 	public abstract String getTag();
 	
-	public abstract CompoundTag save();
-	public abstract void load(CompoundTag compound);
+	public abstract CompoundTag save(@Nonnull HolderLookup.Provider lookup);
+	public abstract void load(CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
 	
 	public void sendMessage(CompoundTag message) {
 		this.parent.sendHandlerMessage(this.getType(), message);

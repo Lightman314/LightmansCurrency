@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration.discord.data;
-
+/*
 import io.github.lightman314.lightmansdiscord.discord.links.AccountManager;
 import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
 import net.minecraft.nbt.CompoundTag;
@@ -35,3 +35,4 @@ public class CurrencyBotData {
     }
 
 }
+//*/

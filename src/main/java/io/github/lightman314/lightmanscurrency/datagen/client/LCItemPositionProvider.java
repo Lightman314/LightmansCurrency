@@ -18,7 +18,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
     @Override
     protected void addEntries() {
         //Card Display
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID, "card_display"),ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "card_display"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(RotationHandler.FACING_UP)
                 .withGlobalExtraCount(1)
@@ -30,14 +30,14 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.CARD_DISPLAY
         );
         //Display Case
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID, "display_case"),ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "display_case"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.75f)
                 .withGlobalRotationType(RotationHandler.SPINNING)
                 .withEntry(new Vector3f(0.5f, 0.5f + 2f/16f, 0.5f)),
                 ModBlocks.DISPLAY_CASE
         );
         //Freezer
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"freezer"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"freezer"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(2)
@@ -53,14 +53,14 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.FREEZER
         );
         //Shelf
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"shelf"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"shelf"), ItemPositionBuilder.builder()
                 .withGlobalScale(14f/16f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withEntry(new Vector3f(0.5f, 9f/16f,14.5f/16f)),
                 ModBlocks.SHELF
         );
         //Shelf 2x2
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"shelf_2x2"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"shelf_2x2"), ItemPositionBuilder.builder()
                         .withGlobalScale(5.5f/16f)
                         .withGlobalRotationType(RotationHandler.FACING)
                         .withEntry(new Vector3f(0.25f, 13f/16f,14.5f/16f))
@@ -70,7 +70,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.SHELF_2x2
         );
         //Vending Machine
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(2)
@@ -84,7 +84,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.VENDING_MACHINE
         );
         //Large Vending Machine
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"large_vending_machine"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"large_vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(RotationHandler.FACING)
                 .withGlobalExtraCount(2)
@@ -105,7 +105,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
         );
 
         //Auction House
-        this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"auction_stand"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"auction_stand"), ItemPositionBuilder.builder()
                 .withEntry(new Vector3f(0.5f,0.75f,0.5f), 0.4f, RotationHandler.SPINNING),
                 ModBlocks.AUCTION_STAND
         );

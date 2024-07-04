@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,26 +61,27 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state) && this.getIsLeft(state); }
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	@Nonnull
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state), this.getIsLeft(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISLEFT);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISLEFT,true);
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		//Attempt to place the other three blocks
 		BlockPos rightPos = IRotatableBlock.getRightPos(pos, this.getFacing(state));
@@ -110,8 +110,9 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		
 	}
 	
+	@Nonnull
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		//Run base functionality first to prevent the removal of the block containing the block entity
 		this.playerWillDestroyBase(level, pos, state, player);
@@ -120,7 +121,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		if(blockEntity instanceof TraderBlockEntity<?> trader)
 		{
 			if(!trader.canBreak(player))
-				return;
+                return state;
 		}
 		
 		if(this.getIsBottom(state))
@@ -137,8 +138,9 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			setAir(level, otherPos, player);
 			setAir(level, otherPos.below(), player);
 		}
-		
-	}
+
+        return state;
+    }
 	
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {

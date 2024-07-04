@@ -12,8 +12,8 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -86,7 +86,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			}
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("ClickedSlot", storageSlot)
 						.setBoolean("HeldShift", isShiftHeld));
 			}
@@ -101,7 +101,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("QuickTransfer"));
+				this.menu.SendMessage(this.builder().setFlag("QuickTransfer"));
 		}
 	}
 	
@@ -113,7 +113,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			trader.markStorageDirty();
 			
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("CollectMoney"));
+				this.menu.SendMessage(this.builder().setFlag("CollectMoney"));
 		}
 	}
 

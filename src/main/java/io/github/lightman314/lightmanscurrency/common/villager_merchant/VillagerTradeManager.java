@@ -10,35 +10,32 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredItemListing;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
-import net.minecraftforge.common.BasicItemListing;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.event.village.WandererTradesEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.BasicItemListing;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
+import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class VillagerTradeManager {
 
-	public static final ResourceLocation BANKER_ID = new ResourceLocation(LightmansCurrency.MODID, "banker");
-	public static final ResourceLocation CASHIER_ID = new ResourceLocation(LightmansCurrency.MODID, "cashier");
+	public static final ResourceLocation BANKER_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "banker");
+	public static final ResourceLocation CASHIER_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "cashier");
 
 	public static final String WANDERING_TRADER_ID = "minecraft:wandering_trader";
 
@@ -91,7 +88,7 @@ public class VillagerTradeManager {
 						//Sell Bookshelf trader
 						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), LCTags.Items.TRADER_SPECIALTY_BOOKSHELF, 12, 20, 0.05f),
 						//Sell Money Mending book
-						new SimpleTrade(20, ModItems.COIN_DIAMOND.get(), 15, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
+						new EnchantedBookForCoinsTrade(ModItems.COIN_DIAMOND.get(), 1, LCTags.Enchantments.MONEY_MENDING, SimpleTrade.MAX_TRADES, 20, SimpleTrade.PRICE_MULT)
 				),
 				5,
 				ImmutableList.of(
@@ -106,7 +103,7 @@ public class VillagerTradeManager {
 						//Sell trader interface
 						RandomTrade.build(new ItemStack(ModItems.COIN_EMERALD.get(), 5), LCTags.Items.TRADER_INTERFACE, 12, 30, 0.05f),
 						//Sell Money Mending book
-						new SimpleTrade(30, ModItems.COIN_DIAMOND.get(), 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
+						new EnchantedBookForCoinsTrade(ModItems.COIN_DIAMOND.get(), 1, LCTags.Enchantments.MONEY_MENDING, SimpleTrade.MAX_TRADES, 30, SimpleTrade.PRICE_MULT)
 				)
 		));
 
@@ -163,7 +160,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(5),
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON.get(), 2), new ItemStack(Blocks.LANTERN), 12, 5, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 3), StructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 3), StructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecorationTypes.OCEAN_MONUMENT, 12, 5),
 						//Cleric
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON.get(), 2), new ItemStack(Items.LAPIS_LAZULI), 12, 5, 0.05f),
 						//Armorer
@@ -192,7 +189,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(10),
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON.get(), 3), new ItemStack(Blocks.GLASS,4), 12, 10, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 4), StructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 4), StructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecorationTypes.WOODLAND_MANSION, 12, 10),
 						//Cleric
 						new BasicItemListing(new ItemStack(ModItems.COIN_GOLD.get()), new ItemStack(Blocks.GLOWSTONE), 12, 10, 0.05f),
 						//Armorer
@@ -345,7 +342,7 @@ public class VillagerTradeManager {
 		else
 		{
 			
-			ResourceLocation type = ForgeRegistries.VILLAGER_PROFESSIONS.getKey(event.getType());
+			ResourceLocation type = BuiltInRegistries.VILLAGER_PROFESSION.getKey(event.getType());
 
 			assert type != null;
 			if(type.getNamespace().equals("minecraft"))
