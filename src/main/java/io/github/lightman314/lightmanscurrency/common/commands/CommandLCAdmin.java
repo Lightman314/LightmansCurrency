@@ -30,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
-import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -62,7 +61,7 @@ public class CommandLCAdmin {
 	{
 		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 				= Commands.literal("lcadmin")
-				.requires((stack) -> stack.hasPermission(2) || Secret.hasSecretAccess(stack))
+				.requires((stack) -> stack.hasPermission(2))
 				.then(Commands.literal("toggleadmin")
 						.requires(CommandSourceStack::isPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
