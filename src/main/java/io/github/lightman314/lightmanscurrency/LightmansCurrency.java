@@ -177,25 +177,25 @@ public class LightmansCurrency {
 		OwnershipAPI.API.registerPotentialOwnerProvider(TeamOwnerProvider.INSTANCE);
 
 		//Initialize the TraderData deserializers
-		TraderAPI.registerTrader(ItemTraderData.TYPE);
-		TraderAPI.registerTrader(ItemTraderDataArmor.TYPE);
-		TraderAPI.registerTrader(ItemTraderDataTicket.TYPE);
-		TraderAPI.registerTrader(ItemTraderDataBook.TYPE);
-		TraderAPI.registerTrader(SlotMachineTraderData.TYPE);
-		TraderAPI.registerTrader(PaygateTraderData.TYPE);
-		TraderAPI.registerTrader(AuctionHouseTrader.TYPE);
+		TraderAPI.API.RegisterTrader(ItemTraderData.TYPE);
+		TraderAPI.API.RegisterTrader(ItemTraderDataArmor.TYPE);
+		TraderAPI.API.RegisterTrader(ItemTraderDataTicket.TYPE);
+		TraderAPI.API.RegisterTrader(ItemTraderDataBook.TYPE);
+		TraderAPI.API.RegisterTrader(SlotMachineTraderData.TYPE);
+		TraderAPI.API.RegisterTrader(PaygateTraderData.TYPE);
+		TraderAPI.API.RegisterTrader(AuctionHouseTrader.TYPE);
 
 		//Register the custom game rules
 		ModGameRules.registerRules();
 
 		//Initialize the Trade Rule deserializers
-		TraderAPI.registerTradeRule(PlayerListing.TYPE);
-		TraderAPI.registerTradeRule(PlayerTradeLimit.TYPE);
-		TraderAPI.registerTradeRule(PlayerDiscounts.TYPE);
-		TraderAPI.registerTradeRule(TimedSale.TYPE);
-		TraderAPI.registerTradeRule(TradeLimit.TYPE);
-		TraderAPI.registerTradeRule(FreeSample.TYPE);
-		TraderAPI.registerTradeRule(PriceFluctuation.TYPE);
+		TraderAPI.API.RegisterTradeRule(PlayerListing.TYPE);
+		TraderAPI.API.RegisterTradeRule(PlayerTradeLimit.TYPE);
+		TraderAPI.API.RegisterTradeRule(PlayerDiscounts.TYPE);
+		TraderAPI.API.RegisterTradeRule(TimedSale.TYPE);
+		TraderAPI.API.RegisterTradeRule(TradeLimit.TYPE);
+		TraderAPI.API.RegisterTradeRule(FreeSample.TYPE);
+		TraderAPI.API.RegisterTradeRule(PriceFluctuation.TYPE);
 
 		TradeRule.addLoadListener(PlayerListing.LISTENER);
 		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");
@@ -239,8 +239,8 @@ public class LightmansCurrency {
 		NotificationAPI.registerCategory(TaxEntryCategory.TYPE);
 
 		//Register Trader Search Filters
-		TraderAPI.registerSearchFilter(new BasicSearchFilter());
-		TraderAPI.registerSearchFilter(new ItemTraderSearchFilter());
+		TraderAPI.API.RegisterTraderSearchFilter(new BasicSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new ItemTraderSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);

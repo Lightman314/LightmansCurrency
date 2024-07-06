@@ -40,7 +40,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
 			if(blockEntity instanceof CashRegisterBlockEntity register)
-                register.loadDataFromItems(stack.getTag());
+                register.loadDataFromItems(stack);
 		}
 	}
 	

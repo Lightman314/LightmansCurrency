@@ -23,6 +23,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class LCBlockStateProvider extends BlockStateProvider {
@@ -30,6 +31,22 @@ public class LCBlockStateProvider extends BlockStateProvider {
     public LCBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
         super(output, LightmansCurrency.MODID, exFileHelper);
     }
+
+    private static final ResourceLocation UPGRADE_TIER_COPPER = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/copper");
+    private static final ResourceLocation UPGRADE_TIER_IRON = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/iron");
+    private static final ResourceLocation UPGRADE_TIER_GOLD = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/gold");
+    private static final ResourceLocation UPGRADE_TIER_EMERALD = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/emerald");
+    private static final ResourceLocation UPGRADE_TIER_DIAMOND = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/diamond");
+    private static final ResourceLocation UPGRADE_TIER_NETHERITE = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/netherite");
+
+    private static final ResourceLocation UPGRADE_ITEM_CAPACITY = new ResourceLocation(LightmansCurrency.MODID,"item/item_capacity_upgrade");
+    private static final ResourceLocation UPGRADE_NETWORK = new ResourceLocation("item/ender_eye");
+    private static final ResourceLocation UPGRADE_SPEED = new ResourceLocation("item/clock_00");
+    private static final ResourceLocation UPGRADE_HOPPER = new ResourceLocation("item/hopper");
+    private static final ResourceLocation UPGRADE_CC_SECURITY = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_security_upgrade");
+    private static final ResourceLocation UPGRADE_CC_BANK = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_bank_upgrade");
+    private static final ResourceLocation UPGRADE_CC_EXCHANGE = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_exchange_upgrade");
+    private static final ResourceLocation UPGRADE_CC_MAGNET = new ResourceLocation("item/ender_pearl");
 
     @Override
     protected void registerStatesAndModels() {
@@ -304,27 +321,28 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerRotatable(ModBlocks.COINJAR_BLUE, "jars/coinjar_blue", true);
 
         //Upgrades
-        this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_1);
-        this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_2);
-        this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_3);
-        this.registerBasicItem(ModItems.ITEM_CAPACITY_UPGRADE_4);
+        //Upgrades
+        this.registerUpgradeItem(ModItems.ITEM_CAPACITY_UPGRADE_1,UPGRADE_ITEM_CAPACITY,UPGRADE_TIER_IRON);
+        this.registerUpgradeItem(ModItems.ITEM_CAPACITY_UPGRADE_2,UPGRADE_ITEM_CAPACITY,UPGRADE_TIER_GOLD);
+        this.registerUpgradeItem(ModItems.ITEM_CAPACITY_UPGRADE_3,UPGRADE_ITEM_CAPACITY,UPGRADE_TIER_DIAMOND);
+        this.registerUpgradeItem(ModItems.ITEM_CAPACITY_UPGRADE_4,UPGRADE_ITEM_CAPACITY,UPGRADE_TIER_NETHERITE);
 
-        this.registerBasicItem(ModItems.SPEED_UPGRADE_1);
-        this.registerBasicItem(ModItems.SPEED_UPGRADE_2);
-        this.registerBasicItem(ModItems.SPEED_UPGRADE_3);
-        this.registerBasicItem(ModItems.SPEED_UPGRADE_4);
-        this.registerBasicItem(ModItems.SPEED_UPGRADE_5);
+        this.registerUpgradeItem(ModItems.SPEED_UPGRADE_1,UPGRADE_SPEED,UPGRADE_TIER_IRON);
+        this.registerUpgradeItem(ModItems.SPEED_UPGRADE_2,UPGRADE_SPEED,UPGRADE_TIER_GOLD);
+        this.registerUpgradeItem(ModItems.SPEED_UPGRADE_3,UPGRADE_SPEED,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.SPEED_UPGRADE_4,UPGRADE_SPEED,UPGRADE_TIER_DIAMOND);
+        this.registerUpgradeItem(ModItems.SPEED_UPGRADE_5,UPGRADE_SPEED,UPGRADE_TIER_NETHERITE);
 
-        this.registerBasicItem(ModItems.NETWORK_UPGRADE);
+        this.registerUpgradeItem(ModItems.NETWORK_UPGRADE,UPGRADE_NETWORK,UPGRADE_TIER_GOLD);
 
-        this.registerBasicItem(ModItems.HOPPER_UPGRADE);
+        this.registerUpgradeItem(ModItems.HOPPER_UPGRADE,UPGRADE_HOPPER,UPGRADE_TIER_GOLD);
 
-        this.registerBasicItem(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
-        this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
-        this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
-        this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
-        this.registerBasicItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
-        this.registerBasicItem(ModItems.COIN_CHEST_SECURITY_UPGRADE);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_EXCHANGE_UPGRADE,UPGRADE_CC_EXCHANGE,UPGRADE_TIER_IRON);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_1,UPGRADE_CC_MAGNET,UPGRADE_TIER_COPPER);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_2,UPGRADE_CC_MAGNET,UPGRADE_TIER_IRON);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_3,UPGRADE_CC_MAGNET,UPGRADE_TIER_GOLD);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_4,UPGRADE_CC_MAGNET,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_SECURITY_UPGRADE,UPGRADE_CC_SECURITY,UPGRADE_TIER_DIAMOND);
 
         //1.20 ONLY
         this.registerBasicItem(ModItems.UPGRADE_SMITHING_TEMPLATE);
@@ -344,6 +362,15 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private void registerLayeredItem(RegistryObject<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.get().asItem()));
         this.itemModels().basicItem(itemID).texture("layer1", new ResourceLocation(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
+    }
+
+    private void registerUpgradeItem(@Nonnull RegistryObject<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
+    {
+        ResourceLocation itemID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.get().asItem()));
+        this.itemModels().getBuilder(itemID.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0",base)
+                .texture("layer1",tier);
     }
 
     private void registerBlockItemModel(RegistryObject<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }

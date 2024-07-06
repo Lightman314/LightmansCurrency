@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -50,8 +49,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -261,9 +258,7 @@ public class ClientProxy extends CommonProxy{
 		if(CoinAPI.API.IsCoin(stack, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 		//If item has money mending, display money mending tooltip
-		Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(event.getItemStack());
-		if(enchantments.getOrDefault(ModEnchantments.MONEY_MENDING.get(),0) > 0)
-			event.getToolTip().add(LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText()).withStyle(ChatFormatting.YELLOW));
+		MoneyMendingEnchantment.addEnchantmentTooltip(stack,event.getToolTip());
 
 		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && stack.getItem() instanceof BlockItem bi)
 		{

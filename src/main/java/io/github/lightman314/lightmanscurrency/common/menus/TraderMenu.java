@@ -256,7 +256,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	public static class TraderMenuAllNetwork extends TraderMenu
 	{
 		public TraderMenuAllNetwork(int windowID, Inventory inventory, MenuValidator validator) {
-			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level().isClientSide), validator);
+			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.NetworkTraderSource(inventory.player.level().isClientSide), validator);
 		}
 	}
 	

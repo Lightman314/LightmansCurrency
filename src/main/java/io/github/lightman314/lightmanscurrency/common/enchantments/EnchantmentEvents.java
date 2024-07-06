@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.enchantments;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.enchantments.EnchantmentUtil;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,7 +20,7 @@ public final class EnchantmentEvents {
 		{
 			ticker++;
 			//Confirm we have time, and that the tick count matches the tick delay
-			if(ticker >= LCConfig.SERVER.enchantmentMaxTickDelay.get() || (event.haveTime() && ticker >= LCConfig.SERVER.enchantmentTickDelay.get()))
+			if(ticker >= LCConfig.SERVER.enchantmentTickDelay.get())
 			{
 				ticker = 0;
 				//Since we're only running the tick on players now, we might as well do it from the server tick where we can confirm

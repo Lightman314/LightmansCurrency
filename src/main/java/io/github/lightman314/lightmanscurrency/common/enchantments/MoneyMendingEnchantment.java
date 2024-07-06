@@ -1,15 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -94,6 +98,13 @@ public class MoneyMendingEnchantment extends Enchantment {
 				item.setDamageValue(currentDamage - repairAmount);
 			}
 		}
+	}
+
+	public static void addEnchantmentTooltip(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip)
+	{
+		Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+		if(enchantments.getOrDefault(ModEnchantments.MONEY_MENDING.get(),0) > 0)
+			tooltip.add(LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)));
 	}
 	
 }

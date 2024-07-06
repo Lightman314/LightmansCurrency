@@ -490,6 +490,7 @@ public class LCText {
     //Trader Menu
     public static final TextEntry GUI_TRADER_TITLE = TextEntry.gui(MODID,"trader.title");
     public static final TextEntry GUI_TRADER_DEFAULT_NAME = TextEntry.gui(MODID,"trader.default_name");
+    public static final TextEntry GUI_TRADER_ALL_NETWORK_TRADERS = TextEntry.gui(MODID,"trader.all_network");
     public static final TextEntry TOOLTIP_TRADER_OPEN_STORAGE = TextEntry.tooltip(MODID,"trader.open_storage");
     public static final TextEntry TOOLTIP_TRADER_COLLECT_COINS = TextEntry.tooltip(MODID,"trader.collect_coins");
     public static final TextEntry TOOLTIP_TRADER_NETWORK_BACK = TextEntry.tooltip(MODID,"trader.network.back");
