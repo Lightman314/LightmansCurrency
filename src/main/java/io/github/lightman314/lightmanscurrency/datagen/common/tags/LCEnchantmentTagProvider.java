@@ -26,14 +26,16 @@ public class LCEnchantmentTagProvider extends EnchantmentTagsProvider {
                 .addOptional(ModEnchantments.MONEY_MENDING.location())
                 //Chocolate money mending as an optional entry, just in case it gets removed or have a config file made for it later.
                 .addOptional(ModEnchantments.MONEY_MENDING_CHOCOLATE.location());
+        this.tag(LCTags.Enchantments.WALLET_ENCHANTMENT)
+                .addOptional(ModEnchantments.COIN_MAGNET.location());
 
         //Vanilla Tags
         this.tag(EnchantmentTags.TREASURE)
-                .addOptional(ModEnchantments.MONEY_MENDING.location());
+                .addTag(LCTags.Enchantments.MONEY_MENDING);
         this.tag(EnchantmentTags.NON_TREASURE)
                 .addOptional(ModEnchantments.COIN_MAGNET.location());
         this.tag(EnchantmentTags.ON_RANDOM_LOOT)
-                .addOptional(ModEnchantments.MONEY_MENDING.location());
+                .addTag(LCTags.Enchantments.MONEY_MENDING);
 
         //Make Mending Enchantments Exclusive
         this.tag(LCTags.Enchantments.EXCUSIVE_SET_MENDING)

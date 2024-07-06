@@ -91,6 +91,7 @@ public class LCTags {
     public static class Enchantments {
 
         public static final TagKey<Enchantment> EXCUSIVE_SET_MENDING = common("exclusive_set/mending");
+        public static final TagKey<Enchantment> WALLET_ENCHANTMENT = tag("wallet_enchantment");
         public static final TagKey<Enchantment> MONEY_MENDING = tag("money_mending");
 
         private static TagKey<Enchantment> common(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath("c",id)); }
