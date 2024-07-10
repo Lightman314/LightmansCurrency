@@ -18,14 +18,18 @@ import java.util.function.Supplier;
 
 public abstract class Owner implements IClientTracker {
 
-    public static final Owner NULL = new NullOwner();
-    public static final OwnerType NULL_TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null"), (t,l) -> NULL);
+    public static Owner getNull() { return new NullOwner(); }
+    public static Owner getNull(@Nonnull IClientTracker parent) {
+        Owner owner = getNull();
+        owner.setParent(parent);
+        return owner;
+    }
+    public static final OwnerType NULL_TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null"), (t,l) -> getNull());
 
-    private boolean isClient = false;
+    private IClientTracker parent = null;
     @Override
-    public final boolean isClient() { return this.isClient; }
-    public final Owner flagAsClient() { this.isClient = true; return this; }
-    public final void flagAsClient(boolean isClient) { this.isClient = isClient; }
+    public final boolean isClient() { return this.parent == null || this.parent.isClient(); }
+    public final void setParent(@Nonnull IClientTracker parent) { this.parent = parent; }
 
 
     @Nonnull
@@ -106,6 +110,9 @@ public abstract class Owner implements IClientTracker {
         return null;
     }
 
+    @Nonnull
+    public abstract Owner copy();
+
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Owner o)
@@ -143,6 +150,9 @@ public abstract class Owner implements IClientTracker {
         public OwnerType getType() { return NULL_TYPE; }
         @Override
         protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { }
+        @Nonnull
+        @Override
+        public Owner copy() { return getNull(); }
         @Override
         public boolean matches(@Nonnull Owner other) { return other.isNull(); }
     }

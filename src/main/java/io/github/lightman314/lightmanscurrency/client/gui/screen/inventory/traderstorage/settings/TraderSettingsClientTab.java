@@ -84,9 +84,12 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
         for(int i = 0; i < this.tabs.size(); ++i)
         {
             final int tabIndex = i;
-            this.tabButtons.add(this.addChild(new TabButton(b -> this.openTab(tabIndex), this.tabs.get(tabIndex))
-                    .withAddons(EasyAddonHelper.visibleCheck(() -> this.tabs.get(tabIndex).canOpen()),
-                            EasyAddonHelper.activeCheck(() -> this.selectedTab != tabIndex))));
+            SettingsSubTab tab = this.tabs.get(i);
+            TabButton newButton = this.addChild(new TabButton(b -> this.openTab(tabIndex), tab)
+                    .withAddons(EasyAddonHelper.visibleCheck(tab::canOpen),
+                            EasyAddonHelper.activeCheck(() -> this.selectedTab != tabIndex)));
+            newButton.visible = tab.canOpen();
+            this.tabButtons.add(newButton);
         }
 
     }

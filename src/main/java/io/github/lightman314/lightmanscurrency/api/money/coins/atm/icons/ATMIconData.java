@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.api.distmarker.Dist;
@@ -29,19 +30,19 @@ public abstract class ATMIconData {
 	}
 
 	@Nonnull
-	public final JsonObject save() {
+	public final JsonObject save(@Nonnull HolderLookup.Provider lookup) {
 		JsonObject data = new JsonObject();
 		data.addProperty("type", this.getType().toString());
 		data.addProperty("x", this.xPos);
 		data.addProperty("y", this.yPos);
-		this.saveAdditional(data);
+		this.saveAdditional(data,lookup);
 		return data;
 	}
 
 	@Nonnull
 	protected abstract ResourceLocation getType();
 	
-	protected abstract void saveAdditional(@Nonnull JsonObject data);
+	protected abstract void saveAdditional(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup);
 	
 	@OnlyIn(Dist.CLIENT)
 	public abstract void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered);

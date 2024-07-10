@@ -193,7 +193,7 @@ public abstract class InputTraderData extends TraderData {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { tabs.add(new InputTab(tab)); }
+	public void addSettingsTabs(@Nonnull TraderSettingsClientTab tab, @Nonnull List<SettingsSubTab> tabs) { tabs.add(new InputTab(tab)); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

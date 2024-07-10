@@ -26,7 +26,7 @@ public final class SecurityUpgradeData {
 
     public OwnerData parseData(@Nonnull CoinChestBlockEntity be)
     {
-        OwnerData data = new OwnerData(be,o -> {});
+        OwnerData data = new OwnerData(be);
         if(this.ownerTag.contains("Data"))
             data.load(this.ownerTag.getCompound("Data"),be.registryAccess());
         return data;

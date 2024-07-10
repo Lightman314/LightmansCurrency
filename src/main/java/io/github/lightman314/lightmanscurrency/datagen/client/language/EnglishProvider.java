@@ -326,6 +326,7 @@ public class EnglishProvider extends TranslationProvider {
         //Network Terminal Menu
         this.translate(LCText.GUI_NETWORK_TERMINAL_TITLE,"Trading Terminal");
         this.translate(LCText.GUI_NETWORK_TERMINAL_SEARCH,"Search Traders");
+        this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL,"Open All Network Traders");
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT,"%s trade(s)");
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT,"%s trade(s) out of stock");
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_AUCTION_HOUSE,"%s auction(s) available");
@@ -489,6 +490,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_TITLE,"%1$s (%2$s)");
         this.translate(LCText.GUI_TRADER_DEFAULT_NAME, "Trader");
         this.translate(LCText.GUI_TRADER_ALL_NETWORK_TRADERS, "All Network Traders");
+        this.translate(LCText.GUI_TRADER_SEARCH_TRADES,"Search Trades");
         this.translate(LCText.TOOLTIP_TRADER_OPEN_STORAGE,"Open Trader Storage");
         this.translate(LCText.TOOLTIP_TRADER_COLLECT_COINS,"Collect Stored Money:");
         this.translate(LCText.TOOLTIP_TRADER_NETWORK_BACK,"Back to Network Terminal");
@@ -505,12 +507,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_DISABLE,"Disable Creative Trader");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE,"Add Additional Trade");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE,"Remove Trade");
+        this.translate(LCText.GUI_TRADER_SETTINGS_CUSTOM_ICON,"Custom Terminal Icon");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_PERSISTENT,"Build Persistent Copy");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_ALLY, "Allies");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_ALLY_PERMS, "Ally Permissions");
-        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_NOTIFICATIONS,"Trader Notifications");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_MISC,"Misc Settings");
         this.translate(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED,"Notifications Enabled");
         this.translate(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT,"Notify in Chat");
         this.translate(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET,"Send To: %s");
+        this.translate(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX,"Enable Search Box");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_TAXES,"Tax Options");
         this.translate(LCText.GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE,"Acceptable Tax Rate: %s%%");
         this.translate(LCText.GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES,"Ignore All Taxes");
@@ -561,6 +566,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_TRADER_AUCTION_CANCEL_STORAGE,"Send Items to Storage");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE,"Will cancel the auction. The latest bid will be refunded, and your items will be sent to your storage");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CREATE,"Setup an auction");
+        this.translate(LCText.GUI_TRADER_AUCTION_OVERTIME,"Allow Overtime");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME,"Overtime Mode:","If enabled, any bids made within the last 5 minutes","of the auctions timer will reset the remaining","time to bid back to 5m.","Enable if you wish to avoid last second bid-snatching");
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID,"Start Bid");
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE,"Bid Size");
         this.translate(LCText.BUTTON_TRADER_AUCTION_CREATE,"Create Auction");

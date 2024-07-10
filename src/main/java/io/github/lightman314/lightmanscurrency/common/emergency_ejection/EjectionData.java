@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 
 public class EjectionData implements Container, IClientTracker {
 
-	private final OwnerData owner = new OwnerData(this, o -> {});
+	private final OwnerData owner = new OwnerData(this);
 	MutableComponent traderName = Component.empty();
 	public MutableComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();

@@ -9,37 +9,41 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 
-public class PersistentAuctionData {
+import javax.annotation.Nonnull;
+
+public final class PersistentAuctionData {
 	
 	public final String id;
 	public final long duration;
 	private final List<ItemStack> items;
-	public final List<ItemStack> getAuctionItems() {
-		List<ItemStack> copy = new ArrayList<>();
-		for(ItemStack stack : this.items)
-			copy.add(stack.copy());
-		return copy;
-	}
+	@Nonnull
+	public List<ItemStack> getAuctionItems() { return InventoryUtil.copyList(this.items); }
 	private final MoneyValue startBid;
-	public final MoneyValue getStartingBid() { return this.startBid; }
+	public MoneyValue getStartingBid() { return this.startBid; }
 	private final MoneyValue minBid;
-	public final MoneyValue getMinimumBidDifference() { return this.minBid; }
+	public MoneyValue getMinimumBidDifference() { return this.minBid; }
+	private final boolean overtime;
+	public boolean overtimeAllowed() { return this.overtime; }
 	
-	private PersistentAuctionData(String id, long duration, List<ItemStack> items, MoneyValue startBid, MoneyValue minBid) {
+	private PersistentAuctionData(String id, long duration, List<ItemStack> items, MoneyValue startBid, MoneyValue minBid, boolean overtime) {
 		this.id = id;
 		this.duration = duration;
 		this.items = items;
 		this.startBid = startBid;
 		this.minBid = minBid;
+		this.overtime = overtime;
 	}
 	
 	public AuctionTradeData createAuction() { return new AuctionTradeData(this); }
-	
-	public static PersistentAuctionData load(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+
+	@Nonnull
+	public static PersistentAuctionData load(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
 		String id;
 		if(json.has("id"))
@@ -49,9 +53,9 @@ public class PersistentAuctionData {
 		
 		List<ItemStack> items = new ArrayList<>();
 		if(json.has("Item1"))
-			items.add(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Item1")));
+			items.add(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Item1"),lookup));
 		if(json.has("Item2"))
-			items.add(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Item2")));
+			items.add(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Item2"),lookup));
 		
 		if(items.isEmpty())
 			throw new JsonSyntaxException("Auction has no 'Item1' or 'Item2' entry!");
@@ -68,8 +72,10 @@ public class PersistentAuctionData {
 
 		if(!startingBid.getUniqueName().equals(minimumBid.getUniqueName()))
 			throw new JsonSyntaxException("StartingBid and MinimumBid are not compatible money values!");
+
+		boolean overtime = GsonHelper.getAsBoolean(json,"Overtime",false);
 		
-		return new PersistentAuctionData(id, duration, items, startingBid, minimumBid);
+		return new PersistentAuctionData(id, duration, items, startingBid, minimumBid,overtime);
 	}
 	
 }

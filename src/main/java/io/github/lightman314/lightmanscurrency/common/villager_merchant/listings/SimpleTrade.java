@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemList
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -107,21 +108,22 @@ public class SimpleTrade extends ItemsForXTradeTemplate
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade) {
+        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull VillagerTrades.ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
             if(trade instanceof SimpleTrade t)
             {
-                t.serializeData(json);
-                json.add("Sell", FileUtil.convertItemStack(t.forSale));
+                t.serializeData(json,lookup);
+                json.add("Sell", FileUtil.convertItemStack(t.forSale,lookup));
 
                 return json;
             }
             return null;
         }
+        @Nonnull
         @Override
-        public VillagerTrades.ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+        public VillagerTrades.ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
-            DeserializedData data = deserializeData(json);
-            ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"));
+            DeserializedData data = deserializeData(json,lookup);
+            ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"),lookup);
 
             return new SimpleTrade(data, forSale);
         }

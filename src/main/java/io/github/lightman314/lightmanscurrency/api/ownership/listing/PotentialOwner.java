@@ -18,7 +18,7 @@ public abstract class PotentialOwner implements IClientTracker {
     @Override
     public final boolean isClient() { return this.isClient; }
 
-    public final void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); }
+    public final void flagAsClient() { this.isClient = true; }
     private int priority;
     private boolean currentOwner;
     protected final void setPriority(int priority) { this.priority = priority; }
@@ -29,7 +29,7 @@ public abstract class PotentialOwner implements IClientTracker {
     public final void setAsCurrentOwner(boolean isCurrentOwner) { this.currentOwner = isCurrentOwner; }
 
     protected PotentialOwner(@Nonnull Owner owner) { this(owner,0); }
-    protected PotentialOwner(@Nonnull Owner owner, int priority) { this.owner = owner; this.priority = priority; }
+    protected PotentialOwner(@Nonnull Owner owner, int priority) { this.owner = owner; this.owner.setParent(this); this.priority = priority; }
 
     @Nonnull
     public final Owner asOwner() { return this.owner; }

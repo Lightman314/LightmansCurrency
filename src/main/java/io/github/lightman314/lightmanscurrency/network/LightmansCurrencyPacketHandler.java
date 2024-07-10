@@ -130,6 +130,7 @@ public class LightmansCurrencyPacketHandler {
 		//Coin Data
 		registerConfigS2C(SPacketSyncCoinData.HANDLER);
 		registerS2C(SPacketSyncCoinData.HANDLER);
+		registerC2S(CPacketAcknowledgeCoinData.HANDLER);
 		
 		//Persistent Data
 		registerC2S(CPacketCreatePersistentTrader.HANDLER);

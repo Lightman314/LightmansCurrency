@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 
 public class EasyBlockEntity extends BlockEntity implements IClientTracker {
 
+    @Nonnull
     public final RegistryAccess registryAccess() { return this.level.registryAccess(); }
 
     public EasyBlockEntity(@Nonnull BlockEntityType<?> type, @Nonnull BlockPos pos, @Nonnull BlockState state) { super(type, pos, state); }

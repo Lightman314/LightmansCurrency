@@ -3,7 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
@@ -64,12 +66,13 @@ public class CustomVillagerTradeData {
     @Nonnull
     public static Map<Integer,List<ItemListing>> getVillagerData(@Nonnull ResourceLocation villager) {
         File file = getVillagerDataFile(villager);
+        HolderLookup.Provider lookup = LookupHelper.getRegistryAccess(false);
         if(file.exists())
         {
             try{
                 String text = Files.readString(file.toPath());
                 JsonObject json = GsonHelper.parse(text);
-                return ItemListingSerializer.deserialize(json);
+                return ItemListingSerializer.deserialize(json,lookup);
             } catch(Throwable t) { LightmansCurrency.LogError("Error loading villager data file '" + file.getName() + "'!", t); }
         }
         else
@@ -79,7 +82,7 @@ public class CustomVillagerTradeData {
                 File dir = file.getParentFile();
                 dir.mkdirs();
                 Map<Integer,List<ItemListing>> defaultValues = getDefaultVillagerData(villager);
-                FileUtil.writeStringToFile(file, FileUtil.GSON.toJson(ItemListingSerializer.serialize(defaultValues, villager.equals(WANDERING_TRADER_ID) ? 2 : 5)));
+                FileUtil.writeStringToFile(file, FileUtil.GSON.toJson(ItemListingSerializer.serialize(defaultValues, villager.equals(WANDERING_TRADER_ID) ? 2 : 5,lookup)));
             } catch(Throwable t) { LightmansCurrency.LogError("Error creating default villager data file '" + file.getName() + "'!", t); }
         }
 

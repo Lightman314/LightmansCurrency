@@ -141,7 +141,7 @@ public class TaxEntry implements ITaxCollector {
     public void setName(String name) { this.name = name; this.markNameDirty(); }
     protected MutableComponent getDefaultName() { return LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME.get(this.isServerEntry() ? LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER.get() : this.owner.getName()); }
 
-    private final OwnerData owner = new OwnerData(this, o -> this.markOwnerDirty());
+    private final OwnerData owner = new OwnerData(this, this::markOwnerDirty);
     @Override
     @Nonnull
     public OwnerData getOwner() { return this.owner; }

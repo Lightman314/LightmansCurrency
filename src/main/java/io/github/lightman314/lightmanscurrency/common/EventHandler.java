@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -29,7 +30,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.AbstractHugeMushroomFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -374,33 +376,31 @@ public class EventHandler {
 	public static void treeGrowEvent(BlockGrowFeatureEvent event)
 	{
 		//Check for LC blocks within the potential spawning range of a huge mushroom
-		if(event.getFeature().value().feature() instanceof AbstractHugeMushroomFeature)
-		{
-			LevelAccessor level = event.getLevel();
-			BlockPos center = event.getPos();
-			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-			final int radius = 3;
-			//Max mushroom height is 6 * 2 or 12 blocks tall
-			final int height = 13;
-			for(int y = 0; y <= height; ++y)
-			{
-				for(int x = -radius;x <= radius; ++x)
-				{
-					for(int z = -radius; z <= radius; ++z)
-					{
-						pos.setWithOffset(center,x,y,z);
-						BlockState state = level.getBlockState(pos);
-						//Don't allow mushrooms to grow with any LC blocks within the area
-						if(BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace().equals(LightmansCurrency.MODID))
-						{
-							LightmansCurrency.LogDebug("LC block detected at " + pos.toShortString() + " which is within the potential growth area of a Huge Mushroom attempting to grow at " + center.toShortString() + ". Mushroom growth will be cancelled.");
-							event.setCanceled(true);
-							return;
+		try {
+			Holder<ConfiguredFeature<?,?>> holder = event.getFeature();
+			if(holder != null && holder.value().feature() instanceof AbstractHugeMushroomFeature feature) {
+				LevelAccessor level = event.getLevel();
+				BlockPos center = event.getPos();
+				BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+				final int radius = 3;
+				//Max mushroom height is 6 * 2 or 12 blocks tall
+				final int height = 13;
+				for (int y = 0; y <= height; ++y) {
+					for (int x = -radius; x <= radius; ++x) {
+						for (int z = -radius; z <= radius; ++z) {
+							pos.setWithOffset(center, x, y, z);
+							BlockState state = level.getBlockState(pos);
+							//Don't allow mushrooms to grow with any LC blocks within the area
+							if (BlockProtectionHelper.ShouldProtect(state, level.getBlockEntity(pos))) {
+								LightmansCurrency.LogInfo("Protected block detected at " + pos.toShortString() + " which is within the potential growth area of a " + feature.getClass().getName() + " attempting to grow at " + center.toShortString() + "\nGrowth will be cancelled!");
+								event.setCanceled(true);
+								return;
+							}
 						}
 					}
 				}
 			}
-		}
+		}catch (Throwable ignored) {}
 	}
 	
 }

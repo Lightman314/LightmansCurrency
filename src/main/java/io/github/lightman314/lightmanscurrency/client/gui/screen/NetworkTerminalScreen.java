@@ -10,11 +10,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -69,7 +73,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 			availableWidth -= NetworkTraderButton.WIDTH;
 			this.columns++;
 		}
-		int availableHeight = this.minecraft.getWindow().getGuiScaledHeight() - NetworkTraderButton.HEIGHT - 37;
+		int availableHeight = this.minecraft.getWindow().getGuiScaledHeight() - NetworkTraderButton.HEIGHT - 45;
 		this.rows = 1;
 		int rowLimit = LCConfig.CLIENT.terminalRowLimit.get();
 		while(availableHeight >= NetworkTraderButton.HEIGHT && this.rows < rowLimit)
@@ -87,13 +91,16 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 		screenArea = this.calculateSize();
 
-		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
+		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 10, 101, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		this.searchField.setValue(lastSearch);
 		this.searchField.setResponder(this::onSearchChanged);
-		
+
+		this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 24, 4), this::OpenAllTraders, IconData.of(ModBlocks.ITEM_NETWORK_TRADER_4))
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL)));
+
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns), 17), (NetworkTraderButton.HEIGHT * this.rows) + 2, this));
 		
 		this.initTraderButtons(screenArea);
@@ -111,7 +118,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		{
 			for(int x = 0; x < this.columns; ++x)
 			{
-				NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(screenArea.pos.offset(15 + (x * NetworkTraderButton.WIDTH), 18 + (y * NetworkTraderButton.HEIGHT)), this::OpenTrader));
+				NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(screenArea.pos.offset(15 + (x * NetworkTraderButton.WIDTH), 26 + (y * NetworkTraderButton.HEIGHT)), this::OpenTrader));
 				this.traderButtons.add(newButton);
 			}
 		}
@@ -124,9 +131,9 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		//Render the background
 		gui.blitBackgroundOfSize(GUI_TEXTURE, 0, 0, this.imageWidth, this.imageHeight, 0, 0, 100, 100, 25);
 		//Render the search bar
-		gui.blit(GUI_TEXTURE, 14, 3, 100, 0,118, 14);
+		gui.blit(GUI_TEXTURE, 14, 7, 100, 0,118, 14);
 		//Render the button background
-		gui.blitBackgroundOfSize(GUI_TEXTURE, 14, 17, this.imageWidth - 28, this.imageHeight - 34, 0, 100, 100, 100, 25);
+		gui.blitBackgroundOfSize(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 42, 0, 100, 100, 100, 25);
 		
 	}
 
@@ -208,6 +215,6 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.columns * this.rows, this.columns, this.filteredTraderList.size()); }
 
-	private void OpenAllTraders() { new CPacketOpenTrades(-1).send(); }
+	private void OpenAllTraders(EasyButton button) { new CPacketOpenTrades(-1).send(); }
 
 }

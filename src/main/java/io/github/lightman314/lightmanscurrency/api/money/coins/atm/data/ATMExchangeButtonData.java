@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon.ArrowType;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.ItemLike;
 
@@ -32,9 +33,9 @@ public class ATMExchangeButtonData {
 	private final List<ATMIconData> icons;
 	public ImmutableList<ATMIconData> getIcons() { return ImmutableList.copyOf(this.icons); }
 	
-	public static ATMExchangeButtonData parse(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data); }
+	public static ATMExchangeButtonData parse(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data,lookup); }
 	
-	private ATMExchangeButtonData(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException {
+	private ATMExchangeButtonData(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		this.position = ScreenPosition.of(GsonHelper.getAsInt(data, "x"), GsonHelper.getAsInt(data,"y"));
 		this.width = GsonHelper.getAsInt(data,"width");
 		this.command = ATMAPI.UpdateCommand(GsonHelper.getAsString(data,"command"));
@@ -47,7 +48,7 @@ public class ATMExchangeButtonData {
 			{
 				try {
 					JsonObject iconData = iconListData.get(i).getAsJsonObject();
-					this.icons.add(ATMAPI.parseIcon(iconData));
+					this.icons.add(ATMAPI.parseIcon(iconData,lookup));
 				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing ATM Icon #" + (i + 1) + ".", e);}
 			}
 		}
@@ -65,7 +66,7 @@ public class ATMExchangeButtonData {
 	}
 
 	@Nonnull
-	public JsonObject save() {
+	public JsonObject save(@Nonnull HolderLookup.Provider lookup) {
 		JsonObject data = new JsonObject();
 		
 		data.addProperty("x", this.position.x);
@@ -75,7 +76,7 @@ public class ATMExchangeButtonData {
 		
 		JsonArray iconListData = new JsonArray();
 		for (ATMIconData icon : this.icons)
-			iconListData.add(icon.save());
+			iconListData.add(icon.save(lookup));
 		data.add("icons", iconListData);
 		
 		return data;

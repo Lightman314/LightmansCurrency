@@ -27,7 +27,7 @@ public interface IDumpable {
 	{
 		private final ImmutableList<ItemStack> contents;
 		private final Component name;
-		private final OwnerData owner = new OwnerData(() -> true, (o) -> {});
+		private final OwnerData owner = new OwnerData(() -> true);
 
 		protected LazyDumpable(List<ItemStack> contents, Component name, OwnerData owner) { this.contents = ImmutableList.copyOf(contents); this.name = name; this.owner.copyFrom(owner); }
 

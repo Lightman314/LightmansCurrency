@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemList
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,12 @@ public class RandomTrade extends ItemsForXTradeTemplate
     public RandomTrade(ItemStack price1, ItemStack price2, List<ItemStack> sellItemOptions, TagKey<Item> itemTag, int maxTrades, int xpValue, float priceMult)
     {
         super(price1,price2,maxTrades,xpValue,priceMult);
+        this.sellItemOptions = sellItemOptions;
+        this.sellItemTag = itemTag;
+    }
+    private RandomTrade(DeserializedData data, @Nullable List<ItemStack> sellItemOptions, @Nullable TagKey<Item> itemTag)
+    {
+        super(data);
         this.sellItemOptions = sellItemOptions;
         this.sellItemTag = itemTag;
     }
@@ -92,15 +100,15 @@ public class RandomTrade extends ItemsForXTradeTemplate
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
+        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
             if(trade instanceof RandomTrade t)
             {
-                t.serializeData(json);
+                t.serializeData(json,lookup);
                 if(t.sellItemOptions != null)
                 {
                     JsonArray sellItems = new JsonArray();
                     for(ItemStack item : t.sellItemOptions)
-                        sellItems.add(FileUtil.convertItemStack(item));
+                        sellItems.add(FileUtil.convertItemStack(item,lookup));
                     json.add("Sell", sellItems);
                 }
                 else if(t.sellItemTag != null)
@@ -110,27 +118,24 @@ public class RandomTrade extends ItemsForXTradeTemplate
             return null;
         }
 
+        @Nonnull
         @Override
-        public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            ItemStack price1 = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Price"));
-            ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json, "Price2")) : ItemStack.EMPTY;
+        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+            var data = deserializeData(json,lookup);
             List<ItemStack> sellItems = null;
             if(json.has("Sell"))
             {
                 sellItems = new ArrayList<>();
                 JsonArray sellItemsArray = GsonHelper.getAsJsonArray(json, "Sell");
                 for(int i = 0; i < sellItemsArray.size(); ++i)
-                    sellItems.add(FileUtil.parseItemStack(sellItemsArray.get(i).getAsJsonObject()));
+                    sellItems.add(FileUtil.parseItemStack(sellItemsArray.get(i).getAsJsonObject(),lookup));
             }
             TagKey<Item> sellTag = null;
             if(json.has("SellTag"))
                 sellTag = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(GsonHelper.getAsString(json, "SellTag")));
             if(sellTag == null && sellItems == null)
                 throw new JsonSyntaxException("Missing 'Sell' or 'SellTag' key");
-            int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
-            int xp = GsonHelper.getAsInt(json,"XP");
-            float priceMult = GsonHelper.getAsFloat(json,"PriceMult");
-            return new RandomTrade(price1, price2, sellItems, sellTag, maxTrades, xp, priceMult);
+            return new RandomTrade(data, sellItems, sellTag);
         }
     }
 

@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataE
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
@@ -22,10 +21,12 @@ import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -91,7 +92,7 @@ public final class CoinAPIImpl extends CoinAPI {
             if(fileData.has("CoinEntries") && !fileData.has("Chains"))
                 loadDeprecatedData(GsonHelper.getAsJsonArray(fileData, "CoinEntries"));
             else
-                loadMoneyDataFromJson(fileData);
+                loadMoneyDataFromJson(fileData, LookupHelper.getRegistryAccess(false));
         } catch (JsonParseException | ResourceLocationException | IOException e) {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
@@ -102,7 +103,7 @@ public final class CoinAPIImpl extends CoinAPI {
     public static void LoadEditedData(@Nonnull String customJson) {
         try {
             JsonObject json = GsonHelper.parse(customJson);
-            INSTANCE.loadMoneyDataFromJson(json);
+            INSTANCE.loadMoneyDataFromJson(json,LookupHelper.getRegistryAccess(false));
             INSTANCE.createMoneyDataFile(new File(MONEY_FILE_LOCATION),INSTANCE.loadedChains,false);
         } catch (JsonParseException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing custom json data!",e); }
     }
@@ -203,10 +204,6 @@ public final class CoinAPIImpl extends CoinAPI {
             if(!dataList.isEmpty())
                 LightmansCurrency.LogWarning("Old MasterCoinList data could not be fully converted, likely due to multiple chain splits in a 'hidden' side-chain.");
 
-            //Load old ATMData for the Main Chain
-            if(chain.equals(CoinAPI.MAIN_CHAIN))
-                ATMData.parseDeprecated(builder);
-
             tempMap.put(chain, builder.build());
         });
         if(tempMap.isEmpty())
@@ -232,7 +229,7 @@ public final class CoinAPIImpl extends CoinAPI {
         return null;
     }
 
-    private void loadMoneyDataFromJson(@Nonnull JsonObject root) throws JsonSyntaxException, ResourceLocationException
+    private void loadMoneyDataFromJson(@Nonnull JsonObject root, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
         List<CoinEntry> allEntries = new ArrayList<>();
         Map<String, ChainData> tempMap = new HashMap<>();
@@ -243,7 +240,7 @@ public final class CoinAPIImpl extends CoinAPI {
             try {
                 JsonObject entry = GsonHelper.convertToJsonObject(chainList.get(i), "Chains[" + i + "]");
                 chainName = GsonHelper.getAsString(entry, "chain", null);
-                ChainData chain = ChainData.fromJson(allEntries, entry);
+                ChainData chain = ChainData.fromJson(allEntries, entry, lookup);
                 if(tempMap.containsKey(chain.chain))
                     throw new JsonSyntaxException("Multple '" + chain.chain  + "' chains detected. Duplicate will be ignored!");
                 tempMap.put(chain.chain, chain);
@@ -333,7 +330,7 @@ public final class CoinAPIImpl extends CoinAPI {
         {
             if(hideEventChains && chain.isEvent)
                 continue;
-            chainArray.add(chain.getAsJson());
+            chainArray.add(chain.getAsJson(LookupHelper.getRegistryAccess(false)));
         }
 
         fileJson.add("Chains", chainArray);
@@ -544,7 +541,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson()); }
+    public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson(),LookupHelper.getRegistryAccess(true)); }
 
     private static class CoinSorter implements Comparator<ItemStack>
     {

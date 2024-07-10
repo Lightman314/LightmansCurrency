@@ -132,6 +132,11 @@ public class TeamOwner extends Owner {
     public OwnerType getType() { return TYPE; }
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putLong("Team", this.teamID); }
+
+    @Nonnull
+    @Override
+    public Owner copy() { return new TeamOwner(this.teamID); }
+
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof TeamOwner to && to.teamID == this.teamID; }
 

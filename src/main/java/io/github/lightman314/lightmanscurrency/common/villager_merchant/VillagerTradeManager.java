@@ -299,7 +299,6 @@ public class VillagerTradeManager {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
-		
 		if(event.getType() == CustomProfessions.BANKER.get())
 		{
 			

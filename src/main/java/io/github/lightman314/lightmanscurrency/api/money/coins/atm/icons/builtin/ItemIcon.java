@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATME
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -29,7 +30,7 @@ public class ItemIcon extends ATMIconData {
 	private final boolean simpleItem;
 	private final ItemStack item;
 	
-	public ItemIcon(JsonObject data) throws JsonSyntaxException, ResourceLocationException {
+	public ItemIcon(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		super(data);
 		
 		JsonElement itemData = data.get("item");
@@ -41,7 +42,7 @@ public class ItemIcon extends ATMIconData {
 		}
 		else
 		{
-			this.item = FileUtil.parseItemStack(GsonHelper.convertToJsonObject(itemData, "item"));
+			this.item = FileUtil.parseItemStack(GsonHelper.convertToJsonObject(itemData, "item"),lookup);
 			this.item.setCount(1);
 			this.simpleItem = false;
 		}
@@ -62,12 +63,12 @@ public class ItemIcon extends ATMIconData {
 	
 
 	@Override
-	protected void saveAdditional(@Nonnull JsonObject data) {
+	protected void saveAdditional(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(this.simpleItem)
 			data.addProperty("item", BuiltInRegistries.ITEM.getKey(this.item.getItem()).toString());
 		else
-			data.add("item", FileUtil.convertItemStack(this.item));
+			data.add("item", FileUtil.convertItemStack(this.item,lookup));
 	}
 	
 	@Nonnull

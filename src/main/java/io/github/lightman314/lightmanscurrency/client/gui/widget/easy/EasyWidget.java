@@ -108,12 +108,6 @@ public abstract class EasyWidget extends AbstractWidget {
             consumer.accept(addon);
     }
 
-    @Override
-    public void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-        this.renderTickInternal();
-        super.render(gui,mouseX,mouseY,partialTick);
-    }
-
     private void visibleTickInternal() {
         this.addons.forEach(WidgetAddon::visibleTick);
     }
@@ -123,7 +117,7 @@ public abstract class EasyWidget extends AbstractWidget {
         this.addons.forEach(WidgetAddon::activeTick);
     }
 
-    private void renderTickInternal() {
+    public void renderTickInternal() {
         this.activeTickInternal();
         this.addons.forEach(WidgetAddon::renderTick);
         this.renderTick();

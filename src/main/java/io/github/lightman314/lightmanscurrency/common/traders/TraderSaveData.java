@@ -310,7 +310,7 @@ public class TraderSaveData extends SavedData {
 		return fileData;
 	}
 	
-	private void loadPersistentTrader(JsonObject fileData, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+	private void loadPersistentTrader(@Nonnull JsonObject fileData, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		boolean hadNone = true;
 		if(fileData.has(PERSISTENT_TRADER_SECTION))
 		{
@@ -382,7 +382,7 @@ public class TraderSaveData extends SavedData {
 					
 					//Load the auction
 					JsonObject auctionTag = auctionList.get(i).getAsJsonObject();
-					PersistentAuctionData data = PersistentAuctionData.load(auctionTag);
+					PersistentAuctionData data = PersistentAuctionData.load(auctionTag,lookup);
 					if(loadedIDs.contains(data.id))
 						throw new JsonSyntaxException("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
 					else

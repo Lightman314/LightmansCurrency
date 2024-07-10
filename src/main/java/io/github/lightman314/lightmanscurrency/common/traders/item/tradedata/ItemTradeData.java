@@ -120,7 +120,7 @@ public class ItemTradeData extends TradeData {
 			else
 				return ItemRequirement.ofItemNoNBT(this.getItem(slot));
 		}
-		return ItemRequirement.NULL;
+		return ItemRequirement.getNull();
 	}
 
 	public boolean allowItemInStorage(ItemStack item) {

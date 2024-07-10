@@ -252,7 +252,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
 				if(trade.getSellItem(0).isEmpty())
 				{
-					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(1)));
+					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(1),lookup));
 					if(trade.hasCustomName(1))
 						tradeData.addProperty("DisplayName", trade.getCustomName(1));
 					//Manually assign to the 0th index, as this is what the loaded trade will acknowledge
@@ -261,14 +261,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 				else
 				{
-					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0)));
+					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0),lookup));
 					if(trade.hasCustomName(0))
 						tradeData.addProperty("DisplayName", trade.getCustomName(0));
 					if(!trade.getEnforceNBT(0))
 						ignoreNBTData.add(0);
 					if(!trade.getSellItem(1).isEmpty())
 					{
-						tradeData.add("SellItem2", FileUtil.convertItemStack(trade.getSellItem(1)));
+						tradeData.add("SellItem2", FileUtil.convertItemStack(trade.getSellItem(1),lookup));
 						if(trade.hasCustomName(1))
 							tradeData.addProperty("DisplayName2", trade.getCustomName(1));
 						if(!trade.getEnforceNBT(1))
@@ -283,19 +283,19 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				{
 					if(trade.getBarterItem(0).isEmpty())
 					{
-						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(1)));
+						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(1),lookup));
 						//Manually assign to the 2nd index, as this is what the loaded trade will acknowledge
 						if(!trade.getEnforceNBT(3))
 							ignoreNBTData.add(2);
 					}
 					else
 					{
-						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0)));
+						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0),lookup));
 						if(!trade.getEnforceNBT(2))
 							ignoreNBTData.add(2);
 						if(!trade.getBarterItem(1).isEmpty())
 						{
-							tradeData.add("BarterItem2", FileUtil.convertItemStack(trade.getBarterItem(1)));
+							tradeData.add("BarterItem2", FileUtil.convertItemStack(trade.getBarterItem(1),lookup));
 							if(!trade.getEnforceNBT(3))
 								ignoreNBTData.add(3);
 						}
@@ -326,7 +326,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					shouldWrite = true;
 			}
 			if(shouldWrite)
-				storageData.add(FileUtil.convertItemStack(item));
+				storageData.add(FileUtil.convertItemStack(item,lookup));
 		}
 		if(!storageData.isEmpty())
 			json.add("RelevantStorage", storageData);
@@ -347,9 +347,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				
 				ItemTradeData newTrade = new ItemTradeData(false);
 				//Sell Item
-				newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem")), 0);
+				newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem"),lookup), 0);
 				if(tradeData.has("SellItem2"))
-					newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem2")), 1);
+					newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem2"),lookup), 1);
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeType(ItemTradeData.loadTradeType(GsonHelper.getAsString(tradeData, "TradeType")));
@@ -370,9 +370,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				{
 					if(newTrade.isBarter())
 					{
-						newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem")), 2);
+						newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem"),lookup), 2);
 						if(tradeData.has("BarterItem2"))
-							newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem2")), 3);
+							newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData,"BarterItem2"),lookup), 3);
 					}
 					else
 					{
@@ -410,7 +410,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			for(int i = 0; i < storageData.size(); ++i)
 			{
 				try{
-					ItemStack item = FileUtil.parseItemStack(storageData.get(i).getAsJsonObject());
+					ItemStack item = FileUtil.parseItemStack(storageData.get(i).getAsJsonObject(),lookup);
 					storage.add(item);
 				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing storage item at index " + i, e); }
 			}

@@ -342,6 +342,7 @@ public class LCText {
     //Network Terminal Menu
     public static final TextEntry GUI_NETWORK_TERMINAL_TITLE = TextEntry.gui(MODID,"network_terminal.title");
     public static final TextEntry GUI_NETWORK_TERMINAL_SEARCH = TextEntry.gui(MODID,"network_terminal.search");
+    public static final TextEntry TOOLTIP_NETWORK_TERMINAL_OPEN_ALL = TextEntry.tooltip(MODID,"network_terminal.open_all");
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT = TextEntry.tooltip(MODID,"terminal.info.trade_count");
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT = TextEntry.tooltip(MODID,"terminal.info.trade_count.out_of_stock");
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_AUCTION_HOUSE = TextEntry.tooltip(MODID,"terminal.info.auction_house");
@@ -489,9 +490,9 @@ public class LCText {
 
     //Trader Menu
     public static final TextEntry GUI_TRADER_TITLE = TextEntry.gui(MODID,"trader.title");
-
     public static final TextEntry GUI_TRADER_DEFAULT_NAME = TextEntry.gui(MODID,"trader.default_name");
     public static final TextEntry GUI_TRADER_ALL_NETWORK_TRADERS = TextEntry.gui(MODID,"trader.all_network");
+    public static final TextEntry GUI_TRADER_SEARCH_TRADES = TextEntry.gui(MODID,"trader.search.trades");
     public static final TextEntry TOOLTIP_TRADER_OPEN_STORAGE = TextEntry.tooltip(MODID,"trader.open_storage");
     public static final TextEntry TOOLTIP_TRADER_COLLECT_COINS = TextEntry.tooltip(MODID,"trader.collect_coins");
     public static final TextEntry TOOLTIP_TRADER_NETWORK_BACK = TextEntry.tooltip(MODID,"trader.network.back");
@@ -508,12 +509,15 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_DISABLE = TextEntry.tooltip(MODID,"trader.settings.creative.disable");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE = TextEntry.tooltip(MODID,"trader.settings.creative.add_trade");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE = TextEntry.tooltip(MODID,"trader.settings.creative.remove_trade");
+    public static final TextEntry GUI_TRADER_SETTINGS_CUSTOM_ICON = TextEntry.tooltip(MODID,"trader.settings.custom_icon");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_PERSISTENT = TextEntry.tooltip(MODID,"trader.settings.persistent");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY = TextEntry.tooltip(MODID,"trader.settings.ally");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY_PERMS = TextEntry.tooltip(MODID,"trader.settings.allyperms");
-    public static final TextEntry TOOLTIP_TRADER_SETTINGS_NOTIFICATIONS = TextEntry.tooltip(MODID,"trader.settings.notifications");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_MISC = TextEntry.tooltip(MODID,"trader.settings.misc");
     public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED = TextEntry.tooltip(MODID,"trader.settings.notifications.enabled");
     public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT = TextEntry.tooltip(MODID,"trader.settings.notifications.chat");
     public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET = TextEntry.tooltip(MODID,"trader.settings.notifications.target");
+    public static final TextEntry GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX = TextEntry.tooltip(MODID,"trader.settings.always_show_search_box");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_TAXES = TextEntry.tooltip(MODID,"trader.settings.taxes");
     public static final TextEntry GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE = TextEntry.tooltip(MODID,"trader.settings.acceptabletaxrate");
     public static final TextEntry GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES = TextEntry.tooltip(MODID,"trader.settings.ignoretaxes");
@@ -565,6 +569,8 @@ public class LCText {
     public static final TextEntry BUTTON_TRADER_AUCTION_CANCEL_STORAGE = TextEntry.button(MODID,"trader.auction.cancel.storage");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE = TextEntry.tooltip(MODID,"trader.auction.cancel.storage");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_CREATE = TextEntry.tooltip(MODID,"trader.auction.create");
+    public static final TextEntry GUI_TRADER_AUCTION_OVERTIME = TextEntry.gui(MODID,"trader.auction.overtime");
+    public static final MultiLineTextEntry TOOLTIP_TRADER_AUCTION_OVERTIME = MultiLineTextEntry.tooltip(MODID,"trader.auction.overtime");
     public static final TextEntry BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID = TextEntry.button(MODID,"trader.auction.price_mode.starting_bid");
     public static final TextEntry BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE = TextEntry.button(MODID,"trader.auction.price_mode.min_bid_size");
     public static final TextEntry BUTTON_TRADER_AUCTION_CREATE = TextEntry.button(MODID,"trader.auction.create");

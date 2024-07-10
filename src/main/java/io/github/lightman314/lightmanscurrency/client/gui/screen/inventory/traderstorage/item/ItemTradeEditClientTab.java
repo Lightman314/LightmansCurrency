@@ -43,7 +43,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.BLANK; }
+	public IconData getIcon() { return IconData.Null(); }
 
 	@Override
 	public MutableComponent getTooltip() { return EasyText.empty(); }

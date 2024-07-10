@@ -39,9 +39,9 @@ import javax.annotation.Nonnull;
 public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreateTab> {
 
 	public static final long CLOSE_DELAY = TimeUtil.DURATION_SECOND * 5;
-	
+
 	public AuctionCreateClientTab(Object screen, AuctionCreateTab commonTab) { super(screen, commonTab); }
-	
+
 	@Nonnull
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
@@ -59,6 +59,9 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	MoneyValueWidget priceSelect;
 	EasyButton buttonTogglePriceMode;
 	boolean startingBidMode = true;
+
+	EasyButton buttonToggleOvertime;
+	ScreenArea overtimeTextArea;
 
 	EasyButton buttonSubmitAuction;
 	
@@ -88,8 +91,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.priceSelect = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34), firstOpen ? null : this.priceSelect, MoneyValue.empty(), this::onPriceChanged));
 		this.priceSelect.drawBG = this.priceSelect.allowFreeInput = false;
 		
-		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 5), screenArea.width - 119, 20, this::getBidModeText, b -> this.TogglePriceTarget()));
-		
+		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 4), screenArea.width - 119, 20, this::getBidModeText, b -> this.TogglePriceTarget()));
+
+		this.buttonToggleOvertime = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(15,26), this::ToggleOvertime, () -> this.pendingAuction.isOvertimeAllowed()));
+		this.overtimeTextArea = ScreenArea.of(26, 27, this.getFont().width(LCText.GUI_TRADER_AUCTION_OVERTIME.get()),10);
+
+
 		//Duration Input
 		this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(80, 112), 10, TimeUnit.DAY, TimeUnit.HOUR, this::updateDuration));
 		this.timeInput.minDuration = Math.max(LCConfig.SERVER.auctionHouseDurationMin.get() * TimeUtil.DURATION_DAY, TimeUtil.DURATION_HOUR);
@@ -126,7 +133,10 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		
 		//Item Slot label
 		gui.drawString(LCText.GUI_TRADER_AUCTION_ITEMS.get(), TraderMenu.SLOT_OFFSET + 7, 112, 0x404040);
-		
+
+		//Overtime Label
+		gui.drawString(LCText.GUI_TRADER_AUCTION_OVERTIME.get(), this.overtimeTextArea.pos, 0x404040);
+
 		if(this.locked && this.successTime != 0)
 			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_AUCTION_CREATE_SUCCESS.getWithStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
@@ -134,7 +144,13 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			gui.drawString(LCText.GUI_PERSISTENT_ID.get(), 0, -35, 0xFFFFFF);
 		
 	}
-	
+
+	@Override
+	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+		if(this.overtimeTextArea.offsetPosition(this.screen.getCorner()).isMouseInArea(gui.mousePos))
+			gui.renderComponentTooltip(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME.get());
+	}
+
 	@Override
 	public void tick() {
 		if(this.locked && !this.priceSelect.isLocked())
@@ -154,7 +170,6 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		else
 		{
 			this.buttonTogglePriceMode.active = true;
-			
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
@@ -185,6 +200,10 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.priceSelect.changeValue(this.pendingAuction.getLastBidAmount());
 		else
 			this.priceSelect.changeValue(this.pendingAuction.getMinBidDifference());
+	}
+
+	private void ToggleOvertime(EasyButton button) {
+		this.pendingAuction.setOvertimeAllowed(!this.pendingAuction.isOvertimeAllowed());
 	}
 	
 	private Component getBidModeText()

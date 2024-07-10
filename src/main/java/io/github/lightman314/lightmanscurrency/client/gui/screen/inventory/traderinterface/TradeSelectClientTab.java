@@ -29,15 +29,18 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 
 	@Override
 	public boolean tabButtonVisible() { return this.commonTab.canOpen(this.menu.player); }
-	
+
+	@Override
+	public boolean blockInventoryClosing() { return this.tradeDisplay.isSearchBoxRelevant(); }
+
 	TradeButtonArea tradeDisplay;
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.getBE()::getTrader, trader -> this.menu.getBE().getTradeContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this::SelectTrade, TradeButtonArea.FILTER_VALID));
+		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.getBE()::getTrader, trader -> this.menu.getBE().getTradeContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this::SelectTrade, TradeButtonArea.FILTER_VALID)
+				.withTitle(this.screen.getCorner().offset(4,6), this.screen.getXSize() - 8, false));
 		this.tradeDisplay.setSelectionDefinition(this::isTradeSelected);
-		this.tradeDisplay.withTitle(this.screen.getCorner().offset(8,6), this.screen.getXSize() - 16, false);
 		
 	}
 

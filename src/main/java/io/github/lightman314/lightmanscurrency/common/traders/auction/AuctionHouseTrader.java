@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -33,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -76,7 +76,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
 	
 	@Override
-	public int getTradeCount() { return this.trades.size(); }
+	public int getTradeCount() { return (int)this.trades.stream().filter(AuctionTradeData::isValid).count(); }
 	
 	public AuctionTradeData getTrade(int tradeIndex) {
 		try {
@@ -99,7 +99,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	public void markTradesDirty() { this.markDirty(this::saveTrades); }
-	
+
+	@Override
+	public boolean showSearchBox() { return this.getTradeCount() > 10; }
+
 	public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
 	
 	public AuctionPlayerStorage getStorage(PlayerReference player) {
@@ -261,7 +264,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		AuctionTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null)
 			return;
-		if(trade.hasExpired(System.currentTimeMillis()))
+		if(trade.hasExpired(TimeUtil.getCurrentTime()))
 			return;
 		
 		AuctionBidEvent.Pre e1 = new AuctionBidEvent.Pre(this, trade, player, bidAmount);
@@ -272,16 +275,12 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 		TradeContext tradeContext = menu.getContext(this);
 
-		MoneyView funds = tradeContext.getAvailableFunds();
-
-
-		if(funds.containsValue(bidAmount) && trade.tryMakeBid(this, player, bidAmount))
+		if(tradeContext.hasFunds(bidAmount) && trade.tryMakeBid(this, player, bidAmount))
 		{
 			//Take money from the coin slots & players wallet second
 			tradeContext.getPayment(bidAmount);
 			//Mark storage & trades dirty
-			this.markDirty(this::saveTrades);
-			this.markDirty(this::saveStorage);
+			this.markDirty((c,l) -> { this.saveTrades(c,l); this.saveStorage(c,l);} );
 			
 			AuctionBidEvent.Post e2 = new AuctionBidEvent.Post(this, trade, player, bidAmount);
 			NeoForge.EVENT_BUS.post(e2);

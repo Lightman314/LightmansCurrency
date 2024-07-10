@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -119,7 +120,7 @@ public class ChainData {
         this.cacheCoinExchanges();
     }
 
-    protected ChainData(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
+    protected ChainData(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
         this.chain = GsonHelper.getAsString(json, "chain");
         if(this.chain.equalsIgnoreCase("null"))
@@ -204,7 +205,7 @@ public class ChainData {
 
         //Load ATM Data
         if(json.has("ATMData"))
-            this.atmData = ATMData.parse(GsonHelper.getAsJsonObject(json, "ATMData"), this);
+            this.atmData = ATMData.parse(GsonHelper.getAsJsonObject(json, "ATMData"), this, lookup);
         else
             this.atmData = ATMData.builder(null).build(this);
 
@@ -255,7 +256,7 @@ public class ChainData {
         }
     }
 
-    public JsonObject getAsJson()
+    public JsonObject getAsJson(@Nonnull HolderLookup.Provider lookup)
     {
         JsonObject json = new JsonObject();
         //Write base data
@@ -290,7 +291,7 @@ public class ChainData {
 
         //Write ATM Data
         if(!this.atmData.getExchangeButtons().isEmpty())
-            json.add("ATMData", this.atmData.save());
+            json.add("ATMData", this.atmData.save(lookup));
 
         return json;
     }
@@ -460,7 +461,7 @@ public class ChainData {
     public static Builder builder(@Nonnull String chain, @Nonnull MutableComponent displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName); }
     public static Builder builder(@Nonnull String chain, @Nonnull TextEntry displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName.get()); }
 
-    public static ChainData fromJson(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException { return new ChainData(existingEntries, Objects.requireNonNull(json)); }
+    public static ChainData fromJson(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { return new ChainData(existingEntries, Objects.requireNonNull(json), lookup); }
 
     public static class Builder
     {

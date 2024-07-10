@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -20,8 +22,10 @@ public interface ITraderSource {
 	@Nonnull
 	default TraderData getSingleTrader() { return this.getTraders().getFirst(); }
 
+	@Nonnull
+	RegistryAccess registryAccess();
 
-	default boolean showSearchBar() { return false; }
+	default boolean showSearchBox() { return false; }
 	@Nullable
 	default Component getCustomTitle() { return null; }
 
@@ -37,13 +41,17 @@ public interface ITraderSource {
 		@Override
 		public Component getCustomTitle() { return LCText.GUI_TRADER_ALL_NETWORK_TRADERS.get(); }
 		@Override
-		public boolean showSearchBar() { return true; }
+		public boolean showSearchBox() { return true; }
 		@Nonnull
 		@Override
 		public List<TraderData> getTraders() { return TraderAPI.API.GetAllNetworkTraders(this.isClient); }
 		@Override
 		public boolean isSingleTrader() { return false; }
-		
+
+		@Nonnull
+		@Override
+		public RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(this.isClient); }
+
 	}
 	
 }

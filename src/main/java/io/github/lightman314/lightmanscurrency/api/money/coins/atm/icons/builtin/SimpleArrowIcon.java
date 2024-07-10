@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.api.distmarker.Dist;
@@ -42,7 +43,7 @@ public class SimpleArrowIcon extends ATMIconData {
 
 	private final ArrowType direction;
 	
-	public SimpleArrowIcon(JsonObject data) throws JsonSyntaxException, ResourceLocationException {
+	public SimpleArrowIcon(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException {
 		super(data);
 		
 		if(data.has("direction"))
@@ -60,7 +61,7 @@ public class SimpleArrowIcon extends ATMIconData {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull JsonObject data) {
+	protected void saveAdditional(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) {
 		
 		data.addProperty("direction", this.direction.name());
 		

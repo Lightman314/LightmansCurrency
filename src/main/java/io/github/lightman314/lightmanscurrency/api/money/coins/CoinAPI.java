@@ -96,7 +96,7 @@ public abstract class CoinAPI {
     public abstract void SortCoinsByValue(@Nonnull Container container);
 
     @Nonnull
-    public abstract CustomPacketPayload getSyncPacket();
+    public abstract SPacketSyncCoinData getSyncPacket();
 
     /**
      * Sends a network packet to the given target to sync their coin data.<br>

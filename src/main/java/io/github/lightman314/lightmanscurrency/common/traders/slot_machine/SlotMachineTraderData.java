@@ -268,7 +268,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         for(SlotMachineEntry entry : this.entries)
         {
             if(entry.isValid())
-                entryList.add(entry.toJson());
+                entryList.add(entry.toJson(lookup));
         }
         json.add("Entries", entryList);
     }
@@ -286,7 +286,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         for(int i = 0; i < entryList.size(); ++i)
         {
             try{
-                this.entries.add(SlotMachineEntry.parse(GsonHelper.convertToJsonObject(entryList.get(i), "Entries[" + i + "]")));
+                this.entries.add(SlotMachineEntry.parse(GsonHelper.convertToJsonObject(entryList.get(i), "Entries[" + i + "]"),lookup));
             } catch(JsonSyntaxException | ResourceLocationException t) { LightmansCurrency.LogError("Error parsing Slot Machine Trader Entry #" + (i + 1), t); }
         }
         if(this.entries.isEmpty())

@@ -37,12 +37,13 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		this.auctionData = auctionData;
 		this.id = id;
 	}
-	
-	private JsonObject getAuctionJson(String id, @Nonnull HolderLookup.Provider lookup) {
+
+	@Nonnull
+	private JsonObject getAuctionJson(@Nonnull String id, @Nonnull HolderLookup.Provider lookup) {
 		AuctionTradeData auction = new AuctionTradeData(this.auctionData,lookup);
 		JsonObject json = new JsonObject();
 		json.addProperty("id", id);
-		json = auction.saveToJson(json);
+		json = auction.saveToJson(json,lookup);
 		return json;
 	}
 

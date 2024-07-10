@@ -68,6 +68,10 @@ public class FakeOwner extends Owner {
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putString("Name", Component.Serializer.toJson(this.name,lookup)); }
 
+    @Nonnull
+    @Override
+    public Owner copy() { return new FakeOwner(this.name); }
+
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof FakeOwner fo && fo.name.equals(this.name); }
 

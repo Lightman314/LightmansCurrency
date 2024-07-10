@@ -90,7 +90,7 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 
 	//Only show the search bar if we actually expect for there to be more than 1 trader linked to this machine
 	@Override
-	public boolean showSearchBar() { return this.positions.size() > 1; }
+	public boolean showSearchBox() { return this.positions.size() > 1; }
 
 	@Override
 	public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)

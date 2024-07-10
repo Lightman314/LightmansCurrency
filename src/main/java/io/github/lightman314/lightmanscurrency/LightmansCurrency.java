@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
@@ -19,6 +21,8 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
@@ -35,12 +39,14 @@ import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -117,7 +123,6 @@ public class LightmansCurrency {
         //Register the proxy so that it can run custom events
 		NeoForge.EVENT_BUS.register(PROXY);
 
-		//IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", () -> LCDiscord.setup(eventBus), null);
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		//IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
@@ -215,6 +220,8 @@ public class LightmansCurrency {
 		//Register Trader Search Filters
 		TraderAPI.API.RegisterTraderSearchFilter(new BasicSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new ItemTraderSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new SlotMachineSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
@@ -241,9 +248,16 @@ public class LightmansCurrency {
 		//Register Loot Modifiers
 		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
 
+		//Register Icon Data
+		IconData.registerDefaultIcons();
+
 		//Register Stat Types
 		StatType.register(IntegerStat.INSTANCE);
 		StatType.register(MultiMoneyStat.INSTANCE);
+
+		//Setup Block Protection
+		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
+		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
 
 	}
     
@@ -333,22 +347,23 @@ public class LightmansCurrency {
 
 	private void setupConfigTasks(RegisterConfigurationTasksEvent event)
 	{
-		event.register(new SyncCoinDataTask());
+		event.register(new SyncCoinDataTask(event.getListener()));
 	}
 
 	private static class SyncCoinDataTask implements ICustomConfigurationTask {
 
-		private static final Type TYPE = new Type(ResourceLocation.fromNamespaceAndPath(MODID,"send_coin_data"));
+		private final ServerConfigurationPacketListener listener;
+		private SyncCoinDataTask(@Nonnull ServerConfigurationPacketListener listener) { this.listener = listener; }
 
 		@Override
 		@Nonnull
-		public Type type() { return TYPE; }
+		public Type type() { return SPacketSyncCoinData.CONFIG_TYPE; }
 
 		@Override
 		public void run(@Nonnull Consumer<CustomPacketPayload> sender) {
-			sender.accept(CoinAPI.API.getSyncPacket());
+			sender.accept(CoinAPI.API.getSyncPacket().configTask());
+			this.listener.finishCurrentTask(SPacketSyncCoinData.CONFIG_TYPE);
 		}
-
 
 	}
     

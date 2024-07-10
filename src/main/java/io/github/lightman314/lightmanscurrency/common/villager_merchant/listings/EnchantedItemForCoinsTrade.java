@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ListingUtil;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -88,7 +89,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
+        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
             if(trade instanceof EnchantedItemForCoinsTrade t)
             {
                 json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(t.baseCoin).toString());
@@ -103,8 +104,9 @@ public class EnchantedItemForCoinsTrade implements ItemListing
             return null;
         }
 
+        @Nonnull
         @Override
-        public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
             Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"BaseCoinCount");
             double basePriceModifier = GsonHelper.getAsDouble(json,"EnchantmentValueModifier");

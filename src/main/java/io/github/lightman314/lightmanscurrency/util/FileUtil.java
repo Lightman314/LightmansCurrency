@@ -8,18 +8,24 @@ import java.nio.charset.StandardCharsets;
 import com.google.gson.*;
 
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class FileUtil {
 	
 	public static Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-	
-	public static JsonElement convertItemStack(ItemStack item) {
-		return ItemStack.CODEC.encodeStart(JsonOps.INSTANCE,item).getOrThrow();
+
+	@Nonnull
+	public static JsonElement convertItemStack(@Nonnull ItemStack item, @Nonnull HolderLookup.Provider lookup) {
+		return ItemStack.CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE,lookup),item).getOrThrow();
 	}
-	
-	public static ItemStack parseItemStack(JsonObject json) throws JsonSyntaxException {
-		return ItemStack.CODEC.decode(JsonOps.INSTANCE,json).getOrThrow(JsonSyntaxException::new).getFirst();
+
+	@Nonnull
+	public static ItemStack parseItemStack(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException {
+		return ItemStack.CODEC.decode(RegistryOps.create(JsonOps.INSTANCE,lookup),json).getOrThrow(JsonSyntaxException::new).getFirst();
 	}
 	
 	public static void writeStringToFile(File file, String string) throws IOException {

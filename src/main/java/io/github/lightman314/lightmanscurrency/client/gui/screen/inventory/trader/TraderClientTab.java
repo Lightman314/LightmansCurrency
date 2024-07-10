@@ -19,7 +19,7 @@ public abstract class TraderClientTab extends EasyTab {
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.BLANK; }
+	public IconData getIcon() { return IconData.Null(); }
 
 	@Override
 	public final int getColor() { return 0xFFFFFF; }

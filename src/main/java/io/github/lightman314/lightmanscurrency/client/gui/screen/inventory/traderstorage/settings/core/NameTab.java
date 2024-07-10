@@ -2,49 +2,58 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentTrader;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 
-public class MainTab extends SettingsSubTab {
+public class NameTab extends SettingsSubTab implements IMouseListener {
 
-    public MainTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
+
+    public NameTab(@Nonnull TraderSettingsClientTab parent) {
+        super(parent);
+        ScreenArea screenArea = this.screen.getArea();
+        this.iconArea = ScreenArea.of((screenArea.width / 2) - 8, 96,16,16);
+    }
+
+    private final ScreenArea iconArea;
+    private boolean iconEditable() {
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
+            return trader.showOnTerminal();
+        return false;
+    }
 
     EditBox nameInput;
     EasyButton buttonSetName;
     EasyButton buttonResetName;
 
-    PlainButton buttonToggleBankLink;
-
     IconButton buttonToggleCreative;
     EasyButton buttonAddTrade;
     EasyButton buttonRemoveTrade;
 
-    EasyButton buttonSavePersistentTrader;
-    EditBox persistentTraderIDInput;
-    EditBox persistentTraderOwnerInput;
-
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+    public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_NAME.get(); }
@@ -76,20 +85,6 @@ public class MainTab extends SettingsSubTab {
         this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(166, 120), this::RemoveTrade)
                 .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE)));
 
-        this.buttonToggleBankLink = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(20, 72), this::ToggleBankLink, () -> { TraderData t = this.menu.getTrader(); return t != null && t.getLinkedToBank(); }));
-        this.buttonToggleBankLink.visible = this.menu.hasPermission(Permissions.BANK_LINK);
-
-        this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 110), this::SavePersistentTraderData, IconAndButtonUtil.ICON_PERSISTENT_DATA)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_TRADER)));
-        this.buttonSavePersistentTrader.visible = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
-
-
-        int idWidth = this.getFont().width(LCText.GUI_PERSISTENT_ID.get());
-        this.persistentTraderIDInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 37 + idWidth, screenArea.y + 110, 108 - idWidth, 18, EasyText.empty()));
-
-        int ownerWidth = this.getFont().width(LCText.GUI_PERSISTENT_OWNER.get());
-        this.persistentTraderOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 12 + ownerWidth, screenArea.y + 85, 178 - ownerWidth, 18, EasyText.empty()));
-
         this.tick();
 
     }
@@ -103,24 +98,24 @@ public class MainTab extends SettingsSubTab {
 
         gui.drawString(LCText.GUI_NAME.get(), 20, 15, 0x404040);
 
-        if(this.menu.hasPermission(Permissions.BANK_LINK) && !trader.isCreative())
-            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 32, 73, 0x404040);
-
         //Draw current trade count
         if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
         {
             String count = String.valueOf(trader.getTradeCount());
             int width = gui.font.width(count);
             gui.drawString(count, 164 - width, 140 - 25, 0x404040);
+        }
 
-            if(this.persistentTraderIDInput != null)
-            {
-                //Draw ID input label
-                gui.drawString(LCText.GUI_PERSISTENT_ID.get(), 35, 115, 0xFFFFFF);
-                //Draw Owner input label
-                gui.drawString(LCText.GUI_PERSISTENT_OWNER.get(), 10, 90, 0xFFFFFF);
-            }
-
+        if(this.iconEditable())
+        {
+            //Render Label
+            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_SETTINGS_CUSTOM_ICON.get(), screen.getXSize() / 2, this.iconArea.y - 12, 0x404040);
+            //Render slot background
+            gui.blit(TraderScreen.GUI_TEXTURE,this.iconArea.pos.offset(-1,-1),TraderScreen.WIDTH,0,18,18);
+            //Render custom icon
+            IconData icon = trader.getCustomIcon();
+            if(icon != null)
+                icon.render(gui, this.iconArea.pos);
         }
 
     }
@@ -139,8 +134,7 @@ public class MainTab extends SettingsSubTab {
         this.buttonResetName.active = trader.hasCustomName();
         this.buttonResetName.visible = canChangeName;
 
-        boolean isAdmin = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
-        this.buttonToggleCreative.visible = isAdmin;
+        this.buttonToggleCreative.visible = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
         if(this.buttonToggleCreative.visible)
         {
             this.buttonAddTrade.visible = true;
@@ -152,26 +146,6 @@ public class MainTab extends SettingsSubTab {
         {
             this.buttonAddTrade.visible = false;
             this.buttonRemoveTrade.visible = false;
-        }
-
-        boolean canLinkAccount = this.menu.hasPermission(Permissions.BANK_LINK) && !trader.isCreative();
-        this.buttonToggleBankLink.visible = canLinkAccount;
-        if(canLinkAccount)
-            this.buttonToggleBankLink.active = trader.canLinkBankAccount() || trader.getLinkedToBank();
-
-
-        if(this.buttonSavePersistentTrader != null)
-        {
-            this.buttonSavePersistentTrader.visible = isAdmin;
-            this.buttonSavePersistentTrader.active = trader.hasValidTrade();
-        }
-        if(this.persistentTraderIDInput != null)
-        {
-            this.persistentTraderIDInput.visible = isAdmin;
-        }
-        if(this.persistentTraderOwnerInput != null)
-        {
-            this.persistentTraderOwnerInput.visible = isAdmin;
         }
     }
 
@@ -202,14 +176,6 @@ public class MainTab extends SettingsSubTab {
         this.sendMessage(this.builder().setBoolean("MakeCreative", !trader.isCreative()));
     }
 
-    private void ToggleBankLink(EasyButton button)
-    {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
-            return;
-        this.sendMessage(this.builder().setBoolean("LinkToBankAccount", !trader.getLinkedToBank()));
-    }
-
     private void AddTrade(EasyButton button)
     {
         TraderData trader = this.menu.getTrader();
@@ -226,11 +192,14 @@ public class MainTab extends SettingsSubTab {
         new CPacketAddOrRemoveTrade(trader.getID(), false).send();
     }
 
-    private void SavePersistentTraderData(EasyButton button)
-    {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null && trader.canMakePersistent())
-            new CPacketCreatePersistentTrader(trader.getID(), this.persistentTraderIDInput.getValue(), this.persistentTraderOwnerInput.getValue()).send();
+    @Override
+    public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+        if(this.iconEditable() && this.iconArea.offsetPosition(this.screen.getCorner()).isMouseInArea(mouseX,mouseY))
+        {
+            ItemStack heldItem = this.menu.getHeldItem();
+            this.sendMessage(this.builder().setItem("ChangeIcon",heldItem));
+            return true;
+        }
+        return false;
     }
-
 }

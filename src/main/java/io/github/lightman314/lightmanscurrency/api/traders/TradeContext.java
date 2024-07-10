@@ -324,7 +324,7 @@ public class TradeContext {
 			Container inventory = this.player.getInventory();
 			for(ItemRequirement requirement : requirements)
 			{
-				int amountToConsume = requirement.count;
+				int amountToConsume = requirement.getCount();
 				for(int i = 0; i < inventory.getContainerSize() && amountToConsume > 0; ++i)
 				{
 					ItemStack stack = inventory.getItem(i);

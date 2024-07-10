@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemList
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -84,11 +85,12 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
         @Override
         public ResourceLocation getType() { return TYPE; }
 
+        @Nonnull
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
+        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
             if(trade instanceof ItemsForMapTrade t)
             {
-                t.serializeData(json);
+                t.serializeData(json,lookup);
                 json.addProperty("Destination", t.destination.location().toString());
                 json.addProperty("MapName", t.displayName);
                 json.addProperty("Decoration", BuiltInRegistries.MAP_DECORATION_TYPE.getKey(t.mapDecorationType.value()).toString());
@@ -97,9 +99,10 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
             return null;
         }
 
+        @Nonnull
         @Override
-        public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            DeserializedData data = deserializeData(json);
+        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+            DeserializedData data = deserializeData(json,lookup);
             TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, ResourceLocation.parse(GsonHelper.getAsString(json,"Destination")));
             String displayName = GsonHelper.getAsString(json,"MapName");
             Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(ResourceLocation.parse(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));

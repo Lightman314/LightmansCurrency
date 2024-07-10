@@ -29,8 +29,10 @@ public class ChangeOwnerNotification extends Notification {
 
 	public ChangeOwnerNotification(@Nonnull PlayerReference player, @Nonnull Owner newOwner, @Nonnull Owner oldOwner) {
 		this.player = player;
-		this.newOwner = newOwner;
-		this.oldOwner = oldOwner;
+		this.newOwner = newOwner.copy();
+		this.newOwner.setParent(this);
+		this.oldOwner = oldOwner.copy();
+		this.oldOwner.setParent(this);
 	}
 	
 	@Nonnull
@@ -44,9 +46,6 @@ public class ChangeOwnerNotification extends Notification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		//Assume this is client-side
-		this.newOwner.flagAsClient(this.isClient());
-		this.oldOwner.flagAsClient(this.isClient());
 		if(this.newOwner.asPlayerReference().isExact(this.player))
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TAKEN.get(this.newOwner.getName(), this.oldOwner.getName());
 		if(this.oldOwner.asPlayerReference().isExact(this.player))
@@ -66,7 +65,9 @@ public class ChangeOwnerNotification extends Notification {
 	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.newOwner = safeLoad(compound.getCompound("NewOwner"),lookup);
+		this.newOwner.setParent(this);
 		this.oldOwner = safeLoad(compound.getCompound("OldOwner"),lookup);
+		this.oldOwner.setParent(this);
 	}
 
 	@Nonnull
@@ -75,7 +76,7 @@ public class ChangeOwnerNotification extends Notification {
 		if(tag.contains("Type"))
 		{
 			Owner o = Owner.load(tag,lookup);
-			return o != null ? o : Owner.NULL;
+			return o != null ? o : Owner.getNull();
 		}
 		if(tag.contains("Player"))
 		{
@@ -88,7 +89,7 @@ public class ChangeOwnerNotification extends Notification {
 			long teamID = tag.getLong("Team");
 			return TeamOwner.of(teamID);
 		}
-		return Owner.NULL;
+		return Owner.getNull();
 	}
 
 	@Override

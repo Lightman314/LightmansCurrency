@@ -97,13 +97,20 @@ public class TextRenderUtil {
 			return Component.literal(text).withStyle(style);
 		while(font.width(Component.literal(text + edge).withStyle(style)) > width && !text.isEmpty())
 			text = text.substring(0, text.length() - 1);
+		//Remove the last character if it's a blank space
+		if(text.charAt(text.length() - 1) == ' ')
+			text = text.substring(0, text.length() - 1);
 		return Component.literal(text + edge).withStyle(style);
 	}
-	
-	public static void drawCenteredText(EasyGuiGraphics gui, String string, int centerX, int yPos, int color) { drawCenteredText(gui, Component.literal(string), centerX, yPos, color); }
-	public static void drawCenteredText(EasyGuiGraphics gui, Component component, int centerX, int yPos, int color) {
+	public static void drawCenteredText(EasyGuiGraphics gui, String string, int centerX, int yPos, int color) { drawCenteredText(gui, string, centerX, yPos, color, false); }
+	public static void drawCenteredText(EasyGuiGraphics gui, Component component, int centerX, int yPos, int color) { drawCenteredText(gui, component, centerX, yPos, color, false); }
+	public static void drawCenteredText(EasyGuiGraphics gui, String string, int centerX, int yPos, int color, boolean shadowed) { drawCenteredText(gui, Component.literal(string), centerX, yPos, color, shadowed); }
+	public static void drawCenteredText(EasyGuiGraphics gui, Component component, int centerX, int yPos, int color, boolean shadowed) {
 		int width = gui.font.width(component);
-		gui.drawString(component, centerX - (width/2), yPos, color);
+		if(shadowed)
+			gui.drawShadowed(component, centerX - (width/2), yPos, color);
+		else
+			gui.drawString(component, centerX - (width/2), yPos, color);
 	}
 	
 	public static void drawRightEdgeText(EasyGuiGraphics gui, String string, int rightPos, int yPos, int color) { drawRightEdgeText(gui, Component.literal(string), rightPos, yPos, color); }

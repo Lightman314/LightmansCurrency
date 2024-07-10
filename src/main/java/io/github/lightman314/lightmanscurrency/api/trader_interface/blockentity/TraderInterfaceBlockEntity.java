@@ -137,7 +137,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		}
 	}
 	
-	public final OwnerData owner = new OwnerData(this, o -> this.OnOwnerChanged());
+	public final OwnerData owner = new OwnerData(this, this::OnOwnerChanged);
 	public void initOwner(Entity owner) { if(!this.owner.hasOwner() && owner instanceof Player player) this.owner.SetOwner(PlayerOwner.of(player)); }
 	private void OnOwnerChanged() {
 		this.mode = ActiveMode.DISABLED;
@@ -416,9 +416,9 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 
 	/**
-	 * @deprecated Use {@link #TryExecuteTrade()} instead to get {@link FullTradeResult} instead so that you can cache any relevant stats.
+	 * @see #TryExecuteTrade()
 	 */
-	@Deprecated(since = "2.2.2.3")
+	@Nonnull
 	public TradeResult interactWithTrader() { return this.TryExecuteTrade().simpleResult; }
 
 	@Nonnull

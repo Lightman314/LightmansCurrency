@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -49,10 +50,10 @@ public class ATMAPI {
         LightmansCurrency.LogInfo("ATM Icon Type '" + type + "' has been registered successfully.");
     }
 
-    public static ATMIconData parseIcon(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException {
+    public static ATMIconData parseIcon(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
         String type = GsonHelper.getAsString(data, "type");
         if(registeredIcons.containsKey(type))
-            return registeredIcons.get(type).parse(data);
+            return registeredIcons.get(type).parse(data,lookup);
         else
             throw new JsonSyntaxException("No ATM Icon of type '" + type + "'. Unable to parse.");
     }

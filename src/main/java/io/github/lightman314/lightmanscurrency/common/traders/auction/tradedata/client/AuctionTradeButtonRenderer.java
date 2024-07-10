@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -81,7 +82,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) {
         //Draw remaining time
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getWidth() / 2, button.getHeight() - 9, this.getTextColor(time));
+        TextRenderUtil.drawCenteredText(gui, time.getShortString(1), button.getWidth() / 2, button.getHeight() - 9, this.getTextColor(time), true);
     }
 
     @Override
@@ -95,12 +96,12 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         if(remainingTime.miliseconds < TimeUtil.DURATION_HOUR)
         {
             if(remainingTime.miliseconds < 5 * TimeUtil.DURATION_MINUTE) //Red if less than 5 minutes
-                return 0xFF0000;
+                return ChatFormatting.RED.getColor();
             //Yellow if less than 1 hour
-            return 0xFFFF00;
+            return ChatFormatting.GOLD.getColor();
         }
         //Green if more than 1 hour
-        return 0x00FF00;
+        return ChatFormatting.GREEN.getColor();
     }
 
 }

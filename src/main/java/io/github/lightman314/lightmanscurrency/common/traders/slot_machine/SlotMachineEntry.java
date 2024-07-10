@@ -220,12 +220,13 @@ public final class SlotMachineEntry {
         return compound;
     }
 
-    public JsonObject toJson()
+    @Nonnull
+    public JsonObject toJson(@Nonnull HolderLookup.Provider lookup)
     {
         JsonObject json = new JsonObject();
         JsonArray itemList = new JsonArray();
         for(ItemStack item : this.items)
-            itemList.add(FileUtil.convertItemStack(item));
+            itemList.add(FileUtil.convertItemStack(item,lookup));
         json.add("Items", itemList);
         json.addProperty("Weight", this.weight);
         return json;
@@ -252,14 +253,15 @@ public final class SlotMachineEntry {
             return new SlotMachineEntry(items, 1);
     }
 
-    public static SlotMachineEntry parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException
+    @Nonnull
+    public static SlotMachineEntry parse(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
         List<ItemStack> items = new ArrayList<>();
         JsonArray itemList = GsonHelper.getAsJsonArray(json, "Items");
         for(int i = 0; i < itemList.size(); ++i)
         {
             try{
-                ItemStack stack = FileUtil.parseItemStack(itemList.get(i).getAsJsonObject());
+                ItemStack stack = FileUtil.parseItemStack(itemList.get(i).getAsJsonObject(),lookup);
                 if(stack.isEmpty())
                     throw new JsonSyntaxException("Cannot add an empty item to a Slot Machine Entry!");
                 items.add(stack);

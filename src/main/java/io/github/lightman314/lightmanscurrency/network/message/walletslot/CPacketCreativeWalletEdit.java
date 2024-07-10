@@ -30,7 +30,7 @@ public class CPacketCreativeWalletEdit extends ClientToServerPacket {
             if(player.isCreative())
             {
                 WalletHandler walletHandler = WalletHandler.get(player);
-                LightmansCurrency.LogDebug("Updated wallet stack on server from client-side interaction.");
+                //LightmansCurrency.LogDebug("Updated wallet stack on server from client-side interaction.");
                 walletHandler.setWallet(message.newWallet);
             }
             else

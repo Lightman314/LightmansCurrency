@@ -11,6 +11,7 @@
     "compat.farmingforblockheads.MarketMenuMixin"
   ],
   "client": [
+    "EasyWidgetMixin",
     "SlotWrapperMixin"
   ],
   "minVersion": "0.8"

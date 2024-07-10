@@ -64,7 +64,7 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 		gui.blit(BUTTON_TEXTURES, 0,0, 0, offset, WIDTH, HEIGHT);
 		
 		//Draw the icon
-		this.data.getIcon().render(gui, 4, 7);
+		this.data.getDisplayIcon().render(gui, 4, 7);
 		
 		//Draw the name & owner of the trader
 		int color = this.data.getTerminalTextColor();

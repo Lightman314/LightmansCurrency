@@ -76,18 +76,9 @@ public class ItemTradeRestriction {
 
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
 		int minStock = Integer.MAX_VALUE;
-		if(this.alwaysEnforceNBT(0) && this.alwaysEnforceNBT(1))
-		{
-			//Search the old way (for safety)
-			for(ItemStack sellItem : InventoryUtil.combineQueryItems(trade.getSellItem(0), trade.getSellItem(1)))
-				minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
-		}
-		else
-		{
-			//New method of checking stock
-			for(ItemRequirement requirement : InventoryUtil.combineRequirements(trade.getItemRequirement(0), trade.getItemRequirement(1)))
-				minStock = Math.min(this.getItemStock(requirement, traderStorage), minStock);
-		}
+		//New method of checking stock
+		for(ItemRequirement requirement : InventoryUtil.combineRequirements(trade.getItemRequirement(0), trade.getItemRequirement(1)))
+			minStock = Math.min(this.getItemStock(requirement, traderStorage), minStock);
 		return minStock;
 	}
 
@@ -119,9 +110,9 @@ public class ItemTradeRestriction {
 
 	protected final int getItemStock(ItemRequirement requirement, TraderItemStorage traderStorage)
 	{
-		if(requirement.isNull())
+		if(requirement.isNull() || requirement.getCount() == 0)
 			return Integer.MAX_VALUE;
-		return traderStorage.getItemCount(requirement.filter) / requirement.count;
+		return traderStorage.getItemCount(requirement) / requirement.getCount();
 	}
 
 	protected final int getItemStock(ItemStack sellItem, TraderItemStorage traderStorage)

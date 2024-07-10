@@ -576,17 +576,15 @@ public class InventoryUtil {
 		List<ItemRequirement> list = new ArrayList<>();
 		for(ItemRequirement requirement : requirements)
 		{
-			boolean addNew = !requirement.isNull();
-			for(int i = 0; i < list.size() && addNew; ++i)
+			if(!requirement.isNull())
 			{
-				if(list.get(i).filter.equals(requirement.filter))
-				{
-					list.set(i, requirement.merge(list.get(i)));
-					addNew = false;
-				}
+                for (ItemRequirement r : list) {
+                    if(r.tryMerge(requirement))
+                        break;
+                }
+				if(!requirement.isNull())
+					list.add(requirement);
 			}
-			if(addNew)
-				list.add(requirement);
 		}
 		return list;
 	}
