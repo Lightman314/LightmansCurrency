@@ -102,9 +102,13 @@ public final class OwnerData implements IClientTracker{
 
 	public void SetOwner(@Nonnull Owner newOwner)
 	{
-		this.currentOwner = newOwner;
-		if(newOwner.alwaysValid())
-			this.backupOwner = newOwner;
+		this.currentOwner = newOwner.copy();
+		this.currentOwner.setParent(this);
+		if(this.currentOwner.alwaysValid())
+		{
+			this.backupOwner = this.currentOwner.copy();
+			this.backupOwner.setParent(this);
+		}
 		this.onChanged.accept(this);
 	}
 	
