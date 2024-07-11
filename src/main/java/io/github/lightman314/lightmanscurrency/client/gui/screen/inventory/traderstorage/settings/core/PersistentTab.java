@@ -7,12 +7,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentTrader;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -48,7 +49,7 @@ public class PersistentTab extends SettingsSubTab {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 30), this::SavePersistentTraderData, IconAndButtonUtil.ICON_PERSISTENT_DATA)
+        this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 30), this::SavePersistentTraderData, IconUtil.ICON_PERSISTENT_DATA)
                 .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_TRADER)));
 
         int idWidth = this.getFont().width(LCText.GUI_PERSISTENT_ID.get());

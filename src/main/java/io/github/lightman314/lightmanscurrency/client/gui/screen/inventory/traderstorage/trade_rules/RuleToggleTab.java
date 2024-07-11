@@ -4,11 +4,12 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -43,7 +44,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
         }
 
         if(this.commonTab.getHost().isTrade())
-            this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::ClickBackButton, IconAndButtonUtil.ICON_BACK));
+            this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::ClickBackButton, IconUtil.ICON_BACK));
 
     }
 

@@ -1,9 +1,6 @@
-package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
+package io.github.lightman314.lightmanscurrency.common.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -173,6 +170,7 @@ public abstract class IconData {
 		}
 		
 		@Override
+		@OnlyIn(Dist.CLIENT)
 		public void render(@Nonnull EasyGuiGraphics gui, int x, int y)
 		{
 			int xPos = x + 8 - (gui.font.width(this.iconText)/2);
@@ -199,6 +197,7 @@ public abstract class IconData {
 		private final List<IconData> icons;
 		private MultiIcon(List<IconData> icons) { super(TYPE); this.icons = icons; }
 		@Override
+		@OnlyIn(Dist.CLIENT)
 		public void render(@Nonnull EasyGuiGraphics gui, int x, int y) {
 			for(IconData icon : this.icons)
 				icon.render(gui, x, y);
@@ -231,6 +230,7 @@ public abstract class IconData {
 		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null");
 		private NullIcon() { super(TYPE); }
 		@Override
+		@OnlyIn(Dist.CLIENT)
 		public void render(@Nonnull EasyGuiGraphics gui, int x, int y) {}
 		@Override
 		protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { }
@@ -247,5 +247,5 @@ public abstract class IconData {
 	public static IconData of(@Nonnull Component iconText) { return new TextIcon(iconText, 0xFFFFFF); }
 	public static IconData of(@Nonnull Component iconText, int textColor) { return new TextIcon(iconText, textColor); }
 	public static IconData of(@Nonnull IconData... icons) { return new MultiIcon(Lists.newArrayList(icons)); }
-	
+
 }

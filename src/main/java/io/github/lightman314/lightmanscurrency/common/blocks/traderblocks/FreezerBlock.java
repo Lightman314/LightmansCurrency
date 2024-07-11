@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTal
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -31,22 +32,17 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public static final VoxelShape SHAPE_EAST = box(3d,0d,0d,16d,32d,16d);
 	public static final VoxelShape SHAPE_WEST = box(0d,0d,0d,13d,32d,16d);
 
-	private final ModelResourceLocation doorModel;
+	private final ResourceLocation doorModel;
 
-	public FreezerBlock(Properties properties, ResourceLocation doorModel)
-	{
-		this(properties,makeModel(doorModel));
-	}
-	public FreezerBlock(Properties properties, @Nonnull ModelResourceLocation doorModel)
+	public FreezerBlock(Properties properties, @Nonnull ResourceLocation doorModel)
 	{
 		super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST));
 		this.doorModel = doorModel;
 	}
 
-	protected static ModelResourceLocation makeModel(@Nonnull ResourceLocation doorModel) { return new ModelResourceLocation(doorModel,ModelResourceLocation.STANDALONE_VARIANT); }
-
+	@OnlyIn(Dist.CLIENT)
 	@Nonnull
-	public ModelResourceLocation getDoorModel() { return this.doorModel; }
+	public ResourceLocation getDoorModel() { return this.doorModel; }
 
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 

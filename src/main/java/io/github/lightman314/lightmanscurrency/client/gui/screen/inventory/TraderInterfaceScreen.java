@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -59,10 +60,10 @@ public class TraderInterfaceScreen extends EasyMenuScreen<TraderInterfaceMenu> {
 			this.tabButtons.put(key, newButton);
 		});
 		
-		this.modeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()))
+		this.modeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y, this::ToggleMode, () -> IconUtil.GetIcon(this.menu.getBE().getMode()))
 				.withAddons(EasyAddonHelper.tooltip(() -> this.getMode().getDisplayText())));
 		
-		this.onlineModeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE)
+		this.onlineModeToggle = this.addChild(new IconButton(screenArea.x + screenArea.width, screenArea.y + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconUtil.ICON_ONLINEMODE_TRUE : IconUtil.ICON_ONLINEMODE_FALSE)
 				.withAddons(EasyAddonHelper.tooltip(() -> this.menu.getBE().isOnlineMode() ? LCText.TOOLTIP_INTERFACE_ONLINE_MODE_ON.get() : LCText.TOOLTIP_INTERFACE_ONLINE_MODE_OFF.get())));
 		
 		//Initialize the current tab

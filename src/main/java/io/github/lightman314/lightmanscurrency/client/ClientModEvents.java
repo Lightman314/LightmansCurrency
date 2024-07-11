@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -48,10 +49,15 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
-			event.register(block.getDoorModel());
-		event.register(SlotMachineBlock.LIGHT_MODEL_LOCATION);
+			registerModel(event,block.getDoorModel());
+		registerModel(event,SlotMachineBlock.LIGHT_MODEL_LOCATION);
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
+	}
+
+	private static void registerModel(@Nonnull ModelEvent.RegisterAdditional event, @Nonnull ResourceLocation model)
+	{
+		event.register(new ModelResourceLocation(model,ModelResourceLocation.STANDALONE_VARIANT));
 	}
 
 	@SubscribeEvent

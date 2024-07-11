@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -197,7 +197,9 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         if(this.iconEditable() && this.iconArea.offsetPosition(this.screen.getCorner()).isMouseInArea(mouseX,mouseY))
         {
             ItemStack heldItem = this.menu.getHeldItem();
-            this.sendMessage(this.builder().setItem("ChangeIcon",heldItem));
+            TraderData trader = this.menu.getTrader();
+            if(trader != null)
+                this.sendMessage(this.builder().setCompound("ChangeIcon",trader.getIconForItem(heldItem).save(this.menu.registryAccess())));
             return true;
         }
         return false;

@@ -64,7 +64,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -305,11 +305,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	private IconData customIcon = IconData.Null();
 	@Nullable
 	public IconData getCustomIcon() { return this.customIcon; }
-	public void setCustomIcon(@Nonnull Player player, @Nonnull ItemStack iconItem)
+	public void setCustomIcon(@Nonnull Player player, @Nonnull IconData icon)
 	{
 		if(this.hasPermission(player,Permissions.CHANGE_NAME))
 		{
-			this.customIcon = iconItem.isEmpty() ? IconData.Null() : this.getIconForItem(iconItem);
+			this.customIcon = icon;
 			this.markDirty(this::saveCustomIcon);
 		}
 	}
@@ -1261,7 +1261,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		if(message.contains("ChangeIcon"))
 		{
-			this.setCustomIcon(player, message.getItem("ChangeIcon"));
+			IconData newIcon = IconData.load(message.getNBT("ChangeIcon"),message.lookup);
+			this.setCustomIcon(player, newIcon);
 		}
 		if(message.contains("MakeCreative"))
 		{

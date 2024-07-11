@@ -25,7 +25,7 @@ public class WalletButton extends InventoryButton {
 
 	@Override
 	protected boolean canShow() {
-		WalletHandler walletHandler = WalletHandler.get( Minecraft.getInstance().player);
+		WalletHandler walletHandler = WalletHandler.get(Minecraft.getInstance().player);
 		return walletHandler != null && !walletHandler.getWallet().isEmpty();
 	}
 

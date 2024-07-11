@@ -287,6 +287,11 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public RegistryAccess getClientRegistryHolder() { return Minecraft.getInstance().level.registryAccess(); }
+	public RegistryAccess getClientRegistryHolder() {
+		Level level = Minecraft.getInstance().level;
+		if(level != null)
+			return level.registryAccess();
+		return null;
+	}
 
 }

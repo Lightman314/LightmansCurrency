@@ -38,7 +38,7 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 
 			//LightmansCurrency.LogDebug("Light level is " + lightLevel);
 
-			ModelResourceLocation lightModel = block.getLightModel();
+			ModelResourceLocation lightModel = new ModelResourceLocation(block.getLightModel(),ModelResourceLocation.STANDALONE_VARIANT);
 			if(lightModel == null)
 				return;
 

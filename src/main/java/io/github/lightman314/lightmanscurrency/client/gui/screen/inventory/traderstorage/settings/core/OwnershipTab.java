@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.OwnerSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,7 @@ public class OwnershipTab extends SettingsSubTab {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconAndButtonUtil.ICON_ALEX_HEAD; }
+    public IconData getIcon() { return IconUtil.ICON_ALEX_HEAD; }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_SETTINGS_OWNER.get(); }
@@ -124,7 +125,7 @@ public class OwnershipTab extends SettingsSubTab {
         this.ownerSelectionWidget.setVisible(!this.manualSelectionMode);
     }
 
-    private IconData getModeIcon() { return this.manualSelectionMode ? IconData.of(Items.COMMAND_BLOCK) : IconAndButtonUtil.ICON_ALEX_HEAD; }
+    private IconData getModeIcon() { return this.manualSelectionMode ? IconData.of(Items.COMMAND_BLOCK) : IconUtil.ICON_ALEX_HEAD; }
 
     private Component getModeTooltip() { return this.manualSelectionMode ? LCText.TOOLTIP_OWNERSHIP_MODE_SELECTION.get() : LCText.TOOLTIP_OWNERSHIP_MODE_MANUAL.get(); }
 

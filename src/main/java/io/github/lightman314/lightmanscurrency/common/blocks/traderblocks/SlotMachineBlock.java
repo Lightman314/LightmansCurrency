@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMac
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +21,7 @@ import java.util.function.Supplier;
 
 public class SlotMachineBlock extends TraderBlockTallRotatable {
 
-    public static final ModelResourceLocation LIGHT_MODEL_LOCATION = new ModelResourceLocation(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block/slot_machine/lights"),ModelResourceLocation.STANDALONE_VARIANT);
+    public static final ResourceLocation LIGHT_MODEL_LOCATION = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block/slot_machine/lights");
 
     public static final VoxelShape SHAPE_SOUTH = Shapes.or(box(0d,14d,-1d, 16d, 16d, 16d), box(0d, 0d, 3d, 16d, 32d, 16d));
     public static final VoxelShape SHAPE_NORTH = Shapes.or(box(0d,14d,0d, 16d, 16d, 17d), box(0d,0d,0d,16d,32d,13d));
@@ -42,7 +41,7 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
     protected BlockEntityType<?> traderType() { return ModBlockEntities.SLOT_MACHINE_TRADER.get(); }
 
     @Nullable
-    public ModelResourceLocation getLightModel() { return LIGHT_MODEL_LOCATION; }
+    public ResourceLocation getLightModel() { return LIGHT_MODEL_LOCATION; }
 
     @Override
     protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_SLOT_MACHINE.asTooltip(); }
