@@ -317,6 +317,7 @@ public class LCText {
     //Ownership Tooltips
     public static final TextEntry TOOLTIP_OWNER_PLAYER = TextEntry.tooltip(MODID,"ownership.player");
     public static final MultiLineTextEntry TOOLTIP_OWNER_TEAM = MultiLineTextEntry.tooltip(MODID,"ownership.team");
+    public static final MultiLineTextEntry TOOLTIP_OWNER_TEAM_FTB = MultiLineTextEntry.tooltip(MODID,"ownership.team.ftb");
 
     //Enchantment Tooltips
     public static final TextEntry TOOLTIP_MONEY_MENDING_COST = TextEntry.tooltip(MODID,"money_mending.price");

@@ -88,6 +88,8 @@ public class IconUtil {
 
     public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
 
+    public static final ItemStack ITEM_ALEX_HEAD;
+
     public static final IconData ICON_ALEX_HEAD;
 
     public static final IconData ICON_TAXES = IconData.of(ICON_TEXTURE, 96, 0);
@@ -101,6 +103,7 @@ public class IconUtil {
         map.put("textures",new Property("textures","eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjNiMDk4OTY3MzQwZGFhYzUyOTI5M2MyNGUwNDkxMDUwOWIyMDhlN2I5NDU2M2MzZWYzMWRlYzdiMzc1MCJ9fX0="));
         ResolvableProfile profile = new ResolvableProfile(Optional.empty(),Optional.of(UUIDUtil.uuidFromIntArray(new int[] {-731408145, -304985227, -1778597514, 158507129 })), map);
         alexHead.set(DataComponents.PROFILE, profile);
+        ITEM_ALEX_HEAD = alexHead;
         ICON_ALEX_HEAD = IconData.of(alexHead);
     }
 

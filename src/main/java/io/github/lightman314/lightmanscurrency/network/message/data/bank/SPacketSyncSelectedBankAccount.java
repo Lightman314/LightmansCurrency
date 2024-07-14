@@ -27,7 +27,7 @@ public class SPacketSyncSelectedBankAccount extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketSyncSelectedBankAccount::encode,SPacketSyncSelectedBankAccount::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncSelectedBankAccount message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount);
+			context.enqueueWork(() -> LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount));
 		}
 	}
 	

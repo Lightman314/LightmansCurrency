@@ -13,9 +13,7 @@ public interface IBankAccountMenu extends IClientTracker
     Player getPlayer();
     Container getCoinInput();
     default void onDepositOrWithdraw() {}
-    default BankReference getBankAccountReference() {
-        return this.isClient() ? ClientBankData.GetLastSelectedAccount() : BankSaveData.GetSelectedBankAccount(this.getPlayer());
-    }
+    default BankReference getBankAccountReference() { return BankSaveData.GetSelectedBankAccount(this.getPlayer()); }
     default IBankAccount getBankAccount() {
         BankReference reference = this.getBankAccountReference();
         return reference == null ? null : reference.get();

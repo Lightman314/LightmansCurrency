@@ -815,6 +815,8 @@
   "tooltip.lightmanscurrency.ownership.player": "Player: %s",
   "tooltip.lightmanscurrency.ownership.team.1": "Team: %1$s",
   "tooltip.lightmanscurrency.ownership.team.2": "%2$s members",
+  "tooltip.lightmanscurrency.ownership.team.ftb.1": "FTB Team: %1$s",
+  "tooltip.lightmanscurrency.ownership.team.ftb.2": "%2$s members",
   "tooltip.lightmanscurrency.pass": "Will not be consumed by Paygates",
   "tooltip.lightmanscurrency.paygate.1": "Paygate:",
   "tooltip.lightmanscurrency.paygate.2": "Can be used to trigger a redstone signal for a price",

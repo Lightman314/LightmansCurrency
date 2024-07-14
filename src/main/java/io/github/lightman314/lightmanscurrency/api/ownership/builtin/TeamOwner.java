@@ -97,7 +97,12 @@ public class TeamOwner extends Owner {
 
     @Nullable
     @Override
-    public BankReference asBankReference() { return TeamBankReference.of(this.teamID).flagAsClient(this.isClient()); }
+    public BankReference asBankReference() {
+        ITeam team = this.getTeam();
+        if(team != null && team.hasBankAccount())
+            return TeamBankReference.of(team);
+        return null;
+    }
 
     @Override
     public boolean hasNotificationLevels() { return true; }

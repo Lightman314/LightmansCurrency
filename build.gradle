@@ -49,7 +49,8 @@ runs {
 
     server {
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-        programArgument '--nogui'
+        //ngl, I kinda like having the server gui open so that I can remember that it's running and so that I can see the logs more easily
+        //programArgument '--nogui'
     }
 
     // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -123,10 +124,10 @@ dependencies {
 
     //Claim Compats
     //FTB Chunks claim purchase compat
-    compileOnly 'curse.maven:ftb-chunks-forge-314906:5448646'
-    compileOnly 'curse.maven:ftb-teams-forge-404468:5448371'
-    compileOnly 'curse.maven:ftb-library-forge-404465:5454538'
-    compileOnly 'curse.maven:architectury-api-419699:5424664'
+    implementation 'curse.maven:ftb-chunks-forge-314906:5448646'
+    implementation 'curse.maven:ftb-teams-forge-404468:5448371'
+    implementation 'curse.maven:ftb-library-forge-404465:5482367'
+    implementation 'curse.maven:architectury-api-419699:5521987'
 
     //Cadmus claim purchase compat
     //Waiting for update

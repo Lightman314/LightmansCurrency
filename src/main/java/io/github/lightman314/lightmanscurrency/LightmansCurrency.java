@@ -39,6 +39,7 @@ import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
@@ -258,6 +259,9 @@ public class LightmansCurrency {
 		//Setup Block Protection
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
+
+		//Setup Mod Compats
+		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
 
 	}
     

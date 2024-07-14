@@ -301,6 +301,7 @@ public class EnglishProvider extends TranslationProvider {
         //Owner Tooltips
         this.translate(LCText.TOOLTIP_OWNER_PLAYER,"Player: %s");
         this.translate(LCText.TOOLTIP_OWNER_TEAM,"Team: %1$s","%2$s members");
+        this.translate(LCText.TOOLTIP_OWNER_TEAM_FTB,"FTB Team: %1$s","%2$s members");
 
         //Enchantment Tooltips
         this.translate(LCText.TOOLTIP_MONEY_MENDING_COST, "Costs %s per durability repaired");

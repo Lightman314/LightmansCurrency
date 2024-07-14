@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScrollable {
@@ -37,7 +38,9 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     private int scroll = 0;
 
     public OwnerSelectionWidget(int x, int y, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget) { this(ScreenPosition.of(x,y),width,rows,currentOwner,setOwner, oldWidget); }
-    public OwnerSelectionWidget(@Nonnull ScreenPosition pos, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget) {
+    public OwnerSelectionWidget(int x, int y, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget, @Nonnull Predicate<PotentialOwner> filter) { this(ScreenPosition.of(x,y),width,rows,currentOwner,setOwner, oldWidget, filter); }
+    public OwnerSelectionWidget(@Nonnull ScreenPosition pos, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget) { this(pos, width, rows, currentOwner,setOwner,oldWidget, o -> true); }
+    public OwnerSelectionWidget(@Nonnull ScreenPosition pos, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget, @Nonnull Predicate<PotentialOwner> filter) {
         super(pos, width, rows * OwnerSelectButton.HEIGHT + 12);
         this.currentOwner = currentOwner;
         this.setOwner = setOwner;
@@ -51,7 +54,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
             this.list = oldWidget.list;
         }
         else
-            this.list = new PotentialOwnerList(Minecraft.getInstance().player, this.currentOwner);
+            this.list = new PotentialOwnerList(Minecraft.getInstance().player, this.currentOwner,filter);
     }
 
     @Override
