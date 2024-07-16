@@ -16,7 +16,7 @@ public class Sprite {
     public int getU(boolean hovered) { return hovered ? this.u + this.hoverOffsetU : this.u; }
     public int getV(boolean hovered) { return hovered ? this.v + this.hoverOffsetV : this.v; }
 
-    private Sprite(@Nonnull ResourceLocation image, int u, int v, int width, int height, int hoverOffsetU, int hoverOffsetV) {
+    public Sprite(@Nonnull ResourceLocation image, int u, int v, int width, int height, int hoverOffsetU, int hoverOffsetV) {
         this.image = image;
         this.u = u;
         this.v = v;

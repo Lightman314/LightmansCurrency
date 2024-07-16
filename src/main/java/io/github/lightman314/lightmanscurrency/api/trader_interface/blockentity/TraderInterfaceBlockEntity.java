@@ -9,13 +9,18 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
@@ -140,7 +145,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		}
 	}
 	
-	public final OwnerData owner = new OwnerData(this, o -> this.OnOwnerChanged());
+	public final OwnerData owner = new OwnerData(this, this::OnOwnerChanged);
 	public void initOwner(Entity owner) { if(!this.owner.hasOwner() && owner instanceof Player player) this.owner.SetOwner(PlayerOwner.of(player)); }
 	private void OnOwnerChanged() {
 		this.mode = ActiveMode.DISABLED;
@@ -163,7 +168,9 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	@Nullable
 	public BankReference getAccountReference() { return this.owner.getValidOwner().asBankReference(); }
-	
+
+	public final StatTracker statTracker = new StatTracker(() -> {},this);
+
 	List<SidedHandler<?>> handlers = new ArrayList<>();
 	
 	private ActiveMode mode = ActiveMode.DISABLED;
@@ -264,6 +271,12 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveLastResult(new CompoundTag()));
 	}
+
+	public void setStatsDirty() {
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this, this.saveStatTracker(new CompoundTag()));
+	}
 	
 	protected abstract TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext);
 
@@ -299,6 +312,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.saveLastResult(compound);
 		this.saveReference(compound);
 		this.saveUpgradeSlots(compound);
+		this.saveStatTracker(compound);
 		for(SidedHandler<?> handler : this.handlers) this.saveHandler(compound, handler);
 	}
 	
@@ -335,6 +349,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	protected final CompoundTag saveUpgradeSlots(CompoundTag compound) {
 		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeSlots);
+		return compound;
+	}
+
+	protected final CompoundTag saveStatTracker(CompoundTag compound) {
+		compound.put("Stats", this.statTracker.save());
 		return compound;
 	}
 	
@@ -422,7 +441,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveReference(new CompoundTag()));
 	}
-	
+
+	/**
+	 * @see #TryExecuteTrade()
+	 */
+	@Nonnull
 	public TradeResult interactWithTrader() {
 		TradeContext tradeContext = this.getTradeContext();
 		TraderData trader = this.getTrader();
@@ -432,6 +455,41 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
+	}
+
+	@Nonnull
+	public FullTradeResult TryExecuteTrade()
+	{
+		TradeContext context = this.getTradeContext();
+		TraderData trader = this.getTrader();
+		if(trader != null)
+		{
+			FullTradeResult result = trader.TryExecuteTradeWithResults(context, this.reference.getTradeIndex());
+			if(this.lastResult != result.simpleResult)
+			{
+				this.lastResult = result.simpleResult;
+				this.setLastResultDirty();
+			}
+			//Automatically log money paid/earned & trade executed
+			if(result.isSuccess())
+			{
+				TradeEvent.PostTradeEvent data = result.data;
+				TradeData trade = data.getTrade();
+				if(trade.getTradeDirection() == TradeDirection.SALE)
+					this.statTracker.incrementStat(StatKeys.Generic.MONEY_PAID, data.getPricePaid());
+				else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
+					this.statTracker.incrementStat(StatKeys.Generic.MONEY_EARNED, data.getPricePaid());
+				this.statTracker.incrementStat(StatKeys.Traders.TRADES_EXECUTED,1);
+				this.setStatsDirty();
+			}
+			return result;
+		}
+		if(this.lastResult != TradeResult.FAIL_NULL)
+		{
+			this.lastResult = TradeResult.FAIL_NULL;
+			this.setLastResultDirty();
+		}
+		return FullTradeResult.failure(this.lastResult);
 	}
 	
 	public boolean isActive() {

@@ -96,7 +96,12 @@ public class TeamOwner extends Owner {
 
     @Nullable
     @Override
-    public BankReference asBankReference() { return TeamBankReference.of(this.teamID).flagAsClient(this.isClient()); }
+    public BankReference asBankReference() {
+        ITeam team = this.getTeam();
+        if(team != null && team.hasBankAccount())
+            return TeamBankReference.of(team);
+        return null;
+    }
 
     @Override
     public boolean hasNotificationLevels() { return true; }
@@ -131,6 +136,11 @@ public class TeamOwner extends Owner {
     public OwnerType getType() { return TYPE; }
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putLong("Team", this.teamID); }
+
+    @Nonnull
+    @Override
+    public Owner copy() { return new TeamOwner(this.teamID); }
+
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof TeamOwner to && to.teamID == this.teamID; }
 

@@ -3,19 +3,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.OwnerSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.OwnershipTab;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -54,12 +56,18 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 		this.playerOwnerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(23, 47), 160, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetOwnerPlayer)
 				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
 
-		this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(22,26), 153, 5, this::getCurrentOwner, this.commonTab::setOwner, this.ownerSelectionWidget));
+		this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(22,26), 153, 5, this::getCurrentOwner, this.commonTab::setOwner, this.ownerSelectionWidget, this::hasBankAccount));
 
 		this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
 
 		this.updateMode();
 		
+	}
+
+	private boolean hasBankAccount(@Nonnull PotentialOwner owner)
+	{
+		Owner result = owner.asOwner();
+		return result != null && result.asBankReference() != null;
 	}
 
 	@Override
@@ -94,7 +102,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 		this.ownerSelectionWidget.setVisible(!this.manualMode);
 	}
 
-	private IconData getModeIcon() { return this.manualMode ? IconData.of(Items.COMMAND_BLOCK) : IconAndButtonUtil.ICON_ALEX_HEAD; }
+	private IconData getModeIcon() { return this.manualMode ? IconData.of(Items.COMMAND_BLOCK) : IconUtil.ICON_ALEX_HEAD; }
 
 	private Component getModeTooltip() { return this.manualMode ? LCText.TOOLTIP_OWNERSHIP_MODE_SELECTION.get() : LCText.TOOLTIP_OWNERSHIP_MODE_MANUAL.get(); }
 

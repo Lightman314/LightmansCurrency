@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -122,12 +124,29 @@ public final class LazyPacketData {
         return defaultValue;
     }
 
+    public ItemStack getItem(String key) { return this.getItem(key,ItemStack.EMPTY); }
+    public ItemStack getItem(String key, ItemStack defaultValue) {
+        Data d = this.getData(key);
+        if(d.type == TYPE_NBT)
+            return ItemStack.of((CompoundTag)d.value);
+        return defaultValue;
+    }
+
     public MoneyValue getMoneyValue(String key) { return this.getMoneyValue(key, MoneyValue.empty()); }
     public MoneyValue getMoneyValue(String key, MoneyValue defaultValue)
     {
         Data d = this.getData(key);
         if(d.type == TYPE_NBT)
             return MoneyValue.load((CompoundTag)d.value);
+        return defaultValue;
+    }
+
+    public Owner getOwner(String key) { return this.getOwner(key,null); }
+    public Owner getOwner(String key, Owner defaultValue)
+    {
+        Data d = this.getData(key);
+        if(d.type == TYPE_NBT)
+            return Owner.load((CompoundTag)d.value);
         return defaultValue;
     }
 
@@ -189,11 +208,19 @@ public final class LazyPacketData {
         public Builder setResourceLocation(String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
         public Builder setText(String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
         public Builder setCompound(String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
+        public Builder setItem(@Nonnull String key, ItemStack value) { this.data.put(key, Data.ofItem(value)); return this; }
         public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value)); return this; }
+        public Builder setOwner(String key, Owner value) { this.data.put(key, Data.ofOwner(value)); return this; }
 
 
         public LazyPacketData build() { return new LazyPacketData(this.data); }
 
+    }
+
+    public interface IBuilderProvider
+    {
+        @Nonnull
+        Builder builder();
     }
 
     private record Data(byte type, Object value) {
@@ -210,12 +237,21 @@ public final class LazyPacketData {
         static Data ofResourceLocation(@Nullable ResourceLocation value) { return value == null ? NULL : new Data(TYPE_STRING, value.toString()); }
         static Data ofText(@Nullable Component value) { return value == null ? NULL : new Data(TYPE_TEXT, value); }
         static Data ofNBT(@Nullable CompoundTag value) { return value == null ? NULL : new Data(TYPE_NBT, value); }
+        static Data ofItem(@Nullable ItemStack value) {
+            return value == null ? NULL : ofNBT(value.save(new CompoundTag()));
+        }
         static Data ofMoneyValue(@Nullable MoneyValue value) {
             //return value == null ? NULL : ofNBT(value.save());
             if(value == null)
                 return NULL;
             CompoundTag tag = value.save();
             LightmansCurrency.LogDebug("Saving Money Value to tag!\n" + tag.getAsString());
+            return ofNBT(tag);
+        }
+        static Data ofOwner(@Nullable Owner value) {
+            if(value == null)
+                return NULL;
+            CompoundTag tag = value.save();
             return ofNBT(tag);
         }
 

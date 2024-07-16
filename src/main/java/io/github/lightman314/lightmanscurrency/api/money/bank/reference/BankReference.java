@@ -22,6 +22,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
     public boolean isClient() { return this.isClient; }
     public BankReference flagAsClient() { return this.flagAsClient(true); }
     public BankReference flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
+    public BankReference flagAsClient(@Nonnull IClientTracker context) { this.isClient = context.isClient(); return this; }
 
     protected final BankReferenceType type;
     protected BankReference(@Nonnull BankReferenceType type) { this.type = type; }

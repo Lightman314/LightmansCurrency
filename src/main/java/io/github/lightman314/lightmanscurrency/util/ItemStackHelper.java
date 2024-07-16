@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemStackHelper {
 
@@ -60,7 +61,14 @@ public class ItemStackHelper {
 	
 	public static boolean TagEquals(ItemStack stack1, ItemStack stack2)
 	{
-		return stack1.hasTag() == stack2.hasTag() && (!stack1.hasTag() && !stack2.hasTag() || stack1.getTag().equals(stack2.getTag()));
+		return compareTag(stack1.getTag(),stack2.getTag()) && stack1.areCapsCompatible(stack2);
+	}
+
+	private static boolean compareTag(@Nullable CompoundTag tag1, @Nullable CompoundTag tag2)
+	{
+		if(tag1 != null && tag2 != null)
+			return tag1.equals(tag2);
+		return (tag1 == null) == (tag2 == null);
 	}
 	
 }

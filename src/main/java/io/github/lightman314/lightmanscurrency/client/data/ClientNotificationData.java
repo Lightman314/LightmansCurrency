@@ -27,6 +27,7 @@ public class ClientNotificationData {
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
 		//Reset notifications
 		myNotifications = new NotificationData();
+		myNotifications.flagAsClient();
 	}
 	
 }

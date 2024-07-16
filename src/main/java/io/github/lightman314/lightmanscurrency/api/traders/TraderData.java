@@ -58,7 +58,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -132,6 +132,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	private long id = -1;
 	public long getID() { return this.id; }
 	public void setID(long id) { this.id = id; }
+
+	@Nullable
+	private PostTradeEvent latestTrade = null;
 	
 	private boolean alwaysShowOnTerminal = false;
 	public void setAlwaysShowOnTerminal() { this.alwaysShowOnTerminal = true; this.markDirty(this::saveShowOnTerminal); }
@@ -160,10 +163,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean isCreative() { return this.creative; }
 
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; this.owner.flagAsClient(); this.logger.flagAsClient(); }
+	public void flagAsClient() { this.isClient = true; this.logger.flagAsClient(); }
 	public boolean isClient() { return this.isClient; }
 
-	private final OwnerData owner = new OwnerData(this, o -> this.markDirty(this::saveOwner));
+	private final OwnerData owner = new OwnerData(this, () -> this.markDirty(this::saveOwner));
 	public final OwnerData getOwner() { return this.owner; }
 
 	public final StatTracker statTracker = new StatTracker(() -> {},this);
@@ -276,7 +279,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			
 		}
 	}
-	
+
+	@Nonnull
+	public IconData getDisplayIcon() { return this.customIcon == null || this.customIcon.isNull() ? this.getIcon() : this.customIcon; }
+
 	public abstract IconData getIcon();
 
 	@Override
@@ -292,7 +298,27 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			return this.getName();
 		return LCText.GUI_TRADER_TITLE.get(this.getName(), this.owner.getName());
 	}
-	
+
+	private IconData customIcon = IconData.Null();
+	@Nullable
+	public IconData getCustomIcon() { return this.customIcon; }
+	public void setCustomIcon(@Nonnull Player player, @Nonnull IconData newIcon)
+	{
+		if(this.hasPermission(player,Permissions.CHANGE_NAME))
+		{
+			this.customIcon = newIcon;
+			this.markDirty(this::saveCustomIcon);
+		}
+	}
+
+	/**
+	 * Can be overridden by child traders to make special icons from certain items<br>
+	 * (i.e. an icon that renders lava if the item stack is a lava bucket, etc.)<br><br>
+	 * By default, returns a simple item icon for the given item
+	 */
+	@Nonnull
+	public IconData getIconForItem(@Nonnull ItemStack stack) { return IconData.of(stack.copyWithCount(1)); }
+
 	private Item traderBlock;
 	protected MutableComponent getDefaultName() {
 		if(this.traderBlock != null)
@@ -447,6 +473,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public List<TradeRule> getRules() { return Lists.newArrayList(this.rules); }
 	protected void validateRules() { TradeRule.ValidateTradeRuleList(this.rules, this); }
+
+	private boolean alwaysShowSearchBox = false;
+	public final boolean alwaysShowSearchBox() { return this.alwaysShowSearchBox; }
+	@Override
+	public boolean showSearchBox() { return this.alwaysShowSearchBox; }
 	
 	private boolean notificationsEnabled = false;
 	public boolean notificationsEnabled() { return this.notificationsEnabled; }
@@ -575,6 +606,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		this.saveLevelData(compound);
 		this.saveTraderItem(compound);
+		this.saveCustomIcon(compound);
 		this.saveOwner(compound);
 		this.saveAllies(compound);
 		this.saveAllyPermissions(compound);
@@ -586,7 +618,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.saveStoredMoney(compound);
 		this.saveLinkedBankAccount(compound);
 		this.saveLogger(compound);
-		this.saveNotificationData(compound);
+		this.saveMiscSettings(compound);
 		this.saveTaxSettings(compound);
 		this.saveStatistics(compound);
 		
@@ -604,7 +636,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final void saveLevelData(CompoundTag compound) {
 		compound.put("Location", this.worldPosition.save());
 	}
-	
+
+	private void saveCustomIcon(CompoundTag compound) { compound.put("CustomIcon", this.customIcon.save()); }
+
 	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
 	
 	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
@@ -643,10 +677,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected final void saveLogger(CompoundTag compound) { compound.put("Logger", this.logger.save()); }
 	
-	protected final void saveNotificationData(CompoundTag compound) {
+	protected final void saveMiscSettings(CompoundTag compound) {
 		compound.putBoolean("NotificationsEnabled", this.notificationsEnabled);
 		compound.putBoolean("ChatNotifications", this.notificationsToChat);
 		compound.putInt("TeamNotifications", this.teamNotificationLevel);
+		compound.putBoolean("AlwaysShowSearchBox", this.alwaysShowSearchBox);
 	}
 
 	protected final void saveTaxSettings(CompoundTag compound) {
@@ -717,6 +752,13 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				this.traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
 			}catch (Throwable ignored) {}
 		}
+
+		if(compound.contains("CustomIcon"))
+		{
+			try {
+				this.customIcon = IconData.load(compound.getCompound("CustomIcon"));
+			} catch (Throwable ignored) {}
+		}
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
 			this.owner.load(compound.getCompound("OwnerData"));
@@ -773,6 +815,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.notificationsToChat = compound.getBoolean("ChatNotifications");
 		if(compound.contains("TeamNotifications"))
 			this.teamNotificationLevel = compound.getInt("TeamNotifications");
+		if(compound.contains("AlwaysShowSearchBox"))
+			this.alwaysShowSearchBox = compound.getBoolean("AlwaysShowSearchBox");
 
 		if(compound.contains("AcceptableTaxRate"))
 			this.acceptableTaxRate = compound.getInt("AcceptableTaxRate");
@@ -938,6 +982,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		//Public posting
 		MinecraftForge.EVENT_BUS.post(event);
+
+		this.latestTrade = event;
+
 	}
 	
 	@Nonnull
@@ -987,7 +1034,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("Type"))
 		{
 			String type = compound.getString("Type");
-			TraderType<?> traderType = TraderAPI.getTraderType(new ResourceLocation(type));
+			TraderType<?> traderType = TraderAPI.API.GetTraderType(new ResourceLocation(type));
 			if(traderType != null)
 				return traderType.load(isClient, compound);
 			else
@@ -1006,7 +1053,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public static TraderData Deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException
 	{
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TraderType<?> traderType = TraderAPI.getTraderType(new ResourceLocation(thisType));
+		TraderType<?> traderType = TraderAPI.API.GetTraderType(new ResourceLocation(thisType));
 		if(traderType != null)
 			return traderType.loadFromJson(json);
 		throw new JsonSyntaxException("Trader type '" + thisType + "' is undefined.");
@@ -1095,6 +1142,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.markStatsDirty();
 		}
 		return result;
+	}
+
+	@Nonnull
+	public final FullTradeResult TryExecuteTradeWithResults(@Nonnull TradeContext context, int tradeIndex)
+	{
+		TradeResult result = this.TryExecuteTrade(context,tradeIndex);
+		if(result.isSuccess() && this.latestTrade != null)
+			return FullTradeResult.success(this.latestTrade);
+		return FullTradeResult.failure(result);
 	}
 
 	/**
@@ -1198,6 +1254,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			//LightmansCurrency.LogInfo("Received change name message of value: " + message.getString("ChangeName"));
 			this.setCustomName(player, message.getString("ChangeName"));
 		}
+		if(message.contains("ChangeIcon"))
+		{
+			IconData newIcon = IconData.load(message.getNBT("ChangeIcon"));
+			this.setCustomIcon(player, newIcon);
+		}
 		if(message.contains("MakeCreative"))
 		{
 			this.setCreative(player, message.getBoolean("MakeCreative"));
@@ -1214,7 +1275,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				if(this.notificationsEnabled != enable)
 				{
 					this.notificationsEnabled = enable;
-					this.markDirty(this::saveNotificationData);
+					this.markDirty(this::saveMiscSettings);
 
 					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Notifications", String.valueOf(this.notificationsEnabled)));
 				}
@@ -1228,7 +1289,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				if(this.notificationsToChat != enable)
 				{
 					this.notificationsToChat = enable;
-					this.markDirty(this::saveNotificationData);
+					this.markDirty(this::saveMiscSettings);
 
 					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "NotificationsToChat", String.valueOf(this.notificationsToChat)));
 				}
@@ -1242,9 +1303,23 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				if(this.teamNotificationLevel != level)
 				{
 					this.teamNotificationLevel = level;
-					this.markDirty(this::saveNotificationData);
+					this.markDirty(this::saveMiscSettings);
 
 					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "TeamNotificationLevel", String.valueOf(this.teamNotificationLevel)));
+				}
+			}
+		}
+		if(message.contains("AlwaysShowSearchBox"))
+		{
+			if(this.hasPermission(player, Permissions.EDIT_SETTINGS))
+			{
+				boolean newVal = message.getBoolean("AlwaysShowSearchBox");
+				if(this.alwaysShowSearchBox != newVal)
+				{
+					this.alwaysShowSearchBox = newVal;
+					this.markDirty(this::saveMiscSettings);
+
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "AlwaysShowSearchBox", String.valueOf(this.alwaysShowOnTerminal)));
 				}
 			}
 		}
@@ -1275,9 +1350,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsSubTab> getSettingsTabs(TraderSettingsClientTab tab) {
+	public final List<SettingsSubTab> getSettingsTabs(@Nonnull TraderSettingsClientTab tab) {
 		//Set up defailt tabs
-		List<SettingsSubTab> tabs = Lists.newArrayList(new MainTab(tab), new AllyTab(tab), new PermissionsTab(tab), new NotificationTab(tab), new TaxSettingsTab(tab));
+		List<SettingsSubTab> tabs = Lists.newArrayList(new NameTab(tab), new PersistentTab(tab), new AllyTab(tab), new PermissionsTab(tab), new MiscTab(tab), new TaxSettingsTab(tab));
 		//Add Trader-Defined tabs
 		this.addSettingsTabs(tab, tabs);
 		//Add Ownership Tab last
@@ -1286,7 +1361,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	protected void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { }
+	protected void addSettingsTabs(@Nonnull TraderSettingsClientTab tab, @Nonnull List<SettingsSubTab> tabs) { }
 	
 	@OnlyIn(Dist.CLIENT)
 	public final List<PermissionOption> getPermissionOptions(){

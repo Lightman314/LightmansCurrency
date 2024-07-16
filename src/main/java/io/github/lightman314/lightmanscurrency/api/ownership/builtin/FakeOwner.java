@@ -16,7 +16,6 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 public class FakeOwner extends Owner {
 
@@ -67,6 +66,10 @@ public class FakeOwner extends Owner {
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putString("Name", Component.Serializer.toJson(this.name)); }
+
+    @Nonnull
+    @Override
+    public Owner copy() { return new FakeOwner(this.name); }
 
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof FakeOwner fo && fo.name.equals(this.name); }

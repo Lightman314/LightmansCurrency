@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
@@ -32,7 +31,7 @@ public class CPacketCreativeWalletEdit extends ClientToServerPacket {
             if(sender != null)
             {
                 IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(sender);
-                LightmansCurrency.LogDebug("Updated wallet stack on server from client-side interaction.");
+                //LightmansCurrency.LogDebug("Updated wallet stack on server from client-side interaction.");
                 walletHandler.setWallet(message.newWallet);
             }
         }

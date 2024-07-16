@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
@@ -11,11 +12,14 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class EasyTab implements ITab, IEasyTickable {
+public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBuilderProvider {
 
     private final IEasyScreen screen;
     public final Font getFont() { return this.screen.getFont(); }
     private final List<Object> children = new ArrayList<>();
+
+    @Nonnull
+    public final LazyPacketData.Builder builder() { return this.screen.builder(); }
 
     protected EasyTab(IEasyScreen screen) { this.screen = screen; }
 

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
+	public IconData getIcon() { return IconUtil.ICON_TRADELIST; }
 
 	@Override
 	public Component getTooltip() { return LCText.TOOLTIP_TRADER_EDIT_TRADES.get(); }
@@ -40,12 +41,13 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu::getTrader, t -> this.menu.getContext(), screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu)));
+		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu::getTrader, t -> this.menu.getContext(), screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu))
+				.withTitle(screenArea.pos.offset(4, 6), screenArea.width - (this.renderAddRemoveButtons() ? 28 : 8), true)
+				.blockSearchBox());
 		this.tradeDisplay.setInteractionConsumer(this);
-		this.tradeDisplay.withTitle(screenArea.pos.offset(6, 6), screenArea.width - (this.renderAddRemoveButtons() ? 32 : 16), true);
 		
-		this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width- 25, 4), this::AddTrade));
-		this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width- 14, 4), this::RemoveTrade));
+		this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width - 25, 4), this::AddTrade));
+		this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width - 14, 4), this::RemoveTrade));
 		
 		this.tick();
 		

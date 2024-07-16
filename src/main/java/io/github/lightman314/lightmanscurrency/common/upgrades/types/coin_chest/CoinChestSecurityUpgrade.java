@@ -74,7 +74,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     @Nonnull
     public OwnerData parseOwnerData(CoinChestBlockEntity be, CoinChestUpgradeData data)
     {
-        OwnerData owner = new OwnerData(be, o -> {});
+        OwnerData owner = new OwnerData(be);
         CompoundTag compound = data.getItemTag();
         if(compound.contains("Owner"))
             owner.load(compound.getCompound("Owner"));

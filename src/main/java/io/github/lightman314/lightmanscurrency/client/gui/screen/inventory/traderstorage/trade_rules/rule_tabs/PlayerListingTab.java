@@ -10,12 +10,12 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
@@ -28,7 +28,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return this.isWhitelistMode() ? IconAndButtonUtil.ICON_WHITELIST : IconAndButtonUtil.ICON_BLACKLIST; }
+    public IconData getIcon() { return this.isWhitelistMode() ? IconUtil.ICON_WHITELIST : IconUtil.ICON_BLACKLIST; }
 
     EasyButton buttonToggleMode;
 

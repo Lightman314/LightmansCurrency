@@ -12,11 +12,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -24,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferTeam;
 import net.minecraft.client.gui.components.EditBox;
@@ -56,7 +56,7 @@ public class TransferTab extends ATMTab {
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
+	public IconData getIcon() { return IconUtil.ICON_STORE_COINS; }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_TRANSFER.get(); }
@@ -74,7 +74,7 @@ public class TransferTab extends ATMTab {
 		this.amountWidget.allowFreeInput = false;
 		this.amountWidget.drawBG = false;
 		
-		this.buttonToggleMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 30, 64), this::ToggleMode, () -> this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconAndButtonUtil.ICON_ALEX_HEAD)
+		this.buttonToggleMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 30, 64), this::ToggleMode, () -> this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconUtil.ICON_ALEX_HEAD)
 				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.playerMode, LCText.TOOLTIP_ATM_TRANSFER_MODE_TEAM.get(), LCText.TOOLTIP_ATM_TRANSFER_MODE_PLAYER.get())));
 		
 		this.playerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 104, screenArea.width - 20, 20, Component.empty()));

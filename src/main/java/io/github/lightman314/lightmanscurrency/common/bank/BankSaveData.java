@@ -152,7 +152,7 @@ public class BankSaveData extends SavedData {
 	public static BankReference GetSelectedBankAccount(Player player) {
 		if(player.level().isClientSide)
 		{
-			ClientBankData.GetLastSelectedAccount();
+			return ClientBankData.GetLastSelectedAccount();
 		}
 		else
 		{

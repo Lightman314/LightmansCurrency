@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
@@ -21,7 +23,9 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
+import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
@@ -40,6 +44,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCad
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
 import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
@@ -241,6 +246,8 @@ public class LightmansCurrency {
 		//Register Trader Search Filters
 		TraderAPI.API.RegisterTraderSearchFilter(new BasicSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new ItemTraderSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new SlotMachineSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
@@ -267,12 +274,22 @@ public class LightmansCurrency {
 		//Register Loot Modifiers
 		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
 
+		//Register Icon Data
+		IconData.registerDefaultIcons();
+
 		//Register Stat Types
 		StatType.register(IntegerStat.INSTANCE);
 		StatType.register(MultiMoneyStat.INSTANCE);
 
 		//Register Advancement Triggers
 		LCAdvancementTriggers.setup();
+
+		//Setup Block Protection
+		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
+		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
+
+		//Setup Mod Compats
+		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
 
 	}
     

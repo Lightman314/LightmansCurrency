@@ -62,7 +62,7 @@ public class PlayerOwner extends Owner {
 
     @Nullable
     @Override
-    public BankReference asBankReference() { return PlayerBankReference.of(this.player).flagAsClient(this.isClient()); }
+    public BankReference asBankReference() { return PlayerBankReference.of(this.player).flagAsClient(this); }
 
     @Override
     public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }
@@ -73,6 +73,10 @@ public class PlayerOwner extends Owner {
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) { tag.put("Player", this.player.save()); }
+
+    @Nonnull
+    @Override
+    public Owner copy() { return new PlayerOwner(this.player); }
 
     @Override
     public boolean matches(@Nonnull Owner other) { return other instanceof PlayerOwner po && po.player.is(this.player); }

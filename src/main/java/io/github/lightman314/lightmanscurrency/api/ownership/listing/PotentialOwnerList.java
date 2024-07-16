@@ -10,21 +10,24 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class PotentialOwnerList {
 
     private final Player player;
     private final Supplier<OwnerData> currentOwner;
+    private final Predicate<PotentialOwner> filter;
     private Owner oldOwner;
     private String lastSearch = "";
     private List<PotentialOwner> allOwners = null;
     private List<PotentialOwner> cache = new ArrayList<>();
 
-    public PotentialOwnerList(@Nonnull Player player, @Nonnull Supplier<OwnerData> currentOwner)
+    public PotentialOwnerList(@Nonnull Player player, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Predicate<PotentialOwner> filter)
     {
         this.player = player;
         this.currentOwner = currentOwner;
+        this.filter = filter;
         this.updateCache("");
     }
 
@@ -40,7 +43,7 @@ public class PotentialOwnerList {
     public void updateCache(@Nonnull String searchFilter)
     {
         if(this.allOwners == null)
-            this.allOwners = ImmutableList.copyOf(OwnershipAPI.API.getPotentialOwners(this.player));
+            this.allOwners = ImmutableList.copyOf(OwnershipAPI.API.getPotentialOwners(this.player).stream().filter(this.filter).toList());
         this.lastSearch = searchFilter;
         //Re-do the sorting whenever the search is updated
         List<PotentialOwner> temp = new ArrayList<>(this.allOwners);

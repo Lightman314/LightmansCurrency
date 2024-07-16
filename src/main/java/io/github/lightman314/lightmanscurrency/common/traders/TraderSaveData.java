@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.gson.JsonArray;
@@ -327,7 +328,7 @@ public class TraderSaveData extends SavedData {
 		return fileData;
 	}
 	
-	private void loadPersistentTrader(JsonObject fileData) throws JsonSyntaxException, ResourceLocationException {
+	private void loadPersistentTrader(@Nonnull JsonObject fileData) throws JsonSyntaxException, ResourceLocationException {
 		boolean hadNone = true;
 		if(fileData.has(PERSISTENT_TRADER_SECTION))
 		{

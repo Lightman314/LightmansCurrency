@@ -14,6 +14,9 @@ public abstract class LazyMessageMenu extends EasyMenu {
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id, inventory); }
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory, MenuValidator validator) { super(type, id, inventory, validator); }
 
+    @Nonnull
+    public final LazyPacketData.Builder builder() { return LazyPacketData.builder(); }
+
     public void SendMessage(@Nonnull LazyPacketData.Builder message)
     {
         if(this.isClient())

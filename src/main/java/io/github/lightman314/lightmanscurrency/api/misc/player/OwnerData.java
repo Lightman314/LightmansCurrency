@@ -2,14 +2,11 @@ package io.github.lightman314.lightmanscurrency.api.misc.player;
 
 import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.api.ownership.IOwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -19,25 +16,25 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 
 
-public final class OwnerData implements IOwnerData {
+public final class OwnerData implements IClientTracker {
 
-	private Owner backupOwner = Owner.NULL;
-	private Owner currentOwner = Owner.NULL;
+	private Owner backupOwner = Owner.getNull(this);
+	private Owner currentOwner = Owner.getNull(this);
+
+	@Override
+	public boolean isClient() { return this.parent.isClient(); }
 	
 	private final IClientTracker parent;
 	private final Consumer<OwnerData> onChanged;
-	
-	public OwnerData(IClientTracker parent, Consumer<OwnerData> onChanged) { this.parent = parent; this.onChanged = onChanged; }
+
+	public OwnerData(@Nonnull IClientTracker parent) { this(parent,o -> {}); }
+	public OwnerData(@Nonnull IClientTracker parent, @Nonnull Runnable onChanged) { this(parent,o -> onChanged.run()); }
+	public OwnerData(@Nonnull IClientTracker parent, @Nonnull Consumer<OwnerData> onChanged) { this.parent = parent; this.onChanged = onChanged; }
 
 	@Nonnull
 	public Owner getValidOwner() { return this.currentOwner.stillValid() ? this.currentOwner : this.backupOwner; }
 
 	public boolean hasOwner() { return this.currentOwner.stillValid() || this.backupOwner.stillValid(); }
-
-	public void flagAsClient() {
-		this.backupOwner.flagAsClient();
-		this.currentOwner.flagAsClient();
-	}
 	
 	public CompoundTag save()
 	{
@@ -53,11 +50,6 @@ public final class OwnerData implements IOwnerData {
 		{
 			this.backupOwner = Owner.load(compound.getCompound("BackupOwner"));
 			this.currentOwner = Owner.load(compound.getCompound("Owner"));
-			if(this.parent.isClient())
-			{
-				this.backupOwner.flagAsClient();
-				this.currentOwner.flagAsClient();
-			}
 		}
 		else
 		{
@@ -80,34 +72,20 @@ public final class OwnerData implements IOwnerData {
 				this.currentOwner = TeamOwner.of(compound.getLong("Team"));
 		}
 
-	}
-	
-	public void copyFrom(OwnerData owner) {
-		this.backupOwner = owner.backupOwner;
-		this.currentOwner = owner.currentOwner;
+		if(this.backupOwner == null)
+			this.backupOwner = Owner.getNull();
+		this.backupOwner.setParent(this);
+		if(this.currentOwner == null)
+			this.currentOwner = Owner.getNull();
+		this.currentOwner.setParent(this);
+
 	}
 
-
-	@Deprecated(since = "2.2.1.4")
-	public boolean hasPlayer() { return this.getPlayer() != null; }
-	@Deprecated(since = "2.2.1.4")
-	public PlayerReference getPlayer() {
-		if(this.currentOwner instanceof PlayerOwner po)
-			return po.player;
-		if(this.backupOwner instanceof PlayerOwner po)
-			return po.player;
-		return null;
+	public void copyFrom(@Nonnull OwnerData owner) {
+		this.backupOwner = owner.backupOwner.copy();
+		this.currentOwner = owner.currentOwner.copy();
 	}
 
-	@Deprecated(since = "2.2.1.4")
-	public boolean hasTeam() { return this.getTeam() != null; }
-	@Deprecated(since = "2.2.1.4")
-	public Team getTeam()
-	{
-		if(this.currentOwner instanceof TeamOwner to)
-			return TeamSaveData.GetTeam(this.parent.isClient(), to.teamID);
-		return null;
-	}
 	@Nonnull
 	public PlayerReference getPlayerForContext() { return this.getValidOwner().asPlayerReference(); }
 	
@@ -119,58 +97,19 @@ public final class OwnerData implements IOwnerData {
 	
 	public boolean isMember(@Nonnull PlayerReference player) { return this.getValidOwner().isMember(player); }
 
-	/**
-	 * @deprecated Use {@link #getName()} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public String getOwnerName() { return this.getName().getString(); }
-	/**
-	 * @deprecated Use {@link #getName()} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public String getOwnerName(boolean ignored) { return this.getName().getString(); }
-
 	@Nonnull
 	public MutableComponent getName() { return this.getValidOwner().getName(); }
 
-	/**
-	 * @deprecated Use {@link #SetOwner(Owner)} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public void SetCustomOwner(String customOwner) { this.SetOwner(FakeOwner.of(customOwner)); }
-	/**
-	 * @deprecated Use {@link #SetOwner(Owner)} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public void SetCustomOwner(MutableComponent customOwner) { this.SetOwner(FakeOwner.of(customOwner)); }
-
-	/**
-	 * @deprecated Use {@link #SetOwner(Owner)} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public void SetOwner(PlayerReference player) { this.SetOwner(PlayerOwner.of(player)); }
-
-	/**
-	 * @deprecated Use {@link #SetOwner(Owner)} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public void SetOwner(Player player) { this.SetOwner(PlayerReference.of(player)); }
-
-	/**
-	 * @deprecated Use {@link #SetOwner(Owner)} instead.
-	 */
-	@Deprecated(since = "2.2.1.4")
-	public void SetOwner(Team team) {
-		if(team == null)
-			return;
-		this.SetOwner(TeamOwner.of(team));
-	}
-
 	public void SetOwner(@Nonnull Owner newOwner)
 	{
-		this.currentOwner = newOwner;
-		if(newOwner.alwaysValid())
-			this.backupOwner = newOwner;
+		this.currentOwner = newOwner.copy();
+		this.currentOwner.setParent(this);
+		if(this.currentOwner.alwaysValid())
+		{
+			this.backupOwner = this.currentOwner.copy();
+			this.backupOwner.setParent(this);
+		}
+
 		this.onChanged.accept(this);
 	}
 	

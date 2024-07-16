@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
@@ -40,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.I
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
@@ -239,7 +240,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER; }
+	public IconData getIcon() { return IconUtil.ICON_TRADER; }
 
 	@Override
 	protected void saveAdditionalToJson(JsonObject json) {

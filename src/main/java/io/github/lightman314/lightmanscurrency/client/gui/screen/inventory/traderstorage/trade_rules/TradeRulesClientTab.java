@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -36,7 +37,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconAndButtonUtil.ICON_TRADE_RULES; }
+    public IconData getIcon() { return IconUtil.ICON_TRADE_RULES; }
 
     @Override
     public boolean blockInventoryClosing() { return true; }

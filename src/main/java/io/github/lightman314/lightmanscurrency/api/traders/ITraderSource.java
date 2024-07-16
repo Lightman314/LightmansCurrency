@@ -21,7 +21,7 @@ public interface ITraderSource {
 	default TraderData getSingleTrader() { return this.getTraders().get(0); }
 
 
-	default boolean showSearchBar() { return false; }
+	default boolean showSearchBox() { return false; }
 	@Nullable
 	default Component getCustomTitle() { return null; }
 
@@ -37,7 +37,7 @@ public interface ITraderSource {
 		@Override
 		public Component getCustomTitle() { return LCText.GUI_TRADER_ALL_NETWORK_TRADERS.get(); }
 		@Override
-		public boolean showSearchBar() { return true; }
+		public boolean showSearchBox() { return true; }
 		@Nonnull
 		@Override
 		public List<TraderData> getTraders() { return TraderAPI.API.GetAllNetworkTraders(this.isClient); }

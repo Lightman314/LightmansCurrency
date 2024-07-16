@@ -4,12 +4,11 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.taxes.ITaxInfoInteractable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.taxes.TaxInfoWidget;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -17,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInf
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public class TaxInfoClientTab extends TraderStorageClientTab<TaxInfoTab> impleme
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconAndButtonUtil.ICON_TAXES; }
+    public IconData getIcon() { return IconUtil.ICON_TAXES; }
 
     @Nullable
     @Override

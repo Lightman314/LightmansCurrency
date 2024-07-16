@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +47,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
+	public IconData getIcon() { return IconUtil.ICON_STORAGE; }
 	
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_AUCTION_STORAGE.get(); }
@@ -58,7 +59,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 		
 		this.buttonCollectItems = this.addChild(IconAndButtonUtil.quickExtractButton(screenArea.pos.offset(11, Y_OFFSET + 18 * ROWS + 8), b -> this.commonTab.quickTransfer()));
 		
-		this.buttonCollectMoney = this.addChild(new IconButton(screenArea.pos.offset(25, 118), b -> this.commonTab.collectCoins(), IconAndButtonUtil.ICON_COLLECT_COINS));
+		this.buttonCollectMoney = this.addChild(new IconButton(screenArea.pos.offset(25, 118), b -> this.commonTab.collectCoins(), IconUtil.ICON_COLLECT_COINS));
 		
 		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
 		

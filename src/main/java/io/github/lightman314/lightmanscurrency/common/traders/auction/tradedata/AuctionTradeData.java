@@ -58,9 +58,20 @@ public class AuctionTradeData extends TradeData {
 			return TimeUtil.DURATION_DAY * LCConfig.SERVER.auctionHouseDurationMin.get();
 		return TimeUtil.DURATION_DAY;
 	}
+
+	public static final long OVERTIME_DURATION = 5 * TimeUtil.DURATION_MINUTE;
 	
 	public boolean hasBid() { return this.lastBidPlayer != null; }
-	
+
+	private boolean overtimeAllowed = true;
+	public boolean isOvertimeAllowed() { return this.overtimeAllowed; }
+	public void setOvertimeAllowed(boolean value)
+	{
+		if(this.isActive())
+			return;
+		this.overtimeAllowed = value;
+	}
+
 	private boolean cancelled;
 	
 	private String persistentID = "";
@@ -76,7 +87,9 @@ public class AuctionTradeData extends TradeData {
 			return;
 		this.lastBidAmount = amount;
 		//Validate the min bid difference
-		if(!this.minBidDifference.sameType(this.lastBidAmount))
+		if(this.minBidDifference.isEmpty())
+			this.minBidDifference = this.lastBidAmount.getSmallestValue();
+		else if(!this.minBidDifference.sameType(this.lastBidAmount))
 			this.minBidDifference = this.lastBidAmount.getSmallestValue();
 	}
 
@@ -140,6 +153,7 @@ public class AuctionTradeData extends TradeData {
 		this.auctionItems = data.getAuctionItems();
 		this.setStartingBid(data.getStartingBid());
 		this.setMinBidDifferent(data.getMinimumBidDifference());
+		this.overtimeAllowed = data.overtimeAllowed();
 	}
 
 	public boolean isActive() { return this.startTime != 0 && !this.cancelled; }
@@ -194,6 +208,14 @@ public class AuctionTradeData extends TradeData {
 		//Send notification to the previous bidder letting them know they've been out-bid.
 		if(oldBidder != null)
 			NotificationSaveData.PushNotification(oldBidder.id, new AuctionHouseBidNotification(this));
+
+		long currentTime = TimeUtil.getCurrentTime();
+		if(this.overtimeAllowed && this.getRemainingTime(currentTime) < OVERTIME_DURATION)
+		{
+			//Reset start time to now, and set the auctions duration to 5 minutes
+			this.startTime = currentTime;
+			this.duration = OVERTIME_DURATION;
+		}
 		
 		return true;
 	}
@@ -318,11 +340,14 @@ public class AuctionTradeData extends TradeData {
 		
 		if(!this.persistentID.isBlank())
 			compound.putString("PersistentID", this.persistentID);
+
+		compound.putBoolean("Overtime", this.overtimeAllowed);
 		
 		return compound;
 	}
-	
-	public JsonObject saveToJson(JsonObject json) {
+
+	@Nonnull
+	public JsonObject saveToJson(@Nonnull JsonObject json) {
 		
 		for(int i = 0; i < this.auctionItems.size(); ++i)
 			json.add("Item" + (i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
@@ -332,7 +357,9 @@ public class AuctionTradeData extends TradeData {
 		json.add("StartingBid", this.lastBidAmount.toJson());
 		
 		json.add("MinimumBid", this.minBidDifference.toJson());
-		
+
+		json.addProperty("Overtime", this.overtimeAllowed);
+
 		return json;
 	}
 	
@@ -362,6 +389,9 @@ public class AuctionTradeData extends TradeData {
 			this.tradeOwner = PlayerReference.load(compound.getCompound("TradeOwner"));
 		
 		this.cancelled = compound.getBoolean("Cancelled");
+
+		if(compound.contains("Overtime"))
+			this.overtimeAllowed = compound.getBoolean("Overtime");
 		
 		if(compound.contains("PersistentID", Tag.TAG_STRING))
 			this.persistentID = compound.getString("PersistentID");

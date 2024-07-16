@@ -2,14 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public abstract class SlotMachineRenderBlock {
 
-    public static final Sprite EMPTY_SPRITE = Sprite.LockedSprite(IconAndButtonUtil.ICON_TEXTURE, 16, 32, 16, 16);
+    public static final Sprite EMPTY_SPRITE = Sprite.LockedSprite(IconUtil.ICON_TEXTURE, 16, 32, 16, 16);
 
     public abstract void render(@Nonnull EasyGuiGraphics gui, int x, int y);
     public final int weight;

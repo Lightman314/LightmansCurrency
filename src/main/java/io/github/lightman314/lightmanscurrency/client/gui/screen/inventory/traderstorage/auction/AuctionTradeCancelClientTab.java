@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -25,7 +25,7 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.BLANK; }
+	public IconData getIcon() { return IconData.Null(); }
 
 	@Override
 	public MutableComponent getTooltip() { return EasyText.empty(); }

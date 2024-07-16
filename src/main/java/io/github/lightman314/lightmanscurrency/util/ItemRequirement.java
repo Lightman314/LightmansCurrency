@@ -7,37 +7,52 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 
-public final class ItemRequirement implements Predicate<ItemStack> {
+public abstract class ItemRequirement implements Predicate<ItemStack> {
 
-    public static final ItemRequirement NULL = of((s) -> false, 0);
+    private static ItemRequirement NULL = null;
+    @Nonnull
+    public static ItemRequirement getNull() {
+        if(NULL == null)
+            NULL = new NullRequirement();
+        return NULL;
+    }
 
-    public final Predicate<ItemStack> filter;
-    public final int count;
-    private ItemRequirement(Predicate<ItemStack> filter, int count) { this.filter = filter; this.count = count; }
+    private int count;
+    public int getCount() { return this.count; }
+    private ItemRequirement(int count) { this.count = count; }
     @Override
-    public boolean test(ItemStack stack) { return this.filter.test(stack); }
-    public boolean isNull() { return this == NULL; }
+    public abstract boolean test(ItemStack stack);
+    public final boolean isNull() { return this instanceof NullRequirement || this.count <= 0; }
 
-    public ItemRequirement merge(ItemRequirement other) { return of(this.filter, this.count + other.count); }
+    public boolean tryMerge(@Nonnull ItemRequirement other)
+    {
+        if(this.matches(other))
+        {
+            this.count += other.count;
+            other.count = 0;
+            return true;
+        }
+        return false;
+    }
 
-    public static ItemRequirement of(Predicate<ItemStack> filter, int count) { return new ItemRequirement(filter, count); }
     public static ItemRequirement of(ItemStack stack) {
         if(stack == null || stack.isEmpty())
-            return NULL;
-        return of((s) -> InventoryUtil.ItemMatches(s, stack), stack.getCount());
+            return getNull();
+        return new StackMatch(stack, stack.getCount());
     }
     public static ItemRequirement ofItemNoNBT(ItemStack stack) {
         if(stack == null || stack.isEmpty())
-            return NULL;
+            return getNull();
         return of(stack.getItem(), stack.getCount());
     }
     public static ItemRequirement of(Item item, int count) {
         if(item == null || item == Items.AIR)
-            return NULL;
-        return of((s) -> s.getItem() == item, count);
+            return getNull();
+        return new ItemMatch(item,count);
     }
 
     /**
@@ -53,14 +68,14 @@ public final class ItemRequirement implements Predicate<ItemStack> {
         if(requirement1.isNull())
         {
             List<ItemStack> validItems = getValidItems(container, requirement2);
-            if(validItems.size() == 0)
+            if(validItems.isEmpty())
                 return null;
             return Lists.newArrayList(getRandomItem(validItems, requirement2.count));
         }
         else if(requirement2.isNull())
         {
             List<ItemStack> validItems = getValidItems(container, requirement1);
-            if(validItems.size() == 0)
+            if(validItems.isEmpty())
                 return null;
             return Lists.newArrayList(getRandomItem(validItems, requirement1.count));
         }
@@ -97,7 +112,7 @@ public final class ItemRequirement implements Predicate<ItemStack> {
                 }
             }
         }
-        if(validItems1.size() > 0 && validItems2.size() > 0)
+        if(!validItems1.isEmpty() && !validItems2.isEmpty())
             return Lists.newArrayList(getRandomItem(validItems1, requirement1.count), getRandomItem(validItems2, requirement2.count));
         else
             return null;
@@ -126,7 +141,7 @@ public final class ItemRequirement implements Predicate<ItemStack> {
     }
 
     public static ItemStack getRandomItem(List<ItemStack> validItems, int count) {
-        if(validItems.size() == 0)
+        if(validItems.isEmpty())
             return ItemStack.EMPTY;
         ItemStack stack = validItems.get(new Random().nextInt(validItems.size()));
         stack.setCount(count);
@@ -233,5 +248,50 @@ public final class ItemRequirement implements Predicate<ItemStack> {
         return results;
     }
 
+    public abstract boolean matches(@Nonnull ItemRequirement otherRequirement);
+
+    private static class StackMatch extends ItemRequirement
+    {
+        private final ItemStack stack;
+        private StackMatch(@Nonnull ItemStack stack) { this(stack, stack.getCount()); }
+        private StackMatch(@Nonnull ItemStack stack, int count) { super(count); this.stack = stack; }
+
+        @Override
+        public boolean test(ItemStack stack) { return InventoryUtil.ItemMatches(this.stack,stack); }
+
+        @Override
+        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+            if(otherRequirement instanceof StackMatch pm)
+                return InventoryUtil.ItemMatches(this.stack,pm.stack);
+            return false;
+        }
+    }
+
+    private static class ItemMatch extends ItemRequirement
+    {
+
+        private final Item item;
+        private ItemMatch(@Nonnull Item item, int count) { super(count); this.item = item; }
+
+        @Override
+        public boolean test(ItemStack stack) { return stack.getItem() == this.item; }
+
+        @Override
+        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+            if(otherRequirement instanceof ItemMatch im)
+                return im.item == this.item;
+            return false;
+        }
+
+    }
+
+    private static class NullRequirement extends ItemRequirement
+    {
+        private NullRequirement() { super(0); }
+        @Override
+        public boolean test(ItemStack stack) { return false; }
+        @Override
+        public boolean matches(@Nonnull ItemRequirement otherRequirement) { return otherRequirement instanceof NullRequirement; }
+    }
 
 }

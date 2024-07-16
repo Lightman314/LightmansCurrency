@@ -5,14 +5,14 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +22,7 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconAndButtonUtil.ICON_FREE_SAMPLE; }
+    public IconData getIcon() { return IconUtil.ICON_FREE_SAMPLE; }
 
     EasyButton buttonClearMemory;
 

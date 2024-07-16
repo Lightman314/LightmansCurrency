@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface ITraderStorageMenu extends IClientTracker {
+public interface ITraderStorageMenu extends IClientTracker, LazyPacketData.IBuilderProvider {
 
     void setTab(int slot, @Nonnull TraderStorageTab tab);
     void clearTab(int slot);

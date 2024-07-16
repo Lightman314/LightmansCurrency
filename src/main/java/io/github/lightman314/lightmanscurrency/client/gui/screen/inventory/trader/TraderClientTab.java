@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ public abstract class TraderClientTab extends EasyTab {
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.BLANK; }
+	public IconData getIcon() { return IconData.Null(); }
 
 	@Override
 	public final int getColor() { return 0xFFFFFF; }

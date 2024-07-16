@@ -293,8 +293,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					//Confirm that we have enough space to store the purchased item(s)
 					if(this.itemBuffer.canFitItems(trade.getSellItem(0), trade.getSellItem(1)))
 					{
-						this.interactWithTrader();
-						this.setItemBufferDirty();
+						if(this.interactWithTrader().isSuccess())
+							this.setItemBufferDirty();
 					}
 				}
 				else if(trade.isPurchase())
@@ -302,8 +302,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					//Confirm that we have enough of the item in storage to sell the item(s)
 					if(this.itemBuffer.hasItems(trade.getSellItem(0), trade.getSellItem(1)))
 					{
-						this.interactWithTrader();
-						this.setItemBufferDirty();
+						if(this.interactWithTrader().isSuccess())
+							this.setItemBufferDirty();
 					}
 				}
 				else if(trade.isBarter())
@@ -312,8 +312,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					//That we have enough of the item in storage to barter away.
 					if(this.itemBuffer.hasItems(trade.getBarterItem(0), trade.getBarterItem(1)) && this.itemBuffer.canFitItems(trade.getSellItem(0), trade.getSellItem(1)))
 					{
-						this.interactWithTrader();
-						this.setItemBufferDirty();
+						if(this.interactWithTrader().isSuccess())
+							this.setItemBufferDirty();
 					}
 				}
 			}
