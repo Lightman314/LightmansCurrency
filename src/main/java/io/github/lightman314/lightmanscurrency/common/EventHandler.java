@@ -209,16 +209,16 @@ public class EventHandler {
 		//Invalidate the capabilities now that the reason is no longer needed
 		oldPlayer.invalidateCaps();
 
-	}
+	}//*/
 
 	@SubscribeEvent
 	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
 		Player player = event.getEntity();
 		if(player.level().isClientSide)
 			return;
-		sendWalletUpdatePacket(player);
+		//sendWalletUpdatePacket(player);
 		sendEventUpdatePacket(player);
-	}*/
+	}//*/
 
 	private static void sendWalletUpdatePacket(LivingEntity entity, Player target) {
 		if(entity.level().isClientSide && entity.hasData(ModAttachmentTypes.WALLET_HANDLER))

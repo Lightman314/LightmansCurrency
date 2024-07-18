@@ -47,6 +47,7 @@ public class RotatableBlock extends EasyBlock implements IRotatableBlock {
     {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
+
     }
 	
 	@Nonnull

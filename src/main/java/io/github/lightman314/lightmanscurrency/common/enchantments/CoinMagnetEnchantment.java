@@ -13,12 +13,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBas
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
@@ -35,7 +37,9 @@ public class CoinMagnetEnchantment {
 		if(!WalletItem.isWallet(wallet) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return;
 		//Get the level (-1 to properly calculate range)
-		int enchantLevel = wallet.getEnchantmentLevel(LookupHelper.lookupEnchantment(entity.registryAccess(),ModEnchantments.COIN_MAGNET));
+		Holder<Enchantment> cmEnchant = LookupHelper.lookupEnchantment(entity.registryAccess(),ModEnchantments.COIN_MAGNET);
+		int enchantLevel = cmEnchant != null ? wallet.getEnchantmentLevel(cmEnchant) : 0;
+
 		//Don't do anything if the Coin Magnet enchantment is not present.
 		if(enchantLevel <= 0)
 			return;

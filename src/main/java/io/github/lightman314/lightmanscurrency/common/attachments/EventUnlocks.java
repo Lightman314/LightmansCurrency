@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.attachments;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -14,13 +17,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class EventUnlocks implements INBTSerializable<CompoundTag>
+public class EventUnlocks implements INBTSerializable<CompoundTag>, IClientTracker
 {
 
     public static EventUnlocks create(@Nonnull IAttachmentHolder holder) { return new EventUnlocks(holder); }
 
+    @Override
+    public boolean isClient() { return this.parent == null || this.parent.level().isClientSide; }
+
+    private final Entity parent;
     private final IAttachmentHolder holder;
-    private EventUnlocks(@Nonnull IAttachmentHolder holder) { this.holder = holder; }
+    private EventUnlocks(@Nonnull IAttachmentHolder holder) {
+        this.holder = holder;
+        if(holder instanceof Entity e)
+            this.parent = e;
+        else
+            this.parent = null;
+    }
 
     private final List<String> unlocked = new ArrayList<>();
 
@@ -51,6 +64,8 @@ public class EventUnlocks implements INBTSerializable<CompoundTag>
 
     private void setChanged() {
         this.holder.setData(ModAttachmentTypes.EVENT_UNLOCKS,this);
+        if(this.isServer() && this.parent instanceof Player player)
+            new SPacketSyncEventUnlocks(this.unlocked).sendTo(player);
     }
 
     @Override
