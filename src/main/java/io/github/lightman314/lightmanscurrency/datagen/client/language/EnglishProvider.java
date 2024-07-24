@@ -89,6 +89,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_SPEED_3, "Speed Upgrade (Emerald)");
         this.translate(LCText.ITEM_UPGRADE_SPEED_4, "Speed Upgrade (Diamond)");
         this.translate(LCText.ITEM_UPGRADE_SPEED_5, "Speed Upgrade (Netherite)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_1, "Trade Offer Upgrade (Copper)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_2, "Trade Offer Upgrade (Iron)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_3, "Trade Offer Upgrade (Gold)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_4, "Trade Offer Upgrade (Emerald)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_5, "Trade Offer Upgrade (Diamond)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_6, "Trade Offer Upgrade (Netherite)");
         this.translate(LCText.ITEM_UPGRADE_NETWORK, "Network Upgrade");
         this.translate(LCText.ITEM_UPGRADE_HOPPER, "Hopper Upgrade");
         this.translate(LCText.ITEM_UPGRADE_COIN_EXCHANGE, "Coin Exchange Upgrade");
@@ -278,6 +284,8 @@ public class EnglishProvider extends TranslationProvider {
 
         //Upgrade Tooltips
         this.translate(LCText.TOOLTIP_UPGRADE_TARGETS,"Upgrade can be used by:");
+        this.translate(LCText.TOOLTIP_UPGRADE_UNIQUE,"Unique Upgrade");
+        this.translate(LCText.TOOLTIP_UPGRADE_TRADE_OFFER, "Increases traders offer limit by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_ITEM_CAPACITY, "Increases item storage capacity by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_SPEED, "Decreases the delay between interactions by %s ticks");
         this.translate(LCText.TOOLTIP_UPGRADE_NETWORK,"Makes a trader visible from a trading terminal");
@@ -635,13 +643,25 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TRADE_RULE_TRADE_LIMIT_DENIAL,"This trade has been done %s times already");
         this.translate(LCText.TRADE_RULE_TRADE_LIMIT_INFO,"This trade has been done %1$s of %2$s times");
         this.translate(LCText.TRADE_RULE_FREE_SAMPLE,"Free Sample");
-        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO,"Your first purchase is free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_SINGLE,"Your first purchase is free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_MULTI,"Your first %s purchases are free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_USED,"You have used %1$s of your %2$s free samples");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_TIMED,"Free sample resets after %s");
         this.translate(LCText.BUTTON_FREE_SAMPLE_RESET,"Reset Free Samples");
-        this.translate(LCText.TOOLTIP_FREE_SAMPLE_RESET,"Forgets who has received their free sample so that they may receive it again");
-        this.translate(LCText.GUI_FREE_SAMPLE_PLAYER_COUNT,"%s player(s) have claimed a free sample!");
+        this.translate(LCText.TOOLTIP_FREE_SAMPLE_RESET,"Forgets who has received their free sample(s) so that they may receive it again");
+        this.translate(LCText.GUI_FREE_SAMPLE_PLAYER_COUNT,"%s free samples have been given!");
+        this.translate(LCText.GUI_FREE_SAMPLE_INFO,"Players can claim %s free sample(s)");
         this.translate(LCText.TRADE_RULE_PRICE_FLUCTUATION,"Price Fluctuation");
         this.translate(LCText.GUI_PRICE_FLUCTUATION_LABEL,"% Fluctuation");
         this.translate(LCText.GUI_PRICE_FLUCTUATION_INFO,"Randomly increases or decreases the price by up to %1$s%% of the base price every %2$s");
+        this.translate(LCText.TRADE_RULE_DEMAND_PRICING,"Demand-Based Pricing");
+        this.translate(LCText.TRADE_RULE_DEMAND_PRICING_INFO,"Trade Price changes depending on available stock");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO, "Price will fluctuate between %1$s (stock <= %4$s) to %2$s (stock >= %3$s)");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_PRICE, "Price inputs are invalid!");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_STOCK, "Upper stock limit <= Lower stock limit");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_HOST, "Trade is not a Sale which means stock count may be dependent on the price");
+        this.translate(LCText.GUI_DEMAND_PRICING_STOCK_SMALL, "Lower Stock:");
+        this.translate(LCText.GUI_DEMAND_PRICING_STOCK_LARGE, "Upper Stock:");
 
         //Permissions
         this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage");

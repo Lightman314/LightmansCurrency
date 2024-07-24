@@ -28,9 +28,6 @@ public abstract class SettingsSubTab extends EasyTab {
         this.menu = this.parent.menu;
     }
 
-    @Override
-    public int getColor() { return 0xFFFFFF; }
-
     public abstract boolean canOpen();
 
     public final void sendMessage(@Nonnull LazyPacketData.Builder message) { this.menu.SendMessage(message); }

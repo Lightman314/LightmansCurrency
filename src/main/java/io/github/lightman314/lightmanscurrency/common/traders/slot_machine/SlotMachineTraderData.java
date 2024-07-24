@@ -11,8 +11,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -38,11 +39,13 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
@@ -50,9 +53,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,9 +66,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SlotMachineTraderData extends TraderData implements TraderItemStorage.ITraderItemFilter {
+public class SlotMachineTraderData extends InputTraderData implements TraderItemStorage.ITraderItemFilter, TraderItemHandler.IItemStorageProvider {
 
     public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trader"),SlotMachineTraderData::new);
+
+    TraderItemHandler<SlotMachineTraderData> itemHandler = new TraderItemHandler<>(this);
+
+    public IItemHandler getItemHandler(Direction relativeSide) { return this.itemHandler.getHandler(relativeSide); }
 
     private MoneyValue price = MoneyValue.empty();
     public final MoneyValue getPrice() { return this.price; }
@@ -147,12 +156,19 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     private final TraderItemStorage storage = new TraderItemStorage(this);
+    @Nonnull
     public final TraderItemStorage getStorage() { return this.storage; }
 
     private SlotMachineTraderData() { super(TYPE); }
     public SlotMachineTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
 
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
+
+    @Override
+    public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
+
+    @Override
+    public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
     @Override
     public IconData getIcon() { return IconUtil.ICON_TRADER_ALT; }
@@ -204,6 +220,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+        super.saveAdditional(compound,lookup);
         this.saveStorage(compound,lookup);
         this.saveLastRewards(compound,lookup);
         this.saveEntries(compound,lookup);
@@ -234,7 +251,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     @Override
     protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-
+        super.loadAdditional(compound,lookup);
         if(compound.contains("Storage"))
             this.storage.load(compound, "Storage", lookup);
         if(compound.contains("LastReward"))
@@ -433,7 +450,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    protected void addPermissionOptions(List<PermissionOption> options) { }
+    public void addPermissionOptions(List<PermissionOption> options) { }
 
     @Override
     public boolean isItemRelevant(ItemStack item) {
@@ -444,6 +461,9 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         }
         return false;
     }
+
+    @Override
+    public boolean allowExtraction(@Nonnull ItemStack stack) { return !this.isItemRelevant(stack); }
 
     @Override
     public int getStorageStackLimit() {

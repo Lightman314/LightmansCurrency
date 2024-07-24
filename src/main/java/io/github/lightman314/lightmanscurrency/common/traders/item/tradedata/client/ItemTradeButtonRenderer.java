@@ -137,7 +137,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     private void addNBTWarning(@Nonnull List<Component> tooltips, boolean purchase, boolean enforceNBT)
     {
         if(!enforceNBT) //Put NBT warning at the top of the tooltip. Should only be called after swapping out any custom names, etc.
-            tooltips.add(0,(purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+            tooltips.addFirst((purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
     }
 
     private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT) {

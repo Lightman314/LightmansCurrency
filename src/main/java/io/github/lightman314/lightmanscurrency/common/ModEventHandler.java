@@ -8,10 +8,12 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,6 +36,12 @@ public class ModEventHandler {
                 return itemTrader.getItemHandler(s);
             return null;
         }, BlockEntityBlockHelper.getBlocksForBlockEntities(BlockEntityBlockHelper.ITEM_TRADER_TYPE,BlockEntityBlockHelper.FREEZER_TRADER_TYPE,BlockEntityBlockHelper.ARMOR_TRADER_TYPE,BlockEntityBlockHelper.TICKET_KIOSK_TYPE,BlockEntityBlockHelper.BOOKSHELF_TRADER_TYPE));
+        //Register Item Handler for Slot Machine
+        TraderBlockEntity.easyRegisterCapProvider(event, Capabilities.ItemHandler.BLOCK, (t,s) -> {
+            if(t instanceof SlotMachineTraderData slotMachine)
+                return slotMachine.getItemHandler(s);
+            return null;
+        }, ModBlocks.SLOT_MACHINE.get());
         //Register Item Handlers for capability interface blocks
         CapabilityInterfaceBlockEntity.easyRegisterCapProvider(event,Capabilities.ItemHandler.BLOCK);
         //Register Item Handlers for the Item Trader Interface

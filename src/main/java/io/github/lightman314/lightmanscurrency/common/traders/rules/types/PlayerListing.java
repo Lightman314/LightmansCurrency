@@ -46,7 +46,7 @@ public class PlayerListing extends TradeRule {
     private PlayerListing() { super(TYPE); }
 
     @Override
-    public void beforeTrade(TradeEvent.PreTradeEvent event) {
+    public void beforeTrade(@Nonnull TradeEvent.PreTradeEvent event) {
         if(this.isBlacklistMode() && this.isInList(event.getPlayerReference()))
             event.addDenial(LCText.TRADE_RULE_PLAYER_LISTING_DENIAL_BLACKLIST.get());
         else if(this.isWhitelistMode())

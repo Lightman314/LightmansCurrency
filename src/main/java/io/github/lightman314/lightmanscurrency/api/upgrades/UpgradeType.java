@@ -19,6 +19,8 @@ public abstract class UpgradeType {
 
 	private final List<Component> possibleTargets = new ArrayList<>();
 
+	public boolean isUnique() { return false; }
+
 	@Nonnull
 	public List<Component> getTooltip(@Nonnull UpgradeData data) { return new ArrayList<>(); }
 
@@ -66,11 +68,16 @@ public abstract class UpgradeType {
 	
 	public static class Simple extends UpgradeType {
 
+		private final boolean unique;
 		private final List<Component> targets = new ArrayList<>();
 
+		@Override
+		public boolean isUnique() { return this.unique; }
+
 		private final List<Component> tooltips;
-		public Simple(@Nonnull Component... tooltips) { this.tooltips = ImmutableList.copyOf(tooltips); }
-		
+		public Simple(@Nonnull Component... tooltips) { this(false,tooltips); }
+		public Simple(boolean unique, @Nonnull Component... tooltips) { this.unique = unique; this.tooltips = ImmutableList.copyOf(tooltips); }
+
 		@Nonnull
 		@Override
 		public List<Component> getTooltip(@Nonnull UpgradeData data) { return this.tooltips; }
