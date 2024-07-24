@@ -177,16 +177,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	@Override
 	public final void refactorTrades() {
-		int newCount = this.baseTradeCount + TradeOfferUpgrade.getBonusTrades(this.getUpgrades());
+		int newCount = MathUtil.clamp(this.baseTradeCount + TradeOfferUpgrade.getBonusTrades(this.getUpgrades()), 1, TraderData.GLOBAL_TRADE_LIMIT);
 		if(newCount != this.trades.size())
 			this.overrideTradeCount(newCount);
 	}
 
 	public void overrideTradeCount(int newTradeCount)
 	{
-		if(this.getTradeCount() == MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT))
+		int tradeCount = MathUtil.clamp(newTradeCount,1,TraderData.GLOBAL_TRADE_LIMIT);
+		if(this.trades.size() == tradeCount)
 			return;
-		int tradeCount = MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT);
 		List<ItemTradeData> oldTrades = this.trades;
 		this.trades = ItemTradeData.listOfSize(tradeCount, !this.isPersistent());
 		//Write the old trade data into the array.
