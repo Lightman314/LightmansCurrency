@@ -201,6 +201,7 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterTradeRule(TradeLimit.TYPE);
 		TraderAPI.API.RegisterTradeRule(FreeSample.TYPE);
 		TraderAPI.API.RegisterTradeRule(PriceFluctuation.TYPE);
+		TraderAPI.API.RegisterTradeRule(DemandPricing.TYPE);
 
 		TradeRule.addLoadListener(PlayerListing.LISTENER);
 		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");

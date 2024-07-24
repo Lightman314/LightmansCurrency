@@ -198,6 +198,7 @@ public final class LazyPacketData {
         Map<String,Data> data = new HashMap<>();
 
         private void addData(@Nonnull String key, @Nonnull Data data) { this.data.put(key, data); }
+        public Builder setFlag(@Nonnull String key) { return this.setBoolean(key,true); }
         public Builder setBoolean(@Nonnull String key, boolean value) { this.data.put(key, Data.ofBoolean(value)); return this; }
         public Builder setInt(@Nonnull String key, int value) { this.data.put(key, Data.ofInt(value)); return this; }
         public Builder setLong(@Nonnull String key, long value) { this.data.put(key, Data.ofLong(value)); return this; }

@@ -10,9 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 
 public abstract class TeamTab extends EasyTab {
-
-
-	public int getColor() { return 0xFFFFFF; }
 	
 	protected final TeamManagerScreen screen;
 	protected final Player getPlayer() { return this.screen.getPlayer(); }

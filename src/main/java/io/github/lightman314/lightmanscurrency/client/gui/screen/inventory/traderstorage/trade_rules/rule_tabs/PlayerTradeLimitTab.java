@@ -85,7 +85,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
         PlayerTradeLimit rule = this.getRule();
         if(rule != null)
             rule.resetMemory();
-        this.sendUpdateMessage(LazyPacketData.simpleFlag("Limit"));
+        this.sendUpdateMessage(LazyPacketData.simpleFlag("ClearMemory"));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime) {

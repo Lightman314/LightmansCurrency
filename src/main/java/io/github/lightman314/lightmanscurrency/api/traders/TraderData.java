@@ -462,7 +462,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	private SimpleContainer upgrades;
 	public Container getUpgrades() { return this.upgrades; }
 	public final boolean allowUpgrade(@Nonnull UpgradeType type) {
-		if(!this.showOnTerminal() && this.canShowOnTerminal() && type == Upgrades.NETWORK)
+		if(type == Upgrades.NETWORK && !this.showOnTerminal() && this.canShowOnTerminal())
+			return true;
+		if(this instanceof IFlexibleOfferTrader && type == Upgrades.TRADE_OFFERS)
 			return true;
 		return this.allowAdditionalUpgradeType(type);
 	}
@@ -562,13 +564,23 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected TraderData(@Nonnull TraderType<?> type) {
 		this.type = type;
 		this.upgrades = new SimpleContainer(5);
-		this.upgrades.addListener(c -> this.markDirty(this::saveUpgrades));
+		this.upgrades.addListener(this::upgradesChanged);
 	}
 	
 	protected TraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos) {
 		this(type);
 		this.worldPosition = WorldPosition.ofLevel(level, pos);
 		this.traderBlock = level.getBlockState(this.worldPosition.getPos()).getBlock().asItem();
+	}
+
+	private void upgradesChanged(@Nonnull Container container)
+	{
+		if(container == this.upgrades)
+		{
+			this.markDirty(this::saveUpgrades);
+			if(this instanceof IFlexibleOfferTrader fot)
+				fot.refactorTrades();
+		}
 	}
 	
 	private String persistentID = "";
@@ -797,7 +809,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("Upgrades"))
 		{
 			this.upgrades = InventoryUtil.loadAllItems("Upgrades", compound, 5);
-			this.upgrades.addListener(c -> this.markDirty(this::saveUpgrades));
+			this.upgrades.addListener(this::upgradesChanged);
 		}
 		
 		if(compound.contains("StoredMoney"))
@@ -939,10 +951,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		return event;
 	}
-	
+
 	public TradeCostEvent runTradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
-		TradeCostEvent event = new TradeCostEvent(trade, context);
+		return runTradeCostEvent(trade, context, TradeRule.getBaseCost(trade,context));
+	}
+	public TradeCostEvent runTradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context, @Nonnull MoneyValue baseCost)
+	{
+		TradeCostEvent event = new TradeCostEvent(trade, context, baseCost);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)

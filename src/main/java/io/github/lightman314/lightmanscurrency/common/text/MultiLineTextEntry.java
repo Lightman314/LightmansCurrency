@@ -45,6 +45,8 @@ public final class MultiLineTextEntry {
     @Nonnull
     public static MultiLineTextEntry tooltip(@Nonnull String modid, @Nonnull String key) { return new MultiLineTextEntry("tooltip." + modid + "." + key); }
     @Nonnull
+    public static MultiLineTextEntry gui(@Nonnull String modid, @Nonnull String key) { return new MultiLineTextEntry("gui." + modid + "." + key); }
+    @Nonnull
     public static MultiLineTextEntry message(@Nonnull String modid, @Nonnull String key) { return new MultiLineTextEntry("message." + modid + "." + key); }
 
 }

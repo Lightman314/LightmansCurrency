@@ -840,6 +840,68 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
                 .save(consumer, ItemID("ticket_station/", ModItems.GOLDEN_TICKET_PASS));
 
+        //2.2.2.5
+        //Offer Upgrade
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.TRADING_CORE.get()),
+                        Ingredient.of(Tags.Items.INGOTS_COPPER),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_1.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_1));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.OFFER_UPGRADE_1.get()),
+                        Ingredient.of(Tags.Items.INGOTS_IRON),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_2.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_1))
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_2));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.OFFER_UPGRADE_2.get()),
+                        Ingredient.of(Tags.Items.INGOTS_GOLD),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_3.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_2))
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_3));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.OFFER_UPGRADE_3.get()),
+                        Ingredient.of(Tags.Items.GEMS_EMERALD),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_4.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_3))
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_4));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.OFFER_UPGRADE_4.get()),
+                        Ingredient.of(Tags.Items.GEMS_DIAMOND),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_5.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_4))
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_5));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.OFFER_UPGRADE_5.get()),
+                        Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                        RecipeCategory.MISC,
+                        ModItems.OFFER_UPGRADE_6.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("trader",TraderKnowledge())
+                .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_5))
+                .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_6));
+
 
     }
 

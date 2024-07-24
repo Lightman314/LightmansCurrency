@@ -23,8 +23,6 @@ public abstract class CoinChestTab extends EasyTab
 
 	public boolean isVisible() { return true; }
 
-	public final int getColor() { return 0xFFFFFF; }
-
 	public final boolean upgradeSlotsVisible() { return this.getClass() == DefaultTab.class; }
 	public boolean coinSlotsVisible() { return true; }
 	public boolean inventoryVisible() { return true; }

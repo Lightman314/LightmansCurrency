@@ -100,6 +100,12 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_SPEED_3 = TextEntry.item(ModItems.SPEED_UPGRADE_3);
     public static final TextEntry ITEM_UPGRADE_SPEED_4 = TextEntry.item(ModItems.SPEED_UPGRADE_4);
     public static final TextEntry ITEM_UPGRADE_SPEED_5 = TextEntry.item(ModItems.SPEED_UPGRADE_5);
+    public static final TextEntry ITEM_UPGRADE_OFFER_1 = TextEntry.item(ModItems.OFFER_UPGRADE_1);
+    public static final TextEntry ITEM_UPGRADE_OFFER_2 = TextEntry.item(ModItems.OFFER_UPGRADE_2);
+    public static final TextEntry ITEM_UPGRADE_OFFER_3 = TextEntry.item(ModItems.OFFER_UPGRADE_3);
+    public static final TextEntry ITEM_UPGRADE_OFFER_4 = TextEntry.item(ModItems.OFFER_UPGRADE_4);
+    public static final TextEntry ITEM_UPGRADE_OFFER_5 = TextEntry.item(ModItems.OFFER_UPGRADE_5);
+    public static final TextEntry ITEM_UPGRADE_OFFER_6 = TextEntry.item(ModItems.OFFER_UPGRADE_6);
     public static final TextEntry ITEM_UPGRADE_NETWORK = TextEntry.item(ModItems.NETWORK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_HOPPER = TextEntry.item(ModItems.HOPPER_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_COIN_EXCHANGE = TextEntry.item(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
@@ -293,6 +299,8 @@ public class LCText {
 
     //Upgrades
     public static final TextEntry TOOLTIP_UPGRADE_TARGETS = TextEntry.tooltip(MODID,"upgrade.targets");
+    public static final TextEntry TOOLTIP_UPGRADE_UNIQUE = TextEntry.tooltip(MODID,"upgrade.unique");
+    public static final TextEntry TOOLTIP_UPGRADE_TRADE_OFFER = TextEntry.tooltip(MODID,"upgrade.trade_offer");
     public static final TextEntry TOOLTIP_UPGRADE_ITEM_CAPACITY = TextEntry.tooltip(MODID,"upgrade.item_capacity");
     public static final TextEntry TOOLTIP_UPGRADE_SPEED = TextEntry.tooltip(MODID,"upgrade.speed");
     public static final TextEntry TOOLTIP_UPGRADE_NETWORK = TextEntry.tooltip(MODID,"upgrade.network");
@@ -631,13 +639,25 @@ public class LCText {
     public static final TextEntry TRADE_RULE_TRADE_LIMIT_DENIAL = TextEntry.tradeRuleMessage(TradeLimit.TYPE,"denial");
     public static final TextEntry TRADE_RULE_TRADE_LIMIT_INFO = TextEntry.tradeRuleMessage(TradeLimit.TYPE,"info");
     public static final TextEntry TRADE_RULE_FREE_SAMPLE = TextEntry.tradeRule(FreeSample.TYPE);
-    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_SINGLE = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.single");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_MULTI = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.multi");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_USED = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.used");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_TIMED = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.timed");
     public static final TextEntry BUTTON_FREE_SAMPLE_RESET = TextEntry.button(MODID,"trade_rule.free_sample.reset");
     public static final TextEntry TOOLTIP_FREE_SAMPLE_RESET = TextEntry.tooltip(MODID,"trade_rule.free_sample.reset");
-    public static final TextEntry GUI_FREE_SAMPLE_PLAYER_COUNT = TextEntry.gui(MODID,"trade_rule.free_sample.player_count");
+    public static final TextEntry GUI_FREE_SAMPLE_PLAYER_COUNT = TextEntry.gui(MODID,"trade_rule.free_sample.count");
+    public static final TextEntry GUI_FREE_SAMPLE_INFO = TextEntry.gui(MODID,"trade_rule.free_sample.info");
     public static final TextEntry TRADE_RULE_PRICE_FLUCTUATION = TextEntry.tradeRule(PriceFluctuation.TYPE);
     public static final TextEntry GUI_PRICE_FLUCTUATION_LABEL = TextEntry.gui(MODID,"trade_rule.price_fluctuation.label");
     public static final TextEntry GUI_PRICE_FLUCTUATION_INFO = TextEntry.gui(MODID,"trade_rule.price_fluctuation.info");
+    public static final TextEntry TRADE_RULE_DEMAND_PRICING = TextEntry.tradeRule(DemandPricing.TYPE);
+    public static final TextEntry TRADE_RULE_DEMAND_PRICING_INFO = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"info");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO = TextEntry.gui(MODID,"trade_rule.demand_pricing.info");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_PRICE = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_price");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_STOCK = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_stock");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_HOST = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_host");
+    public static final TextEntry GUI_DEMAND_PRICING_STOCK_SMALL = TextEntry.gui(MODID,"trade_rule.demand_pricing.small_stock");
+    public static final TextEntry GUI_DEMAND_PRICING_STOCK_LARGE = TextEntry.gui(MODID,"trade_rule.demand_pricing.large_stock");
 
     //Permissions
     public static final TextEntry PERMISSION_OPEN_STORAGE = TextEntry.permission(Permissions.OPEN_STORAGE);

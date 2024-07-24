@@ -1,11 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
@@ -90,7 +88,15 @@ public class ModItems {
 		SPEED_UPGRADE_3 = ModRegistries.ITEMS.register("speed_upgrade_3", () -> new SpeedUpgradeItem(12, new Item.Properties()));
 		SPEED_UPGRADE_4 = ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties()));
 		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties()));
-		
+
+		//Offer Upgrades
+		OFFER_UPGRADE_1 = ModRegistries.ITEMS.register("offer_upgrade_1", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,1,new Item.Properties()));
+		OFFER_UPGRADE_2 = ModRegistries.ITEMS.register("offer_upgrade_2", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,2,new Item.Properties()));
+		OFFER_UPGRADE_3 = ModRegistries.ITEMS.register("offer_upgrade_3", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,4,new Item.Properties()));
+		OFFER_UPGRADE_4 = ModRegistries.ITEMS.register("offer_upgrade_4", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,8,new Item.Properties()));
+		OFFER_UPGRADE_5 = ModRegistries.ITEMS.register("offer_upgrade_5", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,12,new Item.Properties()));
+		OFFER_UPGRADE_6 = ModRegistries.ITEMS.register("offer_upgrade_6", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,16,new Item.Properties()));
+
 		//Network Upgrade
 		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(Upgrades.NETWORK, new Item.Properties()));
 		
@@ -157,6 +163,13 @@ public class ModItems {
 	public static final RegistryObject<Item> SPEED_UPGRADE_3;
 	public static final RegistryObject<Item> SPEED_UPGRADE_4;
 	public static final RegistryObject<Item> SPEED_UPGRADE_5;
+
+	public static final RegistryObject<Item> OFFER_UPGRADE_1;
+	public static final RegistryObject<Item> OFFER_UPGRADE_2;
+	public static final RegistryObject<Item> OFFER_UPGRADE_3;
+	public static final RegistryObject<Item> OFFER_UPGRADE_4;
+	public static final RegistryObject<Item> OFFER_UPGRADE_5;
+	public static final RegistryObject<Item> OFFER_UPGRADE_6;
 	
 	public static final RegistryObject<Item> NETWORK_UPGRADE;
 	

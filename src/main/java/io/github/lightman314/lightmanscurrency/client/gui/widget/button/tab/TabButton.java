@@ -53,16 +53,13 @@ public class TabButton extends EasyButton implements ITooltipSource {
 	{
 		//Set the texture & color for the button
 
-        float r = (float)(this.getColor() >> 16 & 255) / 255f;
-        float g = (float)(this.getColor() >> 8 & 255) / 255f;
-        float b = (float)(this.getColor()& 255) / 255f;
-        float m = this.active ? 1f : 0.5f;
-		gui.setColor(r * m, g * m, b * m, 1f);
+		gui.setColor(this.getColor(), 1f);
         int xOffset = this.rotation < 2 ? 0 : this.width;
         int yOffset = (this.rotation % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
         //Render the background
 		gui.blit(GUI_TEXTURE, 0, 0, 200 + xOffset, yOffset, this.width, this.height);
 
+		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
         this.tab.getIcon().render(gui, 4, 4);
 

@@ -41,7 +41,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	private TimedSale() { super(TYPE); }
 	
 	@Override
-	public void beforeTrade(PreTradeEvent event)
+	public void beforeTrade(@Nonnull PreTradeEvent event)
 	{
 		if(this.timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
@@ -56,7 +56,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(TradeCostEvent event)
+	public void tradeCost(@Nonnull TradeCostEvent event)
 	{
 		if(timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
@@ -69,7 +69,7 @@ public class TimedSale extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void afterTrade(PostTradeEvent event)
+	public void afterTrade(@Nonnull PostTradeEvent event)
 	{
 		if(confirmStillActive())
 			event.markDirty();

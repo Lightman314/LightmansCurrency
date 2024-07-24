@@ -8,8 +8,5 @@ public abstract class WalletBankTab extends EasyTab
 	protected final WalletBankScreen screen;
 	
 	protected WalletBankTab(WalletBankScreen screen) { super(screen); this.screen = screen; }
-
-	@Override
-	public final int getColor() { return 0xFFFFFF; }
 	
 }

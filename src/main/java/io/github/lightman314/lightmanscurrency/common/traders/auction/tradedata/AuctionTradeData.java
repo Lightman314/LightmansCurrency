@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.Auct
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -113,7 +114,10 @@ public class AuctionTradeData extends TradeData {
 	public boolean isOwner(Player player) {
 		return (this.tradeOwner != null && this.tradeOwner.is(player)) || LCAdminMode.isAdminPlayer(player);
 	}
-	
+
+	@Override
+	public boolean allowTradeRule(@Nonnull TradeRule rule) { return false; }
+
 	long startTime = 0;
 	long duration = 0;
 	public void setDuration(long duration) {

@@ -41,6 +41,9 @@ public final class EasyGuiGraphics {
 
     private final List<ScreenPosition> offsetStack = new ArrayList<>();
     private ScreenPosition offset = ScreenPosition.ZERO;
+    //Made public because it's helpful information to have when rendering something complicated like Fluids, etc.
+    @Nonnull
+    public ScreenPosition getOffset() { return this.offset; }
 
     public EasyGuiGraphics pushOffsetZero() { return this.pushOffset(ScreenPosition.ZERO); }
     public EasyGuiGraphics pushOffset(@Nonnull ScreenPosition offset) { this.offsetStack.add(0, offset); return this.refactorOffset(); }

@@ -60,6 +60,13 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public String getCurrentHandlerType() { return this.currentHandler == null ? "" : this.currentHandler.getUniqueName(); }
     @Nullable
     public MoneyInputHandler getCurrentHandler() { return this.currentHandler; }
+    public void tryMatchHandler(@Nonnull MoneyValue value)
+    {
+        if(this.getCurrentHandlerType().equals(value.getUniqueName()))
+            return;
+        if(this.availableHandlers.containsKey(value.getUniqueName()))
+            this.setHandler(this.availableHandlers.get(value.getUniqueName()));
+    }
 
     private MoneyValue currentValue;
     @Nonnull

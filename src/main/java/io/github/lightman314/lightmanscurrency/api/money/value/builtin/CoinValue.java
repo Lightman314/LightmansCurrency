@@ -308,6 +308,10 @@ public final class CoinValue extends MoneyValue
 
 	@Nonnull
 	@Override
+	public MoneyValue fromCoreValue(long value) { return fromNumber(this.chain, value); }
+
+	@Nonnull
+	@Override
 	public List<ItemStack> onBlockBroken(@Nonnull Level level, @Nonnull OwnerData owner) { return this.getAsSeperatedItemList(); }
 
 	//Rounding and Sorting functions. Now static and only used on a coin values init stage as they are now immutable.

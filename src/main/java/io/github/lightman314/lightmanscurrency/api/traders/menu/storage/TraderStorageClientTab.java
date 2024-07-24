@@ -20,9 +20,6 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> extends
 		this.commonTab = commonTab;
 	}
 	
-	@Override
-	public int getColor() { return 0xFFFFFF; }
-	
 	/**
 	 * Whether the tab button for this tab should be visible. Used to hide the advanced trade tab from the screen, to only be opened when needed.
 	 */

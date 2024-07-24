@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 public interface ITab {
     @Nonnull
     IconData getIcon();
-    int getColor();
+    default int getColor() { return 0xFFFFFF; }
     @Nullable
     Component getTooltip();
 }

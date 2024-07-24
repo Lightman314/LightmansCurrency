@@ -20,7 +20,6 @@ public abstract class NotificationCategory implements ITab
 	public final MutableComponent getTooltip() { return this.getName(); }
 	@Nonnull
 	public abstract MutableComponent getName();
-	public final int getColor() { return 0xFFFFFF; }
 	@Nonnull
 	protected abstract NotificationCategoryType<?> getType();
 	

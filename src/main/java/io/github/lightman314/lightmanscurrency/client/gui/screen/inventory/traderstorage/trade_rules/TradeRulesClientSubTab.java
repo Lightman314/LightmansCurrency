@@ -47,9 +47,6 @@ public abstract class TradeRulesClientSubTab extends EasyTab {
         this.menu = this.parent.menu;
     }
 
-    @Override
-    public int getColor() { return 0xFFFFFF; }
-
     public abstract boolean isVisible();
 
     @Override

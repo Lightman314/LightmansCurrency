@@ -15,7 +15,8 @@ import org.jetbrains.annotations.NotNull;
 public class UpgradeInputSlot extends SimpleSlot {
 
 	public static final ResourceLocation EMPTY_UPGRADE_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_upgrade_slot");
-	
+
+	private final Container inventory;
 	private final IUpgradeable machine;
 	private final Runnable onModified;
 	
@@ -24,6 +25,7 @@ public class UpgradeInputSlot extends SimpleSlot {
 	public UpgradeInputSlot(Container inventory, int index, int x, int y, IUpgradeable machine, Runnable onModified)
 	{
 		super(inventory, index, x, y);
+		this.inventory = inventory;
 		this.machine = machine;
 		this.onModified = onModified;
 	}
@@ -32,7 +34,7 @@ public class UpgradeInputSlot extends SimpleSlot {
 	public boolean mayPlace(@NotNull ItemStack stack)
 	{
 		if(stack.getItem() instanceof UpgradeItem item)
-			return this.machine.allowUpgrade(item);
+			return this.machine.allowUpgrade(item) && UpgradeItem.noUniqueConflicts(item,this.inventory);
 		return false;
 	}
 	
@@ -47,8 +49,6 @@ public class UpgradeInputSlot extends SimpleSlot {
 	}
 	
 	@Override
-	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_UPGRADE_SLOT);
-	}
+	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() { return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_UPGRADE_SLOT); }
 	
 }

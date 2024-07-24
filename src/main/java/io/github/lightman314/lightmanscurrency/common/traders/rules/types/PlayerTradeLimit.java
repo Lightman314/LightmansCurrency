@@ -48,7 +48,7 @@ public class PlayerTradeLimit extends TradeRule{
 	private PlayerTradeLimit() { super(TYPE); }
 	
 	@Override
-	public void beforeTrade(PreTradeEvent event) {
+	public void beforeTrade(@Nonnull PreTradeEvent event) {
 		
 		int tradeCount = getTradeCount(event.getPlayerReference().id);
 		if(tradeCount >= this.limit)
@@ -69,7 +69,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 
 	@Override
-	public void afterTrade(PostTradeEvent event) {
+	public void afterTrade(@Nonnull PostTradeEvent event) {
 		
 		this.addEvent(event.getPlayerReference().id, TimeUtil.getCurrentTime());
 		
@@ -168,7 +168,7 @@ public class PlayerTradeLimit extends TradeRule{
 					int count = thisMemory.getInt("count");
 					for(int z = 0; z < count; z++)
 					{
-						eventTimes.add(0L);
+						eventTimes.add(TimeUtil.getCurrentTime());
 					}
 				}
 				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))

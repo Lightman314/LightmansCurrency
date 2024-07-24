@@ -2,15 +2,19 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
@@ -53,6 +57,8 @@ public abstract class TradeRule {
 	public final MutableComponent getName() { return nameOfType(this.type.type); }
 
 	private ITradeRuleHost host = null;
+	@Nullable
+	protected ITradeRuleHost getHost() { return this.host; }
 	protected void setHost(@Nullable ITradeRuleHost host) { this.host = host; }
 
 	private boolean isActive = false;
@@ -73,9 +79,10 @@ public abstract class TradeRule {
 	protected boolean onlyAllowOnTraders() { return false; }
 	protected boolean onlyAllowOnTrades() { return false; }
 
-	public void beforeTrade(PreTradeEvent event) {}
-	public void tradeCost(TradeCostEvent event) {}
-	public void afterTrade(PostTradeEvent event) {}
+	public void beforeTrade(@Nonnull PreTradeEvent event) {}
+	public void tradeCost(@Nonnull TradeCostEvent event) {}
+	public void afterTrade(@Nonnull PostTradeEvent event) {}
+	protected void tradeBaseCost(@Nonnull InternalPriceEvent query) {}
 	
 	protected TradeRule(@Nonnull TradeRuleType<?> type) { this.type = type; }
 
@@ -214,7 +221,7 @@ public abstract class TradeRule {
 	{
 		boolean changed = false;
 		//Add missing rules
-		for(TradeRuleType<?> ruleType : TraderAPI.getTradeRuleTypes())
+		for(TradeRuleType<?> ruleType : TraderAPI.API.GetAllTradeRuleTypes())
 		{
 			TradeRule rule = ruleType.createNew();
 			if(rule != null && host.allowTradeRule(rule) && rule.allowHost(host) && !HasTradeRule(rules,rule.type.type))
@@ -274,7 +281,7 @@ public abstract class TradeRule {
 	@Nonnull
 	public static TradeRule CreateRule(@Nonnull ResourceLocation type)
 	{
-		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(type);
+		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(type);
 		if(ruleType != null)
 			return ruleType.createNew();
 		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to create the Trade Rule.");
@@ -285,7 +292,7 @@ public abstract class TradeRule {
 	public static TradeRule Deserialize(@Nonnull CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(new ResourceLocation(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
 		if(ruleType != null)
 			return ruleType.load(compound);
 		if(IGNORE_MISSING.contains(thisType))
@@ -297,7 +304,7 @@ public abstract class TradeRule {
 	@Nonnull
 	public static TradeRule Deserialize(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TradeRuleType<?> ruleType = TraderAPI.getTradeRuleType(new ResourceLocation(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
 		if(ruleType != null)
 		{
 			TradeRule rule = ruleType.loadFromJson(json);
@@ -323,5 +330,38 @@ public abstract class TradeRule {
 	
 	public static boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
 	public static boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
-	
+
+	@Nonnull
+	public static MoneyValue getBaseCost(@Nonnull TradeData trade, @Nonnull TradeContext context)
+	{
+		//Don't run the query if no trader is given for context
+		if(!context.hasTrader() || !trade.validCost())
+			return trade.getCost();
+
+		InternalPriceEvent event = new InternalPriceEvent(trade,context);
+		for(TradeRule rule : trade.getRules())
+		{
+			if(rule.isActive())
+				rule.tradeBaseCost(event);
+		}
+		return event.getBaseCost();
+	}
+
+	protected static class InternalPriceEvent
+	{
+		public final TradeData trade;
+		public final TradeContext context;
+		@Nonnull
+		private MoneyValue baseCost;
+		@Nonnull
+		public MoneyValue getBaseCost() { return this.baseCost; }
+		public void setBaseCost(@Nonnull MoneyValue baseCost) { this.baseCost = Objects.requireNonNullElse(baseCost,MoneyValue.empty()); }
+		private InternalPriceEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
+		{
+			this.trade = trade;
+			this.context = context;
+			this.baseCost = trade.getCost();
+		}
+	}
+
 }

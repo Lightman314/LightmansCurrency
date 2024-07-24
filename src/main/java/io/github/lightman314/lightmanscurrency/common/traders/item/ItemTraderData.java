@@ -7,9 +7,8 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -17,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
@@ -24,9 +24,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.trader
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -65,7 +62,7 @@ import net.minecraftforge.items.IItemHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ItemTraderData extends InputTraderData implements ITraderItemFilter {
+public class ItemTraderData extends InputTraderData implements ITraderItemFilter, IFlexibleOfferTrader, TraderItemHandler.IItemStorageProvider {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(Upgrades.ITEM_CAPACITY);
 	
@@ -73,14 +70,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader"), ItemTraderData::new);
 	
-	TraderItemHandler itemHandler = new TraderItemHandler(this);
+	TraderItemHandler<ItemTraderData> itemHandler = new TraderItemHandler<>(this);
 	
 	public IItemHandler getItemHandler(Direction relativeSide) { return this.itemHandler.getHandler(relativeSide); }
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
+	@Nonnull
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
-	
+
+	private int baseTradeCount = 0;
 	protected List<ItemTradeData> trades;
 	
 	@Override
@@ -99,6 +98,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	{
 		super(type, level, pos);
 		this.trades = ItemTradeData.listOfSize(tradeCount, true);
+		this.baseTradeCount = tradeCount;
 		this.validateTradeRestrictions();
 	}
 	
@@ -116,6 +116,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 	
 	protected final void saveTrades(CompoundTag compound) {
+		compound.putInt("BaseTradeCount", this.baseTradeCount);
 		ItemTradeData.saveAllData(compound, this.trades);
 	}
 	
@@ -131,6 +132,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			this.trades = ItemTradeData.loadAllData(compound, !this.isPersistent());
 			this.validateTradeRestrictions();
 		}
+		if(compound.contains("BaseTradeCount"))
+			this.baseTradeCount = compound.getInt("BaseTradeCount");
+		if(this.baseTradeCount <= 0) //Reset base trade count to current trade count if the current value is invalid
+			this.baseTradeCount = this.trades.size();
 		
 	}
 	
@@ -142,12 +147,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	{
 		if(this.isClient())
 			return;
-		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
-			return;
-		if(LCAdminMode.isAdminPlayer(requestor))
+		if(LCAdminMode.isAdminPlayer(requestor) && this.baseTradeCount < TraderData.GLOBAL_TRADE_LIMIT)
 		{
-			
-			this.overrideTradeCount(this.getTradeCount() + 1);
+
+			this.baseTradeCount++;
+			this.refactorTrades();
 			
 			this.pushLocalNotification(new AddRemoveTradeNotification(PlayerReference.of(requestor), true, this.getTradeCount()));
 			
@@ -162,10 +166,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return;
 		if(this.getTradeCount() <= 1)
 			return;
-		if(LCAdminMode.isAdminPlayer(requestor))
+		if(LCAdminMode.isAdminPlayer(requestor) && this.baseTradeCount > 1)
 		{
-			
-			this.overrideTradeCount(this.getTradeCount() - 1);
+
+			this.baseTradeCount--;
+			this.refactorTrades();
 			
 			this.pushLocalNotification(new AddRemoveTradeNotification(PlayerReference.of(requestor), false, this.getTradeCount()));
 			
@@ -173,18 +178,25 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		else
 			Permissions.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
+
+	@Override
+	public final void refactorTrades() {
+		int newCount = MathUtil.clamp(this.baseTradeCount + TradeOfferUpgrade.getBonusTrades(this.getUpgrades()), 1, TraderData.GLOBAL_TRADE_LIMIT);
+		if(newCount != this.trades.size())
+			this.overrideTradeCount(newCount);
+	}
 	
 	public void overrideTradeCount(int newTradeCount)
 	{
-		if(this.getTradeCount() == MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT))
+		int tradeCount = MathUtil.clamp(newTradeCount,1,TraderData.GLOBAL_TRADE_LIMIT);
+		if(this.trades.size() == tradeCount)
 			return;
-		int tradeCount = MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT);
-		List<ItemTradeData> oldTrades = trades;
-		trades = ItemTradeData.listOfSize(tradeCount, !this.isPersistent());
+		List<ItemTradeData> oldTrades = this.trades;
+		this.trades = ItemTradeData.listOfSize(tradeCount, !this.isPersistent());
 		//Write the old trade data into the array.
-		for(int i = 0; i < oldTrades.size() && i < trades.size(); i++)
+		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); i++)
 		{
-			trades.set(i, oldTrades.get(i));
+			this.trades.set(i, oldTrades.get(i));
 		}
 		this.validateTradeRestrictions();
 		//Send an update to the client
@@ -193,7 +205,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Send update packet
 			this.markTradesDirty();
 		}
-		
 	}
 	
 	public final void validateTradeRestrictions() {
@@ -484,8 +495,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
-		//Update: Use TradeData#getCost(TradeContext) as it will run the trade cost event,
-		// but with cached results to avoid having to re-do laggy calculations.
+		//Update: Use TradeData#getCost(TradeContext) as it will run the trade cost event automatically
 		MoneyValue price = trade.getCost(context);
 		
 		//Process a sale
@@ -734,6 +744,22 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean allowExtraction(@Nonnull ItemStack stack) {
+		for(ItemTradeData trade : this.trades)
+		{
+			if(trade.isValid() && (trade.isSale() || trade.isBarter()))
+			{
+				for(int i = 0; i < 2; ++i)
+				{
+					if(trade.getItemRequirement(i).test(stack))
+						return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	@Override

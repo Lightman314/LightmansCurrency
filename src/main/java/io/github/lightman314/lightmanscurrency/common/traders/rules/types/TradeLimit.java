@@ -34,7 +34,7 @@ public class TradeLimit extends TradeRule{
 	private TradeLimit() { super(TYPE); }
 	
 	@Override
-	public void beforeTrade(PreTradeEvent event) {
+	public void beforeTrade(@Nonnull PreTradeEvent event) {
 		
 		if(this.count >= this.limit)
 		{
@@ -46,7 +46,7 @@ public class TradeLimit extends TradeRule{
 	}
 
 	@Override
-	public void afterTrade(PostTradeEvent event) {
+	public void afterTrade(@Nonnull PostTradeEvent event) {
 		
 		this.count++;
 		

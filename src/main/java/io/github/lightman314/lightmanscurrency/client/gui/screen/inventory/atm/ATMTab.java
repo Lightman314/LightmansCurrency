@@ -10,8 +10,6 @@ public abstract class ATMTab extends EasyTab
 	
 	protected ATMTab(ATMScreen screen) { super(screen); this.screen = screen; }
 	
-	public final int getColor() { return 0xFFFFFF; }
-	
 	protected final void hideCoinSlots(EasyGuiGraphics gui) {
 		gui.blit(ATMScreen.GUI_TEXTURE, 7, 128, 7, 79, 162, 18);
 	}

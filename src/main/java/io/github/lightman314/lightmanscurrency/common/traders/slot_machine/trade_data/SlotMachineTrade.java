@@ -30,6 +30,7 @@ public class SlotMachineTrade extends TradeData {
     @Override
     public int getStock(@Nonnull TradeContext context) { return this.trader.getTradeStock(0); }
 
+    @Nonnull
     @Override
     public MoneyValue getCost() { return this.trader.getPrice(); }
 

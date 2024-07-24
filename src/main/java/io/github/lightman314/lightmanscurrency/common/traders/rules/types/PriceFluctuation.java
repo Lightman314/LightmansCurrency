@@ -73,7 +73,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(TradeCostEvent event) {
+	public void tradeCost(@Nonnull TradeCostEvent event) {
 		event.giveDiscount(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
 	}
 	
