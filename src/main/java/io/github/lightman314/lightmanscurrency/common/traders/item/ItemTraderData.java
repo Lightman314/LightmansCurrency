@@ -132,9 +132,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		}
 		if(compound.contains("BaseTradeCount"))
 			this.baseTradeCount = compound.getInt("BaseTradeCount");
-		else
+		if(this.baseTradeCount <= 0) //Reset base trade count to current trade count if the current value is invalid
 			this.baseTradeCount = this.trades.size();
-		
+
 	}
 	
 	@Override
