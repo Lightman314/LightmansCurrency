@@ -544,6 +544,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADE_INFO_TITLE, "Trade Info:");
         this.translate(LCText.TOOLTIP_TRADE_INFO_ORIGINAL_NAME, "Original Name: %s");
         this.translate(LCText.TOOLTIP_TRADE_INFO_STOCK, "%s trade(s) in stock");
+        this.translate(LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE, "Infinite");
 
         //Item Trader Specific
         this.translate(LCText.GUI_TRADER_ITEM_ENFORCE_NBT,"Enforce NBT");

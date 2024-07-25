@@ -493,8 +493,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	private int teamNotificationLevel = 0;
 	public int teamNotificationLevel() { return this.teamNotificationLevel; }
 
-	public boolean supportOfferUpgrade() { return false; }
-
 	public abstract int getTradeCount();
 	public boolean canEditTradeCount() { return false; }
 	public int getMaxTradeCount() { return 1; }

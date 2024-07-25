@@ -882,6 +882,7 @@
   "tooltip.lightmanscurrency.trade.edit_price": "Click to Edit Price",
   "tooltip.lightmanscurrency.trade.info.original_name": "Original Name: %s",
   "tooltip.lightmanscurrency.trade.info.stock": "%s trade(s) in stock",
+  "tooltip.lightmanscurrency.trade.info.stock.infinite": "Infinite",
   "tooltip.lightmanscurrency.trade.info.title": "Trade Info:",
   "tooltip.lightmanscurrency.trade.item.edit_item": " Click to Set Item",
   "tooltip.lightmanscurrency.trade.item.nbt_warning.purchase": "Accepts all NBT states",
