@@ -112,7 +112,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		this.scrollBar = this.addChild(this.scrollBar = new ScrollBarWidget(this.getX() + this.width + this.scrollBarOffset.x, this.getY() + this.scrollBarOffset.y, this.scrollBarHeight, this));
 		if(this.hasTitlePosition && this.allowSearching)
 		{
-			//Make search box take 1/3 of the width
 			this.searchBoxArea = ScreenArea.of(this.titlePosition.x + this.titleWidth - 90, this.titlePosition.y - 2, 90, 12);
 			this.searchBox = this.addChild(new EditBox(this.font, this.searchBoxArea.pos.x + 2, this.searchBoxArea.pos.y + 2, this.searchBoxArea.width - 10, 10, LCText.GUI_TRADER_SEARCH_TRADES.get()));
 			this.searchBox.setBordered(false);

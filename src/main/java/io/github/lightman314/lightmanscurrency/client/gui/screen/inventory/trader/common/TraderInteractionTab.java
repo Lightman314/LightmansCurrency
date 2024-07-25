@@ -23,7 +23,10 @@ public class TraderInteractionTab extends TraderClientTab {
 	public TraderInteractionTab(TraderScreen screen) { super(screen); }
 
 	TradeButtonArea tradeDisplay;
-	
+
+	@Override
+	public boolean blockInventoryClosing() { return this.tradeDisplay != null && this.tradeDisplay.isSearchBoxRelevant(); }
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		//Trade Button Display

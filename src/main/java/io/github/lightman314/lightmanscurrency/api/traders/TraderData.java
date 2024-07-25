@@ -1480,6 +1480,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	}
 
+	public static MenuProvider getTraderMenuForAllNetworkTraders(@Nonnull MenuValidator validator) { return new TraderMenuAllNetworkProvider(validator); }
+
+	private record TraderMenuAllNetworkProvider(@Nonnull MenuValidator validator) implements EasyMenuProvider{
+		@Nullable
+		@Override
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) {
+			return new TraderMenu.TraderMenuAllNetwork(windowID,inventory,this.validator);
+		}
+	}
+
 	@Nonnull
 	public final List<Component> getTerminalInfo(@Nullable Player player)
 	{
