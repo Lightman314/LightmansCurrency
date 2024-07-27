@@ -46,7 +46,7 @@ public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBu
 
     public final void onOpen()
     {
-        this.children.clear();
+        this.clearChildren();
         this.addChild(this);
         this.initialize(this.screen.getArea(), !this.wasOpen);
         this.wasOpen = true;
@@ -59,14 +59,19 @@ public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBu
 
     public final void onClose()
     {
+        this.clearChildren();
+        this.wasOpen = false;
+        this.closeAction();
+    }
+
+    private void clearChildren()
+    {
         for(Object child : new ArrayList<>(this.children))
         {
             //Use screen version so that we don't modify our own list by accident
             this.screen.removeChild(child);
         }
         this.children.clear();
-        this.wasOpen = false;
-        this.closeAction();
     }
 
     protected void closeAction() { }

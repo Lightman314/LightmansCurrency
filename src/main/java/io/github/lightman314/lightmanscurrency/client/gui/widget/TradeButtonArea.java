@@ -65,6 +65,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	ScrollBarWidget scrollBar;
 	private boolean allowSearching = true;
 	EditBox searchBox;
+	private String lastSearch = "";
 
 	private boolean hasTitlePosition = false;
 	private ScreenPosition titlePosition = ScreenPosition.ZERO;
@@ -116,6 +117,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			this.searchBoxArea = ScreenArea.of(this.titlePosition.x + this.titleWidth - 90, this.titlePosition.y - 2, 90, 12);
 			this.searchBox = this.addChild(new EditBox(this.font, this.searchBoxArea.pos.x + 2, this.searchBoxArea.pos.y + 2, this.searchBoxArea.width - 10, 10, LCText.GUI_TRADER_SEARCH_TRADES.get()));
 			this.searchBox.setBordered(false);
+			this.searchBox.setResponder(s -> this.lastSearch = s);
 			this.tickSearchBox();
 		}
 		this.resetButtons();
@@ -175,7 +177,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 
 	@Nonnull
-	private String searchText() { return this.searchBox == null ? "" : this.searchBox.getValue(); }
+	private String searchText() { return this.lastSearch; }
 
 	private boolean tradeMatchesSearch(@Nonnull ITraderSource source, @Nonnull TradeData trade, boolean search)
 	{

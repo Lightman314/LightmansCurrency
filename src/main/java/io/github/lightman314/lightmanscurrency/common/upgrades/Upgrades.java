@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.ItemCapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestBankUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestExchangeUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestMagnetUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestSecurityUpgrade;
@@ -24,6 +25,7 @@ public class Upgrades {
     //Coin Chest Upgrades
     public static final CoinChestExchangeUpgrade COIN_CHEST_EXCHANGE = new CoinChestExchangeUpgrade();
     public static final CoinChestMagnetUpgrade COIN_CHEST_MAGNET = new CoinChestMagnetUpgrade();
+    public static final CoinChestBankUpgrade COIN_CHEST_BANK = new CoinChestBankUpgrade();
     public static final CoinChestSecurityUpgrade COIN_CHEST_SECURITY = new CoinChestSecurityUpgrade();
 
 }

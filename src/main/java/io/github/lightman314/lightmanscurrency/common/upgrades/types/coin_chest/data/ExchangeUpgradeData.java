@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -15,6 +17,11 @@ public record ExchangeUpgradeData(boolean exchangeWhileOpen, @Nonnull String exc
                     Codec.STRING.fieldOf("ExchangeCommand").forGetter(ExchangeUpgradeData::exchangeCommand)
             ).apply(builder,ExchangeUpgradeData::new)
     );
+    public static final StreamCodec<FriendlyByteBuf,ExchangeUpgradeData> STREAM_CODEC = StreamCodec.of((b,d) -> {
+        b.writeBoolean(d.exchangeWhileOpen);
+        b.writeUtf(d.exchangeCommand);
+    },
+            b -> new ExchangeUpgradeData(b.readBoolean(),b.readUtf()));
 
     @Nonnull
     public ExchangeUpgradeData withExchangeWhileOpen(boolean newValue) { return new ExchangeUpgradeData(newValue,this.exchangeCommand); }

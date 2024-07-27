@@ -198,6 +198,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
+                    ezPop(p, ModItems.COIN_CHEST_BANK_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_SECURITY_UPGRADE);
                 }).build()
         );

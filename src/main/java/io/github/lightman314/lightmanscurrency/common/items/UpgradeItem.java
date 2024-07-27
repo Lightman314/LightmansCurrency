@@ -54,6 +54,11 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 				stack.remove(ModDataComponents.UPGRADE_DATA);
 				removed = true;
 			}
+			if(stack.has(ModDataComponents.UPGRADE_ACTIVE))
+			{
+				stack.remove(ModDataComponents.UPGRADE_ACTIVE);
+				removed = true;
+			}
 			removed = removed || this.upgradeType.clearDataFromStack(stack);
 			if(removed)
 			{

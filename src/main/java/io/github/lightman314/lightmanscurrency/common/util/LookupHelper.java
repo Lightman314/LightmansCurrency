@@ -15,7 +15,6 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 @EventBusSubscriber
@@ -38,14 +37,17 @@ public class LookupHelper {
     public static RegistryAccess getRegistryAccess(boolean isClient)
     {
         if(isClient)
-            return Objects.requireNonNullElse(LightmansCurrency.PROXY.getClientRegistryHolder(),clientAccessCache);
+        {
+            RegistryAccess lookup = LightmansCurrency.PROXY.getClientRegistryHolder();
+            return lookup != null ? lookup : clientAccessCache;
+        }
         else
         {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if(server != null)
                 return server.registryAccess();
-            else
-                return serverAccessCache;
+            else //Get cached access, and if the cache is empty, attempt to get the client access as a fallback
+                return serverAccessCache != null ? serverAccessCache : getRegistryAccess(true);
         }
     }
 

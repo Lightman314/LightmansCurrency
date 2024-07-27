@@ -685,7 +685,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Exchange Upgrade
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
-                Ingredient.of(ModBlocks.ATM.get()),
+                Ingredient.of(LCTags.Items.ATM),
                 Ingredient.of(Tags.Items.DUSTS_REDSTONE),
                 RecipeCategory.MISC,
                 ModItems.COIN_CHEST_EXCHANGE_UPGRADE.get())
@@ -875,6 +875,19 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("previous",LazyTrigger(ModItems.OFFER_UPGRADE_5))
                 .save(consumer,ItemID("upgrades/",ModItems.OFFER_UPGRADE_6));
 
+        //2.2.2.6
+        //Bank Upgrade
+        SmithingTransformRecipeBuilder.smithing(
+                TEMPLATE,
+                Ingredient.of(LCTags.Items.ATM),
+                Ingredient.of(Tags.Items.GEMS_DIAMOND),
+                RecipeCategory.MISC,
+                ModItems.COIN_CHEST_BANK_UPGRADE.get())
+                .unlocks("money",MoneyKnowledge())
+                .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
+                .unlocks("atm",LazyTrigger(LCTags.Items.ATM))
+                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeBank.INSTANCE),ItemID("upgrades/",ModItems.COIN_CHEST_BANK_UPGRADE));
+
 
     }
 
@@ -996,15 +1009,15 @@ public class LCRecipeProvider extends RecipeProvider {
 
     private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem)
     {
-        MintRecipeBuilder.mint(coin.get())
+        MintRecipeBuilder.create(materialTag,coin.get())
+                .mintType()
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
-                .accepts(materialTag)
                 .save(consumer, ItemID("coin_mint/mint_", coin));
-        MintRecipeBuilder.melt(materialItem)
+        MintRecipeBuilder.create(coin.get(),materialItem)
+                .meltType()
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
-                .accepts(coin.get())
                 .save(consumer, ItemID("coin_mint/melt_", coin));
     }
 

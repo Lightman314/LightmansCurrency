@@ -12,16 +12,34 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class ItemStackHelper {
 
+	//Cache skulls for convenience
+	private static final Map<String,ItemStack> skullsByName = new HashMap<>();
+	private static final Map<UUID,ItemStack> skullsById = new HashMap<>();
+
 	public static ItemStack skullForPlayer(@Nonnull String playerName)
 	{
-		ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-		stack.set(DataComponents.PROFILE, new ResolvableProfile(Optional.of(playerName),Optional.empty(),new PropertyMap()));
-		return stack;
+		if(!skullsByName.containsKey(playerName))
+		{
+			ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
+			stack.set(DataComponents.PROFILE, new ResolvableProfile(Optional.of(playerName),Optional.empty(),new PropertyMap()));
+			skullsByName.put(playerName,stack);
+		}
+		return skullsByName.get(playerName);
+	}
+
+	public static ItemStack skullForPlayer(@Nonnull UUID playerID)
+	{
+		if(!skullsById.containsKey(playerID))
+		{
+			ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
+			stack.set(DataComponents.PROFILE, new ResolvableProfile(Optional.empty(),Optional.of(playerID),new PropertyMap()));
+			skullsById.put(playerID,stack);
+		}
+		return skullsById.get(playerID);
 	}
 
 	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list, HolderLookup.Provider lookup)

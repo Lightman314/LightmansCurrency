@@ -67,6 +67,17 @@ public class Team implements ITeam {
 	BankAccount bankAccount = null;
 	@Override
 	public boolean hasBankAccount() { return this.bankAccount != null; }
+
+	@Override
+	public boolean canAccessBankAccount(@Nonnull PlayerReference player) {
+		if(this.bankAccountLimit < 1)
+			return this.isMember(player);
+		else if(this.bankAccountLimit < 2)
+			return this.isAdmin(player);
+		else
+			return this.isOwner(player);
+	}
+
 	@Override
 	public boolean canAccessBankAccount(@Nonnull Player player) {
 		if(this.bankAccountLimit < 1)

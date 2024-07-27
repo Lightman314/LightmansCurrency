@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -16,6 +17,7 @@ import java.util.function.Consumer;
 public abstract class CoinChestUpgrade extends UpgradeType {
 
     public boolean allowsDuplicates() { return false; }
+    public boolean alwayActive() { return false; }
 
     public abstract void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message);
 
@@ -26,6 +28,9 @@ public abstract class CoinChestUpgrade extends UpgradeType {
     public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { }
     
     public abstract void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer);
+
+    public boolean isActive(@Nonnull CoinChestUpgradeData data) { return this.alwayActive() || data.getData(ModDataComponents.UPGRADE_ACTIVE,true); }
+    public void setActive(@Nonnull CoinChestUpgradeData data, boolean active) { data.setData(ModDataComponents.UPGRADE_ACTIVE,active); }
 
     @Nonnull
     @Override

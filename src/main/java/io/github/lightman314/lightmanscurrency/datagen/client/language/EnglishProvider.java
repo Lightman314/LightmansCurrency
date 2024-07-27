@@ -102,9 +102,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_MAGNET_2, "Magnet Upgrade (Iron)");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_3, "Magnet Upgrade (Gold)");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_4, "Magnet Upgrade (Emerald)");
+        this.translate(LCText.ITEM_UPGRADE_BANK, "Bank Upgrade");
         this.translate(LCText.ITEM_UPGRADE_SECURITY, "Security Upgrade");
 
-        this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Upgrade Smithing Template");
+        this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
         //Blocks
         this.translate(LCText.BLOCK_COINPILE_COPPER,"Copper Coinpile");
@@ -218,7 +219,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.SOUND_COINS_CLINKING,"Coins Clinking");
 
         //Tooltips
-        this.translate(LCText.TOOLTIP_UPGRADE_TEMPLATE,"Lightman's Currency Upgrade Template");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION,"Lightman's Currency Upgrades");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO,"Miscellaneous Items & Upgrades");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS,"Redstone or Copper to Netherite Materials");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION,"Add Item or Upgrade");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION,"Add Material");
         this.translate(LCText.TOOLTIP_HEALING,"Heals %s health.");
         this.translate(LCText.TOOLTIP_BETA, "Feature in beta stage. May have issues!");
         this.translate(LCText.TOOLTIP_DISABLED, "DISABLED");
@@ -293,6 +298,7 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE, "Allows the Money Chest to automatically exchange coins upon insertion");
         this.translate(LCText.TOOLTIP_UPGRADE_MAGNET, "Allows the Money Chest to collect coin items up to %sm away");
+        this.translate(LCText.TOOLTIP_UPGRADE_BANK, "Allows the Money Chest to automatically deposit or withdraw coins from a selected bank account");
         this.translate(LCText.TOOLTIP_UPGRADE_SECURITY, "Allows the Money Chest to be protected from destruction by other players","Also blocks container access from other players","Requires set-up, will not have an owner defined automatically");
 
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER,"All Traders");
@@ -368,7 +374,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_BANK_MY_ACCOUNT,"My Account");
         this.translate(LCText.BUTTON_BANK_PLAYER_ACCOUNT,"Select Players Account");
         this.translate(LCText.GUI_BANK_SELECT_PLAYER_SUCCESS,"Selected %s's Bank Account");
-        this.translate(LCText.GUI_BANK_NO_TEAMS_AVAILABLE,"You don't have access to any teams bank account");
         this.translate(LCText.TOOLTIP_ATM_INTERACT,"Withdraw or Deposit");
         this.translate(LCText.TOOLTIP_ATM_NOTIFICATIONS,"Balance Notification Settings");
         this.translate(LCText.GUI_BANK_NOTIFICATIONS_DISABLED,"You will not receive any account balance notifications");
@@ -383,7 +388,18 @@ public class EnglishProvider extends TranslationProvider {
         //Coin Chest
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES,"Always Allowed");
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_NO,"Block When Open");
+
+        //Security Upgrade
         this.translate(LCText.MESSAGE_COIN_CHEST_PROTECTION_WARNING,"You do not have permission to access this chest");
+
+        //Bank Upgrade
+        this.translate(LCText.BUTTON_BANK_UPGRADE_MODE_DEPOSIT,"Deposit Money");
+        this.translate(LCText.BUTTON_BANK_UPGRADE_MODE_WITHDRAW,"Withdraw Money");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_NO_ACCOUNT,"Must select a bank account!");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_UNLIMITED,"Deposits all money within the Money Chest");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_LIMITED,"Deposits money after the Money Chest contains at least %s");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW,"Withdraws money until the Money Chest contains at least %s");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW_INVALID,"Withdraw Limit must be defined!");
 
         //Ejection Menu
         this.translate(LCText.GUI_EJECTION_NO_DATA,"No Ejection Data Available");

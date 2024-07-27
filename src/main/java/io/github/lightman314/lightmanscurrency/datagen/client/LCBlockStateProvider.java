@@ -349,6 +349,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_2,UPGRADE_CC_MAGNET,UPGRADE_TIER_IRON);
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_3,UPGRADE_CC_MAGNET,UPGRADE_TIER_GOLD);
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_4,UPGRADE_CC_MAGNET,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_BANK_UPGRADE,UPGRADE_CC_BANK,UPGRADE_TIER_DIAMOND);
         this.registerUpgradeItem(ModItems.COIN_CHEST_SECURITY_UPGRADE,UPGRADE_CC_SECURITY,UPGRADE_TIER_DIAMOND);
 
         //1.20 ONLY

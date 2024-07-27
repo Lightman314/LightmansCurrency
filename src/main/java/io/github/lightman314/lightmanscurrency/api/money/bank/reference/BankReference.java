@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
@@ -8,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -30,6 +32,9 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
     @Nullable
     public abstract IBankAccount get();
 
+    public int sortPriority() { return 0; }
+
+    public abstract boolean allowedAccess(@Nonnull PlayerReference player);
     public abstract boolean allowedAccess(@Nonnull Player player);
     public boolean canPersist(@Nonnull Player player) { return true; }
 
@@ -74,7 +79,6 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
         return null;
     }
 
-    @Nullable
     public static BankReference decode(@Nonnull FriendlyByteBuf buffer)
     {
         BankReferenceType type = BankAPI.API.GetReferenceType(ResourceLocation.parse(buffer.readUtf()));
@@ -88,5 +92,15 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
     @Override
     @Nullable
     protected IMoneyHolder getParent() { return this.get(); }
+
+    @Nullable
+    public abstract IconData getIcon();
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof BankReference br)
+            return br.save().equals(this.save());
+        return false;
+    }
 
 }
