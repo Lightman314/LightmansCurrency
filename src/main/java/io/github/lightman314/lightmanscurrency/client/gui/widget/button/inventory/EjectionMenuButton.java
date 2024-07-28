@@ -2,25 +2,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenEjectionMenu;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public class EjectionMenuButton extends InventoryButton {
-	
-	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/misc.png");
-	
+
 	private static EjectionMenuButton lastButton = null;
 	
 	public static final int SIZE = 9;
 
-	public static final Sprite SPRITE = Sprite.SimpleSprite(GUI_TEXTURE, 0, 0, SIZE, SIZE);
+	public static final Sprite SPRITE = Sprite.SimpleSprite(IconAndButtonUtil.WIDGET_TEXTURE, 20, 0, SIZE, SIZE);
 
 	public static final ScreenPosition OFFSET = ScreenPosition.of(-10, 0);
 

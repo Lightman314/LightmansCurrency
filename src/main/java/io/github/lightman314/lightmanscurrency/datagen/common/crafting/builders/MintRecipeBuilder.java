@@ -24,46 +24,48 @@ import java.util.function.Consumer;
 
 public class MintRecipeBuilder implements RecipeBuilder {
 
-    private final MintType type;
+    private MintType type = MintType.OTHER;
+    private final Ingredient ingredient;
+    private final int ingredientCount;
     private final Item result;
     private final int count;
     private int duration = 0;
-    private Ingredient ingredient = null;
-    private int ingredientCount = 1;
 
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
 
-    public MintRecipeBuilder(MintType type, ItemLike result, int count) {
-        this.type = type;
+    private MintRecipeBuilder(@Nonnull Ingredient ingredient, int ingredientCount, @Nonnull ItemLike result, int count) {
+        this.ingredient = ingredient;
+        this.ingredientCount = ingredientCount;
         this.result = result.asItem();
         this.count = count;
     }
 
-    public static MintRecipeBuilder melt(ItemLike result) { return melt(result, 1); }
-    public static MintRecipeBuilder melt(ItemLike result, int count) { return new MintRecipeBuilder(MintType.MELT, result, count); }
-    public static MintRecipeBuilder mint(ItemLike result) { return mint(result, 1); }
-    public static MintRecipeBuilder mint(ItemLike result, int count) { return new MintRecipeBuilder(MintType.MINT, result, count); }
-    public static MintRecipeBuilder other(ItemLike result) { return other(result, 1); }
-    public static MintRecipeBuilder other(ItemLike result, int count) { return new MintRecipeBuilder(MintType.OTHER, result, count); }
+    public static MintRecipeBuilder create(@Nonnull ItemLike input, @Nonnull ItemLike result){ return create(input,1,result,1); }
+    public static MintRecipeBuilder create(@Nonnull ItemLike input, int inputCount, @Nonnull ItemLike result){ return create(input,inputCount,result,1); }
+    public static MintRecipeBuilder create(@Nonnull ItemLike input, @Nonnull ItemLike result, int resultCount){ return create(input,1,result,resultCount); }
+    public static MintRecipeBuilder create(@Nonnull ItemLike input, int inputCount, @Nonnull ItemLike result, int resultCount){ return create(Ingredient.of(input),inputCount,result,resultCount); }
+
+    public static MintRecipeBuilder create(@Nonnull TagKey<Item> input, @Nonnull ItemLike result) { return create(input, 1, result, 1); }
+    public static MintRecipeBuilder create(@Nonnull TagKey<Item> input, int inputCount, @Nonnull ItemLike result) { return create(input, inputCount, result, 1); }
+    public static MintRecipeBuilder create(@Nonnull TagKey<Item> input, @Nonnull ItemLike result, int resultCount) { return create(input, 1, result, resultCount); }
+    public static MintRecipeBuilder create(@Nonnull TagKey<Item> input, int inputCount, @Nonnull ItemLike result, int resultCount) { return create(Ingredient.of(input), inputCount, result, resultCount); }
+
+    public static MintRecipeBuilder create(@Nonnull Ingredient input, @Nonnull ItemLike result) { return create(input, 1, result,1); }
+    public static MintRecipeBuilder create(@Nonnull Ingredient input, int inputCount, @Nonnull ItemLike result) { return create(input, inputCount, result,1); }
+    public static MintRecipeBuilder create(@Nonnull Ingredient input, @Nonnull ItemLike result, int resultCount) { return create(input, 1, result,resultCount); }
+    public static MintRecipeBuilder create(@Nonnull Ingredient input, int inputCount, @Nonnull ItemLike result, int resultCount){ return new MintRecipeBuilder(input,inputCount,result,resultCount); }
 
     @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull ItemLike item) { return this.accepts(item, 1); }
+    public MintRecipeBuilder mintType() { return this.ofType(MintType.MINT); }
     @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull ItemLike item, int count) { this.ingredient = Ingredient.of(item); this.ingredientCount = count; return this; }
-
+    public MintRecipeBuilder meltType() { return this.ofType(MintType.MELT); }
     @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull TagKey<Item> item) { return this.accepts(item, 1); }
+    public MintRecipeBuilder otherType() { return this.ofType(MintType.OTHER); }
     @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull TagKey<Item> item, int count) { this.ingredient = Ingredient.of(item); this.ingredientCount = count; return this; }
-
-    @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient) { return this.accepts(ingredient, 1); }
-    @Nonnull
-    public MintRecipeBuilder accepts(@Nonnull Ingredient ingredient, int count) { this.ingredient = ingredient; this.ingredientCount = count; return this; }
+    public MintRecipeBuilder ofType(@Nonnull MintType type) { this.type = type; return this; }
 
     @Nonnull
     public MintRecipeBuilder ofDuration(int duration) { this.duration = duration; return this; }
-
     @Nonnull
     @Override
     public MintRecipeBuilder unlockedBy(@Nonnull String name, @Nonnull CriterionTriggerInstance criteria) { this.advancement.addCriterion(name, criteria); return this; }

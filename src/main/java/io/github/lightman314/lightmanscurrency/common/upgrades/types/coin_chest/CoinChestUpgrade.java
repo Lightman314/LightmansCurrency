@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 public abstract class CoinChestUpgrade extends UpgradeType {
 
     public boolean allowsDuplicates() { return false; }
+    public boolean alwayActive() { return false; }
 
     public abstract void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message);
 

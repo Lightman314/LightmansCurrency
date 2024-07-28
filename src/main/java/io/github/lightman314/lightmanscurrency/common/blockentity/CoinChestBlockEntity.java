@@ -46,6 +46,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeable, IClientTicker, IServerTicker, LidBlockEntity {
 
@@ -87,11 +88,18 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     public final ImmutableList<CoinChestUpgradeData> getChestUpgrades()
     {
-        if(this.unfilteredUpgradeDataCache.size() != UPGRADE_SIZE)
-            this.refreshUpgradeCache();
+        this.checkUpgradeCache();
         return ImmutableList.copyOf(this.upgradeDataCache);
     }
+    public final ImmutableList<CoinChestUpgradeData> getActiveUpgrades() {
+        return ImmutableList.copyOf(this.getChestUpgrades().stream().filter(CoinChestUpgradeData::isActive).collect(Collectors.toList()));
+    }
 
+    private void checkUpgradeCache()
+    {
+        if(this.unfilteredUpgradeDataCache.size() != UPGRADE_SIZE)
+            this.refreshUpgradeCache();
+    }
     private void refreshUpgradeCache()
     {
         List<CoinChestUpgradeData> oldList = this.unfilteredUpgradeDataCache;
@@ -106,13 +114,14 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         this.upgradeDataCache = this.unfilteredUpgradeDataCache.stream().filter(CoinChestUpgradeData::notNull).toList();
     }
 
-    @Nullable
+    @Nonnull
     public final CoinChestUpgradeData getChestUpgradeForSlot(int slot)
     {
-        List<CoinChestUpgradeData> list = this.getChestUpgrades();
+        this.checkUpgradeCache();
+        List<CoinChestUpgradeData> list = this.unfilteredUpgradeDataCache;
         if(slot >= 0 && slot < list.size())
             return list.get(slot);
-        return null;
+        return CoinChestUpgradeData.NULL;
     }
 
     public final boolean hasChestUpgradeOfType(CoinChestUpgrade type) { return this.getChestUpgradeOfType(type) != null; }
@@ -199,14 +208,13 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     public final void markStorageDirty()
     {
-
         this.setChanged();
         if(this.isServer())
         {
             if(this.allowEvents)
             {
                 this.allowEvents = false;
-                for(CoinChestUpgradeData data : this.getChestUpgrades())
+                for(CoinChestUpgradeData data : this.getActiveUpgrades())
                 {
                     try{ data.upgrade.OnStorageChanged(this, data);
                     } catch (Throwable t) { LightmansCurrency.LogError("Error on CoinChestUpgrade Storage Change listener!", t); }
@@ -268,7 +276,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     @Override
     public void serverTick() {
-        for(CoinChestUpgradeData data : this.getChestUpgrades())
+        for(CoinChestUpgradeData data : this.getActiveUpgrades())
             data.tick(this);
     }
 
@@ -279,7 +287,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     {
         if(LCAdminMode.isAdminPlayer(player))
             return true;
-        for(CoinChestUpgradeData data : this.getChestUpgrades())
+        for(CoinChestUpgradeData data : this.getActiveUpgrades())
         {
             if(data.upgrade.BlockAccess(this, data, player))
                 return false;
@@ -289,13 +297,13 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     public void onValidBlockRemoval()
     {
-        for(CoinChestUpgradeData data : this.getChestUpgrades())
+        for(CoinChestUpgradeData data : this.getActiveUpgrades())
             data.upgrade.OnValidBlockRemoval(this, data);
     }
 
     public void onBlockRemoval()
     {
-        for(CoinChestUpgradeData data : this.getChestUpgrades())
+        for(CoinChestUpgradeData data : this.getActiveUpgrades())
             data.upgrade.OnBlockRemoval(this, data);
     }
 

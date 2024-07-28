@@ -10,6 +10,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -485,6 +487,40 @@ public class InventoryUtil {
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);
     	return buildInventory(tempInventory);
     }
+
+	public static void saveItemList(@Nonnull String key, @Nonnull CompoundTag compound, @Nonnull List<ItemStack> itemList)
+	{
+		ListTag list = new ListTag();
+		for(ItemStack item : itemList)
+		{
+			if (!item.isEmpty()) {
+				CompoundTag itemTag = new CompoundTag();
+				item.save(itemTag);
+				itemTag.putInt("Count", item.getCount());
+				list.add(itemTag);
+			}
+		}
+		compound.put(key,list);
+	}
+
+	@Nonnull
+	public static List<ItemStack> loadItemList(@Nonnull String key, @Nonnull CompoundTag compound)
+	{
+		List<ItemStack> result = new ArrayList<>();
+		if(compound.contains(key, Tag.TAG_LIST))
+		{
+			ListTag list = compound.getList(key, Tag.TAG_COMPOUND);
+			for(int i = 0; i < list.size(); ++i)
+			{
+				CompoundTag itemTag = list.getCompound(i);
+				ItemStack item = ItemStack.of(itemTag);
+				item.setCount(itemTag.getInt("Count"));
+				if(!item.isEmpty())
+					result.add(item);
+			}
+		}
+		return result;
+	}
 
 	public static void encodeItems(Container inventory, FriendlyByteBuf buffer) {
 		CompoundTag tag = new CompoundTag();

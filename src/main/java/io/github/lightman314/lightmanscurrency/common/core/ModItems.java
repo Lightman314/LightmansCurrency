@@ -1,14 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import net.minecraft.ChatFormatting;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.ArrayList;
 
 public class ModItems {
 	
@@ -109,10 +115,15 @@ public class ModItems {
 		COIN_CHEST_MAGNET_UPGRADE_2 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_2", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange2, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_3 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_3", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange3, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange4, new Item.Properties()));
+		COIN_CHEST_BANK_UPGRADE = ModRegistries.ITEMS.register("coin_chest_bank_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_BANK, new Item.Properties()));
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties()));
 
 		//Smithing Templates (1.20 only)
-		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new LCUpgradeSmithingTemplateItem(LCText.TOOLTIP_UPGRADE_TEMPLATE, new Item.Properties()));
+		ResourceLocation INGOT = new ResourceLocation("item/empty_slot_ingot");
+		ResourceLocation EMERALD = new ResourceLocation("item/empty_slot_emerald");
+		ResourceLocation DIAMOND = new ResourceLocation("item/empty_slot_diamond");
+		ResourceLocation REDSTONE = new ResourceLocation("item/empty_slot_redstone_dust");
+		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new SmithingTemplateItem(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE), LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION.getWithStyle(ChatFormatting.GRAY),LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),new ArrayList<>(), Lists.newArrayList(INGOT,EMERALD,DIAMOND,REDSTONE)));
 
 	}
 	
@@ -180,6 +191,7 @@ public class ModItems {
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_2;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_3;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_4;
+	public static final RegistryObject<Item> COIN_CHEST_BANK_UPGRADE;
 	public static final RegistryObject<Item> COIN_CHEST_SECURITY_UPGRADE;
 
 	public static final RegistryObject<Item> UPGRADE_SMITHING_TEMPLATE;

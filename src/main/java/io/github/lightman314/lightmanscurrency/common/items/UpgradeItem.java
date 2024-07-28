@@ -56,6 +56,11 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 				tag.remove("UpgradeData");
 				success = true;
 			}
+			if(tag.contains("Active"))
+			{
+				tag.remove("Active");
+				success = true;
+			}
 			if(success)
 			{
 				level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (level.random.nextFloat() - level.random.nextFloat()) * 0.35F + 0.9F, false);

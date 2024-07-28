@@ -49,6 +49,23 @@ public class CoinChestUpgradeData {
 
     public boolean notNull() { return !this.isNull(); }
 
+    public final boolean isActive() { return this.notNull() && (this.upgrade.alwayActive() || this.getIsActive()); }
+    private boolean getIsActive()
+    {
+        CompoundTag tag = this.getItemTag();
+        if(tag.contains("Active"))
+            return tag.getBoolean("Active");
+        return true;
+    }
+    public void setActive(boolean isActive)
+    {
+        if(this.upgrade.alwayActive())
+            return;
+        CompoundTag tag = this.getItemTag();
+        tag.putBoolean("Active", isActive);
+        this.setItemTag(tag);
+    }
+
     public void copyRelevantData(@Nonnull CoinChestUpgradeData other)
     {
         if(other.upgrade == this.upgrade)

@@ -100,6 +100,21 @@ public class LCCraftingConditions {
 		}
 	}
 
+	public static class CoinChestUpgradeBank extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_bank_craftable");
+		public static final CoinChestUpgradeBank INSTANCE = new CoinChestUpgradeBank();
+		public static final IConditionSerializer<CoinChestUpgradeBank> SERIALIZER = new Serializer();
+		private CoinChestUpgradeBank() { super(TYPE, LCConfig.COMMON.canCraftCoinChestUpgradeBank); }
+		private static class Serializer implements IConditionSerializer<CoinChestUpgradeBank> {
+			@Override
+			public void write(JsonObject json, CoinChestUpgradeBank value) {}
+			@Override
+			public CoinChestUpgradeBank read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
 	public static class CoinChestUpgradeSecurity extends SimpleCraftingCondition {
 		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_security_craftable");
 		public static final CoinChestUpgradeSecurity INSTANCE = new CoinChestUpgradeSecurity();
@@ -140,6 +155,7 @@ public class LCCraftingConditions {
 			CraftingHelper.register(CoinChest.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeExchange.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeMagnet.SERIALIZER);
+			CraftingHelper.register(CoinChestUpgradeBank.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeSecurity.SERIALIZER);
 			CraftingHelper.register(TaxCollector.SERIALIZER);
 		} catch(IllegalStateException ignored) { }

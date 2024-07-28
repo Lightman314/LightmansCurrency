@@ -78,6 +78,11 @@ public interface ITeam extends IClientTracker {
      * Whether the given player is allowed to access the teams bank account.
      * Should also check {@link #hasBankAccount()} to confirm that one exists first.
      */
+    boolean canAccessBankAccount(@Nonnull PlayerReference player);
+    /**
+     * Whether the given player is allowed to access the teams bank account.
+     * Should also check {@link #hasBankAccount()} to confirm that one exists first.
+     */
     boolean canAccessBankAccount(@Nonnull Player player);
 
     /**
