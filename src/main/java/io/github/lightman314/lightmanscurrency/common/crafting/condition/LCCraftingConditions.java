@@ -45,6 +45,12 @@ public class LCCraftingConditions {
 		private CoinChestUpgradeMagnet() { super(() -> CODEC,LCConfig.COMMON.canCraftCoinChestUpgradeMagnet); }
 	}
 
+	public static class CoinChestUpgradeBank extends SimpleCraftingCondition {
+		public static final CoinChestUpgradeBank INSTANCE = new CoinChestUpgradeBank();
+		private static final MapCodec<CoinChestUpgradeBank> CODEC = MapCodec.unit(() -> INSTANCE);
+		private CoinChestUpgradeBank() { super(() -> CODEC, LCConfig.COMMON.canCraftCoinChestUpgradeBank); }
+	}
+
 	public static class CoinChestUpgradeSecurity extends SimpleCraftingCondition {
 		public static final CoinChestUpgradeSecurity INSTANCE = new CoinChestUpgradeSecurity();
 		private static final MapCodec<CoinChestUpgradeSecurity> CODEC = MapCodec.unit(() -> INSTANCE);
@@ -66,6 +72,7 @@ public class LCCraftingConditions {
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_craftable", () -> CoinChest.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_exchange_craftable", () -> CoinChestUpgradeExchange.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_magnet_craftable", () -> CoinChestUpgradeMagnet.CODEC);
+		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_bank_craftable", () -> CoinChestUpgradeBank.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_security_craftable", () -> CoinChestUpgradeSecurity.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("tax_collector_craftable", () -> TaxCollector.CODEC);
 

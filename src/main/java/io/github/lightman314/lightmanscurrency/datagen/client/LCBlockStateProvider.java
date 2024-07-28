@@ -40,6 +40,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private static final ResourceLocation UPGRADE_TIER_NETHERITE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/upgrade_tier/netherite");
 
     private static final ResourceLocation UPGRADE_ITEM_CAPACITY = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/item_capacity_upgrade");
+    private static final ResourceLocation UPGRADE_TRADE_OFFER = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/trading_core");
     private static final ResourceLocation UPGRADE_NETWORK = ResourceLocation.withDefaultNamespace("item/ender_eye");
     private static final ResourceLocation UPGRADE_SPEED = ResourceLocation.withDefaultNamespace("item/clock_00");
     private static final ResourceLocation UPGRADE_HOPPER = ResourceLocation.withDefaultNamespace("item/hopper");
@@ -332,6 +333,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerUpgradeItem(ModItems.SPEED_UPGRADE_4,UPGRADE_SPEED,UPGRADE_TIER_DIAMOND);
         this.registerUpgradeItem(ModItems.SPEED_UPGRADE_5,UPGRADE_SPEED,UPGRADE_TIER_NETHERITE);
 
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_1,UPGRADE_TRADE_OFFER,UPGRADE_TIER_COPPER);
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_2,UPGRADE_TRADE_OFFER,UPGRADE_TIER_IRON);
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_3,UPGRADE_TRADE_OFFER,UPGRADE_TIER_GOLD);
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_4,UPGRADE_TRADE_OFFER,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_5,UPGRADE_TRADE_OFFER,UPGRADE_TIER_DIAMOND);
+        this.registerUpgradeItem(ModItems.OFFER_UPGRADE_6,UPGRADE_TRADE_OFFER,UPGRADE_TIER_NETHERITE);
+
         this.registerUpgradeItem(ModItems.NETWORK_UPGRADE,UPGRADE_NETWORK,UPGRADE_TIER_GOLD);
 
         this.registerUpgradeItem(ModItems.HOPPER_UPGRADE,UPGRADE_HOPPER,UPGRADE_TIER_GOLD);
@@ -341,6 +349,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_2,UPGRADE_CC_MAGNET,UPGRADE_TIER_IRON);
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_3,UPGRADE_CC_MAGNET,UPGRADE_TIER_GOLD);
         this.registerUpgradeItem(ModItems.COIN_CHEST_MAGNET_UPGRADE_4,UPGRADE_CC_MAGNET,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.COIN_CHEST_BANK_UPGRADE,UPGRADE_CC_BANK,UPGRADE_TIER_DIAMOND);
         this.registerUpgradeItem(ModItems.COIN_CHEST_SECURITY_UPGRADE,UPGRADE_CC_SECURITY,UPGRADE_TIER_DIAMOND);
 
         //1.20 ONLY

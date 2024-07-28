@@ -41,6 +41,9 @@ public class IconAndButtonUtil {
 	public static final Sprite SPRITE_CHECK_ACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE, 10, 200, 10, 10);
 	public static final Sprite SPRITE_CHECK_INACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE, 10, 220, 10, 10);
 
+	public static final Sprite SPRITE_TOGGLE_ACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE,0,20,8,18);
+	public static final Sprite SPRITE_TOGGLE_INACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE,8,20,8,18);
+
 	public static IconButton traderButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, IconUtil.ICON_TRADER).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_TRADES)); }
 	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, IconUtil.ICON_STORAGE).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE)); }
 	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable, Supplier<Boolean> visiblityCheck) { return storageButton(x,y,pressable).withAddons(EasyAddonHelper.visibleCheck(visiblityCheck)); }
@@ -112,6 +115,8 @@ public class IconAndButtonUtil {
 	
 	public static PlainButton checkmarkButton(ScreenPosition pos, Consumer<EasyButton> pressable, Supplier<Boolean> isActive) { return checkmarkButton(pos.x, pos.y, pressable, isActive); }
 	public static PlainButton checkmarkButton(int x, int y, Consumer<EasyButton> pressable, Supplier<Boolean> isActive) { return new PlainButton(x, y, pressable, () -> isActive.get() ? SPRITE_CHECK_ACTIVE : SPRITE_CHECK_INACTIVE); }
+
+	public static PlainButton toggleButton(ScreenPosition pos, Consumer<EasyButton> pressable, Supplier<Boolean> isActive) { return new PlainButton(pos, pressable, () -> isActive.get() ? SPRITE_TOGGLE_ACTIVE : SPRITE_TOGGLE_INACTIVE); }
 
 	//public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	

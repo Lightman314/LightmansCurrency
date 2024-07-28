@@ -12,9 +12,6 @@ public abstract class CoinManagementTab extends EasyTab {
     protected CoinManagementTab(@Nonnull CoinManagementScreen screen) { super(screen); this.screen = screen; }
 
     @Override
-    public final int getColor() { return 0xFFFFFF; }
-
-    @Override
     public final boolean blockInventoryClosing() { return true; }
 
 }

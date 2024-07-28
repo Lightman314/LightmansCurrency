@@ -89,6 +89,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_SPEED_3, "Speed Upgrade (Emerald)");
         this.translate(LCText.ITEM_UPGRADE_SPEED_4, "Speed Upgrade (Diamond)");
         this.translate(LCText.ITEM_UPGRADE_SPEED_5, "Speed Upgrade (Netherite)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_1, "Trade Offer Upgrade (Copper)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_2, "Trade Offer Upgrade (Iron)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_3, "Trade Offer Upgrade (Gold)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_4, "Trade Offer Upgrade (Emerald)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_5, "Trade Offer Upgrade (Diamond)");
+        this.translate(LCText.ITEM_UPGRADE_OFFER_6, "Trade Offer Upgrade (Netherite)");
         this.translate(LCText.ITEM_UPGRADE_NETWORK, "Network Upgrade");
         this.translate(LCText.ITEM_UPGRADE_HOPPER, "Hopper Upgrade");
         this.translate(LCText.ITEM_UPGRADE_COIN_EXCHANGE, "Coin Exchange Upgrade");
@@ -96,9 +102,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_MAGNET_2, "Magnet Upgrade (Iron)");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_3, "Magnet Upgrade (Gold)");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_4, "Magnet Upgrade (Emerald)");
+        this.translate(LCText.ITEM_UPGRADE_BANK, "Bank Upgrade");
         this.translate(LCText.ITEM_UPGRADE_SECURITY, "Security Upgrade");
 
-        this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Upgrade Smithing Template");
+        this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
         //Blocks
         this.translate(LCText.BLOCK_COINPILE_COPPER,"Copper Coinpile");
@@ -212,7 +219,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.SOUND_COINS_CLINKING,"Coins Clinking");
 
         //Tooltips
-        this.translate(LCText.TOOLTIP_UPGRADE_TEMPLATE,"Lightman's Currency Upgrade Template");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION,"Lightman's Currency Upgrades");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO,"Miscellaneous Items & Upgrades");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS,"Redstone or Copper to Netherite Materials");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION,"Add Item or Upgrade");
+        this.translate(LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION,"Add Material");
         this.translate(LCText.TOOLTIP_HEALING,"Heals %s health.");
         this.translate(LCText.TOOLTIP_BETA, "Feature in beta stage. May have issues!");
         this.translate(LCText.TOOLTIP_DISABLED, "DISABLED");
@@ -278,6 +289,8 @@ public class EnglishProvider extends TranslationProvider {
 
         //Upgrade Tooltips
         this.translate(LCText.TOOLTIP_UPGRADE_TARGETS,"Upgrade can be used by:");
+        this.translate(LCText.TOOLTIP_UPGRADE_UNIQUE,"Unique Upgrade");
+        this.translate(LCText.TOOLTIP_UPGRADE_TRADE_OFFER, "Increases traders offer limit by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_ITEM_CAPACITY, "Increases item storage capacity by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_SPEED, "Decreases the delay between interactions by %s ticks");
         this.translate(LCText.TOOLTIP_UPGRADE_NETWORK,"Makes a trader visible from a trading terminal");
@@ -285,6 +298,7 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE, "Allows the Money Chest to automatically exchange coins upon insertion");
         this.translate(LCText.TOOLTIP_UPGRADE_MAGNET, "Allows the Money Chest to collect coin items up to %sm away");
+        this.translate(LCText.TOOLTIP_UPGRADE_BANK, "Allows the Money Chest to automatically deposit or withdraw coins from a selected bank account");
         this.translate(LCText.TOOLTIP_UPGRADE_SECURITY, "Allows the Money Chest to be protected from destruction by other players","Also blocks container access from other players","Requires set-up, will not have an owner defined automatically");
 
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER,"All Traders");
@@ -360,7 +374,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_BANK_MY_ACCOUNT,"My Account");
         this.translate(LCText.BUTTON_BANK_PLAYER_ACCOUNT,"Select Players Account");
         this.translate(LCText.GUI_BANK_SELECT_PLAYER_SUCCESS,"Selected %s's Bank Account");
-        this.translate(LCText.GUI_BANK_NO_TEAMS_AVAILABLE,"You don't have access to any teams bank account");
         this.translate(LCText.TOOLTIP_ATM_INTERACT,"Withdraw or Deposit");
         this.translate(LCText.TOOLTIP_ATM_NOTIFICATIONS,"Balance Notification Settings");
         this.translate(LCText.GUI_BANK_NOTIFICATIONS_DISABLED,"You will not receive any account balance notifications");
@@ -375,7 +388,18 @@ public class EnglishProvider extends TranslationProvider {
         //Coin Chest
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES,"Always Allowed");
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_NO,"Block When Open");
+
+        //Security Upgrade
         this.translate(LCText.MESSAGE_COIN_CHEST_PROTECTION_WARNING,"You do not have permission to access this chest");
+
+        //Bank Upgrade
+        this.translate(LCText.BUTTON_BANK_UPGRADE_MODE_DEPOSIT,"Deposit Money");
+        this.translate(LCText.BUTTON_BANK_UPGRADE_MODE_WITHDRAW,"Withdraw Money");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_NO_ACCOUNT,"Must select a bank account!");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_UNLIMITED,"Deposits all money within the Money Chest");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_LIMITED,"Deposits money after the Money Chest contains at least %s");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW,"Withdraws money until the Money Chest contains at least %s");
+        this.translate(LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW_INVALID,"Withdraw Limit must be defined!");
 
         //Ejection Menu
         this.translate(LCText.GUI_EJECTION_NO_DATA,"No Ejection Data Available");
@@ -536,6 +560,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADE_INFO_TITLE, "Trade Info:");
         this.translate(LCText.TOOLTIP_TRADE_INFO_ORIGINAL_NAME, "Original Name: %s");
         this.translate(LCText.TOOLTIP_TRADE_INFO_STOCK, "%s trade(s) in stock");
+        this.translate(LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE, "Infinite");
 
         //Item Trader Specific
         this.translate(LCText.GUI_TRADER_ITEM_ENFORCE_NBT,"Enforce NBT");
@@ -635,13 +660,25 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TRADE_RULE_TRADE_LIMIT_DENIAL,"This trade has been done %s times already");
         this.translate(LCText.TRADE_RULE_TRADE_LIMIT_INFO,"This trade has been done %1$s of %2$s times");
         this.translate(LCText.TRADE_RULE_FREE_SAMPLE,"Free Sample");
-        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO,"Your first purchase is free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_SINGLE,"Your first purchase is free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_MULTI,"Your first %s purchases are free!");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_USED,"You have used %1$s of your %2$s free samples");
+        this.translate(LCText.TRADE_RULE_FREE_SAMPLE_INFO_TIMED,"Free sample resets after %s");
         this.translate(LCText.BUTTON_FREE_SAMPLE_RESET,"Reset Free Samples");
-        this.translate(LCText.TOOLTIP_FREE_SAMPLE_RESET,"Forgets who has received their free sample so that they may receive it again");
-        this.translate(LCText.GUI_FREE_SAMPLE_PLAYER_COUNT,"%s player(s) have claimed a free sample!");
+        this.translate(LCText.TOOLTIP_FREE_SAMPLE_RESET,"Forgets who has received their free sample(s) so that they may receive it again");
+        this.translate(LCText.GUI_FREE_SAMPLE_PLAYER_COUNT,"%s free samples have been given!");
+        this.translate(LCText.GUI_FREE_SAMPLE_INFO,"Players can claim %s free sample(s)");
         this.translate(LCText.TRADE_RULE_PRICE_FLUCTUATION,"Price Fluctuation");
         this.translate(LCText.GUI_PRICE_FLUCTUATION_LABEL,"% Fluctuation");
         this.translate(LCText.GUI_PRICE_FLUCTUATION_INFO,"Randomly increases or decreases the price by up to %1$s%% of the base price every %2$s");
+        this.translate(LCText.TRADE_RULE_DEMAND_PRICING,"Demand-Based Pricing");
+        this.translate(LCText.TRADE_RULE_DEMAND_PRICING_INFO,"Trade Price changes depending on available stock");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO, "Price will fluctuate between %1$s (stock <= %4$s) to %2$s (stock >= %3$s)");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_PRICE, "Price inputs are invalid!");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_STOCK, "Upper stock limit <= Lower stock limit");
+        this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_HOST, "Trade is not a Sale which means stock count may be dependent on the price");
+        this.translate(LCText.GUI_DEMAND_PRICING_STOCK_SMALL, "Lower Stock:");
+        this.translate(LCText.GUI_DEMAND_PRICING_STOCK_LARGE, "Upper Stock:");
 
         //Permissions
         this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage");

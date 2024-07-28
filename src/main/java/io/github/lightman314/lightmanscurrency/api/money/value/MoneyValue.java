@@ -251,6 +251,13 @@ public abstract class MoneyValue {
     @Nonnull
     public abstract MoneyValue getSmallestValue();
 
+    /**
+     * Returns a Money Value with the same {@link #getUniqueName()} but with the given core value<br>
+     * Used for calculated math
+     */
+    @Nonnull
+    public abstract MoneyValue fromCoreValue(long value);
+
 
     /**
      * Saves this {@link MoneyValue} data into an NBT tag.
@@ -394,6 +401,8 @@ public abstract class MoneyValue {
         @Override
         public boolean isFree() { return this.free; }
         @Override
+        public boolean isValidPrice() { return this.free; }
+        @Override
         public boolean isEmpty() { return true; }
         @Override
         public long getCoreValue() { return 0; }
@@ -421,6 +430,9 @@ public abstract class MoneyValue {
         @Nonnull
         @Override
         public MoneyValue getSmallestValue() { return this; }
+        @Nonnull
+        @Override
+        public MoneyValue fromCoreValue(long value) { return this; }
         @Nonnull
         @Override
         public DisplayEntry getDisplayEntry(@Nullable List<Component> tooltips, boolean tooltipOverride) { return new EmptyPriceEntry(this, tooltips); }

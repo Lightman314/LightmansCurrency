@@ -14,7 +14,4 @@ public abstract class TaxCollectorClientTab<T extends TaxCollectorTab> extends E
 
     protected TaxCollectorClientTab(Object screen, T commonTab) { super((TaxCollectorScreen)screen); this.screen = (TaxCollectorScreen)screen; this.menu = this.screen.getMenu(); this.commonTab = commonTab; }
 
-    @Override
-    public final int getColor() { return 0xFFFFFF; }
-
 }

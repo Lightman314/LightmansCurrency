@@ -21,9 +21,6 @@ public abstract class TraderClientTab extends EasyTab {
 	@Override
 	public IconData getIcon() { return IconData.Null(); }
 
-	@Override
-	public final int getColor() { return 0xFFFFFF; }
-
 	@Nullable
 	@Override
 	public final Component getTooltip() { return EasyText.empty(); }

@@ -69,6 +69,7 @@ public class IconUtil {
     public static final IconData ICON_DISCOUNT_LIST = IconData.of(ICON_TEXTURE, 96, 32);
     public static final IconData ICON_FREE_SAMPLE = IconData.of(ICON_TEXTURE, 112, 32);
     public static final IconData ICON_PRICE_FLUCTUATION = IconData.of(ICON_TEXTURE, 128, 32);
+    public static final IconData ICON_DEMAND_PRICING = IconData.of(ICON_TEXTURE, 144, 32);
 
     public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
 

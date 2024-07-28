@@ -11,7 +11,7 @@ public abstract class PriceTweakingTradeRule extends TradeRule {
     protected PriceTweakingTradeRule(@Nonnull TradeRuleType<?> type) { super(type); }
 
     @Override
-    protected boolean allowHost(@Nonnull ITradeRuleHost host) { return host.canMoneyBeRelevant(); }
+    protected boolean allowHost(@Nonnull ITradeRuleHost host) { return super.allowHost(host) && host.canMoneyBeRelevant(); }
 
     @Override
     protected boolean canActivate(@Nullable ITradeRuleHost host) { return host != null && host.isMoneyRelevant(); }

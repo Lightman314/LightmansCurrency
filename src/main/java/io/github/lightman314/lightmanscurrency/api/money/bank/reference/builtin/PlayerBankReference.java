@@ -3,14 +3,18 @@ package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,10 +34,19 @@ public class PlayerBankReference extends BankReference {
     public static BankReference of(@Nullable PlayerReference player) { return player != null ? new PlayerBankReference(player.id) : null; }
     public static BankReference of(@Nonnull Player player) { return new PlayerBankReference(player.getUUID()).flagAsClient(player.level().isClientSide); }
 
+    @Override
+    public int sortPriority() { return 1000000; }
+
+    @Nullable
+    @Override
+    public IconData getIcon() { return IconData.of(ItemStackHelper.skullForPlayer(this.playerID)); }
+
     @Nullable
     @Override
     public IBankAccount get() { return BankSaveData.GetBankAccount(this.isClient(), this.playerID); }
 
+    @Override
+    public boolean allowedAccess(@Nonnull PlayerReference player) { return this.playerID.equals(player.id); }
     @Override
     public boolean allowedAccess(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.playerID.equals(player.getUUID()); }
 

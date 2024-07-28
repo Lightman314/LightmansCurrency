@@ -27,7 +27,7 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/coin_chest.png");
 
     int currentTabIndex = 0;
-    List<CoinChestTab> tabs = Lists.newArrayList(new DefaultTab(this));
+    List<CoinChestTab> tabs = new ArrayList<>();
 
     public List<CoinChestTab> getTabs() { return this.tabs; }
     public CoinChestTab currentTab() { return this.tabs.get(this.currentTabIndex); }
@@ -84,7 +84,6 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
                     this.currentTabIndex = i;
                     oldTabType = null;
                 }
-
             }
             //If old tab removed, reset to default tab
             if(oldTabType != null)
@@ -96,8 +95,6 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
         for(int i = 0; i < this.tabs.size(); ++i)
         {
             TabButton button = this.addChild(new TabButton(this::clickedOnTab, this.tabs.get(i)));
-            if(i == 0)
-                button.hideTooltip = true;
             button.active = i != this.currentTabIndex;
             this.tabButtons.add(button);
         }

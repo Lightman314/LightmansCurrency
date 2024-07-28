@@ -48,12 +48,12 @@ public abstract class WalletMenuBase extends EasyMenu {
 		return this.inventory.getItem(this.walletStackIndex);
 	}
 	
-	private boolean autoConvert;
+	private boolean autoExchange;
 	public boolean canExchange() { return WalletItem.CanExchange(this.walletItem); }
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
-	public boolean getAutoExchange() { return this.autoConvert; }
-	public void ToggleAutoExchange() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
+	public boolean getAutoExchange() { return this.autoExchange; }
+	public void ToggleAutoExchange() { this.autoExchange = !this.autoExchange; this.saveWalletContents(); }
 	
 	protected final SimpleContainer coinInput;
 	
@@ -77,7 +77,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
 		this.reloadWalletContents();
 		
-		this.autoConvert = WalletItem.getAutoExchange(this.getWallet());
+		this.autoExchange = WalletItem.getAutoExchange(this.getWallet());
 		
 	}
 
@@ -142,7 +142,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 		if(data != null)
 			data.setContents(this.coinInput, null);
 		
-		if(this.autoConvert != WalletItem.getAutoExchange(this.getWallet()))
+		if(this.autoExchange != WalletItem.getAutoExchange(this.getWallet()))
 			WalletItem.toggleAutoExchange(this.getWallet());
 		
 	}
@@ -175,7 +175,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 			}
 		}
 		
-		if(this.autoConvert)
+		if(this.autoExchange)
 			this.ExchangeCoints();
 		else
 			this.saveWalletContents();

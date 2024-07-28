@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -34,7 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
-	
+
+	@Nonnull
 	protected MoneyValue cost = MoneyValue.empty();
 	
 	List<TradeRule> rules = new ArrayList<>();
@@ -43,39 +43,32 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	public boolean validCost() { return this.getCost().isValidPrice(); }
 	
-	public boolean isValid() { return validCost(); }
-	
+	public boolean isValid() { return this.validCost(); }
+
+	@Nonnull
 	public MoneyValue getCost() { return this.cost; }
-
-	private TradeCostCache cachedCost = TradeCostCache.EMPTY;
-
-	protected void flagPriceAsChanged() { this.cachedCost = TradeCostCache.EMPTY; }
 
 	/**
 	 * Standard method of obtaining the cost of a trade given a context.
 	 * Will run the {@link TradeCostEvent} to calculate any price changes,
 	 * and will cache the results to save framerate for client-side displays.
 	 */
+	@Nonnull
 	public final MoneyValue getCost(@Nonnull TradeContext context) {
-		if(!context.hasPlayerReference() || !context.hasTrader())
+		if(!context.hasTrader() || !this.validCost())
 			return this.getCost();
-		TradeCostEvent event = context.getTrader().runTradeCostEvent(this, context);
-		if(!this.cachedCost.matches(event))
-		{
-			if(this.cachedCost != TradeCostCache.EMPTY)
-				LightmansCurrency.LogDebug("New price cached for a trade. Event results must have changed!");
-			this.cachedCost = TradeCostCache.cache(event);
-		}
-		return this.cachedCost.getPrice();
+		MoneyValue baseCost = TradeRule.getBaseCost(this,context);
+		TradeCostEvent event = context.getTrader().runTradeCostEvent(this, context, baseCost);
+		return event.getCostResult();
 	}
 
 	/**
 	 * Gets the cost after all taxes are applied.
 	 * Assumes that this is a purchase trade.
 	 */
-	public MoneyValue getCostWithTaxes(TraderData trader)
+	public MoneyValue getCostWithTaxes(@Nonnull TraderData trader)
 	{
-		MoneyValue cost = this.getCost();
+		MoneyValue cost = TradeRule.getBaseCost(this,TradeContext.createStorageMode(trader));
 		MoneyValue taxAmount = MoneyValue.empty();
 		for(ITaxCollector entry : trader.getApplicableTaxes())
 			taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
@@ -95,7 +88,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		return cost;
 	}
 	
-	public void setCost(MoneyValue value) { this.cost = value; this.flagPriceAsChanged(); }
+	public void setCost(MoneyValue value) { this.cost = value; }
 
 	public boolean outOfStock(@Nonnull TradeContext context) { return !this.hasStock(context); }
 
@@ -149,13 +142,9 @@ public abstract class TradeData implements ITradeRuleHost {
 	protected void loadFromNBT(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
-		this.flagPriceAsChanged();
 		//Set whether it's free or not
 		if(nbt.contains("IsFree") && nbt.getBoolean("IsFree"))
-		{
 			this.cost = MoneyValue.free();
-			this.flagPriceAsChanged();
-		}
 		
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
@@ -283,30 +272,5 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 
 	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) { }
-
-	private static class TradeCostCache {
-		private final boolean free;
-		private final int percentage;
-		private final MoneyValue price;
-		public MoneyValue getPrice() { return this.free ? MoneyValue.free() : price; }
-		private TradeCostCache(boolean free, int percentage, MoneyValue price) {
-			this.free = free;
-			this.percentage = percentage;
-			this.price = price;
-
-		}
-		public static final TradeCostCache EMPTY = new TradeCostCache(true,0,MoneyValue.free());
-
-		public static TradeCostCache cache(@Nonnull TradeCostEvent event) {
-			return new TradeCostCache(event.getCostResultIsFree(), event.getPricePercentage(), event.getCostResult());
-		}
-
-		public boolean matches(@Nonnull TradeCostEvent event) {
-			if(event.getCostResultIsFree() && this.free)
-				return true;
-			return this.percentage == event.getPricePercentage();
-		}
-
-	}
 
 }

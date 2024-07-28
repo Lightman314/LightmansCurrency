@@ -71,9 +71,9 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void pickupItem(ItemEntityPickupEvent.Pre event)
 	{
-		
-		ItemStack pickupItem = event.getItemEntity().getItem();
-		if(!CoinAPI.API.IsCoin(pickupItem, false))
+		ItemEntity ie = event.getItemEntity();
+		ItemStack pickupItem = ie.getItem();
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsCoin(pickupItem, false))
 			return;
 		
 		Player player = event.getPlayer();
@@ -86,18 +86,15 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
-		ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
-		if(!wallet.isEmpty())
+		WalletHandler walletHandler = WalletHandler.get(player);
+		ItemStack wallet = walletHandler.getWallet();
+		if(!wallet.isEmpty() && wallet.getItem() instanceof WalletItem walletItem && WalletItem.CanPickup(walletItem))
 		{
-			WalletItem walletItem = (WalletItem)wallet.getItem();
-			if(WalletItem.CanPickup(walletItem))
-			{
-				cancelEvent = true;
-				if(activeContainer != null)
-					pickupItem = activeContainer.PickupCoins(pickupItem);
-				else
-					pickupItem = WalletItem.PickupCoin(wallet, pickupItem);
-			}
+			cancelEvent = true;
+			if(activeContainer != null)
+				pickupItem = activeContainer.PickupCoins(pickupItem);
+			else
+				pickupItem = walletHandler.PickupCoins(pickupItem);
 		}
 		
 		if(cancelEvent)

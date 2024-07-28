@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public record DisplayData(int xOffset, int yOffset, int width, int height) {
     public int yOffset() { return this.yOffset; }
     public int width() { return this.width; }
     public int height() { return this.height; }
+    public ScreenArea asArea() { return ScreenArea.of(this.xOffset, this.yOffset, this.width, this.height); }
 
     /**
      * Divides the display area horizontally into the given number of pieces.

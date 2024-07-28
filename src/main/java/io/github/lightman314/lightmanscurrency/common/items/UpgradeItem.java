@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -51,6 +52,11 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			if(stack.has(ModDataComponents.UPGRADE_DATA))
 			{
 				stack.remove(ModDataComponents.UPGRADE_DATA);
+				removed = true;
+			}
+			if(stack.has(ModDataComponents.UPGRADE_ACTIVE))
+			{
+				stack.remove(ModDataComponents.UPGRADE_ACTIVE);
 				removed = true;
 			}
 			removed = removed || this.upgradeType.clearDataFromStack(stack);
@@ -108,6 +114,8 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 				return item.customTooltips.apply(data);
 			//Get initial list and force it to be editable, as the UpgradeType#getTooltip may return an immutable list
             List<Component> tooltip = new ArrayList<>(type.getTooltip(data));
+			if(type.isUnique())
+				tooltip.add(LCText.TOOLTIP_UPGRADE_UNIQUE.getWithStyle(ChatFormatting.BOLD,ChatFormatting.GOLD));
 			List<Component> targets = type.getPossibleTargets();
 			if(!targets.isEmpty())
 			{
@@ -141,6 +149,24 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 
 		@Override
 		public void setDefaultValues(@Nonnull UpgradeData.Mutable data) {}
+	}
+
+	public static boolean noUniqueConflicts(@Nonnull UpgradeItem item, @Nonnull Container container)
+	{
+		UpgradeType type = item.getUpgradeType();
+		if(type.isUnique())
+		{
+			for(int i = 0; i < container.getContainerSize(); ++i)
+			{
+				ItemStack stack = container.getItem(i);
+				if(!stack.isEmpty() && stack.getItem() instanceof UpgradeItem otherItem)
+				{
+					if(otherItem.getUpgradeType() == type)
+						return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 }

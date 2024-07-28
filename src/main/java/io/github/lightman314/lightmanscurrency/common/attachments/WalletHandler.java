@@ -193,7 +193,6 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
             CoinAPI.API.CoinExchangeAllUp(contents);
             CoinAPI.API.SortCoinsByValue(contents);
         }
-        //May need to "set" here?
         wrapper.setContents(contents, this.entity);
     }
 
@@ -213,5 +212,14 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
 
     @Override
     protected boolean hasStoredMoneyChanged() { return !InventoryUtil.ItemsFullyMatch(this.moneyCacheWallet, this.getWallet()); }
+
+    @Nonnull
+    public ItemStack PickupCoins(@Nonnull ItemStack stack)
+    {
+        ItemStack result = WalletItem.PickupCoin(this.walletItem,stack);
+        if(!InventoryUtil.ItemsFullyMatch(stack,result))
+            this.setChanged();
+        return result;
+    }
 
 }

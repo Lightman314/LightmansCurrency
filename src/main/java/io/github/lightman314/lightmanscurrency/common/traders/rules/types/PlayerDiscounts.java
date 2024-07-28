@@ -41,7 +41,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	private PlayerDiscounts() { super(TYPE); }
 	
 	@Override
-	public void beforeTrade(PreTradeEvent event)
+	public void beforeTrade(@Nonnull PreTradeEvent event)
 	{
 		if(this.isOnList(event.getPlayerReference()))
 		{
@@ -57,7 +57,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(TradeCostEvent event)
+	public void tradeCost(@Nonnull TradeCostEvent event)
 	{
 		if(this.isOnList(event.getPlayerReference()))
 		{

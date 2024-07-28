@@ -3,37 +3,36 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
-public class TraderItemHandler{
+public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IItemStorageProvider> {
 
-	private final ItemTraderData trader;
+	private final T trader;
 	private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 	
-	public TraderItemHandler(ItemTraderData trader)
+	public TraderItemHandler(@Nonnull T trader)
 	{
 		this.trader = trader;
 	}
 	
 	public IItemHandler getHandler(Direction side) {
 		if(!this.handlers.containsKey(side))
-			this.handlers.put(side, new TraderHandler(this.trader, side));
+			this.handlers.put(side, new TraderHandler<>(this.trader, side));
 		return this.handlers.get(side);
 	}
 	
-	private static class TraderHandler implements IItemHandler
+	private static class TraderHandler<T extends InputTraderData & IItemStorageProvider> implements IItemHandler
 	{
-		private final ItemTraderData trader;
+		private final T trader;
 		private final Direction side;
 		
-		protected TraderHandler(ItemTraderData trader, Direction side) { this.trader = trader; this.side = side; }
+		protected TraderHandler(T trader, Direction side) { this.trader = trader; this.side = side; }
 		
 		protected final TraderItemStorage getStorage() { return this.trader.getStorage(); }
 		
@@ -66,19 +65,8 @@ public class TraderItemHandler{
 			return this.allowsInputs() && this.getStorage().allowItem(stack);
 		}
 		
-		public boolean allowExtraction(ItemStack stack) {
-			for(ItemTradeData trade : this.trader.getTradeData())
-			{
-				if(trade.isSale() || trade.isBarter())
-				{
-					for(int i = 0; i < 2; ++i)
-					{
-						if(trade.getItemRequirement(i).test(stack))
-							return false;
-					}
-				}
-			}
-			return true;
+		public boolean allowExtraction(@Nonnull ItemStack stack) {
+			return this.trader.allowExtraction(stack);
 		}
 
 		@Nonnull
@@ -126,6 +114,14 @@ public class TraderItemHandler{
 			return ItemStack.EMPTY;
 		}
 		
+	}
+
+	public interface IItemStorageProvider
+	{
+		@Nonnull
+		TraderItemStorage getStorage();
+		void markStorageDirty();
+		boolean allowExtraction(@Nonnull ItemStack stack);
 	}
 	
 	

@@ -23,8 +23,6 @@ public abstract class CoinChestTab extends EasyTab
 
 	public boolean isVisible() { return true; }
 
-	public final int getColor() { return 0xFFFFFF; }
-
 	public final boolean upgradeSlotsVisible() { return this.getClass() == DefaultTab.class; }
 	public boolean coinSlotsVisible() { return true; }
 	public boolean inventoryVisible() { return true; }
@@ -37,6 +35,13 @@ public abstract class CoinChestTab extends EasyTab
 		private final IconData icon;
 		private final Component tooltip;
 
+		@Override
+		public int getColor() {
+			if(this.getUpgradeData().isActive())
+				return super.getColor();
+			return 0xFF7F7F;
+		}
+
 		protected Upgrade(CoinChestUpgradeData data, Object screen) {
 			super(screen);
 			this.type = data.upgrade;
@@ -46,9 +51,9 @@ public abstract class CoinChestTab extends EasyTab
 
 		@Nonnull
 		@Override
-		public final IconData getIcon() { return this.icon; }
+		public IconData getIcon() { return this.icon; }
 		@Override
-		public final Component getTooltip() { return this.tooltip; }
+		public Component getTooltip() { return this.tooltip; }
 
 		@Nullable
 		protected final CoinChestUpgradeData getUpgradeData() { return this.screen.be.getChestUpgradeOfType(this.type); }

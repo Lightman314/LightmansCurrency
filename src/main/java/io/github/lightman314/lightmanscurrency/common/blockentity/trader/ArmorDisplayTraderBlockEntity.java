@@ -125,7 +125,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 					if(slot != null)
 					{
 						if(thisTrade.hasStock(trader) || trader.isCreative())
-							armorStand.setItemSlot(slot, thisTrade.getSellItem(0));
+						{
+							ItemStack item = thisTrade.getSellItem(0);
+							if(item.isEmpty())
+								item = thisTrade.getSellItem(1);
+							armorStand.setItemSlot(slot, item);
+						}
 						else
 							armorStand.setItemSlot(slot, ItemStack.EMPTY);
 					}
@@ -134,7 +139,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 			
 		}
 	}
-	
+
 	public void killIntrudingArmorStands() {
 		ArmorStand armorStand = this.getArmorStand();
 		if(this.level != null && armorStand != null)

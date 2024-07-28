@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -48,8 +49,15 @@ public class CoinChestUpgradeData {
     }
 
     public boolean isNull() { return this == NULL; }
-
     public boolean notNull() { return !this.isNull(); }
+
+    public final boolean isActive() { return this.notNull() && (this.upgrade.alwayActive() || this.getData(ModDataComponents.UPGRADE_ACTIVE,true)); }
+    public void setActive(boolean isActive)
+    {
+        if(this.upgrade.alwayActive())
+            return;
+        this.setData(ModDataComponents.UPGRADE_ACTIVE,isActive);
+    }
 
     public void copyRelevantData(@Nonnull CoinChestUpgradeData other)
     {

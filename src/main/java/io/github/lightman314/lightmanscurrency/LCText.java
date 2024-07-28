@@ -100,14 +100,20 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_SPEED_3 = TextEntry.item(ModItems.SPEED_UPGRADE_3);
     public static final TextEntry ITEM_UPGRADE_SPEED_4 = TextEntry.item(ModItems.SPEED_UPGRADE_4);
     public static final TextEntry ITEM_UPGRADE_SPEED_5 = TextEntry.item(ModItems.SPEED_UPGRADE_5);
+    public static final TextEntry ITEM_UPGRADE_OFFER_1 = TextEntry.item(ModItems.OFFER_UPGRADE_1);
+    public static final TextEntry ITEM_UPGRADE_OFFER_2 = TextEntry.item(ModItems.OFFER_UPGRADE_2);
+    public static final TextEntry ITEM_UPGRADE_OFFER_3 = TextEntry.item(ModItems.OFFER_UPGRADE_3);
+    public static final TextEntry ITEM_UPGRADE_OFFER_4 = TextEntry.item(ModItems.OFFER_UPGRADE_4);
+    public static final TextEntry ITEM_UPGRADE_OFFER_5 = TextEntry.item(ModItems.OFFER_UPGRADE_5);
+    public static final TextEntry ITEM_UPGRADE_OFFER_6 = TextEntry.item(ModItems.OFFER_UPGRADE_6);
     public static final TextEntry ITEM_UPGRADE_NETWORK = TextEntry.item(ModItems.NETWORK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_HOPPER = TextEntry.item(ModItems.HOPPER_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_COIN_EXCHANGE = TextEntry.item(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
-    //public static final TextEntry ITEM_UPGRADE_BANK = TextEntry.item(ModItems.COIN_CHEST_BANK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_MAGNET_1 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
     public static final TextEntry ITEM_UPGRADE_MAGNET_2 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
     public static final TextEntry ITEM_UPGRADE_MAGNET_3 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
     public static final TextEntry ITEM_UPGRADE_MAGNET_4 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
+    public static final TextEntry ITEM_UPGRADE_BANK = TextEntry.item(ModItems.COIN_CHEST_BANK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_SECURITY = TextEntry.item(ModItems.COIN_CHEST_SECURITY_UPGRADE);
 
     //1.20 exclusive
@@ -225,7 +231,13 @@ public class LCText {
     public static final TextEntry SOUND_COINS_CLINKING = TextEntry.sound(MODID,"coins_clinking");
 
     //Item Tooltips
-    public static final MultiLineTextEntry TOOLTIP_UPGRADE_TEMPLATE = MultiLineTextEntry.tooltip(MODID,"upgrade_smithing_template");
+    public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.title");
+    public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO = TextEntry.tooltip(MODID,"smithing_template.applies_to");
+    public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS = TextEntry.tooltip(MODID,"smithing_template.ingredients");
+    public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.base_slot_description");
+    public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.additions_slot_description");
+
+
     public static final TextEntry TOOLTIP_HEALING = TextEntry.tooltip(MODID,"healing");
 
     public static final TextEntry TOOLTIP_BETA = TextEntry.tooltip(MODID,"beta");
@@ -293,14 +305,16 @@ public class LCText {
 
     //Upgrades
     public static final TextEntry TOOLTIP_UPGRADE_TARGETS = TextEntry.tooltip(MODID,"upgrade.targets");
+    public static final TextEntry TOOLTIP_UPGRADE_UNIQUE = TextEntry.tooltip(MODID,"upgrade.unique");
+    public static final TextEntry TOOLTIP_UPGRADE_TRADE_OFFER = TextEntry.tooltip(MODID,"upgrade.trade_offer");
     public static final TextEntry TOOLTIP_UPGRADE_ITEM_CAPACITY = TextEntry.tooltip(MODID,"upgrade.item_capacity");
     public static final TextEntry TOOLTIP_UPGRADE_SPEED = TextEntry.tooltip(MODID,"upgrade.speed");
     public static final TextEntry TOOLTIP_UPGRADE_NETWORK = TextEntry.tooltip(MODID,"upgrade.network");
     public static final TextEntry TOOLTIP_UPGRADE_HOPPER = TextEntry.tooltip(MODID,"upgrade.hopper");
 
     public static final TextEntry TOOLTIP_UPGRADE_COIN_EXCHANGE = TextEntry.tooltip(MODID,"upgrade.coin_exchange");
-    //public static final TextEntry TOOLTIP_UPGRADE_BANK = TextEntry.tooltip(MODID,"upgrade.bank");
     public static final TextEntry TOOLTIP_UPGRADE_MAGNET = TextEntry.tooltip(MODID,"upgrade.magnet");
+    public static final TextEntry TOOLTIP_UPGRADE_BANK = TextEntry.tooltip(MODID,"upgrade.bank");
     public static final MultiLineTextEntry TOOLTIP_UPGRADE_SECURITY = MultiLineTextEntry.tooltip(MODID,"upgrade.security");
 
     public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER = TextEntry.tooltip(MODID,"upgrade.target.traders");
@@ -375,7 +389,6 @@ public class LCText {
     public static final TextEntry TOOLTIP_ATM_SELECTION = TextEntry.tooltip(MODID,"atm.selection");
     public static final TextEntry BUTTON_BANK_MY_ACCOUNT = TextEntry.button(MODID,"bank.my_account");
     public static final TextEntry BUTTON_BANK_PLAYER_ACCOUNT = TextEntry.button(MODID,"bank.player_account");
-    public static final TextEntry GUI_BANK_NO_TEAMS_AVAILABLE = TextEntry.gui(MODID,"bank.no_teams_available");
     public static final TextEntry GUI_BANK_SELECT_PLAYER_SUCCESS = TextEntry.gui(MODID,"bank.select.player.success");
     public static final TextEntry TOOLTIP_ATM_INTERACT = TextEntry.tooltip(MODID,"atm.interact");
     public static final TextEntry TOOLTIP_ATM_NOTIFICATIONS = TextEntry.tooltip(MODID,"atm.notification");
@@ -392,6 +405,15 @@ public class LCText {
     public static final TextEntry BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES = TextEntry.button(MODID,"upgrade.coin_chest.exchange.while_open.y");
     public static final TextEntry BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_NO = TextEntry.button(MODID,"upgrade.coin_chest.exchange.while_open.n");
     public static final TextEntry MESSAGE_COIN_CHEST_PROTECTION_WARNING = TextEntry.message(MODID,"coin_chest.protection.warning");
+
+    //Bank Upgrade
+    public static final TextEntry BUTTON_BANK_UPGRADE_MODE_DEPOSIT = TextEntry.button(MODID,"coin_chest.bank_upgrade.mode.deposit");
+    public static final TextEntry BUTTON_BANK_UPGRADE_MODE_WITHDRAW = TextEntry.button(MODID,"coin_chest.bank_upgrade.mode.withdraw");
+    public static final TextEntry GUI_BANK_UPGRADE_DETAILS_NO_ACCOUNT = TextEntry.gui(MODID,"coin_chest.bank_upgrade.details.no_account");
+    public static final TextEntry GUI_BANK_UPGRADE_DETAILS_DEPOSIT_UNLIMITED = TextEntry.gui(MODID,"coin_chest.bank_upgrade.details.deposit.no_limit");
+    public static final TextEntry GUI_BANK_UPGRADE_DETAILS_DEPOSIT_LIMITED = TextEntry.gui(MODID,"coin_chest.bank_upgrade.details.deposit.limit");
+    public static final TextEntry GUI_BANK_UPGRADE_DETAILS_WITHDRAW = TextEntry.gui(MODID,"coin_chest.bank_upgrade.details.withdraw");
+    public static final TextEntry GUI_BANK_UPGRADE_DETAILS_WITHDRAW_INVALID = TextEntry.gui(MODID,"coin_chest.bank_upgrade.details.withdraw.invalid");
 
     //Ejection Menu
     public static final TextEntry GUI_EJECTION_NO_DATA = TextEntry.gui(MODID,"ejection_menu.no_data");
@@ -631,13 +653,26 @@ public class LCText {
     public static final TextEntry TRADE_RULE_TRADE_LIMIT_DENIAL = TextEntry.tradeRuleMessage(TradeLimit.TYPE,"denial");
     public static final TextEntry TRADE_RULE_TRADE_LIMIT_INFO = TextEntry.tradeRuleMessage(TradeLimit.TYPE,"info");
     public static final TextEntry TRADE_RULE_FREE_SAMPLE = TextEntry.tradeRule(FreeSample.TYPE);
-    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_SINGLE = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.single");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_MULTI = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.multi");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_USED = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.used");
+    public static final TextEntry TRADE_RULE_FREE_SAMPLE_INFO_TIMED = TextEntry.tradeRuleMessage(FreeSample.TYPE,"info.timed");
     public static final TextEntry BUTTON_FREE_SAMPLE_RESET = TextEntry.button(MODID,"trade_rule.free_sample.reset");
     public static final TextEntry TOOLTIP_FREE_SAMPLE_RESET = TextEntry.tooltip(MODID,"trade_rule.free_sample.reset");
-    public static final TextEntry GUI_FREE_SAMPLE_PLAYER_COUNT = TextEntry.gui(MODID,"trade_rule.free_sample.player_count");
+    public static final TextEntry GUI_FREE_SAMPLE_PLAYER_COUNT = TextEntry.gui(MODID,"trade_rule.free_sample.count");
+    public static final TextEntry GUI_FREE_SAMPLE_INFO = TextEntry.gui(MODID,"trade_rule.free_sample.info");
     public static final TextEntry TRADE_RULE_PRICE_FLUCTUATION = TextEntry.tradeRule(PriceFluctuation.TYPE);
     public static final TextEntry GUI_PRICE_FLUCTUATION_LABEL = TextEntry.gui(MODID,"trade_rule.price_fluctuation.label");
     public static final TextEntry GUI_PRICE_FLUCTUATION_INFO = TextEntry.gui(MODID,"trade_rule.price_fluctuation.info");
+    public static final TextEntry TRADE_RULE_DEMAND_PRICING = TextEntry.tradeRule(DemandPricing.TYPE);
+    public static final TextEntry TRADE_RULE_DEMAND_PRICING_INFO = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"info");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO = TextEntry.gui(MODID,"trade_rule.demand_pricing.info");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_PRICE = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_price");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_STOCK = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_stock");
+    public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_HOST = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_host");
+    public static final TextEntry GUI_DEMAND_PRICING_STOCK_SMALL = TextEntry.gui(MODID,"trade_rule.demand_pricing.small_stock");
+    public static final TextEntry GUI_DEMAND_PRICING_STOCK_LARGE = TextEntry.gui(MODID,"trade_rule.demand_pricing.large_stock");
+
 
     //Permissions
     public static final TextEntry PERMISSION_OPEN_STORAGE = TextEntry.permission(Permissions.OPEN_STORAGE);

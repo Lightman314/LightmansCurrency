@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Al
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -22,12 +23,13 @@ public abstract class TradeEvent extends Event {
 	private final TradeData trade;
 	@Nonnull
 	public final TradeData getTrade() { return this.trade; }
+	public final int getTradeStock() { return this.trade.getStock(this.context); }
 	public final int getTradeIndex() { return this.getTrader().indexOfTrade(this.trade); }
 	@Nonnull
 	public final TraderData getTrader() { return this.context.getTrader(); }
 	private final TradeContext context;
 	public final TradeContext getContext() { return this.context; }
-	
+
 	protected TradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
 	{
 		this.trade = trade;
@@ -87,7 +89,6 @@ public abstract class TradeEvent extends Event {
 		@Nonnull
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
-		
 	}
 	
 	public static class TradeCostEvent extends TradeEvent
@@ -103,16 +104,20 @@ public abstract class TradeEvent extends Event {
 		public void giveDiscount(int percentage) { this.pricePercentage -=percentage; }
 		public void hikePrice(int percentage) { this.pricePercentage += percentage; }
 
-		MoneyValue baseCost;
+		private final MoneyValue baseCost;
+		@Nonnull
 		public MoneyValue getBaseCost() { return this.baseCost; }
 		public boolean getCostResultIsFree() { return this.forceFree || this.pricePercentage <= 0 || this.baseCost.isFree(); }
+		@Nonnull
 		public MoneyValue getCostResult() { return this.getCostResultIsFree() ? MoneyValue.free() : this.baseCost.percentageOfValue(this.pricePercentage); }
-		
-		public TradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
+
+		@Deprecated(since = "2.2.2.5")
+		public TradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context) { this(trade,context,TradeRule.getBaseCost(trade,context)); }
+		public TradeCostEvent(@Nonnull TradeData trade, @Nonnull TradeContext context, @Nonnull MoneyValue baseCost)
 		{
 			super(trade, context);
 			this.pricePercentage = 100;
-			this.baseCost = trade.getCost();
+			this.baseCost = baseCost;
 		}
 
 		public final boolean matches(@Nonnull TradeData trade) { return this.getTrade() == trade; }

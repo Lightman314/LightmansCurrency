@@ -1,14 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class ModItems {
@@ -17,7 +21,7 @@ public class ModItems {
 	 * Placeholder function to force the static class loading
 	 */
 	public static void init() { }
-	
+
 	//Register the items
 	static {
 		//Coins
@@ -89,7 +93,15 @@ public class ModItems {
 		SPEED_UPGRADE_3 = ModRegistries.ITEMS.register("speed_upgrade_3", () -> new SpeedUpgradeItem(12, new Item.Properties()));
 		SPEED_UPGRADE_4 = ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties()));
 		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties()));
-		
+
+		//Offer Upgrades
+		OFFER_UPGRADE_1 = ModRegistries.ITEMS.register("offer_upgrade_1", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,1,new Item.Properties()));
+		OFFER_UPGRADE_2 = ModRegistries.ITEMS.register("offer_upgrade_2", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,2,new Item.Properties()));
+		OFFER_UPGRADE_3 = ModRegistries.ITEMS.register("offer_upgrade_3", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,4,new Item.Properties()));
+		OFFER_UPGRADE_4 = ModRegistries.ITEMS.register("offer_upgrade_4", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,8,new Item.Properties()));
+		OFFER_UPGRADE_5 = ModRegistries.ITEMS.register("offer_upgrade_5", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,12,new Item.Properties()));
+		OFFER_UPGRADE_6 = ModRegistries.ITEMS.register("offer_upgrade_6", () -> new CapacityUpgradeItem(Upgrades.TRADE_OFFERS,16,new Item.Properties()));
+
 		//Network Upgrade
 		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(Upgrades.NETWORK, new Item.Properties()));
 		
@@ -102,10 +114,11 @@ public class ModItems {
 		COIN_CHEST_MAGNET_UPGRADE_2 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_2", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange2, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_3 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_3", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange3, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange4, new Item.Properties()));
+		COIN_CHEST_BANK_UPGRADE = ModRegistries.ITEMS.register("coin_chest_bank_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_BANK, new Item.Properties()));
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties()));
-
+		
 		//Smithing Templates (1.20 only)
-		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new LCUpgradeSmithingTemplateItem(LCText.TOOLTIP_UPGRADE_TEMPLATE, new Item.Properties()));
+		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new SmithingTemplateItem(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE), LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION.getWithStyle(ChatFormatting.GRAY),LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),new ArrayList<>(),Lists.newArrayList(SmithingTemplateItem.EMPTY_SLOT_INGOT,SmithingTemplateItem.EMPTY_SLOT_EMERALD,SmithingTemplateItem.EMPTY_SLOT_DIAMOND,SmithingTemplateItem.EMPTY_SLOT_REDSTONE_DUST)));
 
 	}
 	
@@ -156,7 +169,14 @@ public class ModItems {
 	public static final Supplier<Item> SPEED_UPGRADE_3;
 	public static final Supplier<Item> SPEED_UPGRADE_4;
 	public static final Supplier<Item> SPEED_UPGRADE_5;
-	
+
+	public static final Supplier<Item> OFFER_UPGRADE_1;
+	public static final Supplier<Item> OFFER_UPGRADE_2;
+	public static final Supplier<Item> OFFER_UPGRADE_3;
+	public static final Supplier<Item> OFFER_UPGRADE_4;
+	public static final Supplier<Item> OFFER_UPGRADE_5;
+	public static final Supplier<Item> OFFER_UPGRADE_6;
+
 	public static final Supplier<Item> NETWORK_UPGRADE;
 	
 	public static final Supplier<Item> HOPPER_UPGRADE;
@@ -166,6 +186,7 @@ public class ModItems {
 	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_2;
 	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_3;
 	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_4;
+	public static final Supplier<Item> COIN_CHEST_BANK_UPGRADE;
 	public static final Supplier<Item> COIN_CHEST_SECURITY_UPGRADE;
 
 	public static final Supplier<Item> UPGRADE_SMITHING_TEMPLATE;

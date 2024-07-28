@@ -23,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -72,6 +74,14 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public int getStock(@Nonnull TradeContext context) { return this.isValid() ? 1 : 0; }
+
+	@Override
+	public boolean allowTradeRule(@Nonnull TradeRule rule) {
+		//Block Demand Pricing trade rule from Paygates as stock is not relevant for this type of trade
+		if(rule instanceof DemandPricing)
+			return false;
+		return super.allowTradeRule(rule);
+	}
 
 	boolean storeTicketStubs = false;
 	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }

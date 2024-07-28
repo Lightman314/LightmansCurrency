@@ -194,6 +194,7 @@ public final class LCConfig {
         public final BooleanOption canCraftCoinChest = BooleanOption.createTrue();
         public final BooleanOption canCraftCoinChestUpgradeExchange = BooleanOption.createTrue();
         public final BooleanOption canCraftCoinChestUpgradeMagnet = BooleanOption.createTrue();
+        public final BooleanOption canCraftCoinChestUpgradeBank = BooleanOption.createTrue();
         public final BooleanOption canCraftCoinChestUpgradeSecurity = BooleanOption.createTrue();
         public final BooleanOption canCraftTaxBlock = BooleanOption.createTrue();
 
@@ -321,6 +322,10 @@ public final class LCConfig {
             builder.comment("Whether the Money Chest Magnet Upgrades can be crafted.",
                             "Disabling will not remove any existing Money Chest Magnet Upgrades from the world, nor prevent their use.")
                     .add("canCraftMagnetUpgrade", this.canCraftCoinChestUpgradeMagnet);
+
+            builder.comment("Whether the Money Chest Bank Upgrade can be crafted.",
+                            "Disabling will not remove any existing Money Chest Bank Upgrades from the world, nor prevent their use.")
+                    .add("canCraftBankUpgrade", this.canCraftCoinChestUpgradeBank);
 
             builder.comment("Whether the Money Chest Security Upgrades can be crafted.",
                             "Disabling will not remove any existing Money Chest Security Upgrades from the world, nor prevent their use.")

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.items.data;
 
-import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.coins.CoinContainerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -21,7 +20,6 @@ import javax.annotation.Nullable;
 public final class WalletDataWrapper extends MoneyViewer {
 
     public static final WalletDataWrapper EMPTY = new WalletDataWrapper();
-    public static final Codec<WalletDataWrapper> CODEC = Codec.unit(EMPTY);
 
     private final ItemStack wallet;
     public boolean isForStack(@Nonnull ItemStack stack) {
@@ -68,8 +66,7 @@ public final class WalletDataWrapper extends MoneyViewer {
             LightmansCurrency.LogError("WalletDataWrapper#setAutoExchange was called on a wallet wrapper that has not been intialized properly!");
             return;
         }
-        WalletData data = this.getData();
-        this.wallet.set(ModDataComponents.WALLET_DATA, new WalletData(data.items(),autoExchange));
+        this.wallet.set(ModDataComponents.WALLET_DATA, this.getData().withAutoExchange(autoExchange));
     }
 
     public Container getContents() { return InventoryUtil.buildInventory(this.getData().items()); }
@@ -81,13 +78,12 @@ public final class WalletDataWrapper extends MoneyViewer {
             LightmansCurrency.LogError("WalletDataWrapper#setContents was called on a wallet wrapper that is not an actual wallet!");
             return;
         }
-        WalletData data = this.getData();
         if(contents.getContainerSize() != WalletItem.InventorySize(this.item))
         {
             LightmansCurrency.LogWarning("WalletDataWrapper#setContents container size does not match the expected container size for this wallet.\nForcing container to match the wallets actual size!");
             contents = this.forceContainerSize(contents);
         }
-        this.wallet.set(ModDataComponents.WALLET_DATA, new WalletData(InventoryUtil.buildList(contents),data.autoExchange()));
+        this.wallet.set(ModDataComponents.WALLET_DATA, this.getData().withItems(contents));
 
         if(owner != null)
             WalletMenuBase.OnWalletUpdated(owner);

@@ -6,6 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -19,6 +21,10 @@ public final class SecurityUpgradeData {
                     CompoundTag.CODEC.fieldOf("Owner").forGetter(d -> d.ownerTag)
             ).apply(builder,SecurityUpgradeData::new)
     );
+    public static final StreamCodec<FriendlyByteBuf,SecurityUpgradeData> STREAM_CODEC = StreamCodec.of((b,d) -> {
+        b.writeBoolean(d.breakIsValid);
+        b.writeNbt(d.ownerTag);
+    }, b -> new SecurityUpgradeData(b.readBoolean(),b.readNbt()));
 
     public final boolean breakIsValid;
     private final CompoundTag ownerTag;

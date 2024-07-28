@@ -185,6 +185,12 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.SPEED_UPGRADE_3);
                     ezPop(p, ModItems.SPEED_UPGRADE_4);
                     ezPop(p, ModItems.SPEED_UPGRADE_5);
+                    ezPop(p, ModItems.OFFER_UPGRADE_1);
+                    ezPop(p, ModItems.OFFER_UPGRADE_2);
+                    ezPop(p, ModItems.OFFER_UPGRADE_3);
+                    ezPop(p, ModItems.OFFER_UPGRADE_4);
+                    ezPop(p, ModItems.OFFER_UPGRADE_5);
+                    ezPop(p, ModItems.OFFER_UPGRADE_6);
                     ezPop(p, ModItems.NETWORK_UPGRADE);
                     ezPop(p, ModItems.HOPPER_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
@@ -192,6 +198,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
+                    ezPop(p, ModItems.COIN_CHEST_BANK_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_SECURITY_UPGRADE);
                 }).build()
         );
