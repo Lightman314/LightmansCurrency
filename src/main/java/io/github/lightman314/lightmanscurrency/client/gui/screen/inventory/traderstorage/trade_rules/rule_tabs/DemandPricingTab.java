@@ -77,9 +77,9 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
         if(this.commonTab.getHost() instanceof TradeData trade && this.priceSelection != null)
             this.priceSelection.allowFreeInput = !trade.getCost().isFree() || rule.getOtherPrice().isFree();
         if(this.smallStockEdit != null)
-            TextInputUtil.whitelistInteger(this.smallStockEdit, 1, rule.getLargeStock() - 1);
+            TextInputUtil.whitelistInteger(this.smallStockEdit);
         if(this.largeStockEdit != null)
-            TextInputUtil.whitelistInteger(this.largeStockEdit, rule.getSmallStock() + 1, DemandPricing.UPPER_STOCK_LIMIT);
+            TextInputUtil.whitelistInteger(this.largeStockEdit);
     }
 
     private void onWidgetHandlerChanged(@Nonnull MoneyValueWidget widget)
