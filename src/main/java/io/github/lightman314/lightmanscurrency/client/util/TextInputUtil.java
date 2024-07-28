@@ -174,7 +174,8 @@ public class TextInputUtil {
 				newText.deleteCharAt(i--);
 			}
 		}
-		textInput.setValue(newText.toString());
+		if(!newText.toString().equals(textInput.getValue()))
+			textInput.setValue(newText.toString());
 	}
 
 	public static Object CreateInputHandler(@Nonnull EditBox editBox, int startingValue, int minValue, int maxValue, @Nonnull Consumer<Integer> onValueChange) { return new IntegerInputHandler(editBox, startingValue, minValue, maxValue, onValueChange); }

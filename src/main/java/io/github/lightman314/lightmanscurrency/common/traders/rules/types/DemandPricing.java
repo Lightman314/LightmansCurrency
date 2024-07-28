@@ -147,7 +147,7 @@ public class DemandPricing extends PriceTweakingTradeRule {
         int deltaStock = this.largeStock - this.smallStock;
         if(deltaStock <= 0)
             return smallPrice;
-        long result = minVal + Math.round((double)deltaVal * ((double)(stock - this.smallStock)/ (double)deltaStock));
+        long result = maxVal - Math.round((double)deltaVal * ((double)(stock - this.smallStock)/ (double)deltaStock));
         if(result >= maxVal)
             return largePrice;
         if(result <= minVal) //If small price is free and result <= 0, this will make it return free as well :)
