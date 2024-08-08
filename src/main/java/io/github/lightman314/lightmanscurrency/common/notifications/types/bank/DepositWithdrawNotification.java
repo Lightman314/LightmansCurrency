@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -97,8 +98,9 @@ public abstract class DepositWithdrawNotification extends Notification {
 		MutableComponent traderName;
 
 		private Trader() {}
+		public Trader(String traderName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { this(EasyText.literal(traderName),accountName,isDeposit,amount); }
 		public Trader(MutableComponent traderName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.traderName = traderName; }
-		
+
 		@Override
 		protected MutableComponent getName() { return this.traderName; }
 		

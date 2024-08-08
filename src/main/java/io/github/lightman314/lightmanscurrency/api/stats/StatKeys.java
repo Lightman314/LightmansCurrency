@@ -13,6 +13,7 @@ public class StatKeys {
     {
         public static final StatKey<MoneyView,MoneyValue> MONEY_EARNED = MultiMoneyStat.INSTANCE.createKey("generic.money_earned");
         public static final StatKey<MoneyView,MoneyValue> MONEY_PAID = MultiMoneyStat.INSTANCE.createKey("generic.money_paid");
+        public static final StatKey<Integer,Integer> SALARY_TRIGGERS = IntegerStat.INSTANCE.createKey("generic.salary_triggers");
     }
 
     public static class Traders

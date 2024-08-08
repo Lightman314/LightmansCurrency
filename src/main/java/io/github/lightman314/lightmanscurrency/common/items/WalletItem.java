@@ -11,8 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCuriosInternal;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
@@ -197,7 +195,7 @@ public class WalletItem extends Item{
 			if(walletSlot >= 0)
 			{
 				
-				if(player.isCrouching() && (!LCCuriosInternal.hasCuriosWalletSlot(player)))
+				if(player.isCrouching())
 				{
 					boolean equippedWallet = false;
 					WalletHandler walletHandler = WalletHandler.get(player);

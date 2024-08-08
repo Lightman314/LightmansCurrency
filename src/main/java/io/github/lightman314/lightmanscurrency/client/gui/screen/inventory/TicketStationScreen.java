@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -34,7 +35,10 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	private static final ScreenArea SELECTION_AREA = ScreenArea.of(153, 7, 16, 16);
 
 	private RecipeHolder<TicketStationRecipe> selectedRecipe = null;
-	public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() { return this.menu.getAllRecipes().stream().filter(r -> r.value().matches(this.menu.blockEntity.getStorage(), this.menu.blockEntity.getLevel())).toList(); }
+	public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() {
+		ListRecipeInput input = this.menu.blockEntity.getRecipeInput();
+		return this.menu.getAllRecipes().stream().filter(r -> r.value().matches(input, this.menu.blockEntity.getLevel())).toList();
+	}
 
 	public TicketStationScreen(TicketStationMenu container, Inventory inventory, Component title)
 	{

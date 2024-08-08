@@ -4,8 +4,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import net.minecraft.core.HolderLookup;
@@ -57,7 +57,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack assemble(RecipeContainerWrapper container, @Nonnull HolderLookup.Provider lookup) {
+    public ItemStack assemble(ListRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
         long nextTicketID = TicketSaveData.createNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);

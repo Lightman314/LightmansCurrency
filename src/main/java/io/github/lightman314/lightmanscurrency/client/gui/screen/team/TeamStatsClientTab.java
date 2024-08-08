@@ -2,30 +2,30 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamStatsTab;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeamStatsTab extends TeamTab implements IScrollable {
+public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> implements IScrollable {
 
-    public TeamStatsTab(TeamManagerScreen screen) { super(screen); }
+    public TeamStatsClientTab(@Nonnull Object screen, @Nonnull TeamStatsTab commonTab) { super(screen, commonTab); }
 
     private static final int LINE_COUNT = 10;
     private static final int LINE_SIZE = 10;
@@ -43,11 +43,8 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
     public Component getTooltip() { return LCText.TOOLTIP_TEAM_STATS.get(); }
 
     @Override
-    public boolean allowViewing(Player player, Team team) { return team != null && team.isMember(player); }
-
-    @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), this::clearStats));
+        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), () -> this.commonTab.ClearStats(Screen.hasShiftDown())));
 
         this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
         this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));
@@ -75,13 +72,13 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
 
     @Override
     public void tick() {
-        Team team = this.getActiveTeam();
-        this.buttonClear.active = team != null && team.isAdmin(this.getPlayer());
+        ITeam team = this.menu.selectedTeam();
+        this.buttonClear.active = team != null && team.isAdmin(this.menu.player);
     }
 
     private List<MutableComponent> getLines()
     {
-        Team team = this.getActiveTeam();
+        ITeam team = this.menu.selectedTeam();
         if(team == null)
             return new ArrayList<>();
         return team.getStats().getDisplayLines();
@@ -93,7 +90,5 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
     public void setScroll(int newScroll) { this.scroll = newScroll; }
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(LINE_COUNT,this.getLines().size()); }
-
-    private void clearStats() { this.RequestChange(this.builder().setFlag("ClearStats")); }
 
 }

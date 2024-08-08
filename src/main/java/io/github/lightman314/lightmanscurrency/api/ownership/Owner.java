@@ -73,6 +73,8 @@ public abstract class Owner implements IClientTracker {
         };
     }
 
+    public static int validateNotificationLevel(int level) { return level % 3; }
+
     /**
      * Pushes notifications to all players relevant to this owner.
      * @param notificationSource A notification generator, so that each player receives a unique instance of the notification.

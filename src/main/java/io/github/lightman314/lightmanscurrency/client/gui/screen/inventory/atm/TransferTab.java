@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -16,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -89,11 +89,11 @@ public class TransferTab extends ATMTab {
 		
 	}
 	
-	private List<Team> getTeamList()
+	private List<ITeam> getTeamList()
 	{
-		List<Team> results = Lists.newArrayList();
+		List<ITeam> results = Lists.newArrayList();
 		BankReference source = this.screen.getMenu().getBankAccountReference();
-		Team blockTeam = null;
+		ITeam blockTeam = null;
 		if(source instanceof TeamBankReference teamBankReference)
 			blockTeam = TeamSaveData.GetTeam(true, teamBankReference.teamID);
 		for(Team team : TeamSaveData.GetAllTeams(true))
@@ -114,7 +114,7 @@ public class TransferTab extends ATMTab {
 	public void SelectTeam(int teamIndex)
 	{
 		try {
-			Team team = this.getTeamList().get(teamIndex);
+			ITeam team = this.getTeamList().get(teamIndex);
 			if(team.getID() == this.selectedTeam)
 				return;
 			this.selectedTeam = team.getID();

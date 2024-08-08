@@ -5,8 +5,10 @@ import io.github.lightman314.lightmanscurrency.client.colors.GoldenTicketColor;
 import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
+import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
@@ -15,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMa
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
@@ -26,6 +27,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 import javax.annotation.Nonnull;
 
@@ -85,11 +87,6 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
-		if(LCCurios.isCuriosLoaded())
-		{
-			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
-			event.register(ClientEvents.KEY_PORTABLE_ATM);
-		}
 	}
 
 	@SubscribeEvent
@@ -127,6 +124,14 @@ public class ClientModEvents {
 		event.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
 
 		event.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
+
+		event.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
+	}
+
+	@SubscribeEvent
+	public static void registerClientExtensions(RegisterClientExtensionsEvent event)
+	{
+		event.registerItem(LCItemRenderer.USE_LC_RENDERER,ModBlocks.COIN_CHEST.get().asItem());
 	}
 	
 }

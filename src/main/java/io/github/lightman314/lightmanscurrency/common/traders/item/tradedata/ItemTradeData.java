@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -536,7 +537,7 @@ public class ItemTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -552,14 +553,14 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-				if(sellItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
-					//Open Item Edit for this slot
+					//Open Item Edit for this slot if holding shift or both held & current item is empty
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);
@@ -567,26 +568,26 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index);
 				}
 				//Only send message on client, otherwise we get an infinite loop
-				if(tab.menu.isClient())
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+				if(tab.isClient())
+					tab.SendInputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 			else if(this.isBarter() && index >= 0 && index < 2)
 			{
 				//Set the item to the held item
 				ItemStack barterItem = this.getBarterItem(index);
-				if(barterItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (barterItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index + 2));
 				}
-				if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(barterItem, heldItem) && data.mouseButton() == 1)
 				{
 					barterItem.setCount(Math.min(barterItem.getCount() + 1, barterItem.getMaxStackSize()));
 					this.setItem(barterItem, index + 2);
@@ -594,13 +595,13 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index + 2);
 				}
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+					tab.SendInputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 		}
 	}
@@ -650,7 +651,7 @@ public class ItemTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -660,14 +661,14 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-				if(sellItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);
@@ -675,13 +676,13 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index);
 				}
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
-					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
+					tab.SendOutputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 			else if(this.isPurchase())
 			{
@@ -694,7 +695,7 @@ public class ItemTradeData extends TradeData {
 
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);

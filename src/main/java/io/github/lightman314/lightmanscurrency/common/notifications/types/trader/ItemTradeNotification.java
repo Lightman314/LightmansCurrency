@@ -57,10 +57,7 @@ public class ItemTradeNotification extends TaxableNotification {
 			this.items.add(new ItemData(trade.getBarterItem(1),""));
 		}
 		else
-		{
 			this.cost = cost;
-			LightmansCurrency.LogDebug("Created Item Trade Notification of cost " + this.cost.getString("NADA"));
-		}
 		
 		this.customer = customer.getName(false);
 		

@@ -379,6 +379,27 @@ public class LCText {
     public static final TextEntry TOOLTIP_TEAM_BANK = TextEntry.tooltip(MODID,"team.bank");
     public static final TextEntry BUTTON_TEAM_BANK_CREATE = TextEntry.button(MODID,"team.bank.create");
     public static final TextEntry BUTTON_TEAM_BANK_LIMIT = TextEntry.button(MODID,"team.bank.limit");
+    public static final TextEntry TOOLTIP_TEAM_SALARY_INFO = TextEntry.tooltip(MODID,"team.salary_info");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_DISABLED = TextEntry.gui(MODID,"team.salary_info.disabled");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_DELAY = TextEntry.gui(MODID,"team.salary_info.delay");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_NEXT_TRIGGER = TextEntry.gui(MODID,"team.salary_info.next_trigger");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_MEMBERS = TextEntry.gui(MODID,"team.salary_info.salary.member");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_ADMINS = TextEntry.gui(MODID,"team.salary_info.salary.admins");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS = TextEntry.gui(MODID,"team.salary_info.required_funds");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"team.salary_info.insufficient_funds");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED = TextEntry.gui(MODID,"team.salary_info.last_attempt_failed");
+    public static final TextEntry TOOLTIP_TEAM_SALARY_SETTINGS = TextEntry.tooltip(MODID,"team.salary_settings");
+    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_ENABLE = TextEntry.button(MODID,"team.salary_settings.enable");
+    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_DISABLE = TextEntry.button(MODID,"team.salary_settings.disable");
+    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_NOTIFICATION = TextEntry.gui(MODID,"team.salary_settings.notification");
+    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_DELAY = TextEntry.gui(MODID,"team.salary_settings.delay");
+    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY = TextEntry.button(MODID,"team.salary_settings.trigger_salary");
+    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS = TextEntry.tooltip(MODID,"team.salary_payments");
+    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE = TextEntry.tooltip(MODID,"team.salary_payments.creative.enable");
+    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE = TextEntry.tooltip(MODID,"team.salary_payments.creative.diusable");
+    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_MEMBER_SALARY = TextEntry.gui(MODID,"team.salary_payments.salary.member");
+    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION = TextEntry.gui(MODID,"team.salary_payments.admin_salary_seperation");
+    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY = TextEntry.gui(MODID,"team.salary_payments.salary.admin");
     public static final TextEntry TOOLTIP_TEAM_STATS = TextEntry.tooltip(MODID,"team.stats");
     public static final TextEntry TOOLTIP_TEAM_OWNER = TextEntry.tooltip(MODID,"team.owner");
     public static final TextEntry BUTTON_TEAM_DISBAND = TextEntry.button(MODID,"team.disband");
@@ -485,6 +506,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_INTERFACE_TRADER_SELECT = TextEntry.tooltip(MODID,"interface.trader");
     public static final TextEntry TOOLTIP_INTERFACE_TRADE_SELECT = TextEntry.tooltip(MODID,"interface.trade");
     public static final TextEntry TOOLTIP_INTERFACE_STORAGE = TextEntry.tooltip(MODID,"interface.storage");
+    public static final TextEntry TOOLTIP_INTERFACE_STATS = TextEntry.tooltip(MODID,"interface.stats");
 
     //Trade Result
     public static final TextEntryBundle<TradeResult> GUI_TRADE_RESULT = TextEntryBundle.of(TradeResult.ALL_WITH_MESSAGES,"gui.lightmanscurrency.trade_result");
@@ -564,7 +586,8 @@ public class LCText {
 
     //Item Trader Specific
     public static final TextEntry GUI_TRADER_ITEM_ENFORCE_NBT = TextEntry.gui(MODID,"trader.item.enforce_nbt");
-    public static final TextEntry TOOLTIP_TRADE_ITEM_EDIT_ITEM = TextEntry.tooltip(MODID,"trade.item.edit_item");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_EDIT_EMPTY = TextEntry.tooltip(MODID,"trade.item.edit_item");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_EDIT_SHIFT = TextEntry.tooltip(MODID,"trade.item.shift_edit_item");
     public static final TextEntry TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE = TextEntry.tooltip(MODID,"trade.item.nbt_warning.purchase");
     public static final TextEntry TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE = TextEntry.tooltip(MODID,"trade.item.nbt_warning.sale");
     public static final TextEntry GUI_ITEM_EDIT_SEARCH = TextEntry.gui(MODID,"item_edit.search");

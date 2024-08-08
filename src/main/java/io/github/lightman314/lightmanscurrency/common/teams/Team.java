@@ -12,20 +12,23 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.Range;
 
 public class Team implements ITeam {
 
@@ -58,11 +61,9 @@ public class Team implements ITeam {
 	@Nonnull
 	public List<PlayerReference> getMembers() { return ImmutableList.copyOf(this.members); }
 	
-
-	
 	//0 for members, 1 for admins, 2 for owners only
 	int bankAccountLimit = 2;
-	@Range(from = 0, to = 2)
+	@Override
 	public int getBankLimit() { return this.bankAccountLimit; }
 	BankAccount bankAccount = null;
 	@Override
@@ -96,6 +97,90 @@ public class Team implements ITeam {
 	@Nonnull
 	@Override
 	public StatTracker getStats() { return this.statTracker; }
+
+	//Salary Settings
+	long lastSalaryTime = 0;
+	@Override
+	public long getLastSalaryTime() { return this.lastSalaryTime; }
+	public void setAutoSalaryEnabled(@Nonnull Player player, boolean enabled)
+	{
+		if(!this.isAdmin(player))
+			return;
+		if(enabled)
+			this.lastSalaryTime = TimeUtil.getCurrentTime();
+		else
+			this.lastSalaryTime = 0;
+		this.markDirty();
+	}
+	boolean salaryNotification = true;
+	@Override
+	public boolean getSalaryNotification() { return this.salaryNotification; }
+	public void setSalaryNotification(@Nonnull Player player, boolean salaryNotification) { if(!this.isAdmin(player)) return; this.salaryNotification = salaryNotification; this.markDirty(); }
+	long salaryDelay = 0;
+	@Override
+	public long getSalaryDelay() { return this.salaryDelay; }
+	public void setSalaryDelay(@Nonnull Player player, long salaryDelay) { if(!this.isAdmin(player)) return; this.salaryDelay = salaryDelay; this.markDirty(); }
+	boolean creativeSalaryMode = false;
+	@Override
+	public boolean isSalaryCreative() { return this.creativeSalaryMode; }
+	public void setSalaryMoneyCreative(@Nonnull Player player, boolean creative)  { if(creative && !LCAdminMode.isAdminPlayer(player)) return; this.creativeSalaryMode = creative; this.markDirty(); }
+	boolean seperateAdminSalary = false;
+	@Override
+	public boolean isAdminSalarySeperate() { return this.seperateAdminSalary; }
+	public void setAdminSalarySeperate(@Nonnull Player player, boolean seperateAdminSalary) { if(!this.isOwner(player)) return; this.seperateAdminSalary = seperateAdminSalary; this.markDirty(); }
+	MoneyValue memberSalary = MoneyValue.empty();
+	@Nonnull
+	@Override
+	public MoneyValue getMemberSalary() { return this.memberSalary; }
+	public void setMemberSalary(@Nonnull Player player, @Nonnull MoneyValue memberSalary) { if(!this.isAdmin(player)) return; this.memberSalary = memberSalary; this.markDirty(); }
+	MoneyValue adminSalary = MoneyValue.empty();
+	@Nonnull
+	@Override
+	public MoneyValue getAdminSalary() { return this.adminSalary; }
+	public void setAdminSalary(@Nonnull Player player, @Nonnull MoneyValue adminSalary) { if(!this.isOwner(player)) return; this.adminSalary = adminSalary; this.markDirty(); }
+	boolean failedLastSalary = false;
+	@Override
+	public boolean failedLastSalaryAttempt() { return this.failedLastSalary; }
+
+	@Nonnull
+	@Override
+	public List<MoneyValue> getTotalSalaryCost() {
+		if(this.seperateAdminSalary)
+		{
+			List<MoneyValue> result = new ArrayList<>();
+			MoneyValue memberCost = this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * this.members.size());
+			MoneyValue adminCost = this.adminSalary.fromCoreValue(this.adminSalary.getCoreValue() * this.getAdminsAndOwner().size());
+			if(memberCost.isEmpty())
+			{
+				if(adminCost.isEmpty())
+					return ImmutableList.of();
+				else
+					return ImmutableList.of(adminCost);
+			}
+			else if(adminCost.isEmpty())
+				return ImmutableList.of(memberCost);
+			if(memberCost.sameType(adminCost))
+				return ImmutableList.of(memberCost.addValue(adminCost));
+			return ImmutableList.of(memberCost,adminCost);
+		}
+		else
+			return ImmutableList.of(this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * this.getMemberCount()));
+	}
+
+	@Override
+	public boolean canAffordNextSalary() {
+		if(this.creativeSalaryMode)
+			return true;
+		IBankAccount account = this.getBankAccount();
+		if(account == null)
+			return false;
+		for(MoneyValue cost : this.getTotalSalaryCost())
+		{
+			if(!account.getMoneyStorage().containsValue(cost))
+				return false;
+		}
+		return true;
+	}
 
 	@Override
 	public boolean isOwner(@Nonnull Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
@@ -257,31 +342,9 @@ public class Team implements ITeam {
 		return result;
 	}
 
-	public void clearStats(Player requestor) {
+	public void clearStats(Player requestor, boolean fullClear) {
 		if(this.isAdmin(requestor))
-			this.statTracker.clear();
-	}
-
-	public final void HandleEditRequest(@Nonnull Player requestor, @Nonnull LazyPacketData request)
-	{
-		if(request.contains("Disband") && this.isOwner(requestor))
-			TeamSaveData.RemoveTeam(this.getID());
-		if(request.contains("ChangeOwner", LazyPacketData.TYPE_STRING))
-			this.changeOwner(requestor, request.getString("ChangeOwner"));
-		if(request.contains("AddMember", LazyPacketData.TYPE_STRING))
-			this.changeAddMember(requestor, request.getString("AddMember"));
-		if(request.contains("AddAdmin", LazyPacketData.TYPE_STRING))
-			this.changeAddAdmin(requestor, request.getString("AddAdmin"));
-		if(request.contains("RemoveMember", LazyPacketData.TYPE_STRING))
-			this.changeRemoveMember(requestor, request.getString("RemoveMember"));
-		if(request.contains("ChangeName", LazyPacketData.TYPE_STRING))
-			this.changeName(requestor, request.getString("ChangeName"));
-		if(request.contains("CreateBankAccount"))
-			this.createBankAccount(requestor);
-		if(request.contains("ChangeBankLimit", LazyPacketData.TYPE_INT))
-			this.changeBankLimit(requestor, request.getInt("ChangeBankLimit"));
-		if(request.contains("ClearStats"))
-			this.clearStats(requestor);
+			this.statTracker.clear(fullClear);
 	}
 	
 	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
@@ -318,6 +381,15 @@ public class Team implements ITeam {
 		}
 
 		compound.put("Stats", this.statTracker.save(lookup));
+
+		compound.putLong("LastSalaryTime", this.lastSalaryTime);
+		compound.putBoolean("SalaryNotification", this.salaryNotification);
+		compound.putLong("SalaryDelay",this.salaryDelay);
+		compound.putBoolean("CreativeSalaryMode",this.creativeSalaryMode);
+		compound.putBoolean("ExtraAdminSalary",this.seperateAdminSalary);
+		compound.put("MemberSalary",this.memberSalary.save());
+		compound.put("AdminSalary",this.adminSalary.save());
+		compound.putBoolean("FailedLastSalary",this.failedLastSalary);
 		
 		return compound;
 	}
@@ -352,6 +424,23 @@ public class Team implements ITeam {
 			if(compound.contains("Stats"))
 				team.statTracker.load(compound.getCompound("Stats"), lookup);
 
+			if(compound.contains("LastSalaryTime"))
+				team.lastSalaryTime = compound.getLong("LastSalaryTime");
+			if(compound.contains("SalaryNotification"))
+				team.salaryNotification = compound.getBoolean("SalaryNotification");
+			if(compound.contains("SalaryDelay"))
+				team.salaryDelay = compound.getLong("SalaryDelay");
+			if(compound.contains("CreativeSalaryMode"))
+				team.creativeSalaryMode = compound.getBoolean("CreativeSalaryMode");
+			if(compound.contains("ExtraAdminSalary"))
+				team.seperateAdminSalary = compound.getBoolean("ExtraAdminSalary");
+			if(compound.contains("MemberSalary"))
+				team.memberSalary = MoneyValue.load(compound.getCompound("MemberSalary"));
+			if(compound.contains("AdminSalary"))
+				team.adminSalary = MoneyValue.load(compound.getCompound("AdminSalary"));
+			if(compound.contains("FailedLastSalary"))
+				team.failedLastSalary = compound.getBoolean("FailedLastSalary");
+
 			return team;
 			
 		}
@@ -384,5 +473,64 @@ public class Team implements ITeam {
 		}
 
 	}
-	
+
+	public void tick()
+	{
+		if(this.lastSalaryTime > 0 && this.salaryDelay > 0)
+		{
+			if(!TimeUtil.compareTime(this.salaryDelay,this.lastSalaryTime))
+			{
+				this.lastSalaryTime = TimeUtil.getCurrentTime();
+				this.forcePaySalaries();
+			}
+		}
+	}
+
+	@Override
+	public void forcePaySalaries() {
+		if(!this.hasBankAccount())
+			return;
+		//Comfirm that we can afford to pay everyone
+		if(!this.canAffordNextSalary())
+		{
+			this.failedLastSalary = true;
+			this.markDirty();
+			return;
+		}
+		this.failedLastSalary = false;
+		this.statTracker.incrementStat(StatKeys.Generic.SALARY_TRIGGERS,1);
+		for(MoneyValue payment : this.getTotalSalaryCost())
+		{
+			if(!this.creativeSalaryMode)
+			{
+				this.bankAccount.pushNotification(() -> new DepositWithdrawNotification.Trader(this.teamName,this.bankAccount.getName(),false,payment));
+				this.bankAccount.withdrawMoney(payment);
+			}
+			//Still track the total salary paid even if it's not actually taken from our bank account
+			this.statTracker.incrementStat(StatKeys.Generic.MONEY_PAID,payment);
+		}
+		if(!this.memberSalary.isEmpty())
+		{
+			List<PlayerReference> membersToPay = this.seperateAdminSalary ? this.members : this.getAllMembers();
+			for(PlayerReference member : membersToPay)
+				this.payMember(member,this.memberSalary);
+		}
+		if(this.seperateAdminSalary && !this.adminSalary.isEmpty())
+		{
+			for(PlayerReference admin : this.getAdminsAndOwner())
+				this.payMember(admin,this.adminSalary);
+		}
+		this.markDirty();
+	}
+
+	private void payMember(@Nonnull PlayerReference member, @Nonnull final MoneyValue value)
+	{
+		final IBankAccount memberAccount = PlayerBankReference.of(member).get();
+		if(memberAccount != null)
+		{
+			memberAccount.pushNotification(() -> new DepositWithdrawNotification.Trader(this.teamName,memberAccount.getName(),true,value),this.salaryNotification);
+			memberAccount.depositMoney(value);
+		}
+	}
+
 }

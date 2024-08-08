@@ -16,19 +16,20 @@ public class SPacketLazyMenu extends ServerToClientPacket {
     private static final Type<SPacketLazyMenu> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_lazy_menu"));
     public static final Handler<SPacketLazyMenu> HANDLER = new H();
 
+    private final int menuID;
     private final LazyPacketData data;
-    public SPacketLazyMenu(LazyPacketData data) { super(TYPE); this.data = data; }
-    public SPacketLazyMenu(LazyPacketData.Builder data) { this(data.build()); }
+    public SPacketLazyMenu(int menuID,LazyPacketData data) { super(TYPE); this.menuID = menuID; this.data = data; }
+    public SPacketLazyMenu(int menuID, LazyPacketData.Builder data) { this(menuID,data.build()); }
 
-    private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketLazyMenu message) { message.data.encode(buffer); }
-    private static SPacketLazyMenu decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketLazyMenu(LazyPacketData.decode(buffer)); }
+    private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketLazyMenu message) { buffer.writeInt(message.menuID); message.data.encode(buffer); }
+    private static SPacketLazyMenu decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketLazyMenu(buffer.readInt(),LazyPacketData.decode(buffer)); }
 
     private static class H extends Handler<SPacketLazyMenu>
     {
         protected H() { super(TYPE, fancyCodec(SPacketLazyMenu::encode,SPacketLazyMenu::decode)); }
         @Override
         protected void handle(@Nonnull SPacketLazyMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            if(player.containerMenu instanceof LazyMessageMenu menu)
+            if(player.containerMenu instanceof LazyMessageMenu menu && menu.containerId == menu.containerId)
                 menu.HandleMessage(message.data);
         }
     }

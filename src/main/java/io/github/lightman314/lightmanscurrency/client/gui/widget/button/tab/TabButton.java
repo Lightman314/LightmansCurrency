@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.IRotatableWidget;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class TabButton extends EasyButton implements ITooltipSource {
+public class TabButton extends EasyButton implements ITooltipSource, IRotatableWidget {
 	
 	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
 	
@@ -28,7 +29,12 @@ public class TabButton extends EasyButton implements ITooltipSource {
 	public boolean hideTooltip = false;
 	
 	public final ITab tab;
-	
+
+	//Rotation:
+	//0: Top
+	//1: Right
+	//2: Bottom
+	//3: Left
 	private int rotation = 0;
 	
 	public TabButton(Consumer<EasyButton> pressable, ITab tab)
@@ -46,7 +52,10 @@ public class TabButton extends EasyButton implements ITooltipSource {
 		this.setPosition(x, y);
 		this.rotation = MathUtil.clamp(rotation, 0, 3);
 	}
-	
+
+	@Override
+	public void setRotation(int rotation) { this.rotation = MathUtil.clamp(rotation,0,3); }
+
 	@Override
 	public void renderWidget(@NotNull EasyGuiGraphics gui)
 	{

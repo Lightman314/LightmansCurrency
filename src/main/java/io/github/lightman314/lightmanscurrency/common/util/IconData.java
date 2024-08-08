@@ -58,7 +58,9 @@ public abstract class IconData {
 		registerIconType(ItemIcon.TYPE,ItemIcon::loadItem);
 		registerIconType(ImageIcon.TYPE,ImageIcon::loadImage);
 		registerIconType(TextIcon.TYPE,TextIcon::loadText);
+		registerIconType(NumberIcon.TYPE,NumberIcon::loadNumber);
 		registerIconType(MultiIcon.TYPE,MultiIcon::loadMulti);
+
 	}
 
 	@Nullable
@@ -190,6 +192,26 @@ public abstract class IconData {
 			return new TextIcon(text,color);
 		}
 	}
+
+	private static class NumberIcon extends IconData
+	{
+		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"number_icon");
+		private final int number;
+		private NumberIcon(int number) { super(TYPE); this.number = number; }
+		@Override
+		@OnlyIn(Dist.CLIENT)
+		public void render(@Nonnull EasyGuiGraphics gui, int x, int y) {
+			String text = String.valueOf(this.number);
+			int width = gui.font.width(text);
+			gui.drawShadowed(text,x + 17 - width,y + 9,0xFFFFFF);
+		}
+
+		@Override
+		protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putInt("Number",this.number); }
+
+		private static IconData loadNumber(@Nonnull CompoundTag tag) { return new NumberIcon(tag.getInt("Number")); }
+
+	}
 	
 	private static class MultiIcon extends IconData
 	{
@@ -246,6 +268,7 @@ public abstract class IconData {
 	public static IconData of(@Nonnull Sprite sprite) { return new ImageIcon(sprite); }
 	public static IconData of(@Nonnull Component iconText) { return new TextIcon(iconText, 0xFFFFFF); }
 	public static IconData of(@Nonnull Component iconText, int textColor) { return new TextIcon(iconText, textColor); }
+	public static IconData of(int number) { return new NumberIcon(number); }
 	public static IconData of(@Nonnull IconData... icons) { return new MultiIcon(Lists.newArrayList(icons)); }
 
 }

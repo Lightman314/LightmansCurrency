@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlock
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -62,9 +61,6 @@ public class ModEventHandler {
         //Money Handler/Viewers for Players
         event.registerEntity(CapabilityMoneyHandler.MONEY_HANDLER_ENTITY, EntityType.PLAYER, (player, c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
         event.registerEntity(CapabilityMoneyViewer.MONEY_VIEWER_ENTITY, EntityType.PLAYER, (player,c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
-
-        if(LCCurios.isCuriosLoaded())
-            LCCurios.registerWalletCapability(event);
 
     }
 

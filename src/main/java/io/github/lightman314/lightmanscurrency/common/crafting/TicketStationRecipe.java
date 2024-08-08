@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public interface TicketStationRecipe extends Recipe<RecipeContainerWrapper> {
+public interface TicketStationRecipe extends Recipe<ListRecipeInput> {
 
     @Nonnull
     @Override
@@ -76,6 +76,6 @@ public interface TicketStationRecipe extends Recipe<RecipeContainerWrapper> {
     ItemStack exampleResult();
 
     @Override
-    default boolean matches(@Nonnull RecipeContainerWrapper container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+    default boolean matches(@Nonnull ListRecipeInput container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
 
 }

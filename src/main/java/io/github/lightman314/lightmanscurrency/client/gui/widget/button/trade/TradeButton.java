@@ -12,6 +12,8 @@ import javax.annotation.Nullable;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -21,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -236,7 +239,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		for(AlertData alert : alerts)
 			tooltips.add(alert.getFormattedMessage());
 	}
-	
+
+	@Deprecated(since = "2.2.3.0")
 	public void onInteractionClick(int mouseX, int mouseY, int button, InteractionConsumer consumer)
 	{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
@@ -276,6 +280,49 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		//Only run the default interaction code if you didn't hit an input or output display
 		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.getX(), mouseY - this.getY(), button);
 		
+	}
+
+	public void HandleInteractionClick(int mouseX, int mouseY, int button, @Nonnull TradeInteractionHandler handler)
+	{
+		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
+			return;
+
+		TradeData trade = this.getTrade();
+		if(trade == null)
+			return;
+		TradeRenderManager<?> tr = trade.getButtonRenderer();
+		if(tr == null)
+			return;
+
+		TradeContext context = this.getContext();
+
+		TradeInteractionData data = new TradeInteractionData(mouseX - this.getX(), mouseY - this.getY(), button, Screen.hasShiftDown(), Screen.hasControlDown(), Screen.hasAltDown());
+
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(tr, context);
+		for(int i = 0; i < inputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			{
+				handler.HandleTradeInputInteraction(context.getTrader(), trade, data, i);
+				return;
+			}
+		}
+
+		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(tr, context);
+		for(int i = 0; i < outputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			{
+				handler.HandleTradeOutputInteraction(context.getTrader(), trade, data, i);
+				return;
+			}
+		}
+
+		//Only run the default interaction code if you didn't hit an input or output display
+		handler.HandleOtherTradeInteraction(context.getTrader(), trade, data);
+
 	}
 	
 	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeRenderManager<?> tr, TradeContext context)

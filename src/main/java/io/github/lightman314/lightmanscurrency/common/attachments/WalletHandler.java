@@ -13,8 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-//import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.HolderLookup;
@@ -102,19 +100,9 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         return this.walletDataWrapper;
     }
 
-    public ItemStack getWallet() {
-
-        //Curios hook for consistent access
-        if(LCCurios.hasCuriosWalletSlot(this.entity))
-            return LCCurios.getCuriosWalletContents(this.entity);
-
-        return this.walletItem;
-    }
+    public ItemStack getWallet() { return this.walletItem; }
 
     public void setWallet(ItemStack walletStack) {
-
-        if(LCCurios.hasCuriosWalletSlot(this.entity) && LCCurios.setCuriosWalletContents(this.entity, walletStack))
-            return;
 
         this.walletItem = walletStack;
         if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
@@ -126,11 +114,7 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
 
     public void syncWallet(ItemStack walletStack) { this.walletItem = walletStack; this.setChanged(); }
 
-    public boolean visible() {
-        if(LCCurios.hasCuriosWalletSlot(this.entity))
-            return LCCurios.getCuriosWalletVisibility(this.entity);//*/
-        return this.visible;
-    }
+    public boolean visible() { return this.visible; }
 
     public void setVisible(boolean visible) { this.visible = visible; this.setChanged(); }
 
@@ -149,15 +133,6 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         this.walletItem = InventoryUtil.loadItemNoLimits(tag.getCompound("Wallet"),lookup);
         if(tag.contains("Visible"))
             this.visible = tag.getBoolean("Visible");
-    }
-
-    public void tick() {
-        if(LCCurios.hasCuriosWalletSlot(this.entity) && !this.walletItem.isEmpty())
-        {
-            LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
-            if(LCCurios.setCuriosWalletContents(this.entity, this.walletItem))
-                this.walletItem = ItemStack.EMPTY;
-        }
     }
 
     @Nonnull

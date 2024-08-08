@@ -12,8 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -247,11 +249,9 @@ public class ModCreativeGroups {
             {
                 ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
                 if(c != Color.WHITE)
-                    CoinJarItem.setJarColor(stack,c.hexColor);
+                    stack.set(DataComponents.DYED_COLOR,new DyedItemColor(c.hexColor,true));
                 event.accept(stack);
-
             }
-
         }
     }
 

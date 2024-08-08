@@ -51,6 +51,7 @@ import net.minecraft.network.protocol.configuration.ServerConfigurationPacketLis
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -99,7 +100,7 @@ public class LightmansCurrency {
 
     private static final Logger LOGGER = LogManager.getLogger();
     
-	public LightmansCurrency(@Nonnull IEventBus eventBus) {
+	public LightmansCurrency(@Nonnull ModContainer modContainer, @Nonnull IEventBus eventBus) {
 
 		LootManager.registerDroplistListeners();
 
@@ -122,7 +123,10 @@ public class LightmansCurrency {
         
         //Register the proxy so that it can run custom events
 		if(PROXY.isClient())
+		{
 			NeoForge.EVENT_BUS.register(PROXY);
+			PROXY.init(modContainer);
+		}
 
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");

@@ -44,7 +44,6 @@ public class ModBlocks {
 		};
 	}
 	private static Function<Block,Item> getCoinJarGenerator() { return block ->  new CoinJarItem(block, new Item.Properties()); }
-	private static Function<Block,Item> getCustomRendererGenerator() { return block -> new CustomBlockModelItem(block, new Item.Properties()); }
 
 	private static final SoundType CHOCOLATE_SOUND = SoundType.MUD_BRICKS;
 
@@ -560,7 +559,7 @@ public class ModBlocks {
 		);
 
 		//Coin Chest
-		COIN_CHEST = register("coin_chest", getCustomRendererGenerator(), () -> new CoinChestBlock(
+		COIN_CHEST = register("coin_chest", () -> new CoinChestBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.WOOD)
 					.strength(2.5f, Float.POSITIVE_INFINITY)

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -19,12 +20,11 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketStationBlockEntity;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TicketStationMenu extends LazyMessageMenu{
+public class TicketStationMenu extends LazyMessageMenu {
 	
 	private final Container output = new SimpleContainer(1);
 	
@@ -70,14 +70,15 @@ public class TicketStationMenu extends LazyMessageMenu{
 	}
 	
 	@Override
-	public void removed(@NotNull Player playerIn)
+	public void removed(@Nonnull Player playerIn)
 	{
 		super.removed(playerIn);
 		this.clearContainer(playerIn,  this.output);
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player player, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -115,7 +116,11 @@ public class TicketStationMenu extends LazyMessageMenu{
 		
 	}
 
-	public boolean validInputs() { return this.getAllRecipes().stream().anyMatch(r -> r.value().matches(this.blockEntity.getStorage(), this.blockEntity.getLevel())); }
+	public boolean validInputs()
+	{
+		ListRecipeInput input = this.blockEntity.getRecipeInput();
+		return this.getAllRecipes().stream().anyMatch(r -> r.value().matches(input, this.blockEntity.getLevel()));
+	}
 	
 	public boolean roomForOutput(TicketStationRecipe recipe)
 	{
@@ -134,7 +139,7 @@ public class TicketStationMenu extends LazyMessageMenu{
 			return;
 		TicketStationRecipe recipe = holder.value();
 
-		if(!recipe.matches(this.blockEntity.getStorage(), this.blockEntity.getLevel()))
+		if(!recipe.matches(this.blockEntity.getRecipeInput(), this.blockEntity.getLevel()))
 			return;
 
 		if(!roomForOutput(recipe))
@@ -157,9 +162,10 @@ public class TicketStationMenu extends LazyMessageMenu{
 
 	private boolean assemble(@Nonnull TicketStationRecipe recipe)
 	{
-		if(this.roomForOutput(recipe) && recipe.matches(this.blockEntity.getStorage(), this.blockEntity.getLevel()))
+		ListRecipeInput input = this.blockEntity.getRecipeInput();
+		if(this.roomForOutput(recipe) && recipe.matches(input, this.blockEntity.getLevel()))
 		{
-			ItemStack result = recipe.assemble(this.blockEntity.getStorage(), this.blockEntity.getLevel().registryAccess());
+			ItemStack result = recipe.assemble(input, this.blockEntity.getLevel().registryAccess());
 			if(!result.isEmpty() && InventoryUtil.PutItemStack(this.output, result))
 			{
 				//Remove the consumed items from the input

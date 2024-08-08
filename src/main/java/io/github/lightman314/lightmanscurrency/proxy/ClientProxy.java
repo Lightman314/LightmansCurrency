@@ -48,6 +48,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -55,8 +56,6 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import javax.annotation.Nonnull;
 
 public class ClientProxy extends CommonProxy{
-
-	boolean openTeamManager = false;
 	boolean openNotifications = false;
 	private long timeOffset = 0;
 
@@ -66,12 +65,17 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	@Override
+	public void init(@Nonnull ModContainer modContainer) {
+		//modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+	}
+
+	@Override
 	public void setupClient() {
 
 		ConfigFile.loadClientFiles(ConfigFile.LoadPhase.SETUP);
 
     	//Register Screens
-    	//DONEin ClientModEvents#registerScreens
+    	//Done in ClientModEvents#registerScreens
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -169,17 +173,6 @@ public class ClientProxy extends CommonProxy{
 	public void openNotificationScreen() { this.openNotifications = true; }
 	
 	@Override
-	public void openTeamManager() { this.openTeamManager = true; }
-	
-	@Override
-	public void createTeamResponse(long teamID)
-	{
-		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.screen instanceof TeamManagerScreen screen)
-			screen.setActiveTeam(teamID);
-	}
-	
-	@Override
 	public long getTimeDesync()
 	{
 		return timeOffset;
@@ -190,7 +183,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		this.timeOffset = serverTime - System.currentTimeMillis();
 		//Round the time offset to the nearest second
-		this.timeOffset = (timeOffset / 1000) * 1000;
+		this.timeOffset = (this.timeOffset / 1000) * 1000;
 		if(this.timeOffset < 10000) //Ignore offset if less than 10s, as it's likely due to ping
 			this.timeOffset = 0;
 	}
@@ -201,12 +194,7 @@ public class ClientProxy extends CommonProxy{
 	@SubscribeEvent
 	public void openScreenOnRenderTick(RenderFrameEvent.Pre event)
 	{
-		if(this.openTeamManager)
-		{
-			this.openTeamManager = false;
-			Minecraft.getInstance().setScreen(new TeamManagerScreen());
-		}
-		else if(this.openNotifications)
+		if(this.openNotifications)
 		{
 			this.openNotifications = false;
 			//Open easy notification screen

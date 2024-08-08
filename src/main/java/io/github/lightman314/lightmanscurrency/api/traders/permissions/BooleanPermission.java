@@ -14,14 +14,11 @@ public class BooleanPermission extends PermissionOption {
 	
 	@Override
 	protected void createWidget(int x, int y, Consumer<Object> addWidgets) {
-		this.checkmark = IconAndButtonUtil.checkmarkButton(x, y + 5, this::TogglePermission, this::hasPermission);
+		this.checkmark = IconAndButtonUtil.checkmarkButton(x, y + 4, this::TogglePermission, this::hasPermission);
 		addWidgets.accept(this.checkmark);
 	}
 
-	@Override
-	public void tick() { }
-
-	@Override
+    @Override
 	public int widgetWidth() { return 12; }
 	
 	private void TogglePermission(EasyButton button)

@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEnt
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
@@ -21,6 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,9 +31,10 @@ import javax.annotation.Nullable;
 
 public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicker {
 
-	private final RecipeContainerWrapper recipeContainer = new RecipeContainerWrapper(() -> this.storage);
 	SimpleContainer storage = new SimpleContainer(2);
-	public RecipeContainerWrapper getStorage() { return this.recipeContainer; }
+	public Container getStorage() { return this.storage; }
+
+	public SingleRecipeInput getRecipeInput() { return new SingleRecipeInput(this.storage.getItem(0)); }
 
 	private CoinMintRecipe lastRelevantRecipe = null;
 	private int mintTime = 0;
@@ -43,14 +44,16 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	
 	private final MintItemCapability itemHandler = new MintItemCapability(this);
 	public IItemHandler getItemHandler() { return this.itemHandler; }
-	
+
+	@Nonnull
 	private List<CoinMintRecipe> getCoinMintRecipes()
 	{
 		if(this.level != null)
 			return getCoinMintRecipes(this.level);
 		return Lists.newArrayList();
 	}
-	
+
+	@Nonnull
 	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidMintRecipes(level); }
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
@@ -134,10 +137,9 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	public void dumpContents(Level world, BlockPos pos) { InventoryUtil.dumpContents(world, pos, this.storage); }
 	
 	//Coin Minting Functions
-	public boolean validMintInput(ItemStack item)
+	public boolean validMintInput(@Nonnull ItemStack item)
 	{
-		RecipeContainerWrapper temp = new RecipeContainerWrapper(2);
-		temp.setItem(0, item);
+		SingleRecipeInput temp = new SingleRecipeInput(item);
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
 			if(recipe.matches(temp, this.level))
@@ -170,9 +172,10 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		ItemStack mintInput = this.getStorage().getItem(0);
 		if(mintInput.isEmpty())
 			return null;
+		SingleRecipeInput input = this.getRecipeInput();
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			if(recipe.matches(this.recipeContainer, this.level))
+			if(recipe.matches(input, this.level))
 				return recipe;
 		}
 		return null;

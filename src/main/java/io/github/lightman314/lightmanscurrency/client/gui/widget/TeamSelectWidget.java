@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
@@ -12,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import javax.annotation.Nonnull;
@@ -21,18 +21,18 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 
 	private final int rows;
 	private final Size size;
-	private final Supplier<List<Team>> teamSource;
-	private final Supplier<Team> selectedTeam;
+	private final Supplier<List<ITeam>> teamSource;
+	private final Supplier<ITeam> selectedTeam;
 	private final Consumer<Integer> onPress;
 	private final List<TeamButton> teamButtons = new ArrayList<>();
 	
-	public TeamSelectWidget(ScreenPosition pos, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, teamSource, selectedTeam, onPress); }
-	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
+	public TeamSelectWidget(ScreenPosition pos, int rows, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, teamSource, selectedTeam, onPress); }
+	public TeamSelectWidget(int x, int y, int rows, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) {
 		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
 	}
 	
-	public TeamSelectWidget(ScreenPosition pos, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, size, teamSource, selectedTeam, onPress); }
-	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
+	public TeamSelectWidget(ScreenPosition pos, int rows, Size size, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, size, teamSource, selectedTeam, onPress); }
+	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) {
 		super(x, y, size.width, TeamButton.HEIGHT * rows);
 		this.rows = rows;
 		this.size = size;
@@ -72,9 +72,9 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 
 	private int scroll = 0;
 	
-	private Team getTeam(int index)
+	private ITeam getTeam(int index)
 	{
-		List<Team> teamList = teamSource.get();
+		List<ITeam> teamList = teamSource.get();
 		this.validateScroll(teamList.size());
 		index += this.scroll;
 		if(index >= 0 && index < teamList.size())
@@ -84,7 +84,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	
 	private boolean isSelected(int index)
 	{
-		Team team = getTeam(index);
+		ITeam team = this.getTeam(index);
 		if(team == null)
 			return false;
 		return team == this.selectedTeam.get();

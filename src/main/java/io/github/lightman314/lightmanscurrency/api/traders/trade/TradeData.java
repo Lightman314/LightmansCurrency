@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
@@ -28,7 +29,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TradeData implements ITradeRuleHost {
 
@@ -88,7 +88,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		return cost;
 	}
 	
-	public void setCost(MoneyValue value) { this.cost = value; }
+	public void setCost(@Nonnull MoneyValue value) { this.cost = value; }
 
 	public boolean outOfStock(@Nonnull TradeContext context) { return !this.hasStock(context); }
 
@@ -227,6 +227,12 @@ public abstract class TradeData implements ITradeRuleHost {
 	@Nonnull
 	public abstract TradeRenderManager<?> getButtonRenderer();
 
+
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an input display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendInputInteractionMessage for consistent execution
@@ -234,11 +240,16 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position/button or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an output display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOutputInteractionMessage for consistent execution
@@ -246,25 +257,28 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.
 	 *
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
-	 * @param mouseX The local X position of the mouse button when it was clicked. [0,tradeButtonWidth)
-	 * @param mouseY The local Y position of the mouse button when it was clicked. [0,tradeButtonHeight)
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item currently being held by the player.
 	 */
-	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
-	@NotNull
+	@Nonnull
 	public final List<Integer> getRelevantInventorySlots(TradeContext context, List<Slot> slots) {
 		List<Integer> results = new ArrayList<>();
 		this.collectRelevantInventorySlots(context, slots, results);

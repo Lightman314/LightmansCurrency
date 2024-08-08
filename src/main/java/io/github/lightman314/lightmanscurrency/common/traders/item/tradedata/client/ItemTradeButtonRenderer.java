@@ -79,7 +79,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!item.isEmpty())
                 entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), LCText.TOOLTIP_TRADE_ITEM_EDIT_ITEM.getAsList()));
+                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsList()));
         }
         return entries;
     }
@@ -95,6 +95,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             }
 
             this.addNBTWarning(tooltips, this.trade.isPurchase(), enforceNBT);
+            this.addItemEditInfo(tooltips, context.isStorageMode);
 
             //Stop here if this is in storage mode, and there's no custom name
             if(context.isStorageMode && originalName == null)
@@ -123,9 +124,9 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getBarterItem(i);
             if(!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount(), this.getBarterTooltips(this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
+                entries.add(DisplayEntry.of(item, item.getCount(), this.getBarterTooltips(this.trade.getEnforceNBT(i + 2), context.isStorageMode), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, LCText.TOOLTIP_TRADE_ITEM_EDIT_ITEM.getAsList()));
+                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsList()));
         }
         return entries;
     }
@@ -134,14 +135,23 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return enforceNBT ? null : NBT_BACKGROUND;
     }
 
+    private void addItemEditInfo(@Nonnull List<Component> tooltips, boolean isStorageMode)
+    {
+        if(isStorageMode)
+            tooltips.addFirst(LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT.get());
+    }
+
     private void addNBTWarning(@Nonnull List<Component> tooltips, boolean purchase, boolean enforceNBT)
     {
         if(!enforceNBT) //Put NBT warning at the top of the tooltip. Should only be called after swapping out any custom names, etc.
             tooltips.addFirst((purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
     }
 
-    private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT) {
-        return tooltips -> this.addNBTWarning(tooltips, true, enforceNBT);
+    private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT, boolean isStorageMode) {
+        return tooltips -> {
+            this.addNBTWarning(tooltips, true, enforceNBT);
+            this.addItemEditInfo(tooltips, isStorageMode);
+        };
     }
 
     @Override

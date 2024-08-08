@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
@@ -23,6 +24,8 @@ import javax.annotation.Nullable;
 public class CommonProxy {
 
 	public boolean isClient() { return false; }
+
+	public void init(@Nonnull ModContainer modContainer) {}
 
 	public void setupClient() {}
 	

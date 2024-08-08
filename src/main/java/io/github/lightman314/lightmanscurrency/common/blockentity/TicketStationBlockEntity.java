@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,9 +15,10 @@ import javax.annotation.Nonnull;
 
 public class TicketStationBlockEntity extends BlockEntity{
 
-	private final RecipeContainerWrapper recipeContainer = new RecipeContainerWrapper(() -> this.storage, new SimpleContainer(2));
 	SimpleContainer storage = new SimpleContainer(2);
-	public RecipeContainerWrapper getStorage() { return this.recipeContainer; }
+	public Container getStorage() { return this.storage; }
+
+	public ListRecipeInput getRecipeInput() { return new ListRecipeInput(this.storage); }
 	
 	public TicketStationBlockEntity(BlockPos pos, BlockState state)
 	{

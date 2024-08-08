@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,7 +15,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public class CoinMintRecipe implements Recipe<RecipeContainerWrapper>{
+public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 
 	public enum MintType { MINT, MELT, OTHER }
 	
@@ -57,15 +56,16 @@ public class CoinMintRecipe implements Recipe<RecipeContainerWrapper>{
 	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
 	
 	@Override
-	public boolean matches(@Nonnull RecipeContainerWrapper inventory, @Nonnull Level level) {
+	public boolean matches(@Nonnull SingleRecipeInput inventory, @Nonnull Level level) {
 		if(!this.isValid())
 			return false;
 		ItemStack firstStack = inventory.getItem(0);
 		return this.ingredient.test(firstStack);
 	}
 	
+	@Nonnull
 	@Override
-	public @Nonnull ItemStack assemble(@Nonnull RecipeContainerWrapper inventory, @Nonnull HolderLookup.Provider lookup) { return this.getResultItem(lookup); }
+	public ItemStack assemble(@Nonnull SingleRecipeInput inventory, @Nonnull HolderLookup.Provider lookup) { return this.getResultItem(lookup); }
 	
 	@Override
 	public boolean canCraftInDimensions(int width, int height) { return true; }
@@ -73,15 +73,18 @@ public class CoinMintRecipe implements Recipe<RecipeContainerWrapper>{
 	public ItemStack getOutputItem() { return this.result.copy(); }
 
 	@Override
-	public @Nonnull ItemStack getResultItem(@Nonnull HolderLookup.Provider registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+	@Nonnull
+	public ItemStack getResultItem(@Nonnull HolderLookup.Provider registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	public int getInternalDuration() { return this.duration; }
 	public int getDuration() { return this.duration > 0 ? this.duration : LCConfig.SERVER.coinMintDefaultDuration.get(); }
 
 	@Override
-	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
+	@Nonnull
+	public RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
-	public @Nonnull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
+	@Nonnull
+	public RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
 
 	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
 

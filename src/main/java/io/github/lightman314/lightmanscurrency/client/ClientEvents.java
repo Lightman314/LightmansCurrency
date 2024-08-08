@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoi
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -112,9 +111,6 @@ public class ClientEvents {
 			event.addListener(new EjectionMenuButton(gui));
 
 			Minecraft mc = Minecraft.getInstance();
-			//Don't add wallet buttons if curios is installed so that we mirror the behaviour of InventoryMenuMixin
-			if(LCCurios.isCuriosLoaded())
-				return;
 
 			//Add Wallet-Related buttons if Curios doesn't exist or is somehow broken
 			event.addListener(new WalletButton(gui, b -> new CPacketOpenWallet(-1).send()));
@@ -145,8 +141,6 @@ public class ClientEvents {
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
-		if(LCCurios.isCuriosLoaded())
-			return;
 		
 		AbstractContainerScreen<?> screen = event.getContainerScreen();
 		

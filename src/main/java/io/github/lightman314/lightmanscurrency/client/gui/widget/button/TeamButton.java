@@ -4,12 +4,12 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -34,11 +34,11 @@ public class TeamButton extends EasyButton {
 	public static final int TEXT_COLOR = 0xFFFFFF;
 
 	private final Size size;
-	private final Supplier<Team> teamSource;
-	public Team getTeam() { return this.teamSource.get(); }
+	private final Supplier<ITeam> teamSource;
+	public ITeam getTeam() { return this.teamSource.get(); }
 	private final Supplier<Boolean> selectedSource;
 	
-	public TeamButton(ScreenPosition pos, Size size, Consumer<EasyButton> press, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
+	public TeamButton(ScreenPosition pos, Size size, Consumer<EasyButton> press, @Nonnull Supplier<ITeam> teamSource, @Nonnull Supplier<Boolean> selectedSource)
 	{
 		super(pos, size.width, HEIGHT, press);
 		this.size = size;

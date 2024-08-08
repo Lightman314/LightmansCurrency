@@ -2,7 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class OutputSlot extends SimpleSlot{
 	
@@ -12,7 +13,7 @@ public class OutputSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) {
+	public boolean mayPlace(@Nonnull ItemStack stack) {
         return false;
 	}
 

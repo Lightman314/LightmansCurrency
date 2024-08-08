@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.RecipeContainerWrapper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -53,7 +53,7 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull RecipeContainerWrapper container, @Nonnull HolderLookup.Provider lookup) {
+    public ItemStack assemble(@Nonnull ListRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
         return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
     }
 

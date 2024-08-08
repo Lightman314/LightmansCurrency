@@ -20,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -33,7 +32,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -55,7 +53,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
@@ -261,7 +258,7 @@ public class EventHandler {
 
 				boolean keepWallet = ModGameRules.safeGetCustomBool(player.level(), ModGameRules.KEEP_WALLET, false);
 				//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
-				if(!LCCurios.hasCuriosWalletSlot(player) && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+				if(player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
 					keepWallet = true;
 
 				int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
@@ -303,7 +300,7 @@ public class EventHandler {
 			event.addDrops(getWalletDrops(event, event.coinDropPercent));
 		}
 		//Drop the wallet (unless curios is installed, upon which curios will handle that)
-		else if(!LCCurios.hasCuriosWalletSlot(event.getEntity()))
+		else
 		{
 			event.addDrop(event.getWalletStack());
 			event.setWalletStack(ItemStack.EMPTY);
@@ -342,18 +339,6 @@ public class EventHandler {
 		
 		return drops;
 		
-	}
-
-	//Check for wallet updates, and send update packets
-	@SubscribeEvent
-	public static void entityTick(EntityTickEvent.Pre event) {
-		Entity e = event.getEntity();
-		if(e.level().isClientSide || !(e instanceof LivingEntity entity) || !entity.hasData(ModAttachmentTypes.WALLET_HANDLER)) //Do nothing client side
-			return;
-
-		WalletHandler walletHandler = WalletHandler.get(entity);
-		if(walletHandler != null)
-			walletHandler.tick();
 	}
 
 	@SubscribeEvent

@@ -182,6 +182,16 @@ public final class LazyPacketData {
         this.dataMap.forEach(b::addData);
         return b;
     }
+
+    public int size() { return this.dataMap.size(); }
+    public int size(@Nullable String ignoreKey)
+    {
+        int size = this.dataMap.size();
+        if(ignoreKey != null &&  this.contains(ignoreKey))
+            return size - 1;
+        return size;
+    }
+
     public static Builder builder(@Nonnull HolderLookup.Provider lookup) { return new Builder(lookup); }
     public static final class Builder
     {

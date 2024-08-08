@@ -80,7 +80,7 @@ public class NotificationData implements IClientTracker {
 	public CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		ListTag notificationList = new ListTag();
-		for (Notification notification : notifications)
+		for (Notification notification : new ArrayList<>(this.notifications))
 			notificationList.add(notification.save(lookup));
 		compound.put("Notifications", notificationList);
 		return compound;

@@ -5,13 +5,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
@@ -20,8 +23,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
@@ -32,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener, IMouseListener {
+public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements TradeInteractionHandler, IItemEditListener, IMouseListener {
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 71;
@@ -186,7 +187,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
+	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
 		if(trade instanceof ItemTradeData t)
 		{
 			ItemStack heldItem = this.menu.getHeldItem();
@@ -197,21 +198,21 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
-					this.commonTab.defaultInteraction(index, heldItem, mouseButton);
+					this.commonTab.defaultInteraction(index, heldItem, data.mouseButton());
 			}
 			else if(t.isBarter())
 			{
 				if(this.selection != (index + 2) && heldItem.isEmpty())
 					this.changeSelection(index + 2);
 				else
-					this.commonTab.defaultInteraction(index + 2, heldItem, mouseButton);
+					this.commonTab.defaultInteraction(index + 2, heldItem, data.mouseButton());
 			}
 				
 		}
 	}
 
 	@Override
-	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
+	public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data,int index) {
 		if(trade instanceof ItemTradeData t)
 		{
 			ItemStack heldItem = this.menu.getHeldItem();
@@ -220,7 +221,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
-					this.commonTab.defaultInteraction(index, heldItem, mouseButton);
+					this.commonTab.defaultInteraction(index, heldItem, data.mouseButton());
 			}	
 			else if(t.isPurchase())
 				this.changeSelection(-1);
@@ -241,11 +242,11 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
+	public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) { }
 	
 	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
+		this.tradeDisplay.HandleInteractionClick((int)mouseX, (int)mouseY, button, this);
 		return false;
 	}
 

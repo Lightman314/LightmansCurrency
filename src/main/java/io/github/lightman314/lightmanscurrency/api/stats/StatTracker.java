@@ -38,7 +38,14 @@ public final class StatTracker implements IClientTracker
         return stat;
     }
 
-    public void clear() { this.stats.forEach((key,stat) -> stat.clear()); this.setChanged(); }
+    public void clear() { this.clear(false); }
+    public void clear(boolean fullClear) {
+        if(fullClear)
+            this.stats.clear();
+        else
+            this.stats.forEach((key,stat) -> stat.clear());
+        this.setChanged();
+    }
 
     public void setChanged() { this.onChange.run(); }
 

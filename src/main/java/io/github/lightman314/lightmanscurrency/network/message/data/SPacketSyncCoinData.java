@@ -47,7 +47,7 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
         protected H() { super(TYPE, easyCodec(SPacketSyncCoinData::encode,SPacketSyncCoinData::decode)); }
         @Override
         public void handle(@Nonnull SPacketSyncCoinData message, @Nonnull IPayloadContext context) {
-            context.enqueueWork(() -> CoinAPI.API.HandleSyncPacket(message));
+            CoinAPI.API.HandleSyncPacket(message);
         }
     }
 
