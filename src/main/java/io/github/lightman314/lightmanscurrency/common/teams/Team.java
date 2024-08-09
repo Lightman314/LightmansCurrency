@@ -503,7 +503,7 @@ public class Team implements ITeam {
 		{
 			if(!this.creativeSalaryMode)
 			{
-				this.bankAccount.pushNotification(() -> new DepositWithdrawNotification.Trader(this.teamName,this.bankAccount.getName(),false,payment));
+				this.bankAccount.pushNotification(() -> new DepositWithdrawNotification.Trader(this.teamName,this.bankAccount.getName(),false,payment),this.salaryNotification);
 				this.bankAccount.withdrawMoney(payment);
 			}
 			//Still track the total salary paid even if it's not actually taken from our bank account
