@@ -241,6 +241,7 @@
 	"block.lightmanscurrency.shelf_tconstruct_greenheart": "Greenheart Shelf",
 	"block.lightmanscurrency.shelf_tconstruct_lavawood": "Lavawood Shelf",
 	"block.lightmanscurrency.shelf_tconstruct_skyroot": "Skyroot Shelf",
+	"block.lightmanscurrency.shelf_tconstruct_nahuatl": "Nahuatl Shelf",
 	
 	"block.lightmanscurrency.shelf_2x2_oak": "Oak 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_spruce": "Spruce 2x2 Shelf",
@@ -296,17 +297,18 @@
 	"block.lightmanscurrency.shelf_2x2_byg_witch_hazel": "Witch Hazel 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_byg_zelkova": "Zelkova 2x2 Shelf",
 	
-	"block.lightmanscurrency.shelf_2x2_quark_ancient": "Ancient Shelf",
-	"block.lightmanscurrency.shelf_2x2_quark_azalea": "Azalea Shelf",
-	"block.lightmanscurrency.shelf_2x2_quark_blossom": "Blossom Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_ancient": "Ancient 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_azalea": "Azalea 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_quark_blossom": "Blossom 2x2 Shelf",
 	"block.lightmanscurrency.shelf_2x2_quark_bamboo": "Bamboo 2x2 Shelf",
 	
-	"block.lightmanscurrency.shelf_2x2_tconstruct_blazewood": "Blazewood Shelf",
-	"block.lightmanscurrency.shelf_2x2_tconstruct_bloodshroom": "Bloodshroom Shelf",
-	"block.lightmanscurrency.shelf_2x2_tconstruct_enderbark": "Enderbark Shelf",
-	"block.lightmanscurrency.shelf_2x2_tconstruct_greenheart": "Greenheart Shelf",
-	"block.lightmanscurrency.shelf_2x2_tconstruct_lavawood": "Lavawood Shelf",
-	"block.lightmanscurrency.shelf_2x2_tconstruct_skyroot": "Skyroot Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_blazewood": "Blazewood 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_bloodshroom": "Bloodshroom 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_enderbark": "Enderbark 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_greenheart": "Greenheart 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_lavawood": "Lavawood 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_skyroot": "Skyroot 2x2 Shelf",
+	"block.lightmanscurrency.shelf_2x2_tconstruct_nahuatl": "Nahuatl 2x2 Shelf",
 	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
 	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
@@ -466,6 +468,7 @@
 	"block.lightmanscurrency.bookshelf_trader_tconstruct_greenheart": "Greenheart Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_tconstruct_lavawood": "Lavawood Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_tconstruct_skyroot": "Skyroot Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_tconstruct_nahuatl": "Nahuatl Bookshelf Trader",
 	
 	"block.lightmanscurrency.slot_machine": "Slot Machine",
 	

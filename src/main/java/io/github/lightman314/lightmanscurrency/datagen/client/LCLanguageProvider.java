@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.integration.tconstruct.TinkersCustomWoodTypes;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -38,7 +39,7 @@ public class LCLanguageProvider extends LanguageProvider {
         /*
         this.addWoodenBlocks(ModBlocks.AUCTION_STAND, "%s Auction Stand", currentTest);
         this.addWoodenBlocks(ModBlocks.SHELF, "%s Shelf", currentTest);
-        this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s Shelf", currentTest);
+        this.addWoodenBlocks(ModBlocks.SHELF_2x2, "%s 2x2 Shelf", currentTest);
         this.addWoodenBlocks(ModBlocks.CARD_DISPLAY, "%s Card Display", currentTest);
         this.addWoodenBlocks(ModBlocks.BOOKSHELF_TRADER, "%s Bookshelf Trader", currentTest);
         //*/
