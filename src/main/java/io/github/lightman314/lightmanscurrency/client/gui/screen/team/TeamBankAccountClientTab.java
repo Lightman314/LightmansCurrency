@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
@@ -38,8 +37,7 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
 
         this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, LCText.BUTTON_TEAM_BANK_CREATE.get(), this::createBankAccount));
 
-        this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, EasyText.empty(), this::toggleBankLimit));
-        this.updateBankLimitText();
+        this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, this::getBankLimitText, this::toggleBankLimit));
 
     }
 
@@ -79,8 +77,6 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
     {
         int newLimit = Team.NextBankLimit(this.getBankLimit());
         this.commonTab.ChangeBankAccess(newLimit);
-
-        this.updateBankLimitText();
     }
 
     private int getBankLimit()
@@ -89,10 +85,6 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
         return team == null ? 2 : team.getBankLimit();
     }
 
-    private void updateBankLimitText()
-    {
-        Component message = LCText.BUTTON_TEAM_BANK_LIMIT.get(Owner.getOwnerLevelBlurb(this.getBankLimit()));
-        this.buttonToggleAccountLimit.setMessage(message);
-    }
+    private Component getBankLimitText() { return LCText.BUTTON_TEAM_BANK_LIMIT.get(Owner.getOwnerLevelBlurb(this.getBankLimit())); }
 
 }

@@ -59,11 +59,7 @@ public class CommonProxy {
 
 	public void openNotificationScreen() {}
 	
-	public void openTeamManager() {}
-	
 	public void playCoinSound() {}
-	
-	public void createTeamResponse(long teamID) {}
 	
 	public long getTimeDesync() { return 0; }
 	
