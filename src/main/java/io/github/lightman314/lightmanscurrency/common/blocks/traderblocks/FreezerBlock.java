@@ -41,7 +41,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
-		return new ResourceLocation(namespace, "block/freezer/doors/" + color.toString().toLowerCase());
+		return new ResourceLocation(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}
 	
 	@Override
