@@ -83,5 +83,6 @@ body:
           Please either attach the log and/or crash report as a file directly in this field, or upload to a website such as Pastebin. Do **NOT** just copy/paste the logs contents into this field.
           If you upload the log to a 3rd party site, do **NOT** just clip out the part of the log/crash report that you *think* is relevant. Include the entirety of the log/crash report file, as some past warnings that I have set up may give the additional context I need to figure out your problem.
           You may also include screenshots that you believe are relevant.
+          Please also attach the relevant config file if the issue is related to a config option not working correctly.
       validations:
         required: true
