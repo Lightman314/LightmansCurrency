@@ -121,7 +121,9 @@ public class TextRenderUtil {
 	}
 	
 	public static void drawCenteredMultilineText(EasyGuiGraphics gui, String string, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(gui, Component.literal(string), leftPos, width, topPos, color); }
-	public static void drawCenteredMultilineText(EasyGuiGraphics gui, Component component, int leftPos, int width, int topPos, int color) { 
+	public static void drawCenteredMultilineText(EasyGuiGraphics gui, String string, int leftPos, int width, int topPos, int color, boolean shadowed) { drawCenteredMultilineText(gui, Component.literal(string), leftPos, width, topPos, color, shadowed); }
+	public static void drawCenteredMultilineText(EasyGuiGraphics gui, Component component, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(gui, component, leftPos, width, topPos, color, false);}
+	public static void drawCenteredMultilineText(EasyGuiGraphics gui, Component component, int leftPos, int width, int topPos, int color, boolean shadowed) {
 		Font font = getFont();
 		List<FormattedCharSequence> lines = font.split(component, width);
 		float centerPos = (float)leftPos + ((float)width / 2f);
@@ -129,7 +131,10 @@ public class TextRenderUtil {
 		{
 			FormattedCharSequence line = lines.get(i);
 			int lineWidth = font.width(line);
-			gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), topPos + (font.lineHeight * i), color);
+			if(shadowed)
+				gui.drawShadowed(line, (int)(centerPos - ((float)lineWidth/2f)), topPos + (font.lineHeight * i), color);
+			else
+				gui.drawString(line, (int)(centerPos - ((float)lineWidth/2f)), topPos + (font.lineHeight * i), color);
 		}
 	}
 	

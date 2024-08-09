@@ -97,17 +97,17 @@ public class MiscTab extends SettingsSubTab {
             return;
 
         //Render the "always show search box" text
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX.get(), 47, 15, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX.get(), 47, 16, 0x404040);
 
         //Render the "Link to Bank Account" text
         if(this.menu.hasPermission(Permissions.BANK_LINK) && !trader.isCreative())
-            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 47, 35, 0x404040);
+            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 47, 36, 0x404040);
 
         //Render the enable notification test
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED.get(), 47, 55, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED.get(), 47, 56, 0x404040);
 
         //Render the enable chat notification text
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT.get(), 47, 75, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT.get(), 47, 76, 0x404040);
 
     }
 

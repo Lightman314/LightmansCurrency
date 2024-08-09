@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.network.message.teams.CPacketOpenTeamManager;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class TeamManagerButton extends InventoryButton {
@@ -21,7 +21,7 @@ public class TeamManagerButton extends InventoryButton {
 
 	
 	public TeamManagerButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, button -> LightmansCurrency.PROXY.openTeamManager(), SPRITE);
+		super(inventoryScreen, button -> CPacketOpenTeamManager.sendToServer(), SPRITE);
 		lastButton = this;
 	}
 

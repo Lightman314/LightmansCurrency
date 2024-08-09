@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketStationBlockEntity;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -68,14 +67,15 @@ public class TicketStationMenu extends LazyMessageMenu{
 	}
 	
 	@Override
-	public void removed(@NotNull Player playerIn)
+	public void removed(@Nonnull Player playerIn)
 	{
 		super.removed(playerIn);
 		this.clearContainer(playerIn,  this.output);
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player player, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

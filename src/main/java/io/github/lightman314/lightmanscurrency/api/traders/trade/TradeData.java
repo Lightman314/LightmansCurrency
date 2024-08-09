@@ -7,11 +7,11 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
@@ -28,7 +28,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TradeData implements ITradeRuleHost {
 
@@ -36,21 +35,21 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	@Nonnull
 	protected MoneyValue cost = MoneyValue.empty();
-	
+
 	List<TradeRule> rules = new ArrayList<>();
-	
+
 	public abstract TradeDirection getTradeDirection();
 
 	public boolean validCost() { return this.getCost().isValidPrice(); }
-	
-	public boolean isValid() { return validCost(); }
-	
+
+	public boolean isValid() { return this.validCost(); }
+
 	@Nonnull
 	public MoneyValue getCost() { return this.cost; }
 
 	/**
-	 * Standard method of obtaining the cost of a trade given a context.<br>
-	 * Will run the {@link TradeCostEvent} to calculate any price changes,<br>
+	 * Standard method of obtaining the cost of a trade given a context.
+	 * Will run the {@link TradeCostEvent} to calculate any price changes,
 	 * and will cache the results to save framerate for client-side displays.
 	 */
 	@Nonnull
@@ -87,7 +86,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 		return cost;
 	}
-	
+
 	public void setCost(@Nonnull MoneyValue value) { this.cost = value; }
 
 	public boolean outOfStock(@Nonnull TradeContext context) { return !this.hasStock(context); }
@@ -123,29 +122,29 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 
 	private final boolean validateRules;
-	
+
 	protected TradeData(boolean validateRules) {
 		this.validateRules = validateRules;
 		if(this.validateRules)
 			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
-	
+
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag tradeNBT = new CompoundTag();
 		tradeNBT.put("Price", this.cost.save());
 		TradeRule.saveRules(tradeNBT, this.rules, "RuleData");
-		
+
 		return tradeNBT;
 	}
-	
+
 	protected void loadFromNBT(CompoundTag nbt)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
 		//Set whether it's free or not
 		if(nbt.contains("IsFree") && nbt.getBoolean("IsFree"))
 			this.cost = MoneyValue.free();
-		
+
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
 		{
@@ -154,10 +153,10 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 		else
 			this.rules = TradeRule.loadRules(nbt, "RuleData", this);
-		
+
 		if(this.validateRules)
 			TradeRule.ValidateTradeRuleList(this.rules, this);
-		
+
 	}
 
 	@Override
@@ -166,7 +165,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	@Override
 	public final boolean isTrade() { return true; }
 
-    public void beforeTrade(PreTradeEvent event) {
+	public void beforeTrade(PreTradeEvent event) {
 		for(TradeRule rule : this.rules)
 		{
 			if(rule.isActive())
@@ -182,7 +181,7 @@ public abstract class TradeData implements ITradeRuleHost {
 				rule.tradeCost(event);
 		}
 	}
-	
+
 	public void afterTrade(PostTradeEvent event) {
 		for(TradeRule rule : this.rules)
 		{
@@ -190,7 +189,7 @@ public abstract class TradeData implements ITradeRuleHost {
 				rule.afterTrade(event);
 		}
 	}
-	
+
 	@Nonnull
 	@Override
 	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
@@ -222,11 +221,17 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Used to inform them about what changes have been made so that they can make an informed decision about whether they want to accept the changes or not.
 	 */
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
-	
+
 	@OnlyIn(Dist.CLIENT)
 	@Nonnull
 	public abstract TradeRenderManager<?> getButtonRenderer();
 
+
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an input display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendInputInteractionMessage for consistent execution
@@ -234,11 +239,16 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position/button or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when an output display is clicked on in display mode.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOutputInteractionMessage for consistent execution
@@ -246,27 +256,28 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
 	 * @param index The index of the input display that was clicked.
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
-	@Deprecated(since = "2.1.2.4")
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {}
+	/**
+	 * @deprecated Use <code>heldShift</code> sensitive version
+	 */
+	@Deprecated(since = "2.2.3.0")
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {}
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
 	 * Runs on the client, but can (and should) be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.
 	 *
 	 * @param tab The Trade Edit tab that is being used to display this tab.
 	 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
-	 * @param mouseX The local X position of the mouse button when it was clicked. [0,tradeButtonWidth)
-	 * @param mouseY The local Y position of the mouse button when it was clicked. [0,tradeButtonHeight)
-	 * @param button The mouse button that was clicked.
+	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item currently being held by the player.
 	 */
-	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem);
+	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
 
-	@NotNull
+	@Nonnull
 	public final List<Integer> getRelevantInventorySlots(TradeContext context, List<Slot> slots) {
 		List<Integer> results = new ArrayList<>();
 		this.collectRelevantInventorySlots(context, slots, results);

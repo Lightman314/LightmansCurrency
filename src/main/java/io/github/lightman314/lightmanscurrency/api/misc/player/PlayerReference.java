@@ -198,8 +198,8 @@ public class PlayerReference {
 	
 	public static PlayerReference of(Entity entity)
 	{
-		if(entity instanceof Player)
-			return of((Player)entity);
+		if(entity instanceof Player player)
+			return of(player);
 		return null;
 	}
 	

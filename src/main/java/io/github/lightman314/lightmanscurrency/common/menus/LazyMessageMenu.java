@@ -29,14 +29,14 @@ public abstract class LazyMessageMenu extends EasyMenu {
     {
         if(this.isServer())
             return;
-        new CPacketLazyMenu(message).send();
+        new CPacketLazyMenu(this.containerId,message).send();
     }
 
     public void SendMessageToClient(@Nonnull LazyPacketData.Builder message)
     {
         if(this.isClient())
             return;
-        new SPacketLazyMenu(message).sendTo(this.player);
+        new SPacketLazyMenu(this.containerId,message).sendTo(this.player);
     }
 
     public abstract void HandleMessage(@Nonnull LazyPacketData message);

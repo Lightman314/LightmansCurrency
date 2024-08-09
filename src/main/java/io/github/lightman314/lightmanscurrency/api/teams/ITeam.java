@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -86,11 +88,34 @@ public interface ITeam extends IClientTracker {
     boolean canAccessBankAccount(@Nonnull Player player);
 
     /**
+     * An integer value indicating which players have access to the teams bank account<br>
+     * Follows the same rules as the Owner's Notification Levels
+     */
+    @Range(from = 0, to = 2)
+    int getBankLimit();
+
+    /**
      * The bank account stored in this teams data.<br>
      * Make sure to check {@link #canAccessBankAccount(Player)} or {@link io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference#allowedAccess(Player) TeamBankReference#allowedAccess(Player)} before attempting any player-based interactions.
      */
     @Nullable
     IBankAccount getBankAccount();
+
+    default boolean isAutoSalaryEnabled() { return this.getLastSalaryTime() > 0; }
+    long getLastSalaryTime();
+    boolean getSalaryNotification();
+    long getSalaryDelay();
+    boolean isSalaryCreative();
+    boolean isAdminSalarySeperate();
+    @Nonnull
+    MoneyValue getMemberSalary();
+    @Nonnull
+    MoneyValue getAdminSalary();
+    boolean failedLastSalaryAttempt();
+    @Nonnull
+    List<MoneyValue> getTotalSalaryCost();
+    boolean canAffordNextSalary();
+    void forcePaySalaries();
 
     /**
      * Determines if the given player is the owner of this team.<br>

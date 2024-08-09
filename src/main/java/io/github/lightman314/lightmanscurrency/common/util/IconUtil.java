@@ -41,7 +41,7 @@ public class IconUtil {
 
     public static NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
         return b -> {
-            boolean creative = b.isHoveredOrFocused() != isCreative.get();
+            boolean creative = b.isHovered() != isCreative.get();
             return creative ? ICON_CREATIVE_ON : ICON_CREATIVE_OFF;
         };
     }

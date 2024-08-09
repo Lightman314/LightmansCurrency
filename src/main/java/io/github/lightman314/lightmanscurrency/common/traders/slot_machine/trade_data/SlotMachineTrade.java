@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -56,13 +57,13 @@ public class SlotMachineTrade extends TradeData {
 
     //No Storage Menu Interactions for this Trade Type
     @Override
-    public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { }
+    public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
 
     @Override
-    public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { }
+    public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
 
     @Override
-    public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
+    public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
 
     //Block Trade-Specific Trade Rules as the Slot Machine only has 1 trade, thus trader-wide rules will suffice.
     @Override

@@ -20,6 +20,7 @@ public abstract class TraderInterfaceTab {
 	public static final int TAB_STORAGE = 1;
 	public static final int TAB_TRADER_SELECT = 2;
 	public static final int TAB_TRADE_SELECT = 3;
+	public static final int TAB_STATS = 12;
 	public static final int TAB_OWNERSHIP = 100;
 	
 	public final TraderInterfaceMenu menu;

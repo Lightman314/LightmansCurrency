@@ -3,44 +3,43 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.BasicTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BasicTradeEditTab extends TraderStorageTab {
+public class BasicTradeEditTab extends TraderStorageTab implements IClientTracker {
 
 	public BasicTradeEditTab(TraderStorageMenu menu) { super(menu); }
 
 	public static final int INTERACTION_INPUT = 0;
 	public static final int INTERACTION_OUTPUT = 1;
 	public static final int INTERACTION_OTHER = 2;
-	
-	Consumer<CompoundTag> oldClientHandler = null;
+
 	Consumer<LazyPacketData.Builder> clientHandler = null;
-	
+
+	@Override
+	public boolean isClient() { return this.menu.isClient(); }
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Object createClientTab(Object screen) { return new BasicTradeEditClientTab<>(screen, this); }
 
-	public void setClient(Consumer<LazyPacketData.Builder> clientHandler)
-	{
-		this.clientHandler = clientHandler;
-		if(this.oldClientHandler == null)
-			this.oldClientHandler = c -> this.clientHandler.accept(LazyPacketData.simpleTag("OldMessage",c));
-	}
-	
+	public void setClient(Consumer<LazyPacketData.Builder> clientHandler) { this.clientHandler = clientHandler; }
+
 	@Override
 	public boolean canOpen(Player player) { return true; }
 
@@ -59,60 +58,64 @@ public class BasicTradeEditTab extends TraderStorageTab {
 			this.clientHandler.accept(message);
 		this.menu.SendMessage(message);
 	}
-	
-	public void sendInputInteractionMessage(int tradeIndex, int interactionIndex, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Input Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
-				.setInt("TradeIndex", tradeIndex)
+
+	@Deprecated(since = "2.2.3.0")
+	public void sendInputInteractionMessage(int tradeIndex, int interactionIndex, int button, @Nonnull ItemStack heldItem) { this.SendInputInteractionMessage(tradeIndex, interactionIndex, new TradeInteractionData(0,0,button,false,false,false), heldItem); }
+	public void SendInputInteractionMessage(int tradeIndex, int interactionIndex, @Nonnull TradeInteractionData data, ItemStack heldItem) {
+		//LightmansCurrency.LogDebug("Trade Input Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(data.encode(this.builder()
+				.setInt("TradeIndex",tradeIndex)
 				.setInt("InteractionType", INTERACTION_INPUT)
-				.setInt("InteractionIndex", interactionIndex)
-				.setInt("Button", button)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setInt("InteractionIndex",interactionIndex)
+				.setItem("HeldItem", heldItem)
+		));
 	}
-	
-	public void sendOutputInteractionMessage(int tradeIndex, int interactionIndex, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Output Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
-				.setInt("TradeIndex", tradeIndex)
+
+	@Deprecated(since = "2.2.3.0")
+	public void sendOutputInteractionMessage(int tradeIndex, int interactionIndex, int button, @Nonnull ItemStack heldItem) { this.SendOutputInteractionMessage(tradeIndex, interactionIndex, new TradeInteractionData(0,0,button,false,false,false), heldItem); }
+	public void SendOutputInteractionMessage(int tradeIndex, int interactionIndex, @Nonnull TradeInteractionData data, ItemStack heldItem) {
+		//LightmansCurrency.LogDebug("Trade Output Interaction sent.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(data.encode(this.builder()
+				.setInt("TradeIndex",tradeIndex)
 				.setInt("InteractionType", INTERACTION_OUTPUT)
-				.setInt("InteractionIndex", interactionIndex)
-				.setInt("Button", button)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setInt("InteractionIndex",interactionIndex)
+				.setItem("HeldItem", heldItem)
+		));
 	}
-	
-	public void sendOtherInteractionMessage(int tradeIndex, int mouseX, int mouseY, int button, ItemStack heldItem) {
-		//LightmansCurrency.LogInfo("Trade Misc Interaction sent.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-		this.menu.SendMessage(LazyPacketData.builder()
-				.setInt("TradeIndex", tradeIndex)
+
+	public void sendOtherInteractionMessage(int tradeIndex, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.SendOtherInteractionMessage(tradeIndex, new TradeInteractionData(mouseX,mouseY,button,false,false,false), heldItem); }
+	public void SendOtherInteractionMessage(int tradeIndex, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+		//LightmansCurrency.LogDebug("Trade Misc Interaction sent.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + BuiltInRegistries.ITEM.getKey(heldItem.getItem()));
+		this.menu.SendMessage(data.encode(this.builder()
+				.setInt("TradeIndex",tradeIndex)
 				.setInt("InteractionType", INTERACTION_OTHER)
-				.setInt("Button", button)
-				.setInt("MouseX", mouseX)
-				.setInt("MouseY", mouseY)
-				.setCompound("HeldItem", heldItem.save(new CompoundTag())));
+				.setItem("HeldItem", heldItem)
+		));
 	}
-	
+
 	public void addTrade() {
-		
+
 		if(this.menu.getTrader() != null)
 		{
 			this.menu.getTrader().addTrade(this.menu.getPlayer());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("AddTrade"));
+				this.menu.SendMessage(this.builder().setFlag("AddTrade"));
 		}
-		
+
 	}
-	
+
 	public void removeTrade() {
-		
+
 		if(this.menu.getTrader() != null)
 		{
 			this.menu.getTrader().removeTrade(this.menu.getPlayer());
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("RemoveTrade"));
+				this.menu.SendMessage(this.builder().setFlag("RemoveTrade"));
 		}
-		
+
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex", LazyPacketData.TYPE_INT))
@@ -121,21 +124,37 @@ public class BasicTradeEditTab extends TraderStorageTab {
 				return;
 			int tradeIndex = message.getInt("TradeIndex");
 			int interaction = message.getInt("InteractionType");
-			int interactionIndex = message.contains("InteractionIndex", LazyPacketData.TYPE_INT) ? message.getInt("InteractionIndex") : 0;
-			int button = message.getInt("Button");
-			int mouseX = message.contains("MouseX", LazyPacketData.TYPE_INT) ? message.getInt("MouseX") : 0;
-			int mouseY = message.contains("MouseY", LazyPacketData.TYPE_INT) ? message.getInt("MouseY") : 0;
-			ItemStack heldItem = ItemStack.of(message.getNBT("HeldItem"));
-			TradeData trade = this.menu.getTrader().getTradeData().get(tradeIndex);
+			int interactionIndex = message.getInt("InteractionIndex");
+			ItemStack heldItem = message.getItem("HeldItem");
+
+			TradeData trade = this.menu.getTrader().getTrade(tradeIndex);
+			TradeInteractionData data = TradeInteractionData.decode(message);
+
+
 			switch (interaction) {
-				case INTERACTION_INPUT ->
-					trade.OnInputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+				case INTERACTION_INPUT -> {
+					try {
+						trade.OnInputDisplayInteraction(this, this.clientHandler, interactionIndex, data, heldItem);
+					} catch (Throwable t) {
+						trade.OnInputDisplayInteraction(this, this.clientHandler, interactionIndex, data.mouseButton(), heldItem);
+					}
+				}
 				//LightmansCurrency.LogInfo("Trade Input Interaction received.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-				case INTERACTION_OUTPUT ->
-					trade.OnOutputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+				case INTERACTION_OUTPUT -> {
+					try {
+						trade.OnOutputDisplayInteraction(this, this.clientHandler, interactionIndex, data, heldItem);
+					}catch (Throwable t) {
+						trade.OnOutputDisplayInteraction(this, this.clientHandler, interactionIndex, data.mouseButton(), heldItem);
+					}
+				}
 				//LightmansCurrency.LogInfo("Trade Output Interaction received.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-				case INTERACTION_OTHER ->
-					trade.OnInteraction(this, this.clientHandler, mouseX, mouseY, button, heldItem);
+				case INTERACTION_OTHER -> {
+					try {
+						trade.OnInteraction(this, this.clientHandler, data, heldItem);
+					} catch (Throwable t) {
+						trade.OnInteraction(this, this.clientHandler, data.localMouseX(), data.localMouseY(), data.mouseButton(), heldItem);
+					}
+				}
 				//LightmansCurrency.LogInfo("Trade Misc Interaction received.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
 				default ->
 						LightmansCurrency.LogWarning("Interaction Type " + interaction + " is not a valid interaction.");
@@ -147,5 +166,5 @@ public class BasicTradeEditTab extends TraderStorageTab {
 		if(message.contains("RemoveTrade"))
 			this.removeTrade();
 	}
-	
+
 }

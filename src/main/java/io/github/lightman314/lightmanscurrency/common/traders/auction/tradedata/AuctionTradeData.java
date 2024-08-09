@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
@@ -59,9 +60,8 @@ public class AuctionTradeData extends TradeData {
 			return TimeUtil.DURATION_DAY * LCConfig.SERVER.auctionHouseDurationMin.get();
 		return TimeUtil.DURATION_DAY;
 	}
-
 	public static final long OVERTIME_DURATION = 5 * TimeUtil.DURATION_MINUTE;
-	
+
 	public boolean hasBid() { return this.lastBidPlayer != null; }
 
 	private boolean overtimeAllowed = true;
@@ -74,7 +74,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	private boolean cancelled;
-	
+
 	private String persistentID = "";
 	public boolean isPersistentID(String id) { return this.persistentID.equals(id); }
 
@@ -82,7 +82,7 @@ public class AuctionTradeData extends TradeData {
 	public MoneyValue getLastBidAmount() { return this.lastBidAmount; }
 	PlayerReference lastBidPlayer = null;
 	public PlayerReference getLastBidPlayer() { return this.lastBidPlayer; }
-	
+
 	public void setStartingBid(@Nonnull MoneyValue amount) {
 		if(this.isActive())
 			return;
@@ -142,11 +142,11 @@ public class AuctionTradeData extends TradeData {
 				this.auctionItems.add(stack.copy());
 		}
 	}
-	
+
 	public AuctionTradeData(Player owner) { super(false); this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
-	
+
 	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
-	
+
 	/**
 	 * Used to create an auction trade from persistent auction data
 	 */
@@ -161,7 +161,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	public boolean isActive() { return this.startTime != 0 && !this.cancelled; }
-	
+
 	@Override
 	public boolean isValid() {
 		if(this.cancelled)
@@ -174,30 +174,30 @@ public class AuctionTradeData extends TradeData {
 			return false;
 		return !this.lastBidAmount.isEmpty();
 	}
-	
+
 	public void startTimer() {
 		if(!this.isActive())
 			this.startTime = TimeUtil.getCurrentTime();
 	}
-	
+
 	public long getRemainingTime(long currentTime) {
 		if(!this.isActive())
 			return this.duration;
 		return Math.max(0, this.startTime + this.duration - currentTime);
 	}
-	
+
 	public boolean hasExpired(long time) {
 		if(this.isActive())
 			return time >= this.startTime + this.duration;
 		return false;
 	}
-	
+
 	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, MoneyValue amount) {
 		if(!validateBidAmount(amount))
 			return false;
-		
+
 		PlayerReference oldBidder = this.lastBidPlayer;
-		
+
 		if(this.lastBidPlayer != null)
 		{
 			//Refund the money to the previous bidder
@@ -205,10 +205,10 @@ public class AuctionTradeData extends TradeData {
 			storage.giveMoney(this.lastBidAmount);
 			trader.markStorageDirty();
 		}
-		
+
 		this.lastBidPlayer = PlayerReference.of(player);
 		this.lastBidAmount = amount;
-		
+
 		//Send notification to the previous bidder letting them know they've been out-bid.
 		if(oldBidder != null)
 			NotificationSaveData.PushNotification(oldBidder.id, new AuctionHouseBidNotification(this));
@@ -220,31 +220,31 @@ public class AuctionTradeData extends TradeData {
 			this.startTime = currentTime;
 			this.duration = OVERTIME_DURATION;
 		}
-		
+
 		return true;
 	}
-	
+
 	public boolean validateBidAmount(@Nonnull MoneyValue amount) {
 		MoneyValue minAmount = this.getMinNextBid();
 		return amount.containsValue(minAmount);
 	}
-	
+
 	public MoneyValue getMinNextBid() {
 		if(this.lastBidPlayer == null)
 			return this.lastBidAmount;
 		else
 			return this.lastBidAmount.addValue(this.minBidDifference);
 	}
-	
+
 	public void ExecuteTrade(AuctionHouseTrader trader) {
 		if(this.cancelled)
 			return;
 		this.cancelled = true;
-		
+
 		//Throw auction completed event
 		AuctionCompletedEvent event = new AuctionCompletedEvent(trader, this);
 		MinecraftForge.EVENT_BUS.post(event);
-		
+
 		if(this.lastBidPlayer != null)
 		{
 			AuctionPlayerStorage buyerStorage = trader.getStorage(this.lastBidPlayer);
@@ -257,10 +257,10 @@ public class AuctionTradeData extends TradeData {
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 				sellerStorage.giveMoney(event.getPayment());
 			}
-			
+
 			//Post notification to the auction winner
 			NotificationSaveData.PushNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
-			
+
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
 				NotificationSaveData.PushNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
@@ -273,35 +273,36 @@ public class AuctionTradeData extends TradeData {
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 				List<ItemStack> items = event.getItems();
 				for (ItemStack item : items) sellerStorage.giveItem(item);
-				
+
 				//Post notification to the auction owner
 				NotificationSaveData.PushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
-				
+
 			}
 		}
 	}
-	
+
 	public void CancelTrade(AuctionHouseTrader trader, boolean giveToPlayer, Player player)
 	{
 		if(this.cancelled)
 			return;
 		this.cancelled = true;
-		
+
 		if(this.lastBidPlayer != null)
 		{
 			//Give a refund to the last bidder
 			AuctionPlayerStorage buyerStorage = trader.getStorage(this.lastBidPlayer);
 			buyerStorage.giveMoney(this.lastBidAmount);
-			
+
 			//Send cancel notification
 			NotificationSaveData.PushNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
-			
+
 		}
 		//Return the items being sold to their owner
 		if(giveToPlayer)
 		{
 			//Return items to the player who cancelled the trade
-			for(ItemStack stack : this.auctionItems) ItemHandlerHelper.giveItemToPlayer(player, stack);
+			for(ItemStack stack : this.auctionItems)
+				ItemHandlerHelper.giveItemToPlayer(player, stack);
 		}
 		else
 		{
@@ -312,12 +313,12 @@ public class AuctionTradeData extends TradeData {
 				for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
 			}
 		}
-		
+
 		CancelAuctionEvent event = new CancelAuctionEvent(trader, this, player);
 		MinecraftForge.EVENT_BUS.post(event);
-			
+
 	}
-	
+
 	@Override
 	public CompoundTag getAsNBT() {
 		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
@@ -333,42 +334,42 @@ public class AuctionTradeData extends TradeData {
 
 		if(this.minBidDifference != null)
 			compound.put("MinBid", this.minBidDifference.save());
-		
+
 		compound.putLong("StartTime", this.startTime);
 		compound.putLong("Duration", this.duration);
-		
+
 		if(this.tradeOwner != null)
 			compound.put("TradeOwner", this.tradeOwner.save());
-		
+
 		compound.putBoolean("Cancelled", this.cancelled);
-		
+
 		if(!this.persistentID.isBlank())
 			compound.putString("PersistentID", this.persistentID);
 
 		compound.putBoolean("Overtime", this.overtimeAllowed);
-		
+
 		return compound;
 	}
 
 	@Nonnull
 	public JsonObject saveToJson(@Nonnull JsonObject json) {
-		
+
 		for(int i = 0; i < this.auctionItems.size(); ++i)
 			json.add("Item" + (i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
-		
+
 		json.addProperty("Duration", this.duration);
-		
+
 		json.add("StartingBid", this.lastBidAmount.toJson());
-		
+
 		json.add("MinimumBid", this.minBidDifference.toJson());
 
 		json.addProperty("Overtime", this.overtimeAllowed);
 
 		return json;
 	}
-	
+
 	@Override
-	public void loadFromNBT(CompoundTag compound) {
+	public void loadFromNBT(@Nonnull CompoundTag compound) {
 		//Do not run super.loadFromNBT() as we didn't saveItem the default data in the first place
 		ListTag itemList = compound.getList("SellItems", Tag.TAG_COMPOUND);
 		this.auctionItems.clear();
@@ -385,44 +386,44 @@ public class AuctionTradeData extends TradeData {
 			this.lastBidPlayer = null;
 
 		this.minBidDifference = MoneyValue.safeLoad(compound, "MinBid");
-		
+
 		this.startTime = compound.getLong("StartTime");
 		this.duration = compound.getLong("Duration");
-		
+
 		if(compound.contains("TradeOwner", Tag.TAG_COMPOUND))
 			this.tradeOwner = PlayerReference.load(compound.getCompound("TradeOwner"));
-		
+
 		this.cancelled = compound.getBoolean("Cancelled");
 
 		if(compound.contains("Overtime"))
 			this.overtimeAllowed = compound.getBoolean("Overtime");
-		
+
 		if(compound.contains("PersistentID", Tag.TAG_STRING))
 			this.persistentID = compound.getString("PersistentID");
-		
+
 	}
 
 	@Nonnull
-    @Override
+	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
-	
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+
 	private void openCancelAuctionTab(BasicTradeEditTab tab) {
 		if(tab.menu.getTrader() instanceof AuctionHouseTrader ah)
 		{
 			int tradeIndex = ah.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 	}
 
@@ -437,5 +438,5 @@ public class AuctionTradeData extends TradeData {
 
 	@Override
 	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return new ArrayList<>(); }
-	
+
 }

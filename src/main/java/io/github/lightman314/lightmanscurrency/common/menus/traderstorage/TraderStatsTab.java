@@ -27,20 +27,20 @@ public class TraderStatsTab extends TraderStorageTab {
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
-    public void clearStats()
+    public void clearStats(boolean fullClear)
     {
         if(this.menu.hasPermission(Permissions.EDIT_SETTINGS))
         {
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.simpleFlag("ClearStats"));
+                this.menu.SendMessage(LazyPacketData.simpleBoolean("ClearStats",fullClear));
             }
             else
             {
                 TraderData trader = this.menu.getTrader();
                 if(trader != null)
                 {
-                    trader.statTracker.clear();
+                    trader.statTracker.clear(fullClear);
                     trader.markStatsDirty();
                 }
             }
@@ -50,7 +50,7 @@ public class TraderStatsTab extends TraderStorageTab {
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("ClearStats"))
-            this.clearStats();
+            this.clearStats(message.getBoolean("ClearStats"));
     }
 
 }

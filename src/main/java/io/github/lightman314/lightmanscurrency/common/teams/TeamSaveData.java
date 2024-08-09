@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -174,6 +175,13 @@ public class TeamSaveData extends SavedData {
 
 		tsd.teams.forEach((id, team) -> new SPacketUpdateClientTeam(team.save()).sendToTarget(target));
 		
+	}
+
+	@SubscribeEvent
+	public static void OnServerTick(TickEvent.ServerTickEvent event)
+	{
+		if(event.phase == TickEvent.Phase.START)
+			get().teams.forEach((id,team) -> team.tick());
 	}
 	
 	

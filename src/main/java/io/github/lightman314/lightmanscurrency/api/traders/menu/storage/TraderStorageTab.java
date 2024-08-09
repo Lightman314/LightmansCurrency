@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public abstract class TraderStorageTab {
+public abstract class TraderStorageTab implements LazyPacketData.IBuilderProvider {
 
 	//0-9 "Basic Tabs"
 	public static final int TAB_TRADE_BASIC = 0;
@@ -32,6 +32,10 @@ public abstract class TraderStorageTab {
 	public final ITraderStorageMenu menu;
 	
 	protected TraderStorageTab(@Nonnull ITraderStorageMenu menu) { this.menu = menu; }
+
+	@Nonnull
+	@Override
+	public final LazyPacketData.Builder builder() { return this.menu.builder(); }
 
 	/**
 	 * Input is of type TraderStorageScreen

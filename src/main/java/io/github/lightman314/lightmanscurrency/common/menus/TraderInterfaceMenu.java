@@ -48,6 +48,7 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
+		this.setTab(TraderInterfaceTab.TAB_STATS, new InterfaceStatsTab(this));
 		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
 		if(this.blockEntity != null)
 			this.blockEntity.initMenuTabs(this);

@@ -4,7 +4,8 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockE
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class MintSlot extends Slot{
 	
@@ -17,7 +18,7 @@ public class MintSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) {
+	public boolean mayPlace(@Nonnull ItemStack stack) {
         return this.tileEntity.validMintInput(stack);
 	}
 

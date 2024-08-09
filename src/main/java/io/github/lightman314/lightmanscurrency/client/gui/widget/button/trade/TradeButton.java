@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -20,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
@@ -27,14 +30,14 @@ import net.minecraftforge.common.util.LazyOptional;
 public class TradeButton extends EasyButton implements ITooltipSource {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
-	
+
 	public static  final int ARROW_WIDTH = 22;
 	public static  final int ARROW_HEIGHT = 18;
-	
+
 	public static  final int TEMPLATE_WIDTH = 212;
-	
+
 	public static final int BUTTON_HEIGHT = 18;
-	
+
 	private final Supplier<TradeData> tradeSource;
 	public TradeData getTrade() { return this.tradeSource.get(); }
 	public TradeRenderManager<?> getTradeRenderer() {
@@ -46,7 +49,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	private final Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
 	public boolean displayOnly = false;
-	
+
 	public TradeButton(@Nonnull Supplier<TradeContext> contextSource, @Nonnull Supplier<TradeData> tradeSource, Consumer<EasyButton> press) {
 		super(0, 0, 0, BUTTON_HEIGHT, press);
 		this.tradeSource = tradeSource;
@@ -72,18 +75,18 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	 */
 	@Deprecated
 	public void move(int x, int y) { this.setPosition(x, y); }
-	
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-		
+
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
 			return;
 
 		TradeContext context = this.getContext();
-		
+
 		this.recalculateSize();
-		
+
 		this.renderBackground(gui, !context.isStorageMode && !this.displayOnly && this.isHovered);
 
 		LazyOptional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
@@ -94,13 +97,13 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 
 		this.renderAlert(gui, tr.alertPosition(context), tr.getAlertData(context));
-		
+
 		this.renderDisplays(gui, tr, context);
 
 		gui.resetColor();
-		
+
 	}
-	
+
 	private void renderBackground(@Nonnull EasyGuiGraphics gui, boolean isHovered)
 	{
 		if(this.width < 8)
@@ -112,9 +115,9 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		
+
 		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
-		
+
 		//Render the left
 		gui.blit(GUI_TEXTURE, 0, 0, 0, vOffset, 4, BUTTON_HEIGHT);
 		//Render the middle
@@ -129,7 +132,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		gui.blit(GUI_TEXTURE, this.width - 4, 0, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
 
 	}
-	
+
 	private void renderArrow(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, boolean isHovered)
 	{
 
@@ -137,25 +140,25 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		
+
 		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 
 		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
-		
+
 	}
-	
+
 	private void renderAlert(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, @Nullable List<AlertData> alerts)
 	{
-		
+
 		if(alerts == null || alerts.isEmpty())
 			return;
 		alerts.sort(AlertData::compare);
 
 		alerts.get(0).setShaderColor(gui, this.active ? 1f : 0.5f);
 		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
-		
+
 	}
-	
+
 	public void renderDisplays(EasyGuiGraphics gui, TradeRenderManager<?> tr, TradeContext context)
 	{
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
@@ -220,14 +223,14 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 	@Override
 	public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
-	
+
 	private void tryAddTooltip(@Nonnull List<Component> tooltips, @Nullable List<Component> add)
 	{
 		if(add == null)
 			return;
 		tooltips.addAll(add);
 	}
-	
+
 	private void tryAddAlertTooltips(@Nonnull List<Component> tooltips, @Nullable List<AlertData> alerts)
 	{
 		if(alerts == null)
@@ -236,7 +239,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		for(AlertData alert : alerts)
 			tooltips.add(alert.getFormattedMessage());
 	}
-	
+
+	@Deprecated(since = "2.2.3.0")
 	public void onInteractionClick(int mouseX, int mouseY, int button, InteractionConsumer consumer)
 	{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
@@ -248,9 +252,9 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		TradeRenderManager<?> tr = trade.getButtonRenderer();
 		if(tr == null)
 			return;
-		
+
 		TradeContext context = this.getContext();
-		
+
 		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(tr, context);
 		for(int i = 0; i < inputDisplays.size(); ++i)
 		{
@@ -261,7 +265,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 				return;
 			}
 		}
-		
+
 		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(tr, context);
 		for(int i = 0; i < outputDisplays.size(); ++i)
 		{
@@ -272,12 +276,55 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 				return;
 			}
 		}
-		
+
 		//Only run the default interaction code if you didn't hit an input or output display
 		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.getX(), mouseY - this.getY(), button);
-		
+
 	}
-	
+
+	public void HandleInteractionClick(int mouseX, int mouseY, int button, @Nonnull TradeInteractionHandler handler)
+	{
+		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
+			return;
+
+		TradeData trade = this.getTrade();
+		if(trade == null)
+			return;
+		TradeRenderManager<?> tr = trade.getButtonRenderer();
+		if(tr == null)
+			return;
+
+		TradeContext context = this.getContext();
+
+		TradeInteractionData data = new TradeInteractionData(mouseX - this.getX(), mouseY - this.getY(), button, Screen.hasShiftDown(), Screen.hasControlDown(), Screen.hasAltDown());
+
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(tr, context);
+		for(int i = 0; i < inputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			{
+				handler.HandleTradeInputInteraction(context.getTrader(), trade, data, i);
+				return;
+			}
+		}
+
+		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(tr, context);
+		for(int i = 0; i < outputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			{
+				handler.HandleTradeOutputInteraction(context.getTrader(), trade, data, i);
+				return;
+			}
+		}
+
+		//Only run the default interaction code if you didn't hit an input or output display
+		handler.HandleOtherTradeInteraction(context.getTrader(), trade, data);
+
+	}
+
 	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeRenderManager<?> tr, TradeContext context)
 	{
 		ScreenPosition position = tr.alertPosition(context);
@@ -285,7 +332,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		int top = this.getY() + position.y;
 		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
 	}
-	
+
 	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(TradeRenderManager<?> tr, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
@@ -295,7 +342,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			results.add(Pair.of(entries.get(i), display.get(i)));
 		return results;
 	}
-	
+
 	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(TradeRenderManager<?> tr, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
@@ -305,7 +352,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			results.add(Pair.of(entries.get(i), display.get(i)));
 		return results;
 	}
-	
+
 	@Override
 	protected boolean isValidClickButton(int button) {
 		if(this.getContext().isStorageMode || this.displayOnly)
@@ -313,8 +360,4 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		return super.isValidClickButton(button);
 	}
 
-
-	
-
-	
 }

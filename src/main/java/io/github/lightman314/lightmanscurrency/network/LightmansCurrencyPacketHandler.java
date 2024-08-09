@@ -112,9 +112,7 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketClearClientTeams.class, SPacketClearClientTeams.HANDLER);
 		register(SPacketRemoveClientTeam.class, SPacketRemoveClientTeam.HANDLER);
 		register(SPacketUpdateClientTeam.class, SPacketUpdateClientTeam.HANDLER);
-		register(CPacketEditTeam.class, CPacketEditTeam.HANDLER);
-		register(CPacketCreateTeam.class, CPacketCreateTeam.HANDLER);
-		register(SPacketCreateTeamResponse.class, SPacketCreateTeamResponse.HANDLER);
+		register(CPacketOpenTeamManager.class, CPacketOpenTeamManager.HANDLER);
 
 		//Lazy Menu Interaction
 		register(SPacketLazyMenu.class, SPacketLazyMenu.HANDLER);

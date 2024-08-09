@@ -62,7 +62,6 @@ import javax.annotation.Nonnull;
 
 public class ClientProxy extends CommonProxy{
 
-	boolean openTeamManager = false;
 	boolean openNotifications = false;
 	private long timeOffset = 0;
 
@@ -104,6 +103,8 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
 
 		MenuScreens.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
+
+		MenuScreens.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -199,18 +200,7 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void openNotificationScreen() { this.openNotifications = true; }
-	
-	@Override
-	public void openTeamManager() { this.openTeamManager = true; }
-	
-	@Override
-	public void createTeamResponse(long teamID)
-	{
-		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.screen instanceof TeamManagerScreen screen)
-			screen.setActiveTeam(teamID);
-	}
-	
+
 	@Override
 	public long getTimeDesync()
 	{
@@ -235,12 +225,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		if(event.phase == TickEvent.Phase.START)
 		{
-			if(this.openTeamManager)
-			{
-				this.openTeamManager = false;
-				Minecraft.getInstance().setScreen(new TeamManagerScreen());
-			}
-			else if(this.openNotifications)
+			if(this.openNotifications)
 			{
 				this.openNotifications = false;
 				//Open easy notification screen

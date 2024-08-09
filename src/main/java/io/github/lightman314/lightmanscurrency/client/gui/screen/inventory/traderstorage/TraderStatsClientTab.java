@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStatsTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -44,7 +45,7 @@ public class TraderStatsClientTab extends TraderStorageClientTab<TraderStatsTab>
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), this.commonTab::clearStats));
+        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), () -> this.commonTab.clearStats(Screen.hasShiftDown())));
 
         this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
         this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));

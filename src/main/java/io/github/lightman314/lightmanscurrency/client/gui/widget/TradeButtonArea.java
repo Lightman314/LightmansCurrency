@@ -14,6 +14,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -50,7 +51,11 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public void setSelectionDefinition(@Nonnull BiFunction<TraderData,TradeData,Boolean> isSelected) { this.isSelected = isSelected; }
 
 	private InteractionConsumer interactionConsumer = null;
+	@Deprecated(since = "2.2.3.0")
 	public void setInteractionConsumer(InteractionConsumer consumer) { this.interactionConsumer = consumer; }
+	private TradeInteractionHandler interactionHandler = null;
+	public void setInteractionHandler(TradeInteractionHandler handler) { this.interactionHandler = handler; }
+
 
 	private final List<TradeButton> allButtons = new ArrayList<>();
 
@@ -113,6 +118,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		this.scrollBar = this.addChild(this.scrollBar = new ScrollBarWidget(this.getX() + this.width + this.scrollBarOffset.x, this.getY() + this.scrollBarOffset.y, this.scrollBarHeight, this));
 		if(this.hasTitlePosition && this.allowSearching)
 		{
+			//Make search box take 1/3 of the width
 			this.searchBoxArea = ScreenArea.of(this.titlePosition.x + this.titleWidth - 90, this.titlePosition.y - 2, 90, 12);
 			this.searchBox = this.addChild(new EditBox(this.font, this.searchBoxArea.pos.x + 2, this.searchBoxArea.pos.y + 2, this.searchBoxArea.width - 10, 10, LCText.GUI_TRADER_SEARCH_TRADES.get()));
 			this.searchBox.setBordered(false);
@@ -412,6 +418,11 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 						b.onInteractionClick((int)mouseX, (int)mouseY, button, this.interactionConsumer);
 						return true;
 					}
+					if(this.interactionHandler != null)
+					{
+						b.HandleInteractionClick((int)mouseX,(int)mouseY, button, this.interactionHandler);
+						return true;
+					}
 				}
 				else
 					return b.mouseClicked(mouseX, mouseY, button);
@@ -423,6 +434,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return true; }
 
+	@Deprecated(since = "2.2.3.0")
 	public interface InteractionConsumer {
 		void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);
 		void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);

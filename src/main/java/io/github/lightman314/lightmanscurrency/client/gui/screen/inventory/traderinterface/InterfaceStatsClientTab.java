@@ -1,38 +1,37 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InterfaceStatsTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeamStatsTab extends TeamTab implements IScrollable {
+public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceStatsTab> implements IScrollable {
 
-    public TeamStatsTab(TeamManagerScreen screen) { super(screen); }
+    public InterfaceStatsClientTab(TraderInterfaceScreen screen, InterfaceStatsTab commonTab) { super(screen, commonTab); }
 
     private static final int LINE_COUNT = 10;
     private static final int LINE_SIZE = 10;
     private static final int START_POS = 37;
 
     private int scroll = 0;
-    private EasyButton buttonClear;
 
     @Nonnull
     @Override
@@ -40,14 +39,12 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
 
     @Nullable
     @Override
-    public Component getTooltip() { return LCText.TOOLTIP_TEAM_STATS.get(); }
-
-    @Override
-    public boolean allowViewing(Player player, Team team) { return team != null && team.isMember(player); }
+    public Component getTooltip() { return LCText.TOOLTIP_INTERFACE_STATS.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), this::clearStats));
+
+        this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), () -> this.commonTab.clearStats(Screen.hasShiftDown())));
 
         this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
         this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));
@@ -73,18 +70,12 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
         }
     }
 
-    @Override
-    public void tick() {
-        Team team = this.getActiveTeam();
-        this.buttonClear.active = team != null && team.isAdmin(this.getPlayer());
-    }
-
     private List<MutableComponent> getLines()
     {
-        Team team = this.getActiveTeam();
-        if(team == null)
+        TraderInterfaceBlockEntity be = this.menu.getBE();
+        if(be == null)
             return new ArrayList<>();
-        return team.getStats().getDisplayLines();
+        return be.statTracker.getDisplayLines();
     }
 
     @Override
@@ -93,7 +84,5 @@ public class TeamStatsTab extends TeamTab implements IScrollable {
     public void setScroll(int newScroll) { this.scroll = newScroll; }
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(LINE_COUNT,this.getLines().size()); }
-
-    private void clearStats() { this.RequestChange(LazyPacketData.simpleFlag("ClearStats")); }
 
 }

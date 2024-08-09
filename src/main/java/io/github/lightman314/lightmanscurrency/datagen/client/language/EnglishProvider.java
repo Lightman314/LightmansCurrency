@@ -363,6 +363,27 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TEAM_BANK,"Bank Account Settings");
         this.translate(LCText.BUTTON_TEAM_BANK_CREATE,"Create Bank Account");
         this.translate(LCText.BUTTON_TEAM_BANK_LIMIT,"Limit To: %s");
+        this.translate(LCText.TOOLTIP_TEAM_SALARY_INFO,"Salary Information");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_DISABLED,"Auto-Salary is currently DISABLED");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_DELAY,"Auto-Salary will occur every %s");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_NEXT_TRIGGER,"Next Salary in %s");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_MEMBERS,"Members will be paid %s");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_ADMINS,"Admins will be paid %s");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS,"Required Salary Funds:");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS,"Not enough funds are currently available to pay next salary!");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED,"Last attempt to pay the salary failed!");
+        this.translate(LCText.TOOLTIP_TEAM_SALARY_SETTINGS,"Salary Settings");
+        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_ENABLE,"Enable Auto-Salary");
+        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_DISABLE,"Disable Auto-Salary");
+        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_NOTIFICATION,"Push Notification");
+        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_DELAY,"Auto-Salary Delay");
+        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY,"Trigger Salary Payment");
+        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS,"Salary Payment Settings");
+        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE,"Enable Creative Salary");
+        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE,"Disable Creative Salary");
+        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_MEMBER_SALARY,"Member Salary:");
+        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION,"Seperate Admin Salaries");
+        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY,"Admin Salary:");
         this.translate(LCText.TOOLTIP_TEAM_STATS,"Team Statistics");
         this.translate(LCText.TOOLTIP_TEAM_OWNER,"Transfer Team Ownership");
         this.translate(LCText.BUTTON_TEAM_DISBAND,"Disband Team");
@@ -477,6 +498,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_INTERFACE_TRADER_SELECT,"Trader Select");
         this.translate(LCText.TOOLTIP_INTERFACE_TRADE_SELECT,"Trade Select");
         this.translate(LCText.TOOLTIP_INTERFACE_STORAGE,"Interface Storage");
+        this.translate(LCText.TOOLTIP_INTERFACE_STATS,"Interface Stats");
 
         //Trade Result
         this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_OUT_OF_STOCK),"Trader is out of stock");
@@ -564,7 +586,8 @@ public class EnglishProvider extends TranslationProvider {
 
         //Item Trader Specific
         this.translate(LCText.GUI_TRADER_ITEM_ENFORCE_NBT,"Enforce NBT");
-        this.translate(LCText.TOOLTIP_TRADE_ITEM_EDIT_ITEM," Click to Set Item");
+        this.translate(LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY,"Click to Set Item");
+        this.translate(LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT,"Hold SHIFT & Click to access Item Settings");
         this.translate(LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE,"NBT is NOT enforced. Item may have unexpected NBT data");
         this.translate(LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE,"Accepts all NBT states");
         this.translate(LCText.GUI_ITEM_EDIT_SEARCH,"Search Items");
@@ -857,6 +880,7 @@ public class EnglishProvider extends TranslationProvider {
         //Generic
         this.translate(StatKeys.Generic.MONEY_EARNED,"Money Earned: %s");
         this.translate(StatKeys.Generic.MONEY_PAID,"Money Paid: %s");
+        this.translate(StatKeys.Generic.SALARY_TRIGGERS,"Salary Payments Triggered: %s");
         //Trader
         this.translate(StatKeys.Traders.MONEY_EARNED,"Trader Earned: %s");
         this.translate(StatKeys.Traders.MONEY_PAID,"Trader Paid: %s");

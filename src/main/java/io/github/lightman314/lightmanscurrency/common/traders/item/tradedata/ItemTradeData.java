@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -48,7 +49,7 @@ public class ItemTradeData extends TradeData {
 	}
 
 	public ItemTradeData(boolean validateRules) { super(validateRules); this.resetNBTList(); }
-	
+
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
 	SimpleContainer items = new SimpleContainer(4);
 	final List<Boolean> enforceNBT = Lists.newArrayList(true, true, true, true);
@@ -56,7 +57,7 @@ public class ItemTradeData extends TradeData {
 	TradeDirection tradeType = TradeDirection.SALE;
 	String customName1 = "";
 	String customName2 = "";
-	
+
 	public ItemStack getSellItem(int index)
 	{
 		if(index >= 0 && index < 2)
@@ -72,7 +73,7 @@ public class ItemTradeData extends TradeData {
 			return this.items.getItem(index + 2).copy();
 		return ItemStack.EMPTY;
 	}
-	
+
 	public ItemStack getItem(int index)
 	{
 		if(index >= 0 && index < 2)
@@ -81,7 +82,7 @@ public class ItemTradeData extends TradeData {
 			return this.getBarterItem(index - 2);
 		return ItemStack.EMPTY;
 	}
-	
+
 	public void setItem(ItemStack itemStack, int index)
 	{
 		if(index >= 0 && index < 4)
@@ -143,9 +144,9 @@ public class ItemTradeData extends TradeData {
 		}
 		return false;
 	}
-	
+
 	public boolean hasCustomName(int index) { return !this.getCustomName(index).isEmpty(); }
-	
+
 	public String getCustomName(int index)
 	{
 		return switch (index) {
@@ -154,7 +155,7 @@ public class ItemTradeData extends TradeData {
 			default -> "";
 		};
 	}
-	
+
 	public void setCustomName(int index, String customName)
 	{
 		switch (index) {
@@ -162,21 +163,21 @@ public class ItemTradeData extends TradeData {
 			case 1 -> this.customName2 = customName;
 		}
 	}
-	
+
 	@Override
 	public TradeDirection getTradeDirection() { return this.tradeType; }
-	
+
 	public boolean isSale() { return this.tradeType == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeType == TradeDirection.PURCHASE; }
 	public boolean isBarter() { return this.tradeType == TradeDirection.BARTER; }
-	
+
 	public void setTradeType(TradeDirection tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
 
 	@Nonnull
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
-	
+
 	public void setRestriction(ItemTradeRestriction restriction) { this.restriction = restriction; }
-	
+
 	@Override
 	public boolean isValid()
 	{
@@ -184,22 +185,22 @@ public class ItemTradeData extends TradeData {
 			return this.sellItemsDefined() && this.barterItemsDefined();
 		return super.isValid() && this.sellItemsDefined();
 	}
-	
+
 	public boolean sellItemsDefined() {
 		return !this.getSellItem(0).isEmpty() || !this.getSellItem(1).isEmpty();
 	}
-	
+
 	public boolean barterItemsDefined() {
 		return !this.getBarterItem(0).isEmpty() || !this.getBarterItem(1).isEmpty();
 	}
-	
+
 	public boolean hasStock(ItemTraderData trader)
 	{
 		if(!this.sellItemsDefined())
 			return false;
 		return stockCount(trader) > 0;
 	}
-	
+
 	public boolean hasSpace(ItemTraderData trader, List<ItemStack> collectableItems)
 	{
 		return switch (this.tradeType) {
@@ -207,12 +208,12 @@ public class ItemTradeData extends TradeData {
 			default -> true;
 		};
 	}
-	
+
 	public int stockCount(ItemTraderData trader)
 	{
 		if(!this.sellItemsDefined())
 			return 0;
-		
+
 		if(this.tradeType == TradeDirection.PURCHASE)
 		{
 			return this.stockCountOfCost(trader);
@@ -224,18 +225,18 @@ public class ItemTradeData extends TradeData {
 		else //Other types are not handled yet.
 			return 0;
 	}
-	
+
 	public int getStock(@Nonnull TradeContext context)
 	{
 		if(!this.sellItemsDefined())
 			return 0;
-		
+
 		if(!context.hasTrader() || !(context.getTrader() instanceof ItemTraderData trader))
 			return 0;
 
 		if(trader.isCreative())
 			return 1;
-		
+
 		if(this.tradeType == TradeDirection.PURCHASE)
 		{
 			return this.stockCountOfCost(context);
@@ -247,7 +248,7 @@ public class ItemTradeData extends TradeData {
 		else //Other types are not handled yet.
 			return 0;
 	}
-	
+
 	public boolean canAfford(TradeContext context) {
 		if(this.isSale())
 			return context.hasFunds(this.getCost(context));
@@ -257,12 +258,12 @@ public class ItemTradeData extends TradeData {
 			return context.hasItems(this.getItemRequirement(2), this.getItemRequirement(3));
 		return false;
 	}
-	
+
 	public void RemoveItemsFromStorage(TraderItemStorage storage, List<ItemStack> soldItems)
 	{
 		this.restriction.removeItemsFromStorage(storage, soldItems);
 	}
-	
+
 	@Override
 	public CompoundTag getAsNBT() {
 		CompoundTag tradeNBT = super.getAsNBT();
@@ -280,12 +281,12 @@ public class ItemTradeData extends TradeData {
 			tradeNBT.putIntArray("IgnoreNBT", ignoreNBTSlots);
 		return tradeNBT;
 	}
-	
+
 	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data)
 	{
 		saveAllData(nbt, data, DEFAULT_KEY);
 	}
-	
+
 	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data, String key)
 	{
 		ListTag listNBT = new ListTag();
@@ -293,72 +294,57 @@ public class ItemTradeData extends TradeData {
 		for (ItemTradeData datum : data) {
 			listNBT.add(datum.getAsNBT());
 		}
-		
+
 		nbt.put(key, listNBT);
 	}
-	
+
 	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules) {
 		ItemTradeData trade = new ItemTradeData(validateRules);
 		trade.loadFromNBT(compound);
 		return trade;
 	}
-	
+
 	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, validateRules);
 	}
-	
+
 	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules)
 	{
 		List<ItemTradeData> data = new ArrayList<>();
-		
+
 		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
-		
+
 		for(int i = 0; i < listNBT.size(); i++)
 			data.add(loadData(listNBT.getCompound(i), validateRules));
-		
+
 		return data;
 	}
-	
+
 	@Override
 	public void loadFromNBT(CompoundTag nbt)
 	{
-		
+
 		super.loadFromNBT(nbt);
-		
+
 		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
 		{
 			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
 		}
-		else //Load from old format back when only 1 sell & barter item were allowed
-		{
-			this.items = new SimpleContainer(4);
-			//Load the Sell Item
-			if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
-				this.items.setItem(0, ItemStack.of(nbt.getCompound("SellItem")));
-			else //Load old format from before the bartering system was made
-				this.items.setItem(0, ItemStack.of(nbt));
-			
-			//Load the Barter Item
-			if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
-				this.items.setItem(2, ItemStack.of(nbt.getCompound("BarterItem")));
-			else
-				this.items.setItem(2, ItemStack.EMPTY);
-		}
-		
+
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
 			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
 			this.tradeType = TradeDirection.SALE;
-		
+
 		if(nbt.contains("CustomName1"))
 			this.customName1 = nbt.getString("CustomName1");
 		else if(nbt.contains("CustomName"))
 			this.customName1 = nbt.getString("CustomName");
 		else
 			this.customName1 = "";
-		
+
 		if(nbt.contains("CustomName2"))
 			this.customName2 = nbt.getString("CustomName2");
 		else
@@ -374,7 +360,7 @@ public class ItemTradeData extends TradeData {
 			}
 		}
 	}
-	
+
 	public static TradeDirection loadTradeType(String name)
 	{
 		TradeDirection value = TradeDirection.SALE;
@@ -387,7 +373,7 @@ public class ItemTradeData extends TradeData {
 		}
 		return value;
 	}
-	
+
 	public static List<ItemTradeData> listOfSize(int tradeCount, boolean validateRules)
 	{
 		List<ItemTradeData> data = Lists.newArrayList();
@@ -395,8 +381,8 @@ public class ItemTradeData extends TradeData {
 			data.add(new ItemTradeData(validateRules));
 		return data;
 	}
-	
-	
+
+
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
 		if(otherTrade instanceof ItemTradeData otherItemTrade)
@@ -432,13 +418,13 @@ public class ItemTradeData extends TradeData {
 		}
 		return false;
 	}
-	
+
 	public boolean AcceptableDifferences(TradeComparisonResult result) {
-		
+
 		//Confirm the types match
 		if(!result.TypeMatches() || !result.isCompatible())
 			return false;
-		
+
 		//Confirm the sell item is acceptable
 		if(result.getProductResultCount() < 2)
 			return false;
@@ -489,11 +475,11 @@ public class ItemTradeData extends TradeData {
 			return false;
 		if(this.isPurchase() && result.isPriceCheaper())
 			return false;
-		
+
 		//Products, price, and types are all acceptable.
 		return true;
 	}
-	
+
 	@Override
 	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
 		List<Component> list = new ArrayList<>();
@@ -545,12 +531,12 @@ public class ItemTradeData extends TradeData {
 	}
 
 	@Nonnull
-    @Override
+	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -558,7 +544,7 @@ public class ItemTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 						.setInt("TradeIndex", tradeIndex)
 						.setInt("StartingSlot", -1));
 			}
@@ -566,14 +552,14 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-				if(sellItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
-					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					//Open Item Edit for this slot if holding shift or both held & current item is empty
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);
@@ -581,26 +567,26 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index);
 				}
 				//Only send message on client, otherwise we get an infinite loop
-				if(tab.menu.isClient())
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+				if(tab.isClient())
+					tab.SendInputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 			else if(this.isBarter() && index >= 0 && index < 2)
 			{
 				//Set the item to the held item
 				ItemStack barterItem = this.getBarterItem(index);
-				if(barterItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (barterItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index + 2));
 				}
-				if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(barterItem, heldItem) && data.mouseButton() == 1)
 				{
 					barterItem.setCount(Math.min(barterItem.getCount() + 1, barterItem.getMaxStackSize()));
 					this.setItem(barterItem, index + 2);
@@ -608,17 +594,17 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index + 2);
 				}
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+					tab.SendInputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 		}
 	}
-	
+
 	/**
 	 * Code used for item slot interactions. Works on the assumption that we're in the Item Edit Tab
 	 */
@@ -664,7 +650,7 @@ public class ItemTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -674,14 +660,14 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-				if(sellItem.isEmpty() && heldItem.isEmpty())
+				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);
@@ -689,17 +675,17 @@ public class ItemTradeData extends TradeData {
 				else
 				{
 					ItemStack setItem = heldItem.copy();
-					if(button == 1)
+					if(data.mouseButton() == 1)
 						setItem.setCount(1);
 					this.setItem(setItem, index);
 				}
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
-					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
+					tab.SendOutputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 			else if(this.isPurchase())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.builder()
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder()
 						.setInt("TradeIndex", tradeIndex)
 						.setInt("StartingSlot", -1));
 			}
@@ -708,13 +694,13 @@ public class ItemTradeData extends TradeData {
 
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
 		}
 	}
 

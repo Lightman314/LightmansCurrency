@@ -388,6 +388,8 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			this.reference.load(compound.getCompound("Trade"));
 		if(compound.contains("Upgrades"))
 			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5);
+		if(compound.contains("Stats"))
+			this.statTracker.load(compound.getCompound("Stats"));
 		for(SidedHandler<?> handler : this.handlers) {
 			if(compound.contains(handler.getTag(), Tag.TAG_COMPOUND))
 				handler.load(compound.getCompound(handler.getTag()));
