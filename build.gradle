@@ -80,7 +80,8 @@ minecraft {
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
                     '--existing', file('optional_assets/1.20/biomesoplenty'),
-                    '--existing', file('optional_assets/1.20/quark')
+                    '--existing', file('optional_assets/1.20/quark'),
+                    '--existing', file('optional_assets/1.20/bwg')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -111,6 +112,19 @@ repositories {
     	name = "ModMaven"
     	url = "https://modmaven.k-4u.nl"
     }*/
+    //Geckolib
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
+    maven {
+        name = "JT Releases"
+        url 'https://maven.jt-dev.tech/releases'
+    }
 }
 
 dependencies {
@@ -150,10 +164,16 @@ dependencies {
     //Wood Compatibility (should be implementation for dataGen)
     //Biomes O' Plenty
     implementation fg.deobf("curse.maven:biomes-o-plenty-220318:4617259")
-    implementation fg.deobf("curse.maven:terrablender-563928:4647094")
+    implementation fg.deobf("curse.maven:terrablender-563928:5378180")
     //Quark
     implementation fg.deobf("curse.maven:quark-243121:5084013")
     implementation fg.deobf("curse.maven:zeta-968868:5078215")
+    //BYG
+    implementation fg.deobf("curse.maven:oh-the-biomes-weve-gone-1070751:5607559")
+    implementation fg.deobf("corgitaco.corgilib:corgilib-forge:1.20.1-4.0.2.0")
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.7")
+    implementation("com.eliotlash.mclib:mclib:20")
+    implementation fg.deobf("curse.maven:oh-the-trees-youll-grow-962544:5540975")
 
     //Other Compats
     //Supplementaries RedMerchant compat

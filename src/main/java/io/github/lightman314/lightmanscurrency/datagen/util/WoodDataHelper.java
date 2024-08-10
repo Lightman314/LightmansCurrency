@@ -40,6 +40,7 @@ public class WoodDataHelper {
             return;
         }
         registeredData.put(type, Objects.requireNonNull(data));
+        LightmansCurrency.LogDebug("Registered Wood Data for " + type.id);
     }
 
     @Nullable

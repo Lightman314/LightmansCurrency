@@ -40,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
+import io.github.lightman314.lightmanscurrency.integration.bwg.BWGCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCadmusIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
@@ -136,6 +137,7 @@ public class LightmansCurrency {
 		//Setup Wood Compatibilities before registering blocks/items
 		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
 		IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
+		IntegrationUtil.SafeRunIfLoaded("biomeswevegone", BWGCustomWoodTypes::setupWoodTypes, "Error setting up BWG wood types! BWG has probably changed their API!");
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());

@@ -311,7 +311,12 @@ public class LCBlockStateProvider extends BlockStateProvider {
                         .texture("log", data.logSideTexture)
                         .texture("log_top", data.logTopTexture);
             }
-            this.registerSimpleState(block, modelID);
+            else
+            {
+                LightmansCurrency.LogError("Missing Wood Data for " + type.id + "!");
+            }
+            //Don't validate the model for generated auction stand blocks
+            this.registerSimpleState(block, modelID, false);
         });
 
         //Coin Chest
@@ -387,8 +392,9 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     //BLOCK STATE REGISTRATION
     private void registerSimpleState(RegistryObject<? extends Block> block) { this.registerSimpleState(block, this.lazyModelID(block)); }
-    private void registerSimpleState(RegistryObject<? extends Block> block, String modelID) {
-        ModelFile model = this.lazyBlockModel(modelID, true);
+    private void registerSimpleState(RegistryObject<? extends Block> block, String modelID) { this.registerSimpleState(block,modelID,true); }
+    private void registerSimpleState(RegistryObject<? extends Block> block, String modelID, boolean check) {
+        ModelFile model = this.lazyBlockModel(modelID, check);
         this.getVariantBuilder(block.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(model).build());
         this.registerBlockItemModel(block, model);
     }

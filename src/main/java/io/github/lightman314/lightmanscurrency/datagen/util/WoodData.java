@@ -32,7 +32,7 @@ public class WoodData {
         return null;
     }
 
-    private WoodData(Supplier<? extends ItemLike> logBlock, Supplier<? extends ItemLike> plankBlock, Supplier<? extends ItemLike> slabBlock, ResourceLocation logSideTexture, ResourceLocation logTopTexture, ResourceLocation plankTexture)
+    private WoodData(@Nullable Supplier<? extends ItemLike> logBlock, @Nullable Supplier<? extends ItemLike> plankBlock, @Nullable Supplier<? extends ItemLike> slabBlock, @Nullable ResourceLocation logSideTexture, @Nullable ResourceLocation logTopTexture, @Nullable ResourceLocation plankTexture)
     {
         this.logBlock = logBlock;
         this.logSideTexture = logSideTexture;
