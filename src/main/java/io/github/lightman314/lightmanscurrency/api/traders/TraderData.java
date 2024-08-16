@@ -1179,7 +1179,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	//Network stuff
 	public boolean shouldRemove(MinecraftServer server) {
-		if(this.hasWorldPosition())
+		if(!this.hasWorldPosition())
 			return false;
 		TraderBlockEntity<?> be = this.getBlockEntity();
 		return be != null && be.getTraderID() != this.id;

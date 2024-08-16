@@ -240,9 +240,9 @@ public class PaygateTradeData extends TradeData {
 		if(minutes > 0)
 			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_MINUTE));
 		if(seconds > 0)
-			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_SECOND));
+			result.append(formatUnitShort(seconds, LCText.TIME_UNIT_SECOND));
 		if(ticks > 0 || result.getString().isBlank())
-			result.append(formatUnitShort(minutes, LCText.TIME_UNIT_TICK));
+			result.append(formatUnitShort(ticks, LCText.TIME_UNIT_TICK));
 		return result;
 	}
 	
