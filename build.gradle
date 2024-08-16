@@ -125,6 +125,8 @@ repositories {
         name = "JT Releases"
         url 'https://maven.jt-dev.tech/releases'
     }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.architectury.dev/" }
 }
 
 dependencies {
@@ -137,7 +139,14 @@ dependencies {
     //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
     //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    implementation fg.deobf("curse.maven:jei-238222:4595492")
+    compileOnly fg.deobf("curse.maven:jei-238222:4595492")
+
+    //REI
+    compileOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-api-forge:$rei_version")
+    compileOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-default-plugin-forge:$rei_version")
+    implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:$cloth_config_version")
+    implementation fg.deobf("dev.architectury:architectury-forge:$architectury_version")
+    runtimeOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:$rei_version")
 
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:4583413")
@@ -152,7 +161,7 @@ dependencies {
     compileOnly fg.deobf('curse.maven:ftb-chunks-forge-314906:4727985')
     compileOnly fg.deobf('curse.maven:ftb-teams-forge-404468:4623116')
     compileOnly fg.deobf('curse.maven:ftb-library-forge-404465:4720056')
-    compileOnly fg.deobf('curse.maven:architectury-api-419699:4663010')
+    //compileOnly fg.deobf('curse.maven:architectury-api-419699:4663010')
 
     //Cadmus claim purchase compat
     compileOnly fg.deobf('curse.maven:cadmus-845832:4718413')

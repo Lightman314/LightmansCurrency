@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -190,9 +189,12 @@ public class WalletItem extends Item{
 		if(handler != null)
 		{
 			MoneyView contents = handler.getStoredMoney();
-			tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
-			for(MoneyValue val : contents.allValues())
-				tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+			if(!contents.isEmpty())
+			{
+				tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
+				for(MoneyValue val : contents.allValues())
+					tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+			}
 		}
 	}
 	

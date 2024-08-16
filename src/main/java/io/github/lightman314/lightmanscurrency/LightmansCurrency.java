@@ -96,11 +96,11 @@ import java.util.function.Consumer;
 
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
-	
+
 	public static final String MODID = "lightmanscurrency";
-	
+
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
-	
+
     private static final Logger LOGGER = LogManager.getLogger();
 
 	/**
@@ -118,7 +118,7 @@ public class LightmansCurrency {
 		} catch(Throwable ignored) { }
 		return false;
 	}
-    
+
 	public LightmansCurrency() {
 
 		LootManager.registerDroplistListeners();
@@ -130,7 +130,7 @@ public class LightmansCurrency {
         //Register configs
 		LCConfig.init();
 		LootManager.init();
-        
+
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -141,18 +141,18 @@ public class LightmansCurrency {
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
-        
-        //Register the proxy so that it can run custom events
-        MinecraftForge.EVENT_BUS.register(PROXY);
+
+		//Initialize the proxy
+        PROXY.init();
 
 		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("supplementaries", LCSupplementaries::setup, null);
-        
+
     }
-    
+
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
 	private void commonSetupWork(FMLCommonSetupEvent event) {
@@ -295,16 +295,16 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
 
 	}
-    
+
     private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
-    
+
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {
     	event.register(IWalletHandler.class);
 		event.register(IMoneyHandler.class);
     	event.register(IMoneyViewer.class);
     }
-    
+
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
@@ -315,7 +315,7 @@ public class LightmansCurrency {
     	//Sync admin list
 		LCAdminMode.sendSyncPacket(target);
     }
-    
+
     /**
      * Easy public access to the equipped wallet.
      * Also confirms that the equipped wallet is either empty or a valid WalletItem.
@@ -348,7 +348,7 @@ public class LightmansCurrency {
 		else
 			LOGGER.info(message, objects);
 	}
-    
+
     public static void LogWarning(String message)
     {
     	if(LCConfig.COMMON.debugLevel.get() > 1)
@@ -400,5 +400,5 @@ public class LightmansCurrency {
 			}
 		});
 	}
-    
+
 }

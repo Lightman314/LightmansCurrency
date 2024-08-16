@@ -98,6 +98,11 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		if(inventory != this.storage)
 			return;
 		this.setChanged();
+		this.checkRecipes();
+	}
+
+	public void checkRecipes()
+	{
 		CoinMintRecipe newRecipe = this.getRelevantRecipe();
 		if(this.lastRelevantRecipe != newRecipe)
 		{

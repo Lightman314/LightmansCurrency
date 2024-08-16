@@ -78,6 +78,7 @@ public final class TextEntry {
 
     public static TextEntry resourcePack(@Nonnull String modid, @Nonnull String name) { return new TextEntry("resourcepack." + modid + "." + name); }
 
+    public static TextEntry reiGroup(@Nonnull String modid, @Nonnull String type) { return new TextEntry("rei." + modid + ".group." + type); }
     public static TextEntry jeiInfo(@Nonnull String modid, @Nonnull String type) { return new TextEntry("jei." + modid + ".info." + type); }
     public static TextEntry curiosSlot(@Nonnull String type) { return new TextEntry("curios.identifier." + type); }
 

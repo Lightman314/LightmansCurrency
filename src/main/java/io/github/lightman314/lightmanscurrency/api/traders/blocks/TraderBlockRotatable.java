@@ -4,12 +4,10 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,9 +57,5 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	{
 		return this.shape.apply(this.getFacing(state));
 	}
-	
-	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }
-	
 	
 }

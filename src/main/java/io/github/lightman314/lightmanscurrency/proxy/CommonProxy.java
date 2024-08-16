@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationDat
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -22,6 +23,8 @@ import javax.annotation.Nullable;
 public class CommonProxy {
 
 	public boolean isClient() { return false; }
+
+	public void init() {}
 
 	public void setupClient() {}
 	
@@ -40,6 +43,8 @@ public class CommonProxy {
 	public void clearBankAccounts() {}
 	
 	public void updateBankAccount(UUID player, CompoundTag compound) {}
+
+	public void removeBankAccount(UUID player) {}
 	
 	public void receiveEmergencyEjectionData(CompoundTag compound) {}
 	
@@ -64,6 +69,18 @@ public class CommonProxy {
 	public void setTimeDesync(long currentTime) { }
 	
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
+
+	@Nullable
+	public Level getDimension(boolean isClient, @Nonnull ResourceKey<Level> type)
+	{
+		if(!isClient)
+		{
+			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+			if(server != null)
+				return server.getLevel(type);
+		}
+		return null;
+	}
 
 	@Nonnull
 	public Level safeGetDummyLevel() throws Exception{

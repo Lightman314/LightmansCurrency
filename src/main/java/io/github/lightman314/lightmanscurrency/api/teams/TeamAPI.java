@@ -1,52 +1,80 @@
 package io.github.lightman314.lightmanscurrency.api.teams;
 
-import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.common.impl.TeamAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public final class TeamAPI {
+public abstract class TeamAPI {
 
-    private TeamAPI(){}
+    public static final TeamAPI API = TeamAPIImpl.INSTANCE;
 
     /**
      * Gets the team with the given team id.<br>
      * Works on both the logical client & server depending on your <code>isClient</code> input.
      */
     @Nullable
-    public static ITeam getTeam(boolean isClient, long teamID) { return TeamSaveData.GetTeam(isClient,teamID); }
+    public abstract ITeam GetTeam(boolean isClient, long teamID);
+    /**
+     * Gets the team with the given team id.<br>
+     * Works on both the logical client & server depending on whether the {@link IClientTracker context} is client-side or not
+     */
+    @Nullable
+    public final ITeam GetTeam(@Nonnull IClientTracker context, long teamID) { return this.GetTeam(context.isClient(),teamID); }
+
 
     /**
-     * Gets a list of all teams on the server.
+     * @deprecated Use {@link #GetTeam(boolean, long)} instead
+     * @see #API
+     * @see #GetTeam(IClientTracker, long)
+     */
+    @Deprecated(since = "2.2.3.1")
+    @Nullable
+    public static ITeam getTeam(boolean isClient, long teamID) { return API.GetTeam(isClient,teamID); }
+
+
+    /**
+     * Gets a list of all teams on the server.<br>
      * Works on both the logical client & server depending on your <code>isClient</code> input.
      */
     @Nonnull
-    public static List<? extends ITeam> getAllTeams(boolean isClient) { return TeamSaveData.GetAllTeams(isClient); }
+    public abstract List<ITeam> GetAllTeams(boolean isClient);
+    /**
+     * Gets a list of all teams on the server.<br>
+     * Works on both the logical client & server depending on whether the {@link IClientTracker context} is client-side or not
+     */
+    @Nonnull
+    public final List<ITeam> GetAllTeams(@Nonnull IClientTracker context) { return this.GetAllTeams(context.isClient()); }
 
     /**
-     * Gets a list of all teams that the player is a member of, and sorts them using {@link #sorterFor(Player)}.
+     * Use {@link #GetAllTeams(boolean)} instead
+     * @see #API
+     * @see #GetAllTeams(IClientTracker)
+     */
+    @Nonnull
+    @Deprecated(since = "2.2.3.1")
+    public static List<? extends ITeam> getAllTeams(boolean isClient) { return API.GetAllTeams(isClient); }
+
+
+    /**
+     * Gets a list of all teams that the player is a member of, and sorts them using {@link #sorterFor(Player)}.<br>
      * Works on both the logical client & server.
      */
     @Nonnull
-    public static List<ITeam> getAllTeamsForPlayer(@Nonnull Player player)
-    {
-        List<ITeam> result = new ArrayList<>();
-        List<? extends ITeam> allTeams = getAllTeams(player.level().isClientSide);
-        for(ITeam team : allTeams)
-        {
-            if(team.isMember(player))
-                result.add(team);
-        }
-        result.sort(sorterFor(player));
-        return ImmutableList.copyOf(result);
-    }
+    public abstract List<ITeam> GetAllTeamsForPlayer(@Nonnull Player player);
 
+    /**
+     * @deprecated Use {@link #GetAllTeamsForPlayer(Player)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.1")
+    @Nonnull
+    public static List<ITeam> getAllTeamsForPlayer(@Nonnull Player player) { return API.GetAllTeamsForPlayer(player); }
 
     /**
      * Creates a new team with the given owner & team name.<br>
@@ -54,18 +82,30 @@ public final class TeamAPI {
      * @return The {@link ITeam} that was created.
      */
     @Nullable
-    public static ITeam createTeam(@Nonnull Player owner, @Nonnull String name)
-    {
-        if(owner.level().isClientSide)
-            return null;
-        return TeamSaveData.RegisterTeam(owner,name);
-    }
+    public abstract ITeam CreateTeam(@Nonnull Player owner, @Nonnull String name);
+
+
+    /**
+     * @deprecated Use {@link #CreateTeam(Player, String)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.1")
+    @Nullable
+    public static ITeam createTeam(@Nonnull Player owner, @Nonnull String name) { return API.CreateTeam(owner,name); }
 
     /**
      * The Team list sorter for the given player.<br>
      * This sorter prioritizes teams that they own above those that they are only admins/members of,
      * and prioritizes teams that they are admins on above those that they are only members of.
      */
+    @Nonnull
+    public abstract Comparator<ITeam> SorterForPlayer(@Nonnull Player player);
+
+    /**
+     * @deprecated Use {@link #SorterForPlayer(Player)} instead.
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.1")
     @Nonnull
     public static Comparator<ITeam> sorterFor(@Nonnull Player player) { return Team.sorterFor(player); }
 

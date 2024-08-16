@@ -33,7 +33,6 @@ public class LCItemTagProvider extends ItemTagsProvider {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void addTags(@Nonnull HolderLookup.Provider lookup) {
 
         ///LIGHTMANS CURRENCY TAGS
@@ -131,13 +130,15 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.PORTABLE_TERMINAL)
                 .add(ModBlocks.GEM_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL);
-        //Deprecated Trading Terminal Tag
-        this.cTag(LCTags.Items.TRADING_TERMINAL).addTag(LCTags.Items.NETWORK_TERMINAL);
 
         //ATM
         this.cTag(LCTags.Items.ATM)
                 .add(ModBlocks.ATM)
                 .add(ModItems.PORTABLE_ATM);
+
+        //Auction Stand
+        this.cTag(LCTags.Items.AUCTION_STAND)
+                .add(ModBlocks.AUCTION_STAND);
 
         //Trader Interface
         this.cTag(LCTags.Items.TRADER_INTERFACE).add(ModBlocks.ITEM_TRADER_INTERFACE);

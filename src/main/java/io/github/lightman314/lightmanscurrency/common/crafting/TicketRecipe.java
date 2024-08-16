@@ -23,6 +23,7 @@ public class TicketRecipe implements TicketStationRecipe {
 
     private final ResourceLocation id;
     private final Ingredient masterIngredient;
+    public Ingredient getMasterIngredient() { return this.masterIngredient; }
     private final Ingredient ingredient;
 
     private final Item ticketResult;

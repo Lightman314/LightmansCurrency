@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
@@ -46,6 +47,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -53,6 +55,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -82,6 +85,10 @@ public class CommandLCAdmin {
 						.then(Commands.literal("debug")
 								.then(Commands.argument("traderID", TraderArgument.trader())
 										.executes(CommandLCAdmin::debugTraderData)))
+						.then(Commands.literal("recover")
+								.requires(CommandSourceStack::isPlayer)
+								.then(Commands.argument("traderID", TraderArgument.recoverableTrader())
+										.executes(CommandLCAdmin::recoverTraderItem)))
 						.then(Commands.literal("addToWhitelist")
 								.then(Commands.argument("traderID", TraderArgument.traderWithPersistent())
 										.then(Commands.argument("player", EntityArgument.players())
@@ -241,7 +248,11 @@ public class CommandLCAdmin {
 		//Owner
 		EasyText.sendCommandSucess(source, thisTrader.getOwner().getValidOwner().getCommandLabel(), false);
 
-		if(!thisTrader.isPersistent())
+		TraderState state = thisTrader.getState();
+		//State
+		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_STATE.get(state), false);
+
+		if(thisTrader.hasWorldPosition())
 		{
 			//Dimension
 			String dimension = thisTrader.getLevel().location().toString();
@@ -281,6 +292,32 @@ public class CommandLCAdmin {
 		if(commandContext.getSource().isPlayer())
 			new SPacketDebugTrader(trader.getID()).sendTo(commandContext.getSource().getPlayerOrException());
 		return 1;
+	}
+
+	static int recoverTraderItem(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		CommandSourceStack sourceStack = commandContext.getSource();
+		TraderData trader = TraderArgument.getTrader(commandContext,"traderID");
+		ServerPlayer player = sourceStack.getPlayerOrException();
+		if(trader.isRecoverable())
+		{
+			Item item = trader.getTraderBlock();
+			if(item == null)
+			{
+				EasyText.sendCommandFail(sourceStack,LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_FAIL_NO_ITEM.get());
+				return 0;
+			}
+			else
+			{
+				ItemStack stack = new ItemStack(item);
+				CompoundTag tag = stack.getOrCreateTag();
+				tag.putLong("StoredTrader",trader.getID());
+				ItemHandlerHelper.giveItemToPlayer(player,stack);
+				EasyText.sendCommandSucess(sourceStack,LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_SUCCESS.get(),true);
+				return 1;
+			}
+		}
+		throw TraderArgument.ERROR_NOT_RECOVERABLE.create();
 	}
 
 	static int addToTraderWhitelist(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException

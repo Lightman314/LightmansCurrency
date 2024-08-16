@@ -34,9 +34,6 @@ public class PlayerTradeMenu extends LazyMessageMenu {
 
     public final Player player;
 
-    public boolean isClient() { return this.player.level().isClientSide; }
-    public boolean isServer() { return !this.isClient(); }
-
     public final boolean isHost() { return this.trade.isHost(this.player); }
     public final int myState() { return this.isHost() ? this.trade.getHostState() : this.trade.getGuestState(); }
     public final int otherState() { return this.isHost() ? this.trade.getGuestState() : this.trade.getHostState(); }

@@ -53,7 +53,11 @@ public class LCTags {
         public static final TagKey<Item> TRADER_INTERFACE = tag("trader_interface");
 
         public static final TagKey<Item> NETWORK_TERMINAL = tag("network_terminal");
-        @Deprecated
+        /**
+         * @deprecated No longer used or even filled as a backup
+         * @see #NETWORK_TERMINAL
+         */
+        @Deprecated(forRemoval = true)
         public static final TagKey<Item> TRADING_TERMINAL = tag("trading_terminal");
         public static final TagKey<Item> ATM = tag("atm");
         public static final TagKey<Item> AUCTION_STAND = tag("auction_stand");

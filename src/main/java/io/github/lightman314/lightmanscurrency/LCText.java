@@ -268,6 +268,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_COIN_JAR_COLORED = TextEntry.tooltip(MODID,"coin_jar.colored");
     public static final TextEntry TOOLTIP_COLORED_ITEM = TextEntry.tooltip(MODID,"colored_item");
 
+    public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
+    public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
     public static final TextEntry TOOLTIP_ANARCHY_WARNING = TextEntry.tooltip(MODID,"ownable.anarchy_warning");
 
     //Coin Tooltips
@@ -282,6 +284,7 @@ public class LCText {
 
     //Wallet
     public static final TextEntry MESSAGE_WALLET_NONE_EQUIPPED = TextEntry.message(MODID,"wallet.none_equipped");
+    public static final TextEntry TOOLTIP_WALLET_KEY_BIND = TextEntry.tooltip(MODID,"wallet.key_bind");
     public static final TextEntry TOOLTIP_WALLET_STORED_MONEY = TextEntry.tooltip(MODID,"wallet.storedmoney");
     public static final TextEntry TOOLTIP_WALLET_PICKUP = TextEntry.tooltip(MODID,"wallet.pickup");
     public static final TextEntry TOOLTIP_WALLET_PICKUP_MAGNET = TextEntry.tooltip(MODID,"wallet.pickup.magnet");
@@ -371,9 +374,6 @@ public class LCText {
     public static final TextEntry GUI_TEAM_SELECT = TextEntry.button(MODID,"team.select");
     public static final TextEntry GUI_TEAM_CREATE = TextEntry.gui(MODID,"team.create");
     public static final TextEntry TOOLTIP_TEAM_MEMBERS = TextEntry.tooltip(MODID,"team.members");
-    public static final TextEntry TOOLTIP_TEAM_NAME = TextEntry.tooltip(MODID,"team.name");
-    public static final TextEntry BUTTON_TEAM_RENAME = TextEntry.button(MODID,"team.rename");
-    public static final TextEntry GUI_TEAM_NAME_CURRENT = TextEntry.gui(MODID,"team.name.current");
     public static final TextEntry TOOLTIP_TEAM_MEMBER_EDIT = TextEntry.tooltip(MODID,"team.member_edit");
     public static final TextEntry BUTTON_TEAM_MEMBER_PROMOTE = TextEntry.button(MODID,"team.member.promote");
     public static final TextEntry TOOLTIP_TEAM_BANK = TextEntry.tooltip(MODID,"team.bank");
@@ -401,7 +401,10 @@ public class LCText {
     public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION = TextEntry.gui(MODID,"team.salary_payments.admin_salary_seperation");
     public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY = TextEntry.gui(MODID,"team.salary_payments.salary.admin");
     public static final TextEntry TOOLTIP_TEAM_STATS = TextEntry.tooltip(MODID,"team.stats");
-    public static final TextEntry TOOLTIP_TEAM_OWNER = TextEntry.tooltip(MODID,"team.owner");
+    public static final TextEntry TOOLTIP_TEAM_NAME = TextEntry.tooltip(MODID,"team.name");
+    public static final TextEntry BUTTON_TEAM_RENAME = TextEntry.button(MODID,"team.rename");
+    public static final TextEntry GUI_TEAM_NAME_CURRENT = TextEntry.gui(MODID,"team.name.current");
+    public static final TextEntry TOOLTIP_TEAM_NAME_AND_OWNER = TextEntry.tooltip(MODID,"team.owner");
     public static final TextEntry BUTTON_TEAM_DISBAND = TextEntry.button(MODID,"team.disband");
     public static final TextEntry GUI_TEAM_ID = TextEntry.gui(MODID,"team.id");
 
@@ -559,10 +562,13 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY = TextEntry.tooltip(MODID,"trader.settings.ally");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY_PERMS = TextEntry.tooltip(MODID,"trader.settings.allyperms");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_MISC = TextEntry.tooltip(MODID,"trader.settings.misc");
-    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED = TextEntry.tooltip(MODID,"trader.settings.notifications.enabled");
-    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT = TextEntry.tooltip(MODID,"trader.settings.notifications.chat");
-    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET = TextEntry.tooltip(MODID,"trader.settings.notifications.target");
-    public static final TextEntry GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX = TextEntry.tooltip(MODID,"trader.settings.always_show_search_box");
+    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED = TextEntry.gui(MODID,"trader.settings.notifications.enabled");
+    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT = TextEntry.gui(MODID,"trader.settings.notifications.chat");
+    public static final TextEntry GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET = TextEntry.gui(MODID,"trader.settings.notifications.target");
+    public static final TextEntry GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX = TextEntry.gui(MODID,"trader.settings.always_show_search_box");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_PICKUP_TRADER = TextEntry.button(MODID,"trader.settings.pickup_trader");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER = TextEntry.tooltip(MODID,"trader.settings.pickup_trader");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER_ADVANCED = TextEntry.tooltip(MODID,"trader.settings.pickup_trader.admin");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_TAXES = TextEntry.tooltip(MODID,"trader.settings.taxes");
     public static final TextEntry GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE = TextEntry.tooltip(MODID,"trader.settings.acceptabletaxrate");
     public static final TextEntry GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES = TextEntry.tooltip(MODID,"trader.settings.ignoretaxes");
@@ -871,6 +877,7 @@ public class LCText {
     public static final TextEntry ARGUMENT_COLOR_INVALID = TextEntry.argument("color.invalid");
     public static final TextEntry ARGUMENT_TRADEID_INVALID = TextEntry.argument("tradeid.invalid");
     public static final TextEntry ARGUMENT_TRADER_NOT_FOUND = TextEntry.argument("trader.not_found");
+    public static final TextEntry ARGUMENT_TRADER_NOT_RECOVERABLE = TextEntry.argument("trader.not_recoverable");
 
     //Commands
     public static final TextEntry COMMAND_BALTOP_NO_RESULTS = TextEntry.command(MODID,"lcbaltop.no_results");
@@ -887,6 +894,10 @@ public class LCText {
     public static final TextEntry COMMAND_BANK_TAKE_FAIL = TextEntry.command(MODID,"lcbank.take.fail");
     public static final TextEntry COMMAND_BANK_TAKE_SUCCESS = TextEntry.command(MODID,"lcbank.take.success");
     public static final TextEntry COMMAND_BANK_TAKE_SUCCESS_SINGLE = TextEntry.command(MODID,"lcbank.take.success.single");
+    public static final TextEntry COMMAND_BANK_DELETE_PLAYER_RESET = TextEntry.command(MODID,"lcbank.delete.player.reset");
+    public static final TextEntry COMMAND_BANK_DELETE_PLAYER_SUCCESS = TextEntry.command(MODID,"lcbank.delete.player.success");
+    public static final TextEntry COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST = TextEntry.command(MODID,"lcbank.delete.player.doesnt_exist");
+    public static final TextEntry COMMAND_BANK_DELETE_PLAYER_INVALID_INPUT = TextEntry.command(MODID,"lcbank.delete.player.invalid_input");
 
     public static final TextEntry COMMAND_CONFIG_RELOAD = TextEntry.command(MODID,"lcconfig.reload");
     public static final TextEntry COMMAND_CONFIG_EDIT_SUCCESS = TextEntry.command(MODID,"lcconfig.edit.success");
@@ -906,12 +917,15 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_TRADER_ID_TOOLTIP = TextEntry.command(MODID,"lcadmin.traderdata.list.trader_id.tooltip");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_PERSISTENT_ID = TextEntry.command(MODID,"lcadmin.traderdata.list.persistent_id");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_TYPE = TextEntry.command(MODID,"lcadmin.traderdata.list.type");
+    public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_STATE = TextEntry.command(MODID,"lcadmin.traderdata.list.state");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_DIMENSION = TextEntry.command(MODID,"lcadmin.traderdata.list.dimension");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_POSITION = TextEntry.command(MODID,"lcadmin.traderdata.list.position");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_POSITION_TOOLTIP = TextEntry.command(MODID,"lcadmin.traderdata.list.position.tooltip");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_LIST_NAME = TextEntry.command(MODID,"lcadmin.traderdata.list.name");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_SEARCH_NONE = TextEntry.command(MODID,"lcadmin.traderdata.search.none");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_DELETE_SUCCESS = TextEntry.command(MODID,"lcadmin.traderdata.delete.success");
+    public static final TextEntry COMMAND_ADMIN_TRADERDATA_RECOVER_SUCCESS = TextEntry.command(MODID,"lcadmin.traderdata.recover.success");
+    public static final TextEntry COMMAND_ADMIN_TRADERDATA_RECOVER_FAIL_NO_ITEM = TextEntry.command(MODID,"lcadmin.traderdata.recover.fail.no_item_data");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.success");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.missing");
     public static final TextEntry COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET = TextEntry.command(MODID,"lcadmin.replaceWallet.not_a_wallet");
@@ -1004,5 +1018,15 @@ public class LCText {
     public static final TextEntry JEI_INFO_TICKET_STUB = TextEntry.jeiInfo(MODID,"ticket_stub");
     //Curios
     public static final TextEntry CURIOS_SLOT_WALLET = TextEntry.curiosSlot("wallet");
+
+    //REI Groups
+    public static final TextEntry REI_GROUP_SHELF = TextEntry.reiGroup(MODID,"shelf");
+    public static final TextEntry REI_GROUP_SHELF_2x2 = TextEntry.reiGroup(MODID,"shelf_2x2");
+    public static final TextEntryBundle<WoodType> REI_GROUP_CARD_DISPLAY = TextEntryBundle.of(WoodType.validValues(),"rei.lightmanscurrency.group.card_display",WoodType::translationSegment);
+    public static final TextEntry REI_GROUP_VENDING_MACHINE = TextEntry.reiGroup(MODID,"vending_machine");
+    public static final TextEntry REI_GROUP_LARGE_VENDING_MACHINE = TextEntry.reiGroup(MODID,"large_vending_machine");
+    public static final TextEntry REI_GROUP_FREEZER = TextEntry.reiGroup(MODID,"freezer");
+    public static final TextEntry REI_GROUP_BOOKSHELF_TRADER = TextEntry.reiGroup(MODID,"bookshelf_trader");
+    public static final TextEntry REI_GROUP_AUCTION_STAND = TextEntry.reiGroup(MODID,"auction_stand");
 
 }

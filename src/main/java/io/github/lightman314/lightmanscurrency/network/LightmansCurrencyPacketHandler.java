@@ -61,6 +61,7 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
 		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
 		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
+		register(SPacketDeleteClientBank.class, SPacketDeleteClientBank.HANDLER);
 		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
 		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
 		register(SPacketBankTransferResponse.class, SPacketBankTransferResponse.HANDLER);

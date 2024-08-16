@@ -12,6 +12,8 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nonnull;
+
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientBankData {
 
@@ -28,7 +30,9 @@ public class ClientBankData {
 	}
 	
 	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
-	
+
+	public static void DeleteBankAccount(@Nonnull UUID player) { loadedBankAccounts.remove(player); }
+
 	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {

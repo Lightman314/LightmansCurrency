@@ -299,7 +299,13 @@ public class EventHandler {
 					walletHandler.setWallet(ItemStack.EMPTY);
 				}
 
-				event.getDrops().addAll(turnIntoEntities(livingEntity, drops));
+				if(LCConfig.SERVER.walletDropsManualSpawn.get())
+				{
+					for(ItemEntity entity : turnIntoEntities(livingEntity,drops))
+						livingEntity.level().addFreshEntity(entity);
+				}
+				else
+					event.getDrops().addAll(turnIntoEntities(livingEntity, drops));
 			}
 			
 		}
@@ -309,7 +315,11 @@ public class EventHandler {
 	{
 		List<ItemEntity> result = new ArrayList<>();
 		for(ItemStack stack : list)
-			result.add(new ItemEntity(entity.level(), entity.position().x, entity.position().y, entity.position().z, stack));
+		{
+			ItemEntity item = new ItemEntity(entity.level(), entity.position().x, entity.position().y + 1f, entity.position().z, stack);
+			item.setDefaultPickUpDelay();
+			result.add(item);
+		}
 		return result;
 	}
 

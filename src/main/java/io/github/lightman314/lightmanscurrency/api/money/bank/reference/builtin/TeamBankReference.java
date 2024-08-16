@@ -35,7 +35,7 @@ public class TeamBankReference extends BankReference {
     @Nullable
     @Override
     public IBankAccount get() {
-        ITeam team = TeamAPI.getTeam(this.isClient(), this.teamID);
+        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
         if(team != null)
             return team.getBankAccount();
         return null;
@@ -43,7 +43,7 @@ public class TeamBankReference extends BankReference {
 
     @Override
     public boolean allowedAccess(@Nonnull PlayerReference player) {
-        ITeam team = TeamSaveData.GetTeam(this.isClient(),this.teamID);
+        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
         if(team != null && team.hasBankAccount())
             return team.canAccessBankAccount(player);
         return false;

@@ -620,6 +620,18 @@ public class InventoryUtil {
 
 	public static boolean ItemsFullyMatch(ItemStack stack1, ItemStack stack2) { return ItemMatches(stack1, stack2) && stack1.getCount() == stack2.getCount(); }
 
+	public static boolean ContainerMatches(@Nonnull List<ItemStack> list1, @Nonnull List<ItemStack> list2)
+	{
+		if(list1.size() != list2.size())
+			return false;
+		for(int i = 0; i < list1.size(); ++i)
+		{
+			if(!ItemsFullyMatch(list1.get(i),list2.get(i)))
+				return false;
+		}
+		return true;
+	}
+
 	public static boolean ContainerMatches(@Nonnull Container container1, @Nonnull Container container2)
 	{
 		if(container1.getContainerSize() != container2.getContainerSize())

@@ -34,6 +34,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 	
 	int currentTabIndex = 0;
 	List<WalletBankTab> tabs = Lists.newArrayList(new InteractionTab(this), new SelectionTab(this));
+	public int getTabCount() { return this.tabs.size(); }
 	public List<WalletBankTab> getTabs() { return this.tabs; }
 	public WalletBankTab currentTab() { return tabs.get(this.currentTabIndex); }
 	

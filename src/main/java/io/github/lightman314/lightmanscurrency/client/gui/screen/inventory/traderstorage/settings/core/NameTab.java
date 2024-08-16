@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
@@ -20,11 +21,15 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NameTab extends SettingsSubTab implements IMouseListener {
 
@@ -50,6 +55,8 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
     IconButton buttonToggleCreative;
     EasyButton buttonAddTrade;
     EasyButton buttonRemoveTrade;
+
+    EasyButton buttonPickupTrader;
 
     @Nonnull
     @Override
@@ -84,6 +91,10 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
                 .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE)));
         this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(166, 120), this::RemoveTrade)
                 .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE)));
+
+        //Pickup Button
+        this.buttonPickupTrader = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 118), screenArea.width - 80, 20, LCText.BUTTON_TRADER_SETTINGS_PICKUP_TRADER.get(), this::PickupTrader)
+                .withAddons(EasyAddonHelper.tooltips(this::getPickupTooltip,160)));
 
         this.tick();
 
@@ -147,6 +158,10 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
             this.buttonAddTrade.visible = false;
             this.buttonRemoveTrade.visible = false;
         }
+
+        TraderBlockEntity<?> be = trader.getBlockEntity();
+        this.buttonPickupTrader.visible = be != null && be.supportsTraderPickup() && this.menu.hasPermission(Permissions.BREAK_TRADER);
+
     }
 
     private void SetName(EasyButton button)
@@ -204,4 +219,20 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         }
         return false;
     }
+
+    @Nonnull
+    private List<Component> getPickupTooltip()
+    {
+        List<Component> result = new ArrayList<>();
+        result.add(LCText.TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER.get());
+        if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
+            result.add(LCText.TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER_ADVANCED.get());
+        return result;
+    }
+
+    private void PickupTrader(EasyButton button)
+    {
+        this.sendMessage(this.builder().setBoolean("PickupTrader", Screen.hasShiftDown()));
+    }
+
 }

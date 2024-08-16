@@ -46,6 +46,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.Registries;
@@ -97,7 +98,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
@@ -110,7 +110,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -118,8 +117,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
 	
@@ -135,12 +136,27 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	@Nullable
 	private PostTradeEvent latestTrade = null;
+
+	/**
+	 * Whether this trader is in a state that can be accessed through <b>any</b> means
+	 */
+	public boolean allowAccess() { return this.getState().allowAccess; }
+	/**
+	 * Whether the traders current state would allow the trader to be recovered with the <code>/lcadmin traderdata recover TRADER_ID</code> command`
+	 */
+	public boolean isRecoverable() { return this.getState().allowRecovery; }
+	/**
+	 * Whether the traders current state would make it possible for the block to be located in a world (if said chunk is loaded of course)
+	 */
+	public boolean hasWorldPosition() { return !this.worldPosition.isVoid() && this.getState().validateWorldPosition; }
 	
 	private boolean alwaysShowOnTerminal = false;
 	public void setAlwaysShowOnTerminal() { this.alwaysShowOnTerminal = true; this.markDirty(this::saveShowOnTerminal); }
 	public boolean shouldAlwaysShowOnTerminal() { return this.alwaysShowOnTerminal; }
 	public boolean canShowOnTerminal() { return true; }
 	public boolean showOnTerminal() {
+		if(!this.allowAccess()) //Hide from terminal if not accessible
+			return false;
 		if(this.alwaysShowOnTerminal)
 			return true;
 		else
@@ -148,7 +164,59 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	protected final boolean hasNetworkUpgrade() { return UpgradeType.hasUpgrade(Upgrades.NETWORK, this.upgrades); }
-	
+
+	@Nonnull
+	private TraderState state = TraderState.NORMAL;
+	@Nonnull
+	public TraderState getState() { return this.state; }
+	public void setState(@Nonnull TraderState state)
+	{
+		if(this.state == state)
+			return;
+		if(this.state == TraderState.PERSISTENT)
+		{
+			LightmansCurrency.LogError("Cannot change the state of a persistent trader!");
+			return;
+		}
+		this.state = state;
+		this.markDirty(this::saveState);
+	}
+	public void PickupTrader(@Nonnull Player player, boolean adminState)
+	{
+		if(this.isClient() || this.state != TraderState.NORMAL)
+			return;
+		if(!LCAdminMode.isAdminPlayer(player))
+			adminState = false;
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+
+			if(this.shouldRemove(server))
+				return;
+			TraderBlockEntity<?> be = this.getBlockEntity();
+			if(be != null)
+			{
+				ItemStack result = be.PickupTrader(player, this);
+				if(!result.isEmpty())
+				{
+					//Change trader state
+					this.setState(adminState ? TraderState.ADMIN_HELD_AS_ITEM : TraderState.HELD_AS_ITEM);
+					//Give the item this traders ID for future loading
+					CompoundTag itemTag = result.getOrCreateTag();
+					itemTag.putLong("StoredTrader",this.id);
+					//Give the item to the player
+					ItemHandlerHelper.giveItemToPlayer(player,result);
+				}
+			}
+		}
+	}
+	public void OnTraderMoved(@Nonnull WorldPosition newPosition)
+	{
+		this.setState(TraderState.NORMAL);
+		this.worldPosition = newPosition;
+		this.markDirty(this::saveLevelData);
+	}
+
 	private boolean creative = false;
 	public void setCreative(Player player, boolean creative) {
 		if(this.hasPermission(player, Permissions.ADMIN_MODE) && this.creative != creative)
@@ -320,6 +388,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public IconData getIconForItem(@Nonnull ItemStack stack) { return IconData.of(stack.copyWithCount(1)); }
 
 	private Item traderBlock;
+	@Nullable
+	public Item getTraderBlock() { return this.traderBlock; }
 	protected MutableComponent getDefaultName() {
 		if(this.traderBlock != null)
 			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
@@ -533,6 +603,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public ResourceKey<Level> getLevel() { return this.worldPosition.getDimension(); }
 	public BlockPos getPos() { return this.worldPosition.getPos(); }
 
+	/**
+	 * Gets the in-game Block Entity of this Trader Block (if one exists)
+	 */
+	@Nullable
+	public TraderBlockEntity<?> getBlockEntity()
+	{
+		Level level = LightmansCurrency.PROXY.getDimension(this.isClient,this.getLevel());
+		if(level != null && level.isLoaded(this.worldPosition.getPos()) && level.getBlockEntity(this.worldPosition.getPos()) instanceof TraderBlockEntity<?> be && be.getTraderID() == this.id)
+			return be;
+		return null;
+	}
+
 	@Nonnull
 	@Override
 	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
@@ -587,6 +669,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean isPersistent() { return !this.persistentID.isEmpty(); }
 	public String getPersistentID() { return this.persistentID; }
 	public void makePersistent(long id, String persistentID) {
+		this.state = TraderState.PERSISTENT;
 		this.id = id;
 		this.persistentID = persistentID;
 		this.creative = true;
@@ -615,7 +698,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		compound.putString("Type", this.type.toString());
 		compound.putLong("ID", this.id);
-		
+
+		this.saveState(compound);
 		this.saveLevelData(compound);
 		this.saveTraderItem(compound);
 		this.saveCustomIcon(compound);
@@ -643,6 +727,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		return compound;
 		
+	}
+
+	private void saveState(CompoundTag compoundTag) {
+		compoundTag.putString("State", this.state.toString());
 	}
 	
 	public final void saveLevelData(CompoundTag compound) {
@@ -746,7 +834,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		//Load persistent trader id
 		if(compound.contains("PersistentTraderID"))
 			this.persistentID = compound.getString("PersistentTraderID");
-		
+
+		//Trader State
+		if(compound.contains("State"))
+			this.state = EnumUtil.enumFromString(compound.getString("State"),TraderState.values(),TraderState.NORMAL);
+
 		//Position (Old Style)
 		if(compound.contains("WorldPos") && compound.contains("Level"))
 		{
@@ -1077,17 +1169,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	//Network stuff
 	public boolean shouldRemove(MinecraftServer server) {
-		if(this.worldPosition.isVoid())
+		if(!this.hasWorldPosition())
 			return false;
-		ServerLevel level = server.getLevel(this.getLevel());
-		if(level != null && level.isLoaded(this.getPos()))
-		{
-			BlockEntity be = level.getBlockEntity(this.getPos());
-			if(be instanceof TraderBlockEntity<?> tbe)
-				return tbe.getTraderID() != this.id;
-			return true;
-		}
-		return false;
+		TraderBlockEntity<?> be = this.getBlockEntity();
+		return be != null && be.getTraderID() != this.id;
 	}
 
 	//User data
@@ -1363,6 +1448,13 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				this.markDirty(this::saveTaxSettings);
 			}
 		}
+		if(message.contains("PickupTrader"))
+		{
+			if(this.hasPermission(player,Permissions.BREAK_TRADER))
+				this.PickupTrader(player,message.getBoolean("PickupTrader"));
+			else
+				Permissions.PermissionWarning(player,"Pickup Trader", Permissions.BREAK_TRADER);
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -1468,7 +1560,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 
 	@Nonnull
-	public final List<TraderData> getTraders() { return Lists.newArrayList(this); }
+	public final List<TraderData> getTraders() { return this.allowAccess() ? Lists.newArrayList(this) : new ArrayList<>(); }
 	public final boolean isSingleTrader() { return true; }
 	
 	public static MenuProvider getTraderMenuProvider(@Nonnull BlockPos traderSourcePosition, @Nonnull MenuValidator validator) { return new TraderMenuProviderBlock(traderSourcePosition, validator); }

@@ -23,7 +23,7 @@ public class TeamManagementMenu extends EasyTabbedMenu<TeamManagementMenu,TeamMa
     private long selectedTeam = -1;
     public boolean hasTeam() { return this.selectedTeam >= 0 && this.selectedTeam() != null; }
     @Nullable
-    public ITeam selectedTeam() { return TeamAPI.getTeam(this.isClient(),this.selectedTeam); }
+    public ITeam selectedTeam() { return TeamAPI.API.GetTeam(this, this.selectedTeam); }
     public void SelectTeam(long team) { this.selectedTeam = team; }
 
     public TeamManagementMenu(int windowID, @Nonnull Inventory inventory) { super(ModMenus.TEAM_MANAGEMENT.get(), windowID, inventory); this.initializeTabs(); }
@@ -32,14 +32,13 @@ public class TeamManagementMenu extends EasyTabbedMenu<TeamManagementMenu,TeamMa
     protected void registerTabs() {
         this.addTab(new TeamSelectionTab(this));
         this.addTab(new TeamMemberListTab(this));
-        this.addTab(new TeamNameTab(this));
         this.addTab(new TeamMemberEditTab(this));
         this.addTab(new TeamBankAccountTab(this));
         this.addTab(new TeamSalaryInfoTab(this));
         this.addTab(new TeamSalarySettingsTab(this));
         this.addTab(new TeamSalaryPaymentsTab(this));
         this.addTab(new TeamStatsTab(this));
-        this.addTab(new TeamOwnerTab(this));
+        this.addTab(new TeamNameAndOwnerTab(this));
     }
 
     @Nonnull

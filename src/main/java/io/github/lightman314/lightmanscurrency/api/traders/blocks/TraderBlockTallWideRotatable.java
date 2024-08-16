@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlo
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.BlockPos;
@@ -141,8 +140,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
-		super.onInvalidRemoval(state, level, pos, trader);
+	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
 		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
 		setAir(level, otherPos, null);
 		setAir(level, this.getOtherHeight(otherPos, state), null);

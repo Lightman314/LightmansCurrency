@@ -20,7 +20,7 @@ public class TeamBankAccountSource extends BankAccountSource {
     @Override
     public List<BankReference> CollectAllReferences(boolean isClient) {
         List<BankReference> list = new ArrayList<>();
-        for(ITeam team : TeamAPI.getAllTeams(isClient))
+        for(ITeam team : TeamAPI.API.GetAllTeams(isClient))
         {
             if(team.hasBankAccount())
                 list.add(TeamBankReference.of(team).flagAsClient(isClient));

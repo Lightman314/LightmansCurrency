@@ -39,6 +39,9 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_SELECT.get(); }
 
     @Override
+    public boolean blockInventoryClosing() { return true; }
+
+    @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         this.refreshTeamList();

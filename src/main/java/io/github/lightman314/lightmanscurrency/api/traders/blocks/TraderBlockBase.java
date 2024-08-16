@@ -36,9 +36,11 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -175,6 +177,11 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 			if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 			{
+				if(traderSource.isSelfPickup())
+				{
+					super.onRemove(state,level,pos,newState,flag);
+					return;
+				}
 				if(!traderSource.legitimateBreak())
 				{
 					traderSource.flagAsLegitBreak();
@@ -192,6 +199,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 					}
 					//Remove the rest of the multi-block structure.
 					this.onInvalidRemoval(state, level, pos, trader);
+					this.removeOtherBlocks(level,state,pos);
 				}
 				else
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
@@ -203,8 +211,16 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 		
 		super.onRemove(state, level, pos, newState, flag);
 	}
-	
-	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader);
+
+	public final void removeAllBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos)
+	{
+		this.setAir(level,pos,null);
+		this.removeOtherBlocks(level,state,pos);
+	}
+
+	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {}
+
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {}
 	
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 	
@@ -223,13 +239,15 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 
 	protected static void replaceTraderBlock(Level level, BlockPos pos, BlockState newState) { level.setBlock(pos, newState, 35); }
 
-	@Override
-	protected boolean isAir(@Nonnull BlockState state) {
-		if(super.isAir(state))
+	protected final void setAir(Level level, BlockPos pos, Player player)
+	{
+		BlockState state = level.getBlockState(pos);
+		if(state.getBlock() == this)
 		{
-			LightmansCurrency.LogWarning(this.getName().getString() + " is returning true to Block#isAir!");
+			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
+			if(player != null)
+				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 		}
-		return false;
 	}
 
 }

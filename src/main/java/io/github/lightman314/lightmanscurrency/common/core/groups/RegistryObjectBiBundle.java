@@ -60,9 +60,23 @@ public class RegistryObjectBiBundle<T,L,M> {
         return result;
     }
 
+    public Collection<RegistryObject<T>> getAllRegistryObjects(@Nonnull L section) {
+        List<RegistryObject<T>> result = new ArrayList<>();
+        this.values.getOrDefault(section,new HashMap<>()).forEach((m,v) -> result.add(v));
+        return result;
+    }
+
     public List<T> getAll() {
         List<T> values = new ArrayList<>();
         for(RegistryObject<T> value : this.getAllRegistryObjects())
+            values.add(value.get());
+        return values;
+    }
+
+    public List<T> getAll(@Nonnull L section)
+    {
+        List<T> values = new ArrayList<>();
+        for(RegistryObject<T> value : this.getAllRegistryObjects(section))
             values.add(value.get());
         return values;
     }

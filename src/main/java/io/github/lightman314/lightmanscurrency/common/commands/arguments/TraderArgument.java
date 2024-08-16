@@ -13,6 +13,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.commands.CommandBuildContext;
@@ -24,12 +25,15 @@ import javax.annotation.Nonnull;
 
 public class TraderArgument implements ArgumentType<TraderData>{
 
-	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(LCText.ARGUMENT_TRADER_NOT_FOUND.get());
+	public static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(LCText.ARGUMENT_TRADER_NOT_FOUND.get());
+	public static final SimpleCommandExceptionType ERROR_NOT_RECOVERABLE = new SimpleCommandExceptionType(LCText.ARGUMENT_TRADER_NOT_RECOVERABLE.get());
 	private final boolean acceptPersistentIDs;
-	private TraderArgument(boolean acceptPersistentIDs) { this.acceptPersistentIDs = acceptPersistentIDs; }
-	
-	public static TraderArgument trader() { return new TraderArgument(false); }
-	public static TraderArgument traderWithPersistent() { return new TraderArgument(true); }
+	private final boolean onlyRecoverableTraders;
+	private TraderArgument(boolean acceptPersistentIDs, boolean onlyRecoverableTraders) { this.acceptPersistentIDs = acceptPersistentIDs; this.onlyRecoverableTraders = onlyRecoverableTraders; }
+
+	public static TraderArgument trader() { return new TraderArgument(false, false); }
+	public static TraderArgument recoverableTrader() { return new TraderArgument(false, true); }
+	public static TraderArgument traderWithPersistent() { return new TraderArgument(true, false); }
 	
 	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException{
 		return commandContext.getArgument(name, TraderData.class);
@@ -46,9 +50,13 @@ public class TraderArgument implements ArgumentType<TraderData>{
 				{
 					TraderData t = TraderSaveData.GetTrader(false, id);
 					if(t != null)
+					{
+						if(this.onlyRecoverableTraders && !t.isRecoverable())
+							throw ERROR_NOT_RECOVERABLE.createWithContext(reader);
 						return t;
+					}
 				}
-			} catch(Throwable ignored) {}
+			} catch(Throwable error) { if(error instanceof CommandSyntaxException e) throw e; }
 		}
 		if(this.acceptPersistentIDs)
 		{
@@ -73,15 +81,18 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	}
 	
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
+		List<TraderData> allTraders = TraderAPI.API.GetAllTraders(false);
 		for(TraderData t : allTraders)
 		{
-			//LightmansCurrency.LogDebug("Recommending trader ID '" + t.getID() + "'");
-			suggestionsBuilder.suggest(String.valueOf(t.getID()));
-			if(this.acceptPersistentIDs && t.isPersistent())
+			if(!this.onlyRecoverableTraders || t.isRecoverable())
 			{
-				//LightmansCurrency.LogDebug("Recommending persistent ID '" + t.getPersistentID() + "'");
-				suggestionsBuilder.suggest(t.getPersistentID());
+				//LightmansCurrency.LogDebug("Recommending trader ID '" + t.getID() + "'");
+				suggestionsBuilder.suggest(String.valueOf(t.getID()));
+				if(this.acceptPersistentIDs && t.isPersistent())
+				{
+					//LightmansCurrency.LogDebug("Recommending persistent ID '" + t.getPersistentID() + "'");
+					suggestionsBuilder.suggest(t.getPersistentID());
+				}
 			}
 		}
 		return suggestionsBuilder.buildFuture();
@@ -91,28 +102,29 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	{
 		
 		@Override
-		public void serializeToNetwork(Template template, FriendlyByteBuf buffer) { buffer.writeBoolean(template.acceptPersistentIDs); }
+		public void serializeToNetwork(Template template, FriendlyByteBuf buffer) { buffer.writeBoolean(template.acceptPersistentIDs); buffer.writeBoolean(template.onlyRecoverableTraders); }
 
 		@Override
 		@Nonnull
-		public Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean()); }
+		public Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean(),buffer.readBoolean()); }
 
 		@Override
-		public void serializeToJson(Template template, JsonObject json) { json.addProperty("acceptPersistentIDs", template.acceptPersistentIDs); }
+		public void serializeToJson(Template template, JsonObject json) { json.addProperty("acceptPersistentIDs", template.acceptPersistentIDs); json.addProperty("onlyRecoverableTraders", template.onlyRecoverableTraders); }
 
 		@Override
 		@Nonnull
-		public Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs); }
+		public Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs,argument.onlyRecoverableTraders); }
 		
 		public final class Template implements ArgumentTypeInfo.Template<TraderArgument>
 		{
 			final boolean acceptPersistentIDs;
-			
-			Template(boolean checkPersistentIDs) { this.acceptPersistentIDs = checkPersistentIDs; }
+			final boolean onlyRecoverableTraders;
+
+			Template(boolean checkPersistentIDs, boolean onlyRecoverableTraders) { this.acceptPersistentIDs = checkPersistentIDs; this.onlyRecoverableTraders = onlyRecoverableTraders; }
 
 			@Override
 			@Nonnull
-			public TraderArgument instantiate(@Nonnull CommandBuildContext context) { return new TraderArgument(this.acceptPersistentIDs); }
+			public TraderArgument instantiate(@Nonnull CommandBuildContext context) { return new TraderArgument(this.acceptPersistentIDs,this.onlyRecoverableTraders); }
 
 			@Override
 			@Nonnull

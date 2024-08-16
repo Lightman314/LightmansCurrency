@@ -58,6 +58,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		this.buttonToggleAutoExchange = null;
 
 		this.addChild(this.positioner);
+		this.positioner.clear();
 
 		if(this.menu.canExchange())
 		{

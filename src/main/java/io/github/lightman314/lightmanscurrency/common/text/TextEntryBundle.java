@@ -7,9 +7,11 @@ import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public final class TextEntryBundle<T> {
 
@@ -34,6 +36,14 @@ public final class TextEntryBundle<T> {
         Map<T,TextEntry> temp = new HashMap<>();
         for(T key : values)
             temp.put(key,new TextEntry(prefix + "." + key.name().toLowerCase(Locale.ENGLISH)));
+        return new TextEntryBundle<>(temp);
+    }
+
+    public static <T> TextEntryBundle<T> of(@Nonnull List<T> values, @Nonnull String prefix, @Nonnull Function<T,String> getKeyName)
+    {
+        Map<T,TextEntry> temp = new HashMap<>();
+        for(T key : values)
+            temp.put(key,new TextEntry(prefix + "." + getKeyName.apply(key)));
         return new TextEntryBundle<>(temp);
     }
 

@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.source.BankAccount
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.impl.BankAPIImpl;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -52,8 +53,14 @@ public abstract class BankAPI {
     @Nullable
     public static BankReferenceType getType(@Nonnull ResourceLocation type) { return API.GetReferenceType(type); }
 
+    @Nonnull
     public abstract List<IBankAccount> GetAllBankAccounts(boolean isClient);
+    @Nonnull
+    public final List<IBankAccount> GetAllBankAccounts(@Nonnull IClientTracker context) { return this.GetAllBankAccounts(context.isClient()); }
+    @Nonnull
     public abstract List<BankReference> GetAllBankReferences(boolean isClient);
+    @Nonnull
+    public final List<BankReference> GetAllBankReferences(@Nonnull IClientTracker context) { return this.GetAllBankReferences(context.isClient()); }
 
 
     /**

@@ -2,11 +2,9 @@ package io.github.lightman314.lightmanscurrency.api.traders.blocks;
 
 import java.util.function.BiFunction;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -120,25 +117,12 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		setAir(level, this.getOtherHeight(pos, state), player);
 		
 	}
-	
+
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
-		super.onInvalidRemoval(state, level, pos, trader);
-		//Destroy the other half of the Tall Block
-		setAir(level, this.getOtherHeight(pos, state), null);
+	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
+		this.setAir(level, this.getOtherHeight(pos,state),null);
 	}
-	
-	protected final void setAir(Level level, BlockPos pos, Player player)
-	{
-		BlockState state = level.getBlockState(pos);
-		if(state.getBlock() == this)
-		{
-			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player != null)
-				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
-		}
-	}
-	
+
 	@Nullable
 	@Override
 	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)

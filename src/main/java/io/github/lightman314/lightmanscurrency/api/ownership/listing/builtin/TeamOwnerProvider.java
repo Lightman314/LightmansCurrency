@@ -21,7 +21,7 @@ public class TeamOwnerProvider implements IPotentialOwnerProvider {
     @Override
     public List<PotentialOwner> collectPotentialOwners(@Nonnull Player player) {
         List<PotentialOwner> results = new ArrayList<>();
-        for(ITeam team : TeamAPI.getAllTeams(player.level().isClientSide))
+        for(ITeam team : TeamAPI.API.GetAllTeams(player.level().isClientSide))
         {
             if(team.isMember(player))
             {

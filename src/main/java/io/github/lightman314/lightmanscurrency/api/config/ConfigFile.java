@@ -28,7 +28,7 @@ public abstract class ConfigFile {
      */
     public enum LoadPhase {
         /**
-         * File will not be loaded automatically.
+         * File will not be loaded automatically.<br>
          * Use for manually called instant reloads.
          */
         NULL,

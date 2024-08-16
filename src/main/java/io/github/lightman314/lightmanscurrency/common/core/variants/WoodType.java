@@ -57,6 +57,12 @@ public class WoodType implements IOptionalKey {
             prefix += this.getModID() + "_";
         return prefix + this.id;
     }
+    public final String translationSegment() {
+        if(this.isModded())
+            return this.getModID() + "." + this.id;
+        else
+            return this.id;
+    }
 
     public final String generateResourceLocation(String prefix) { return this.generateResourceLocation(prefix,""); }
     public final String generateResourceLocation(String prefix, String postFix) {

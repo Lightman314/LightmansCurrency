@@ -23,7 +23,7 @@ public class PotentialTeamOwner extends PotentialOwner {
     @Override
     public IconData getIcon() {
         int count = 0;
-        ITeam team = TeamAPI.getTeam(true, this.teamID);
+        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
         if(team != null)
             count = team.getMemberCount();
         return IconData.of(Items.PLAYER_HEAD, String.valueOf(count));
@@ -31,7 +31,7 @@ public class PotentialTeamOwner extends PotentialOwner {
 
     @Override
     public void appendTooltip(@Nonnull List<Component> tooltip) {
-        ITeam team = TeamAPI.getTeam(true, this.teamID);
+        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
         if(team != null)
             LCText.TOOLTIP_OWNER_TEAM.tooltip(tooltip,team.getName(),team.getMemberCount());
     }

@@ -25,7 +25,8 @@ import javax.annotation.Nonnull;
  * or {@link #addDrop(ItemStack)} or {@link #addDrops(Collection)} to add items to be dropped.<br>
  * Use {@link #getWalletInventory()} to get a container of the wallets contents that can be modified at will (container will become invalid if {@link #setWalletStack(ItemStack)} is called while you're using this container)<br>
  * Use {@link #getWalletStack()} to get a safe copy of the wallet stack. Note, changes made to this wallet stack will not be reflected in the final results, as this is only a copy.<br>
- * Use {@link #setWalletStack(ItemStack)} to replace the players equipped wallet completely. Set to {@link ItemStack#EMPTY} to unequip it entirely.
+ * Use {@link #setWalletStack(ItemStack)} to replace the players equipped wallet completely. Set to {@link ItemStack#EMPTY} to unequip it entirely.<br>
+ *  * Note: Default behaviour is done in {@link net.minecraftforge.eventbus.api.EventPriority#LOW}
  */
 @Cancelable
 public class WalletDropEvent extends PlayerEvent {

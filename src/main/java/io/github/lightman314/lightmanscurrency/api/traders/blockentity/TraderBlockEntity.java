@@ -7,6 +7,9 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -42,9 +45,37 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	private CompoundTag customTrader = null;
 	private boolean ignoreCustomTrader = false;
 
+	private boolean selfPickup = false;
+	public boolean isSelfPickup() { return this.selfPickup; }
 	private boolean legitimateBreak = false;
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
 	public boolean legitimateBreak() { return this.legitimateBreak; }
+
+	/**
+	 * I see no real reason not to have all traders not support this, but I'm leaving this available just in case an addon whishes to disable this feature
+	 */
+	public boolean supportsTraderPickup() { return true; }
+
+	/**
+	 * Attempts to collect the trader as an item.<br>
+	 * Returns {@link ItemStack#EMPTY} if the trader collection failed,<br>
+	 * otherwise returns an item stack ready to have the trader data assigned to it and then given to the player<br>
+	 * <i>May</i> give additional items to the player should the block warrant it (such as a carpenter trader, etc.)
+	 */
+	public ItemStack PickupTrader(@Nonnull Player player, @Nonnull TraderData trader)
+	{
+		if(!this.supportsTraderPickup() || trader.getID() != this.traderID)
+			return ItemStack.EMPTY;
+		BlockState state = this.level.getBlockState(this.worldPosition);
+		if(state.getBlock() instanceof TraderBlockBase block)
+		{
+			this.selfPickup = true;
+			this.legitimateBreak = true;
+			block.removeAllBlocks(this.level,state,this.worldPosition);
+			return new ItemStack(state.getBlock());
+		}
+		return ItemStack.EMPTY;
+	}
 
 	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -116,21 +147,44 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(this.getTraderData() != null)
 			return;
 
+		CompoundTag tag = placementStack.getTag();
+		//If Item Stack has data pointing back to an actual trader
+		if(tag != null && tag.contains("StoredTrader",Tag.TAG_LONG))
+		{
+			long traderID = tag.getLong("StoredTrader");
+			TraderData trader = TraderAPI.API.GetTrader(this, traderID);
+			if(trader != null && this.castOrNullify(trader) != null && trader.isRecoverable())
+			{
+				//Flag this block as that trader
+				this.traderID = traderID;
+				this.markDirty();
+				//Move the trader to this position & reset its state
+				trader.move(this.level,this.worldPosition);
+				trader.setState(TraderState.NORMAL);
+				//Check Taxes
+				this.checkTaxes(owner,trader);
+				return;
+			}
+		}
+
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
 		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
-		List<ITaxCollector> taxes = TaxAPI.GetPossibleTaxCollectorsFor(newTrader);
-		taxes.forEach(e -> e.AcceptTaxable(newTrader));
-		if(!taxes.isEmpty())
-		{
-			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
-			if(taxes.size() == 1 && taxes.get(0).isServerEntry())
-				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
-			EasyText.sendMessage(owner, firstMessage.get());
-			EasyText.sendMessage(owner, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
-		}
+		this.checkTaxes(owner,newTrader);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
+	}
+
+	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader) {
+		List<ITaxCollector> taxes = TaxAPI.GetPossibleTaxCollectorsFor(trader);
+		taxes.forEach(e -> e.AcceptTaxable(trader));
+		if(!taxes.isEmpty()) {
+			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
+			if (taxes.size() == 1 && taxes.get(0).isServerEntry())
+				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
+			EasyText.sendMessage(player, firstMessage.get());
+			EasyText.sendMessage(player, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
+		}
 	}
 
 	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
