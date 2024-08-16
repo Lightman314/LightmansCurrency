@@ -174,37 +174,6 @@ public class EventHandler {
 
 	}
 
-	//Copy the wallet over to the new player
-	//TODO confirm that flagging the attachment as being copied on death properly makes these events unnecessary
-	//Should happen for the "playerClone" event, but unsure about the dimension event
-	/*
-	@SubscribeEvent
-	public static void playerClone(PlayerEvent.Clone event)
-	{
-		Player player = event.getEntity();
-		if(player.level().isClientSide) //Do nothing client-side
-			return;
-
-		Player oldPlayer = event.getOriginal();
-		oldPlayer.revive();
-		IWalletHandler oldHandler = WalletCapability.lazyGetWalletHandler(oldPlayer);
-		IWalletHandler newHandler = WalletCapability.lazyGetWalletHandler(event.getEntity());
-
-		if (oldHandler != null && newHandler != null) {
-			newHandler.setWallet(oldHandler.getWallet());
-			newHandler.setVisible(oldHandler.visible());
-		}
-
-		IEventUnlocks oldEventHandler = CapabilityEventUnlocks.getCapability(oldPlayer);
-		IEventUnlocks newEventHandler = CapabilityEventUnlocks.getCapability(event.getEntity());
-		if(oldEventHandler != null && newEventHandler != null)
-			newEventHandler.sync(oldEventHandler.getUnlockedList());
-
-		//Invalidate the capabilities now that the reason is no longer needed
-		oldPlayer.invalidateCaps();
-
-	}//*/
-
 	@SubscribeEvent
 	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
 		Player player = event.getEntity();
@@ -278,7 +247,13 @@ public class EventHandler {
 				walletHandler.setWallet(ItemStack.EMPTY);
 			}
 
-			event.getDrops().addAll(turnIntoEntities(livingEntity, drops));
+			if(LCConfig.SERVER.walletDropsManualSpawn.get())
+			{
+				for(ItemEntity entity : turnIntoEntities(livingEntity,drops))
+					livingEntity.level().addFreshEntity(entity);
+			}
+			else
+				event.getDrops().addAll(turnIntoEntities(livingEntity, drops));
 		}
 	}
 
@@ -286,7 +261,11 @@ public class EventHandler {
 	{
 		List<ItemEntity> result = new ArrayList<>();
 		for(ItemStack stack : list)
-			result.add(new ItemEntity(entity.level(), entity.position().x, entity.position().y, entity.position().z, stack));
+		{
+			ItemEntity item = new ItemEntity(entity.level(), entity.position().x, entity.position().y + 1f, entity.position().z, stack);
+			item.setDefaultPickUpDelay();
+			result.add(item);
+		}
 		return result;
 	}
 

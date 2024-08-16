@@ -33,9 +33,8 @@ public record WalletData(List<ItemStack> items, boolean autoExchange) {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof WalletData other) {
-            return this.items.equals(other.items) && this.autoExchange == other.autoExchange;
-        }
+        if(obj instanceof WalletData other)
+            return InventoryUtil.ContainerMatches(this.items,other.items) && this.autoExchange == other.autoExchange;
         return false;
     }
 

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketClearClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
+import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketDeleteClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.data.bank.SPacketSyncSelectedBankAccount;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +21,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -135,6 +137,37 @@ public class BankSaveData extends SavedData {
 			}
 			return null;
 		}
+	}
+
+	public static boolean DeleteBankAccount(UUID player)
+	{
+		BankSaveData bsd = get();
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(bsd != null && server != null)
+		{
+			if(!bsd.playerBankData.containsKey(player))
+				return false;
+			//If the player whose bank account got deleted is online, delete and replace their bank account/data
+			ServerPlayer onlinePlayer = server.getPlayerList().getPlayer(player);
+            bsd.playerBankData.remove(player);
+			//Player is online, so create a new bank account after deleting the old one
+            if(onlinePlayer != null)
+			{
+				//Since it's going to create a new bank account this will also
+				//mark said bank account as dirty and automatically send the sync packet
+				GetBankAccount(false,player);
+				//Send sync packet for their new selected bank account
+				new SPacketSyncSelectedBankAccount(bsd.playerBankData.get(player).getSecond()).sendTo(onlinePlayer);
+			}
+			else //Player is NOT online, so don't re-create it after deletion
+			{
+                bsd.setDirty();
+				//Send deleted packet to all connected clients
+				new SPacketDeleteClientBank(player).sendToAll();
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	public static void MarkBankAccountDirty(UUID player)

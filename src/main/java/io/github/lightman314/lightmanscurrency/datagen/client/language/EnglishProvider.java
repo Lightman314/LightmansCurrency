@@ -252,10 +252,13 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
 
+        this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
+        this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
         this.translate(LCText.TOOLTIP_ANARCHY_WARNING,"Server is in Anarchy Mode. Block will not be break-protected!");
 
         //Wallet
         this.translate(LCText.MESSAGE_WALLET_NONE_EQUIPPED, "No wallet equipped to your wallet slot. Cannot open wallet.");
+        this.translate(LCText.TOOLTIP_WALLET_KEY_BIND, "Press [%s] while equipped to access your wallet");
         this.translate(LCText.TOOLTIP_WALLET_STORED_MONEY, "Contains:");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP, "Automatically collects any coins that you pick up");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP_MAGNET, "Can collect coins up to %sm away");
@@ -355,9 +358,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TEAM_SELECT,"Select Team to Manage:");
         this.translate(LCText.GUI_TEAM_CREATE,"Create New Team");
         this.translate(LCText.TOOLTIP_TEAM_MEMBERS,"Members");
-        this.translate(LCText.TOOLTIP_TEAM_NAME,"Name");
-        this.translate(LCText.BUTTON_TEAM_RENAME,"Rename Team");
-        this.translate(LCText.GUI_TEAM_NAME_CURRENT,"Current Name: %s");
         this.translate(LCText.TOOLTIP_TEAM_MEMBER_EDIT,"Add/Promote/Remove Members");
         this.translate(LCText.BUTTON_TEAM_MEMBER_PROMOTE,"Set Admin");
         this.translate(LCText.TOOLTIP_TEAM_BANK,"Bank Account Settings");
@@ -385,7 +385,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION,"Seperate Admin Salaries");
         this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY,"Admin Salary:");
         this.translate(LCText.TOOLTIP_TEAM_STATS,"Team Statistics");
-        this.translate(LCText.TOOLTIP_TEAM_OWNER,"Transfer Team Ownership");
+        this.translate(LCText.TOOLTIP_TEAM_NAME,"Name");
+        this.translate(LCText.BUTTON_TEAM_RENAME,"Rename Team");
+        this.translate(LCText.GUI_TEAM_NAME_CURRENT,"Current Name: %s");
+        this.translate(LCText.TOOLTIP_TEAM_NAME_AND_OWNER,"Name & Ownership");
         this.translate(LCText.BUTTON_TEAM_DISBAND,"Disband Team");
         this.translate(LCText.GUI_TEAM_ID,"Team ID: %s");
 
@@ -563,6 +566,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT,"Notify in Chat");
         this.translate(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_TARGET,"Send To: %s");
         this.translate(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX,"Enable Search Box");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_PICKUP_TRADER,"Pickup Entire Trader");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER,"Returns the trader to its item form but retains the trader's current state once the block is placed");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_PICKUP_TRADER_ADVANCED,"Hold SHIFT to keep the trader accessible after pickup");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_TAXES,"Tax Options");
         this.translate(LCText.GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE,"Acceptable Tax Rate: %s%%");
         this.translate(LCText.GUI_TRADER_SETTINGS_TAXES_IGNORE_TAXES,"Ignore All Taxes");
@@ -895,6 +901,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ARGUMENT_COLOR_INVALID,"Color could not be parsed");
         this.translate(LCText.ARGUMENT_TRADEID_INVALID,"Trade ID is not a valid numerical value");
         this.translate(LCText.ARGUMENT_TRADER_NOT_FOUND,"Could not find a trader with the given ID");
+        this.translate(LCText.ARGUMENT_TRADER_NOT_RECOVERABLE,"Trader is not in a state that would require recovery");
 
         //Commands
         this.translate(LCText.COMMAND_BALTOP_NO_RESULTS,"No Bank Accounts found");
@@ -911,6 +918,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_BANK_TAKE_FAIL,"No bank accounts had money taken");
         this.translate(LCText.COMMAND_BANK_TAKE_SUCCESS,"Took up to %1$s from %2$s bank accounts");
         this.translate(LCText.COMMAND_BANK_TAKE_SUCCESS_SINGLE,"Took %1$s from %2$s");
+        this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_RESET,"Reset %s's bank account!");
+        this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_SUCCESS,"Deleted %s's bank account!");
+        this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST,"%s does not have a bank account to delete!");
+        this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_INVALID_INPUT,"'%s' is not a valid player name or UUID string!");
 
         this.translate(LCText.COMMAND_CONFIG_RELOAD, "Reloading config files");
         this.translate(LCText.COMMAND_CONFIG_EDIT_SUCCESS, "%1$s set to %2$s");
@@ -930,12 +941,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_TRADER_ID_TOOLTIP,"Copy Trader ID");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_PERSISTENT_ID,"Persistent ID: %s");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_TYPE,"Type: %s");
+        this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_STATE,"State: %s");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_DIMENSION,"Dimension: %s");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_POSITION,"BlockPos: %s");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_POSITION_TOOLTIP,"Teleport to Trader");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_LIST_NAME,"Custom Name: %s");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_SEARCH_NONE,"No traders were found with the given search filter");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_DELETE_SUCCESS,"Successfully deleted the trader '%s'");
+        this.translate(LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_SUCCESS,"Successfully recreated the traders item");
+        this.translate(LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_FAIL_NO_ITEM,"Trader is missing it's block data!");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS,"Added %1$s player(s) to %2$s's whitelist");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING,"Trader does not have a whitelist trade rule. Cannot add players to the whitelist.");
         this.translate(LCText.COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET, "Item given was not a valid wallet item or air");
@@ -1028,6 +1042,16 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.JEI_INFO_TICKET_STUB, "A broken ticket returned to the customer when a ticket is used on a Paygate");
         //Curios
         this.translate(LCText.CURIOS_SLOT_WALLET,"Wallet");
+
+        //REI Groups
+        this.translate(LCText.REI_GROUP_SHELF,"Shelves");
+        this.translate(LCText.REI_GROUP_SHELF_2x2,"Double Shelves");
+        this.translateWooden(LCText.REI_GROUP_CARD_DISPLAY,"%s Card Displays");
+        this.translate(LCText.REI_GROUP_VENDING_MACHINE,"Vending Machines");
+        this.translate(LCText.REI_GROUP_LARGE_VENDING_MACHINE,"Large Vending Machines");
+        this.translate(LCText.REI_GROUP_FREEZER,"Freezers");
+        this.translate(LCText.REI_GROUP_BOOKSHELF_TRADER,"Bookshelf Traders");
+        this.translate(LCText.REI_GROUP_AUCTION_STAND,"Auction Stands");
 
     }
 

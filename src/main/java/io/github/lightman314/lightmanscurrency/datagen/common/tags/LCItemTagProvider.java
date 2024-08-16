@@ -153,6 +153,10 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModBlocks.ATM)
                 .add(ModItems.PORTABLE_ATM);
 
+        //Auction Stand
+        this.cTag(LCTags.Items.AUCTION_STAND)
+                .add(ModBlocks.AUCTION_STAND);
+
         //Trader Interface
         this.cTag(LCTags.Items.TRADER_INTERFACE).add(ModBlocks.ITEM_TRADER_INTERFACE);
 

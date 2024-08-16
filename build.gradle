@@ -95,6 +95,12 @@ repositories {
     maven {
         url "https://cursemaven.com"
     }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.architectury.dev/" }
+    maven {
+        name = "OctoStudios"
+        url = uri("https://maven.octo-studios.com/releases")
+    }
 }
 
 dependencies {
@@ -109,11 +115,17 @@ dependencies {
     //JEI
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    //localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+
+    //REI
+    compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rei_version"
+    compileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-neoforge:$rei_version"
+    api "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+    api "dev.architectury:architectury-neoforge:$architectury_version"
+    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    //Waiting for curios update
-    //compileOnly "curse.maven:curios-309927:4583413"
+    implementation 'top.theillusivec4.curios:curios-neoforge:9.0.5+1.21'
 
     //Immersive Engineering API
     //Waiting for IE update

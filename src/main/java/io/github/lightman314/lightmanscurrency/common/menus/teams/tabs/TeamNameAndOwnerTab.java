@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.teams.tabs;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamOwnerClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamNameAndOwnerClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementTab;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -10,17 +10,27 @@ import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 
 import javax.annotation.Nonnull;
 
-public class TeamOwnerTab extends TeamManagementTab.Management {
+public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
 
-    public TeamOwnerTab(@Nonnull TeamManagementMenu menu) { super(menu); }
-
-    @Nonnull
-    @Override
-    public Object createClientTab(@Nonnull Object screen) { return new TeamOwnerClientTab(screen,this); }
+    public TeamNameAndOwnerTab(@Nonnull TeamManagementMenu menu) { super(menu); }
 
     @Nonnull
     @Override
-    protected AccessLevel accessLevel() { return AccessLevel.OWNER; }
+    public Object createClientTab(@Nonnull Object screen) { return new TeamNameAndOwnerClientTab(screen,this); }
+
+    @Nonnull
+    @Override
+    protected AccessLevel accessLevel() { return AccessLevel.ADMINS; }
+
+    public void ChangeName(@Nonnull String newName)
+    {
+        ITeam team = this.menu.selectedTeam();
+        if(team instanceof Team t)
+            t.changeName(this.menu.player,newName);
+        if(this.isClient())
+            this.menu.SendMessage(this.builder().setString("ChangeName",newName));
+
+    }
 
     public void SetOwner(@Nonnull String ownerName)
     {
@@ -44,6 +54,8 @@ public class TeamOwnerTab extends TeamManagementTab.Management {
 
     @Override
     public void receiveMessage(LazyPacketData message) {
+        if(message.contains("ChangeName"))
+            this.ChangeName(message.getString("ChangeName"));
         if(message.contains("SetOwner"))
             this.SetOwner(message.getString("SetOwner"));
         if(message.contains("DisbandTeam"))

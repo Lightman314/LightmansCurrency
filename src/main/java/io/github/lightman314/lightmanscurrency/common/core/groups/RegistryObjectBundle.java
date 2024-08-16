@@ -33,7 +33,6 @@ public class RegistryObjectBundle<T,L> {
 		this.values.put(key,value);
 	}
 	
-	
 	public Supplier<T> getRegistryObject(L key) {
 		if(this.values.containsKey(key))
 			return this.values.get(key);

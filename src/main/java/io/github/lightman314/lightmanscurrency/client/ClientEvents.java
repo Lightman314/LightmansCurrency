@@ -4,13 +4,21 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,6 +26,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.lwjgl.glfw.GLFW;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
@@ -195,6 +204,35 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void playerLeavesServer(ClientPlayerNetworkEvent.LoggingOut event) {
 		SyncedConfigFile.onClientLeavesServer();
+	}
+
+	@SubscribeEvent
+	//Add coin value tooltips to non CoinItem coins.
+	public static void onItemTooltip(ItemTooltipEvent event) {
+		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable() || event.getContext().registries() == null)
+			return;
+		ItemStack stack = event.getItemStack();
+		if(CoinAPI.API.IsCoin(stack, true))
+			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
+
+		//If item has money mending, display money mending tooltip
+		MoneyMendingEnchantment.addEnchantmentTooltips(stack,event.getToolTip(),event.getContext());
+
+		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && stack.getItem() instanceof BlockItem bi)
+		{
+			Block b = bi.getBlock();
+			if(b instanceof IOwnableBlock)
+				event.getToolTip().add(LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+		}
+
+		//Add Trader Item Data to the tooltip
+		stack.addToTooltip(ModDataComponents.TRADER_ITEM_DATA,event.getContext(),event.getToolTip()::add,event.getFlags());
+
+		//Wallet Key-bind Tooltip
+		//Added here because it requires client-side data, so I don't really want to put it in a common class
+		if(stack.getItem() instanceof WalletItem) //Put in 2nd line so that it appears just below the name
+			event.getToolTip().add(1,LCText.TOOLTIP_WALLET_KEY_BIND.get(EasyText.makeMutable(ClientEvents.KEY_WALLET.getTranslatedKeyMessage()).withStyle(ChatFormatting.YELLOW)));
+
 	}
 
 }

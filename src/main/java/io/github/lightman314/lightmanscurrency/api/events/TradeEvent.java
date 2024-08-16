@@ -15,10 +15,17 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class TradeEvent extends Event {
 
-	@Nonnull
+	public final boolean hasPlayerReference() { return this.context.hasPlayerReference(); }
+
+	/**
+	 * Player Reference is {@link Nullable} as the {@link PreTradeEvent} & {@link TradeCostEvent} Events
+	 * are also called from the storage context which will does include a player reference in the trades context
+	 */
+	@Nullable
 	public final PlayerReference getPlayerReference() { return this.context.getPlayerReference(); }
 	private final TradeData trade;
 	@Nonnull
@@ -28,6 +35,7 @@ public abstract class TradeEvent extends Event {
 	@Nonnull
 	public final TraderData getTrader() { return this.context.getTrader(); }
 	private final TradeContext context;
+	@Nonnull
 	public final TradeContext getContext() { return this.context; }
 
 	protected TradeEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)

@@ -31,8 +31,8 @@ public final class TextEntry {
     public TextEntry(@Nonnull Supplier<String> key) { this.key = Suppliers.memoize(key::get); }
 
     @Nonnull
-    public MutableComponent get(Object... objects) { return Component.translatable(this.getKey(),objects);}
-    public MutableComponent getWithStyle(ChatFormatting... format) { return Component.translatable(this.getKey()).withStyle(format); }
+    public MutableComponent get(Object... objects) { return Component.translatableEscape(this.getKey(),objects);}
+    public MutableComponent getWithStyle(ChatFormatting... format) { return Component.translatableEscape(this.getKey()).withStyle(format); }
     public List<Component> getAsList(Object... objects) { return Lists.newArrayList(this.get(objects)); }
     public void tooltip(@Nonnull List<Component> tooltip, Object... objects) { tooltip.add(this.get(objects)); }
     @Nonnull
@@ -78,6 +78,7 @@ public final class TextEntry {
 
     public static TextEntry resourcePack(@Nonnull String modid, @Nonnull String name) { return new TextEntry("resourcepack." + modid + "." + name); }
 
+    public static TextEntry reiGroup(@Nonnull String modid, @Nonnull String type) { return new TextEntry("rei." + modid + ".group." + type); }
     public static TextEntry jeiInfo(@Nonnull String modid, @Nonnull String type) { return new TextEntry("jei." + modid + ".info." + type); }
     public static TextEntry curiosSlot(@Nonnull String type) { return new TextEntry("curios.identifier." + type); }
 

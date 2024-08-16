@@ -521,6 +521,7 @@ public final class LCConfig {
         public final IntOption walletExchangeLevel = IntOption.create(1,0,6);
         public final IntOption walletPickupLevel = IntOption.create(2,0,6);
         public final IntOption walletBankLevel = IntOption.create(5,0,6);
+        public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
         //Item Capacity Upgrade Settings
         public final IntOption itemCapacityUpgrade1 = IntOption.create(3*64, 1, 100*64);
@@ -677,6 +678,10 @@ public final class LCConfig {
             builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
                             "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
                     .add("bankLevel", this.walletBankLevel);
+
+            builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
+                            "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")
+                    .add("manualDropOverride",this.walletDropsManualSpawn);
 
             builder.pop();
 

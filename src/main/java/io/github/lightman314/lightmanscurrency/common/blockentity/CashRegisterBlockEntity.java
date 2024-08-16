@@ -74,10 +74,9 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 	public List<TraderData> getTraders() {
 		List<TraderData> traders = new ArrayList<>();
 		for (BlockPos position : this.positions) {
-			BlockEntity be = this.level.getBlockEntity(position);
-			if (be instanceof TraderBlockEntity<?>) {
-				TraderData trader = ((TraderBlockEntity<?>) be).getTraderData();
-				if (trader != null)
+			if (this.level.getBlockEntity(position) instanceof TraderBlockEntity<?> be) {
+				TraderData trader = be.getTraderData();
+				if (trader != null && trader.allowAccess())
 					traders.add(trader);
 			}
 		}

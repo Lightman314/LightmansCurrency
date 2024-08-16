@@ -60,7 +60,7 @@ public class FTBTeamOwner extends Owner {
 
     @Nonnull
     @Override
-    public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(); }
+    public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(),this.teamID); }
 
     @Override
     public boolean stillValid() {

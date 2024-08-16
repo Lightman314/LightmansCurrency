@@ -170,9 +170,12 @@ public class WalletItem extends Item{
 			return;
 
 		MoneyView contents = data.getStoredMoney();
-		tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
-		for(MoneyValue val : contents.allValues())
-			tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+		if(!contents.isEmpty())
+		{
+			tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
+			for(MoneyValue val : contents.allValues())
+				tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+		}
 	}
 	
 	@Nonnull

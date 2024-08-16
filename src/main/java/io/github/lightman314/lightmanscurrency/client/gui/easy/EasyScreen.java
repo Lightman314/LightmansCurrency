@@ -101,8 +101,6 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         //Render background tint
         this.renderBlurredBackground(partialTicks);
         this.renderMenuBackground(mcgui);
-        //Manually run the forge BackgroundRendered event
-        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ScreenEvent.BackgroundRendered(this, mcgui));
         //Render background
         this.renderBG(gui);
         //Render Widgets

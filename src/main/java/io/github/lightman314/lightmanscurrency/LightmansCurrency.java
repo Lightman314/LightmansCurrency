@@ -121,12 +121,8 @@ public class LightmansCurrency {
         //Setup Deferred Registries
         ModRegistries.register(eventBus);
         
-        //Register the proxy so that it can run custom events
-		if(PROXY.isClient())
-		{
-			NeoForge.EVENT_BUS.register(PROXY);
-			PROXY.init(modContainer);
-		}
+        //Initialize the proxy
+		PROXY.init(modContainer);
 
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
@@ -143,7 +139,7 @@ public class LightmansCurrency {
 		ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
 
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
-		//IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);
+		//IntegrationUtil.SafeRunIfLoaded("cadmus",LCCadmusIntegration::setup,null);
 
 		//Setup Money System
 		CoinAPI.API.Setup();

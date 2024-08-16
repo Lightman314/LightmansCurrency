@@ -4,17 +4,21 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.PlayerBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.TeamBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -24,8 +28,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.UUID;
 
 public class CommandBank {
 
@@ -89,7 +96,15 @@ public class CommandBank {
                                         .then(Commands.argument("amount", MoneyValueArgument.argument(context))
                                                 .executes(c -> takeTeam(c,true))
                                                 .then(Commands.argument("notifyPlayers",BoolArgumentType.bool())
-                                                        .executes(c -> takeTeam(c,BoolArgumentType.getBool(c,"notifyPlayers"))))))));
+                                                        .executes(c -> takeTeam(c,BoolArgumentType.getBool(c,"notifyPlayers"))))))))
+                .then(Commands.literal("delete")
+                        .then(Commands.literal("player")
+                                .then(Commands.literal("online")
+                                    .then(Commands.argument("player",EntityArgument.player())
+                                            .executes(CommandBank::deletePlayerAccount)))
+                                .then(Commands.literal("offline")
+                                        .then(Commands.argument("nameOrID", StringArgumentType.word())
+                                                .executes(CommandBank::deleteOfflinePlayerAccount)))));
 
         dispatcher.register(bankCommand);
 
@@ -234,6 +249,47 @@ public class CommandBank {
                 EasyText.sendCommandSucess(source, LCText.COMMAND_BANK_TAKE_SUCCESS.get(largestAmount.getText(), count), true);
         }
         return count;
+    }
+
+    static int deletePlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        Player player = EntityArgument.getPlayer(context,"player");
+
+        BankSaveData.DeleteBankAccount(player.getUUID());
+        EasyText.sendCommandSucess(context.getSource(),LCText.COMMAND_BANK_DELETE_PLAYER_RESET.get(player.getDisplayName()), true);
+        return 1;
+    }
+
+    private static final DynamicCommandExceptionType INVALID_PLAYER_INPUT_TYPE = new DynamicCommandExceptionType(LCText.COMMAND_BANK_DELETE_PLAYER_INVALID_INPUT::get);
+
+    static int deleteOfflinePlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        String input = StringArgumentType.getString(context,"nameOrID");
+        try {
+            UUID playerID = UUID.fromString(input);
+            PlayerReference pr = PlayerReference.of(playerID,"");
+            return handleDeletion(pr,context.getSource());
+        } catch (IllegalArgumentException e) {
+            PlayerReference pr = PlayerReference.of(false,input);
+            if(pr != null)
+                return handleDeletion(pr,context.getSource());
+            else
+                throw INVALID_PLAYER_INPUT_TYPE.create(input);
+        }
+    }
+
+    private static int handleDeletion(@Nonnull PlayerReference player, @Nonnull CommandSourceStack source)
+    {
+        if(BankSaveData.DeleteBankAccount(player.id))
+        {
+            EasyText.sendCommandSucess(source,LCText.COMMAND_BANK_DELETE_PLAYER_SUCCESS.get(player.getName(false)),true);
+            return 1;
+        }
+        else
+        {
+            EasyText.sendCommandFail(source,LCText.COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST.get(player.getName(false)));
+            return 0;
+        }
     }
 
 }

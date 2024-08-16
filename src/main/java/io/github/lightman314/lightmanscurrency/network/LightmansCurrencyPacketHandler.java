@@ -51,6 +51,7 @@ public class LightmansCurrencyPacketHandler {
 		registerC2S(CPacketBankInteraction.HANDLER);
 		registerS2C(SPacketClearClientBank.HANDLER);
 		registerS2C(SPacketUpdateClientBank.HANDLER);
+		registerS2C(SPacketDeleteClientBank.HANDLER);
 		registerC2S(CPacketBankTransferTeam.HANDLER);
 		registerC2S(CPacketBankTransferPlayer.HANDLER);
 		registerS2C(SPacketBankTransferResponse.HANDLER);

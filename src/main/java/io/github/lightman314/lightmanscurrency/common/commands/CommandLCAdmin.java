@@ -17,6 +17,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
@@ -24,7 +25,9 @@ import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
@@ -52,6 +55,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -81,6 +85,10 @@ public class CommandLCAdmin {
 						.then(Commands.literal("debug")
 								.then(Commands.argument("traderID", TraderArgument.trader())
 										.executes(CommandLCAdmin::debugTraderData)))
+						.then(Commands.literal("recover")
+								.requires(CommandSourceStack::isPlayer)
+								.then(Commands.argument("traderID", TraderArgument.recoverableTrader())
+										.executes(CommandLCAdmin::recoverTraderItem)))
 						.then(Commands.literal("addToWhitelist")
 								.then(Commands.argument("traderID", TraderArgument.traderWithPersistent())
 										.then(Commands.argument("player", EntityArgument.players())
@@ -240,7 +248,11 @@ public class CommandLCAdmin {
 		//Owner
 		EasyText.sendCommandSucess(source, thisTrader.getOwner().getValidOwner().getCommandLabel(), false);
 
-		if(!thisTrader.isPersistent())
+		TraderState state = thisTrader.getState();
+		//State
+		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_STATE.get(state), false);
+
+		if(thisTrader.hasWorldPosition())
 		{
 			//Dimension
 			String dimension = thisTrader.getLevel().location().toString();
@@ -280,6 +292,31 @@ public class CommandLCAdmin {
 		if(commandContext.getSource().isPlayer())
 			new SPacketDebugTrader(trader.getID()).sendTo(commandContext.getSource().getPlayerOrException());
 		return 1;
+	}
+
+	static int recoverTraderItem(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		CommandSourceStack sourceStack = commandContext.getSource();
+		TraderData trader = TraderArgument.getTrader(commandContext,"traderID");
+		ServerPlayer player = sourceStack.getPlayerOrException();
+		if(trader.isRecoverable())
+		{
+			Item item = trader.getTraderBlock();
+			if(item == null)
+			{
+				EasyText.sendCommandFail(sourceStack,LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_FAIL_NO_ITEM.get());
+				return 0;
+			}
+			else
+			{
+				ItemStack stack = new ItemStack(item);
+				stack.set(ModDataComponents.TRADER_ITEM_DATA,new TraderItemData(trader.getID()));
+				ItemHandlerHelper.giveItemToPlayer(player,stack);
+				EasyText.sendCommandSucess(sourceStack,LCText.COMMAND_ADMIN_TRADERDATA_RECOVER_SUCCESS.get(),true);
+				return 1;
+			}
+		}
+		throw TraderArgument.ERROR_NOT_RECOVERABLE.create();
 	}
 
 	static int addToTraderWhitelist(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException

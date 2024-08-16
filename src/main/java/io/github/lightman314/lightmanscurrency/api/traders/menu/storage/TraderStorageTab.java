@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -10,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public abstract class TraderStorageTab implements LazyPacketData.IBuilderProvider {
+public abstract class TraderStorageTab implements LazyPacketData.IBuilderProvider, IClientTracker {
 
 	//0-9 "Basic Tabs"
 	public static final int TAB_TRADE_BASIC = 0;
@@ -31,7 +32,10 @@ public abstract class TraderStorageTab implements LazyPacketData.IBuilderProvide
 	public static final int TAB_RULES_TRADE = 101;
 	
 	public final ITraderStorageMenu menu;
-	
+
+	@Override
+	public boolean isClient() { return this.menu.isClient(); }
+
 	protected TraderStorageTab(@Nonnull ITraderStorageMenu menu) { this.menu = menu; }
 
 	@Nonnull

@@ -80,7 +80,10 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		int unitWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get());
 		this.durationInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 30 - labelWidth - unitWidth, 18, EasyText.empty()));
 		this.durationInput.setValue(String.valueOf(trade.getDuration()));
-		
+
+		//Hide Coin Slots
+		this.menu.SetCoinSlotsActive(false);
+
 	}
 
 	@Override
@@ -100,6 +103,12 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		int unitWidth = gui.font.width(unitText);
 		gui.drawString(unitText, this.screen.getXSize() - unitWidth - 13, 42, 0x404040);
 		
+	}
+
+	@Override
+	protected void closeAction() {
+		//Reveal Coin Slots
+		this.menu.SetCoinSlotsActive(true);
 	}
 
 	private Component getTicketStubButtonTooltip() {

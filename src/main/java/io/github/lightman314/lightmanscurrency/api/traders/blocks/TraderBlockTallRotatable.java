@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -121,23 +120,10 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 
         return state;
     }
-	
+
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
-		super.onInvalidRemoval(state, level, pos, trader);
-		//Destroy the other half of the Tall Block
+	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
 		setAir(level, this.getOtherHeight(pos, state), null);
-	}
-	
-	protected final void setAir(Level level, BlockPos pos, Player player)
-	{
-		BlockState state = level.getBlockState(pos);
-		if(state.getBlock() == this)
-		{
-			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player != null)
-				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
-		}
 	}
 	
 	@Nullable

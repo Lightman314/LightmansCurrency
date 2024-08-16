@@ -8,11 +8,7 @@ import com.google.common.base.Suppliers;
 
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
@@ -27,13 +23,11 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlock
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -42,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -51,9 +46,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ClientProxy extends CommonProxy{
 	boolean openNotifications = false;
@@ -66,7 +61,7 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void init(@Nonnull ModContainer modContainer) {
-		//modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+		NeoForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -133,7 +128,10 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void updateBankAccount(UUID player, CompoundTag compound) { ClientBankData.UpdateBankAccount(player, compound); }
-	
+
+	@Override
+	public void removeBankAccount(UUID player) { ClientBankData.DeleteBankAccount(player); }
+
 	@Override
 	public void receiveEmergencyEjectionData(CompoundTag compound)
 	{
@@ -202,27 +200,7 @@ public class ClientProxy extends CommonProxy{
 		}
 	}
 	
-	@SubscribeEvent
-	//Add coin value tooltips to non CoinItem coins.
-	public void onItemTooltip(ItemTooltipEvent event) {
-		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable() || event.getContext().registries() == null)
-			return;
-		ItemStack stack = event.getItemStack();
-		if(CoinAPI.API.IsCoin(stack, true))
-			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 
-		//If item has money mending, display money mending tooltip
-		MoneyMendingEnchantment.addEnchantmentTooltips(stack,event.getToolTip(),event.getContext());
-
-		if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get() && stack.getItem() instanceof BlockItem bi)
-		{
-			Block b = bi.getBlock();
-			if(b instanceof IOwnableBlock)
-				event.getToolTip().add(LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
-		}
-
-
-	}
 	
 	@Override
 	public void playCoinSound() {
@@ -231,6 +209,19 @@ public class ClientProxy extends CommonProxy{
 			Minecraft minecraft = Minecraft.getInstance();
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 		}
+	}
+
+	@Nullable
+	@Override
+	public Level getDimension(boolean isClient, @Nonnull ResourceKey<Level> type) {
+		if(isClient)
+		{
+			Minecraft mc = Minecraft.getInstance();
+			if(mc.level != null && mc.level.dimension().location().equals(type.location()))
+				return mc.level;
+			return null;
+		}
+		return super.getDimension(isClient,type);
 	}
 
 	@Override

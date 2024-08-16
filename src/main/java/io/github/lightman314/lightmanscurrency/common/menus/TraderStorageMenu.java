@@ -50,7 +50,10 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	public Player getPlayer() { return this.player; }
 
 	private final Supplier<TraderData> traderSource;
-	public final TraderData getTrader() { return this.traderSource.get(); }
+	public final TraderData getTrader() {
+		TraderData trader = this.traderSource.get();
+		return trader != null && trader.allowAccess() ? trader : null;
+	}
 
 	public static final int SLOT_OFFSET = 15;
 

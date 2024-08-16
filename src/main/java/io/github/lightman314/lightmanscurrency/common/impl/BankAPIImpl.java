@@ -84,6 +84,7 @@ public class BankAPIImpl extends BankAPI {
         return references;
     }
 
+    @Nonnull
     @Override
     public List<IBankAccount> GetAllBankAccounts(boolean isClient) {
         List<IBankAccount> accounts = new ArrayList<>();

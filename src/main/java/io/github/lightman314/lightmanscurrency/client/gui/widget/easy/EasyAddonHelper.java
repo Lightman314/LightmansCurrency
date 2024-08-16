@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -10,8 +11,10 @@ import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -33,6 +36,7 @@ public class EasyAddonHelper {
     public static WidgetAddon tooltip(@Nonnull Supplier<Component> tooltip) { return new TooltipAddon(() -> ImmutableList.of(tooltip.get())); }
     public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip) { return new TooltipAddon(tooltip); }
 
+    public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip, int width) { return new TooltipSplitterAddon(tooltip,width); }
     public static WidgetAddon tooltip(@Nonnull Component tooltip, int width) { return new TooltipSplitterAddon(tooltip, width); }
     public static WidgetAddon tooltip(@Nonnull TextEntry tooltip, int width) { return new TooltipSplitterAddon(tooltip.get(), width); }
 
@@ -92,9 +96,11 @@ public class EasyAddonHelper {
 
     private static class TooltipSplitterAddon extends WidgetAddon implements ITooltipSource
     {
-        private final Component tooltip;
+        private final Supplier<List<Component>> tooltip;
         private final int width;
-        TooltipSplitterAddon(@Nonnull Component tooltip, int width) { this.tooltip = tooltip; this.width = width; }
+        TooltipSplitterAddon(@Nonnull Component tooltip, int width) { this(Lists.newArrayList(tooltip),width); }
+        TooltipSplitterAddon(@Nonnull List<Component> tooltip, int width) { this(() -> tooltip,width); }
+        TooltipSplitterAddon(@Nonnull Supplier<List<Component>> tooltip, int width) { this.tooltip = tooltip; this.width = width; }
 
         @Override
         public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
@@ -103,7 +109,13 @@ public class EasyAddonHelper {
         public void renderTooltip(EasyGuiGraphics gui) {
             EasyWidget w = this.getWidget();
             if(w != null && w.isActive() && w.getArea().isMouseInArea(gui.mousePos))
-                gui.renderTooltip(gui.font.split(this.tooltip, this.width));
+            {
+                List<FormattedCharSequence> t = new ArrayList<>();
+                for(Component c : this.tooltip.get())
+                    t.addAll(gui.font.split(c,this.width));
+                gui.renderTooltip(t);
+            }
+
         }
     }
 

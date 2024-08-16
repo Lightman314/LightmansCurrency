@@ -42,17 +42,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
@@ -193,31 +189,22 @@ public class PaygateTraderData extends TraderData {
 	public List<PaygateTradeData> getTradeData() { return this.trades; }
 	
 	public int getTradeStock(int tradeIndex) { return 1; }
-	
-	private PaygateBlockEntity getBlockEntity() {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null)
-		{
-			ServerLevel l = server.getLevel(this.getLevel());
-			if(l != null && l.isLoaded(this.getPos()))
-			{
-				BlockEntity be = l.getBlockEntity(this.getPos());
-				if(be instanceof PaygateBlockEntity)
-					return (PaygateBlockEntity)be;
-			}
-		}
+
+	private PaygateBlockEntity getPaygate() {
+		if(this.getBlockEntity() instanceof PaygateBlockEntity be)
+			return be;
 		return null;
 	}
 	
 	public boolean isActive() {
-		PaygateBlockEntity be = this.getBlockEntity();
+		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
 			return be.isActive();
 		return false;
 	}
 	
 	private void activate(int duration) {
-		PaygateBlockEntity be = this.getBlockEntity();
+		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
 			be.activate(duration);
 	}

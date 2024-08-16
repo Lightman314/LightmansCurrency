@@ -255,10 +255,10 @@ public class PaygateTradeData extends TradeData {
 		if(hours > 0)
 			return formatUnitShort(hours,LCText.TIME_UNIT_HOUR);
 		if(minutes > 0)
-			return formatUnitShort(hours,LCText.TIME_UNIT_MINUTE);
+			return formatUnitShort(minutes,LCText.TIME_UNIT_MINUTE);
 		if(seconds > 0)
-			return formatUnitShort(hours,LCText.TIME_UNIT_SECOND);
-		return formatUnitShort(hours,LCText.TIME_UNIT_TICK);
+			return formatUnitShort(seconds,LCText.TIME_UNIT_SECOND);
+		return formatUnitShort(ticks,LCText.TIME_UNIT_TICK);
 	}
 	
 	public static MutableComponent formatDuration(int duration) { 
@@ -287,7 +287,7 @@ public class PaygateTradeData extends TradeData {
 		}
 		if(ticks > 0)
 		{
-			appendUnit(result, addSpacer, seconds, LCText.TIME_UNIT_TICK);
+			appendUnit(result, addSpacer, ticks, LCText.TIME_UNIT_TICK);
 			//addSpacer = true;
 		}
 		return result;

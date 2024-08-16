@@ -13,6 +13,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
+import javax.annotation.Nonnull;
+
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientBankData {
 
@@ -29,7 +31,9 @@ public class ClientBankData {
 	}
 	
 	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
-	
+
+	public static void DeleteBankAccount(@Nonnull UUID player) { loadedBankAccounts.remove(player); }
+
 	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {

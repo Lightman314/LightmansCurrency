@@ -141,10 +141,9 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 
         return state;
     }
-	
+
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
-		super.onInvalidRemoval(state, level, pos, trader);
+	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
 		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
 		setAir(level, otherPos, null);
 		setAir(level, this.getOtherHeight(otherPos, state), null);
