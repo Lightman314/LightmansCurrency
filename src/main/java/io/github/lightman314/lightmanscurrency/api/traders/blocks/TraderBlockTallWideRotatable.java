@@ -145,6 +145,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	@Override
 	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
 		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+		setAir(level, this.getOtherHeight(pos,state),null);
 		setAir(level, otherPos, null);
 		setAir(level, this.getOtherHeight(otherPos, state), null);
 	}
