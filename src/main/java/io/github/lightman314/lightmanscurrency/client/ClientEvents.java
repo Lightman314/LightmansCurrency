@@ -219,7 +219,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	//Add coin value tooltips to non CoinItem coins.
-	public void onItemTooltip(ItemTooltipEvent event) {
+	public static void onItemTooltip(ItemTooltipEvent event) {
 		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())
 			return;
 		ItemStack stack = event.getItemStack();
