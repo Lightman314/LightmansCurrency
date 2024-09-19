@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.colors.ATMCardColor;
 import io.github.lightman314.lightmanscurrency.client.colors.GoldenTicketColor;
 import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.NetworkTerminalScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMa
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
@@ -39,13 +40,14 @@ public class ClientModEvents {
 	{
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
 		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
-		event.register(new SusBlockColor.Item(), ModBlocks.SUS_JAR.get());
+		event.register(new ATMCardColor(),ModItems.ATM_CARD.get(),ModItems.PREPAID_CARD.get());
+		event.register(SusBlockColor.INSTANCE, ModBlocks.SUS_JAR.get());
 	}
 
 	@SubscribeEvent
 	public static void registerBlockColors(RegisterColorHandlersEvent.Block event)
 	{
-		event.register(new SusBlockColor(), ModBlocks.SUS_JAR.get());
+		event.register(SusBlockColor.INSTANCE, ModBlocks.SUS_JAR.get());
 	}
 
 	@SubscribeEvent
@@ -79,14 +81,18 @@ public class ClientModEvents {
 	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, PlayerSkin.Model skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
-		if(renderer instanceof LivingEntityRenderer livingRenderer) {
+		if(renderer instanceof LivingEntityRenderer livingRenderer)
 			livingRenderer.addLayer(new WalletLayer<>(livingRenderer));
-		}
 	}
 	
 	@SubscribeEvent
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
+		if(LCCurios.isLoaded())
+		{
+			event.register(ClientEvents.KEY_PORTABLE_ATM);
+			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
+		}
 	}
 
 	@SubscribeEvent
@@ -126,6 +132,10 @@ public class ClientModEvents {
 		event.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
 
 		event.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
+
+		event.register(ModMenus.NOTIFICATIONS.get(), NotificationScreen::new);
+
+		event.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
 	}
 
 	@SubscribeEvent

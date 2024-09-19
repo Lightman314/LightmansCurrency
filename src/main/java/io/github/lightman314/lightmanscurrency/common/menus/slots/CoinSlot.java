@@ -7,13 +7,14 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class CoinSlot extends SimpleSlot{
+public class CoinSlot extends EasySlot {
 	
 	public static final ResourceLocation EMPTY_COIN_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_coin_slot");
 	

@@ -28,7 +28,7 @@ public class SPacketSyncTime extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketSyncTime::encode,SPacketSyncTime::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncTime message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.setTimeDesync(message.time);
+			LightmansCurrency.getProxy().setTimeDesync(message.time);
 		}
 	}
 

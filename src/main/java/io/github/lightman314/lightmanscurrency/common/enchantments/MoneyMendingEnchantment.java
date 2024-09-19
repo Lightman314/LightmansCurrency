@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -48,10 +49,9 @@ public class MoneyMendingEnchantment {
 		ItemStack item = null;
 		if(entry.isEmpty())
 		{
-			//TODO perhaps add compat for curios-style mod in the future?
 			//If we failed to get a vanilla entry, check the curios slots (if applicable)
-			//if(LCCurios.isCuriosLoaded())
-			//	item = LCCurios.getRandomFromCuriosSlot(entity,s -> EnchantmentHelper.has(s, ModEnchantments.REPAIR_WITH_MONEY.get()));
+			if(LCCurios.isLoaded())
+				item = LCCurios.getRandomItem(entity,s -> EnchantmentHelper.has(s, ModEnchantments.REPAIR_WITH_MONEY.get()));
 		}
 		else
 			item = entry.get().itemStack();

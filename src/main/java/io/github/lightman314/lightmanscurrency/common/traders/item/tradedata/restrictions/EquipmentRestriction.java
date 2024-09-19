@@ -67,7 +67,7 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	}
 
 	private static ArmorStand safeGetDummyArmorStand() throws Exception {
-		return new ArmorStand(LightmansCurrency.PROXY.safeGetDummyLevel(), 0d, 0d, 0d);
+		return new ArmorStand(LightmansCurrency.getProxy().safeGetDummyLevel(), 0d, 0d, 0d);
 	}
 	
 }

@@ -23,14 +23,13 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWal
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 import javax.annotation.Nonnull;
 
 public class WalletScreen extends EasyMenuScreen<WalletMenu> {
-
-	private final int BASEHEIGHT = 114;
 	
 	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/wallet.png");
 
@@ -52,7 +51,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 	protected void initialize(ScreenArea screenArea)
 	{
 
-		screenArea = this.resize(176, BASEHEIGHT + this.menu.getRowCount() * 18);
+		screenArea = this.resize(176 + this.menu.bonusWidth, 114 + this.menu.coinSlotHeight * 18);
 
 		this.buttonExchange = null;
 		this.buttonToggleAutoExchange = null;
@@ -63,14 +62,14 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		if(this.menu.canExchange())
 		{
 			//Create the buttons
-			this.buttonExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressExchangeButton, IconData.of(GUI_TEXTURE, this.imageWidth, 0))
+			this.buttonExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressExchangeButton, IconData.of(GUI_TEXTURE, 176, 0))
 					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE)));
 
 			this.positioner.addWidget(this.buttonExchange);
 
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressAutoExchangeToggleButton, IconData.of(GUI_TEXTURE, this.imageWidth, 16))
+				this.buttonToggleAutoExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressAutoExchangeToggleButton, IconData.of(GUI_TEXTURE, 176, 16))
 						.withAddons(EasyAddonHelper.tooltip(this::getAutoExchangeTooltip)));
 				this.updateToggleButton();
 				this.positioner.addWidget(this.buttonToggleAutoExchange);
@@ -79,12 +78,12 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 		if(this.menu.hasBankAccess())
 		{
-			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.ATM.get().asItem()))
+			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.ATM.get()))
 					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK)));
 			this.positioner.addWidget(this.buttonOpenBank);
 		}
 
-		this.buttonQuickCollect = this.addChild(new PlainButton(screenArea.pos.offset( 159, screenArea.height - 95), this::PressQuickCollectButton, SPRITE_QUICK_COLLECT));
+		this.buttonQuickCollect = this.addChild(new PlainButton(screenArea.pos.offset(159 + this.menu.halfBonusWidth, screenArea.height - 95), this::PressQuickCollectButton, SPRITE_QUICK_COLLECT));
 
 	}
 
@@ -93,25 +92,14 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 	{
 
 		gui.resetColor();
-		//Draw the top
-		gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.imageWidth, 17);
-		//Draw the middle strips
-		for(int y = 0; y < this.menu.getRowCount(); y++)
-			gui.blit(GUI_TEXTURE, 0, 17 + y * 18, 0, 17, this.imageWidth, 18);
-		//Draw the bottom
-		gui.blit(GUI_TEXTURE, 0, 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
-		
-		//Draw the slots
-		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
-		{
-			for(int x = 0; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
-			{
-				gui.blit(GUI_TEXTURE, 7 + x * 18, 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
-			}
-		}
+		//Draw the background
+		gui.renderNormalBackground(this);
+		//Draw each slot
+		for(Slot slot : this.menu.slots)
+			gui.renderSlot(this,slot);
 
 		gui.drawString(this.getWalletName(), 8, 6, 0x404040);
-		gui.drawString(this.playerInventoryTitle, 8, (this.getYSize() - 94), 0x404040);
+		gui.drawString(this.playerInventoryTitle, 8 + this.menu.halfBonusWidth, (this.getYSize() - 94), 0x404040);
 		
 	}
 	
@@ -137,7 +125,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 	{
 		//CurrencyMod.LOGGER.info("Updating AutoConvert Button");
 		this.autoExchange = this.menu.getAutoExchange();
-		this.buttonToggleAutoExchange.setIcon(IconData.of(GUI_TEXTURE, this.imageWidth, this.autoExchange ? 16 : 32));
+		this.buttonToggleAutoExchange.setIcon(IconData.of(GUI_TEXTURE, 176, this.autoExchange ? 16 : 32));
 	}
 
 	private Component getAutoExchangeTooltip() { return this.autoExchange ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }

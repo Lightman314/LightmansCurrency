@@ -58,28 +58,6 @@ public abstract class MoneyHandler extends MoneyViewer implements IMoneyHandler 
                 return handler.getStoredMoney();
             return MoneyView.empty();
         }
-
-        @Override
-        public boolean hasStoredMoneyChanged(@Nullable Object context) {
-            IMoneyHandler handler = this.getParent();
-            if(handler != null)
-                return handler.hasStoredMoneyChanged(context);
-            return false;
-        }
-
-        @Override
-        public void flagAsKnown(@Nullable Object context) {
-            IMoneyHandler handler = this.getParent();
-            if(handler != null)
-                handler.flagAsKnown(context);
-        }
-
-        @Override
-        public void forgetContext(@Nonnull Object context) {
-            IMoneyHandler handler = this.getParent();
-            if(handler != null)
-                handler.forgetContext(context);
-        }
     }
 
     private static class MultiMoneyHandler extends MoneyHandler
@@ -118,17 +96,10 @@ public abstract class MoneyHandler extends MoneyViewer implements IMoneyHandler 
         @Override
         public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.handlers.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
 
-
-        @Override
-        protected boolean hasStoredMoneyChanged() { return this.handlers.stream().anyMatch(h -> h.hasStoredMoneyChanged(this)); }
-
         @Override
         protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
             for(IMoneyHandler h : this.handlers)
-            {
                 builder.merge(h.getStoredMoney());
-                h.flagAsKnown(this);
-            }
         }
     }
 

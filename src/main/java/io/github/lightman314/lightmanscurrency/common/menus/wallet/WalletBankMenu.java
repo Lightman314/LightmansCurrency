@@ -25,7 +25,6 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 		this.coinInputHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinInput, this.getPlayer());
 		
 		this.addCoinSlots(BANK_WIDGET_SPACING + 1);
-		this.addDummySlots(WalletMenuBase.getMaxWalletSlots());
 		
 	}
 

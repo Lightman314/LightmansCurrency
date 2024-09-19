@@ -27,7 +27,7 @@ public class SPacketUpdateClientTrader extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketUpdateClientTrader::encode,SPacketUpdateClientTrader::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.updateTrader(message.traderData);
+			LightmansCurrency.getProxy().updateTrader(message.traderData);
 		}
 	}
 

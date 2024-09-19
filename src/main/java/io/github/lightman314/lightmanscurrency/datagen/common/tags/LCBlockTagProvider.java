@@ -141,6 +141,11 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         this.cTag(ResourceLocation.fromNamespaceAndPath("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
         this.cTag(ResourceLocation.fromNamespaceAndPath("cadmus", "allows_claim_interactions")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
 
+        //Blacklist ownable blocks from Carry-On mod, as it started ignoring the common/forge non-moveable tag
+        this.cTag(ResourceLocation.fromNamespaceAndPath("carryon","block_blacklist"))
+                .addTag(LCTags.Blocks.OWNER_PROTECTED)
+                .addTag(LCTags.Blocks.MULTI_BLOCK);
+
     }
 
     private CustomTagAppender cTag(TagKey<Block> tag) { return new CustomTagAppender(this.tag(tag)); }

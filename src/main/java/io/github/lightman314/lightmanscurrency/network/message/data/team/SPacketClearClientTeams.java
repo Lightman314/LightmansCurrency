@@ -21,7 +21,7 @@ public class SPacketClearClientTeams extends ServerToClientPacket {
 		protected H() { super(TYPE,INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketClearClientTeams message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.clearTeams();
+			LightmansCurrency.getProxy().clearTeams();
 		}
 	}
 

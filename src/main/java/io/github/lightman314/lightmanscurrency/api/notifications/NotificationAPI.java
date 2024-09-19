@@ -1,95 +1,74 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.impl.NotificationAPIImpl;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class NotificationAPI {
+public abstract class NotificationAPI {
 
-    private static final Map<String,NotificationType<?>> notificationRegistry = new HashMap<>();
-    private static final Map<String,NotificationCategoryType<?>> categoryRegistry = new HashMap<>();
+    public static NotificationAPI API = NotificationAPIImpl.INSTANCE;
 
+    /**
+     * Registers the given {@link NotificationType} to the registry so that it can be loaded via {@link #LoadNotification(CompoundTag, HolderLookup.Provider)}
+     */
+    public abstract void RegisterNotification(@Nonnull NotificationType<?> type);
 
-    public static void registerNotification(@Nonnull NotificationType<?> type)
-    {
-        String t = type.type.toString();
-        if(notificationRegistry.containsKey(t))
-        {
-            LightmansCurrency.LogWarning("Attempted to registerType duplicate NotificationType '" + t + "'!");
-            return;
-        }
-        notificationRegistry.put(t, type);
-        LightmansCurrency.LogInfo("Registered NotificationType " + type);
-    }
+    /**
+     * @deprecated Use {@link #RegisterNotification(NotificationType)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.2")
+    public static void registerNotification(@Nonnull NotificationType<?> type) { API.RegisterNotification(type); }
 
-    public static void registerCategory(@Nonnull NotificationCategoryType<?> type)
-    {
-        String t = type.type.toString();
-        if(categoryRegistry.containsKey(t))
-        {
-            LightmansCurrency.LogWarning("Attempted to registerType duplicate NotificationCategoryType '" + t + "'!");
-            return;
-        }
-        categoryRegistry.put(t, type);
-        LightmansCurrency.LogInfo("Registered NotificationCategoryType " + type);
-    }
+    /**
+     * Registers the given {@link NotificationCategoryType} to the registry so that it can be loaded via {@link #LoadCategory(CompoundTag, HolderLookup.Provider)}
+     */
+    public abstract void RegisterCategory(@Nonnull NotificationCategoryType<?> type);
 
+    /**
+     * @deprecated Use {@link #RegisterCategory(NotificationCategoryType)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.2")
+    public static void registerCategory(@Nonnull NotificationCategoryType<?> type) { API.RegisterCategory(type); }
+
+    /**
+     * Attempts to load a notification from the given NBT tag<br>
+     * Lookup Provider is required in 1.21+ as it's used to save text components for some odd reason<br>
+     * Should only attempt to load tags saved by {@link Notification#save(HolderLookup.Provider)}
+     */
     @Nullable
-    public static Notification loadNotification(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-        if(compound.contains("Type") || compound.contains("type"))
-        {
-            String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-            if(notificationRegistry.containsKey(type))
-            {
-                try {
-                    return notificationRegistry.get(type).load(compound, lookup);
-                } catch (Throwable t) {
-                    LightmansCurrency.LogError("Error loading Notification of type '" + type + "'", t);
-                    return null;
-                }
-            }
-            else
-            {
-                LightmansCurrency.LogError("Cannot load notification type " + type + " as no NotificationType has been registered.");
-                return null;
-            }
-        }
-        else
-        {
-            LightmansCurrency.LogError("Cannot deserialize notification as tag is missing the 'type' tag.");
-            return null;
-        }
-    }
+    public abstract Notification LoadNotification(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
 
+    /**
+     * @deprecated Use {@link #LoadNotification(CompoundTag,HolderLookup.Provider)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.2")
     @Nullable
-    public static NotificationCategory loadCategory(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
-    {
-        if(compound.contains("Type") || compound.contains("type"))
-        {
-            String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-            if(categoryRegistry.containsKey(type))
-                return categoryRegistry.get(type).load(compound, lookup);
-            else
-            {
-                LightmansCurrency.LogError("Cannot load notification category type " + type + " as no NotificationCategoryType has been registered.");
-                return null;
-            }
-        }
-        else
-        {
-            LightmansCurrency.LogError("Cannot deserialize notification category as tag is missing the 'type' tag.");
-            return null;
-        }
-    }
+    public static Notification loadNotification(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return API.LoadNotification(compound,lookup); }
 
-    public static void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification) { NotificationSaveData.PushNotification(playerID, notification); }
-    public static void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat) { NotificationSaveData.PushNotification(playerID, notification, pushToChat); }
+    /**
+     * Attempts to load the category from the given NBT tag<br>
+     * Lookup Provider is required in 1.21+ as it's used to save text components for some odd reason<br>
+     * Should only attempt to load tags saved by {@link NotificationCategory#save(HolderLookup.Provider)}
+     */
+    @Nullable
+    public abstract NotificationCategory LoadCategory(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
 
+    /**
+     * @deprecated Use {@link #LoadCategory(CompoundTag,HolderLookup.Provider)} instead
+     * @see #API
+     */
+    @Deprecated(since = "2.2.3.2")
+    @Nullable
+    public static NotificationCategory loadCategory(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return API.LoadCategory(compound,lookup); }
+
+    public final void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification) { this.PushPlayerNotification(playerID,notification,true); }
+    public abstract void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat);
 
 }

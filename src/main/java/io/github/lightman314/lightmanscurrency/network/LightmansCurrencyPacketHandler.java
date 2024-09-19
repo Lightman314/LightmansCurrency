@@ -111,8 +111,8 @@ public class LightmansCurrencyPacketHandler {
 
 		//Notifications
 		registerS2C(SPacketSyncNotifications.HANDLER);
-		registerC2S(CPacketFlagNotificationsSeen.HANDLER);
 		registerS2C(SPacketChatNotification.HANDLER);
+		registerC2S(CPacketOpenNotifications.HANDLER);
 
 		//Taxes
 		registerS2C(SPacketUpdateClientTax.HANDLER);

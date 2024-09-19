@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 public abstract class EasyMenu extends AbstractContainerMenu implements IClientTracker {
 
     public final Player player;
+    protected final Inventory inventory;
     @Nonnull
     public final RegistryAccess registryAccess() { return this.player.registryAccess(); }
 
@@ -30,7 +31,7 @@ public abstract class EasyMenu extends AbstractContainerMenu implements IClientT
     private final List<MenuValidator> validators = new ArrayList<>();
 
 
-    protected EasyMenu(@Nullable MenuType<?> type, int id, Inventory inventory) { super(type, id); this.player = inventory.player; }
+    protected EasyMenu(@Nullable MenuType<?> type, int id, Inventory inventory) { super(type, id); this.player = inventory.player; this.inventory = inventory; }
     protected EasyMenu(@Nullable MenuType<?> type, int id, Inventory inventory, MenuValidator validator) {
         this(type,id, inventory);
         if(validator != null)

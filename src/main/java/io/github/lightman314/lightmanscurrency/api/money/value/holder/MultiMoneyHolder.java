@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,14 +28,8 @@ public class MultiMoneyHolder extends MoneyHolder {
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         for(IMoneyHolder holder : this.holdersPayFirst)
-        {
             builder.merge(holder.getStoredMoney());
-            holder.flagAsKnown(this);
-        }
     }
-
-    @Override
-    public boolean hasStoredMoneyChanged() { return this.holdersPayFirst.stream().anyMatch(h -> h.hasStoredMoneyChanged(this)); }
 
     @Nonnull
     @Override
@@ -72,12 +65,5 @@ public class MultiMoneyHolder extends MoneyHolder {
     }
     @Override
     public Component getTooltipTitle() { return EasyText.empty(); }
-
-    public void clearCache(@Nullable Object context) {
-        if(context != null)
-            this.forgetContext(context);
-        for(IMoneyHolder holder : this.holdersTakeFirst)
-            holder.forgetContext(this);
-    }
 
 }

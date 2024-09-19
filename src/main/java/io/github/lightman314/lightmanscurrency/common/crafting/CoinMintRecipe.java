@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -85,6 +86,10 @@ public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 	@Override
 	@Nonnull
 	public RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
+
+	@Nonnull
+	@Override
+	public ItemStack getToastSymbol() { return new ItemStack(ModBlocks.COIN_MINT.get()); }
 
 	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
 

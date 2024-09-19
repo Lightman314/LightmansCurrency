@@ -58,22 +58,9 @@ public class PlayerMoneyHolder extends MoneyHolder {
     public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.handlers.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
 
     @Override
-    protected boolean hasStoredMoneyChanged() {
-        for(IPlayerMoneyHandler handler : this.handlers)
-        {
-            if(handler.hasStoredMoneyChanged(this))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         for(IPlayerMoneyHandler handler : this.handlers)
-        {
-            handler.flagAsKnown(this);
             builder.merge(handler.getStoredMoney());
-        }
     }
 
     @Override

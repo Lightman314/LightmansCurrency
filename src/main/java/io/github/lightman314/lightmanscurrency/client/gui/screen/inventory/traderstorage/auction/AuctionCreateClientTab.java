@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -20,11 +21,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentAuction;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -126,7 +127,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
 		gui.resetColor();
-		for(SimpleSlot slot : this.commonTab.getSlots())
+		for(EasySlot slot : this.commonTab.getSlots())
 		{
 			//Render Slot BG's
 			gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
@@ -149,7 +150,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		if(this.overtimeTextArea.offsetPosition(this.screen.getCorner()).isMouseInArea(gui.mousePos))
-			gui.renderComponentTooltip(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME.get());
+			gui.renderComponentTooltip(TooltipHelper.splitTooltips(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME.get()));
 	}
 
 	@Override
@@ -220,7 +221,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		//LightmansCurrency.LogInfo("Sending Auction to the server!\n" + this.pendingAuction.getAsNBT().getAsString());
 		this.commonTab.createAuction(this.pendingAuction);
 		this.locked = true;
-		for(SimpleSlot slot : this.commonTab.getSlots())
+		for(EasySlot slot : this.commonTab.getSlots())
 			slot.locked = true;
 	}
 	
@@ -238,7 +239,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			else
 			{
 				this.locked = false;
-				for(SimpleSlot slot : this.commonTab.getSlots())
+				for(EasySlot slot : this.commonTab.getSlots())
 					slot.locked = false;
 			}
 		}

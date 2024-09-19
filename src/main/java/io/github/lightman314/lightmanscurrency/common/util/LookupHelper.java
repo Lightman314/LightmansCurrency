@@ -38,7 +38,7 @@ public class LookupHelper {
     {
         if(isClient)
         {
-            RegistryAccess lookup = LightmansCurrency.PROXY.getClientRegistryHolder();
+            RegistryAccess lookup = LightmansCurrency.getProxy().getClientRegistryHolder();
             return lookup != null ? lookup : clientAccessCache;
         }
         else

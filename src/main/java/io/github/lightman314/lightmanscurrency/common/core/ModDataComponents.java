@@ -1,8 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -25,6 +28,8 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<SecurityUpgradeData>> SECURITY_UPGRADE_DATA;
     public static final Supplier<DataComponentType<BankUpgradeData>> BANK_UPGRADE_DATA;
     public static final Supplier<DataComponentType<Boolean>> UPGRADE_ACTIVE;
+    public static final Supplier<DataComponentType<ATMCardData>> ATM_CARD_DATA;
+    public static final Supplier<DataComponentType<MoneyValue>> MONEY_VALUE;
 
     static {
         WALLET_DATA = ModRegistries.DATA_COMPONENTS.register("wallet_data", () -> new DataComponentType.Builder<WalletData>().persistent(WalletData.CODEC).build());
@@ -37,7 +42,8 @@ public class ModDataComponents {
         SECURITY_UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("security_upgrade_data", () -> new DataComponentType.Builder<SecurityUpgradeData>().persistent(SecurityUpgradeData.CODEC).networkSynchronized(SecurityUpgradeData.STREAM_CODEC).build());
         BANK_UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("bank_upgrade_data", () -> new DataComponentType.Builder<BankUpgradeData>().persistent(BankUpgradeData.CODEC).networkSynchronized(BankUpgradeData.STREAM_CODEC).build());
         UPGRADE_ACTIVE = ModRegistries.DATA_COMPONENTS.register("upgrade_active", () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).build());
+        ATM_CARD_DATA = ModRegistries.DATA_COMPONENTS.register("atm_card_data", () -> new DataComponentType.Builder<ATMCardData>().persistent(ATMCardData.CODEC).networkSynchronized(ATMCardData.STREAM_CODEC).build());
+        MONEY_VALUE = ModRegistries.DATA_COMPONENTS.register("money_value", () -> new DataComponentType.Builder<MoneyValue>().persistent(LCCodecs.MONEY_VALUE).networkSynchronized(LCCodecs.MONEY_VALUE_STREAM).build());
     }
-
 
 }

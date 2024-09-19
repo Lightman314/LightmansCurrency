@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public abstract class DepositWithdrawNotification extends Notification {
 
 	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_player"),DepositWithdrawNotification::createPlayer);
-	public static final NotificationType<Trader> TRADER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);
+	public static final NotificationType<Custom> CUSTOM_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);
 	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_server"),DepositWithdrawNotification::createServer);
 
 	protected MutableComponent accountName;
@@ -56,7 +56,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW.get(this.getName(), this.isDeposit ? LCText.NOTIFICATION_BANK_DEPOSIT.get() : LCText.NOTIFICATION_BANK_WITHDRAW.get(), this.amount.getText()); }
 
 	private static Player createPlayer() { return new Player(); }
-	private static Trader createTrader() { return new Trader(); }
+	private static Custom createTrader() { return new Custom(); }
 	private static Server createServer() { return new Server(); }
 
 	public static class Player extends DepositWithdrawNotification {
@@ -94,36 +94,36 @@ public abstract class DepositWithdrawNotification extends Notification {
 		
 	}
 	
-	public static class Trader extends DepositWithdrawNotification {
-		MutableComponent traderName;
+	public static class Custom extends DepositWithdrawNotification {
+		MutableComponent objectName;
 
-		private Trader() {}
-		public Trader(String traderName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { this(EasyText.literal(traderName),accountName,isDeposit,amount); }
-		public Trader(MutableComponent traderName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.traderName = traderName; }
+		private Custom() {}
+		public Custom(String objectName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { this(EasyText.literal(objectName),accountName,isDeposit,amount); }
+		public Custom(MutableComponent objectName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.objectName = objectName; }
 
 		@Override
-		protected MutableComponent getName() { return this.traderName; }
+		protected MutableComponent getName() { return this.objectName; }
 		
 		@Nonnull
         @Override
-		protected NotificationType<Trader> getType() { return TRADER_TYPE; }
+		protected NotificationType<Custom> getType() { return CUSTOM_TYPE; }
 		
 		@Override
 		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 			super.saveAdditional(compound,lookup);
-			compound.putString("Trader", Component.Serializer.toJson(this.traderName,lookup));
+			compound.putString("Trader", Component.Serializer.toJson(this.objectName,lookup));
 		}
 		
 		@Override
 		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 			super.loadAdditional(compound,lookup);
-			this.traderName = Component.Serializer.fromJson(compound.getString("Trader"),lookup);
+			this.objectName = Component.Serializer.fromJson(compound.getString("Trader"),lookup);
 		}
 		
 		@Override
 		protected boolean canMerge(@Nonnull Notification other) {
-			if(other instanceof Trader n)
-				return n.accountName.equals(this.accountName) && n.isDeposit == this.isDeposit && n.amount.equals(this.amount) && n.traderName.equals(this.traderName);
+			if(other instanceof Custom n)
+				return n.accountName.equals(this.accountName) && n.isDeposit == this.isDeposit && n.amount.equals(this.amount) && n.objectName.equals(this.objectName);
 			return false;
 		}
 		

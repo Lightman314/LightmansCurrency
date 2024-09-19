@@ -10,8 +10,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class CapabilityMoneyHandler {
 
-    public static final ItemCapability<IMoneyHandler,Void> MONEY_HANDLER_ITEM = ItemCapability.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"money_handler_item"),IMoneyHandler.class,Void.class);
+    /**
+     * Important Note:<br>
+     * If an item-related Money Handler required knowledge of which logical side it's being interacted on, please implement {@link io.github.lightman314.lightmanscurrency.api.misc.ISidedObject ISidedObject} so that it can be properly flagged<br>
+     * All items with a Money Handler capability will automatically function as trader payment, etc.
+     */
+    public static final ItemCapability<IMoneyHandler,Void> MONEY_HANDLER_ITEM = ItemCapability.createVoid(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"money_handler_item"),IMoneyHandler.class);
     public static final BlockCapability<IMoneyHandler,@Nullable Direction> MONEY_HANDLER_BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"money_handler_block"),IMoneyHandler.class);
-    public static final EntityCapability<IMoneyHandler,Void> MONEY_HANDLER_ENTITY = EntityCapability.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"money_handler_entity"),IMoneyHandler.class,Void.class);
+    public static final EntityCapability<IMoneyHandler,Void> MONEY_HANDLER_ENTITY = EntityCapability.createVoid(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"money_handler_entity"),IMoneyHandler.class);
 
 }

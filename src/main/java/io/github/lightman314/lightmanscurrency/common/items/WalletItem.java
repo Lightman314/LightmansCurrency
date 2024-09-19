@@ -4,19 +4,28 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -25,28 +34,68 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 
 public class WalletItem extends Item{
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER.value();
-	private final ResourceLocation MODEL_TEXTURE;
-	
+	private final ResourceLocation modelTexture;
+	/**
+	 * A constant denoting the highest expected level of a wallet item<br>
+	 * Used to limit the input of wallet feature config options
+	 */
+	public static final int LARGEST_LEVEL = 6;
+	public static final int CONFIG_LIMIT = LARGEST_LEVEL + 1;
+
+	/**
+	 * The number of slots added by each upgrade material
+	 */
+	public static final int SLOTS_PER_UPGRADE = 6;
+	/**
+	 * Maximum slots that can be added by an upgrade
+	 */
+	public static final int SLOT_UPGRADE_LIMIT = 24;
+
 	private final int level;
 	private final int storageSize;
-	
-	public WalletItem(int level, int storageSize, String modelName, Properties properties)
+	private final int bonusMagnet;
+	public final boolean indestructible;
+
+	/**
+	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
+	 */
+	public WalletItem(int level, int storageSize, @Nonnull String modelName, @Nonnull Properties properties) { this(level, storageSize, modelName, false, 0, properties); }
+	public WalletItem(int level, int storageSize, @Nonnull String modelName, boolean indestructible, int bonusMagnet, @Nonnull Properties properties) { this(level, storageSize, ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,modelName), indestructible, bonusMagnet, properties); }
+	/**
+	 * Default constructor
+	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
+	 *              Should not exceeed {@link #LARGEST_LEVEL}
+	 * @param storageSize The number of coin slots included in this wallets inventory
+	 * @param modelTexture The wallets model texture location<br>
+	 *              Automatically formatted within the constructor to find the texture in <code>assets/NAMESPACE/textures/entity/PATH.png</code>
+	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
+	 */
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation modelTexture, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
 	{
 		super(properties.stacksTo(1));
 		this.level = level;
 		this.storageSize = storageSize;
+		this.indestructible = indestructible;
+		this.bonusMagnet = bonusMagnet;
 		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
-		this.MODEL_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
+		this.modelTexture = ResourceLocation.fromNamespaceAndPath(modelTexture.getNamespace(), "textures/entity/" + modelTexture.getPath() + ".png");
 	}
 	
 	@Override
@@ -54,7 +103,66 @@ public class WalletItem extends Item{
 	
 	@Override
 	public boolean isEnchantable(@Nonnull ItemStack stack) { return true; }
-	
+
+	@Override
+	public int getEnchantmentLevel(@Nonnull ItemStack stack, @Nonnull Holder<Enchantment> enchantment) {
+		if(this.bonusMagnet > 0 && enchantment.is(ModEnchantments.COIN_MAGNET))
+			return super.getEnchantmentLevel(stack,enchantment) + this.bonusMagnet;
+		return super.getEnchantmentLevel(stack, enchantment);
+	}
+
+	@Nonnull
+	@Override
+	public ItemEnchantments getAllEnchantments(@Nonnull ItemStack stack, @Nonnull HolderLookup.RegistryLookup<Enchantment> lookup) {
+		ItemEnchantments enchantments = super.getAllEnchantments(stack,lookup);
+		if(this.bonusMagnet > 0)
+		{
+			ItemEnchantments.Mutable e = new ItemEnchantments.Mutable(enchantments);
+			lookup.get(ModEnchantments.COIN_MAGNET).ifPresent(cm ->
+				e.set(cm,e.getLevel(cm) + this.bonusMagnet)
+			);
+			enchantments = e.toImmutable();
+		}
+		return enchantments;
+	}
+
+	@Override
+	public boolean canBeHurtBy(@Nonnull ItemStack stack, @Nonnull DamageSource source) {
+		if(this.indestructible)
+			return false;
+		return super.canBeHurtBy(stack, source);
+	}
+
+	@Override
+	public boolean onEntityItemUpdate(@Nonnull ItemStack stack, @Nonnull ItemEntity entity) {
+		//Do nothing on the client
+		if(entity.level().isClientSide)
+			return false;
+		//Make item not despawn if indestructable
+		if(this.indestructible && entity.getAge() >= 0)
+			entity.setUnlimitedLifetime();
+		return false;
+	}
+
+	@Override
+	public boolean overrideOtherStackedOnMe(@Nonnull ItemStack wallet, @Nonnull ItemStack item, @Nonnull Slot slot, @Nonnull ClickAction action, @Nonnull Player player, @Nonnull SlotAccess slotAccess) {
+		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && InventoryUtil.ItemHasTag(item, LCTags.Items.WALLET_UPGRADE_MATERIAL))
+		{
+			WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.createFor(wallet));
+			int bonusSlots = data.getBonusSlots();
+			//Still consume the interaction if the item was in fact an upgrade item
+			if(bonusSlots >= SLOT_UPGRADE_LIMIT)
+				return true;
+			//Don't allow when in the wallet menu, just to be on the safe side
+			if(player.containerMenu instanceof WalletMenuBase walletMenu)
+				return true;
+			item.shrink(1);
+			wallet.set(ModDataComponents.WALLET_DATA,data.withAddedBonusSlots(SLOTS_PER_UPGRADE));
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
 	 * Returns true if the stack is empty, so you will need to check for that separately.
@@ -105,25 +213,26 @@ public class WalletItem extends Item{
 			return false;
 		return wallet.level >= LCConfig.SERVER.walletBankLevel.get();
 	}
-	
-	/**
-	 * The number of inventory slots the WalletItem has.
-	 */
-	public static int InventorySize(WalletItem wallet)
+
+	public static int BonusSlots(@Nonnull ItemStack walletStack)
 	{
-		if(wallet == null)
-			return 0;
-		return wallet.storageSize;
+		if(walletStack.getItem() instanceof WalletItem wallet)
+			return walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY).getBonusSlots();
+		return 0;
 	}
-	
+
 	/**
 	 * The number of inventory slots the Wallet Stack has.<br>
-	 * Returns 0 if the item is not a valid wallet.
+	 * Returns 0 if the item is not a valid wallet.<br>
+	 * Factors in added bonus slots in the stacks present {@link io.github.lightman314.lightmanscurrency.common.items.data.WalletData#bonusSlots() WalletData#bonusSlots()} value
 	 */
-	public static int InventorySize(ItemStack wallet)
+	public static int InventorySize(@Nonnull ItemStack walletStack)
 	{
-		if(wallet.getItem() instanceof WalletItem)
-			return InventorySize((WalletItem)wallet.getItem());
+		if(walletStack.getItem() instanceof WalletItem wallet)
+		{
+			WalletData data = walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY);
+			return wallet.storageSize + data.bonusSlots();
+		}
 		return 0;
 	}
 
@@ -142,6 +251,20 @@ public class WalletItem extends Item{
 		super.appendHoverText(stack,context,tooltip,flagIn);
 
 		WalletDataWrapper data = getDataWrapper(stack);
+
+		tooltip.add(LCText.TOOLTIP_WALLET_CAPACITY.get(data.getContainerSize()).withStyle(ChatFormatting.YELLOW));
+
+		if(data.getBonusSlots() < WalletItem.SLOT_UPGRADE_LIMIT)
+		{
+			ItemStack exampleItem = ListUtil.randomItemFromList(InventoryUtil.GetItemStacksWithTag(LCTags.Items.WALLET_UPGRADE_MATERIAL),ItemStack.EMPTY);
+			if(!exampleItem.isEmpty())
+			{
+				tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_WALLET_UPGRADEABLE_CAPACITY.get(
+								TooltipHelper.lazyFormat(exampleItem.getHoverName(),ChatFormatting.AQUA),
+								TooltipHelper.lazyFormat(String.valueOf(SLOTS_PER_UPGRADE),ChatFormatting.GOLD))
+						,ChatFormatting.YELLOW));
+			}
+		}
 
 		if(CanPickup(this))
 		{
@@ -197,10 +320,8 @@ public class WalletItem extends Item{
 			//Open the UI
 			if(walletSlot >= 0)
 			{
-				
-				if(player.isCrouching())
+				if(player.isCrouching() && !LCCurios.isLoaded())
 				{
-					boolean equippedWallet = false;
 					WalletHandler walletHandler = WalletHandler.get(player);
 					if(walletHandler != null)
 					{
@@ -211,11 +332,9 @@ public class WalletItem extends Item{
 							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
 							//This is now done automatically by the wallet handler
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
-							equippedWallet = true;
+							walletSlot = -1;
 						}
 					}
-					if(equippedWallet)
-						walletSlot = -1;
 				}
 				WalletMenuBase.SafeOpenWalletMenu(player, walletSlot);
 			}
@@ -340,6 +459,6 @@ public class WalletItem extends Item{
 	/**
 	 * The wallets texture. Used to renderBG the wallet on the players hip when equipped.
 	 */
-	public ResourceLocation getModelTexture() { return this.MODEL_TEXTURE; }
+	public ResourceLocation getModelTexture() { return this.modelTexture; }
 	
 }

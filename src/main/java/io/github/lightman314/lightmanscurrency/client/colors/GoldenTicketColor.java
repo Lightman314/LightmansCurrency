@@ -9,9 +9,9 @@ import javax.annotation.Nonnull;
 public class GoldenTicketColor implements ItemColor{
 	
 	@Override
-	public int getColor(@Nonnull ItemStack itemStack, int color) {
+	public int getColor(@Nonnull ItemStack itemStack, int layer) {
 		//Get the Ticket's Color
-		if(color == 1)
+		if(layer == 1)
 			return 0xFF000000 + TicketItem.GetTicketColor(itemStack);
 		//N/A
 		return 0xFFFFFFFF;

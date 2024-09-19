@@ -6,11 +6,15 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -24,6 +28,8 @@ public class NotificationTab extends ATMTab {
 	public NotificationTab(ATMScreen screen) { super(screen); }
 	
 	MoneyValueWidget notificationSelection;
+
+	EasyButton buttonResetATMCards;
 	
 	@Nonnull
 	@Override
@@ -34,8 +40,8 @@ public class NotificationTab extends ATMTab {
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		SimpleSlot.SetInactive(this.screen.getMenu());
+
+		EasySlot.SetInactive(this.screen.getMenu());
 
 		this.notificationSelection = this.addChild(new MoneyValueWidget(screenArea.x, screenArea.y, this.notificationSelection, MoneyValue.empty(), this::onValueChanged));
 		this.notificationSelection.drawBG = false;
@@ -45,7 +51,10 @@ public class NotificationTab extends ATMTab {
 		//Set change listener to update input value
 		this.notificationSelection.setHandlerChangeListener(this::onValueTypeChanged);
 
-		
+		//Reset Button to tweak card validation
+		this.buttonResetATMCards = this.addChild(new EasyTextButton(screenArea.x + 20, screenArea.y + 117, screenArea.width - 40, 20, LCText.BUTTON_BANK_CARD_VERIFCATION_RESET.get(), this::resetCardVerification)
+				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_BANK_CARD_VERIFCATION_RESET, TooltipHelper.DEFAULT_TOOLTIP_WIDTH)));
+
 	}
 
 	@Override
@@ -77,7 +86,7 @@ public class NotificationTab extends ATMTab {
 	}
 	
 	@Override
-	protected void closeAction() { SimpleSlot.SetActive(this.screen.getMenu()); }
+	protected void closeAction() { EasySlot.SetActive(this.screen.getMenu()); }
 	
 	public void onValueChanged(MoneyValue value) {
 		if(value.isEmpty() || value.isFree())
@@ -99,5 +108,7 @@ public class NotificationTab extends ATMTab {
 			widget.changeValue(currentValue);
 		}
 	}
+
+	private void resetCardVerification() { this.menu.SendMessage(this.builder().setFlag("ResetCards")); }
 
 }

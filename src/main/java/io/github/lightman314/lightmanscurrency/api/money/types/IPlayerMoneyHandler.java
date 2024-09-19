@@ -8,4 +8,5 @@ import javax.annotation.Nonnull;
 public interface IPlayerMoneyHandler extends IMoneyHandler {
 
     void updatePlayer(@Nonnull Player player);
+
 }

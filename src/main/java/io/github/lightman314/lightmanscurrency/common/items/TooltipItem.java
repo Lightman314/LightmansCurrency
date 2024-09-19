@@ -30,19 +30,15 @@ public class TooltipItem extends Item{
 		super.appendHoverText(stack, context, tooltip, flag);
 	}
 	
-	public static void addTooltip(List<Component> tooltip, MultiLineTextEntry entry) { addTooltip(tooltip, entry::get); }
+	public static void addTooltip(List<Component> tooltip, MultiLineTextEntry entry) { addTooltip(tooltip, entry.asTooltip()); }
 	public static void addTooltip(List<Component> tooltip, Supplier<List<Component>> tooltipSource) {
 		List<Component> addableTooltips = tooltipSource.get();
 		if(addableTooltips.isEmpty())
 			return;
 		if(Screen.hasShiftDown())
-			tooltip.addAll(addableTooltips);
+			tooltip.addAll(tooltipSource.get());
 		else
 			tooltip.add(LCText.TOOLTIP_INFO_BLURB.get().withStyle(ChatFormatting.GRAY));
-	}
-	
-	public static void addTooltipAlways(List<Component> tooltip, Supplier<List<Component>> tooltipSource) {
-		tooltip.addAll(tooltipSource.get());
 	}
 	
 	@SuppressWarnings("unchecked")

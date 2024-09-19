@@ -181,6 +181,12 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			if(ba != null)
 				ba.setNotificationLevel(message.getString("NotificationValueType"), message.getMoneyValue("NotificationValueChange"));
 		}
+		if(message.contains("ResetCards"))
+		{
+			IBankAccount ba = this.getBankAccount();
+			if(ba != null)
+				ba.resetCards();
+		}
 	}
 
 

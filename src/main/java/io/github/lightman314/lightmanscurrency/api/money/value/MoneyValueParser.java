@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -21,6 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public abstract class MoneyValueParser {
+
+    public static final SimpleCommandExceptionType NO_VALUE_EXCEPTION = new SimpleCommandExceptionType(LCText.ARGUMENT_MONEY_VALUE_NO_VALUE.get());
 
     public final String prefix;
 
@@ -84,12 +86,12 @@ public abstract class MoneyValueParser {
                     if(allowEmpty)
                         return value;
                     if (value.isEmpty() || value.isFree())
-                        throw NoValueException(reader);
+                        throw NO_VALUE_EXCEPTION.createWithContext(reader);
                     return value;
                 }
             }
         }
-        throw NoValueException(inputReader);
+        throw NO_VALUE_EXCEPTION.createWithContext(reader);
     }
 
     @Nonnull
@@ -143,14 +145,5 @@ public abstract class MoneyValueParser {
         //If end is reached, assume end
         return result.toString();
     }
-
-    public static CommandSyntaxException NoValueException(StringReader reader) {
-        return new CommandSyntaxException(EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NO_VALUE.get(), reader.getString(), reader.getCursor());
-    }
-
-    public static final CommandExceptionType EXCEPTION_TYPE = new CommandExceptionType() {
-        @Override
-        public int hashCode() { return super.hashCode(); }
-    };
 
 }

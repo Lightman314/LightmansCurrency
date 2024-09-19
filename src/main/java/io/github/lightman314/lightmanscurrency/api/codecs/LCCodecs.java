@@ -45,10 +45,10 @@ public class LCCodecs {
     public static final Codec<PlayerReference> PLAYER_REFERENCE = easyCodec(PlayerReference::save,PlayerReference::load,"Player Reference");
     public static final StreamCodec<ByteBuf,PlayerReference> PLAYER_REFERENCE_STREAM = ByteBufCodecs.fromCodec(PLAYER_REFERENCE);
 
-    public static final Codec<Notification> NOTIFICATION = easyCodec2(Notification::save, NotificationAPI::loadNotification, "Notification");
+    public static final Codec<Notification> NOTIFICATION = easyCodec2(Notification::save, NotificationAPI.API::LoadNotification, "Notification");
     public static final StreamCodec<RegistryFriendlyByteBuf,Notification> NOTIFICATION_STREAM = ByteBufCodecs.fromCodecWithRegistries(NOTIFICATION);
 
-    public static final Codec<NotificationCategory> NOTIFICATION_CATEGORY = easyCodec2(NotificationCategory::save,NotificationAPI::loadCategory, "Notification Category");
+    public static final Codec<NotificationCategory> NOTIFICATION_CATEGORY = easyCodec2(NotificationCategory::save,NotificationAPI.API::LoadCategory, "Notification Category");
     public static final StreamCodec<RegistryFriendlyByteBuf,NotificationCategory> NOTIFICATION_CATEGORY_STREAM = ByteBufCodecs.fromCodecWithRegistries(NOTIFICATION_CATEGORY);
 
     public static final Codec<Owner> OWNER = easyCodec2(Owner::save, Owner::load, "Owner");

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.attachments;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.capability.money.MoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.coins.CoinContainerMoneyHandler;
@@ -13,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.HolderLookup;
@@ -29,7 +31,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 
-public class WalletHandler extends MoneyHandler implements INBTSerializable<CompoundTag>, IClientTracker
+public class WalletHandler extends MoneyHandler implements INBTSerializable<CompoundTag>, IClientTracker, IEasyTickable
 {
 
     @Nonnull
@@ -100,10 +102,18 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         return this.walletDataWrapper;
     }
 
-    public ItemStack getWallet() { return this.walletItem; }
+    public ItemStack getWallet() {
+        if(LCCurios.isLoaded())
+            return LCCurios.getCuriosWalletItem(this.entity);
+        return this.walletItem;
+    }
 
     public void setWallet(ItemStack walletStack) {
-
+        if(LCCurios.hasWalletSlot(this.entity))
+        {
+            LCCurios.setCuriosWalletItem(this.entity,walletStack);
+            return;
+        }
         this.walletItem = walletStack;
         if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
             LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
@@ -114,7 +124,11 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
 
     public void syncWallet(ItemStack walletStack) { this.walletItem = walletStack; this.setChanged(); }
 
-    public boolean visible() { return this.visible; }
+    public boolean visible() {
+        if(LCCurios.hasWalletSlot(this.entity))
+            return LCCurios.getCuriosWalletVisiblity(this.entity);
+        return this.visible;
+    }
 
     public void setVisible(boolean visible) { this.visible = visible; this.setChanged(); }
 
@@ -135,12 +149,23 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
             this.visible = tag.getBoolean("Visible");
     }
 
+    @Override
+    public void tick() {
+        if(!this.walletItem.isEmpty() && LCCurios.hasWalletSlot(this.entity))
+        {
+            LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
+            LCCurios.setCuriosWalletItem(this.entity, this.walletItem);
+            this.walletItem = ItemStack.EMPTY;
+            this.setChanged();
+        }
+    }
+
     @Nonnull
     @Override
     public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
         WalletDataWrapper wrapper = this.getWalletWrapper();
         Container contents = wrapper.getContents();
-        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this::handleOverflow);
+        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this::handleOverflow,this);
         MoneyValue result = handler.insertMoney(insertAmount, simulation);
         //If changed, update wallet menus
         if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()))
@@ -153,7 +178,7 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
     public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
         WalletDataWrapper wrapper = this.getWalletWrapper();
         Container contents = wrapper.getContents();
-        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents, this::handleOverflow);
+        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this::handleOverflow,this);
         MoneyValue result = handler.extractMoney(extractAmount,simulation);
         if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()))
             this.updateWalletContents(wrapper,contents);
@@ -184,9 +209,6 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         if(WalletItem.isWallet(this.moneyCacheWallet))
             CoinContainerMoneyHandler.queryContainerContents(WalletItem.getDataWrapper(this.moneyCacheWallet).getContents(),builder);
     }
-
-    @Override
-    protected boolean hasStoredMoneyChanged() { return !InventoryUtil.ItemsFullyMatch(this.moneyCacheWallet, this.getWallet()); }
 
     @Nonnull
     public ItemStack PickupCoins(@Nonnull ItemStack stack)

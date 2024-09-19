@@ -24,9 +24,9 @@ public class TimeUtil {
 	/**
 	 * Gets the current system time in milliseconds
 	 */
-	public static long getCurrentTime() { return System.currentTimeMillis() + LightmansCurrency.PROXY.getTimeDesync(); }
+	public static long getCurrentTime() { return System.currentTimeMillis() + LightmansCurrency.getProxy().getTimeDesync(); }
 
-	public static String formatTime(long timeStamp) { return new SimpleDateFormat(LCConfig.CLIENT.timeFormat.get()).format(new Date(timeStamp - LightmansCurrency.PROXY.getTimeDesync())); }
+	public static String formatTime(long timeStamp) { return new SimpleDateFormat(LCConfig.CLIENT.timeFormat.get()).format(new Date(timeStamp - LightmansCurrency.getProxy().getTimeDesync())); }
 
 	/**
 	 * Calculates if the compareTime is less than the duration before the current time.

@@ -26,7 +26,7 @@ public class SPacketRemoveClientTeam extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketRemoveClientTeam::encode,SPacketRemoveClientTeam::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketRemoveClientTeam message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.removeTeam(message.teamID);
+			LightmansCurrency.getProxy().removeTeam(message.teamID);
 		}
 	}
 

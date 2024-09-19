@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -70,11 +71,11 @@ public final class MoneyAPIImpl extends MoneyAPI {
     }
 
     @Override
-    protected IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) {
+    protected IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) {
         List<IMoneyHandler> handlers = new ArrayList<>();
         for(CurrencyType type : this.registeredCurrencyTypes.values())
         {
-            IMoneyHandler h = type.createMoneyHandlerForContainer(container, overflowHandler);
+            IMoneyHandler h = type.createMoneyHandlerForContainer(container,overflowHandler,tracker);
             if(h != null)
                 handlers.add(h);
         }
@@ -92,5 +93,15 @@ public final class MoneyAPIImpl extends MoneyAPI {
                 handlers.add(h);
         }
         return MoneyHandler.combine(handlers);
+    }
+
+    @Override
+    public boolean ItemAllowedInMoneySlot(@Nonnull Player player, @Nonnull ItemStack stack) {
+        for(CurrencyType type : this.registeredCurrencyTypes.values())
+        {
+            if(type.allowItemInMoneySlot(player,stack))
+                return true;
+        }
+        return false;
     }
 }

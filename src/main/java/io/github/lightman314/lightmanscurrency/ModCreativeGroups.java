@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.component.DataComponents;
@@ -74,6 +73,10 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_EMERALD);
                     ezPop(p, ModItems.WALLET_DIAMOND);
                     ezPop(p, ModItems.WALLET_NETHERITE);
+                    ezPop(p, ModItems.WALLET_NETHER_STAR);
+                    //Bank Card
+                    ezPop(p, ModItems.ATM_CARD);
+                    //Perhaps example prepaid card?
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
                     //Event Coins

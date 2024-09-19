@@ -45,7 +45,7 @@ public class CoinJarItem extends BlockItem {
 		}
 
 		if(InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
-			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.get(getJarColor(stack)));
+			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.getWithStyle(ChatFormatting.GRAY));
 
 	}
 
@@ -78,8 +78,8 @@ public class CoinJarItem extends BlockItem {
 	public static int getJarColor(@Nonnull ItemStack stack)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem jar) || !jar.canDye(stack))
-			return 0xFFFFFF;
-		return DyedItemColor.getOrDefault(stack, 0xFFFFFF);
+			return 0xFFFFFFFF;
+		return DyedItemColor.getOrDefault(stack, 0xFFFFFFFF);
 	}
 
 	public static void setJarColor(@Nonnull ItemStack stack, int color)

@@ -63,6 +63,12 @@ public class LCCraftingConditions {
 		private TaxCollector() { super(() -> CODEC,LCConfig.COMMON.canCraftTaxBlock); }
 	}
 
+	public static class ATMCard extends SimpleCraftingCondition {
+		public static final ATMCard INSTANCE = new ATMCard();
+		private static final MapCodec<ATMCard> CODEC = MapCodec.unit(() -> INSTANCE);
+		private ATMCard() { super(() -> CODEC,LCConfig.COMMON.canCraftATMCard); }
+	}
+
 	static {
 
 		LightmansCurrency.LogDebug("Registering LC Crafting Conditions");
@@ -75,6 +81,7 @@ public class LCCraftingConditions {
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_bank_craftable", () -> CoinChestUpgradeBank.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("coin_chest_security_craftable", () -> CoinChestUpgradeSecurity.CODEC);
 		ModRegistries.CRAFTING_CONDITIONS.register("tax_collector_craftable", () -> TaxCollector.CODEC);
+		ModRegistries.CRAFTING_CONDITIONS.register("atm_card_craftable", () -> ATMCard.CODEC);
 
 	}
 	

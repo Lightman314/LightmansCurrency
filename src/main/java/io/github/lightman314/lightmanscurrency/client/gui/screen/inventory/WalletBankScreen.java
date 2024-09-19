@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -52,7 +53,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 	protected void initialize(ScreenArea screenArea)
 	{
 
-		screenArea = this.resize(176, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18 + 7);
+		screenArea = this.resize(176 + this.menu.bonusWidth, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.coinSlotHeight * 18 + 7);
 		
 		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
@@ -63,7 +64,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 			this.tabButtons.add(button);
 		}
 		
-		this.buttonOpenWallet = this.addChild(new IconButton(screenArea.pos.offset(0, -20), this::PressOpenWalletButton, IconData.of(this.menu.getWallet()))
+		this.buttonOpenWallet = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::PressOpenWalletButton, IconData.of(this.menu.getWallet()))
 				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_WALLET)));
 
 		this.currentTab().onOpen();
@@ -75,22 +76,11 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 
 		gui.resetColor();
 		//Draw the top
-		gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.imageWidth, WalletBankMenu.BANK_WIDGET_SPACING);
-		//Draw the middle strips
-		for(int y = 0; y < this.menu.getRowCount(); y++)
-			gui.blit(GUI_TEXTURE, 0, WalletBankMenu.BANK_WIDGET_SPACING + y * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING, this.imageWidth, 18);
-		
-		//Draw the bottom
-		gui.blit(GUI_TEXTURE, 0, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING + 18, this.imageWidth, 7);
-		
-		//Draw the slots
-		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
-		{
-			for(int x = 0; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
-			{
-				gui.blit(GUI_TEXTURE, 7 + x * 18, WalletBankMenu.BANK_WIDGET_SPACING + y * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING + 18 + 7, 18, 18);
-			}
-		}
+		gui.renderNormalBackground(this);
+
+		//Draw the coin slots
+		for(Slot slot : this.menu.slots)
+			gui.renderSlot(this,slot);
 		
 		//Render Current Tab
 		try { this.currentTab().renderBG(gui);

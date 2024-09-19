@@ -15,7 +15,6 @@ public class EasyTextButton extends EasyButton {
 
     private Supplier<Component> text;
 
-
     public EasyTextButton(int x, int y, int width, int height, @Nonnull Component text, @Nonnull Consumer<EasyButton> press) { this(ScreenArea.of(x,y,width,height), () -> text, press); }
     public EasyTextButton(int x, int y, int width, int height, @Nonnull Component text, @Nonnull Runnable press) { this(ScreenArea.of(x,y,width,height), () -> text, b -> press.run()); }
     public EasyTextButton(@Nonnull ScreenPosition pos, int width, int height, @Nonnull Component text, @Nonnull Consumer<EasyButton> press) { this(pos.asArea(width,height), () -> text, press); }
@@ -47,7 +46,6 @@ public class EasyTextButton extends EasyButton {
         } else if (this.isHoveredOrFocused()) {
             i = 2;
         }
-
         return 46 + (i * 20);
     }
 

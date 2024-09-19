@@ -55,7 +55,7 @@ public class TaxesPaidNotification extends Notification {
     protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
     {
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = NotificationAPI.loadCategory(compound.getCompound("Category"),lookup);
+        this.category = NotificationAPI.API.LoadCategory(compound.getCompound("Category"),lookup);
     }
 
     @Override

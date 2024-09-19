@@ -21,7 +21,7 @@ public class SPacketPlayCoinSound extends ServerToClientPacket {
 		protected H() { super(TYPE,INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketPlayCoinSound message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.playCoinSound();
+			LightmansCurrency.getProxy().playCoinSound();
 		}
 	}
 

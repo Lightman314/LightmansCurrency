@@ -27,7 +27,7 @@ public class SPacketDeleteClientBank extends ServerToClientPacket {
         protected H() { super(TYPE, easyCodec(SPacketDeleteClientBank::encode,SPacketDeleteClientBank::decode)); }
         @Override
         protected void handle(@Nonnull SPacketDeleteClientBank message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            LightmansCurrency.PROXY.removeBankAccount(message.player);
+            LightmansCurrency.getProxy().removeBankAccount(message.player);
         }
     }
 

@@ -21,7 +21,7 @@ public class SPacketClearClientBank extends ServerToClientPacket {
 		protected H() { super(TYPE, INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketClearClientBank message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.clearBankAccounts();
+			LightmansCurrency.getProxy().clearBankAccounts();
 		}
 	}
 

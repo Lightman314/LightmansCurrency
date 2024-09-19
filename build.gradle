@@ -97,10 +97,6 @@ repositories {
     }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.architectury.dev/" }
-    maven {
-        name = "OctoStudios"
-        url = uri("https://maven.octo-studios.com/releases")
-    }
 }
 
 dependencies {
@@ -125,14 +121,11 @@ dependencies {
     runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    implementation 'top.theillusivec4.curios:curios-neoforge:9.0.5+1.21'
+    implementation 'curse.maven:adorned-1036809:5638835-sources-5638839'
 
     //Immersive Engineering API
     //Waiting for IE update
     //compileOnly "curse.maven:immersive-engineering-231951:4782978"
-
-    //Put LDI dependency on hold until it gets updated to neoforge, as otherwise it's events won't compile
-    //compileOnly 'curse.maven:lightmans-discord-integration-545459:4660940'
 
     //Claim Compats
     //FTB Chunks claim purchase compat

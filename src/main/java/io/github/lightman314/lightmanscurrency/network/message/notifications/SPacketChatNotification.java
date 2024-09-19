@@ -21,14 +21,14 @@ public class SPacketChatNotification extends ServerToClientPacket {
 	public SPacketChatNotification(Notification notification) { super(TYPE); this.notification = notification; }
 
 	private static void encode(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull SPacketChatNotification message) { buffer.writeNbt(message.notification.save(buffer.registryAccess())); }
-	private static SPacketChatNotification decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketChatNotification(NotificationAPI.loadNotification(readNBT(buffer),buffer.registryAccess())); }
+	private static SPacketChatNotification decode(@Nonnull RegistryFriendlyByteBuf buffer) { return new SPacketChatNotification(NotificationAPI.API.LoadNotification(readNBT(buffer),buffer.registryAccess())); }
 
 	private static class H extends Handler<SPacketChatNotification>
 	{
 		protected H() { super(TYPE, fancyCodec(SPacketChatNotification::encode,SPacketChatNotification::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketChatNotification message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.receiveNotification(message.notification);
+			LightmansCurrency.getProxy().receiveNotification(message.notification);
 		}
 	}
 	

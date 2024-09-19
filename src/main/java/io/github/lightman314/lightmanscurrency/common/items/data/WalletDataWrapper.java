@@ -28,26 +28,24 @@ public final class WalletDataWrapper extends MoneyViewer {
         return this.wallet == stack;
     }
     private final WalletItem item;
-    private final int expectedSize;
-    public int getContainerSize() { return this.expectedSize; }
+    public int getContainerSize() { return WalletItem.InventorySize(this.wallet); }
+    public int getBonusSlots() { return this.getData().getBonusSlots(); }
     Container contentCache = null;
 
     private WalletDataWrapper() {
         this.wallet = null;
         this.item = null;
-        this.expectedSize = 0;
     }
     public WalletDataWrapper(@Nonnull ItemStack wallet)
     {
         this.wallet = wallet;
-        this.item = (WalletItem)wallet.getItem();
-        this.expectedSize = WalletItem.InventorySize(this.item);
+        this.item = (WalletItem)this.wallet.getItem();
         //Validate that list matches capacity
         Container container = this.getContents();
-        if(container.getContainerSize() != WalletItem.InventorySize(this.item))
+        if(container.getContainerSize() != WalletItem.InventorySize(this.wallet))
             this.forceContainerSize(container);
         //Make local cache, but empty
-        this.contentCache = new SimpleContainer(this.expectedSize);
+        this.contentCache = new SimpleContainer(WalletItem.InventorySize(this.wallet));
     }
 
     public boolean valid() { return this.wallet != null; }
@@ -55,7 +53,7 @@ public final class WalletDataWrapper extends MoneyViewer {
         if(this.wallet == null)
             return WalletData.EMPTY;
         if(!this.wallet.has(ModDataComponents.WALLET_DATA))
-            this.wallet.set(ModDataComponents.WALLET_DATA, WalletData.createFor(this.item));
+            this.wallet.set(ModDataComponents.WALLET_DATA, WalletData.createFor(this.wallet));
         return this.wallet.get(ModDataComponents.WALLET_DATA);
     }
 
@@ -78,7 +76,7 @@ public final class WalletDataWrapper extends MoneyViewer {
             LightmansCurrency.LogError("WalletDataWrapper#setContents was called on a wallet wrapper that is not an actual wallet!");
             return;
         }
-        if(contents.getContainerSize() != WalletItem.InventorySize(this.item))
+        if(contents.getContainerSize() != WalletItem.InventorySize(this.wallet))
         {
             LightmansCurrency.LogWarning("WalletDataWrapper#setContents container size does not match the expected container size for this wallet.\nForcing container to match the wallets actual size!");
             contents = this.forceContainerSize(contents);
@@ -91,7 +89,7 @@ public final class WalletDataWrapper extends MoneyViewer {
 
     private Container forceContainerSize(@Nonnull Container container)
     {
-        Container newContainer = new SimpleContainer(this.expectedSize);
+        Container newContainer = new SimpleContainer(WalletItem.InventorySize(this.wallet));
         for(int i = 0; i < container.getContainerSize(); ++i)
         {
             if(i < newContainer.getContainerSize())
@@ -107,17 +105,9 @@ public final class WalletDataWrapper extends MoneyViewer {
     }
 
     @Override
-    protected boolean hasStoredMoneyChanged() { return !InventoryUtil.ContainerMatches(this.contentCache,this.getContents()); }
-
-    @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         this.contentCache = this.getContents();
         CoinContainerMoneyHandler.queryContainerContents(this.contentCache, builder);
     }
-
-    @Override
-    public int hashCode() { return 314; }
-    @Override
-    public boolean equals(Object obj) { return super.equals(obj); }
 
 }

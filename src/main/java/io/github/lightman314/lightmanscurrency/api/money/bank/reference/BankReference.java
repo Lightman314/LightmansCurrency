@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -18,13 +19,17 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BankReference extends MoneyHolder.Slave implements IClientTracker {
+public abstract class BankReference extends MoneyHolder.Slave implements ISidedObject {
 
     private boolean isClient = false;
     public boolean isClient() { return this.isClient; }
+
+    @Nonnull
     public BankReference flagAsClient() { return this.flagAsClient(true); }
+    @Nonnull
     public BankReference flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
-    public BankReference flagAsClient(@Nonnull IClientTracker context) { this.isClient = context.isClient(); return this; }
+    @Nonnull
+    public BankReference flagAsClient(@Nonnull IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
     protected final BankReferenceType type;
     protected BankReference(@Nonnull BankReferenceType type) { this.type = type; }
@@ -102,5 +107,8 @@ public abstract class BankReference extends MoneyHolder.Slave implements IClient
             return br.save().equals(this.save());
         return false;
     }
+
+    @Override
+    public int hashCode() { return this.save().hashCode(); }
 
 }

@@ -26,7 +26,7 @@ public class SPacketUpdateClientTax extends ServerToClientPacket {
         protected H() { super(TYPE, easyCodec(SPacketUpdateClientTax::encode, SPacketUpdateClientTax::decode)); }
         @Override
         protected void handle(@Nonnull SPacketUpdateClientTax message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            LightmansCurrency.PROXY.updateTaxEntries(message.updateTag);
+            LightmansCurrency.getProxy().updateTaxEntries(message.updateTag);
         }
     }
 

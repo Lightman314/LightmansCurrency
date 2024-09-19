@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value.builtin;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -28,6 +29,8 @@ import java.util.concurrent.CompletableFuture;
 public class CoinValueParser extends MoneyValueParser {
 
     public static final MoneyValueParser INSTANCE = new CoinValueParser();
+
+    public static final DynamicCommandExceptionType NOT_A_COIN_EXCEPTION = new DynamicCommandExceptionType(LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN::get);
 
     private CoinValueParser() { super("coin"); }
 
@@ -81,16 +84,12 @@ public class CoinValueParser extends MoneyValueParser {
             Item coin = BuiltInRegistries.ITEM.get(coinID);
             ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
             if(chainData == null)
-                throw NotACoinException(coinID.toString(), reader);
+                throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinID.toString());
             CoinEntry entry = chainData.findEntry(coin);
             if(entry == null || entry.isSideChain())
-                throw NotACoinException(coinID.toString(), reader);
+                throw NOT_A_COIN_EXCEPTION.createWithContext(reader, coinID.toString());
             return result.addValue(CoinValue.fromNumber(chainData.chain, entry.getCoreValue() * count));
-        } catch (ResourceLocationException e) { throw NotACoinException(coinIDString, reader); }
-    }
-
-    public static CommandSyntaxException NotACoinException(String item, StringReader reader) {
-        return new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN.get(item), reader.getString(), reader.getCursor());
+        } catch (ResourceLocationException e) { throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinIDString); }
     }
 
     @Nonnull

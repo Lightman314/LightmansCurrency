@@ -93,12 +93,6 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         @Nonnull
         @Override
         public MoneyView getStoredMoney() { return this.handler.getStoredMoney(); }
-        @Override
-        public boolean hasStoredMoneyChanged(@Nullable Object context) { return this.handler.hasStoredMoneyChanged(context); }
-        @Override
-        public void flagAsKnown(@Nullable Object context) { this.handler.flagAsKnown(context); }
-        @Override
-        public void forgetContext(@Nonnull Object context) { this.handler.forgetContext(context); }
     }
 
     private static class Empty implements IMoneyHolder
@@ -110,12 +104,6 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         @Nonnull
         @Override
         public MoneyView getStoredMoney() { return MoneyView.empty(); }
-        @Override
-        public boolean hasStoredMoneyChanged(@Nullable Object context) { return false; }
-        @Override
-        public void flagAsKnown(@Nullable Object context) { }
-        @Override
-        public void forgetContext(@Nonnull Object context) { }
         @Nonnull
         @Override
         public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) { return insertAmount; }

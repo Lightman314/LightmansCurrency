@@ -11,7 +11,9 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardMoneyHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.PrepaidCardMoneyHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import net.minecraft.world.entity.EntityType;
@@ -57,10 +59,15 @@ public class ModEventHandler {
         //Money Viewer for Wallets
         event.registerItem(CapabilityMoneyViewer.MONEY_VIEWER_ITEM,(stack, c) -> WalletItem.getDataWrapper(stack),
                 ModItems.WALLET_COPPER.get(),ModItems.WALLET_IRON.get(),ModItems.WALLET_GOLD.get(),
-                ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get());
+                ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),
+                ModItems.WALLET_NETHER_STAR.get());
         //Money Handler/Viewers for Players
         event.registerEntity(CapabilityMoneyHandler.MONEY_HANDLER_ENTITY, EntityType.PLAYER, (player, c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
         event.registerEntity(CapabilityMoneyViewer.MONEY_VIEWER_ENTITY, EntityType.PLAYER, (player,c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
+
+        //Money Handler for the Bank Card
+        event.registerItem(CapabilityMoneyHandler.MONEY_HANDLER_ITEM, (stack,c) -> new ATMCardMoneyHandler(stack),ModItems.ATM_CARD.get());
+        event.registerItem(CapabilityMoneyHandler.MONEY_HANDLER_ITEM, (stack,c) -> new PrepaidCardMoneyHandler(stack),ModItems.PREPAID_CARD.get());
 
     }
 

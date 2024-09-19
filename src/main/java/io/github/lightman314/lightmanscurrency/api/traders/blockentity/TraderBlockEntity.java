@@ -181,8 +181,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader)
 	{
-		List<ITaxCollector> taxes = TaxAPI.GetPossibleTaxCollectorsFor(trader);
-		taxes.forEach(e -> e.AcceptTaxable(trader));
+		List<ITaxCollector> taxes = TaxAPI.API.AcknowledgeTaxCollectors(trader);
 		if(!taxes.isEmpty())
 		{
 			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;

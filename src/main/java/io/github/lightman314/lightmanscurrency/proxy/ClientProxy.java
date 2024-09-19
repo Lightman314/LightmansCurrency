@@ -10,7 +10,6 @@ import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.client.data.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -28,6 +27,8 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -42,16 +43,14 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ClientProxy extends CommonProxy{
-	boolean openNotifications = false;
+
 	private long timeOffset = 0;
 
 	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
@@ -61,7 +60,7 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void init(@Nonnull ModContainer modContainer) {
-		NeoForge.EVENT_BUS.register(this);
+		//NeoForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -95,8 +94,8 @@ public class ClientProxy extends CommonProxy{
 		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
 
 		//Register Curios Render Layers
-		//if(LightmansCurrency.isCuriosLoaded())
-		//	LCCuriosClient.registerRenderLayers();
+		if(LCCurios.isLoaded())
+			LCCuriosClient.registerRenderLayers();
 
 	}
 
@@ -168,9 +167,6 @@ public class ClientProxy extends CommonProxy{
 	public void removeTaxEntry(long id) { ClientTaxData.RemoveEntry(id); }
 	
 	@Override
-	public void openNotificationScreen() { this.openNotifications = true; }
-	
-	@Override
 	public long getTimeDesync()
 	{
 		return timeOffset;
@@ -188,19 +184,6 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void loadAdminPlayers(List<UUID> serverAdminList) { LCAdminMode.loadAdminPlayers(serverAdminList); }
-	
-	@SubscribeEvent
-	public void openScreenOnRenderTick(RenderFrameEvent.Pre event)
-	{
-		if(this.openNotifications)
-		{
-			this.openNotifications = false;
-			//Open easy notification screen
-			Minecraft.getInstance().setScreen(new NotificationScreen());
-		}
-	}
-	
-
 	
 	@Override
 	public void playCoinSound() {

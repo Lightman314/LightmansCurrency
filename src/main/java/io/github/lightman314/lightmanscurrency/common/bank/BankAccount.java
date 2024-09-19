@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolde
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
-import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
@@ -25,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.L
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -41,14 +41,24 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	private boolean isClient = false;
 	@Override
 	public boolean isClient() { return this.isClient; }
+
 	@Nonnull
-	public BankAccount flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this; }
+	public BankAccount flagAsClient() { return this.flagAsClient(true); }
+	@Nonnull
+	public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
+	@Nonnull
+	public BankAccount flagAsClient(@Nonnull IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
 	private final Runnable markDirty;
 	
 	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
 	@Nonnull
 	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
+
+	int cardValidation = 0;
+	public int getCardValidation() { return this.cardValidation; }
+	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
+	public void resetCards() { this.cardValidation++; this.markDirty(); }
 
 	@Override
 	@Nullable
@@ -130,11 +140,11 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 	
 	public void LogInteraction(TaxEntry tax, MoneyValue amount) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Trader(tax.getName(), this.getName(), true, amount));
+		this.pushLocalNotification(new DepositWithdrawNotification.Custom(tax.getName(), this.getName(), true, amount));
 	}
 
 	public void LogInteraction(TraderData trader, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Trader(trader.getName(), this.getName(), isDeposit, amount));
+		this.pushLocalNotification(new DepositWithdrawNotification.Custom(trader.getName(), this.getName(), isDeposit, amount));
 	}
 	
 	public void LogTransfer(Player player, MoneyValue amount, MutableComponent otherAccount, boolean wasReceived) {
@@ -168,6 +178,8 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 					this.notificationLevels.put(level.getUniqueName(), level);
 			}
 		}
+		if(compound.contains("CardValidation"))
+			this.cardValidation = compound.getInt("CardValidation");
 	}
 	
 	public void markDirty()
@@ -184,6 +196,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		ListTag notificationLevelList = new ListTag();
 		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
 		compound.put("NotificationLevels", notificationLevelList);
+		compound.putInt("CardValidation", this.cardValidation);
 		return compound;
 	}
 

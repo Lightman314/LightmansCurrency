@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.money.types;
 
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -65,14 +67,26 @@ public abstract class CurrencyType {
     public abstract IPlayerMoneyHandler createMoneyHandlerForPlayer(@Nonnull Player player);
 
     /**
-     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetContainersMoneyHandler(Container, Consumer) MoneyAPI#GetContainersMoneyHandler(Container, Consumer)} to create a combined {@link IMoneyHandler} for said container using the provided {@link Consumer itemOverflowHandler} to handle any items that won't fit in the container.<br>
-     * Method is {@link Nullable} and should return null if it is not possible for money of this type to be stored or handled in an item form.
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetContainersMoneyHandler(Container, Consumer, IClientTracker) MoneyAPI#GetContainersMoneyHandler(Container, Consumer)} to create a combined {@link IMoneyHandler} for said container using the provided {@link Consumer itemOverflowHandler} to handle any items that won't fit in the container<br>
+     * Method is {@link Nullable} and should return null if it is not possible for money of this type to be stored or handled in an item form that doesn't have the {@link io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler#MONEY_HANDLER_ITEM IMoneyHandler} item capability
      */
     @Nullable
-    public abstract IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler);
+    public abstract IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker);
 
+    /**
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetATMMoneyHandler(Player, Container) MoneyAPI#GetATMMoneyHandler(Player, Container)} to create a combined {@link IMoneyHandler} for the ATM's container for use with depositing & withdrawing money from a players bank account<br>
+     * Default implementation returns the results of {@link #createMoneyHandlerForContainer(Container,Consumer,IClientTracker)}<br>
+     * Override if your mods money is directly attached to the player in some non-item method
+     */
     @Nullable
-    public IMoneyHandler createMoneyHandlerForATM(@Nonnull Player player, @Nonnull Container container) { return createMoneyHandlerForContainer(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s)); }
+    public IMoneyHandler createMoneyHandlerForATM(@Nonnull Player player, @Nonnull Container container) { return createMoneyHandlerForContainer(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s), IClientTracker.entityWrapper(player)); }
+
+    /**
+     * Whether the given item can be placed in a {@link io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot MoneySlot} to be potentially used as payment
+     */
+    public boolean allowItemInMoneySlot(@Nonnull Player player, @Nonnull ItemStack item) { return false; }
+
+    public void addMoneySlotBackground(@Nonnull Consumer<Pair<ResourceLocation,ResourceLocation>> consumer, @Nonnull Consumer<ResourceLocation> lazyConsumer) {}
 
     /**
      * Function to load a money value saved to NBT.
@@ -86,14 +100,18 @@ public abstract class CurrencyType {
      */
     public abstract MoneyValue loadMoneyValueJson(@Nonnull JsonObject json);
 
+    /**
+     * Returns a {@link MoneyValueParser} for this money type, allowing it to be used in commands and config options
+     */
     @Nonnull
     public abstract MoneyValueParser getValueParser();
 
     /**
-     * Only in {@link Dist#CLIENT}
-     * Return a list of each {@link MoneyInputHandler} required for this mod!
-     * {@link MoneyInputHandler}s are used by {@link io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget} to allow defining prices for your mods' currency.
-     * See {@link io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleDisplayInput} for a simple text template, or {@link io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinValueInput} to see how my mod handles this for coins.
+     * Only in {@link Dist#CLIENT}<br>
+     * Return a list of each {@link MoneyInputHandler} required for this mod!<br>
+     * {@link MoneyInputHandler}s are used by {@link io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget MoneyValueWidget} to allow defining prices for your mods' currency<br>
+     * See {@link io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleDisplayInput SimpleDisplayInput} for a simple text template, or {@link io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinValueInput CoinValueInput} to see how my mod handles this for coins<br>
+     * Returns a list as it's possible for a single currency type to contain several variants (such as different coin chains, etc.)
      */
     @OnlyIn(Dist.CLIENT)
     public abstract List<Object> getInputHandlers(@Nullable Player player);

@@ -7,9 +7,8 @@ import java.util.function.Predicate;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -630,6 +629,18 @@ public class InventoryUtil {
 	}
     
     public static boolean ItemHasTag(ItemStack item, TagKey<Item> tag) { return item.getTags().anyMatch(t -> t.equals(tag)); }
+
+	@Nonnull
+	public static List<Item> GetItemsWithTag(@Nonnull TagKey<Item> tag)
+	{
+		List<Item> result = new ArrayList<>();
+		for(Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag))
+			result.add(holder.value());
+		return result;
+	}
+
+	@Nonnull
+	public static List<ItemStack> GetItemStacksWithTag(@Nonnull TagKey<Item> tag) { return GetItemsWithTag(tag).stream().map(ItemStack::new).toList(); }
     
     public static int safeGiveToPlayer(Inventory inv, ItemStack stack) {
     	

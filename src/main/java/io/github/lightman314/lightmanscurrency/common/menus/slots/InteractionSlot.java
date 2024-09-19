@@ -31,7 +31,7 @@ public class InteractionSlot extends EasyMultiBGSlot {
 	}
 	
 	@Override
-	public boolean isActive() { return this.slotData.size() > 0; }
+	public boolean isActive() { return !this.slotData.isEmpty(); }
 	
 	@Override
 	public int getMaxStackSize() { return 1; }

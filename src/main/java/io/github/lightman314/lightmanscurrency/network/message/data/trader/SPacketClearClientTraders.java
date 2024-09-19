@@ -21,7 +21,7 @@ public class SPacketClearClientTraders extends ServerToClientPacket {
 		protected H() { super(TYPE,INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketClearClientTraders message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.clearClientTraders();
+			LightmansCurrency.getProxy().clearClientTraders();
 		}
 	}
 	

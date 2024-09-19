@@ -20,11 +20,11 @@ public class NotificationData implements IClientTracker {
 
 	List<Notification> notifications = new ArrayList<>();
 	public List<Notification> getNotifications() { return this.notifications; }
-	public List<Notification> getNotifications(NotificationCategory category) {
+	public List<Notification> getNotifications(@Nonnull NotificationCategory category) {
 		if(category == NotificationCategory.GENERAL)
 			return this.notifications;
 		List<Notification> result = new ArrayList<>();
-		for(Notification not : notifications)
+		for(Notification not : this.notifications)
 		{
 			if(category.matches(not.getCategory()))
 				result.add(not);
@@ -68,6 +68,35 @@ public class NotificationData implements IClientTracker {
 		this.validateListSize();
 		
 	}
+
+	public void deleteNotification(int notificationIndex)
+	{
+		if(notificationIndex < 0 || notificationIndex >= this.notifications.size())
+			return;
+		this.notifications.remove(notificationIndex);
+	}
+
+	public void deleteNotification(@Nonnull NotificationCategory category,int notificationIndex)
+	{
+		if(category == NotificationCategory.GENERAL)
+		{
+			this.deleteNotification(notificationIndex);
+			return;
+		}
+		for(int i = 0; i < this.notifications.size(); ++i)
+		{
+			Notification n = this.notifications.get(i);
+			if(category.matches(n.getCategory()))
+			{
+				notificationIndex--;
+				if(notificationIndex < 0)
+				{
+					this.notifications.remove(i);
+					return;
+				}
+			}
+		}
+	}
 	
 	private void validateListSize()
 	{
@@ -101,7 +130,7 @@ public class NotificationData implements IClientTracker {
 			for(int i = 0; i < notificationList.size(); ++i)
 			{
 				CompoundTag notTag = notificationList.getCompound(i);
-				Notification not = NotificationAPI.loadNotification(notTag, lookup);
+				Notification not = NotificationAPI.API.LoadNotification(notTag, lookup);
 				if(not != null)
 					this.notifications.add(not);
 			}

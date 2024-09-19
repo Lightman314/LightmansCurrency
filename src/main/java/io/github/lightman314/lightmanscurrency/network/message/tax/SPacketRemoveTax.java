@@ -25,7 +25,7 @@ public class SPacketRemoveTax extends ServerToClientPacket {
         protected H() { super(TYPE, easyCodec(SPacketRemoveTax::encode,SPacketRemoveTax::decode)); }
         @Override
         protected void handle(@Nonnull SPacketRemoveTax message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            LightmansCurrency.PROXY.removeTaxEntry(message.id);
+            LightmansCurrency.getProxy().removeTaxEntry(message.id);
         }
     }
 

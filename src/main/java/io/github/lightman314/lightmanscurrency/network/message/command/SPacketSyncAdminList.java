@@ -41,7 +41,7 @@ public class SPacketSyncAdminList extends ServerToClientPacket {
 
 		@Override
 		protected void handle(@Nonnull SPacketSyncAdminList message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.loadAdminPlayers(message.adminList);
+			LightmansCurrency.getProxy().loadAdminPlayers(message.adminList);
 		}
 	}
 

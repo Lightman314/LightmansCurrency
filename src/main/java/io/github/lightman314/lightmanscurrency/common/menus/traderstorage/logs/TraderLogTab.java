@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.logs.TraderLogClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
@@ -29,10 +30,25 @@ public class TraderLogTab extends TraderStorageTab {
     @Override
     public void onTabClose() { }
 
+    public boolean canDeleteNotification() { return LCAdminMode.isAdminPlayer(this.menu.getPlayer()) || this.menu.hasPermission(Permissions.TRANSFER_OWNERSHIP); }
+
+    public void DeleteNotification(int notificationIndex)
+    {
+        if(this.menu.getTrader() != null && this.canDeleteNotification())
+        {
+            this.menu.getTrader().deleteNotification(this.menu.getPlayer(),notificationIndex);
+            if(this.isClient())
+                this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex));
+        }
+    }
+
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     @Override
-    public void receiveMessage(LazyPacketData message) { }
+    public void receiveMessage(LazyPacketData message) {
+        if(message.contains("DeleteNotification"))
+            this.DeleteNotification(message.getInt("DeleteNotification"));
+    }
 
 }

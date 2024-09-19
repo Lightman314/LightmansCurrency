@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -15,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketATMSetPlayerAccount;
 import net.minecraft.client.gui.components.EditBox;
@@ -54,8 +54,8 @@ public class SelectionTab extends ATMTab {
 		this.adminMode = false;
 		if(firstOpen)
 			this.responseMessage = EasyText.empty();
-		
-		SimpleSlot.SetInactive(this.screen.getMenu());
+
+		EasySlot.SetInactive(this.screen.getMenu());
 
 		this.bankAccountSelectionWidget = this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20, 15), screenArea.width - 40, 6, this::canAccess, this::getBankReference, this::selectAccount));
 
@@ -127,7 +127,7 @@ public class SelectionTab extends ATMTab {
 
 	@Override
 	public void closeAction() {
-		SimpleSlot.SetActive(this.screen.getMenu());
+		EasySlot.SetActive(this.screen.getMenu());
 	}
 
 

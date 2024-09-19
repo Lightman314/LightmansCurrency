@@ -7,8 +7,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScr
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
@@ -23,18 +25,24 @@ import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.client.registry.entry.CollapsibleEntryRegistry;
+import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.client.registry.screen.ExclusionZones;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
 import me.shedaniel.rei.api.client.registry.transfer.simple.SimpleTransferHandler;
 import me.shedaniel.rei.api.common.entry.EntryStack;
+import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -65,6 +73,20 @@ public class LCClientPlugin implements REIClientPlugin {
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 80, screen.getGuiTop() + 21, 22, 16), MintScreen.class, CoinMintCategory.ID);
         //Click area for the Ticket Station is on the title text as the arrow is already a clickable button
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 8, screen.getGuiTop() + 6, 100,10), TicketStationScreen.class, TicketStationCategory.ID);
+    }
+
+    @Override
+    public void registerEntries(EntryRegistry registry) {
+        registry.removeEntry(EntryStack.of(VanillaEntryTypes.ITEM,new ItemStack(ModItems.PREPAID_CARD.get())));
+        registry.removeEntry(EntryStack.of(VanillaEntryTypes.ITEM,new ItemStack(ModItems.ATM_CARD.get())));
+        List<EntryStack<ItemStack>> allCards = new ArrayList<>();
+        for(Color color : Color.values())
+        {
+            ItemStack atmCard = new ItemStack(ModItems.ATM_CARD.get());
+            atmCard.set(DataComponents.DYED_COLOR,new DyedItemColor(color.hexColor,true));
+            allCards.add(EntryStack.of(VanillaEntryTypes.ITEM,atmCard));
+        }
+        registry.addEntries(allCards);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -110,8 +132,13 @@ public class LCClientPlugin implements REIClientPlugin {
         zones.register(TraderInterfaceScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 40)));
         //Wallet Screen (3 icon buttons at top left)
         zones.register(WalletScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), 20, 60)));
-        //Wallet Bank Screen (tabs on left edge), also a button on the top, but we don't care about that
-        zones.register(WalletBankScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25,screen.getGuiTop(), 25, 25 * screen.getTabCount())));
+        //Wallet Bank Screen
+        zones.register(WalletBankScreen.class,screen -> Lists.newArrayList(
+                //Tabs on left edge
+                new Rectangle(screen.getGuiLeft() - 25,screen.getGuiTop(), 25, 25 * screen.getTabCount()),
+                //Button on top-right
+                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20))
+        );
         //Team Management Screen (entire outside edge)
         zones.register(TeamManagerScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop() - 25, screen.getXSize() + 50, screen.getYSize() + 50)));
         //Notification Screen (left edge)
@@ -141,7 +168,10 @@ public class LCClientPlugin implements REIClientPlugin {
         registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/auction_stand"),LCText.REI_GROUP_AUCTION_STAND.get(),isInBundle(ModBlocks.AUCTION_STAND));
 
         //Jar of Sus
-        registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/jar_of_sus"),LCText.BLOCK_JAR_SUS.get(),isItem(ModBlocks.SUS_JAR));
+        registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/jar_of_sus"),LCText.REI_GROUP_JAR_OF_SUS.get(),isItem(ModBlocks.SUS_JAR));
+
+        //ATM Card
+        registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/atm_card"),LCText.REI_GROUP_FREEZER.get(),isItem(ModItems.ATM_CARD));
 
     }
 

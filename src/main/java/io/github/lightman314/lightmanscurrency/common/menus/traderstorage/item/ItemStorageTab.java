@@ -6,9 +6,9 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -34,7 +34,7 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	@Override
@@ -45,7 +45,7 @@ public class ItemStorageTab extends TraderStorageTab{
 			Container upgrades = trader.getUpgrades();
 			for(int i = 0; i < upgrades.getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(upgrades, i, 176, 18 + 18 * i, trader);
+				EasySlot upgradeSlot = new UpgradeInputSlot(upgrades, i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
@@ -54,10 +54,10 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	@Override
-	public void onTabOpen() { SimpleSlot.SetActive(this.slots); }
+	public void onTabOpen() { EasySlot.SetActive(this.slots); }
 
 	@Override
-	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
+	public void onTabClose() { EasySlot.SetInactive(this.slots); }
 	
 	
 	@Override

@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
@@ -197,6 +198,7 @@ public final class LCConfig {
         public final BooleanOption canCraftCoinChestUpgradeBank = BooleanOption.createTrue();
         public final BooleanOption canCraftCoinChestUpgradeSecurity = BooleanOption.createTrue();
         public final BooleanOption canCraftTaxBlock = BooleanOption.createTrue();
+        public final BooleanOption canCraftATMCard = BooleanOption.createFalse();
 
         //Custom Trades
         public final BooleanOption addCustomWanderingTrades = BooleanOption.createTrue();
@@ -307,6 +309,10 @@ public final class LCConfig {
             builder.comment("Whether Tax Blocks can be crafted.",
                             "Disabling will not remove any existing Tax Blocks from the world, nor prevent their use.")
                     .add("canCraftTaxCollector", this.canCraftTaxBlock);
+
+            builder.comment("Whether ATM Cards can be crafted.",
+                            "Disabling will not remove any existing ATM Cards from the world, nor prevent their use.")
+                    .add("canCraftATMCard", this.canCraftATMCard);
 
             builder.comment("Money Chest Crafting").push("money_chest");
 
@@ -518,9 +524,10 @@ public final class LCConfig {
         public final BooleanOption coinMintMeltableNetherite = BooleanOption.createTrue();
 
         //Wallet Settings
-        public final IntOption walletExchangeLevel = IntOption.create(1,0,6);
-        public final IntOption walletPickupLevel = IntOption.create(2,0,6);
-        public final IntOption walletBankLevel = IntOption.create(5,0,6);
+        public final IntOption walletExchangeLevel = IntOption.create(1,0, WalletItem.CONFIG_LIMIT);
+        public final IntOption walletPickupLevel = IntOption.create(2,0,WalletItem.CONFIG_LIMIT);
+        public final IntOption walletBankLevel = IntOption.create(5,0,WalletItem.CONFIG_LIMIT);
+        public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
         //Item Capacity Upgrade Settings
@@ -667,17 +674,22 @@ public final class LCConfig {
 
             builder.comment("Wallet Settings").push("wallet");
 
+            final String walletLevelDescription = "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-Nether Star Wallet; 7-No Wallet";
+
             builder.comment("The lowest level wallet capable of exchanging coins.",
-                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            walletLevelDescription)
                     .add("exchangeLevel", this.walletExchangeLevel);
 
             builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
-                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            walletLevelDescription)
                     .add("pickupLevel", this.walletPickupLevel);
 
             builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
-                            "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-No Wallet")
+                            walletLevelDescription)
                     .add("bankLevel", this.walletBankLevel);
+
+            builder.comment("Whether wallets can have 18 addional slots added by using a Nether Star on them from their inventory")
+                            .add("allowCapacityUpgrade",this.walletCapacityUpgradeable);
 
             builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
                             "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")

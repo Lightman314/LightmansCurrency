@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -14,7 +13,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,7 +30,7 @@ public class PlayerBankReference extends BankReference {
     public static BankReference of(@Nonnull UUID player) { return new PlayerBankReference(player); }
     @Nullable
     public static BankReference of(@Nullable PlayerReference player) { return player != null ? new PlayerBankReference(player.id) : null; }
-    public static BankReference of(@Nonnull Player player) { return new PlayerBankReference(player.getUUID()).flagAsClient(player.level().isClientSide); }
+    public static BankReference of(@Nonnull Player player) { return of(player.getUUID()).flagAsClient(player.level().isClientSide); }
 
     @Override
     public int sortPriority() { return 1000000; }

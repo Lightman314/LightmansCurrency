@@ -26,7 +26,10 @@ public class TeamBankReference extends BankReference {
     protected TeamBankReference(long teamID) { super(TYPE); this.teamID = teamID; }
 
     public static BankReference of(long teamID) { return new TeamBankReference(teamID); }
-    public static BankReference of(@Nonnull ITeam team) { return new TeamBankReference(team.getID()); }
+    public static BankReference of(@Nonnull ITeam team) {
+        BankReference br = of(team.getID());
+        br.flagAsClient(team.isClient());
+        return br; }
 
     @Nullable
     @Override

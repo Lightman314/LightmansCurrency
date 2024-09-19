@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -23,6 +22,21 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      */
     @Nonnull
     MoneyStorage getMoneyStorage();
+
+    /**
+     * The current card validation level required for a bank card to properly link to this account
+     */
+    int getCardValidation();
+
+    /**
+     * Whether a bank card with the given validation level is allowed to access this account
+     */
+    boolean isCardValid(int validationLevel);
+
+    /**
+     * Increments the required {@link #getCardValidation() Validation Level} for this bank account, making all existing Bank Cards linked to this account invalid
+     */
+    void resetCards();
 
     /**
      * The name of the bank account.<br>
@@ -77,7 +91,7 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     List<Notification> getNotifications();
 
     @Nonnull
-    default Component getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
+    default MutableComponent getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
 
 
     /**

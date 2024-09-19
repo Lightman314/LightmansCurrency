@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEnt
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.tags.ItemTags;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;

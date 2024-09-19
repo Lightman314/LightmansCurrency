@@ -14,7 +14,6 @@ public class CPacketAcknowledgeCoinData extends ClientToServerPacket {
     private static final CPacketAcknowledgeCoinData INSTANCE = new CPacketAcknowledgeCoinData();
     public static final Handler<CPacketAcknowledgeCoinData> HANDLER = new H();
 
-
     public static void sendToServer() { INSTANCE.send(); }
 
     protected CPacketAcknowledgeCoinData() { super(TYPE); }

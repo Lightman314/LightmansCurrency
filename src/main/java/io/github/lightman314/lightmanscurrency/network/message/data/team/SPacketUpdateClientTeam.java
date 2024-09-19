@@ -27,7 +27,7 @@ public class SPacketUpdateClientTeam extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketUpdateClientTeam::encode,SPacketUpdateClientTeam::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientTeam message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.updateTeam(message.teamData);
+			LightmansCurrency.getProxy().updateTeam(message.teamData);
 		}
 	}
 

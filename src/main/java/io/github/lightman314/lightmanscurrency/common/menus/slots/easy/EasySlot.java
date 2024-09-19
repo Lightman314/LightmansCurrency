@@ -14,6 +14,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class EasySlot extends Slot {
 
     public static final ResourceLocation EMPTY_SLOT_BG = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_item_slot");
@@ -21,6 +23,8 @@ public class EasySlot extends Slot {
 
     public boolean active = true;
     public boolean locked = false;
+
+    private Runnable listener = () ->{};
 
     public EasySlot(Container container, int index, int x, int y) { super(container, index, x, y); }
 
@@ -35,7 +39,8 @@ public class EasySlot extends Slot {
     }
 
     @Override
-    public @NotNull ItemStack remove(int amount) {
+    @Nonnull
+    public ItemStack remove(int amount) {
         if(this.locked)
             return ItemStack.EMPTY;
         return super.remove(amount);
@@ -46,6 +51,14 @@ public class EasySlot extends Slot {
         if(this.locked)
             return false;
         return super.mayPickup(player);
+    }
+
+    public final void setListener(@Nonnull Runnable listener) { this.listener = listener; }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        this.listener.run();
     }
 
     public static void SetActive(AbstractContainerMenu menu) {

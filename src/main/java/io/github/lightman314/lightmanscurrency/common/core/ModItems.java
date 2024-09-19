@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardItem;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.PrepaidCardItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -74,8 +76,9 @@ public class ModItems {
 		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, "wallet_gold", new Item.Properties()));
 		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, "wallet_emerald", new Item.Properties()));
 		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, "wallet_diamond", new Item.Properties()));
-		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().fireResistant()));
-		
+		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().rarity(Rarity.RARE).fireResistant()));
+		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, "wallet_nether_star", true, 1, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+
 		//Portable Blocks
 		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties()));
 		PORTABLE_GEM_TERMINAL = ModRegistries.ITEMS.register("portable_gem_terminal", () -> new PortableTerminalItem(new Item.Properties()));
@@ -116,9 +119,13 @@ public class ModItems {
 		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange4, new Item.Properties()));
 		COIN_CHEST_BANK_UPGRADE = ModRegistries.ITEMS.register("coin_chest_bank_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_BANK, new Item.Properties()));
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties()));
-		
+
 		//Smithing Templates (1.20 only)
 		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new SmithingTemplateItem(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE), LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION.getWithStyle(ChatFormatting.GRAY),LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),new ArrayList<>(),Lists.newArrayList(SmithingTemplateItem.EMPTY_SLOT_INGOT,SmithingTemplateItem.EMPTY_SLOT_EMERALD,SmithingTemplateItem.EMPTY_SLOT_DIAMOND,SmithingTemplateItem.EMPTY_SLOT_REDSTONE_DUST)));
+
+		//Bank Card
+		ATM_CARD = ModRegistries.ITEMS.register("atm_card", () -> new ATMCardItem(new Item.Properties().stacksTo(1)));
+		PREPAID_CARD = ModRegistries.ITEMS.register("prepaid_card", () -> new PrepaidCardItem(new Item.Properties().stacksTo(1)));
 
 	}
 	
@@ -154,7 +161,8 @@ public class ModItems {
 	public static final Supplier<WalletItem> WALLET_EMERALD;
 	public static final Supplier<WalletItem> WALLET_DIAMOND;
 	public static final Supplier<WalletItem> WALLET_NETHERITE;
-	
+	public static final Supplier<WalletItem> WALLET_NETHER_STAR;
+
 	public static final Supplier<Item> PORTABLE_TERMINAL;
 	public static final Supplier<Item> PORTABLE_GEM_TERMINAL;
 	public static final Supplier<Item> PORTABLE_ATM;
@@ -190,5 +198,8 @@ public class ModItems {
 	public static final Supplier<Item> COIN_CHEST_SECURITY_UPGRADE;
 
 	public static final Supplier<Item> UPGRADE_SMITHING_TEMPLATE;
+
+	public static final Supplier<Item> ATM_CARD;
+	public static final Supplier<Item> PREPAID_CARD;
 
 }

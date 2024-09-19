@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
@@ -8,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -164,7 +164,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     {
         TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coins);
         if(rewardHolder != null)
-            builder.withItemHandler(new InvWrapper(rewardHolder.itemHolder)).withStoredCoins(rewardHolder.moneyHolder);
+            builder.withItemHandler(new InvWrapper(rewardHolder.itemHolder)).withMoneyHolder(rewardHolder.moneyHolder);
 
         return builder.build();
     }
@@ -260,7 +260,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     {
         public final Container itemHolder;
         //Make money storage high-priority so that it gets the money not the players wallet
-        public final MoneyStorage moneyHolder = new MoneyStorage(() -> {}, Integer.MIN_VALUE / 2);
+        public final MoneyStorage moneyHolder = new MoneyStorage(() -> {}, -1000000);
         public RewardCache() { this.itemHolder = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT); }
         public RewardCache(Container itemHolder, MoneyStorage money) { this.itemHolder = itemHolder; this.moneyHolder.addValues(money.allValues()); }
         public void giveToPlayer()
@@ -277,8 +277,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
                 List<ItemStack> items = new ArrayList<>();
                 for(MoneyValue value : this.moneyHolder.allValues())
                 {
-                    if(value instanceof CoinValue coinValue)
-                        items.addAll(coinValue.getAsSeperatedItemList());
+                    if(value instanceof IItemBasedValue itemValue)
+                        items.addAll(itemValue.getAsSeperatedItemList());
                 }
                 return items;
             }

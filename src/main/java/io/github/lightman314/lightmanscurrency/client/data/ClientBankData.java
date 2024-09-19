@@ -44,8 +44,7 @@ public class ClientBankData {
 	}
 	
 	public static void UpdateLastSelectedAccount(BankReference reference) {
-		lastSelectedAccount = reference;
-		lastSelectedAccount.flagAsClient();
+		lastSelectedAccount = reference.flagAsClient();
 	}
 	
 	public static BankReference GetLastSelectedAccount() {

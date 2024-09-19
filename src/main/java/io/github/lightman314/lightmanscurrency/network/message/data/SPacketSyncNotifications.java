@@ -27,7 +27,7 @@ public class SPacketSyncNotifications extends ServerToClientPacket {
 		protected H() { super(TYPE, fancyCodec(SPacketSyncNotifications::encode,SPacketSyncNotifications::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncNotifications message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.updateNotifications(message.data);
+			LightmansCurrency.getProxy().updateNotifications(message.data);
 		}
 	}
 	

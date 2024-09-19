@@ -35,7 +35,7 @@ public class SPacketUpdateClientBank extends ServerToClientPacket {
 
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientBank message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			context.enqueueWork(() -> LightmansCurrency.PROXY.updateBankAccount(message.player, message.bankData));
+			context.enqueueWork(() -> LightmansCurrency.getProxy().updateBankAccount(message.player, message.bankData));
 		}
 	}
 

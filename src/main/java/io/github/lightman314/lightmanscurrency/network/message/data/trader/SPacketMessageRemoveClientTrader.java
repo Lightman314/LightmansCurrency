@@ -26,7 +26,7 @@ public class SPacketMessageRemoveClientTrader extends ServerToClientPacket {
 		protected H() { super(TYPE,easyCodec(SPacketMessageRemoveClientTrader::encode,SPacketMessageRemoveClientTrader::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketMessageRemoveClientTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.removeTrader(message.traderID);
+			LightmansCurrency.getProxy().removeTrader(message.traderID);
 		}
 	}
 

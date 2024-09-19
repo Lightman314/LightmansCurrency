@@ -33,7 +33,7 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
     private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketSyncCoinData message) {
         String jsonString = GSON.toJson(message.json);
         buffer.writeInt(jsonString.length());
-        buffer.writeUtf(jsonString, jsonString.length());
+        buffer.writeUtf(jsonString,jsonString.length());
         buffer.writeBoolean(message.isConfigTask);
     }
     private static SPacketSyncCoinData decode(@Nonnull FriendlyByteBuf buffer) {
@@ -48,6 +48,8 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
         @Override
         public void handle(@Nonnull SPacketSyncCoinData message, @Nonnull IPayloadContext context) {
             CoinAPI.API.HandleSyncPacket(message);
+            if(message.isConfigTask)
+                context.reply(new CPacketAcknowledgeCoinData());
         }
     }
 

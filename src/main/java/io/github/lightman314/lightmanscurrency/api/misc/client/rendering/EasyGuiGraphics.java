@@ -3,8 +3,10 @@ package io.github.lightman314.lightmanscurrency.api.misc.client.rendering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
@@ -37,6 +40,8 @@ public final class EasyGuiGraphics {
             ResourceLocation.withDefaultNamespace("widget/button_disabled"),
             ResourceLocation.withDefaultNamespace("widget/button_highlighted")
     );
+
+    public static final ResourceLocation GENERIC_BACKGROUND = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/generic_background.png");
 
     private final GuiGraphics gui;
     public GuiGraphics getGui() { return this.gui; }
@@ -77,6 +82,21 @@ public final class EasyGuiGraphics {
 
     //Texture Rendering
     public void renderNormalBackground(@Nonnull ResourceLocation image, @Nonnull IEasyScreen screen) { this.resetColor(); this.pushOffset(screen.getCorner()).blit(image, 0,0,0,0, screen.getXSize(), screen.getYSize()); this.popOffset(); }
+    public void renderNormalBackground(@Nonnull IEasyScreen screen)
+    {
+        this.resetColor();
+        this.pushOffset(screen.getCorner());
+        this.blitBackgroundOfSize(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
+        this.popOffset();
+    }
+    public void renderSlot(@Nonnull IEasyScreen screen, @Nonnull Slot slot) { this.renderSlot(screen, ScreenPosition.of(slot.x, slot.y));}
+    public void renderSlot(@Nonnull IEasyScreen screen, @Nonnull ScreenPosition position)
+    {
+        this.resetColor();
+        this.pushOffset(screen.getCorner());
+        this.blit(IconAndButtonUtil.WIDGET_TEXTURE,position.offset(-1,-1), 0, 128, 18,18);
+        this.popOffset();
+    }
     public void blit(@Nonnull ResourceLocation image, int x, int y, int u, int v, int width, int height) { this.gui.blit(image, this.offset.x + x, this.offset.y + y, u, v, width, height); }
     public void blit(@Nonnull ResourceLocation image, @Nonnull ScreenPosition pos, int u, int v, int width, int height) { this.blit(image, pos.x, pos.y, u, v, width, height); }
     public void blit(@Nonnull ResourceLocation image, @Nonnull ScreenArea area, int u, int v) { this.blit(image, area.pos.x, area.pos.y, u, v, area.width, area.height); }

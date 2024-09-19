@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -47,12 +48,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
@@ -294,7 +297,7 @@ public class EventHandler {
 		List<ItemStack> drops = new ArrayList<>();
 
 		Container walletInventory = event.getWalletInventory();
-		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add);
+		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add, IClientTracker.entityWrapper(event.getEntity()));
 		MoneyView walletFunds = walletHandler.getStoredMoney();
 
 
@@ -318,6 +321,16 @@ public class EventHandler {
 		
 		return drops;
 		
+	}
+
+	@SubscribeEvent
+	public static void entityTick(EntityTickEvent.Pre event)
+	{
+		if(event.getEntity() instanceof LivingEntity entity && entity.hasData(ModAttachmentTypes.WALLET_HANDLER))
+		{
+			WalletHandler handler = WalletHandler.get(entity);
+			handler.tick();
+		}
 	}
 
 	@SubscribeEvent

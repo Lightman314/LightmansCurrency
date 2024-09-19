@@ -27,7 +27,7 @@ public class SPacketSyncPlayerTrade extends ServerToClientPacket {
         protected H() { super(TYPE, fancyCodec(SPacketSyncPlayerTrade::encode,SPacketSyncPlayerTrade::decode)); }
         @Override
         protected void handle(@Nonnull SPacketSyncPlayerTrade message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            LightmansCurrency.PROXY.loadPlayerTrade(message.data);
+            LightmansCurrency.getProxy().loadPlayerTrade(message.data);
         }
     }
 

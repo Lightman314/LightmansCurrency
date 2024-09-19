@@ -28,7 +28,7 @@ public class SPacketSyncEjectionData extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketSyncEjectionData::encode,SPacketSyncEjectionData::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncEjectionData message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			LightmansCurrency.PROXY.receiveEmergencyEjectionData(message.data);
+			LightmansCurrency.getProxy().receiveEmergencyEjectionData(message.data);
 		}
 	}
 	

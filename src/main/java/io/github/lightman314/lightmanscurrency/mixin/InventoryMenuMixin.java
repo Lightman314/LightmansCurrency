@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -32,6 +33,9 @@ public abstract class InventoryMenuMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     protected void init(Inventory inventory, boolean active, final Player player, CallbackInfo callbackInfo)
     {
+        //Don't add wallet slot if curios is installed
+        if(LCCurios.isLoaded())
+            return;
         if(this.self() instanceof AbstractContainerMenuAccessor accessor)
             this.walletSlot = accessor.addCustomSlot(new WalletSlot(player, WalletHelpers.getWalletContainer(player), 0, LCConfig.CLIENT.walletSlot.get().x + 1, LCConfig.CLIENT.walletSlot.get().y + 1));
     }
@@ -39,6 +43,9 @@ public abstract class InventoryMenuMixin {
     @Inject(at = @At("HEAD"), method = "quickMoveStack", cancellable = true)
     protected void quickMoveStack(Player player, int slotIndex, CallbackInfoReturnable<ItemStack> callbackInfo)
     {
+        //Ignored if curios is installed
+        if(LCCurios.isLoaded())
+            return;
         //Only quick move from the inventory slots
         if(slotIndex >= 9 && slotIndex < 45 && this.walletSlot != null)
         {

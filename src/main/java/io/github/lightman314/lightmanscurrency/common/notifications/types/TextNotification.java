@@ -55,7 +55,7 @@ public class TextNotification extends Notification {
 		if(compound.contains("Text", Tag.TAG_STRING))
 			this.text = Component.Serializer.fromJson(compound.getString("Text"),lookup);
 		if(compound.contains("Category", Tag.TAG_COMPOUND))
-			this.category = NotificationAPI.loadCategory(compound.getCompound("Category"),lookup);
+			this.category = NotificationAPI.API.LoadCategory(compound.getCompound("Category"),lookup);
 	}
 
 	@Override

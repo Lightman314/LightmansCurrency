@@ -110,7 +110,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             level = context.getPlayer().level();
         else
         {
-            try{ level = LightmansCurrency.PROXY.safeGetDummyLevel();
+            try{ level = LightmansCurrency.getProxy().safeGetDummyLevel();
             } catch(Throwable t) {
                 LightmansCurrency.LogError("Could not get a valid level from the trade's context or the proxy. Will have to use Java randomizer");
                 return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()) + 1);

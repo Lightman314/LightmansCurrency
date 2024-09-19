@@ -74,23 +74,31 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.WALLET_GOLD)
                 .add(ModItems.WALLET_EMERALD)
                 .add(ModItems.WALLET_DIAMOND)
-                .add(ModItems.WALLET_NETHERITE);
+                .add(ModItems.WALLET_NETHERITE)
+                .add(ModItems.WALLET_NETHER_STAR);
         //Wallets with Exchange Ability
         this.cTag(LCTags.Items.WALLET_EXCHANGE)
                 .add(ModItems.WALLET_IRON)
                 .add(ModItems.WALLET_GOLD)
                 .add(ModItems.WALLET_EMERALD)
                 .add(ModItems.WALLET_DIAMOND)
-                .add(ModItems.WALLET_NETHERITE);
+                .add(ModItems.WALLET_NETHERITE)
+                .add(ModItems.WALLET_NETHER_STAR);
         //Wallets with Pickup Ability
         this.cTag(LCTags.Items.WALLET_PICKUP)
                 .add(ModItems.WALLET_GOLD)
                 .add(ModItems.WALLET_EMERALD)
                 .add(ModItems.WALLET_DIAMOND)
-                .add(ModItems.WALLET_NETHERITE);
+                .add(ModItems.WALLET_NETHERITE)
+                .add(ModItems.WALLET_NETHER_STAR);
         //Wallets with Bank Ability
         this.cTag(LCTags.Items.WALLET_BANK)
-                .add(ModItems.WALLET_NETHERITE);
+                .add(ModItems.WALLET_NETHERITE)
+                .add(ModItems.WALLET_NETHER_STAR);
+
+        //Wallet Upgrade Materials
+        this.cTag(LCTags.Items.WALLET_UPGRADE_MATERIAL)
+                .addTag(Tags.Items.GEMS_DIAMOND);
 
         //Trader Tags
         this.cTag(LCTags.Items.TRADER)
@@ -221,7 +229,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModBlocks.COINBLOCK_GOLD);
         //Add Sus Jar to Dyeable tag so that it can be colored in the crafting menu
         this.cTag(ItemTags.DYEABLE)
-                .add(ModBlocks.SUS_JAR);
+                .add(ModBlocks.SUS_JAR)
+                .add(ModItems.ATM_CARD);
 
         ///MODDED TAGS
         //Add Wallets to Wallet Slot

@@ -84,19 +84,21 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			return;
 
 		TradeContext context = this.getContext();
+
+		boolean hovered = !context.isStorageMode && !this.displayOnly && this.isHovered;
 		
 		this.recalculateSize();
 		
-		this.renderBackground(gui, !context.isStorageMode && !this.displayOnly && this.isHovered);
+		this.renderBackground(gui,hovered);
 
 		Optional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
-		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(gui, arrowPos, !context.isStorageMode && !this.displayOnly && this.isHovered));
+		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(gui, arrowPos, hovered));
 
 		//Render custom display stuff in front of the arrow, not behind it.
 		try { tr.renderAdditional(this, gui, context);
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 
-		this.renderAlert(gui, tr.alertPosition(context), tr.getAlertData(context));
+		this.renderAlert(gui, tr.alertPosition(context), tr.getAlertData(context), hovered);
 		
 		this.renderDisplays(gui, tr, context);
 
@@ -147,14 +149,14 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		
 	}
 	
-	private void renderAlert(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, @Nullable List<AlertData> alerts)
+	private void renderAlert(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, @Nullable List<AlertData> alerts, boolean isHovered)
 	{
 		
 		if(alerts == null || alerts.isEmpty())
 			return;
 		alerts.sort(AlertData::compare);
 
-		alerts.getFirst().setShaderColor(gui, this.active ? 1f : 0.5f);
+		alerts.getFirst().setShaderColor(gui, this.active ? 1f : 0.5f, isHovered);
 		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}
