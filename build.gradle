@@ -121,7 +121,7 @@ dependencies {
     runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    implementation 'curse.maven:adorned-1036809:5638835-sources-5638839'
+    compileOnly 'curse.maven:adorned-1036809:5638835-sources-5638839'
 
     //Immersive Engineering API
     //Waiting for IE update

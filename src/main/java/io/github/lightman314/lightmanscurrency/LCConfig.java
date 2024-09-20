@@ -688,8 +688,9 @@ public final class LCConfig {
                             walletLevelDescription)
                     .add("bankLevel", this.walletBankLevel);
 
-            builder.comment("Whether wallets can have 18 addional slots added by using a Nether Star on them from their inventory")
-                            .add("allowCapacityUpgrade",this.walletCapacityUpgradeable);
+            builder.comment("Whether wallets can have " + WalletItem.SLOT_UPGRADE_LIMIT + " additional slots added by using an upgrade item on them from their inventory",
+                            "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
+                    .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 
             builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
                             "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")

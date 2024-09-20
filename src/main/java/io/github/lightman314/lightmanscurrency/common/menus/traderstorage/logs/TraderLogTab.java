@@ -30,7 +30,7 @@ public class TraderLogTab extends TraderStorageTab {
     @Override
     public void onTabClose() { }
 
-    public boolean canDeleteNotification() { return LCAdminMode.isAdminPlayer(this.menu.getPlayer()) || this.menu.hasPermission(Permissions.TRANSFER_OWNERSHIP); }
+    public boolean canDeleteNotification() { return this.menu.hasPermission(Permissions.TRANSFER_OWNERSHIP); }
 
     public void DeleteNotification(int notificationIndex)
     {
