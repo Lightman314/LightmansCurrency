@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration.curios.client;
 
-import com.google.common.base.Suppliers;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.renderer.WalletCurioRenderer;
@@ -17,6 +16,7 @@ public class LCCuriosClient {
         registerWallet(ModItems.WALLET_EMERALD);
         registerWallet(ModItems.WALLET_DIAMOND);
         registerWallet(ModItems.WALLET_NETHERITE);
+        registerWallet(ModItems.WALLET_NETHER_STAR);
     }
 
     private static void registerWallet(RegistryObject<? extends WalletItem> wallet) { registerWallet(wallet.get()); }

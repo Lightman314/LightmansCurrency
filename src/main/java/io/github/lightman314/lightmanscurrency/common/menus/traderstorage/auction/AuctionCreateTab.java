@@ -7,9 +7,9 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionCreateClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -32,8 +32,8 @@ public class AuctionCreateTab extends TraderStorageTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
-	public List<SimpleSlot> getSlots() { return this.slots; }
+	List<EasySlot> slots = new ArrayList<>();
+	public List<EasySlot> getSlots() { return this.slots; }
 	SimpleContainer auctionItems = new SimpleContainer(2);
 	public SimpleContainer getAuctionItems() { return this.auctionItems; }
 	
@@ -42,24 +42,24 @@ public class AuctionCreateTab extends TraderStorageTab {
 		
 		for(int i = 0; i < this.auctionItems.getContainerSize(); ++i)
 		{
-			SimpleSlot newSlot = new SimpleSlot(this.auctionItems, i, TraderMenu.SLOT_OFFSET + 8 + i * 18, 122);
+			EasySlot newSlot = new EasySlot(this.auctionItems, i, TraderMenu.SLOT_OFFSET + 8 + i * 18, 122);
 			addSlot.apply(newSlot);
 			this.slots.add(newSlot);
 		}
-		SimpleSlot.SetActive(this.slots, false);
+		EasySlot.SetActive(this.slots, false);
 		
 	}
 	
 	@Override
 	public void onTabOpen() {
-		SimpleSlot.SetActive(this.slots);
-		for(SimpleSlot slot : this.slots)
+		EasySlot.SetActive(this.slots);
+		for(EasySlot slot : this.slots)
 			slot.locked = false;
 	}
 	
 	@Override
 	public void onTabClose() {
-		SimpleSlot.SetInactive(this.slots);
+		EasySlot.SetInactive(this.slots);
 		this.menu.clearContainer(this.auctionItems);
 	}
 	
@@ -91,7 +91,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			this.auctionItems.clearContent();
 			//Send response message to the client
 			this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", true));
-			for(SimpleSlot slot : this.slots) slot.locked = true;
+			for(EasySlot slot : this.slots) slot.locked = true;
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}
 	}

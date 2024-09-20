@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.types.builtin;
 
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
@@ -13,6 +14,8 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValueParser;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -62,7 +65,7 @@ public class CoinCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) { return new CoinContainerMoneyHandler(container, overflowHandler); }
+    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) { return new CoinContainerMoneyHandler(container, overflowHandler); }
 
     @Override
     public MoneyValue loadMoneyValue(@Nonnull CompoundTag valueTag) { return CoinValue.loadCoinValue(valueTag); }
@@ -90,5 +93,11 @@ public class CoinCurrencyType extends CurrencyType {
         }
         return results;
     }
+
+    @Override
+    public boolean allowItemInMoneySlot(@Nonnull Player player, @Nonnull ItemStack item) { return CoinAPI.API.IsCoin(item,true); }
+
+    @Override
+    public void addMoneySlotBackground(@Nonnull Consumer<Pair<ResourceLocation, ResourceLocation>> consumer, @Nonnull Consumer<ResourceLocation> lazyConsumer) { lazyConsumer.accept(CoinSlot.EMPTY_COIN_SLOT); }
 
 }

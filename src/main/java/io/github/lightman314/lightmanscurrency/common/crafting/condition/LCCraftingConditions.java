@@ -145,6 +145,21 @@ public class LCCraftingConditions {
 		}
 	}
 
+	public static class ATMCard extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "atm_card_craftable");
+		public static final ATMCard INSTANCE = new ATMCard();
+		public static final IConditionSerializer<ATMCard> SERIALIZER = new Serializer();
+		private ATMCard() { super(TYPE, LCConfig.COMMON.canCraftATMCard); }
+		private static class Serializer implements IConditionSerializer<ATMCard> {
+			@Override
+			public void write(JsonObject json, ATMCard value) { }
+			@Override
+			public ATMCard read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
 	public static void register()
 	{
 		try{
@@ -158,6 +173,7 @@ public class LCCraftingConditions {
 			CraftingHelper.register(CoinChestUpgradeBank.SERIALIZER);
 			CraftingHelper.register(CoinChestUpgradeSecurity.SERIALIZER);
 			CraftingHelper.register(TaxCollector.SERIALIZER);
+			CraftingHelper.register(ATMCard.SERIALIZER);
 		} catch(IllegalStateException ignored) { }
 	}
 	

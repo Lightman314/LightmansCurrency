@@ -25,7 +25,7 @@ public class SPacketRemoveClientTeam extends ServerToClientPacket {
 		public SPacketRemoveClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketRemoveClientTeam(buffer.readLong()); }
 		@Override
 		protected void handle(@Nonnull SPacketRemoveClientTeam message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.removeTeam(message.teamID);
+			LightmansCurrency.getProxy().removeTeam(message.teamID);
 		}
 	}
 

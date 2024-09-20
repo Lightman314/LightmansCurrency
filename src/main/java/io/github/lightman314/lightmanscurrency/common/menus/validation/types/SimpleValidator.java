@@ -20,7 +20,7 @@ public final class SimpleValidator extends MenuValidator {
 
     private final NonNullFunction<Player,Boolean> test;
 
-    private SimpleValidator(@Nonnull NonNullSupplier<Boolean> test) { super(TYPE); this.test = p -> test.get(); }
+    private SimpleValidator(@Nonnull NonNullSupplier<Boolean> test) { this(p -> test.get()); }
     private SimpleValidator(@Nonnull NonNullFunction<Player,Boolean> test) { super(TYPE); this.test = test; }
 
     public static MenuValidator of(@Nonnull NonNullSupplier<Boolean> test) { return new SimpleValidator(test); }

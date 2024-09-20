@@ -21,9 +21,9 @@ public class QuarkCustomWoodTypes {
 
     private static final String MODID = "quark";
 
-    public static final WoodType ANCIENT = WoodType.builder("ancient", MODID).ofColor(MapColor.TERRACOTTA_WHITE).ofName("Ancient").build();
+    public static final WoodType ANCIENT = WoodType.builder("ancient", MODID).ofColor(MapColor.TERRACOTTA_WHITE).ofName("Ashen").build();
     public static final WoodType AZALEA = WoodType.builder("azalea", MODID).ofColor(MapColor.COLOR_LIGHT_GREEN).ofName("Azalea").build();
-    public static final WoodType BLOSSOM = WoodType.builder("blossom", MODID).ofColor(MapColor.COLOR_RED).ofName("Blossom").build();
+    public static final WoodType BLOSSOM = WoodType.builder("blossom", MODID).ofColor(MapColor.COLOR_RED).ofName("Trumpet").build();
 
     public static void setupWoodTypes() {
         registerSet(ANCIENT, () -> AncientWoodModule.woodSet);

@@ -22,6 +22,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -645,7 +646,13 @@ public class InventoryUtil {
 	}
     
     public static boolean ItemHasTag(ItemStack item, TagKey<Item> tag) { return item.getTags().anyMatch(t -> t.equals(tag)); }
-    
+
+	@Nonnull
+	public static List<Item> GetItemsWithTag(@Nonnull TagKey<Item> tag) { return ForgeRegistries.ITEMS.tags().getTag(tag).stream().toList(); }
+
+	@Nonnull
+	public static List<ItemStack> GetItemStacksWithTag(@Nonnull TagKey<Item> tag) { return GetItemsWithTag(tag).stream().map(ItemStack::new).toList(); }
+
     public static int safeGiveToPlayer(Inventory inv, ItemStack stack) {
     	
     	int i = inv.getSlotWithRemainingSpace(stack);

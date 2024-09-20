@@ -14,10 +14,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SlotMachineBlock extends TraderBlockTallRotatable {
 
@@ -44,6 +44,6 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
     public ResourceLocation getLightModel() { return LIGHT_MODEL_LOCATION; }
 
     @Override
-    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_SLOT_MACHINE.asTooltip(); }
+    protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_SLOT_MACHINE.asTooltip(); }
 
 }

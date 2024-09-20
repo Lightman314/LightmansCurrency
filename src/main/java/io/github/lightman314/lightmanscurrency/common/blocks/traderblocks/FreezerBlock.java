@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -17,7 +18,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -51,6 +51,6 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER.get(); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
+	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
 	
 }

@@ -31,7 +31,7 @@ public class SPacketUpdateClientBank extends ServerToClientPacket {
 		public SPacketUpdateClientBank decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketUpdateClientBank(buffer.readUUID(), buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientBank message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.updateBankAccount(message.player, message.bankData);
+			LightmansCurrency.getProxy().updateBankAccount(message.player, message.bankData);
 		}
 	}
 

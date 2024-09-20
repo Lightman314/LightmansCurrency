@@ -46,7 +46,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 					   float netHeadYaw,
 					   float headPitch) {
 		
-		IWalletHandler handler = WalletCapability.getRenderWalletHandler(entity);
+		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(entity);
 		if(handler == null || !handler.visible())
 			return;
 		

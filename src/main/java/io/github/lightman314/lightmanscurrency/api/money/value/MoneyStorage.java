@@ -28,10 +28,16 @@ public final class MoneyStorage extends MoneyHolder {
     private final Runnable markDirty;
     private final int priority;
 
+    private MoneyStorage(@Nonnull List<MoneyValue> values)
+    {
+        this(() -> {});
+        for(MoneyValue value : values)
+            this.addValue(value);
+    }
     public MoneyStorage(@Nonnull Runnable markDirty) { this(markDirty,0); }
     public MoneyStorage(@Nonnull Runnable markDirty, int priority) { this.markDirty = Objects.requireNonNull(markDirty); this.priority = priority; }
 
-    private void markDirty() { this.cacheChanged = true; this.markDirty.run(); }
+    private void markDirty() { this.markDirty.run(); }
 
     @Override
     public int priority() { return this.priority; }
@@ -161,7 +167,6 @@ public final class MoneyStorage extends MoneyHolder {
             MoneyValue value = MoneyValue.load(list.getCompound(i));
             this.values.put(value.getUniqueName(), value);
         }
-        this.cacheChanged = true;
     }
 
     public void safeLoad(@Nonnull CompoundTag tag, @Nonnull String tagName)
@@ -206,16 +211,11 @@ public final class MoneyStorage extends MoneyHolder {
         return text;
     }
 
-    private boolean cacheChanged = true;
-
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         for(MoneyValue value : this.values.values())
             builder.add(value);
     }
-
-    @Override
-    public boolean hasStoredMoneyChanged() { return this.cacheChanged; }
 
     @Override
     public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_STORAGE.get(); }

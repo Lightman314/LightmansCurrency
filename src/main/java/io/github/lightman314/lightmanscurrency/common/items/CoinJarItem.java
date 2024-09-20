@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +41,7 @@ public class CoinJarItem extends BlockItem {
 				}
 			}
 			else
-				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.get().withStyle(ChatFormatting.YELLOW));
+				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.getWithStyle(ChatFormatting.YELLOW));
 		}
 
 	}
@@ -69,17 +69,10 @@ public class CoinJarItem extends BlockItem {
 		return storage;
 	}
 
-	public static class Colored extends CoinJarItem implements DyeableLeatherItem
+	public static class Colored extends CoinJarItem implements ColoredItem
 	{
 
 		public Colored(Block block, Properties properties) { super(block, properties); }
-
-		//Copied from DyeableLeatherItem, except default color is now white instead of leather brown.
-		@Override
-		public int getColor(ItemStack stack) {
-			CompoundTag compoundtag = stack.getTagElement("display");
-			return compoundtag != null && compoundtag.contains("color", 99) ? compoundtag.getInt("color") : 0xFFFFFF;
-		}
 
 		@Override
 		public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {

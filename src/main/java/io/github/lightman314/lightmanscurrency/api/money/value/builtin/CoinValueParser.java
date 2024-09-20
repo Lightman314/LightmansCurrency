@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.value.builtin;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
@@ -28,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 public class CoinValueParser extends MoneyValueParser {
 
     public static final MoneyValueParser INSTANCE = new CoinValueParser();
+
+    public static final DynamicCommandExceptionType NOT_A_COIN_EXCEPTION = new DynamicCommandExceptionType(LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN::get);
 
     private CoinValueParser() { super("coin"); }
 
@@ -82,18 +84,14 @@ public class CoinValueParser extends MoneyValueParser {
             Item coin = ForgeRegistries.ITEMS.getValue(coinID);
             ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
             if(chainData == null)
-                throw NotACoinException(coinID.toString(), reader);
+                throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinID.toString());
             CoinEntry entry = chainData.findEntry(coin);
             if(entry == null || entry.isSideChain())
-                throw NotACoinException(coinID.toString(), reader);
+                throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinID.toString());
             return result.addValue(CoinValue.fromNumber(chainData.chain, entry.getCoreValue() * count));
         }
         else
-            throw NotACoinException(coinIDString, reader);
-    }
-
-    public static CommandSyntaxException NotACoinException(String item, StringReader reader) {
-        return new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN.get(item), reader.getString(), reader.getCursor());
+            throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinIDString);
     }
 
     @Nonnull

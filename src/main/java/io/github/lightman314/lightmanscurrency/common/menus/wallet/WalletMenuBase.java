@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -26,21 +27,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class WalletMenuBase extends EasyMenu {
 
 	private static int maxWalletSlots = 0;
 	public static int getMaxWalletSlots() { return maxWalletSlots; }
-	public static void updateMaxWalletSlots(int slotCount) { maxWalletSlots = Math.max(maxWalletSlots, slotCount); }
+	public static void updateMaxWalletSlots(int slotCount) { maxWalletSlots = Math.max(maxWalletSlots, slotCount + WalletItem.SLOT_UPGRADE_LIMIT); }
 	
 	protected final Container dummyInventory = new SimpleContainer(1);
 	
 	protected final int walletStackIndex;
 	public final boolean isEquippedWallet() { return this.walletStackIndex < 0; }
 	public final int getWalletStackIndex() { return this.walletStackIndex; }
-	
-	protected final Inventory inventory;
+
 	public final boolean hasWallet() { ItemStack wallet = this.getWallet(); return !wallet.isEmpty() && wallet.getItem() instanceof WalletItem; }
 	public final ItemStack getWallet()
 	{
@@ -57,25 +59,45 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public void ToggleAutoExchange() { this.autoExchange = !this.autoExchange; this.saveWalletContents(); }
 	
 	protected final SimpleContainer coinInput;
+	public final int coinSlotHeight;
+	public final int coinSlotWidth;
+	public final int bonusWidth;
+	public final int halfBonusWidth;
 	
 	protected final WalletItem walletItem;
+
+	private final List<CoinSlot> coinSlots = new ArrayList<>();
+	@Nonnull
+	public List<CoinSlot> getCoinSlots() { return ImmutableList.copyOf(this.coinSlots); }
 
 	public Player getPlayer() { return this.player; }
 	
 	protected WalletMenuBase(MenuType<?> type, int windowID, Inventory inventory, int walletStackIndex) {
 		super(type, windowID, inventory);
 		
-		this.inventory = inventory;
-		
 		this.walletStackIndex = walletStackIndex;
 		
-		Item item = this.getWallet().getItem();
+		ItemStack wallet = this.getWallet();
+		Item item = wallet.getItem();
 		if(item instanceof WalletItem wi)
 			this.walletItem = wi;
 		else
 			this.walletItem = null;
-		
-		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
+
+		int walletSize = WalletItem.InventorySize(wallet);
+		this.coinInput = new SimpleContainer(walletSize);
+		this.coinSlotHeight = Math.min(6, MathUtil.DivideByAndRoundUp(walletSize,9));
+		if(walletSize > 9 * 6)
+		{
+			this.coinSlotWidth = MathUtil.DivideByAndRoundUp(walletSize,6);
+			this.bonusWidth = 18 * (this.coinSlotWidth - 9);
+			this.halfBonusWidth = this.bonusWidth / 2;
+		}
+		else
+		{
+			this.coinSlotWidth = 9;
+			this.bonusWidth = this.halfBonusWidth = 0;
+		}
 		this.reloadWalletContents();
 		
 		this.autoExchange = WalletItem.getAutoExchange(this.getWallet());
@@ -91,18 +113,27 @@ public abstract class WalletMenuBase extends EasyMenu {
 	}
 	
 	protected final void addCoinSlots(int yPosition) {
-		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
+		if(!this.coinSlots.isEmpty())
+			return;
+		int dummySlots = maxWalletSlots - this.coinInput.getContainerSize();
+		int index = 0;
+		for(int y = 0; y < this.coinSlotHeight; y++)
 		{
-			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
+			for(int x = 0; x < this.coinSlotWidth && index < this.coinInput.getContainerSize(); x++)
 			{
-				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, yPosition + y * 18).addListener(this::saveWalletContents));
+				CoinSlot slot = new CoinSlot(this.coinInput, index++, 8 + x * 18, yPosition + y * 18);
+				slot.setListener(this::saveWalletContents);
+				this.addSlot(slot);
+				this.coinSlots.add(slot);
 			}
 		}
-	}
-	
-	protected final void addDummySlots(int slotLimit) {
-		while(this.slots.size() < slotLimit) {
-			this.addSlot(new DisplaySlot(this.dummyInventory, 0, Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2));
+		if(dummySlots < 0)
+			LightmansCurrency.LogWarning("Coin Slot count is larger than expected limit!");
+		while(dummySlots-- > 0)
+		{
+			DisplaySlot slot = new DisplaySlot(this.dummyInventory,0,Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2);
+			slot.active = false;
+			this.addSlot(slot);
 		}
 	}
 	
@@ -113,8 +144,6 @@ public abstract class WalletMenuBase extends EasyMenu {
 			this.coinInput.setItem(i, walletInventory.getItem(i));
 		}
 	}
-	
-	public final int getRowCount() { return 1 + ((this.coinInput.getContainerSize() - 1)/9); }
 	
 	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
 

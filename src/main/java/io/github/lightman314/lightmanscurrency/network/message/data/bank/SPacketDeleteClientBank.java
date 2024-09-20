@@ -27,7 +27,7 @@ public class SPacketDeleteClientBank extends ServerToClientPacket {
         public SPacketDeleteClientBank decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketDeleteClientBank(buffer.readUUID()); }
         @Override
         protected void handle(@Nonnull SPacketDeleteClientBank message, @Nullable ServerPlayer sender) {
-            LightmansCurrency.PROXY.removeBankAccount(message.player);
+            LightmansCurrency.getProxy().removeBankAccount(message.player);
         }
     }
 }

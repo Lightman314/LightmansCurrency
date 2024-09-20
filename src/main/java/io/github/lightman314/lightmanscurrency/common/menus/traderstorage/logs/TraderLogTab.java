@@ -29,10 +29,25 @@ public class TraderLogTab extends TraderStorageTab {
     @Override
     public void onTabClose() { }
 
+    public boolean canDeleteNotification() { return this.menu.hasPermission(Permissions.TRANSFER_OWNERSHIP); }
+
+    public void DeleteNotification(int notificationIndex)
+    {
+        if(this.menu.getTrader() != null && this.canDeleteNotification())
+        {
+            this.menu.getTrader().deleteNotification(this.menu.getPlayer(), notificationIndex);
+            if(this.isClient())
+                this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex));
+        }
+    }
+
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     @Override
-    public void receiveMessage(LazyPacketData message) { }
+    public void receiveMessage(LazyPacketData message) {
+        if(message.contains("DeleteNotification"))
+            this.DeleteNotification(message.getInt("DeleteNotification"));
+    }
 
 }

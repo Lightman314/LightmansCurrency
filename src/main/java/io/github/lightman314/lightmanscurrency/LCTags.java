@@ -28,6 +28,10 @@ public class LCTags {
         public static final TagKey<Item> COIN_MINTING_MATERIAL = tag("coin_minting_material");
         //Wallet Tag for Wallet Advancement
         public static final TagKey<Item> WALLET = tag("wallet");
+        public static final TagKey<Item> WALLET_PICKUP = tag("wallet/pickup");
+        public static final TagKey<Item> WALLET_EXCHANGE = tag("wallet/exchange");
+        public static final TagKey<Item> WALLET_BANK = tag("wallet/bank");
+        public static final TagKey<Item> WALLET_UPGRADE_MATERIAL = tag("wallet_upgrade_material");
 
         //Trader Tags for Advancements
         public static final TagKey<Item> TRADER = tag("trader");

@@ -26,7 +26,7 @@ public class SPacketUpdateClientTrader extends ServerToClientPacket {
 		public SPacketUpdateClientTrader decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketUpdateClientTrader(buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientTrader message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.updateTrader(message.traderData);
+			LightmansCurrency.getProxy().updateTrader(message.traderData);
 		}
 	}
 

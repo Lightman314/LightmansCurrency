@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -64,8 +63,8 @@ public class MoneyMendingEnchantment extends Enchantment {
 		if(entry == null)
 		{
 			//If we failed to get a vanilla entry, check the curios slots (if applicable)
-			if(LightmansCurrency.isCuriosLoaded())
-				item = LCCurios.getMoneyMendingItem(entity);
+			if(LCCurios.isLoaded())
+				item = LCCurios.getRandomItem(entity,i -> EnchantmentHelper.getEnchantments(i).containsKey(ModEnchantments.MONEY_MENDING.get()));
 			else
 				item = null;
 		}

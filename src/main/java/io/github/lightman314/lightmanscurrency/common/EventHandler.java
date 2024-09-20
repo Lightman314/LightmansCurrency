@@ -21,9 +21,12 @@ import io.github.lightman314.lightmanscurrency.api.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayPickupSound;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
+import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 
 import java.util.ArrayList;
@@ -110,7 +113,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level().isClientSide)
-				SPacketPlayPickupSound.INSTANCE.sendTo(player);
+				SPacketPlayCoinSound.INSTANCE.sendTo(player);
 			event.setCanceled(true);
 		}
 		
@@ -276,7 +279,7 @@ public class EventHandler {
 
 					boolean keepWallet = ModGameRules.safeGetCustomBool(player.level(), ModGameRules.KEEP_WALLET, false);
 					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
-					if(!LightmansCurrency.isCuriosValid(player) && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+					if(!LCCurios.hasWalletSlot(player) && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
 						keepWallet = true;
 
 					int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
@@ -333,7 +336,7 @@ public class EventHandler {
 			event.addDrops(getWalletDrops(event, event.coinDropPercent));
 		}
 		//Drop the wallet (unless curios is installed, upon which curios will handle that)
-		else if(!LightmansCurrency.isCuriosValid(event.getEntity()))
+		else if(!LCCurios.hasWalletSlot(event.getEntity()))
 		{
 			event.addDrop(event.getWalletStack());
 			event.setWalletStack(ItemStack.EMPTY);
@@ -348,7 +351,7 @@ public class EventHandler {
 		List<ItemStack> drops = new ArrayList<>();
 
 		Container walletInventory = event.getWalletInventory();
-		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add);
+		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add,IClientTracker.entityWrapper(event.getEntity()));
 		MoneyView walletFunds = walletHandler.getStoredMoney();
 
 
@@ -378,6 +381,16 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void entityTick(LivingEvent.LivingTickEvent event) {
 		LivingEntity livingEntity = event.getEntity();
+		if(livingEntity instanceof Player player && player.isCreative() && player.level().isClientSide)
+		{
+			//Check Wallet Updates from the client if they're in creative mode and sync them to the server
+			IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
+			if(handler != null && handler.isDirty())
+			{
+				new CPacketSyncWallet(handler.getWallet()).send();
+				handler.clean();
+			}
+		}
 		if(livingEntity.level().isClientSide) //Do nothing client side
 			return;
 

@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -26,7 +26,7 @@ public class CoinChestMenu extends LazyMessageMenu {
 
     private final List<CoinSlot> coinSlots;
     private final List<UpgradeInputSlot> upgradeSlots;
-    private final List<SimpleSlot> inventorySlots;
+    private final List<EasySlot> inventorySlots;
 
     public CoinChestMenu(int id, Inventory inventory, CoinChestBlockEntity be) {
         super(ModMenus.COIN_CHEST.get(), id, inventory);
@@ -62,12 +62,12 @@ public class CoinChestMenu extends LazyMessageMenu {
         this.upgradeSlots = ImmutableList.copyOf(uSlots);
 
         //Player inventory
-        List<SimpleSlot> iSlots = new ArrayList<>();
+        List<EasySlot> iSlots = new ArrayList<>();
         for(int y = 0; y < 3; y++)
         {
             for(int x = 0; x < 9; x++)
             {
-                SimpleSlot s = new SimpleSlot(inventory, x + y * 9 + 9, 8 + x * 18, 161 + y * 18);
+                EasySlot s = new EasySlot(inventory, x + y * 9 + 9, 8 + x * 18, 161 + y * 18);
                 iSlots.add(s);
                 this.addSlot(s);
             }
@@ -75,7 +75,7 @@ public class CoinChestMenu extends LazyMessageMenu {
         //Player hotbar
         for(int x = 0; x < 9; x++)
         {
-            SimpleSlot s = new SimpleSlot(inventory, x, 8 + x * 18, 219);
+            EasySlot s = new EasySlot(inventory, x, 8 + x * 18, 219);
             iSlots.add(s);
             this.addSlot(s);
         }
@@ -97,7 +97,7 @@ public class CoinChestMenu extends LazyMessageMenu {
 
     public void SetInventoryVisibility(boolean visible)
     {
-        for(SimpleSlot slot : this.inventorySlots)
+        for(EasySlot slot : this.inventorySlots)
             slot.active = visible;
     }
 

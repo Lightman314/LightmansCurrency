@@ -42,7 +42,7 @@ public class SPacketSyncEventUnlocks extends ServerToClientPacket {
 
         @Override
         protected void handle(@Nonnull SPacketSyncEventUnlocks message, @Nullable ServerPlayer sender) {
-            LightmansCurrency.PROXY.syncEventUnlocks(message.unlocks);
+            LightmansCurrency.getProxy().syncEventUnlocks(message.unlocks);
         }
 
     }

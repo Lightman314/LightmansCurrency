@@ -3,8 +3,10 @@ package io.github.lightman314.lightmanscurrency.api.misc.client.rendering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -19,6 +21,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -30,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class EasyGuiGraphics {
+
+    public static final ResourceLocation GENERIC_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/generic_background.png");
 
     private final GuiGraphics gui;
     public GuiGraphics getGui() { return this.gui; }
@@ -48,8 +53,8 @@ public final class EasyGuiGraphics {
     public EasyGuiGraphics pushOffsetZero() { return this.pushOffset(ScreenPosition.ZERO); }
     public EasyGuiGraphics pushOffset(@Nonnull ScreenPosition offset) { this.offsetStack.add(0, offset); return this.refactorOffset(); }
     public EasyGuiGraphics pushOffset(@Nonnull AbstractWidget widget) { this.offsetStack.add(0, ScreenPosition.of(widget.getX(), widget.getY())); return this.refactorOffset(); }
-    public EasyGuiGraphics popOffset() { if(this.offsetStack.size() > 0) this.offsetStack.remove(0); return this.refactorOffset(); }
-    private EasyGuiGraphics refactorOffset() { this.offset = this.offsetStack.size() > 0 ? this.offsetStack.get(0) : ScreenPosition.ZERO; return this; }
+    public EasyGuiGraphics popOffset() { if(!this.offsetStack.isEmpty()) this.offsetStack.remove(0); return this.refactorOffset(); }
+    private EasyGuiGraphics refactorOffset() { this.offset = !this.offsetStack.isEmpty() ? this.offsetStack.get(0) : ScreenPosition.ZERO; return this; }
 
     private EasyGuiGraphics(@Nonnull GuiGraphics gui, Font font, int mouseX, int mouseY, float partialTicks) { this.gui = gui; this.font = font; this.mousePos = ScreenPosition.of(mouseX, mouseY); this.partialTicks = partialTicks; }
     public static EasyGuiGraphics create(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) { return create(gui, Minecraft.getInstance().font, mouseX, mouseY, partialTicks); }
@@ -68,6 +73,21 @@ public final class EasyGuiGraphics {
 
     //Texture Rendering
     public void renderNormalBackground(@Nonnull ResourceLocation image, @Nonnull IEasyScreen screen) { this.resetColor(); this.pushOffset(screen.getCorner()).blit(image, 0,0,0,0, screen.getXSize(), screen.getYSize()); this.popOffset(); }
+    public void renderNormalBackground(@Nonnull IEasyScreen screen)
+    {
+        this.resetColor();
+        this.pushOffset(screen.getCorner());
+        this.blitBackgroundOfSize(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
+        this.popOffset();
+    }
+    public void renderSlot(@Nonnull IEasyScreen screen, @Nonnull Slot slot) { this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
+    public void renderSlot(@Nonnull IEasyScreen screen, @Nonnull ScreenPosition position)
+    {
+        this.resetColor();
+        this.pushOffset(screen.getCorner());
+        this.blit(IconAndButtonUtil.WIDGET_TEXTURE,position.offset(-1,-1),0, 128,18,18);
+        this.popOffset();
+    }
     public void blit(@Nonnull ResourceLocation image, int x, int y, int u, int v, int width, int height) { this.gui.blit(image, this.offset.x + x, this.offset.y + y, u, v, width, height); }
     public void blit(@Nonnull ResourceLocation image, @Nonnull ScreenPosition pos, int u, int v, int width, int height) { this.blit(image, pos.x, pos.y, u, v, width, height); }
     public void blit(@Nonnull ResourceLocation image, @Nonnull ScreenArea area, int u, int v) { this.blit(image, area.pos.x, area.pos.y, u, v, area.width, area.height); }
@@ -159,9 +179,9 @@ public final class EasyGuiGraphics {
     public void renderTooltip(@Nonnull Component tooltip) { this.pushOffset(this.mousePos).renderTooltip(tooltip, 0, 0); this.popOffset(); }
     public void renderTooltip(@Nonnull Component tooltip, int x, int y) { this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderComponentTooltip(@Nonnull List<Component> tooltip) { this.pushOffset(this.mousePos).renderComponentTooltip(tooltip, 0, 0); this.popOffset(); }
-    public void renderComponentTooltip(@Nonnull List<Component> tooltip, int x, int y) { if(tooltip.size() == 0) return; this.gui.renderComponentTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
+    public void renderComponentTooltip(@Nonnull List<Component> tooltip, int x, int y) { if(tooltip.isEmpty()) return; this.gui.renderComponentTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip) { this.pushOffset(this.mousePos).renderTooltip(tooltip, 0,0); this.popOffset(); }
-    public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip, int x, int y) { if(tooltip.size() == 0) return; this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
+    public void renderTooltip(@Nonnull List<FormattedCharSequence> tooltip, int x, int y) { if(tooltip.isEmpty()) return; this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderTooltip(@Nonnull ItemStack item) { this.pushOffset(this.mousePos).renderTooltip(item, 0,0); this.popOffset(); }
     public void renderTooltip(@Nonnull ItemStack item, int x, int y) { this.gui.renderTooltip(this.font, item, x, y); }
 

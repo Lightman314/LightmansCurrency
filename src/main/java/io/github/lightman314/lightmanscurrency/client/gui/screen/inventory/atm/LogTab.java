@@ -7,11 +7,11 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
@@ -33,7 +33,7 @@ public class LogTab extends ATMTab{
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		SimpleSlot.SetInactive(this.screen.getMenu());
+		EasySlot.SetInactive(this.screen.getMenu());
 		
 		this.logWidget = this.addChild(new NotificationDisplayWidget(screenArea.x + 7, screenArea.y + 15, screenArea.width - 14, 6, this::getNotifications));
 		this.logWidget.backgroundColor = 0;
@@ -54,6 +54,6 @@ public class LogTab extends ATMTab{
 	}
 
 	@Override
-	protected void closeAction() { SimpleSlot.SetActive(this.screen.getMenu()); }
+	protected void closeAction() { EasySlot.SetActive(this.screen.getMenu()); }
 
 }

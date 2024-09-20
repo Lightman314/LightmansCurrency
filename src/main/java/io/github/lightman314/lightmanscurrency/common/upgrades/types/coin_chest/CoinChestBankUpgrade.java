@@ -164,7 +164,7 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
                 MoneyValue moneyLimit = this.getMoneyLimit(data);
 
                 overflowItems = new ArrayList<>();
-                IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(be.getStorage(),overflowItems::add);
+                IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(be.getStorage(),overflowItems::add,be);
                 MoneyView contents = handler.getStoredMoney();
                 if(depositMode && contents.containsValue(moneyLimit))
                 {

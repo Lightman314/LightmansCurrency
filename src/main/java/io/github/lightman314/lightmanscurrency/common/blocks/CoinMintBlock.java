@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -81,9 +82,9 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock {
 		TooltipItem.addTooltip(tooltip, () -> {
 			List<Component> t = new ArrayList<>();
 			if(LCConfig.SERVER.coinMintCanMint.get())
-				t.add(LCText.TOOLTIP_COIN_MINT_MINTABLE.get());
+				t.add(LCText.TOOLTIP_COIN_MINT_MINTABLE.getWithStyle(ChatFormatting.GRAY));
 			if(LCConfig.SERVER.coinMintCanMelt.get())
-				t.add(LCText.TOOLTIP_COIN_MINT_MELTABLE.get());
+				t.add(LCText.TOOLTIP_COIN_MINT_MELTABLE.getWithStyle(ChatFormatting.GRAY));
 			return t;
 		});
 		super.appendHoverText(stack, level, tooltip, flagIn);

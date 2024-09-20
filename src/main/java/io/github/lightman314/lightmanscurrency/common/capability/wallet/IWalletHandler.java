@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.capability.wallet;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedItemContainer;
+import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-public interface IWalletHandler extends IMoneyHandler {
+public interface IWalletHandler extends IMoneyHandler, IClientTracker, IEasyTickable {
 
 	/**
 	 * The currently equipped wallet on the player.
@@ -48,11 +49,6 @@ public interface IWalletHandler extends IMoneyHandler {
 	 * Removes the dirty flag, called when an update packet is sent.
 	 */
 	void clean();
-	
-	/**
-	 * Run every server tick.
-	 */
-	void tick();
 
 	/**
 	 * Save the nbt data to file

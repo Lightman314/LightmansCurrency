@@ -21,7 +21,7 @@ public class PlayerOwnerProvider implements IPotentialOwnerProvider {
     @Override
     public List<PotentialOwner> collectPotentialOwners(@Nonnull Player player) {
         List<PotentialOwner> results = new ArrayList<>();
-        for(GameProfile profile : LightmansCurrency.PROXY.getPlayerList(player.level().isClientSide))
+        for(GameProfile profile : LightmansCurrency.getProxy().getPlayerList(player.level().isClientSide))
         {
             PlayerReference pr = PlayerReference.of(profile);
             PotentialPlayerOwner ppo = new PotentialPlayerOwner(pr);

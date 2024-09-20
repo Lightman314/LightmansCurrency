@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public abstract class Owner implements IClientTracker {
 
@@ -82,7 +82,7 @@ public abstract class Owner implements IClientTracker {
      *                          1: Only Admins should receive the notification.
      *                          2: Only the owner should receive the notification.
      */
-    public abstract void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat);
+    public abstract void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat);
 
     public <T> void incrementStat(@Nonnull StatKey<?,T> key, @Nonnull T addValue) {}
 
@@ -144,7 +144,7 @@ public abstract class Owner implements IClientTracker {
         @Override
         public BankReference asBankReference() { return null; }
         @Override
-        public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
+        public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
         @Nonnull
         @Override
         public OwnerType getType() { return NULL_TYPE; }

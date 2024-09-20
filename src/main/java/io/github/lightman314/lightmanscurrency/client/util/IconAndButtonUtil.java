@@ -44,7 +44,7 @@ public class IconAndButtonUtil {
 
 	public static IconButton traderButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, IconUtil.ICON_TRADER).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_TRADES)); }
 	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, IconUtil.ICON_STORAGE).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE)); }
-	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visiblityCheck) { return storageButton(x,y,pressable).withAddons(EasyAddonHelper.visibleCheck(visiblityCheck)); }
+	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable, Supplier<Boolean> visiblityCheck) { return storageButton(x,y,pressable).withAddons(EasyAddonHelper.visibleCheck(visiblityCheck)); }
 	
 	public static IconButton collectCoinButton(int x, int y, Consumer<EasyButton> pressable, Player player, Supplier<TraderData> traderSource) {
 		return new IconButton(x, y, pressable, IconUtil.ICON_COLLECT_COINS)
@@ -101,7 +101,7 @@ public class IconAndButtonUtil {
 	public static PlainButton minusButton(int x, int y, Consumer<EasyButton> pressable) { return new PlainButton(x, y, pressable, SPRITE_MINUS); }
 
 	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x,y, pressable, IconUtil.ICON_BACK).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK)); }
-	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visibilityCheck) { return new IconButton(x,y, pressable, IconUtil.ICON_BACK).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK), EasyAddonHelper.visibleCheck(visibilityCheck)); }
+	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable, Supplier<Boolean> visibilityCheck) { return new IconButton(x,y, pressable, IconUtil.ICON_BACK).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK), EasyAddonHelper.visibleCheck(visibilityCheck)); }
 
 	public static IconButton tradeRuleButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, IconUtil.ICON_TRADE_RULES).withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE)); }
 

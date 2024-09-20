@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
@@ -72,6 +73,9 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_EMERALD);
                     ezPop(p, ModItems.WALLET_DIAMOND);
                     ezPop(p, ModItems.WALLET_NETHERITE);
+                    ezPop(p, ModItems.WALLET_NETHER_STAR);
+                    //Bank Card
+                    ezPop(p, ModItems.ATM_CARD);
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
                     //Event Coins
@@ -243,17 +247,13 @@ public class ModCreativeGroups {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.CARD_DISPLAY.getAllSorted()));
-            if(ModBlocks.SUS_JAR.get().asItem() instanceof DyeableLeatherItem susItem)
+            for(Color c : Color.values())
             {
-                for(Color c : Color.values())
-                {
-                    ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
-                    if(c != Color.WHITE)
-                        susItem.setColor(stack, c.hexColor);
-                    event.accept(stack);
-                }
+                ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());
+                if(c != Color.WHITE)
+                    ColoredItem.setItemColor(stack,c.hexColor);
+                event.accept(stack);
             }
-
         }
     }
 

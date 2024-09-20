@@ -32,7 +32,7 @@ public abstract class TaxableReference {
     public static TaxableReference load(@Nonnull CompoundTag tag)
     {
         ResourceLocation type = new ResourceLocation(tag.getString("Type"));
-        TaxReferenceType t = TaxAPI.getReferenceType(type);
+        TaxReferenceType t = TaxAPI.API.GetReferenceType(type);
         if(t != null)
             return t.load(tag);
         return null;

@@ -83,7 +83,7 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketCollectTicketStubs.class, CPacketCollectTicketStubs.HANDLER);
 
 		//Wallet
-		register(SPacketPlayPickupSound.class, SPacketPlayPickupSound.HANDLER);
+		register(SPacketPlayCoinSound.class, SPacketPlayCoinSound.HANDLER);
 		register(CPacketWalletExchangeCoins.class, CPacketWalletExchangeCoins.HANDLER);
 		register(CPacketWalletToggleAutoExchange.class, CPacketWalletToggleAutoExchange.HANDLER);
 		register(CPacketOpenWallet.class, CPacketOpenWallet.HANDLER);
@@ -93,6 +93,7 @@ public class LightmansCurrencyPacketHandler {
 
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
+		register(CPacketSyncWallet.class, CPacketSyncWallet.HANDLER);
 		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
 		register(CPacketCreativeWalletEdit.class, CPacketCreativeWalletEdit.HANDLER);
 
@@ -121,8 +122,8 @@ public class LightmansCurrencyPacketHandler {
 
 		//Notifications
 		register(SPacketSyncNotifications.class, SPacketSyncNotifications.HANDLER);
-		register(CPacketFlagNotificationsSeen.class, CPacketFlagNotificationsSeen.HANDLER);
 		register(SPacketChatNotification.class, SPacketChatNotification.HANDLER);
+		register(CPacketOpenNotifications.class, CPacketOpenNotifications.HANDLER);
 
 		//Taxes
 		register(SPacketSyncClientTax.class, SPacketSyncClientTax.HANDLER);

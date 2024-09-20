@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader_interface.blocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,14 +34,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
-	
+
+	@SuppressWarnings("deprecation")
 	@Override
-	public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	@Nonnull
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -105,7 +107,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 					//Remove the rest of the multi-block structure.
 					try {
 						this.onInvalidRemoval(state, level, pos, blockEntity);
-					} catch(Throwable t) { t.printStackTrace(); }
+					} catch(Throwable t) { LightmansCurrency.LogError("Error during trader interface remove call",t); }
 				}
 				else
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
@@ -144,7 +146,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		return null;
 	}
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
+	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
@@ -152,7 +154,8 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	

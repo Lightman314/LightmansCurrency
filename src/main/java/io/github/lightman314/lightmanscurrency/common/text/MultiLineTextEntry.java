@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class MultiLineTextEntry {
 
@@ -18,8 +19,8 @@ public final class MultiLineTextEntry {
     public String getKey(int index) { return this.key + "." + (index + 1); }
 
     @Nonnull
-    public NonNullSupplier<List<Component>> asSupplier(Object... objects) { return () -> this.get(objects); }
-    public NonNullSupplier<List<Component>> asTooltip(Object... objects) { return () -> this.getWithStyle(ChatFormatting.GRAY, objects); }
+    public Supplier<List<Component>> asSupplier(Object... objects) { return () -> this.get(objects); }
+    public Supplier<List<Component>> asTooltip(Object... objects) { return () -> TooltipHelper.splitTooltips(get(objects),ChatFormatting.GRAY); }
     @Nonnull
     public List<Component> get(Object... objects) { return getWithStyle(c -> {}, objects); }
     public void tooltip(@Nonnull List<Component> tooltip, Object... objects) { tooltip.addAll(this.get(objects)); }

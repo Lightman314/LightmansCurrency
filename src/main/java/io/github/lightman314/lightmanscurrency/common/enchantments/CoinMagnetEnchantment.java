@@ -98,9 +98,9 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	
 	@Override
 	public void addWalletTooltips(List<Component> tooltips, int enchantLevel, ItemStack wallet) {
-		if(wallet.getItem() instanceof WalletItem)
+		if(wallet.getItem() instanceof WalletItem wi)
 		{
-			if(enchantLevel > 0 && WalletItem.CanPickup((WalletItem)wallet.getItem()))
+			if(enchantLevel > 0 && WalletItem.CanPickup(wi))
 			{
 				tooltips.add(LCText.TOOLTIP_WALLET_PICKUP_MAGNET.get(getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
 			}

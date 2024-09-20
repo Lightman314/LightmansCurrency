@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -24,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferTeam;
@@ -65,8 +65,8 @@ public class TransferTab extends ATMTab {
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		SimpleSlot.SetInactive(this.screen.getMenu());
+
+		EasySlot.SetInactive(this.screen.getMenu());
 		
 		this.responseTimer = 0;
 		if(firstOpen)
@@ -97,7 +97,7 @@ public class TransferTab extends ATMTab {
 		ITeam blockTeam = null;
 		if(source instanceof TeamBankReference teamBankReference)
 			blockTeam = TeamSaveData.GetTeam(true, teamBankReference.teamID);
-		for(ITeam team : TeamAPI.getAllTeams(true))
+		for(ITeam team : TeamAPI.API.GetAllTeams(true))
 		{
 			if(team.hasBankAccount() && team != blockTeam)
 				results.add(team);
@@ -191,7 +191,7 @@ public class TransferTab extends ATMTab {
 
 	@Override
 	public void closeAction() {
-		SimpleSlot.SetActive(this.screen.getMenu());
+		EasySlot.SetActive(this.screen.getMenu());
 		this.responseTimer = 0;
 		this.screen.getMenu().clearMessage();
 	}

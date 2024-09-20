@@ -28,7 +28,7 @@ public class SPacketUpdateClientTeam extends ServerToClientPacket {
 		public SPacketUpdateClientTeam decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketUpdateClientTeam(buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketUpdateClientTeam message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.updateTeam(message.traderData);
+			LightmansCurrency.getProxy().updateTeam(message.traderData);
 		}
 	}
 

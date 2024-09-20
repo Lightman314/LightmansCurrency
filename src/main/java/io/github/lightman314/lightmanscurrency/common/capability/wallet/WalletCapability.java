@@ -3,20 +3,17 @@ package io.github.lightman314.lightmanscurrency.common.capability.wallet;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedItemContainer;
-import io.github.lightman314.lightmanscurrency.integration.curios.wallet.CuriosWalletHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketCreativeWalletEdit;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
@@ -47,19 +44,6 @@ public class WalletCapability {
 				return new WalletInteractable(handler);
 			return null;
 		});
-	}
-
-	/**
-	 * Gets the Wallet Handler used for wallet rendering.
-	 * Creates a Curios Wallet Handler if curios is installed
-	 * to allow rendering of the wallet on non-player entities
-	 * that have a wallet Curios slot.
-	 */
-	@Nullable
-	public static IWalletHandler getRenderWalletHandler(@Nonnull final Entity entity) {
-		if(LightmansCurrency.isCuriosLoaded() && entity instanceof LivingEntity le)
-			return new CuriosWalletHandler(le);
-		return lazyGetWalletHandler(entity);
 	}
 
 	@Nonnull

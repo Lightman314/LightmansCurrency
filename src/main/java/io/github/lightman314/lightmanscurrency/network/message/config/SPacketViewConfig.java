@@ -54,11 +54,11 @@ public class SPacketViewConfig extends ServerToClientPacket {
                     if(optionMap.containsKey(message.option))
                     {
                         ConfigOption<?> option = optionMap.get(message.option);
-                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_VIEW.get(option.getName()));
-                        LightmansCurrency.PROXY.sendClientMessage(EasyText.literal(option.write()));
+                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_VIEW.get(option.getName()));
+                        LightmansCurrency.getProxy().sendClientMessage(EasyText.literal(option.write()));
                     }
                     else
-                        LightmansCurrency.PROXY.sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get().withStyle(ChatFormatting.RED));
+                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get().withStyle(ChatFormatting.RED));
                 }
             }
         }

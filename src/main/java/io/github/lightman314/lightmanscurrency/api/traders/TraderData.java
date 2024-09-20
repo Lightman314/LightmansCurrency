@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -116,7 +117,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -330,6 +330,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	private final NotificationData logger = new NotificationData();
 	public final List<Notification> getNotifications() { return this.logger.getNotifications(); }
+	public final void deleteNotification(@Nonnull Player player, int notificationIndex)
+	{
+		if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
+		{
+			this.logger.deleteNotification(notificationIndex);
+			this.markDirty(this::saveLogger);
+		}
+	}
 	
 	private String customName = "";
 	public boolean hasCustomName() { return !this.customName.isBlank(); }
@@ -609,7 +617,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Nullable
 	public TraderBlockEntity<?> getBlockEntity()
 	{
-		Level level = LightmansCurrency.PROXY.getDimension(this.isClient,this.getLevel());
+		Level level = LightmansCurrency.getProxy().getDimension(this.isClient,this.getLevel());
 		if(level != null && level.isLoaded(this.worldPosition.getPos()) && level.getBlockEntity(this.worldPosition.getPos()) instanceof TraderBlockEntity<?> be && be.getTraderID() == this.id)
 			return be;
 		return null;
@@ -623,8 +631,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
 
-	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.GetActiveTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
-	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.GetPossibleTaxCollectorsFor(this); }
+	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.API.GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
+	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.API.GetPotentialTaxCollectorsFor(this); }
 	public final int getTotalTaxPercentage()
 	{
 		List<? extends ITaxCollector> entries = this.getApplicableTaxes();
@@ -1533,7 +1541,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.markDirty(this::saveLogger);
 	}
 	
-	public final void pushNotification(@Nonnull NonNullSupplier<Notification> notificationSource) {
+	public final void pushNotification(@Nonnull Supplier<Notification> notificationSource) {
 		//Notifications are disabled
 		if(this.isClient)
 			return;

@@ -24,7 +24,7 @@ public class SPacketRemoveTax extends ServerToClientPacket {
         public SPacketRemoveTax decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketRemoveTax(buffer.readLong()); }
         @Override
         protected void handle(@Nonnull SPacketRemoveTax message, @Nullable ServerPlayer sender) {
-            LightmansCurrency.PROXY.removeTaxEntry(message.id);
+            LightmansCurrency.getProxy().removeTaxEntry(message.id);
         }
     }
 

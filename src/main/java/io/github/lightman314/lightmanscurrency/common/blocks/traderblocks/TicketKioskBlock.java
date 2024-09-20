@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.TicketTraderBlockEntity;
@@ -14,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -38,6 +38,6 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	public BlockEntityType<?> traderType() { return ModBlockEntities.TICKET_TRADER.get(); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_TICKET.asTooltip(TRADECOUNT); }
+	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_TICKET.asTooltip(TRADECOUNT); }
 	
 }

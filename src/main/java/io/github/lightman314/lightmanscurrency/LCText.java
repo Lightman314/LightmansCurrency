@@ -78,8 +78,12 @@ public class LCText {
     public static final TextEntry ITEM_WALLET_EMERALD = TextEntry.item(ModItems.WALLET_EMERALD);
     public static final TextEntry ITEM_WALLET_DIAMOND = TextEntry.item(ModItems.WALLET_DIAMOND);
     public static final TextEntry ITEM_WALLET_NETHERITE = TextEntry.item(ModItems.WALLET_NETHERITE);
+    public static final TextEntry ITEM_WALLET_NETHER_STAR = TextEntry.item(ModItems.WALLET_NETHER_STAR);
 
     public static final TextEntry ITEM_TRADING_CORE = TextEntry.item(ModItems.TRADING_CORE);
+
+    public static final TextEntry ITEM_ATM_CARD = TextEntry.item(ModItems.ATM_CARD);
+    public static final TextEntry ITEM_PREPAID_CARD = TextEntry.item(ModItems.PREPAID_CARD);
 
     public static final TextEntry ITEM_TICKET = TextEntry.item(ModItems.TICKET);
     public static final TextEntry ITEM_PASS = TextEntry.item(ModItems.TICKET_PASS);
@@ -237,12 +241,17 @@ public class LCText {
     public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.base_slot_description");
     public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.additions_slot_description");
 
-
     public static final TextEntry TOOLTIP_HEALING = TextEntry.tooltip(MODID,"healing");
 
     public static final TextEntry TOOLTIP_BETA = TextEntry.tooltip(MODID,"beta");
     public static final TextEntry TOOLTIP_DISABLED = TextEntry.tooltip(MODID,"disabled");
     public static final TextEntry TOOLTIP_INFO_BLURB = TextEntry.tooltip(MODID,"info_blurb");
+
+    public static final TextEntry TOOLTIP_ATM_CARD_NOT_LINKED = TextEntry.tooltip(MODID,"atm_card.not_linked");
+    public static final TextEntry TOOLTIP_ATM_CARD_ACCOUNT = TextEntry.tooltip(MODID,"atm_card.account");
+    public static final TextEntry TOOLTIP_ATM_CARD_LINK_INVALID = TextEntry.tooltip(MODID,"atm_card.link_invalid");
+    public static final TextEntry TOOLTIP_ATM_CARD_ACCOUNT_LOCKED = TextEntry.tooltip(MODID,"atm_card.account_locked");
+    public static final TextEntry TOOLTIP_PREPAID_CARD_DELETE_WARNING = TextEntry.tooltip(MODID,"prepaid_card.delete_warning");
 
     public static final TextEntry TOOLTIP_TICKET_ID = TextEntry.tooltip(MODID,"ticket.id");
     public static final TextEntry TOOLTIP_PASS = TextEntry.tooltip(MODID,"pass");
@@ -254,10 +263,12 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_SLOT_MACHINE = MultiLineTextEntry.tooltip(MODID,"trader.slot_machine");
     public static final MultiLineTextEntry TOOLTIP_PAYGATE = MultiLineTextEntry.tooltip(MODID,"paygate");
     public static final MultiLineTextEntry TOOLTIP_TERMINAL = MultiLineTextEntry.tooltip(MODID,"terminal");
+    public static final TextEntry TOOLTIP_TERMINAL_KEY_BIND = TextEntry.tooltip(MODID,"terminal.key_bind");
     public static final MultiLineTextEntry TOOLTIP_INTERFACE_ITEM = MultiLineTextEntry.tooltip(MODID,"interface.item");
     public static final MultiLineTextEntry TOOLTIP_TAX_COLLECTOR = MultiLineTextEntry.tooltip(MODID,"tax_collector");
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY = TextEntry.tooltip(MODID,"tax_collector.admin_only");
     public static final MultiLineTextEntry TOOLTIP_ATM = MultiLineTextEntry.tooltip(MODID,"atm");
+    public static final TextEntry TOOLTIP_ATM_KEY_BIND = TextEntry.tooltip(MODID,"atm.key_bind");
     public static final TextEntry TOOLTIP_COIN_MINT_MINTABLE = TextEntry.tooltip(MODID,"coinmint.mintable");
     public static final TextEntry TOOLTIP_COIN_MINT_MELTABLE = TextEntry.tooltip(MODID,"coinmint.meltable");
     public static final TextEntry TOOLTIP_COIN_MINT_DISABLED_TOP = TextEntry.tooltip(MODID,"coinmint.disabled.1");
@@ -286,6 +297,8 @@ public class LCText {
     public static final TextEntry MESSAGE_WALLET_NONE_EQUIPPED = TextEntry.message(MODID,"wallet.none_equipped");
     public static final TextEntry TOOLTIP_WALLET_KEY_BIND = TextEntry.tooltip(MODID,"wallet.key_bind");
     public static final TextEntry TOOLTIP_WALLET_STORED_MONEY = TextEntry.tooltip(MODID,"wallet.storedmoney");
+    public static final TextEntry TOOLTIP_WALLET_CAPACITY = TextEntry.tooltip(MODID,"wallet.capacity");
+    public static final TextEntry TOOLTIP_WALLET_UPGRADEABLE_CAPACITY = TextEntry.tooltip(MODID,"wallet.upgradeable.capacity");
     public static final TextEntry TOOLTIP_WALLET_PICKUP = TextEntry.tooltip(MODID,"wallet.pickup");
     public static final TextEntry TOOLTIP_WALLET_PICKUP_MAGNET = TextEntry.tooltip(MODID,"wallet.pickup.magnet");
     public static final TextEntry TOOLTIP_WALLET_EXCHANGE_MANUAL = TextEntry.tooltip(MODID,"wallet.exchange.manual");
@@ -418,6 +431,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_ATM_NOTIFICATIONS = TextEntry.tooltip(MODID,"atm.notification");
     public static final TextEntry GUI_BANK_NOTIFICATIONS_DISABLED = TextEntry.gui(MODID,"bank.notification.disabled");
     public static final TextEntry GUI_BANK_NOTIFICATIONS_DETAILS = TextEntry.gui(MODID,"bank.notification.details");
+    public static final TextEntry BUTTON_BANK_CARD_VERIFCATION_RESET = TextEntry.button(MODID,"bank.atm_card.verification.reset");
+    public static final TextEntry TOOLTIP_BANK_CARD_VERIFCATION_RESET = TextEntry.tooltip(MODID,"bank.atm_card.verification.reset");
     public static final TextEntry TOOLTIP_ATM_LOGS = TextEntry.tooltip(MODID,"atm.log");
     public static final TextEntry TOOLTIP_ATM_TRANSFER = TextEntry.tooltip(MODID,"atm.transfer");
     public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_PLAYER = TextEntry.tooltip(MODID,"atm.transfer.mode.player");
@@ -766,8 +781,6 @@ public class LCText {
     public static final TextEntry GUI_BANK_TRANSFER_ERROR_NO_BALANCE = TextEntry.gui(MODID,"bank.transfer.error.no_balance");
     public static final TextEntry GUI_BANK_TRANSFER_SUCCESS = TextEntry.gui(MODID,"bank.transfer.success");
 
-
-
     //Ownership Blurbs
     public static final TextEntry BLURB_OWNERSHIP_MEMBERS = TextEntry.blurb(MODID,"ownership.members");
     public static final TextEntry BLURB_OWNERSHIP_ADMINS = TextEntry.blurb(MODID,"ownership.admins");
@@ -777,6 +790,12 @@ public class LCText {
     public static final TextEntry GUI_OWNER_NULL = TextEntry.gui(MODID,"owner.null");
     public static final TextEntry TOOLTIP_OWNERSHIP_MODE_MANUAL = TextEntry.tooltip(MODID,"owner_mode.manual");
     public static final TextEntry TOOLTIP_OWNERSHIP_MODE_SELECTION = TextEntry.tooltip(MODID,"owner_mode.selection");
+
+    //Bank Card Menu
+    public static final TextEntry MESSAGE_ATM_CARD_LOCKED = TextEntry.message(MODID,"atm_card.locked");
+    public static final TextEntry BUTTON_ATM_CARD_LOCK = TextEntry.button(MODID,"atm_card.lock");
+    public static final TextEntry TOOLTIP_ATM_CARD_LOCK = TextEntry.tooltip(MODID,"atm_card.lock");
+    public static final TextEntry BUTTON_ATM_CARD_UNLOCK = TextEntry.button(MODID,"atm_card.unlock");
 
     //Money Text
     public static final TextEntry GUI_MONEY_VALUE_FREE = TextEntry.gui(MODID,"money_value.free");
@@ -821,6 +840,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_FORMAT_CHAT_TITLE = new TextEntry("notifications.format.chat.title");
     public static final TextEntry NOTIFICATION_TIMESTAMP = new TextEntry("notifications.timestamp");
     public static final TextEntry NOTIFICATION_SOURCE_GENERAL = new TextEntry("notifications.source.general");
+    public static final TextEntry TOOLTIP_NOTIFICATION_DELETE = TextEntry.tooltip(MODID,"notifications.delete");
     //Auction Notifications
     public static final TextEntry NOTIFICATION_AUCTION_BID = TextEntry.notification(AuctionHouseBidNotification.TYPE);
     public static final TextEntry NOTIFICATION_AUCTION_BUYER = TextEntry.notification(AuctionHouseBuyerNotification.TYPE);
@@ -951,6 +971,8 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_EVENT_UNLOCK_FAIL = TextEntry.command(MODID,"lcadmin.event.unlock.fail");
     public static final TextEntry COMMAND_ADMIN_EVENT_LOCK_SUCCESS = TextEntry.command(MODID,"lcadmin.event.lock.success");
     public static final TextEntry COMMAND_ADMIN_EVENT_LOCK_FAIL = TextEntry.command(MODID,"lcadmin.event.lock.fail");
+    public static final TextEntry COMMAND_ADMIN_PREPAID_CARD_SUCCESS = TextEntry.command(MODID,"lcadmin.makePrepaidCard.success");
+    public static final TextEntry COMMAND_ADMIN_PREPAID_CARD_FAIL = TextEntry.command(MODID,"lcadmin.makePrepaidCard.fail");
 
     public static final TextEntry COMMAND_LCADMIN_DATA_OWNER_PLAYER = TextEntry.command(MODID,"lcadmin.data.list.owner.player");
     public static final TextEntry COMMAND_LCADMIN_DATA_OWNER_TEAM = TextEntry.command(MODID,"lcadmin.data.list.owner.team");
@@ -998,6 +1020,7 @@ public class LCText {
     public static final AdvancementTextEntry ADVANCEMENT_COIN_MINT = AdvancementTextEntry.of("lightmanscurrency.coin_mint");
     public static final AdvancementTextEntry ADVANCEMENT_WALLET_CRAFTING = AdvancementTextEntry.of("lightmanscurrency.wallet_crafting");
     public static final AdvancementTextEntry ADVANCEMENT_NETHERITE_WALLET = AdvancementTextEntry.of("lightmanscurrency.netherite_wallet");
+    public static final AdvancementTextEntry ADVANCEMENT_NETHER_STAR_WALLET = AdvancementTextEntry.of("lightmanscurrency.nether_star_wallet");
     public static final AdvancementTextEntry ADVANCEMENT_ENCHANTED_WALLET = AdvancementTextEntry.of("lightmanscurrency.enchanted_wallet");
     public static final AdvancementTextEntry ADVANCEMENT_CASH_REGISTER = AdvancementTextEntry.of("lightmanscurrency.cash_register");
     public static final AdvancementTextEntry ADVANCEMENT_CASHIER_TRADE = AdvancementTextEntry.of("lightmanscurrency.cashier_trade");
@@ -1028,5 +1051,7 @@ public class LCText {
     public static final TextEntry REI_GROUP_FREEZER = TextEntry.reiGroup(MODID,"freezer");
     public static final TextEntry REI_GROUP_BOOKSHELF_TRADER = TextEntry.reiGroup(MODID,"bookshelf_trader");
     public static final TextEntry REI_GROUP_AUCTION_STAND = TextEntry.reiGroup(MODID,"auction_stand");
+    public static final TextEntry REI_GROUP_JAR_OF_SUS = TextEntry.reiGroup(MODID,"jar_of_sus");
+    public static final TextEntry REI_GROUP_ATM_CARD = TextEntry.reiGroup(MODID,"atm_card");
 
 }

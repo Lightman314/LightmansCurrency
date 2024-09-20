@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -32,8 +32,11 @@ public class LogClientTab extends TaxCollectorClientTab<LogTab> {
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        NotificationDisplayWidget display = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(10,16), screenArea.width - 20, 7, this::getNotifications));
-        this.addChild(new ScrollListener(display.getArea(), display));
+
+        NotificationDisplayWidget display = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15,16), screenArea.width - 30, 7, this::getNotifications));
+
+        this.addChild(ScrollBarWidget.createOnRight(display));
+
     }
 
     @Override

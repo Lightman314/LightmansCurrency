@@ -2,36 +2,42 @@ package io.github.lightman314.lightmanscurrency.integration.reiplugin;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.*;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.*;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.client.registry.entry.CollapsibleEntryRegistry;
+import me.shedaniel.rei.api.client.registry.entry.EntryRegistry;
 import me.shedaniel.rei.api.client.registry.screen.ExclusionZones;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
 import me.shedaniel.rei.api.client.registry.transfer.simple.SimpleTransferHandler;
 import me.shedaniel.rei.api.common.entry.EntryStack;
+import me.shedaniel.rei.api.common.entry.type.VanillaEntryTypes;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginClient;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -62,6 +68,20 @@ public class LCClientPlugin implements REIClientPlugin {
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 80, screen.getGuiTop() + 21, 22, 16), MintScreen.class, CoinMintCategory.ID);
         //Click area for the Ticket Station is on the title text as the arrow is already a clickable button
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 8, screen.getGuiTop() + 6, 100,10), TicketStationScreen.class, TicketStationCategory.ID);
+    }
+
+    @Override
+    public void registerEntries(EntryRegistry registry) {
+        registry.removeEntry(EntryStack.of(VanillaEntryTypes.ITEM,new ItemStack(ModItems.PREPAID_CARD.get())));
+        registry.removeEntry(EntryStack.of(VanillaEntryTypes.ITEM,new ItemStack(ModItems.ATM_CARD.get())));
+        List<EntryStack<ItemStack>> allCards = new ArrayList<>();
+        for(Color color : Color.values())
+        {
+            ItemStack atmCard = new ItemStack(ModItems.ATM_CARD.get());
+            ColoredItem.setItemColor(atmCard,color.hexColor);
+            allCards.add(EntryStack.of(VanillaEntryTypes.ITEM,atmCard));
+        }
+        registry.addEntries(allCards);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -107,8 +127,13 @@ public class LCClientPlugin implements REIClientPlugin {
         zones.register(TraderInterfaceScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 40)));
         //Wallet Screen (3 icon buttons at top left)
         zones.register(WalletScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), 20, 60)));
-        //Wallet Bank Screen (tabs on left edge), also a button on the top, but we don't care about that
-        zones.register(WalletBankScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25,screen.getGuiTop(), 25, 25 * screen.getTabCount())));
+        //Wallet Bank Screen
+        zones.register(WalletBankScreen.class,screen -> Lists.newArrayList(
+                //Tabs on left edge
+                new Rectangle(screen.getGuiLeft() - 25,screen.getGuiTop(), 25, 25 * screen.getTabCount()),
+                //Button on rop-right
+                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20)
+        ));
         //Team Management Screen (entire outside edge)
         zones.register(TeamManagerScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop() - 25, screen.getXSize() + 50, screen.getYSize() + 50)));
         //Notification Screen (left edge)
@@ -119,26 +144,29 @@ public class LCClientPlugin implements REIClientPlugin {
     @Override
     public void registerCollapsibleEntries(CollapsibleEntryRegistry registry) {
         //Shelf
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/shelves"),LCText.REI_GROUP_SHELF.get(),isInBundle(ModBlocks.SHELF));
+        registry.group(VersionUtil.lcResource("rei_groups/shelves"),LCText.REI_GROUP_SHELF.get(),isInBundle(ModBlocks.SHELF));
         //Double Shelf
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/double_shelves"),LCText.REI_GROUP_SHELF_2x2.get(),isInBundle(ModBlocks.SHELF_2x2));
+        registry.group(VersionUtil.lcResource("rei_groups/double_shelves"),LCText.REI_GROUP_SHELF_2x2.get(),isInBundle(ModBlocks.SHELF_2x2));
         //Card Displays
         ModBlocks.CARD_DISPLAY.forEachKey1(woodType ->
-                registry.group(new ResourceLocation(LightmansCurrency.MODID,woodType.generateID("rei_groups/card_displays")),LCText.REI_GROUP_CARD_DISPLAY.get(woodType).get(),isInBundle(ModBlocks.CARD_DISPLAY,woodType))
+                registry.group(VersionUtil.lcResource(woodType.generateID("rei_groups/card_displays")),LCText.REI_GROUP_CARD_DISPLAY.get(woodType).get(),isInBundle(ModBlocks.CARD_DISPLAY,woodType))
         );
         //Vending Machine
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/vending_machine"),LCText.REI_GROUP_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE));
+        registry.group(VersionUtil.lcResource("rei_groups/vending_machine"),LCText.REI_GROUP_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE));
         //Large Vending Machines
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/large_vending_machine"),LCText.REI_GROUP_LARGE_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE_LARGE));
+        registry.group(VersionUtil.lcResource("rei_groups/large_vending_machine"),LCText.REI_GROUP_LARGE_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE_LARGE));
         //Freezers
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/freezer"),LCText.REI_GROUP_FREEZER.get(),isInBundle(ModBlocks.FREEZER));
+        registry.group(VersionUtil.lcResource("rei_groups/freezer"),LCText.REI_GROUP_FREEZER.get(),isInBundle(ModBlocks.FREEZER));
         //Bookshelves
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/bookshelves"),LCText.REI_GROUP_BOOKSHELF_TRADER.get(),isInBundle(ModBlocks.BOOKSHELF_TRADER));
+        registry.group(VersionUtil.lcResource("rei_groups/bookshelves"),LCText.REI_GROUP_BOOKSHELF_TRADER.get(),isInBundle(ModBlocks.BOOKSHELF_TRADER));
         //Auction Stands
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/auction_stand"),LCText.REI_GROUP_AUCTION_STAND.get(),isInBundle(ModBlocks.AUCTION_STAND));
+        registry.group(VersionUtil.lcResource("rei_groups/auction_stand"),LCText.REI_GROUP_AUCTION_STAND.get(),isInBundle(ModBlocks.AUCTION_STAND));
 
         //Jar of Sus
-        registry.group(new ResourceLocation(LightmansCurrency.MODID,"rei_groups/jar_of_sus"),LCText.BLOCK_JAR_SUS.get(),isItem(ModBlocks.SUS_JAR));
+        registry.group(VersionUtil.lcResource("rei_groups/jar_of_sus"),LCText.REI_GROUP_JAR_OF_SUS.get(),isItem(ModBlocks.SUS_JAR));
+
+        //ATM Card
+        registry.group(VersionUtil.lcResource("rei_groups/atm_card"), LCText.REI_GROUP_ATM_CARD.get(), isItem(ModItems.ATM_CARD));
 
     }
 

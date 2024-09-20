@@ -28,7 +28,7 @@ public class SPacketSyncTime extends ServerToClientPacket {
 		public SPacketSyncTime decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncTime(buffer.readLong()); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncTime message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.setTimeDesync(message.time);
+			LightmansCurrency.getProxy().setTimeDesync(message.time);
 		}
 	}
 

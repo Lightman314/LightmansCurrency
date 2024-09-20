@@ -15,6 +15,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -24,17 +25,17 @@ public class EasyAddonHelper {
 
     //Widget Active Modifiers
     public static WidgetAddon activeCheck(@Nonnull Function<EasyWidget,Boolean> shouldBeActive) { return new ActiveCheckAddon(shouldBeActive); }
-    public static WidgetAddon activeCheck(@Nonnull NonNullSupplier<Boolean> shouldBeActive) { return new ActiveCheckAddon(b -> shouldBeActive.get()); }
+    public static WidgetAddon activeCheck(@Nonnull Supplier<Boolean> shouldBeActive) { return new ActiveCheckAddon(b -> shouldBeActive.get()); }
     //Widget Visible Modifiers
     public static WidgetAddon visibleCheck(@Nonnull Function<EasyWidget,Boolean> shouldBeVisible) { return new VisibleCheckAddon(shouldBeVisible); }
-    public static WidgetAddon visibleCheck(@Nonnull NonNullSupplier<Boolean> shouldBeVisible) { return new VisibleCheckAddon(b -> shouldBeVisible.get()); }
+    public static WidgetAddon visibleCheck(@Nonnull Supplier<Boolean> shouldBeVisible) { return new VisibleCheckAddon(b -> shouldBeVisible.get()); }
 
     //Widget Tooltip Modifiers
-    public static WidgetAddon tooltip(@Nonnull Component tooltip) { return new TooltipAddon(Suppliers.memoize(() -> ImmutableList.of(tooltip))); }
-    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip) { return new TooltipAddon(Suppliers.memoize(() -> ImmutableList.of(tooltip.get()))); }
+    public static WidgetAddon tooltip(@Nonnull Component tooltip) { return new TooltipAddon(Suppliers.memoize(() -> toList(tooltip))); }
+    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip) { return new TooltipAddon(Suppliers.memoize(() -> toList(tooltip.get()))); }
     public static WidgetAddon tooltip(@Nonnull MultiLineTextEntry tooltip) { return new TooltipAddon(Suppliers.memoize(tooltip::get)); }
     public static WidgetAddon tooltips(@Nonnull List<Component> tooltip) { return new TooltipAddon(Suppliers.memoize(() -> tooltip)); }
-    public static WidgetAddon tooltip(@Nonnull Supplier<Component> tooltip) { return new TooltipAddon(() -> ImmutableList.of(tooltip.get())); }
+    public static WidgetAddon tooltip(@Nonnull Supplier<Component> tooltip) { return new TooltipAddon(() -> toList(tooltip.get())); }
     public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip) { return new TooltipAddon(tooltip); }
 
     public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip, int width) { return new TooltipSplitterAddon(tooltip,width); }
@@ -53,6 +54,13 @@ public class EasyAddonHelper {
         if(tooltips.length == 0)
             return tooltip(EasyText.empty());
         return tooltip(() -> tooltips[MathUtil.clamp(indicator.get(), 0, tooltips.length - 1)]);
+    }
+
+    private static List<Component> toList(@Nullable Component tooltip)
+    {
+        if(tooltip == null)
+            return ImmutableList.of();
+        return ImmutableList.of(tooltip);
     }
 
     private static class ActiveCheckAddon extends WidgetAddon

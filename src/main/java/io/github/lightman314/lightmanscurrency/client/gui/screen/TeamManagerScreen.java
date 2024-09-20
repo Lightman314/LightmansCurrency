@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class TeamManagerScreen extends EasyTabbedMenuScreen<TeamManagementMenu,TeamManagementTab,TeamManagerScreen>{
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("lightmanscurrency", "textures/gui/teammanager.png");
+	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teammanager.png");
 
 	public TeamManagerScreen(@Nonnull TeamManagementMenu menu, @Nonnull Inventory inventory, @Nonnull Component title) { super(menu, inventory); this.resize(200,200); }
 

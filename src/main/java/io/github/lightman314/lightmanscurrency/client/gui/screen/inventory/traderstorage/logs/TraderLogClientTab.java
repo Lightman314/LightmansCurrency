@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
@@ -32,7 +32,10 @@ public class TraderLogClientTab extends TraderStorageClientTab<TraderLogTab> {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(5, 10), screenArea.width - 10, 5, this::getNotifications));
+        NotificationDisplayWidget notificationWidget = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15, 10), screenArea.width - 30, 5, this::getNotifications));
+        notificationWidget.setDeletionHandler(this.commonTab::DeleteNotification, this.commonTab::canDeleteNotification);
+
+        this.addChild(ScrollBarWidget.createOnRight(notificationWidget));
 
         this.menu.SetCoinSlotsActive(false);
 

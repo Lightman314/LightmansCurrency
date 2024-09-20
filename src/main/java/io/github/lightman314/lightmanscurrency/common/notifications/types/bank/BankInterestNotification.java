@@ -11,9 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class BankInterestNotification extends Notification {
 
@@ -29,7 +29,7 @@ public class BankInterestNotification extends Notification {
         this.amount = amount;
     }
 
-    public static NonNullSupplier<Notification> create(@Nonnull MutableComponent accountName, @Nonnull MoneyValue amount) { return () -> new BankInterestNotification(accountName,amount); }
+    public static Supplier<Notification> create(@Nonnull MutableComponent accountName, @Nonnull MoneyValue amount) { return () -> new BankInterestNotification(accountName,amount); }
 
     @Nonnull
     @Override

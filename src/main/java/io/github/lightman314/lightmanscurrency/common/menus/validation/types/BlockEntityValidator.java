@@ -21,8 +21,8 @@ public class BlockEntityValidator extends MenuValidator {
 
     private static final MenuValidator NULL = new BlockEntityValidator((BlockEntity)null);
 
-    private BlockEntity be;
-    private BlockPos bePos;
+    private BlockEntity be = null;
+    private BlockPos bePos = null ;
     private void validateBE(@Nonnull Player player)
     {
         if(this.bePos != null)
@@ -32,8 +32,8 @@ public class BlockEntityValidator extends MenuValidator {
         }
     }
 
-    protected BlockEntityValidator(BlockEntity be) { super(TYPE); this.be = be; this.bePos = null; }
-    protected BlockEntityValidator(BlockPos pos) { super(TYPE); this.be = null; this.bePos = pos;}
+    protected BlockEntityValidator(BlockEntity be) { super(TYPE); this.be = be; }
+    protected BlockEntityValidator(BlockPos pos) { super(TYPE); this.bePos = pos;}
 
     public static MenuValidator of(@Nullable BlockEntity be) { return be == null ? NULL : new BlockEntityValidator(be); }
 

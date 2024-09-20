@@ -30,7 +30,7 @@ public class PlayerBankReference extends BankReference {
     public static BankReference of(@Nonnull UUID player) { return new PlayerBankReference(player); }
     @Nullable
     public static BankReference of(@Nullable PlayerReference player) { return player != null ? new PlayerBankReference(player.id) : null; }
-    public static BankReference of(@Nonnull Player player) { return new PlayerBankReference(player.getUUID()).flagAsClient(player.level().isClientSide); }
+    public static BankReference of(@Nonnull Player player) { return of(player.getUUID()).flagAsClient(player.level().isClientSide); }
 
     @Override
     public int sortPriority() { return 1000000; }

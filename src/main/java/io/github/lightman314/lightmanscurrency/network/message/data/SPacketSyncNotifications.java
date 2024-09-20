@@ -26,7 +26,7 @@ public class SPacketSyncNotifications extends ServerToClientPacket {
 		public SPacketSyncNotifications decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncNotifications(NotificationData.loadFrom(buffer.readAnySizeNbt())); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncNotifications message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.updateNotifications(message.data);
+			LightmansCurrency.getProxy().updateNotifications(message.data);
 		}
 	}
 	

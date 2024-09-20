@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.blocks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,7 +45,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock, IEasyEntityBlock {
 
@@ -228,7 +228,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	@Override
 	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level.getBlockEntity(pos); }
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
+	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)

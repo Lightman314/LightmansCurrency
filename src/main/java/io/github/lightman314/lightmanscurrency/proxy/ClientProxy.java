@@ -8,7 +8,6 @@ import com.google.common.base.Suppliers;
 
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
@@ -32,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -48,16 +48,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ClientProxy extends CommonProxy{
 
-	boolean openNotifications = false;
 	private long timeOffset = 0;
 
 	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
@@ -66,7 +62,7 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	public void init() {
-		MinecraftForge.EVENT_BUS.register(this);
+		//MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -104,6 +100,10 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
 
 		MenuScreens.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
+
+		MenuScreens.register(ModMenus.NOTIFICATIONS.get(), NotificationScreen::new);
+
+		MenuScreens.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -128,7 +128,7 @@ public class ClientProxy extends CommonProxy{
 		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
 
 		//Register Curios Render Layers
-		if(LightmansCurrency.isCuriosLoaded())
+		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
 
 	}
@@ -199,9 +199,6 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void removeTaxEntry(long id) { ClientTaxData.RemoveEntry(id); }
-	
-	@Override
-	public void openNotificationScreen() { this.openNotifications = true; }
 
 	@Override
 	public long getTimeDesync()
@@ -221,22 +218,6 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void loadAdminPlayers(List<UUID> serverAdminList) { LCAdminMode.loadAdminPlayers(serverAdminList); }
-	
-	@SubscribeEvent
-	public void openScreenOnRenderTick(RenderTickEvent event)
-	{
-		if(event.phase == TickEvent.Phase.START)
-		{
-			if(this.openNotifications)
-			{
-				this.openNotifications = false;
-				//Open easy notification screen
-				Minecraft.getInstance().setScreen(new NotificationScreen());
-			}
-		}
-	}
-	
-
 	
 	@Override
 	public void playCoinSound() {

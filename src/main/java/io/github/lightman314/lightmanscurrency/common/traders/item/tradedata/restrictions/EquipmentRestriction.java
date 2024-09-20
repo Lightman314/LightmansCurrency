@@ -44,7 +44,7 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 
 	private boolean vanillaEquippable(ItemStack item) {
 		try { return Mob.getEquipmentSlotForItem(item) == this.equipmentType;
-		} catch(Throwable t) { t.printStackTrace(); return false; }
+		} catch(Throwable t) { LightmansCurrency.LogError("Error checking vanilla equipment logic!",t); return false; }
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	}
 
 	private static ArmorStand safeGetDummyArmorStand() throws Exception {
-		return new ArmorStand(LightmansCurrency.PROXY.safeGetDummyLevel(), 0d, 0d, 0d);
+		return new ArmorStand(LightmansCurrency.getProxy().safeGetDummyLevel(), 0d, 0d, 0d);
 	}
 	
 }

@@ -26,7 +26,7 @@ public class SPacketSyncSelectedBankAccount extends ServerToClientPacket {
 		public SPacketSyncSelectedBankAccount decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncSelectedBankAccount(BankReference.decode(buffer).flagAsClient()); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncSelectedBankAccount message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount);
+			LightmansCurrency.getProxy().receiveSelectedBankAccount(message.selectedAccount);
 		}
 	}
 	

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -10,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -70,8 +70,8 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                         int offsetAmount = LCConfig.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
                         List<ItemStack> walletContents;
                         MoneyValue randomValue = contents.getRandomValue();
-                        if(randomValue instanceof CoinValue coinValue)
-                            walletContents = coinValue.getAsItemList();
+                        if(randomValue instanceof IItemBasedValue itemValue)
+                            walletContents = itemValue.getAsItemList();
                         else
                             walletContents = new ArrayList<>();
                         for(ItemStack coin : walletContents)

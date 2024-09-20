@@ -28,7 +28,7 @@ public class SPacketMessageRemoveClientTrader extends ServerToClientPacket {
 		public SPacketMessageRemoveClientTrader decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketMessageRemoveClientTrader(buffer.readLong()); }
 		@Override
 		protected void handle(@Nonnull SPacketMessageRemoveClientTrader message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.removeTrader(message.traderID);
+			LightmansCurrency.getProxy().removeTrader(message.traderID);
 		}
 	}
 

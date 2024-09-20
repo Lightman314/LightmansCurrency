@@ -26,7 +26,7 @@ public class SPacketSyncEjectionData extends ServerToClientPacket {
 		public SPacketSyncEjectionData decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncEjectionData(buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncEjectionData message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.receiveEmergencyEjectionData(message.data);
+			LightmansCurrency.getProxy().receiveEmergencyEjectionData(message.data);
 		}
 	}
 	

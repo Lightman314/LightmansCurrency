@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.CPacketOpenNotifications;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class NotificationButton extends InventoryButton {
@@ -24,7 +24,7 @@ public class NotificationButton extends InventoryButton {
 	public static final Sprite SPRITE_UNSEEN = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200 + SIZE, 0, SIZE, SIZE);
 
 	public NotificationButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, button -> LightmansCurrency.PROXY.openNotificationScreen(), NotificationButton::getSprite);
+		super(inventoryScreen, button -> CPacketOpenNotifications.sendToServer(), NotificationButton::getSprite);
 		lastButton = this;
 	}
 

@@ -13,12 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class BookTraderBlock extends TraderBlockRotatable implements IBookTraderBlock {
 
@@ -60,6 +60,6 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
     public int maxRenderIndex() { return BOOK_COUNT; }
 
     @Override
-    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_BOOK.asTooltip(BOOK_COUNT); }
+    protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_BOOK.asTooltip(BOOK_COUNT); }
 
 }

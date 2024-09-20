@@ -19,7 +19,7 @@ public class SPacketMoneyMendingClink extends ServerToClientPacket.Simple {
 		protected H() { super(INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketMoneyMendingClink message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.playCoinSound();
+			LightmansCurrency.getProxy().playCoinSound();
 		}
 	}
 	

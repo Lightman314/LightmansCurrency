@@ -104,10 +104,16 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.WALLET_EMERALD);
         this.registerBasicItem(ModItems.WALLET_DIAMOND);
         this.registerBasicItem(ModItems.WALLET_NETHERITE);
+        this.registerBasicItem(ModItems.WALLET_NETHER_STAR);
 
         //ATM
         this.registerTallRotatable(ModBlocks.ATM, "atm_top", "atm_bottom", "atm", true);
         this.registerBasicItem(ModItems.PORTABLE_ATM);
+
+        //ATM Card
+        this.registerLayeredItem(ModItems.ATM_CARD);
+        //Prepaid Card
+        this.registerLayeredItem(ModItems.PREPAID_CARD);
 
         //Coin Mint
         this.registerRotatable(ModBlocks.COIN_MINT);

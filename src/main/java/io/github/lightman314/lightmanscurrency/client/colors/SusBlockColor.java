@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class SusBlockColor implements BlockColor {
+public class SusBlockColor implements BlockColor, ItemColor {
+
+    public static final SusBlockColor INSTANCE = new SusBlockColor();
 
     @Override
     public int getColor(@Nonnull BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int layer) {
@@ -21,13 +23,11 @@ public class SusBlockColor implements BlockColor {
         return 0xFFFFFF;
     }
 
-    public static class Item implements ItemColor {
-        @Override
-        public int getColor(@Nonnull ItemStack stack, int layer) {
-            if(layer == 0 && stack.getItem() instanceof DyeableLeatherItem dyeable)
-                return dyeable.getColor(stack);
-            return 0xFFFFFF;
-        }
+    @Override
+    public int getColor(@Nonnull ItemStack stack, int layer) {
+        if(layer == 0 && stack.getItem() instanceof DyeableLeatherItem dyeable)
+            return dyeable.getColor(stack);
+        return 0xFFFFFF;
     }
 
 }

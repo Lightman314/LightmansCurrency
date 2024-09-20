@@ -68,8 +68,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_WALLET_EMERALD, "Wallet (Emerald)");
         this.translate(LCText.ITEM_WALLET_DIAMOND, "Wallet (Diamond)");
         this.translate(LCText.ITEM_WALLET_NETHERITE, "Wallet (Netherite)");
+        this.translate(LCText.ITEM_WALLET_NETHER_STAR, "Wallet (Nether Star)");
 
         this.translate(LCText.ITEM_TRADING_CORE,"Trading Core");
+
+        this.translate(LCText.ITEM_ATM_CARD,"ATM Card");
+        this.translate(LCText.ITEM_PREPAID_CARD,"Prepaid Card");
 
         this.translate(LCText.ITEM_TICKET,"Ticket");
         this.translate(LCText.ITEM_PASS,"Pass");
@@ -228,6 +232,13 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_BETA, "Feature in beta stage. May have issues!");
         this.translate(LCText.TOOLTIP_DISABLED, "DISABLED");
         this.translate(LCText.TOOLTIP_INFO_BLURB, "Hold SHIFT for more information.");
+
+        this.translate(LCText.TOOLTIP_ATM_CARD_NOT_LINKED,"Not yet linked to a bank account");
+        this.translate(LCText.TOOLTIP_ATM_CARD_ACCOUNT,"Linked: %s");
+        this.translate(LCText.TOOLTIP_ATM_CARD_LINK_INVALID,"Link has been invalidated!");
+        this.translate(LCText.TOOLTIP_ATM_CARD_ACCOUNT_LOCKED,"Account Locked!");
+        this.translate(LCText.TOOLTIP_PREPAID_CARD_DELETE_WARNING,"Card will disappear once emptied");
+
         this.translate(LCText.TOOLTIP_TICKET_ID, "TicketID: %s");
         this.translate(LCText.TOOLTIP_PASS, "Will not be consumed by Paygates");
         this.translate(LCText.TOOLTIP_ITEM_TRADER, "Item Trader:","Trades: %s","Can be used to Sell, Purchase, or Barter items with other players");
@@ -235,19 +246,21 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ITEM_TRADER_TICKET, "Ticket Trader:", "Trades: %s", "Can be used to Sell, Purchase, or Barter tickets and ticket materials with other players","A master ticket is required in order to sell tickets","Tickets being sold can consume ticket materials from storage to print a new ticket for the customer");
         this.translate(LCText.TOOLTIP_ITEM_TRADER_BOOK, "Book Trader:", "Trades: %s", "Can be used to Sell, Purchase, or Barter books with other players");
         this.translate(LCText.TOOLTIP_ITEM_TRADER_NETWORK, "Item Network Trader:","Trades: %s", "Can be used to Sell, Purchase, or Barter items with other players", "Accessible from any location via the Trading Terminal");
-        this.translate(LCText.TOOLTIP_SLOT_MACHINE, "Slot Machine:","Can be used to Sell owner-defined random Items or Money to other players","with owner-defined odds of receiving each loot pool");
+        this.translate(LCText.TOOLTIP_SLOT_MACHINE, "Slot Machine:","Can be used to Sell owner-defined random Items or Money to other players with owner-defined odds of receiving each loot pool");
         this.translate(LCText.TOOLTIP_PAYGATE, "Paygate:","Can be used to trigger a redstone signal for a price","Can be linked to a ticket for easier customer interactions");
         this.translate(LCText.TOOLTIP_TERMINAL,"Can access Network Traders remotely from any location");
+        this.translate(LCText.TOOLTIP_TERMINAL_KEY_BIND,"Press [%s] while equipped to access the terminal");
         this.translate(LCText.TOOLTIP_INTERFACE_ITEM,"Item Trader Interface Terminal:","Can be used to automatically purchase or sell items from any network item trader", "Can be used to automatically drain or restock items remotely to/from any item trader you have access to");
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR, "Tax Collector:","Can be placed and used to collect taxes from trader sales within an area");
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY, "Can only be activated by an admin!");
         this.translate(LCText.TOOLTIP_ATM,"Can exchange coins for other coins of higher or lower values","Can deposit or withdraw coins from any bank account you have access to", "Can transfer money from your account to another player or teams account");
+        this.translate(LCText.TOOLTIP_ATM_KEY_BIND,"Press [%s] while equipped to access the ATM");
         this.translate(LCText.TOOLTIP_COIN_MINT_MINTABLE,"Can mint coins from their base materials");
         this.translate(LCText.TOOLTIP_COIN_MINT_MELTABLE,"Can melt coins back into their base materials");
         this.translate(LCText.TOOLTIP_COIN_MINT_DISABLED_TOP,"Recipe Disabled");
         this.translate(LCText.TOOLTIP_COIN_MINT_DISABLED_BOTTOM,"in Config");
         this.translate(LCText.TOOLTIP_TICKET_STATION, "Can be used to print unique Master and Slave tickets","Tickets can be used with the Paygate, or used was coupons for barter trades");
-        this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to linke and interact with multiple local traders from the same menu");
+        this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
         this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
@@ -260,6 +273,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.MESSAGE_WALLET_NONE_EQUIPPED, "No wallet equipped to your wallet slot. Cannot open wallet.");
         this.translate(LCText.TOOLTIP_WALLET_KEY_BIND, "Press [%s] while equipped to access your wallet");
         this.translate(LCText.TOOLTIP_WALLET_STORED_MONEY, "Contains:");
+        this.translate(LCText.TOOLTIP_WALLET_CAPACITY, "Has %s coin slots");
+        this.translate(LCText.TOOLTIP_WALLET_UPGRADEABLE_CAPACITY, "Use a [%1$s] on this in your inventory to increase the wallets capacity by %2$s");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP, "Automatically collects any coins that you pick up");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP_MAGNET, "Can collect coins up to %sm away");
         this.translate(LCText.TOOLTIP_WALLET_EXCHANGE_MANUAL, "Can exchange coins manually in the UI");
@@ -302,7 +317,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE, "Allows the Money Chest to automatically exchange coins upon insertion");
         this.translate(LCText.TOOLTIP_UPGRADE_MAGNET, "Allows the Money Chest to collect coin items up to %sm away");
         this.translate(LCText.TOOLTIP_UPGRADE_BANK, "Allows the Money Chest to automatically deposit or withdraw coins from a selected bank account");
-        this.translate(LCText.TOOLTIP_UPGRADE_SECURITY, "Allows the Money Chest to be protected from destruction by other players","Also blocks container access from other players","Requires set-up, will not have an owner defined automatically");
+        this.translate(LCText.TOOLTIP_UPGRADE_SECURITY, "Allows the Money Chest to be protected from destruction by other players","Also blocks container access from other players, but not from automation (i.e. hoppers)","Requires set-up, will not have an owner defined automatically");
 
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER,"All Traders");
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_NOT_NETWORK,"All Non-Network Traders");
@@ -311,7 +326,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Misc Money Tooltips
         this.translate(LCText.TOOLTIP_MONEY_SOURCE_BANK,"Bank Account:");
-        this.translate(LCText.TOOLTIP_MONEY_SOURCE_SLOTS,"Coin Slots:");
+        this.translate(LCText.TOOLTIP_MONEY_SOURCE_SLOTS,"Money Slots:");
         this.translate(LCText.TOOLTIP_MONEY_SOURCE_PLAYER,"On Your Person:");
         this.translate(LCText.TOOLTIP_MONEY_SOURCE_STORAGE, "Money Storage:");
 
@@ -402,6 +417,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ATM_NOTIFICATIONS,"Balance Notification Settings");
         this.translate(LCText.GUI_BANK_NOTIFICATIONS_DISABLED,"You will not receive any account balance notifications");
         this.translate(LCText.GUI_BANK_NOTIFICATIONS_DETAILS,"You will receive a notification if your account balance goes below %s");
+        this.translate(LCText.BUTTON_BANK_CARD_VERIFCATION_RESET,"Reset Card Verification");
+        this.translate(LCText.TOOLTIP_BANK_CARD_VERIFCATION_RESET,"Will make all ATM Cards linked to this bank account no longer function until re-assigned");
         this.translate(LCText.TOOLTIP_ATM_LOGS,"Account Logs");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER,"Transfer Money");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_PLAYER,"Select From Players");
@@ -622,7 +639,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE,"Will cancel the auction. The latest bid will be refunded, and your items will be sent to your storage");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CREATE,"Setup an auction");
         this.translate(LCText.GUI_TRADER_AUCTION_OVERTIME,"Allow Overtime");
-        this.translate(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME,"Overtime Mode:","If enabled, any bids made within the last 5 minutes","of the auctions timer will reset the remaining","time to bid back to 5m.","Enable if you wish to avoid last second bid-snatching");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME,"Overtime Mode:","If enabled, any bids made within the last 5 minutes of the auctions timer will reset the remaining time to bid back to 5m.","Enable if you wish to avoid last second bid-snatching");
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID,"Start Bid");
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE,"Bid Size");
         this.translate(LCText.BUTTON_TRADER_AUCTION_CREATE,"Create Auction");
@@ -791,6 +808,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_OWNERSHIP_MODE_MANUAL,"Switch to Manual Player Input Mode");
         this.translate(LCText.TOOLTIP_OWNERSHIP_MODE_SELECTION,"Switch to List Selection Mode");
 
+        //Bank Card Menu
+        this.translate(LCText.MESSAGE_ATM_CARD_LOCKED,"Card's Account is locked and cannot be changed");
+        this.translate(LCText.BUTTON_ATM_CARD_LOCK,"Lock Card's Account");
+        this.translate(LCText.TOOLTIP_ATM_CARD_LOCK,"Will close the menu and permanently lock this cards selected account!");
+        this.translate(LCText.BUTTON_ATM_CARD_UNLOCK,"Unlock Card's Account");
+
         //Money Text
         this.translate(LCText.GUI_MONEY_VALUE_FREE,"Free");
         this.translate(LCText.GUI_MONEY_STORAGE_EMPTY,"Nothing");
@@ -833,6 +856,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_FORMAT_CHAT_TITLE,"[%s]");
         this.translate(LCText.NOTIFICATION_TIMESTAMP,"%s");
         this.translate(LCText.NOTIFICATION_SOURCE_GENERAL,"General");
+        this.translate(LCText.TOOLTIP_NOTIFICATION_DELETE,"Delete");
         //Auction Notifications
         this.translate(LCText.NOTIFICATION_AUCTION_BID,"%1$s out-bid your bid for %2$s with a bid of %3$s");
         this.translate(LCText.NOTIFICATION_AUCTION_BUYER,"You won the auction for %1$s with a bid of %2$s");
@@ -975,6 +999,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_EVENT_UNLOCK_FAIL,"%s is already unlocked for this player");
         this.translate(LCText.COMMAND_ADMIN_EVENT_LOCK_SUCCESS,"Locked %s for this player");
         this.translate(LCText.COMMAND_ADMIN_EVENT_LOCK_FAIL,"%s was not unlocked for this player");
+        this.translate(LCText.COMMAND_ADMIN_PREPAID_CARD_SUCCESS,"Created a prepaid card containing %1$s for %2$s player(s)");
+        this.translate(LCText.COMMAND_ADMIN_PREPAID_CARD_FAIL,"Non valid targets found");
 
         this.translate(LCText.COMMAND_LCADMIN_DATA_OWNER_PLAYER,"Owner: %1$s (%2$s)");
         this.translate(LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM,"Team Owner: %1$s (%2$s)");
@@ -1021,7 +1047,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ADVANCEMENT_BANKER_TRADE,"Trading with the establishment","Buy a currency-related item from a banker");
         this.translate(LCText.ADVANCEMENT_COIN_MINT,"Minty Fresh!","Craft a Coin Mint so that you can mint your own coins");
         this.translate(LCText.ADVANCEMENT_WALLET_CRAFTING,"Coin Storage","Craft your first wallet. You can use these to store your coins!");
-        this.translate(LCText.ADVANCEMENT_NETHERITE_WALLET,"Fireproof Wallet","Craft a netherite wallet, the largest and most resilient wallet around!");
+        this.translate(LCText.ADVANCEMENT_NETHERITE_WALLET,"Fireproof Wallet","Craft a netherite wallet, one of the largest and most resilient wallets around!");
+        this.translate(LCText.ADVANCEMENT_NETHER_STAR_WALLET,"A Monster Sized Wallet","Craft a wallet from a nether star. Only for those with a true need for coin storage!");
         this.translate(LCText.ADVANCEMENT_ENCHANTED_WALLET,"Magical Wallet","Enchant your wallet with the Coin Magnet enchantment");
         this.translate(LCText.ADVANCEMENT_CASH_REGISTER,"All in one interaction!","Craft a cash register so that players can interact with all of your nearby traders at once!");
         this.translate(LCText.ADVANCEMENT_CASHIER_TRADE,"Hourly work, hourly pay","Buy something for coins from a cashier");
@@ -1052,6 +1079,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.REI_GROUP_FREEZER,"Freezers");
         this.translate(LCText.REI_GROUP_BOOKSHELF_TRADER,"Bookshelf Traders");
         this.translate(LCText.REI_GROUP_AUCTION_STAND,"Auction Stands");
+        this.translate(LCText.REI_GROUP_JAR_OF_SUS,"Jars of Sus");
+        this.translate(LCText.REI_GROUP_ATM_CARD,"ATM Cards");
 
     }
 

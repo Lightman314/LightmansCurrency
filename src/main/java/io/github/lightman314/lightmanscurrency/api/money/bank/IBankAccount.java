@@ -6,13 +6,12 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
@@ -23,6 +22,21 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      */
     @Nonnull
     MoneyStorage getMoneyStorage();
+
+    /**
+     * The current card validation level required for a bank card to properly link to this account
+     */
+    int getCardValidation();
+
+    /**
+     * Whether a bank card with the given validation level is allowed to access this account
+     */
+    boolean isCardValid(int validationLevel);
+
+    /**
+     * Increments the required {@link #getCardValidation() Validation Level} for this bank account, making all existing Bank Cards linked to this account invalid
+     */
+    void resetCards();
 
     /**
      * The name of the bank account.<br>
@@ -63,12 +77,12 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     /**
      * Pushes the given {@link Notification} to the Bank Accounts local logger <b>AND</b> to all relevant players.
      */
-    default void pushNotification(@Nonnull NonNullSupplier<Notification> notification) { this.pushNotification(notification,true); }
+    default void pushNotification(@Nonnull Supplier<Notification> notification) { this.pushNotification(notification,true); }
     /**
      * Pushes the given {@link Notification} to the Bank Accounts local logger.<br>
      * @param notifyPlayers Whether to also push the notification to all relevant players.
      */
-    void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers);
+    void pushNotification(@Nonnull Supplier<Notification> notification, boolean notifyPlayers);
 
     /**
      * All {@link Notification Notifications} stored on the Bank Accounts local logger.
@@ -77,7 +91,7 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     List<Notification> getNotifications();
 
     @Nonnull
-    default Component getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
+    default MutableComponent getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
 
 
     /**

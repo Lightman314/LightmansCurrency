@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.*;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -19,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
@@ -148,7 +148,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> imple
 		gui.renderNormalBackground(TraderScreen.GUI_TEXTURE, this);
 		
 		//Coin Slots
-		for(CoinSlot slot : this.menu.getCoinSlots())
+		for(MoneySlot slot : this.menu.getCoinSlots())
 		{
 			if(slot.isActive())
 				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, this.imageWidth, 0, 18, 18);

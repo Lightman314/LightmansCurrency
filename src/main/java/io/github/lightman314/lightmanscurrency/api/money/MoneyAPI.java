@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.PlayerMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.impl.MoneyAPIImpl;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -135,19 +135,19 @@ public abstract class MoneyAPI {
     /**
      * Creates a {@link IMoneyHandler} for the given container that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>
      * Uses the players inventory as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
-     * @see #GetContainersMoneyHandler(Container, Consumer)
+     * @see #GetContainersMoneyHandler(Container, Consumer, IClientTracker)
      */
     @Nonnull
-    public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Player player)  { return this.CreateContainersMoneyHandler(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s)); }
+    public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Player player)  { return this.CreateContainersMoneyHandler(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s), IClientTracker.entityWrapper(player)); }
     /**
      * Creates a {@link IMoneyHandler} for the given container that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>
      * Uses the given overflow handler to avoid limiting transactions by container size.
-     * @see #GetContainersMoneyHandler(Container, Consumer)
+     * @see #GetContainersMoneyHandler(Container, Player)
      */
     @Nonnull
-    public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) { return CreateContainersMoneyHandler(container, overflowHandler); }
+    public final IMoneyHandler GetContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) { return CreateContainersMoneyHandler(container, overflowHandler, tracker); }
 
-    protected abstract IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler);
+    protected abstract IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker);
 
     /**
      * Creates a {@link IMoneyHandler} for the given ATM menu for depositing/withdrawing money from bank accounts.<br>
@@ -157,89 +157,9 @@ public abstract class MoneyAPI {
     public abstract IMoneyHandler GetATMMoneyHandler(@Nonnull Player player, @Nonnull Container container);
 
     /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#getStoredMoney()} instead.
-     * @see #API
+     * Whether the given item is allowed within the {@link io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot MoneySlot}<br>
+     * Player is required for context
      */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static MoneyView valueOfContainer(@Nonnull List<ItemStack> container) { return API.GetContainersMoneyHandler(InventoryUtil.buildInventory(container),s -> {}).getStoredMoney(); }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#getStoredMoney()} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    @Nonnull
-    public static MoneyView valueOfContainer(@Nonnull Container container) { return API.GetContainersMoneyHandler(container,s -> {}).getStoredMoney(); }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#isMoneyTypeValid(MoneyValue)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean canAddMoneyToContainer(@Nonnull Container container, @Nonnull MoneyValue moneyToAdd) { return API.GetContainersMoneyHandler(container,s -> {}).isMoneyTypeValid(moneyToAdd); }
-
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Player)}'s {@link IMoneyHandler#insertMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean addMoneyToContainer(@Nonnull Container container, @Nonnull Player player, @Nonnull MoneyValue moneyToAdd)
-    {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,player);
-        if(handler.insertMoney(moneyToAdd, true).isEmpty())
-        {
-            handler.insertMoney(moneyToAdd,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#insertMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean addMoneyToContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull MoneyValue moneyToAdd) {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,overflowHandler);
-        if(handler.insertMoney(moneyToAdd, true).isEmpty())
-        {
-            handler.insertMoney(moneyToAdd,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Player)}'s {@link IMoneyHandler#extractMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean takeMoneyFromContainer(@Nonnull Container container, @Nonnull Player player, @Nonnull MoneyValue moneyToTake)
-    {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,player);
-        if(handler.extractMoney(moneyToTake, true).isEmpty())
-        {
-            handler.extractMoney(moneyToTake,false);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @deprecated Use {@link #GetContainersMoneyHandler(Container,Consumer)}'s {@link IMoneyHandler#extractMoney(MoneyValue, boolean)} instead.
-     * @see #API
-     */
-    @Deprecated(since = "2.2.0.4")
-    public static boolean takeMoneyFromContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull MoneyValue moneyToTake) {
-        IMoneyHandler handler = API.GetContainersMoneyHandler(container,overflowHandler);
-        if(handler.extractMoney(moneyToTake, true).isEmpty())
-        {
-            handler.extractMoney(moneyToTake,false);
-            return true;
-        }
-        return false;
-    }
+    public abstract boolean ItemAllowedInMoneySlot(@Nonnull Player player, @Nonnull ItemStack stack);
 
 }

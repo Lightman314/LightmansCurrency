@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandle
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
@@ -67,7 +66,6 @@ public class TradeContext {
 
 	//Money/Payment related data
 	private final MultiMoneyHolder moneyHolders;
-	public final void clearCache() { this.moneyHolders.clearCache(this); }
 	
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
@@ -405,8 +403,7 @@ public class TradeContext {
 			return ItemHandlerHelper.insertItemStacked(this.itemHandler, item, true).isEmpty();
 		return this.hasPlayer();
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public boolean canFitItems(ItemStack... items)
 	{
 		if(this.hasItemHandler())
@@ -435,7 +432,6 @@ public class TradeContext {
 		return this.hasPlayer();
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean canFitItems(List<ItemStack> items)
 	{
 		if(this.hasItemHandler())
@@ -683,8 +679,6 @@ public class TradeContext {
 				return this;
 			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
-		public Builder withStoredCoins(@Nonnull MoneyStorage storedCoins) { return this.withMoneyHolder(storedCoins); }
-
 		public Builder withMoneyHandler(@Nonnull IMoneyHandler moneyHandler, @Nonnull Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
 		public Builder withMoneyHolder(@Nonnull IMoneyHolder moneyHandler) { if(!this.moneyHandlers.contains(moneyHandler)) this.moneyHandlers.add(moneyHandler); return this; }
 

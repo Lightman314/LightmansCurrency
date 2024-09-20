@@ -19,10 +19,11 @@ public class AlertData {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void setShaderColor(@Nonnull EasyGuiGraphics gui, float mult) {
-		float red = (float)(this.type.color >> 16 & 255) / 255.0f;
-		float green = (float)(this.type.color >> 8 & 255) / 255.0f;
-		float blue = (float)(this.type.color & 255) / 255.0f;
+	public void setShaderColor(@Nonnull EasyGuiGraphics gui, float mult, boolean isHovered) {
+		int color = isHovered ? this.type.hoverColor : this.type.color;
+		float red = (float)(color >> 16 & 255) / 255.0f;
+		float green = (float)(color >> 8 & 255) / 255.0f;
+		float blue = (float)(color & 255) / 255.0f;
 		gui.setColor(red * mult, green * mult, blue * mult);
 	}
 

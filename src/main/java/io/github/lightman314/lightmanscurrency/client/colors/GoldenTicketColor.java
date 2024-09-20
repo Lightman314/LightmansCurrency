@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 public class GoldenTicketColor implements ItemColor{
 	
 	@Override
-	public int getColor(@NotNull ItemStack itemStack, int color) {
+	public int getColor(@NotNull ItemStack itemStack, int layer) {
 		//Get the Ticket's Color
-		if(color == 1)
+		if(layer == 1)
 			return TicketItem.GetTicketColor(itemStack);
 
 		//N/A

@@ -113,7 +113,9 @@ public class LCRecipeProvider extends RecipeProvider {
                 Pair.of(Ingredient.of(Tags.Items.INGOTS_GOLD),ModItems.WALLET_GOLD),
                 Pair.of(Ingredient.of(Tags.Items.GEMS_EMERALD),ModItems.WALLET_EMERALD),
                 Pair.of(Ingredient.of(Tags.Items.GEMS_DIAMOND),ModItems.WALLET_DIAMOND),
-                Pair.of(Ingredient.of(Tags.Items.INGOTS_NETHERITE),ModItems.WALLET_NETHERITE)
+                Pair.of(Ingredient.of(Tags.Items.INGOTS_NETHERITE),ModItems.WALLET_NETHERITE),
+                //2.2.3.2
+                Pair.of(Ingredient.of(Tags.Items.NETHER_STARS),ModItems.WALLET_NETHER_STAR)
         ));
 
         //Coin Recipes
@@ -918,6 +920,16 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(conditional::addRecipe,"null:null");
         conditional.generateAdvancement(ItemID("upgrades/", ModItems.COIN_CHEST_BANK_UPGRADE).withPrefix(ADV_PREFIX)).build(consumer, ItemID("upgrades/", ModItems.COIN_CHEST_BANK_UPGRADE));
 
+        //2.2.3.2
+        conditional = ConditionalRecipe.builder().addCondition(LCCraftingConditions.ATMCard.INSTANCE);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.ATM_CARD.get())
+                .unlockedBy("money",MoneyKnowledge())
+                .unlockedBy("atm",LazyTrigger(LCTags.Items.ATM))
+                .requires(Items.PAPER)
+                .requires(Tags.Items.ENDER_PEARLS)
+                .requires(Tags.Items.NUGGETS_IRON)
+                .save(conditional::addRecipe,"null:null");
+        conditional.generateAdvancement(ItemID(ModItems.ATM_CARD).withPrefix(ADV_PREFIX)).build(consumer,ItemID(ModItems.ATM_CARD));
 
     }
 

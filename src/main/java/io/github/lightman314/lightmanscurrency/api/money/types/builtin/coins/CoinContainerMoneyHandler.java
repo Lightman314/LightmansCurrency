@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,6 @@ import java.util.function.Consumer;
 public class CoinContainerMoneyHandler extends MoneyHandler {
 
     private final Container container;
-    private Container containerCache = new SimpleContainer(1);
     private final Consumer<ItemStack> overflowHandler;
 
     public CoinContainerMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler)
@@ -78,12 +76,8 @@ public class CoinContainerMoneyHandler extends MoneyHandler {
     public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return value instanceof CoinValue; }
 
     @Override
-    protected boolean hasStoredMoneyChanged() { return !InventoryUtil.ContainerMatches(this.container, this.containerCache); }
-
-    @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         queryContainerContents(this.container, builder);
-        this.containerCache = InventoryUtil.copyInventory(this.container);
     }
 
     public static void queryContainerContents(@Nonnull Container container, @Nonnull MoneyView.Builder builder)

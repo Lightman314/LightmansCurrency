@@ -9,7 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +26,7 @@ public class BankCategory extends NotificationCategory {
 
 	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.ATM); }
+	public IconData getIcon() { return IconData.of(ModBlocks.ATM); }
 
 	@Nonnull
 	@Override

@@ -18,7 +18,7 @@ public final class MoneyView {
     private final Map<String,MoneyValue> values;
 
     private MoneyView() { this.values = ImmutableMap.of(); }
-    private MoneyView(Builder builder) {
+    private MoneyView(@Nonnull Builder builder) {
         Map<String,MoneyValue> results = new HashMap<>();
         builder.values.forEach((name,list) -> {
             if(!list.isEmpty())
@@ -32,7 +32,11 @@ public final class MoneyView {
         this.values = ImmutableMap.copyOf(results);
     }
 
+    @Nonnull
     public static MoneyView.Builder builder() { return new MoneyView.Builder(); }
+    @Nonnull
+    public static MoneyView singleton(@Nonnull MoneyValue value) { return builder().add(value).build(); }
+    @Nonnull
     public static MoneyView empty() { return EMPTY; }
 
     @Nonnull

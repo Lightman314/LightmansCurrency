@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -137,6 +138,11 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         //Add Safe-Interactable to ftb chunks interact whitelist
         this.cTag(new ResourceLocation("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+
+        //Blacklist ownable blocks from Carry-On mod, as it started ignoring common/forge non-moveable tag
+        this.cTag(VersionUtil.modResource("carryon","block_blacklist"))
+                .addTag(LCTags.Blocks.OWNER_PROTECTED)
+                .addTag(LCTags.Blocks.MULTI_BLOCK);
 
     }
 

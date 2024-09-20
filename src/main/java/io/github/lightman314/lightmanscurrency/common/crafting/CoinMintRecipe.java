@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -86,6 +87,10 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
 	public @Nonnull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
+
+	@Nonnull
+	@Override
+	public ItemStack getToastSymbol() { return new ItemStack(ModBlocks.COIN_MINT.get()); }
 
 	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
 

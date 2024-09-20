@@ -57,8 +57,6 @@ public class CommonProxy {
 	public void updateTaxEntries(CompoundTag compound) {}
 
 	public void removeTaxEntry(long id) {}
-
-	public void openNotificationScreen() {}
 	
 	public void playCoinSound() {}
 	

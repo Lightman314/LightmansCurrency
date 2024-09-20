@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +54,7 @@ public class TaxesPaidNotification extends Notification {
     protected void loadAdditional(@Nonnull CompoundTag compound)
     {
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = NotificationAPI.loadCategory(compound.getCompound("Category"));
+        this.category = NotificationAPI.API.LoadCategory(compound.getCompound("Category"));
     }
 
     @Override

@@ -13,9 +13,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class OwnableBlockEjectedNotification extends Notification {
 
@@ -33,7 +33,7 @@ public class OwnableBlockEjectedNotification extends Notification {
     }
 
     @Nonnull
-    public static NonNullSupplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
+    public static Supplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
 
     @Nonnull
     @Override

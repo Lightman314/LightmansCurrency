@@ -24,10 +24,10 @@ public class SPacketChatNotification extends ServerToClientPacket {
 	{
 		@Nonnull
 		@Override
-		public SPacketChatNotification decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketChatNotification(NotificationAPI.loadNotification(buffer.readAnySizeNbt())); }
+		public SPacketChatNotification decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketChatNotification(NotificationAPI.API.LoadNotification(buffer.readAnySizeNbt())); }
 		@Override
 		protected void handle(@Nonnull SPacketChatNotification message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.receiveNotification(message.notification);
+			LightmansCurrency.getProxy().receiveNotification(message.notification);
 		}
 	}
 	

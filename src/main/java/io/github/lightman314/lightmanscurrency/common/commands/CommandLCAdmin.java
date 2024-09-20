@@ -16,7 +16,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
@@ -25,8 +25,11 @@ import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.C
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
+import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -37,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -96,7 +100,7 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
-				.then(Commands.literal("replaceWallet").requires((c) -> !LightmansCurrency.isCuriosLoaded())
+				.then(Commands.literal("replaceWallet").requires((c) -> !LCCurios.isLoaded())
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
@@ -126,7 +130,13 @@ public class CommandLCAdmin {
 											.executes(CommandLCAdmin::unlockEvent)))
 								.then(Commands.literal("lock")
 										.then(Commands.argument("event", StringArgumentType.word())
-											.executes(CommandLCAdmin::lockEvent)))));
+											.executes(CommandLCAdmin::lockEvent)))))
+				.then(Commands.literal("makePrepaidCard")
+						.then(Commands.argument("player",EntityArgument.players())
+								.then(Commands.argument("amount", MoneyValueArgument.argument(context))
+										.executes(c -> createPrepaidCard(c,0xFFFFFF))
+										.then(Commands.argument("color", ColorArgument.argument())
+												.executes(c -> createPrepaidCard(c,ColorArgument.getColor(c,"color")))))));
 
 		dispatcher.register(lcAdminCommand);
 
@@ -206,7 +216,7 @@ public class CommandLCAdmin {
 
 		String searchText = StringArgumentType.getString(commandContext,"searchText");
 
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.filterTrader(trader, searchText)).toList();
+		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, searchText)).toList();
 		if(!results.isEmpty())
 		{
 
@@ -558,6 +568,28 @@ public class CommandLCAdmin {
 		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LOCK_SUCCESS.get(event), false);
 
 		return 1;
+	}
+
+	static int createPrepaidCard(CommandContext<CommandSourceStack> commandContext, int color) throws CommandSyntaxException
+	{
+		MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
+		int count = 0;
+		ItemStack item = new ItemStack(ModItems.PREPAID_CARD.get());
+		CompoundTag tag = item.getOrCreateTag();
+		tag.put("StoredMoney",amount.save());
+		CompoundTag display = new CompoundTag();
+		display.putInt(ItemStack.TAG_COLOR,color);
+		tag.put(ItemStack.TAG_DISPLAY,display);
+		for(ServerPlayer player : EntityArgument.getPlayers(commandContext,"player"))
+		{
+			ItemHandlerHelper.giveItemToPlayer(player, item.copy());
+			count++;
+		}
+		if(count > 0)
+			EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_PREPAID_CARD_SUCCESS.get(amount.getText(),count), false);
+		else
+			EasyText.sendCommandFail(commandContext.getSource(),LCText.COMMAND_ADMIN_PREPAID_CARD_FAIL.get());
+		return count;
 	}
 
 }

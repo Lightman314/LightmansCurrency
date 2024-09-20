@@ -13,6 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoi
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
+import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
+import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
@@ -57,6 +60,8 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nonnull;
+
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
@@ -95,7 +100,7 @@ public class ClientEvents {
 				}
 			}
 			//Open portable terminal/atm from curios slot
-			if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS)
+			if(LCCurios.isLoaded() && event.getAction() == GLFW.GLFW_PRESS)
 			{
 				if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
 					new CPacketOpenNetworkTerminal(true).send();
@@ -124,10 +129,10 @@ public class ClientEvents {
 			event.addListener(new EjectionMenuButton(gui));
 
 			Minecraft mc = Minecraft.getInstance();
-			if(LightmansCurrency.isCuriosValid(mc.player))
+			if(LCCurios.isLoaded())
 				return;
 
-			//Add Wallet-Related buttons if Curios doesn't exist or is somehow broken
+			//Add Wallet-Related buttons if Curios doesn't exist
 			event.addListener(new WalletButton(gui, b -> new CPacketOpenWallet(-1).send()));
 
 			event.addListener(new VisibilityToggleButton(gui, ClientEvents::toggleVisibility));
@@ -159,7 +164,7 @@ public class ClientEvents {
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
-		if(LightmansCurrency.isCuriosValid(mc.player))
+		if(LCCurios.isLoaded())
 			return;
 		
 		AbstractContainerScreen<?> screen = event.getContainerScreen();
@@ -248,8 +253,21 @@ public class ClientEvents {
 		//Wallet Key-bind Tooltip
 		//Added here because it requires client-side data, so I don't really want to put it in a common class
 		if(stack.getItem() instanceof WalletItem) //Put in 2nd line so that it appears just below the name
-			event.getToolTip().add(1,LCText.TOOLTIP_WALLET_KEY_BIND.get(EasyText.makeMutable(ClientEvents.KEY_WALLET.getTranslatedKeyMessage()).withStyle(ChatFormatting.YELLOW)));
+			appendKeyBindTooltip(event,LCText.TOOLTIP_WALLET_KEY_BIND,ClientEvents.KEY_WALLET);
 
+		if(LCCurios.isLoaded())
+		{
+			if(stack.getItem() instanceof PortableTerminalItem)
+				appendKeyBindTooltip(event, LCText.TOOLTIP_TERMINAL_KEY_BIND, ClientEvents.KEY_PORTABLE_TERMINAL);
+			if(stack.getItem() instanceof PortableATMItem)
+				appendKeyBindTooltip(event, LCText.TOOLTIP_ATM_KEY_BIND, ClientEvents.KEY_PORTABLE_ATM);
+		}
+
+	}
+
+	private static void appendKeyBindTooltip(@Nonnull ItemTooltipEvent event, @Nonnull TextEntry tooltip, @Nonnull KeyMapping key)
+	{
+		event.getToolTip().add(1, tooltip.get(EasyText.makeMutable(key.getTranslatedKeyMessage()).withStyle(ChatFormatting.YELLOW)));
 	}
 
 }

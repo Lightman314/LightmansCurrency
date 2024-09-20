@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.tags.TagKey;
@@ -23,6 +24,10 @@ public interface TicketStationRecipe extends Recipe<Container> {
     @Nonnull
     @Override
     default RecipeType<TicketStationRecipe> getType() { return RecipeTypes.TICKET.get(); }
+
+    @Nonnull
+    @Override
+    default ItemStack getToastSymbol() { return new ItemStack(ModBlocks.TICKET_STATION.get()); }
 
     @Nonnull
     static List<ItemStack> exampleModifierList(@Nonnull TagKey<Item> tag, @Nonnull Item... extra)

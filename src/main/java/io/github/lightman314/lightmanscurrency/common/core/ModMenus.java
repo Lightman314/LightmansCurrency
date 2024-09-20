@@ -71,6 +71,10 @@ public class ModMenus {
 
 		TEAM_MANAGEMENT = ModRegistries.MENUS.register("team_management", () -> CreateType((IContainerFactory<TeamManagementMenu>)(id,inventory,data) -> new TeamManagementMenu(id,inventory)));
 
+		NOTIFICATIONS = ModRegistries.MENUS.register("notifications", () -> CreateType((IContainerFactory<NotificationMenu>)(id,inventory,data) -> new NotificationMenu(id,inventory)));
+
+		ATM_CARD = ModRegistries.MENUS.register("atm_card", () -> CreateType((IContainerFactory<ATMCardMenu>)(id,inventory,data) -> new ATMCardMenu(id,inventory,data.readInt())));
+
 	}
 	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
@@ -108,6 +112,10 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
 
 	public static final RegistryObject<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT;
+
+	public static final RegistryObject<MenuType<NotificationMenu>> NOTIFICATIONS;
+
+	public static final RegistryObject<MenuType<ATMCardMenu>> ATM_CARD;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 

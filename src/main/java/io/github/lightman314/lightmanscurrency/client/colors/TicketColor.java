@@ -8,13 +8,13 @@ import org.jetbrains.annotations.NotNull;
 public class TicketColor implements ItemColor{
 
 	@Override
-	public int getColor(@NotNull ItemStack itemStack, int color) {
+	public int getColor(@NotNull ItemStack itemStack, int layer) {
 		//Get the Ticket's Color
-		if(color == 0)
+		if(layer == 0)
 			return TicketItem.GetTicketColor(itemStack);
 
 		//Get the Ticket's Inverted Color
-		if(color == 1)
+		if(layer == 1)
 			return 0xFFFFFF - TicketItem.GetTicketColor(itemStack);
 
 		//N/A

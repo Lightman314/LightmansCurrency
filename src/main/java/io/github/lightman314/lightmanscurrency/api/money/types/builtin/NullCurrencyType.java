@@ -3,13 +3,17 @@ package io.github.lightman314.lightmanscurrency.api.money.types.builtin;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.types.builtin.other.ContainerMoneyHandlerWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +37,7 @@ public final class NullCurrencyType extends CurrencyType {
 
     @Nonnull
     @Override
-    protected MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values) { return null; }
+    protected MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values) { return MoneyValue.empty(); }
 
     @Nullable
     @Override
@@ -41,7 +45,7 @@ public final class NullCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler) { return null; }
+    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) { return new ContainerMoneyHandlerWrapper(container,tracker); }
 
     @Override
     public MoneyValue loadMoneyValue(@Nonnull CompoundTag valueTag) {
@@ -59,8 +63,14 @@ public final class NullCurrencyType extends CurrencyType {
     @Override
     public List<Object> getInputHandlers(@Nullable Player player) { return new ArrayList<>(); }
 
+    @Override
+    public boolean allowItemInMoneySlot(@Nonnull Player player, @Nonnull ItemStack item) {
+        return CapabilityMoneyHandler.getCapability(item) != null;
+    }
+
     private static class DefaultValueParser extends MoneyValueParser {
 
+        private static final SimpleCommandExceptionType NOT_EMPTY_OR_FREE_EXCEPTION = new SimpleCommandExceptionType(LCText.ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE.get());
         private static final DefaultValueParser INSTANCE = new DefaultValueParser();
 
         protected DefaultValueParser() { super("null"); }
@@ -72,7 +82,7 @@ public final class NullCurrencyType extends CurrencyType {
                 return MoneyValue.free();
             if(text.equalsIgnoreCase("empty"))
                 return MoneyValue.empty();
-            throw new CommandSyntaxException(MoneyValueParser.EXCEPTION_TYPE, LCText.ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE.get(), reader.getString(), reader.getCursor());
+            throw NOT_EMPTY_OR_FREE_EXCEPTION.createWithContext(reader);
         }
 
         @Override

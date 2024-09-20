@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.trade
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -21,7 +22,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
@@ -62,7 +62,7 @@ public class ItemTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory trader, MoneyValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
+	public static Supplier<Notification> create(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory trader, MoneyValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
 	
 	@Nonnull
 	@Override

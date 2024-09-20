@@ -440,9 +440,13 @@ public abstract class MoneyValue {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         if(obj instanceof MoneyValue otherVal)
             return this.getUniqueName().equals(otherVal.getUniqueName()) && this.getCoreValue() == otherVal.getCoreValue() && this.isFree() == otherVal.isFree();
         return super.equals(obj);
     }
+
+    @Override
+    public final int hashCode() { return Objects.hash(this.isFree(),this.getUniqueName(),this.getCoreValue()); }
+
 }

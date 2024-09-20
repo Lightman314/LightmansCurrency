@@ -36,6 +36,9 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 		this.scrollable = scrollable;
 	}
 
+	@Nonnull
+	public static <T extends EasyWidget & IScrollable> ScrollBarWidget createOnRight(@Nonnull T widget) { return new ScrollBarWidget(widget.getX() + widget.getWidth(), widget.getY(), widget.getHeight(), widget); }
+
 	@Override
 	public ScrollBarWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 

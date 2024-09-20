@@ -18,12 +18,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class FTBTeamOwner extends Owner {
 
@@ -111,7 +111,7 @@ public class FTBTeamOwner extends Owner {
     public BankReference asBankReference() { return null; }
 
     @Override
-    public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
+    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
         Team team = this.getTeam();
         if(team != null)
         {
@@ -121,7 +121,7 @@ public class FTBTeamOwner extends Owner {
             else if(notificationLevel < 2)
                 minRank = TeamRank.OFFICER;
             team.getPlayersByRank(minRank).forEach((player,rank) ->
-                NotificationAPI.PushPlayerNotification(player,notificationSource.get(),sendToChat)
+                NotificationAPI.API.PushPlayerNotification(player,notificationSource.get(),sendToChat)
             );
         }
     }

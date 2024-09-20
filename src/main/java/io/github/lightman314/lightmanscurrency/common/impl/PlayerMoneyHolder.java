@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -59,22 +58,9 @@ public class PlayerMoneyHolder extends MoneyHolder {
     public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.handlers.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
 
     @Override
-    protected boolean hasStoredMoneyChanged() {
-        for(IPlayerMoneyHandler handler : this.handlers)
-        {
-            if(handler.hasStoredMoneyChanged(this))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         for(IPlayerMoneyHandler handler : this.handlers)
-        {
-            handler.flagAsKnown(this);
             builder.merge(handler.getStoredMoney());
-        }
     }
 
     @Override

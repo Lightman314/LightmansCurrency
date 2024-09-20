@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -39,14 +38,14 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
     //Visibility
     boolean visible;
     boolean wasVisible;
-    //Money Holder
-    ItemStack moneyCacheWallet;
+
+    @Override
+    public boolean isClient() { return this.entity.level().isClientSide; }
 
     public WalletHandler(LivingEntity entity) {
         this.entity = entity;
         this.backupWallet = ItemStack.EMPTY;
         this.walletItem = ItemStack.EMPTY;
-        this.moneyCacheWallet = ItemStack.EMPTY;
         this.visible = true;
         this.wasVisible = true;
     }
@@ -79,23 +78,20 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     @Override
     public ItemStack getWallet() {
-
         //Curios hook for consistent access
-        if(LightmansCurrency.isCuriosValid(this.entity))
-            return LCCurios.getCuriosWalletContents(this.entity);
-
+        if(LCCurios.isLoaded())
+            return LCCurios.getCuriosWalletItem(this.entity);
         return this.walletItem;
     }
 
     @Override
     public void setWallet(ItemStack walletStack) {
 
-        if(LightmansCurrency.isCuriosValid(this.entity))
+        if(LCCurios.hasWalletSlot(this.entity))
         {
-            LCCurios.setCuriosWalletContents(this.entity, walletStack);
+            LCCurios.setCuriosWalletItem(this.entity,walletStack);
             return;
         }
-
         this.walletItem = walletStack;
         if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
             LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
@@ -107,7 +103,7 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     @Override
     public boolean visible() {
-        if(LightmansCurrency.isCuriosValid(this.entity))
+        if(LCCurios.hasWalletSlot(this.entity))
             return LCCurios.getCuriosWalletVisibility(this.entity);
         return this.visible;
     }
@@ -150,10 +146,10 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     @Override
     public void tick() {
-        if(LightmansCurrency.isCuriosValid(this.entity) && !this.walletItem.isEmpty())
+        if(!this.walletItem.isEmpty() && LCCurios.hasWalletSlot(this.entity))
         {
             LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
-            LCCurios.setCuriosWalletContents(this.entity, this.walletItem);
+            LCCurios.setCuriosWalletItem(this.entity, this.walletItem);
             this.walletItem = ItemStack.EMPTY;
         }
     }
@@ -165,7 +161,7 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         if(container != null)
         {
             Container cache = InventoryUtil.copyInventory(container);
-            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container,this::handleOverflow);
+            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container,this::handleOverflow,this);
             MoneyValue result = handler.insertMoney(insertAmount, simulation);
             //If changed, update wallet menus
             if(!InventoryUtil.ContainerMatches(container,cache))
@@ -192,7 +188,7 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         if (container != null)
         {
             Container cache = InventoryUtil.copyInventory(container);
-            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container, this::handleOverflow);
+            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container, this::handleOverflow, this);
             MoneyValue result = handler.extractMoney(extractAmount,simulation);
             if(!InventoryUtil.ContainerMatches(container,cache))
                 this.updateWalletContents(container);
@@ -222,12 +218,8 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
-        this.moneyCacheWallet = this.getWallet().copy();
-        if(WalletItem.isWallet(this.moneyCacheWallet))
-            CoinContainerMoneyHandler.queryContainerContents(WalletItem.getWalletInventory(this.moneyCacheWallet),builder);
+        if(WalletItem.isWallet(this.walletItem))
+            CoinContainerMoneyHandler.queryContainerContents(WalletItem.getWalletInventory(this.walletItem),builder);
     }
-
-    @Override
-    protected boolean hasStoredMoneyChanged() { return !InventoryUtil.ItemsFullyMatch(this.moneyCacheWallet, this.getWallet()); }
 
 }

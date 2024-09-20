@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.CoinPriceEntry;
@@ -37,7 +37,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class CoinValue extends MoneyValue
+public final class CoinValue extends MoneyValue implements IItemBasedValue
 {
 
 	public final ImmutableList<CoinValuePair> coinValues;
@@ -408,32 +408,11 @@ public final class CoinValue extends MoneyValue
 	
 	public List<CoinValuePair> getEntries() { return this.coinValues; }
 
+	@Nonnull
 	public List<ItemStack> getAsItemList() {
 		List<ItemStack> items = new ArrayList<>();
 		for(CoinValuePair entry : this.coinValues)
-			items.addAll(getStacks(entry,false));
-		return items;
-	}
-
-	private static List<ItemStack> getStacks(@Nonnull CoinValuePair entry, boolean limitToMaxStackSize)
-	{
-		List<ItemStack> result = new ArrayList<>();
-		int max = limitToMaxStackSize ? new ItemStack(entry.coin).getMaxStackSize() : Integer.MAX_VALUE;
-		long temp = entry.amount;
-		while(temp > max)
-		{
-			result.add(new ItemStack(entry.coin,max));
-			temp -= max;
-		}
-		if(temp > 0)
-			result.add(new ItemStack(entry.coin,(int)temp));
-		return result;
-	}
-
-	public List<ItemStack> getAsSeperatedItemList() {
-		List<ItemStack> items = new ArrayList<>();
-		for(CoinValuePair entry : this.coinValues)
-			items.addAll(getStacks(entry,true));
+			items.add(new ItemStack(entry.coin,entry.amount));
 		return items;
 	}
 	
@@ -592,18 +571,6 @@ public final class CoinValue extends MoneyValue
 			}
 		}
 		throw new JsonSyntaxException("Coin Value entry input is not a valid Json Element.");
-	}
-	
-	@Override
-	public int hashCode() { return Objects.hashCode(this.isFree(), this.coinValues); }
-	
-	@Override
-	public boolean equals(Object other) {
-		if(this == other)
-			return true;
-		if(other instanceof CoinValue coinValue)
-			return coinValue.getCoreValue() == this.getCoreValue() && coinValue.getChain().equals(this.getChain());
-		return false;
 	}
 
 	@Nonnull

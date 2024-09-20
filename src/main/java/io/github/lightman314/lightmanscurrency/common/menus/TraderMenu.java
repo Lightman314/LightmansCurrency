@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -20,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
@@ -117,9 +117,9 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		}
 		
 		//Coin Slots
-		for(int x = 0; x < coins.getContainerSize(); x++)
+		for(int x = 0; x < this.coins.getContainerSize(); x++)
 		{
-			this.coinSlots.add(this.addSlot(new CoinSlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122)));
+			this.coinSlots.add(this.addSlot(new MoneySlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122, this.player)));
 		}
 		
 		//Interaction Slots
@@ -144,8 +144,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 				if(trader != null) trader.userClose(this.player);
 			}
 		}
-		this.contextCache.values().forEach(TradeContext::clearCache);
-			
+
 	}
 	
 	public void ExecuteTrade(int traderIndex, int tradeIndex) {

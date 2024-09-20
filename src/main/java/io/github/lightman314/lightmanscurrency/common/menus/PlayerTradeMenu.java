@@ -5,11 +5,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.playertrading.IPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,8 +41,8 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     private Consumer<Component> chatReceiver = c -> {};
     public final void setChatReceiver(@Nonnull Consumer<Component> chatReceiver) { this.chatReceiver = chatReceiver; }
 
-    public void hideSlots() { SimpleSlot.SetInactive(this); }
-    public void showSlots() { SimpleSlot.SetActive(this); }
+    public void hideSlots() { EasySlot.SetInactive(this); }
+    public void showSlots() { EasySlot.SetActive(this); }
 
     public PlayerTradeMenu(int windowID, Inventory inventory, int tradeID, IPlayerTrade trade) {
         super(ModMenus.PLAYER_TRADE.get(), windowID, inventory);
@@ -62,7 +62,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         {
             for(int x = 0; x < 3; ++x)
             {
-                this.addSlot(new SimpleSlot(leftSideContainer, x + y * 3, 8 + x * 18, 69 + 30 + y * 18));
+                this.addSlot(new EasySlot(leftSideContainer, x + y * 3, 8 + x * 18, 69 + 30 + y * 18));
             }
         }
 

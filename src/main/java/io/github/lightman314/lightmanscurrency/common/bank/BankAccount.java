@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -30,7 +31,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,14 +40,24 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	private boolean isClient = false;
 	@Override
 	public boolean isClient() { return this.isClient; }
+
 	@Nonnull
-	public BankAccount flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this; }
+	public BankAccount flagAsClient() { return this.flagAsClient(true); }
+	@Nonnull
+	public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
+	@Nonnull
+	public BankAccount flagAsClient(@Nonnull IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
 	private final Runnable markDirty;
-	
+
 	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
 	@Nonnull
 	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
+
+	int cardValidation = 0;
+	public int getCardValidation() { return this.cardValidation; }
+	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
+	public void resetCards() { this.cardValidation++; this.markDirty(); }
 
 	@Override
 	@Nullable
@@ -69,9 +79,9 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			this.notificationLevels.put(type, value);
 		this.markDirty();
 	}
-	
-	private Consumer<NonNullSupplier<Notification>> notificationSender;
-	public void setNotificationConsumer(Consumer<NonNullSupplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
+
+	private Consumer<Supplier<Notification>> notificationSender;
+	public void setNotificationConsumer(Consumer<Supplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
 
 	@Override
 	public void pushLocalNotification(@Nonnull Notification notification) {
@@ -79,21 +89,21 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.markDirty();
 	}
 	@Override
-	public void pushNotification(@Nonnull NonNullSupplier<Notification> notification, boolean notifyPlayers) {
+	public void pushNotification(@Nonnull Supplier<Notification> notification, boolean notifyPlayers) {
 		this.pushLocalNotification(notification.get());
 		if(notifyPlayers && this.notificationSender != null)
 			this.notificationSender.accept(notification);
 	}
-	
-	public static Consumer<NonNullSupplier<Notification>> generateNotificationAcceptor(UUID playerID) {
+
+	public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
 		return (notification) -> NotificationSaveData.PushNotification(playerID, notification.get());
 	}
-	
+
 	private final NotificationData logger = new NotificationData();
 	@Nonnull
 	@Override
 	public List<Notification> getNotifications() { return this.logger.getNotifications(); }
-	
+
 	private String ownerName = "Unknown";
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
@@ -123,28 +133,28 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			this.pushNotification(LowBalanceNotification.create(this.getName(), notificationLevel));
 		return withdrawAmount;
 	}
-	
+
 	public void LogInteraction(Player player, MoneyValue amount, boolean isDeposit) {
 		this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player), this.getName(), isDeposit, amount));
 	}
-	
+
 	public void LogInteraction(TaxEntry tax, MoneyValue amount) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Trader(tax.getName(), this.getName(), true, amount));
+		this.pushLocalNotification(new DepositWithdrawNotification.Custom(tax.getName(), this.getName(), true, amount));
 	}
 
 	public void LogInteraction(TraderData trader, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Trader(trader.getName(), this.getName(), isDeposit, amount));
+		this.pushLocalNotification(new DepositWithdrawNotification.Custom(trader.getName(), this.getName(), isDeposit, amount));
 	}
-	
+
 	public void LogTransfer(Player player, MoneyValue amount, MutableComponent otherAccount, boolean wasReceived) {
 		this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
 	}
-	
 
-	
+
+
 	public BankAccount() { this((Runnable)null); }
 	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
-	
+
 	public BankAccount(CompoundTag compound) { this(null, compound); }
 	public BankAccount(Runnable markDirty, CompoundTag compound) {
 		this.markDirty = markDirty;
@@ -167,14 +177,16 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 					this.notificationLevels.put(level.getUniqueName(), level);
 			}
 		}
+		if(compound.contains("CardValidation"))
+			this.cardValidation = compound.getInt("CardValidation");
 	}
-	
+
 	public void markDirty()
 	{
 		if(this.markDirty != null)
 			this.markDirty.run();
 	}
-	
+
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
 		compound.put("CoinStorage", this.coinStorage.save());
@@ -183,6 +195,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		ListTag notificationLevelList = new ListTag();
 		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
 		compound.put("NotificationLevels", notificationLevelList);
+		compound.putInt("CardValidation", this.cardValidation);
 		return compound;
 	}
 

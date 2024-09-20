@@ -13,10 +13,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class PlayerOwner extends Owner {
 
@@ -65,7 +65,7 @@ public class PlayerOwner extends Owner {
     public BankReference asBankReference() { return PlayerBankReference.of(this.player).flagAsClient(this); }
 
     @Override
-    public void pushNotification(@Nonnull NonNullSupplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }
+    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { NotificationAPI.API.PushPlayerNotification(this.player.id, notificationSource.get(), sendToChat); }
 
     @Nonnull
     @Override

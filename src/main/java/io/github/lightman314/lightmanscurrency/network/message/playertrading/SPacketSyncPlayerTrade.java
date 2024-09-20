@@ -26,7 +26,7 @@ public class SPacketSyncPlayerTrade extends ServerToClientPacket {
         public SPacketSyncPlayerTrade decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncPlayerTrade(ClientPlayerTrade.decode(buffer)); }
         @Override
         protected void handle(@Nonnull SPacketSyncPlayerTrade message, @Nullable ServerPlayer sender) {
-            LightmansCurrency.PROXY.loadPlayerTrade(message.data);
+            LightmansCurrency.getProxy().loadPlayerTrade(message.data);
         }
     }
 

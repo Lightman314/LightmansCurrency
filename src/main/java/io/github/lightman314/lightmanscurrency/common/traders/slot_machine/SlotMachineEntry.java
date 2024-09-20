@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -93,8 +94,8 @@ public final class SlotMachineEntry {
         if(this.isMoney())
         {
             MoneyValue value = this.getMoneyValue();
-            if(value instanceof CoinValue coinValue)
-                return coinValue.getAsSeperatedItemList();
+            if(value instanceof IItemBasedValue itemValue)
+                return itemValue.getAsSeperatedItemList();
         }
         return InventoryUtil.copyList(this.items);
     }

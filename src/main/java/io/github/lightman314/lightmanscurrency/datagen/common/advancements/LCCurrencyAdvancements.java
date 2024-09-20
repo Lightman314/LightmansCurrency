@@ -110,6 +110,13 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
                         .display(ezDisplay(ModItems.WALLET_NETHERITE,LCText.ADVANCEMENT_NETHERITE_WALLET))
                         .addCriterion("netherite_wallet", ezItemTrigger(ModItems.WALLET_NETHERITE.get()))
                 ,"currency/netherite_wallet");
+        Advancement netherStarWallet = save(consumer,Builder.advancement()
+                .parent(netheriteWallet)
+                .display(ezDisplay(ModItems.WALLET_NETHER_STAR,LCText.ADVANCEMENT_NETHER_STAR_WALLET))
+                .addCriterion("nether_star_wallet", ezItemTrigger(ModItems.WALLET_NETHER_STAR.get())),
+                "currency/nether_star_wallet");
+
+
         ItemStack enchantedWalletItem = new ItemStack(ModItems.WALLET_NETHERITE.get());
         EnchantmentHelper.setEnchantments(ImmutableMap.of(ModEnchantments.COIN_MAGNET.get(), 3),enchantedWalletItem);
         Advancement enchantedWallet = save(consumer,Builder.advancement()

@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -15,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class PaygateNotification extends TaxableNotification {
 
@@ -53,8 +52,8 @@ public class PaygateNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, MoneyValue.empty(), usedPass, customer, traderData, MoneyValue.empty()); }
-	public static NonNullSupplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, MoneyValue.empty(), usedPass, customer, traderData, MoneyValue.empty()); }
+	public static Supplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
 	
 	@Nonnull
     @Override

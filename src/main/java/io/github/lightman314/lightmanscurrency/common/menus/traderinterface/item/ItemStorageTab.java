@@ -9,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInte
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -37,20 +37,20 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public boolean canOpen(Player player) { return true; }
 	
 	//Eventually will add upgrade slots
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	@Override
-	public void onTabOpen() { SimpleSlot.SetActive(this.slots); }
+	public void onTabOpen() { EasySlot.SetActive(this.slots); }
 
 	@Override
-	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
+	public void onTabClose() { EasySlot.SetInactive(this.slots); }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
 			upgradeSlot.active = false;
 			addSlot.apply(upgradeSlot);
 			this.slots.add(upgradeSlot);

@@ -19,7 +19,7 @@ public class SPacketClearClientTraders extends ServerToClientPacket.Simple {
 		protected H() { super(INSTANCE); }
 		@Override
 		protected void handle(@Nonnull SPacketClearClientTraders message, @Nullable ServerPlayer sender) {
-			LightmansCurrency.PROXY.clearClientTraders();
+			LightmansCurrency.getProxy().clearClientTraders();
 		}
 	}
 	

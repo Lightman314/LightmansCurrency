@@ -17,6 +17,12 @@ public class CapabilityMoneyHandler {
     @Nonnull
     public static ICapabilityProvider createProvider(@Nonnull IMoneyHandler handler) { return new Provider(handler); }
 
+    /**
+     * Important Note:<br>
+     * If an item-related Money Handler requires knowledge of which logical side it's being interacted on, please implement {@link io.github.lightman314.lightmanscurrency.api.misc.ISidedObject ISidedObject} so that is can be properly flagged<br>
+     * All items with a Money Handler capability will automatically function as trader payment, etc.
+     */
+    @Nullable
     public static IMoneyHandler getCapability(@Nonnull ItemStack stack)
     {
         LazyOptional<IMoneyHandler> cap = stack.getCapability(CurrencyCapabilities.MONEY_HANDLER);

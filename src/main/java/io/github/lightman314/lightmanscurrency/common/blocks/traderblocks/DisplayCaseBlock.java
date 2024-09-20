@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBlock {
 	
@@ -35,6 +35,6 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
+	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
 	
 }

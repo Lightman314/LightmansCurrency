@@ -48,8 +48,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LC
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
-import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
-import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
+import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
@@ -85,13 +84,13 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 @Mod("lightmanscurrency")
@@ -99,25 +98,29 @@ public class LightmansCurrency {
 
 	public static final String MODID = "lightmanscurrency";
 
+	/**
+	 * @deprecated Use {@link #getProxy()} instead
+	 */
+	@Deprecated(since = "2.2.3.2")
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+	@Nonnull
+	public static CommonProxy getProxy() { return PROXY; }
+
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-	/**
-	 * Whether the Curios API mod is installed
-	 */
-	public static boolean isCuriosLoaded() { return ModList.get().isLoaded("curios"); }
 
 	/**
-	 * Whether the Curios API mod is installed, and a valid Wallet Slot is present on the given entity.
+	 * @deprecated Use {@link LCCurios#isLoaded()} instead
 	 */
-	public static boolean isCuriosValid(LivingEntity player) {
-		try {
-			if(isCuriosLoaded())
-				return LCCurios.hasWalletSlot(player);
-		} catch(Throwable ignored) { }
-		return false;
-	}
+	@Deprecated(since = "2.2.3.2")
+	public static boolean isCuriosLoaded() { return LCCurios.isLoaded(); }
+
+	/**
+	 * @deprecated Use {@link LCCurios#hasWalletSlot(LivingEntity)} instead
+	 */
+	@Deprecated(since = "2.2.3.2")
+	public static boolean isCuriosValid(LivingEntity player) { return LCCurios.hasWalletSlot(player); }
 
 	public LightmansCurrency() {
 
@@ -143,7 +146,7 @@ public class LightmansCurrency {
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
 
 		//Initialize the proxy
-        PROXY.init();
+        getProxy().init();
 
 		IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", LCDiscord::setup, null);
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
@@ -210,41 +213,41 @@ public class LightmansCurrency {
 		TradeRule.addIgnoreMissing("lightmanscurrency:blacklist");
 
 		//Initialize the Notification deserializers
-		NotificationAPI.registerNotification(ItemTradeNotification.TYPE);
-		NotificationAPI.registerNotification(PaygateNotification.TYPE);
-		NotificationAPI.registerNotification(SlotMachineTradeNotification.TYPE);
-		NotificationAPI.registerNotification(OutOfStockNotification.TYPE);
-		NotificationAPI.registerNotification(LowBalanceNotification.TYPE);
-		NotificationAPI.registerNotification(AuctionHouseSellerNotification.TYPE);
-		NotificationAPI.registerNotification(AuctionHouseBuyerNotification.TYPE);
-		NotificationAPI.registerNotification(AuctionHouseSellerNobidNotification.TYPE);
-		NotificationAPI.registerNotification(AuctionHouseBidNotification.TYPE);
-		NotificationAPI.registerNotification(AuctionHouseCancelNotification.TYPE);
-		NotificationAPI.registerNotification(TextNotification.TYPE);
-		NotificationAPI.registerNotification(AddRemoveAllyNotification.TYPE);
-		NotificationAPI.registerNotification(AddRemoveTradeNotification.TYPE);
-		NotificationAPI.registerNotification(ChangeAllyPermissionNotification.TYPE);
-		NotificationAPI.registerNotification(ChangeCreativeNotification.TYPE);
-		NotificationAPI.registerNotification(ChangeNameNotification.TYPE);
-		NotificationAPI.registerNotification(ChangeOwnerNotification.TYPE);
-		NotificationAPI.registerNotification(ChangeSettingNotification.SIMPLE_TYPE);
-		NotificationAPI.registerNotification(ChangeSettingNotification.ADVANCED_TYPE);
-		NotificationAPI.registerNotification(DepositWithdrawNotification.PLAYER_TYPE);
-		NotificationAPI.registerNotification(DepositWithdrawNotification.TRADER_TYPE);
-		NotificationAPI.registerNotification(DepositWithdrawNotification.SERVER_TYPE);
-		NotificationAPI.registerNotification(BankTransferNotification.TYPE);
-		NotificationAPI.registerNotification(BankInterestNotification.TYPE);
-		NotificationAPI.registerNotification(TaxesCollectedNotification.TYPE);
-		NotificationAPI.registerNotification(TaxesPaidNotification.TYPE);
-		NotificationAPI.registerNotification(OwnableBlockEjectedNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ItemTradeNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(PaygateNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(SlotMachineTradeNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(OutOfStockNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(LowBalanceNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AuctionHouseSellerNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AuctionHouseBuyerNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AuctionHouseSellerNobidNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AuctionHouseBidNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AuctionHouseCancelNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(TextNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AddRemoveAllyNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(AddRemoveTradeNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeAllyPermissionNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeCreativeNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeNameNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeOwnerNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
+		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
+		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
+		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);
+		NotificationAPI.API.RegisterNotification(BankTransferNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(BankInterestNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(TaxesCollectedNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(TaxesPaidNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(OwnableBlockEjectedNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
-		NotificationAPI.registerCategory(NotificationCategory.GENERAL_TYPE);
-		NotificationAPI.registerCategory(NullCategory.TYPE);
-		NotificationAPI.registerCategory(TraderCategory.TYPE);
-		NotificationAPI.registerCategory(BankCategory.TYPE);
-		NotificationAPI.registerCategory(AuctionHouseCategory.TYPE);
-		NotificationAPI.registerCategory(TaxEntryCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(NotificationCategory.GENERAL_TYPE);
+		NotificationAPI.API.RegisterCategory(NullCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(TraderCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(BankCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(AuctionHouseCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(TaxEntryCategory.TYPE);
 
 		//Register Trader Search Filters
 		TraderAPI.API.RegisterTraderSearchFilter(new BasicSearchFilter());
@@ -253,7 +256,7 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
-		TaxAPI.registerReferenceType(TaxableTraderReference.TYPE);
+		TaxAPI.API.RegisterReferenceType(TaxableTraderReference.TYPE);
 
 		//Register Bank Account Reference Types
 		BankAPI.API.RegisterReferenceType(PlayerBankReference.TYPE);
@@ -263,6 +266,7 @@ public class LightmansCurrency {
 		MenuValidatorType.register(SimpleValidator.TYPE);
 		MenuValidatorType.register(BlockEntityValidator.TYPE);
 		MenuValidatorType.register(BlockValidator.TYPE);
+		MenuValidatorType.register(EntityValidator.TYPE);
 
 		//Initialize the Item Trade Restrictions
 		ItemTradeRestriction.init();
@@ -271,8 +275,8 @@ public class LightmansCurrency {
 		TicketData.create(ModItems.GOLDEN_TICKET_MASTER.get(), ModItems.GOLDEN_TICKET.get(), ModItems.GOLDEN_TICKET_STUB.get(), LCTags.Items.TICKET_MATERIAL_GOLD);
 
 		//Villager Trades
-		VillagerTradeManager.registerDefaultTrades();
 		ItemListingSerializer.registerDefaultSerializers();
+		VillagerTradeManager.registerDefaultTrades();
 
 		//Register Loot Modifiers
 		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
@@ -296,7 +300,7 @@ public class LightmansCurrency {
 
 	}
 
-    private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
+    private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", getProxy()::setupClient); }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {

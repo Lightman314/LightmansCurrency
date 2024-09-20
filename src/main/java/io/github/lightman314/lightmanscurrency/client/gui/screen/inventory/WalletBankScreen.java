@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -31,19 +32,19 @@ import javax.annotation.Nonnull;
 public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_bank.png");
-	
+
 	int currentTabIndex = 0;
 	List<WalletBankTab> tabs = Lists.newArrayList(new InteractionTab(this), new SelectionTab(this));
 	public int getTabCount() { return this.tabs.size(); }
 	public List<WalletBankTab> getTabs() { return this.tabs; }
 	public WalletBankTab currentTab() { return tabs.get(this.currentTabIndex); }
-	
+
 	List<TabButton> tabButtons = new ArrayList<>();
-	
+
 	boolean logError = true;
-	
+
 	EasyButton buttonOpenWallet;
-	
+
 	public WalletBankScreen(WalletBankMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 	}
@@ -52,8 +53,8 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 	protected void initialize(ScreenArea screenArea)
 	{
 
-		screenArea = this.resize(176, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18 + 7);
-		
+		screenArea = this.resize(176 + this.menu.bonusWidth, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.coinSlotHeight * 18 + 7);
+
 		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
@@ -62,36 +63,25 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 			button.active = i != this.currentTabIndex;
 			this.tabButtons.add(button);
 		}
-		
-		this.buttonOpenWallet = this.addChild(new IconButton(screenArea.pos.offset(0, -20), this::PressOpenWalletButton, IconData.of(this.menu.getWallet()))
+
+		this.buttonOpenWallet = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::PressOpenWalletButton, IconData.of(this.menu.getWallet()))
 				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_WALLET)));
 
 		this.currentTab().onOpen();
-		
+
 	}
-	
+
 	@Override
 	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
 
 		gui.resetColor();
 		//Draw the top
-		gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.imageWidth, WalletBankMenu.BANK_WIDGET_SPACING);
-		//Draw the middle strips
-		for(int y = 0; y < this.menu.getRowCount(); y++)
-			gui.blit(GUI_TEXTURE, 0, WalletBankMenu.BANK_WIDGET_SPACING + y * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING, this.imageWidth, 18);
-		
-		//Draw the bottom
-		gui.blit(GUI_TEXTURE, 0, WalletBankMenu.BANK_WIDGET_SPACING + this.menu.getRowCount() * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING + 18, this.imageWidth, 7);
-		
-		//Draw the slots
-		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
-		{
-			for(int x = 0; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
-			{
-				gui.blit(GUI_TEXTURE, 7 + x * 18, WalletBankMenu.BANK_WIDGET_SPACING + y * 18, 0, WalletBankMenu.BANK_WIDGET_SPACING + 18 + 7, 18, 18);
-			}
-		}
-		
+		gui.renderNormalBackground(this);
+
+		//Draw the coin slots
+		for(Slot slot : this.menu.slots)
+			gui.renderSlot(this,slot);
+
 		//Render Current Tab
 		try { this.currentTab().renderBG(gui);
 		} catch(Throwable e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
@@ -110,22 +100,22 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 		ItemStack wallet = this.menu.getWallet();
 		return wallet.isEmpty() ? EasyText.empty() : wallet.getHoverName();
 	}
-	
+
 	public void changeTab(int tabIndex)
 	{
-		
+
 		//Close the old tab
 		this.currentTab().onClose();
 		this.tabButtons.get(this.currentTabIndex).active = true;
 		this.currentTabIndex = MathUtil.clamp(tabIndex, 0, this.tabs.size() - 1);
 		this.tabButtons.get(this.currentTabIndex).active = false;
-		
+
 		//Initialize the new tab
 		this.currentTab().onOpen();
-		
+
 		this.logError = true;
 	}
-	
+
 	private void clickedOnTab(EasyButton tab)
 	{
 		if(tab instanceof TabButton)
@@ -139,8 +129,7 @@ public class WalletBankScreen extends EasyMenuScreen<WalletBankMenu> {
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab().blockInventoryClosing(); }
-	
+
 	private void PressOpenWalletButton(EasyButton button) { new CPacketOpenWallet(this.menu.getWalletStackIndex()).send(); }
-	
-	
+
 }

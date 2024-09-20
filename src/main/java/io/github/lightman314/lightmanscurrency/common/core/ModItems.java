@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
+import io.github.lightman314.lightmanscurrency.common.items.experimental.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.minecraft.ChatFormatting;
@@ -75,8 +76,9 @@ public class ModItems {
 		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, "wallet_gold", new Item.Properties()));
 		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, "wallet_emerald", new Item.Properties()));
 		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, "wallet_diamond", new Item.Properties()));
-		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().fireResistant()));
-		
+		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().rarity(Rarity.RARE).fireResistant()));
+		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, "wallet_nether_star", true, 1, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+
 		//Portable Blocks
 		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties()));
 		PORTABLE_GEM_TERMINAL = ModRegistries.ITEMS.register("portable_gem_terminal", () -> new PortableTerminalItem(new Item.Properties()));
@@ -125,6 +127,10 @@ public class ModItems {
 		ResourceLocation REDSTONE = new ResourceLocation("item/empty_slot_redstone_dust");
 		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new SmithingTemplateItem(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE), LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION.getWithStyle(ChatFormatting.GRAY),LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),new ArrayList<>(), Lists.newArrayList(INGOT,EMERALD,DIAMOND,REDSTONE)));
 
+		//Bank Card
+		ATM_CARD = ModRegistries.ITEMS.register("atm_card", () -> new ATMCardItem(new Item.Properties().stacksTo(1)));
+		PREPAID_CARD = ModRegistries.ITEMS.register("prepaid_card", () -> new PrepaidCardItem(new Item.Properties().stacksTo(1)));
+
 	}
 	
 	//Hold the items for public access
@@ -159,7 +165,8 @@ public class ModItems {
 	public static final RegistryObject<WalletItem> WALLET_EMERALD;
 	public static final RegistryObject<WalletItem> WALLET_DIAMOND;
 	public static final RegistryObject<WalletItem> WALLET_NETHERITE;
-	
+	public static final RegistryObject<WalletItem> WALLET_NETHER_STAR;
+
 	public static final RegistryObject<Item> PORTABLE_TERMINAL;
 	public static final RegistryObject<Item> PORTABLE_GEM_TERMINAL;
 	public static final RegistryObject<Item> PORTABLE_ATM;
@@ -195,5 +202,8 @@ public class ModItems {
 	public static final RegistryObject<Item> COIN_CHEST_SECURITY_UPGRADE;
 
 	public static final RegistryObject<Item> UPGRADE_SMITHING_TEMPLATE;
+
+	public static final RegistryObject<Item> ATM_CARD;
+	public static final RegistryObject<Item> PREPAID_CARD;
 
 }

@@ -23,20 +23,18 @@ public class WalletMenu extends WalletMenuBase {
 			for(int x = 0; x < 9; x++)
 			{
 				int index = x + (y * 9) + 9;
-				this.addInventorySlot(8 + x * 18, 32 + (y + getRowCount()) * 18, index);
+				this.addInventorySlot(this.halfBonusWidth + 8 + x * 18, 32 + (y + this.coinSlotHeight) * 18, index);
 			}
 		}
 		
 		//Player hotbar
 		for(int x = 0; x < 9; x++)
 		{
-			this.addInventorySlot(8 + x * 18, 90 + getRowCount() * 18, x);
+			this.addInventorySlot(this.halfBonusWidth + 8 + x * 18, 90 + this.coinSlotHeight * 18, x);
 		}
 		
 		//Coin Slots last as they may vary between client and server at times.
 		this.addCoinSlots(18);
-		
-		this.addDummySlots(37 + getMaxWalletSlots());
 		
 	}
 	

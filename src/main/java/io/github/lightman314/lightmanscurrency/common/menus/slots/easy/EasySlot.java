@@ -12,7 +12,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class EasySlot extends Slot {
 
@@ -22,30 +23,41 @@ public class EasySlot extends Slot {
     public boolean active = true;
     public boolean locked = false;
 
+    private Runnable listener = () -> {};
+
     public EasySlot(Container container, int index, int x, int y) { super(container, index, x, y); }
 
     @Override
     public boolean isActive() { return this.active; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
+    public boolean mayPlace(@Nonnull ItemStack stack) {
         if(this.locked)
             return false;
         return super.mayPlace(stack);
     }
 
     @Override
-    public @NotNull ItemStack remove(int amount) {
+    @Nonnull
+    public ItemStack remove(int amount) {
         if(this.locked)
             return ItemStack.EMPTY;
         return super.remove(amount);
     }
 
     @Override
-    public boolean mayPickup(@NotNull Player player) {
+    public boolean mayPickup(@Nonnull Player player) {
         if(this.locked)
             return false;
         return super.mayPickup(player);
+    }
+
+    public final void setListener(@Nonnull Runnable listener) { this.listener = listener; }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        this.listener.run();
     }
 
     public static void SetActive(AbstractContainerMenu menu) {
