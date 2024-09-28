@@ -23,8 +23,8 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 @JeiPlugin
@@ -35,7 +35,8 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final RecipeType<TicketStationRecipe> TICKET_TYPE = RecipeType.create(LightmansCurrency.MODID, "ticket_station", TicketStationRecipe.class);
 
 	@Override
-	public @NotNull ResourceLocation getPluginUid() { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, LightmansCurrency.MODID); }
+	@Nonnull
+	public ResourceLocation getPluginUid() { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, LightmansCurrency.MODID); }
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry)
@@ -60,7 +61,7 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 	
 	@Override
-	public void registerGuiHandlers(@NotNull IGuiHandlerRegistration registration)
+	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration registration)
 	{
 		
 	}

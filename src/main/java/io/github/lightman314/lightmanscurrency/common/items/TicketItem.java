@@ -16,7 +16,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 public class TicketItem extends Item{
 
@@ -24,7 +23,7 @@ public class TicketItem extends Item{
 	public TicketItem(Properties properties) { super(properties); }
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nonnull TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		if(isPass(stack))
 			tooltip.add(LCText.TOOLTIP_PASS.get());
@@ -33,7 +32,7 @@ public class TicketItem extends Item{
 			tooltip.add(LCText.TOOLTIP_TICKET_ID.get(ticketID));
 	}
 
-	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slot, boolean selected) {
 		GetTicketID(stack);
 	}
 

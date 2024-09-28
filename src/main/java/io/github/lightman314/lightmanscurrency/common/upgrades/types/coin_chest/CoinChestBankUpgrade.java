@@ -31,7 +31,6 @@ import java.util.function.UnaryOperator;
 
 public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
 
-
     @Override
     public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
         if(message.contains("SetDepositMode"))

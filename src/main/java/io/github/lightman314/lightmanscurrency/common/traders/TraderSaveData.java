@@ -48,7 +48,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 
 @EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TraderSaveData extends SavedData {
@@ -141,7 +140,7 @@ public class TraderSaveData extends SavedData {
 	}
 	
 	@Override
-	public @NotNull CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public @Nonnull CompoundTag save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		compound.putLong("NextID", this.nextID);
 		

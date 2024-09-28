@@ -32,7 +32,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -51,7 +50,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	
 	@Nonnull
     @Override
-	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
+	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_INFO.get(); }

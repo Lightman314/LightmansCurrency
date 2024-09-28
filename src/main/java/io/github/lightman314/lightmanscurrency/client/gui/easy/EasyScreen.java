@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -86,6 +87,14 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     @Override
     public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
         //super.renderBackground(mcgui, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public final void renderTransparentBackground(@Nonnull GuiGraphics gui) {
+        if(LCConfig.CLIENT.debugScreens.get())
+            gui.fill(0,0,this.width,this.height,0xFFFEFEFE);
+        else
+            super.renderTransparentBackground(gui);
     }
 
     @Override

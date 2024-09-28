@@ -12,7 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CoinSlot extends EasySlot {
 	
@@ -41,7 +42,7 @@ public class CoinSlot extends EasySlot {
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) { return CoinAPI.API.IsCoin(stack, this.acceptSideChains); }
+	public boolean mayPlace(@Nonnull ItemStack stack) { return CoinAPI.API.IsCoin(stack, this.acceptSideChains); }
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {

@@ -26,7 +26,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 public class CashRegisterItem extends BlockItem{
 		
@@ -103,7 +102,7 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable TooltipContext context, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  context,  tooltip,  flagIn);
 		List<BlockPos> data = getNonnullData(stack);

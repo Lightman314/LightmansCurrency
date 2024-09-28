@@ -12,7 +12,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public abstract class BookRenderer {
         return null;
     }
 
-    public abstract void render(BlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id);
+    public abstract void render(BlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id);
 
     protected final void renderModel(ModelResourceLocation modelResource, PoseStack pose, MultiBufferSource buffer, int lightLevel) {
         Minecraft mc = Minecraft.getInstance();

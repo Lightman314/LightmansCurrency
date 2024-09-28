@@ -30,11 +30,13 @@ public final class SecurityUpgradeData {
     private final CompoundTag ownerTag;
     private SecurityUpgradeData(boolean breakIsValid,@Nonnull CompoundTag ownerTag) { this.breakIsValid = breakIsValid; this.ownerTag = ownerTag; }
 
+    @Nonnull
     public OwnerData parseData(@Nonnull CoinChestBlockEntity be)
     {
         OwnerData data = new OwnerData(be);
-        if(this.ownerTag.contains("Data"))
-            data.load(this.ownerTag.getCompound("Data"),be.registryAccess());
+        if(this.ownerTag.isEmpty())
+            return data;
+        data.load(this.ownerTag,be.registryAccess());
         return data;
     }
 

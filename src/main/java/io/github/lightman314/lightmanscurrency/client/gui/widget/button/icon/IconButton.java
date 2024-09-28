@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -67,7 +66,7 @@ public class IconButton extends EasyButton {
 	}
 
 	@Override
-	public void renderWidget(@NotNull EasyGuiGraphics gui)
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 
 		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this, this.bgColor);

@@ -10,7 +10,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMulti
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class InteractionSlot extends EasyMultiBGSlot {
 	
@@ -37,7 +38,7 @@ public class InteractionSlot extends EasyMultiBGSlot {
 	public int getMaxStackSize() { return 1; }
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) { return InteractionSlotData.allowItemInSlot(this.slotData, stack); }
+	public boolean mayPlace(@Nonnull ItemStack stack) { return InteractionSlotData.allowItemInSlot(this.slotData, stack); }
 
 	@Override
 	protected List<Pair<ResourceLocation,ResourceLocation>> getPossibleNoItemIcons() {

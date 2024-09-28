@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -31,5 +31,11 @@ public class ListUtil {
         int displayIndex = (int)(TimeUtil.getCurrentTime() / 2000 % list.size());
         return list.get(displayIndex);
     }
+
+    @Nonnull
+    public static <T> T randomItemFromCollection(@Nonnull Collection<T> collection, @Nonnull T emptyEntry) { return randomItemFromCollection(collection,(Supplier<T>)() -> emptyEntry); }
+
+    @Nonnull
+    public static <T> T randomItemFromCollection(@Nonnull Collection<T> collection, @Nonnull Supplier<T> emptyEntry) { return randomItemFromList(collection.stream().toList(),emptyEntry); }
 
 }

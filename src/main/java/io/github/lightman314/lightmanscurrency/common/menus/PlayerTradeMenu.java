@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -90,7 +89,8 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     }
 
     @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
+    @Nonnull
+    public ItemStack quickMoveStack(@Nonnull Player player, int index) {
         ItemStack clickedStack = ItemStack.EMPTY;
 
         Slot slot = this.slots.get(index);
@@ -116,7 +116,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void removed(@NotNull Player player) {
+    public void removed(@Nonnull Player player) {
         super.removed(player);
         if(this.isClient() || this.trade.isCompleted())
             return;

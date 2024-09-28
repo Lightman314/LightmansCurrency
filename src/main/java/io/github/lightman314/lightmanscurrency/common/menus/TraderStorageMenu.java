@@ -41,7 +41,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu, ITraderStorageMenu, IMoneyCollectionMenu {
 
@@ -200,7 +199,8 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

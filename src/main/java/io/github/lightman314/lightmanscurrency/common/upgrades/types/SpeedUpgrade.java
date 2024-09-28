@@ -15,13 +15,13 @@ import javax.annotation.Nonnull;
 public class SpeedUpgrade extends UpgradeType {
 
 	public static String DELAY_AMOUNT = "delay";
-	
+
+	@Override
+	public boolean isUnique() { return true; }
+
 	@Nonnull
 	@Override
-	public List<Component> getTooltip(@Nonnull UpgradeData data)
-	{
-		return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_SPEED.get(data.getIntValue(DELAY_AMOUNT)));
-	}
+	public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_SPEED.get(data.getIntValue(DELAY_AMOUNT))); }
 
 	@Nonnull
 	@Override

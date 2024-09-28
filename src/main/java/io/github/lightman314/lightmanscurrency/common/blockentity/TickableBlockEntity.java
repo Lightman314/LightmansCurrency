@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 
 public abstract class TickableBlockEntity extends EasyBlockEntity implements IClientTicker, IServerTicker, IEasyTickable {
@@ -23,7 +24,7 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 	}
 
 
-	public static <A extends BlockEntity> BlockEntityTicker<A> createTicker(@NotNull Level level, @NotNull BlockState state, BlockEntityType<A> type)
+	public static <A extends BlockEntity> BlockEntityTicker<A> createTicker(@Nonnull Level level, @Nonnull BlockState state, BlockEntityType<A> type)
 	{
 		A be = type.create(BlockPos.ZERO, state);
 		if(be instanceof IEasyTickable)

@@ -23,6 +23,9 @@ import java.util.function.Consumer;
 
 public class CoinChestMagnetUpgrade extends TickableCoinChestUpgrade {
 
+    @Override
+    public boolean isUnique() { return true; }
+
     public static final String RANGE = "magnet_range";
 
     @Override

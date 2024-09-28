@@ -56,7 +56,7 @@ public class TeamSalaryPaymentsClientTab extends TeamManagementClientTab<TeamSal
 
         this.adminSalaryInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2), 125), this.adminSalaryInput, team != null ? team.getAdminSalary() : MoneyValue.empty(), this.commonTab::SetAdminSalary));
         this.adminSalaryInput.drawBG = false;
-        this.memberSalaryInput.allowFreeInput = false;
+        this.adminSalaryInput.allowFreeInput = false;
 
         this.tick();
 

@@ -12,7 +12,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +31,7 @@ public class EasySlot extends Slot {
     public boolean isActive() { return this.active; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
+    public boolean mayPlace(@Nonnull ItemStack stack) {
         if(this.locked)
             return false;
         return super.mayPlace(stack);
@@ -47,7 +46,7 @@ public class EasySlot extends Slot {
     }
 
     @Override
-    public boolean mayPickup(@NotNull Player player) {
+    public boolean mayPickup(@Nonnull Player player) {
         if(this.locked)
             return false;
         return super.mayPickup(player);

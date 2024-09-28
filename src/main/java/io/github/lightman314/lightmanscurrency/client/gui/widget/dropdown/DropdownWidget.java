@@ -16,11 +16,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -166,10 +164,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		this.optionButtons.forEach(b -> b.visible = false);
 	}
 
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
-
-	private String fitString(EasyGuiGraphics gui, String text) {
+    private String fitString(EasyGuiGraphics gui, String text) {
 		if(gui.font.width(text) <= this.width - 14)
 			return text;
 		while(gui.font.width(text + "...") > this.width - 14 && !text.isEmpty())

@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
@@ -20,6 +20,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -259,11 +260,12 @@ public class ModCreativeGroups {
     }
 
     private static Supplier<ItemStack> ezIcon(Supplier<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
-    private static Supplier<ItemStack> ezRandomIcon(Supplier<CreativeModeTab> tabSource) {
+    private static Supplier<ItemStack> ezRandomIcon(@Nonnull Supplier<CreativeModeTab> tabSource) {
         return () -> {
             CreativeModeTab tab = tabSource.get();
-            List<ItemStack> items = tab.getDisplayItems().stream().toList();
-            return items.get((int)((TimeUtil.getCurrentTime() / 1000) % items.size()));
+            if(tab == null)
+                return new ItemStack(ModItems.TRADING_CORE.get());
+            return ListUtil.randomItemFromCollection(tab.getDisplayItems(),new ItemStack(ModItems.TRADING_CORE.get()));
         };
     }
 

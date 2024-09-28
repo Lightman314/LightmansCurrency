@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -67,7 +66,7 @@ public class TeamButton extends EasyButton {
 	}
 	
 	@Override
-	public void playDownSound(@NotNull SoundManager soundManager) {
+	public void playDownSound(@Nonnull SoundManager soundManager) {
 		if(!this.visible || this.getTeam() == null)
 			return;
 		super.playDownSound(soundManager);

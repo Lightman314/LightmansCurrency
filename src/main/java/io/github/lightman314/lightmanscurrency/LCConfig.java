@@ -22,6 +22,7 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.shapes.BooleanOp;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -73,6 +74,8 @@ public final class LCConfig {
 
         public final IntOption terminalColumnLimit = IntOption.create(4,2,100);
         public final IntOption terminalRowLimit = IntOption.create(16,4,100);
+
+        public final BooleanOption debugScreens = BooleanOption.createFalse();
 
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
@@ -175,6 +178,13 @@ public final class LCConfig {
 
             builder.comment("Whether Money Mending should make a noise when triggered.")
                     .add("moneyMendingClink", this.moneyMendingClink);
+
+            builder.pop();
+
+            builder.comment("Debug Settings").push("debug");
+
+            builder.comment("Whether LC Screens should render a white background for easier debugging & screenshots")
+                    .add("debugScreenBG", this.debugScreens);
 
             builder.pop();
 

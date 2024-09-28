@@ -76,9 +76,12 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
 		super.loadAdditional(compound, lookup);
-		
-		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2, lookup);
-		this.storage.addListener(this::onInventoryChanged);
+
+		if(compound.contains("Storage"))
+		{
+			this.storage = InventoryUtil.loadAllItems("Storage", compound, 2, lookup);
+			this.storage.addListener(this::onInventoryChanged);
+		}
 
 		if(compound.contains("MintTime"))
 			this.mintTime = compound.getInt("MintTime");

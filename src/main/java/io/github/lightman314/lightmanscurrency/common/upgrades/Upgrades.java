@@ -20,7 +20,7 @@ public class Upgrades {
 
     public static final UpgradeType.Simple NETWORK = new UpgradeType.Simple(true,LCText.TOOLTIP_UPGRADE_NETWORK.get()).withTarget(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_NOT_NETWORK.get());
 
-    public static final UpgradeType.Simple HOPPER = new UpgradeType.Simple(LCText.TOOLTIP_UPGRADE_HOPPER.get()).withTarget(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE.get());
+    public static final UpgradeType.Simple HOPPER = new UpgradeType.Simple(true,LCText.TOOLTIP_UPGRADE_HOPPER.get()).withTarget(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE.get());
 
     //Coin Chest Upgrades
     public static final CoinChestExchangeUpgrade COIN_CHEST_EXCHANGE = new CoinChestExchangeUpgrade();
