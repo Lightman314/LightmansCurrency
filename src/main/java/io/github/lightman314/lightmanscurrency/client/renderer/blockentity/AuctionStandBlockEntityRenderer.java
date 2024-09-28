@@ -29,17 +29,17 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
     public void render(@NotNull AuctionStandBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id) {
 
         ImmutableList<ItemStack> displayItems = AuctionStandBlockEntity.getDisplayItems();
-        if(displayItems.size() < 1)
+        if(displayItems.isEmpty())
             return;
-
-        pose.pushPose();
 
         BlockState state = blockEntity.getBlockState();
 
         ItemPositionData data = ItemPositionBlockManager.getDataForBlock(state);
         List<Vector3f> positions = data.getPositions(state, 0);
-        if(positions.size() == 0)
+        if(positions.isEmpty())
             return;
+
+        pose.pushPose();
         Vector3f pos = positions.get(0);
         pose.translate(pos.x, pos.y, pos.z);
 

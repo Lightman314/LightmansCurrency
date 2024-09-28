@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -26,7 +27,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 public class CashRegisterItem extends BlockItem{
 		
@@ -38,7 +38,8 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public @NotNull InteractionResult useOn(UseOnContext context) {
+	@Nonnull
+	public InteractionResult useOn(UseOnContext context) {
 		
 		BlockPos lookPos = context.getClickedPos();
 		Level level = context.getLevel();
@@ -153,7 +154,7 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);

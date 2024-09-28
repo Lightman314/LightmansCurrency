@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
     public TicketModifierSlot(TicketStationMenu menu, Container inventory, int index, int x, int y) { super(inventory, index, x, y); this.menu = menu; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) { return this.menu.getAllRecipes().stream().anyMatch(r -> r.validModifier(stack)); }
+    public boolean mayPlace(@Nonnull ItemStack stack) { return this.menu.getAllRecipes().stream().anyMatch(r -> r.validModifier(stack)); }
 
     @Override
     protected List<Pair<ResourceLocation, ResourceLocation>> getPossibleNoItemIcons() {

@@ -28,6 +28,12 @@ import java.util.function.Consumer;
 public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
 
     @Override
+    public boolean isUnique() { return true; }
+
+    @Override
+    public boolean alwayActive() { return true; }
+
+    @Override
     public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
         if(message.contains("SetOwner"))
         {
@@ -36,7 +42,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
             {
                 OwnerData ownerData = this.parseOwnerData(menu.be, data);
                 ownerData.SetOwner(owner);
-                this.saveOwnerData(data, ownerData);
+                this.saveOwnerData(data,ownerData);
             }
         }
         else if(message.contains("SetPlayerOwner"))
@@ -46,7 +52,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
             {
                 OwnerData owner = this.parseOwnerData(menu.be, data);
                 owner.SetOwner(PlayerOwner.of(player));
-                this.saveOwnerData(data, owner);
+                this.saveOwnerData(data,owner);
             }
         }
     }
@@ -127,6 +133,8 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }
+    public boolean clearDataFromStack(@Nonnull ItemStack stack) {
+        return this.clearData(stack,"Owner","BreakIsValid");
+    }
 
 }

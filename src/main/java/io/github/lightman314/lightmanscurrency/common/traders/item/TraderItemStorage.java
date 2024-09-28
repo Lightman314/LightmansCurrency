@@ -17,7 +17,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
 
@@ -342,14 +341,14 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public @NotNull ItemStack getStackInSlot(int slot) {
+	public @Nonnull ItemStack getStackInSlot(int slot) {
 		if(slot >= 0 && slot < this.storage.size())
 			return this.storage.get(slot);
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public @NotNull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+	public @Nonnull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		int amountToAdd = Math.min(stack.getCount(), this.getFittableAmount(stack));
 		ItemStack remainder = stack.copy();
 		if(amountToAdd >= stack.getCount())
@@ -367,7 +366,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+	public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack stackInSlot = this.getStackInSlot(slot);
 		int amountToRemove = Math.min(amount, stackInSlot.getCount());
 		ItemStack removedStack = stackInSlot.copy();
@@ -388,6 +387,6 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemStack stack) { return this.allowItem(stack); }
+	public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return this.allowItem(stack); }
 	
 }

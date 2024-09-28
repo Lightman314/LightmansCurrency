@@ -18,6 +18,8 @@ public class MagnetUpgradeItem extends UpgradeItem{
 	}
 
 	@Override
-	public void fillUpgradeData(@Nonnull UpgradeData data) { data.setValue(CoinChestMagnetUpgrade.RANGE, Math.max(this.radius.get(), 1)); }
+	public void setDefaultValues(@Nonnull UpgradeData.Mutable data) {
+		data.setIntValue(CoinChestMagnetUpgrade.RANGE, Math.max(this.radius.get(),1));
+	}
 	
 }

@@ -11,7 +11,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -67,7 +66,7 @@ public class IconButton extends EasyButton {
 	}
 
 	@Override
-	public void renderWidget(@NotNull EasyGuiGraphics gui)
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 
 		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY(), this.bgColor);

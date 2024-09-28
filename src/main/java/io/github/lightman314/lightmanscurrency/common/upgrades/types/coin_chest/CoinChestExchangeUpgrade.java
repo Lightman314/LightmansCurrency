@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -100,6 +101,6 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
     public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE.get()); }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }
+    public boolean clearDataFromStack(@Nonnull ItemStack stack) { return this.clearData(stack, "ExchangeCommand", "ExchangeWhileOpen"); }
 
 }

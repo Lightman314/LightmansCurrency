@@ -25,9 +25,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
@@ -35,7 +36,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
-	public void render(@NotNull ItemTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
+	public void render(@Nonnull ItemTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}

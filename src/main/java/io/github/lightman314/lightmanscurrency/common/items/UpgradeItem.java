@@ -49,19 +49,20 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		ItemStack stack = player.getItemInHand(hand);
 		if(stack.hasTag() && player.isCrouching())
 		{
+			boolean removed = false;
 			CompoundTag tag = stack.getTag();
-			boolean success = this.upgradeType.clearDataFromStack(tag);
 			if(tag.contains("UpgradeData"))
 			{
 				tag.remove("UpgradeData");
-				success = true;
+				removed = true;
 			}
 			if(tag.contains("Active"))
 			{
 				tag.remove("Active");
-				success = true;
+				removed = true;
 			}
-			if(success)
+			removed = removed || this.upgradeType.clearDataFromStack(stack);
+			if(removed)
 			{
 				level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (level.random.nextFloat() - level.random.nextFloat()) * 0.35F + 0.9F, false);
 				return InteractionResultHolder.success(stack);
@@ -78,44 +79,35 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	@Override
 	public UpgradeType getUpgradeType() { return this.upgradeType; }
 	
+	public abstract void setDefaultValues(@Nonnull UpgradeData.Mutable data);
+
 	@Nonnull
-	@Override
-	public UpgradeData getDefaultUpgradeData()
+	public static UpgradeData getUpgradeData(@Nonnull ItemStack stack)
 	{
-		UpgradeData data = this.upgradeType.getDefaultData();
-		this.fillUpgradeData(data);
-		return data;
-	}
-	
-	protected abstract void fillUpgradeData(UpgradeData data);
-	
-	public static UpgradeData getUpgradeData(ItemStack stack)
-	{
-		if(stack.getItem() instanceof UpgradeItem)
+		if(stack.getItem() instanceof UpgradeItem upgrade)
 		{
-			UpgradeData data = ((UpgradeItem)stack.getItem()).getDefaultUpgradeData();
+			UpgradeData.Mutable data = UpgradeData.EMPTY.makeMutable();
+			upgrade.setDefaultValues(data);
 			if(stack.hasTag())
 			{
 				CompoundTag tag = stack.getTag();
 				if(tag.contains("UpgradeData", Tag.TAG_COMPOUND))
-					data.read(tag.getCompound("UpgradeData"));
+				{
+					UpgradeData tagData = UpgradeData.parse(tag.getCompound("UpgradeData"));
+					data.merge(tagData);
+				}
 			}
-			return data;
+			return data.makeImmutable();
 		}
 		return UpgradeData.EMPTY;
 	}
-	
-	public static void setUpgradeData(ItemStack stack, UpgradeData data)
+
+	public static void setUpgradeData(@Nonnull ItemStack stack, @Nonnull UpgradeData data)
 	{
 		if(stack.getItem() instanceof UpgradeItem upgradeItem)
 		{
 			CompoundTag tag = stack.getOrCreateTag();
-			tag.put("UpgradeData",  data.writeToNBT(upgradeItem.upgradeType));
-		}
-		else
-		{
-			CompoundTag tag = stack.getOrCreateTag();
-			tag.put("UpgradeData", data.writeToNBT());
+			tag.put("UpgradeData",data.save());
 		}
 	}
 	
@@ -172,7 +164,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	{
 		public Simple(UpgradeType upgradeType, Properties properties) { super(upgradeType, properties); }
 		@Override
-		protected void fillUpgradeData(UpgradeData data) { }
+		public void setDefaultValues(@Nonnull UpgradeData.Mutable data) { }
 	}
 
 	public static boolean noUniqueConflicts(@Nonnull UpgradeItem item, @Nonnull Container container)

@@ -14,8 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -57,7 +57,7 @@ public class TabButton extends EasyButton implements ITooltipSource, IRotatableW
 	public void setRotation(int rotation) { this.rotation = MathUtil.clamp(rotation,0,3); }
 
 	@Override
-	public void renderWidget(@NotNull EasyGuiGraphics gui)
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		//Set the texture & color for the button
 

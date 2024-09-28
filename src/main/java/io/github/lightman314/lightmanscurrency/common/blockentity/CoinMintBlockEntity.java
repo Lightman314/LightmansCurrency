@@ -28,7 +28,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,7 +65,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound)
 	{
 		InventoryUtil.saveAllItems("Storage", compound, this.storage);
 		compound.putInt("MintTime", this.mintTime);
@@ -74,12 +73,15 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull CompoundTag compound)
 	{
 		super.load(compound);
-		
-		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
-		this.storage.addListener(this::onInventoryChanged);
+
+		if(compound.contains("Storage"))
+		{
+			this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
+			this.storage.addListener(this::onInventoryChanged);
+		}
 
 		if(compound.contains("MintTime"))
 			this.mintTime = compound.getInt("MintTime");
@@ -332,7 +334,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		public int getSlotLimit(int slot) { return 64; }
 
 		@Override
-		public boolean isItemValid(int slot, @NotNull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
 		
 	}
 	

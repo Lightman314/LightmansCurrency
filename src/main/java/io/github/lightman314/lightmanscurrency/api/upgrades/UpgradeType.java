@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
@@ -23,16 +22,28 @@ public abstract class UpgradeType {
 	public boolean isUnique() { return false; }
 
 	@Nonnull
-	protected abstract List<String> getDataTags();
-	@Nullable
-	protected abstract Object defaultTagValue(String tag);
-	@Nonnull
 	public List<Component> getTooltip(@Nonnull UpgradeData data) { return new ArrayList<>(); }
-	@Nonnull
-	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 
-	public boolean clearDataFromStack(@Nonnull CompoundTag itemTag) { return false; }
-	
+	public boolean clearDataFromStack(@Nonnull ItemStack stack) { return false; }
+	protected final boolean clearData(@Nonnull ItemStack stack, @Nonnull String... tagKeys)
+	{
+		if(stack.hasTag())
+		{
+			CompoundTag tag = stack.getTag();
+			boolean flag = false;
+			for(String key : tagKeys)
+			{
+				if(tag.contains(key))
+				{
+					tag.remove(key);
+					flag = true;
+				}
+			}
+			return flag;
+		}
+		return false;
+	}
+
 	public static boolean hasUpgrade(@Nonnull UpgradeType type, @Nonnull Container upgradeContainer) {
 		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
 		{
@@ -75,13 +86,6 @@ public abstract class UpgradeType {
 		private final List<Component> tooltips;
 		public Simple(@Nonnull Component... tooltips) { this(false,tooltips); }
 		public Simple(boolean unique, @Nonnull Component... tooltips) { this.unique = unique; this.tooltips = ImmutableList.copyOf(tooltips); }
-		
-		@Nonnull
-		@Override
-		protected List<String> getDataTags() { return new ArrayList<>(); }
-
-		@Override
-		protected Object defaultTagValue(String tag) { return null; }
 		
 		@Nonnull
 		@Override

@@ -24,7 +24,7 @@ public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
 
     @Nullable
     @Override
-    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY.get(); }
+    public Component getTooltip() { return LCText.TOOLTIP_TAX_COLLECTOR_ADMIN.get(); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {

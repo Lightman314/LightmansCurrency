@@ -17,8 +17,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+
+import javax.annotation.Nonnull;
 
 public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotMachineTraderBlockEntity>{
 
@@ -29,7 +30,7 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 	public int getViewDistance() { return 256; }
 
 	@Override
-	public void render(@NotNull SlotMachineTraderBlockEntity tileEntity, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int lightLevel, int overlay)
+	public void render(@Nonnull SlotMachineTraderBlockEntity tileEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int overlay)
 	{
 		
 		//Render the door

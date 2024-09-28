@@ -217,6 +217,6 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_BANK.get()); }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull CompoundTag tag) { return this.clearTags(tag,"DepositMode","MoneyLimit","TargetAccount","PlayerContext","OverflowItems"); }
+    public boolean clearDataFromStack(@Nonnull ItemStack stack) { return this.clearData(stack,"DepositMode","MoneyLimit","TargetAccount","PlayerContext","OverflowItems"); }
 
 }

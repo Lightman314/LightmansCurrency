@@ -30,7 +30,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -134,7 +133,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && !this.traderSource.get().getTraders().isEmpty(); }
 
 	@Override
-	public void removed(@NotNull Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coins);
 		this.clearContainer(player, this.interactionSlot.container);
@@ -189,7 +188,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @Nonnull ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

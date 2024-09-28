@@ -8,9 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -51,7 +49,7 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 	}
 
 	@Override
-	public void renderWidget(@NotNull EasyGuiGraphics gui) {
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 		
 		if(!this.visible())
 			return;
@@ -167,7 +165,5 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 		}
 		return false;
 	}
-	
-	public void playDownSound(@NotNull SoundManager soundManager) { }
 	
 }

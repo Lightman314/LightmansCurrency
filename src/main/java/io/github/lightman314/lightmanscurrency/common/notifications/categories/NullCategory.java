@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -23,7 +22,7 @@ public class NullCategory extends NotificationCategory {
 	
 	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(Items.BARRIER); }
+	public IconData getIcon() { return IconData.of(Items.BARRIER); }
 
 	@Nonnull
 	@Override

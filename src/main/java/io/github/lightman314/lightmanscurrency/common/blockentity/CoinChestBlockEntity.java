@@ -124,8 +124,6 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         return CoinChestUpgradeData.NULL;
     }
 
-    public final boolean hasChestUpgradeOfType(CoinChestUpgrade type) { return this.getChestUpgradeOfType(type) != null; }
-
     @Nullable
     public final CoinChestUpgradeData getChestUpgradeOfType(CoinChestUpgrade type)
     {
@@ -281,7 +279,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     }
 
     @Override
-    public boolean allowUpgrade(@Nonnull UpgradeType type) { return type instanceof CoinChestUpgrade upgrade && (upgrade.allowsDuplicates() || !this.hasChestUpgradeOfType(upgrade)); }
+    public boolean allowUpgrade(@Nonnull UpgradeType type) { return type instanceof CoinChestUpgrade upgrade; }
 
     public boolean allowAccess(Player player)
     {

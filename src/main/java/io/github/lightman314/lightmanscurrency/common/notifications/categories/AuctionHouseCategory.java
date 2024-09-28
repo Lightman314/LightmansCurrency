@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +23,7 @@ public class AuctionHouseCategory extends NotificationCategory {
 
 	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return AuctionHouseTrader.ICON; }
+	public IconData getIcon() { return AuctionHouseTrader.ICON; }
 	
 	@Nonnull
 	@Override

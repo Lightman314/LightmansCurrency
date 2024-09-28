@@ -6,7 +6,6 @@ public interface IUpgradeItem
 {
     @Nonnull
     UpgradeType getUpgradeType();
-    @Nonnull
-    UpgradeData getDefaultUpgradeData();
+    void setDefaultValues(@Nonnull UpgradeData.Mutable data);
     default void onApplied(@Nonnull IUpgradeable target) { }
 }

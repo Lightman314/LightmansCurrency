@@ -5,7 +5,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public abstract class SimpleBookRenderer extends BookRenderer {
 
@@ -14,7 +15,7 @@ public abstract class SimpleBookRenderer extends BookRenderer {
     protected abstract ResourceLocation getBookModel();
 
     @Override
-    public final void render(BlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id) {
+    public final void render(BlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
         this.renderModel(this.getBookModel(), pose, buffer, lightLevel);
     }
 

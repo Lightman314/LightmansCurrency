@@ -6,18 +6,15 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public abstract class CoinChestUpgrade extends UpgradeType {
 
-    public boolean allowsDuplicates() { return false; }
     public boolean alwayActive() { return false; }
 
     public abstract void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message);
@@ -32,25 +29,6 @@ public abstract class CoinChestUpgrade extends UpgradeType {
 
     @Nonnull
     @Override
-    protected List<String> getDataTags() { return ImmutableList.of(); }
-
-    @Override
-    protected Object defaultTagValue(String tag) { return null; }
-
-    @Nonnull
-    @Override
     protected List<Component> getBuiltInTargets() { return ImmutableList.of(formatTarget(ModBlocks.COIN_CHEST)); }
-
-    protected final boolean clearTags(CompoundTag itemTag, String... tags)
-    {
-        AtomicBoolean flag = new AtomicBoolean(false);
-        for(String tag : tags)
-        {
-            if(itemTag.contains(tag))
-                flag.set(true);
-            itemTag.remove(tag);
-        }
-        return flag.get();
-    }
 
 }

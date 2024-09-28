@@ -49,7 +49,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TraderSaveData extends SavedData {
@@ -144,7 +143,8 @@ public class TraderSaveData extends SavedData {
 	}
 	
 	@Override
-	public @NotNull CompoundTag save(CompoundTag compound) {
+	@Nonnull
+	public CompoundTag save(CompoundTag compound) {
 		
 		compound.putLong("NextID", this.nextID);
 		
