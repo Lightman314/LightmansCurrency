@@ -18,7 +18,7 @@ public final class UpgradeData
                     Codec.unboundedMap(Codec.STRING,Codec.LONG).fieldOf("integers").forGetter(data -> data.intData),
                     Codec.unboundedMap(Codec.STRING,Codec.DOUBLE).fieldOf("floats").forGetter(data -> data.floatData),
                     Codec.unboundedMap(Codec.STRING,Codec.STRING).fieldOf("strings").forGetter(data -> data.stringData),
-                    Codec.unboundedMap(Codec.STRING,CompoundTag.CODEC).fieldOf("strings").forGetter(data -> data.tagData)
+                    Codec.unboundedMap(Codec.STRING,CompoundTag.CODEC).fieldOf("compounds").forGetter(data -> data.tagData)
                     ).apply(builder,UpgradeData::new)
             );
 

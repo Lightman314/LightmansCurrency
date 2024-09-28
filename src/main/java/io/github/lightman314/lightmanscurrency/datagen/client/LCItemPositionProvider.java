@@ -68,7 +68,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                         .withEntry(new Vector3f(0.75f, 13f/16f,14.5f/16f))
                         .withEntry(new Vector3f(0.25f, 5f/16f,14.5f/16f))
                         .withEntry(new Vector3f(0.75f, 5f/16f,14.5f/16f)),
-                ModBlocks.SHELF_2x2
+                LCTags.Blocks.SHELF_2x2
         );
         //Vending Machine
         this.addDataWithBlocks(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
