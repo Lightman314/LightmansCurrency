@@ -12,8 +12,6 @@ import java.util.function.Predicate;
 
 public class LCCurios {
 
-	public static final String WALLET_SLOT = "wallet";
-
 	public static boolean isLoaded() { return ModList.get().isLoaded("curios"); }
 
 	public static boolean hasWalletSlot(@Nonnull LivingEntity entity) { return isLoaded() && LCCuriosInternal.hasWalletSlot(entity); }

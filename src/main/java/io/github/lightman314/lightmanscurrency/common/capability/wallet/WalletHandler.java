@@ -218,8 +218,9 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
 
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
-        if(WalletItem.isWallet(this.walletItem))
-            CoinContainerMoneyHandler.queryContainerContents(WalletItem.getWalletInventory(this.walletItem),builder);
+        ItemStack wallet = this.getWallet();
+        if(WalletItem.isWallet(wallet))
+            CoinContainerMoneyHandler.queryContainerContents(WalletItem.getWalletInventory(wallet),builder);
     }
 
 }

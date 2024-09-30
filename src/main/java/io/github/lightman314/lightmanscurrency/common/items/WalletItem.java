@@ -423,7 +423,7 @@ public class WalletItem extends Item{
 		if(!compound.contains("Items"))
 			return new SimpleContainer(inventorySize);
 
-		return InventoryUtil.loadAllItems("Items", wallet.getOrCreateTag(), inventorySize);
+		return InventoryUtil.loadAllItems("Items", compound, inventorySize);
 	}
 	
 	/**
