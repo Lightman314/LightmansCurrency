@@ -22,7 +22,6 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.shapes.BooleanOp;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

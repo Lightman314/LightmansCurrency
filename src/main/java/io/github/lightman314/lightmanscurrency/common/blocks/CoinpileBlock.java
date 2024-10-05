@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
-import java.util.function.Supplier;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -9,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
@@ -33,26 +30,20 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
-	public CoinpileBlock(Properties properties, Supplier<Item> coinItem)
-	{
-		this(properties, coinItem, LazyShapes.SHORT_BOX);
-	}
+	public CoinpileBlock(Properties properties) { this(properties, LazyShapes.SHORT_BOX); }
 	
-	public CoinpileBlock(Properties properties, Supplier<Item> coinItem, VoxelShape shape)
+	public CoinpileBlock(Properties properties, VoxelShape shape)
 	{
-		super(properties, coinItem);
+		super(properties);
 		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX;
 		this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
 	}
 
 	@Override
-	protected CoinBlock build(@Nonnull Properties p) { return new CoinpileBlock(p,this.coinItem,this.shape); }
+	protected CoinBlock build(@Nonnull Properties p) { return new CoinpileBlock(p,this.shape); }
 
 	@Override
 	protected boolean isFullBlock() { return false; }
-
-	@Override
-	protected int getCoinCount() { return 9; }
 	
 	@Nullable
 	public BlockState getStateForPlacement(BlockPlaceContext context) {

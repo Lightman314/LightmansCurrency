@@ -256,7 +256,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		defaultValues.put(Permissions.EDIT_SETTINGS, 1);
 		defaultValues.put(Permissions.CHANGE_NAME, 1);
 		defaultValues.put(Permissions.VIEW_LOGS, 1);
-		defaultValues.put(Permissions.NOTIFICATION, 1);
 		
 		this.modifyDefaultAllyPermissions(defaultValues);
 		return defaultValues;
@@ -1385,7 +1384,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		if(message.contains("Notifications"))
 		{
-			if(this.hasPermission(player, Permissions.NOTIFICATION))
+			if(this.hasPermission(player, Permissions.EDIT_SETTINGS))
 			{
 				boolean enable = message.getBoolean("Notifications");
 				if(this.notificationsEnabled != enable)
@@ -1399,7 +1398,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		if(message.contains("NotificationsToChat"))
 		{
-			if(this.hasPermission(player, Permissions.NOTIFICATION))
+			if(this.hasPermission(player, Permissions.EDIT_SETTINGS))
 			{
 				boolean enable = message.getBoolean("NotificationsToChat");
 				if(this.notificationsToChat != enable)
@@ -1413,7 +1412,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		if(message.contains("TeamNotificationLevel"))
 		{
-			if(this.hasPermission(player, Permissions.NOTIFICATION))
+			if(this.hasPermission(player, Permissions.EDIT_SETTINGS))
 			{
 				int level = message.getInt("TeamNotificationLevel");
 				if(this.teamNotificationLevel != level)
@@ -1499,7 +1498,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				BooleanPermission.of(Permissions.ADD_REMOVE_ALLIES),
 				BooleanPermission.of(Permissions.EDIT_PERMISSIONS),
 				BooleanPermission.of(Permissions.VIEW_LOGS),
-				BooleanPermission.of(Permissions.NOTIFICATION),
 				BooleanPermission.of(Permissions.BANK_LINK),
 				BooleanPermission.of(Permissions.BREAK_TRADER),
 				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)

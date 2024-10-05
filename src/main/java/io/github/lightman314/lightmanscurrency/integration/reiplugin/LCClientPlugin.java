@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.reiplugin;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -15,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintCategory;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintDisplay;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintTransferHandler;
@@ -125,7 +127,7 @@ public class LCClientPlugin implements REIClientPlugin {
         //Coin Chest Screen (left edge)
         zones.register(CoinChestScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize())));
         //Ejection Screen (left/right buttons)
-        zones.register(EjectionRecoveryScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), screen.getXSize() + 40, 20)));
+        zones.register(EjectionRecoveryScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop() + MoneyValueWidget.HEIGHT, screen.getXSize() + 40, 20)));
         //Player Trader Screen (chat toggle in top-right)
         zones.register(PlayerTradeScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20)));
         //Trader Interface Screen (two buttons in top-right)

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.input.builtin;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.NumberDisplay;
 import io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleDisplayInput;
@@ -32,22 +33,9 @@ public class CoinDisplayInput extends SimpleDisplayInput {
     {
         if(this.chain.getDisplayData() instanceof NumberDisplay nd)
         {
-            String format = nd.getWordyFormat().getString();
-            //Have to replace the {value} with a non-illegal character in order to split the string
-            String[] splitFormat = format.replace("{value}", "`").split("`",2);
-            if(splitFormat.length < 2)
-            {
-                //Determine which is the prefix, and which is the postfix
-                if(format.startsWith("{value}"))
-                    this.setPostfix(splitFormat[0]);
-                else
-                    this.setPrefix(splitFormat[0]);
-            }
-            else
-            {
-                this.setPrefix(splitFormat[0]);
-                this.setPostfix(splitFormat[1]);
-            }
+            Pair<String,String> format = nd.getSplitWordyFormat();
+            this.setPrefix(format.getFirst());
+            this.setPostfix(format.getSecond());
         }
     }
 

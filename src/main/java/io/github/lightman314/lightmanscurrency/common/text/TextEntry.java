@@ -49,7 +49,7 @@ public final class TextEntry {
     });}
     public static TextEntry creativeTab(@Nonnull String modid, @Nonnull String name) { return new TextEntry("itemGroup." + modid + "." + name); }
     public static TextEntry keyBind(@Nonnull String modid, @Nonnull String name) { return new TextEntry("key." + modid + "." + name); }
-    public static TextEntry sound(@Nonnull String modid, @Nonnull String name) { return new TextEntry("subtitle." + modid + "." + name); }
+    public static TextEntry sound(@Nonnull String modid, @Nonnull String name) { return new TextEntry(modid + ".subtitle." + name); }
     public static TextEntry tooltip(@Nonnull String modid, @Nonnull String key) { return new TextEntry("tooltip." + modid + "." + key); }
     public static TextEntry gui(@Nonnull String modid, @Nonnull String key) { return new TextEntry("gui." + modid + "." + key); }
     public static TextEntry button(@Nonnull String modid, @Nonnull String key) { return new TextEntry("button." + modid + "." + key); }

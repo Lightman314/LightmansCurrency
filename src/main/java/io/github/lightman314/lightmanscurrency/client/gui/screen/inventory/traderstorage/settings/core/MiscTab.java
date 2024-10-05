@@ -42,7 +42,7 @@ public class MiscTab extends SettingsSubTab {
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_MISC.get(); }
 
     @Override
-    public boolean canOpen() { return this.menu.hasPermission(Permissions.NOTIFICATION); }
+    public boolean canOpen() { return this.menu.hasPermission(Permissions.EDIT_SETTINGS); }
 
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {

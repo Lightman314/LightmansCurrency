@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class ListOption<T> extends ConfigOption<List<T>> {
-
+public abstract class ListOption<T> extends ListLikeOption<List<T>> {
 
     protected ListOption(@Nonnull Supplier<List<T>> defaultValue) { super(defaultValue); }
 
@@ -23,6 +22,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
 
     protected abstract ConfigParser<T> getPartialParser();
 
+    @Nonnull
     public final Pair<Boolean,ConfigParsingException> editList(String value, int index, boolean isEdit) {
         if(index < 0 && isEdit)
         {
@@ -60,6 +60,9 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
         }
         return Pair.of(false, new ConfigParsingException("Invalid edit action. Cannot have an index of " + index + " without the isEdit flag!"));
     }
+
+    @Override
+    public final int getSize() { return this.get().size(); }
 
     private static class ListParser<T> implements ConfigParser<List<T>>
     {

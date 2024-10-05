@@ -57,7 +57,7 @@ public class BlockDropLoot extends SimpleSubProvider {
     protected ResourceLocation getBlockTable(@Nonnull Block block)
     {
         ResourceLocation blockID = BuiltInRegistries.BLOCK.getKey(block);
-        return ResourceLocation.fromNamespaceAndPath(blockID.getNamespace(), "blocks/" + blockID.getPath());
+        return blockID.withPrefix("blocks/");
     }
 
     protected void simpleBlock(@Nonnull Block block) { this.register(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }

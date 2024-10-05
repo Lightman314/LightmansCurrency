@@ -11,7 +11,8 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
+import io.github.lightman314.lightmanscurrency.api.config.options.ListLikeOption;
+import io.github.lightman314.lightmanscurrency.api.config.options.MapLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
@@ -72,7 +73,7 @@ public class CommandConfig {
             LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileName())
                     .requires((stack) -> file.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2));
             file.getAllOptions().forEach((key,option) -> {
-                if (option instanceof ListOption<?>)
+                if (option instanceof ListLikeOption<?>)
                 {
                     //Special list editing commands
                     fileSection.then(Commands.literal(key)
@@ -86,6 +87,18 @@ public class CommandConfig {
                             .then(Commands.literal("remove")
                                     .then(Commands.argument("index", IntegerArgumentType.integer(0))
                                             .executes(context -> commandEditList(context, file, key, IntegerArgumentType.getInteger(context, "index"), false))))
+                    );
+                }
+                else if(option instanceof MapLikeOption<?>)
+                {
+                    fileSection.then(Commands.literal(key)
+                            .then(Commands.literal("set")
+                                    .then(Commands.argument("key", StringArgumentType.string())
+                                            .then(Commands.argument("value",StringArgumentType.greedyString())
+                                                    .executes(context -> commandEditMap(context,file,key,true)))))
+                            .then(Commands.literal("remove")
+                                    .then(Commands.argument("key", StringArgumentType.string())
+                                            .executes(context -> commandEditMap(context,file,key,false))))
                     );
                 }
                 else
@@ -139,7 +152,7 @@ public class CommandConfig {
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
-        if(optionMap.containsKey(configOption) && optionMap.get(configOption) instanceof ListOption<?> option)
+        if(optionMap.containsKey(configOption) && optionMap.get(configOption) instanceof ListLikeOption<?> option)
         {
             Pair<Boolean,ConfigParsingException> result = option.editList(input, listIndex, isEdit);
             if(!result.getFirst())
@@ -150,8 +163,39 @@ public class CommandConfig {
             if(!isEdit)
                 EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS.get(configOption + "[" + listIndex + "]"), true);
             if(listIndex < 0)
-                listIndex = option.get().size() - 1;
+                listIndex = option.getSize() - 1;
             EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(configOption + "[" + listIndex + "]", input), true);
+            return 1;
+        }
+        EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));
+        return 0;
+    }
+
+    static int commandEditMap(CommandContext<CommandSourceStack> commandContext, ConfigFile file, String configOption, boolean isSet) throws CommandSyntaxException {
+        String input;
+        if(isSet)
+            input = StringArgumentType.getString(commandContext, "value");
+        else
+            input = "";
+        String key = StringArgumentType.getString(commandContext,"key");
+        if(file.isClientOnly())
+        {
+            //Send packet to client to edit value
+            new SPacketEditMapConfig(file.getFileName(), configOption, input, key, isSet).sendTo(commandContext.getSource().getPlayerOrException());
+            return 1;
+        }
+        Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
+        if(optionMap.containsKey(configOption) && optionMap.get(configOption) instanceof MapLikeOption<?> option)
+        {
+            Pair<Boolean,ConfigParsingException> result = option.editMap(input, key, isSet);
+            if(!result.getFirst())
+            {
+                EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE.get(result.getSecond().getMessage()));
+                return 0;
+            }
+            if(!isSet)
+                EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS.get(configOption + "[" + key + "]"), true);
+            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(configOption + "[" + key + "]", input), true);
             return 1;
         }
         EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_CONFIG_FAIL_MISSING.get(configOption));

@@ -19,7 +19,8 @@ public class LCLootTableProvider{
     public static LootTableProvider create(@Nonnull PackOutput output, @Nonnull CompletableFuture<HolderLookup.Provider> provider) { return new LootTableProvider(output, Set.of(),
             List.of(new SubProviderEntry(EntityAddonLoot::new, LootManager.ENTITY_PARAMS),
                     new SubProviderEntry(ChestAddonLoot::new, LootContextParamSets.EMPTY),
-                    new SubProviderEntry(BlockDropLoot::new, LootContextParamSets.BLOCK)),
+                    new SubProviderEntry(BlockDropLoot::new, LootContextParamSets.BLOCK),
+                    new SubProviderEntry(FallingBlockLoot::new, LootContextParamSets.EMPTY)),
             provider); }
 
 }

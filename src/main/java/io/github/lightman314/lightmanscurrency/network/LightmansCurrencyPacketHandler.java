@@ -151,6 +151,7 @@ public class LightmansCurrencyPacketHandler {
 		registerS2C(SPacketReloadConfig.HANDLER);
 		registerS2C(SPacketEditConfig.HANDLER);
 		registerS2C(SPacketEditListConfig.HANDLER);
+		registerS2C(SPacketEditMapConfig.HANDLER);
 		registerS2C(SPacketResetConfig.HANDLER);
 		registerS2C(SPacketViewConfig.HANDLER);
 
