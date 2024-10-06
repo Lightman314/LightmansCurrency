@@ -738,10 +738,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.PERMISSION_EDIT_PERMISSIONS, "Edit Permissions");
         this.translate(LCText.PERMISSION_VIEW_LOGS, "View Logs");
         this.translate(LCText.PERMISSION_BANK_LINK, "Link Bank Account");
-        this.translate(LCText.PERMISSION_NOTIFICATION, "Manage Notification Settings");
         this.translate(LCText.PERMISSION_BREAK_MACHINE, "Break Machine");
         this.translate(LCText.PERMISSION_TRANSFER_OWNERSHIP, "Transfer Ownership");
-        this.translate(LCText.PERMISSION_INTERACTION_LINK, "Remove Stock Interactions");
+        this.translate(LCText.PERMISSION_INTERACTION_LINK, "Setup Interface");
         this.translate(LCText.PERMISSION_EDIT_INPUTS,"Change Input & Output Settings");
 
         //Inventory Buttons
@@ -819,11 +818,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_MONEY_STORAGE_EMPTY,"Nothing");
         this.translate(LCText.COIN_CHAIN_MAIN,"Main");
         this.translate(LCText.COIN_CHAIN_CHOCOLATE,"Chocolate");
-        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY,"{value}CC");
-        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY,"{value} Chocolate Chunks");
+        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY,"CC");
+        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY,"%s Chocolate Chunks");
         this.translate(LCText.COIN_CHAIN_EMERALDS,"Emeralds");
-        this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY,"{value}E");
-        this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY_WORDY,"{value} Emeralds");
+        this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY,"%sE");
+        this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY_WORDY,"%s Emeralds");
 
         //Generic Text
         this.translate(LCText.BUTTON_CHANGE_NAME_ICON,"Aa");

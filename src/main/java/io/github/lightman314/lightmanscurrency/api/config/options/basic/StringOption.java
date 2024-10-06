@@ -3,19 +3,19 @@ package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class StringOption extends ConfigOption<String> {
 
     public static final ConfigParser<String> PARSER = new Parser();
 
-    protected StringOption(@Nonnull NonNullSupplier<String> defaultValue) { super(defaultValue); }
+    protected StringOption(@Nonnull Supplier<String> defaultValue) { super(defaultValue); }
 
     @Nonnull
     public static StringOption create(@Nonnull String defaultValue) { return new StringOption(() -> defaultValue); }
-    public static StringOption create(@Nonnull NonNullSupplier<String> defaultValue) { return new StringOption(defaultValue); }
+    public static StringOption create(@Nonnull Supplier<String> defaultValue) { return new StringOption(defaultValue); }
 
     @Nonnull
     @Override

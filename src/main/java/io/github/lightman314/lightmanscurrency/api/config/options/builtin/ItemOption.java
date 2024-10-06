@@ -7,11 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class ItemOption extends ConfigOption<Item> {
 
@@ -20,15 +19,13 @@ public class ItemOption extends ConfigOption<Item> {
 
     private final boolean allowAir;
 
-    protected ItemOption(@Nonnull NonNullSupplier<Item> defaultValue, boolean allowAir) { super(defaultValue); this.allowAir = allowAir; }
+    protected ItemOption(@Nonnull Supplier<Item> defaultValue, boolean allowAir) { super(defaultValue); this.allowAir = allowAir; }
     @Nonnull
     @Override
     protected ConfigParser<Item> getParser() { return this.allowAir ? PARSER : PARSER_NO_AIR; }
 
-    public static ItemOption create(@Nonnull RegistryObject<? extends ItemLike> defaultValue) { return new ItemOption(() -> defaultValue.get().asItem(),true); }
-    public static ItemOption create(@Nonnull RegistryObject<? extends ItemLike> defaultValue, boolean allowAir) { return new ItemOption(() -> defaultValue.get().asItem(),allowAir); }
-    public static ItemOption create(@Nonnull NonNullSupplier<Item> defaultValue) { return new ItemOption(defaultValue,true); }
-    public static ItemOption create(@Nonnull NonNullSupplier<Item> defaultValue, boolean allowAir) { return new ItemOption(defaultValue,allowAir); }
+    public static ItemOption create(@Nonnull Supplier<? extends ItemLike> defaultValue) { return new ItemOption(() -> defaultValue.get().asItem(),true); }
+    public static ItemOption create(@Nonnull Supplier<? extends ItemLike> defaultValue, boolean allowAir) { return new ItemOption(() -> defaultValue.get().asItem(),allowAir); }
 
     private static class Parser implements ConfigParser<Item>
     {

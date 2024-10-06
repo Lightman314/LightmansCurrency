@@ -731,7 +731,6 @@ public class LCText {
     public static final TextEntry PERMISSION_VIEW_LOGS = TextEntry.permission(Permissions.VIEW_LOGS);
     public static final TextEntry PERMISSION_BREAK_MACHINE = TextEntry.permission(Permissions.BREAK_TRADER);
     public static final TextEntry PERMISSION_BANK_LINK = TextEntry.permission(Permissions.BANK_LINK);
-    public static final TextEntry PERMISSION_NOTIFICATION = TextEntry.permission(Permissions.NOTIFICATION);
     public static final TextEntry PERMISSION_INTERACTION_LINK = TextEntry.permission(Permissions.INTERACTION_LINK);
     public static final TextEntry PERMISSION_TRANSFER_OWNERSHIP = TextEntry.permission(Permissions.TRANSFER_OWNERSHIP);
     public static final TextEntry PERMISSION_EDIT_INPUTS = TextEntry.permission(Permissions.InputTrader.EXTERNAL_INPUTS);

@@ -4,10 +4,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
 
@@ -15,7 +15,7 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
 
     private final ConfigParser<T> parser;
     private final Class<T> clazz;
-    protected EnumOption(@Nonnull NonNullSupplier<T> defaultValue, Class<T> clazz) { super(defaultValue); this.parser = buildParser(clazz); this.clazz = clazz; }
+    protected EnumOption(@Nonnull Supplier<T> defaultValue, Class<T> clazz) { super(defaultValue); this.parser = buildParser(clazz); this.clazz = clazz; }
 
     @Nonnull
     @Override
@@ -37,10 +37,8 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
         return builder.toString();
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends Enum<T>> EnumOption<T> create(@Nonnull T defaultValue) { return new EnumOption<>(() -> defaultValue, (Class<T>)defaultValue.getClass()); }
-    @SuppressWarnings("unchecked")
-    public static <T extends Enum<T>> EnumOption<T> create(@Nonnull NonNullSupplier<T> defaultValue, @Nonnull Class<?> clazz) { return new EnumOption<>(defaultValue, (Class<T>)clazz); }
+    public static <T extends Enum<T>> EnumOption<T> create(@Nonnull Supplier<T> defaultValue, @Nonnull Class<?> clazz) { return new EnumOption<>(defaultValue, (Class<T>)clazz); }
 
     private static class EnumParser<T extends Enum<T>> implements ConfigParser<T>
     {

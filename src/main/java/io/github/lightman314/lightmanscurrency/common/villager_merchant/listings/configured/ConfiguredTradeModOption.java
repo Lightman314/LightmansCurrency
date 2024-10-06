@@ -5,17 +5,17 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOp
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class ConfiguredTradeModOption extends ConfigOption<ConfiguredTradeMod> {
 
     public static final ConfigParser<ConfiguredTradeMod> PARSER = new Parser();
 
-    private ConfiguredTradeModOption(@Nonnull NonNullSupplier<ConfiguredTradeMod> defaultValue) { super(defaultValue); }
+    private ConfiguredTradeModOption(@Nonnull Supplier<ConfiguredTradeMod> defaultValue) { super(defaultValue); }
 
-    public static ConfiguredTradeModOption create(@Nonnull NonNullSupplier<ConfiguredTradeMod> defaultValue) { return new ConfiguredTradeModOption(defaultValue); }
+    public static ConfiguredTradeModOption create(@Nonnull Supplier<ConfiguredTradeMod> defaultValue) { return new ConfiguredTradeModOption(defaultValue); }
 
     @Nonnull
     @Override

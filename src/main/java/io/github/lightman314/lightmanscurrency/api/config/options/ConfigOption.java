@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,7 +15,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T> {
+public abstract class ConfigOption<T> implements Supplier<T> {
 
     public enum LoadSource { FILE, COMMAND, SYNC }
 
@@ -52,11 +51,11 @@ public abstract class ConfigOption<T> implements Supplier<T>, NonNullSupplier<T>
         return cl;
     }
 
-    private final NonNullSupplier<T> defaultValue;
+    private final Supplier<T> defaultValue;
     private T currentValue = null;
     private T syncedValue = null;
 
-    protected ConfigOption(@Nonnull NonNullSupplier<T> defaultValue) { this.defaultValue = defaultValue; }
+    protected ConfigOption(@Nonnull Supplier<T> defaultValue) { this.defaultValue = defaultValue; }
 
     @Nullable
     protected String bonusComment() { return null; }

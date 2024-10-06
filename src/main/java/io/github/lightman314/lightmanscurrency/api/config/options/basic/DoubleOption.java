@@ -4,10 +4,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class DoubleOption extends ConfigOption<Double> {
 
@@ -17,7 +17,7 @@ public class DoubleOption extends ConfigOption<Double> {
     private final double upperLimit;
     private final ConfigParser<Double> parser;
 
-    protected DoubleOption(@Nonnull NonNullSupplier<Double> defaultValue, double lowerLimit, double upperLimit) {
+    protected DoubleOption(@Nonnull Supplier<Double> defaultValue, double lowerLimit, double upperLimit) {
         super(defaultValue);
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -33,9 +33,9 @@ public class DoubleOption extends ConfigOption<Double> {
     public static DoubleOption create(double defaultValue) { return new DoubleOption(() -> defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
     public static DoubleOption create(double defaultValue, double lowerLimit) { return new DoubleOption(() -> defaultValue, lowerLimit, Double.MAX_VALUE); }
     public static DoubleOption create(double defaultValue, double lowerLimit, double upperLimit) { return new DoubleOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static DoubleOption create(@Nonnull NonNullSupplier<Double> defaultValue) { return new DoubleOption(defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
-    public static DoubleOption create(@Nonnull NonNullSupplier<Double> defaultValue, double lowerLimit) { return new DoubleOption(defaultValue, lowerLimit, Double.MAX_VALUE); }
-    public static DoubleOption create(@Nonnull NonNullSupplier<Double> defaultValue, double lowerLimit, double upperLimit) { return new DoubleOption(defaultValue, lowerLimit, upperLimit); }
+    public static DoubleOption create(@Nonnull Supplier<Double> defaultValue) { return new DoubleOption(defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
+    public static DoubleOption create(@Nonnull Supplier<Double> defaultValue, double lowerLimit) { return new DoubleOption(defaultValue, lowerLimit, Double.MAX_VALUE); }
+    public static DoubleOption create(@Nonnull Supplier<Double> defaultValue, double lowerLimit, double upperLimit) { return new DoubleOption(defaultValue, lowerLimit, upperLimit); }
 
 
 

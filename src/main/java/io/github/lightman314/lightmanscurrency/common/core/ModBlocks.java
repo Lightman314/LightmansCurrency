@@ -156,96 +156,84 @@ public class ModBlocks {
 				Block.Properties.of()
 					.mapColor(MapColor.COLOR_ORANGE)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_COPPER
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_IRON = register("coinpile_iron", getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_IRON
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_GOLD = register("coinpile_gold", getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.GOLD)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_GOLD
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_EMERALD = register("coinpile_emerald", getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.EMERALD)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_EMERALD
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_DIAMOND = register("coinpile_diamond", getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.DIAMOND)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_DIAMOND
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_NETHERITE = register("coinpile_netherite", getCoinGenerator(true), () -> new CoinpileBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.COLOR_BLACK)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_NETHERITE
+					.sound(SoundType.METAL)
 				)
 		);
 		COINPILE_CHOCOLATE_COPPER = register("coinpile_chocolate_copper", getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.COLOR_ORANGE)
 								.strength(3.0f, 6.0f)
-								.sound(SoundType.MUD),
-						ModItems.COIN_CHOCOLATE_COPPER
+								.sound(SoundType.MUD)
 				)
 		);
 		COINPILE_CHOCOLATE_IRON = register("coinpile_chocolate_iron", getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.METAL)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_IRON
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINPILE_CHOCOLATE_GOLD = register("coinpile_chocolate_gold", getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.GOLD)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_GOLD
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINPILE_CHOCOLATE_EMERALD = register("coinpile_chocolate_emerald", getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.EMERALD)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_EMERALD
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINPILE_CHOCOLATE_DIAMOND = register("coinpile_chocolate_diamond", getCoinGenerator(false), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.DIAMOND)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_DIAMOND
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINPILE_CHOCOLATE_NETHERITE = register("coinpile_chocolate_netherite", getCoinGenerator(true), () -> new CoinpileBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.COLOR_BLACK)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_NETHERITE
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 
@@ -254,8 +242,7 @@ public class ModBlocks {
 				Block.Properties.of()
 					.mapColor(MapColor.COLOR_ORANGE)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_COPPER
+					.sound(SoundType.METAL)
 				)
 		);
 
@@ -263,40 +250,35 @@ public class ModBlocks {
 				Block.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_IRON
+					.sound(SoundType.METAL)
 				)
 		);
 		COINBLOCK_GOLD = register("coinblock_gold", getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.GOLD)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_GOLD
+					.sound(SoundType.METAL)
 				)
 		);
 		COINBLOCK_EMERALD = register("coinblock_emerald", getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.EMERALD)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_EMERALD
+					.sound(SoundType.METAL)
 				)
 		);
 		COINBLOCK_DIAMOND = register("coinblock_diamond", getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.DIAMOND)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_DIAMOND
+					.sound(SoundType.METAL)
 				)
 		);
 		COINBLOCK_NETHERITE = register("coinblock_netherite", getCoinGenerator(true), () -> new CoinBlock(
 				Block.Properties.of()
 					.mapColor(MapColor.COLOR_BLACK)
 					.strength(3.0f, 6.0f)
-					.sound(SoundType.METAL),
-					ModItems.COIN_NETHERITE
+					.sound(SoundType.METAL)
 				)
 		);
 
@@ -304,8 +286,7 @@ public class ModBlocks {
 						Block.Properties.of()
 								.mapColor(MapColor.COLOR_ORANGE)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_COPPER
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 
@@ -313,40 +294,35 @@ public class ModBlocks {
 						Block.Properties.of()
 								.mapColor(MapColor.METAL)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_IRON
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINBLOCK_CHOCOLATE_GOLD = register("coinblock_chocolate_gold", getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.GOLD)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_GOLD
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINBLOCK_CHOCOLATE_EMERALD = register("coinblock_chocolate_emerald", getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.EMERALD)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_EMERALD
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINBLOCK_CHOCOLATE_DIAMOND = register("coinblock_chocolate_diamond", getCoinGenerator(false), () -> new CoinBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.DIAMOND)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_DIAMOND
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		COINBLOCK_CHOCOLATE_NETHERITE = register("coinblock_chocolate_netherite", getCoinGenerator(true), () -> new CoinBlock(
 						Block.Properties.of()
 								.mapColor(MapColor.COLOR_BLACK)
 								.strength(3.0f, 6.0f)
-								.sound(CHOCOLATE_SOUND),
-						ModItems.COIN_CHOCOLATE_NETHERITE
+								.sound(CHOCOLATE_SOUND)
 				)
 		);
 		

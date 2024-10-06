@@ -21,12 +21,14 @@ public class VillagerTradeMods {
 
 
     private final Map<String,ConfiguredTradeMod> modMap;
+    public int getSize() { return this.modMap.size(); }
     private VillagerTradeMods(@Nonnull Builder builder)
     {
         Map<String,ConfiguredTradeMod> temp = new HashMap<>();
         builder.dataMap.forEach((key,subBuilder) -> temp.put(key, subBuilder.build()));
         this.modMap = ImmutableMap.copyOf(temp);
     }
+    private VillagerTradeMods(@Nonnull Map<String,ConfiguredTradeMod> map) { this.modMap = ImmutableMap.copyOf(map); }
     public VillagerTradeMods(@Nonnull List<String> parseableData)
     {
         Map<String,ConfiguredTradeMod> temp = new HashMap<>();
@@ -65,6 +67,28 @@ public class VillagerTradeMods {
         LightmansCurrency.LogDebug("Attempting to parse entries for '" + profession + "' profession.");
         ConfiguredTradeMod mod = ConfiguredTradeMod.tryParse(split[1],false);
         return Pair.of(profession,mod);
+    }
+
+    @Nonnull
+    public VillagerTradeMods edit(@Nonnull String value, @Nonnull String key, boolean isSet) throws ConfigParsingException
+    {
+        if(isSet)
+        {
+            ConfiguredTradeMod mod = ConfiguredTradeMod.tryParse(value,false);
+            HashMap<String,ConfiguredTradeMod> map = new HashMap<>(this.modMap);
+            map.put(key,mod);
+            return new VillagerTradeMods(map);
+        }
+        else
+        {
+            if(this.modMap.containsKey(key))
+            {
+                HashMap<String,ConfiguredTradeMod> map = new HashMap<>(this.modMap);
+                this.modMap.remove(key);
+                return new VillagerTradeMods(map);
+            }
+            else throw new ConfigParsingException("Cannot remove the entry for the \"" + key + "\" profession as is is not present.");
+        }
     }
 
     public final VillagerTradeMod getModFor(@Nonnull String trader) {

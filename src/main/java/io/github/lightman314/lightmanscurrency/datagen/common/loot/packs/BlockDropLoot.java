@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.datagen.common.loot.packs;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LootTableProviderTemplate;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -61,7 +60,7 @@ public class BlockDropLoot extends LootTableProviderTemplate {
     protected ResourceLocation getBlockTable(@Nonnull Block block)
     {
         ResourceLocation blockID = ForgeRegistries.BLOCKS.getKey(block);
-        return new ResourceLocation(blockID.getNamespace(), "blocks/" + blockID.getPath());
+        return blockID.withPrefix("blocks/");
     }
 
     protected void simpleBlock(@Nonnull Block block) { this.define(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }

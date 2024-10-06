@@ -17,7 +17,6 @@ public class Permissions {
 	public static final String VIEW_LOGS = "viewLogs";
 	public static final String BREAK_TRADER = "breakTrader";
 	public static final String BANK_LINK = "bankLink";
-	public static final String NOTIFICATION = "notifications";
 	public static final String INTERACTION_LINK = "interactionLink";
 	public static final String TRANSFER_OWNERSHIP = "transferOwnership";
 	

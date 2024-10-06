@@ -4,16 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public abstract class ListOption<T> extends ConfigOption<List<T>> {
+public abstract class ListOption<T> extends ListLikeOption<List<T>> {
 
 
-    protected ListOption(@Nonnull NonNullSupplier<List<T>> defaultValue) { super(defaultValue); }
+    protected ListOption(@Nonnull Supplier<List<T>> defaultValue) { super(defaultValue); }
 
     public static <T> ConfigParser<List<T>> makeParser(ConfigParser<T> partialParser) { return new ListParser<>(partialParser); }
 
@@ -23,6 +23,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
 
     protected abstract ConfigParser<T> getPartialParser();
 
+    @Nonnull
     public final Pair<Boolean,ConfigParsingException> editList(String value, int index, boolean isEdit) {
         if(index < 0 && isEdit)
         {
@@ -61,6 +62,9 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
         return Pair.of(false, new ConfigParsingException("Invalid edit action. Cannot have an index of " + index + " without the isEdit flag!"));
     }
 
+    @Override
+    public final int getSize() { return this.get().size(); }
+
     private static class ListParser<T> implements ConfigParser<List<T>>
     {
         private final ConfigParser<T> parser;
@@ -68,7 +72,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
         @Nonnull
         @Override
         public List<T> tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
-            if(cleanLine.length() == 0)
+            if(cleanLine.isEmpty())
                 throw new ConfigParsingException("Empty input received!");
             char c1 = cleanLine.charAt(0);
             if(c1 != '[')
@@ -113,7 +117,7 @@ public abstract class ListOption<T> extends ConfigOption<List<T>> {
             }
             if(!temp.isEmpty())
                 sections.add(temp.toString());
-            if(sections.size() == 0)
+            if(sections.isEmpty())
                 return new ArrayList<>();
             List<T> results = new ArrayList<>();
             for(int s = 0; s < sections.size(); ++s)

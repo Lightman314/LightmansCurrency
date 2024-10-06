@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -15,24 +15,22 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class CoinBlock extends FallingBlock {
 	
-	private final Supplier<Item> coinItem;
-	
-	public CoinBlock(Properties properties, Supplier<Item> coinItem)
-	{
-		super(properties);
-		this.coinItem = coinItem;
-	}
+	public CoinBlock(Properties properties) { super(properties); }
 
 	protected boolean isFullBlock() { return true; }
-	
-	protected int getCoinCount() { return 36; }
 
 	@Nonnull
 	@Override
@@ -48,19 +46,37 @@ public class CoinBlock extends FallingBlock {
 	@Override
 	public void onLand(Level level, @Nonnull BlockPos pos, @Nonnull BlockState fallingState, @Nonnull BlockState hitState, @Nonnull FallingBlockEntity fallingBlock) {
 		
-		if(!level.isClientSide)
+		if(level instanceof ServerLevel sl)
 		{
 			//Set the block as air
 			level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 			//Spawn the coins
-			for(int i = 0; i < getCoinCount(); i++)
+			LootTable lootTable = this.getLootTable(level,fallingState);
+			if(lootTable != null)
 			{
-				Block.popResource(level, pos, new ItemStack(this.coinItem.get()));
+				LootParams params = new LootParams.Builder(sl).create(LootContextParamSets.EMPTY);
+				for(ItemStack item : lootTable.getRandomItems(params))
+					Block.popResource(level,pos,item);
 			}
 			//Play the breaking sound
 			level.playSound(null, pos, this.getBreakingSound(), SoundSource.BLOCKS, 1f, 1f);
 		}
 		
 	}
-	
+
+	@Nullable
+	protected LootTable getLootTable(@Nonnull Level level, @Nonnull BlockState state)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.getLootData().getLootTable(this.getLootTableLocation(state));
+		return null;
+	}
+	@Nonnull
+	protected ResourceLocation getLootTableLocation(@Nonnull BlockState state)
+	{
+		ResourceLocation blockID = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+		return blockID.withPrefix("blocks/falling/");
+	}
+
 }

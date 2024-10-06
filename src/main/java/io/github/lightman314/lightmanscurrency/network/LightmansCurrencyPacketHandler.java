@@ -163,6 +163,7 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketReloadConfig.class, SPacketReloadConfig.HANDLER);
 		register(SPacketEditConfig.class, SPacketEditConfig.HANDLER);
 		register(SPacketEditListConfig.class, SPacketEditListConfig.HANDLER);
+		register(SPacketEditMapConfig.class, SPacketEditMapConfig.HANDLER);
 		register(SPacketResetConfig.class, SPacketResetConfig.HANDLER);
 		register(SPacketViewConfig.class, SPacketViewConfig.HANDLER);
 

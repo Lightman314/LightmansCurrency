@@ -19,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import java.util.function.Consumer;
 
 public class PlayerTradeMenu extends LazyMessageMenu {
 
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public final int tradeID;
     private IPlayerTrade trade;
@@ -150,7 +153,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
                 //Format Chat Message as <PlayerName> Message typed goes here
                 Component m = EasyText.literal("<").append(this.player.getName()).append("> ").append(message.getString("AddChat"));
                 //Log chat message so that admins can catch innapropriate correspondense
-                LightmansCurrency.LogInfo("Player Trade Chat: " + m.getString());
+                LOGGER.info("Private Chat: " + m.getString());
                 this.SendChatTo(trade.getHostID(), m);
                 this.SendChatTo(trade.getGuestID(), m);
             }

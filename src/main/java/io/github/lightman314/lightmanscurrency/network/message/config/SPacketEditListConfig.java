@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
+import io.github.lightman314.lightmanscurrency.api.config.options.ListLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
@@ -65,7 +65,7 @@ public class SPacketEditListConfig extends ServerToClientPacket {
                 if(file.isClientOnly() && file.getFileName().equals(message.fileName))
                 {
                     Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
-                    if(optionMap.containsKey(message.option) && optionMap.get(message.option) instanceof ListOption<?> option)
+                    if(optionMap.containsKey(message.option) && optionMap.get(message.option) instanceof ListLikeOption<?> option)
                     {
                         Pair<Boolean,ConfigParsingException> result = option.editList(message.input, message.listIndex, message.isEdit);
                         if(!result.getFirst())
@@ -77,7 +77,7 @@ public class SPacketEditListConfig extends ServerToClientPacket {
                             LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS.get(message.option + "[" + message.listIndex + "]"));
                         int listIndex = message.listIndex;
                         if(listIndex < 0)
-                            listIndex = option.get().size() - 1;
+                            listIndex = option.getSize() - 1;
                         LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(message.option + "[" + listIndex + "]", message.input));
                         return;
                     }

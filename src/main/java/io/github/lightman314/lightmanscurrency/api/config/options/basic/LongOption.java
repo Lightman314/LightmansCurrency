@@ -4,10 +4,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class LongOption extends ConfigOption<Long> {
 
@@ -17,7 +17,7 @@ public class LongOption extends ConfigOption<Long> {
     private final long upperLimit;
     private final ConfigParser<Long> parser;
 
-    protected LongOption(@Nonnull NonNullSupplier<Long> defaultValue, long lowerLimit, long upperLimit) {
+    protected LongOption(@Nonnull Supplier<Long> defaultValue, long lowerLimit, long upperLimit) {
         super(defaultValue);
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
@@ -33,9 +33,9 @@ public class LongOption extends ConfigOption<Long> {
     public static LongOption create(long defaultValue) { return new LongOption(() -> defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
     public static LongOption create(long defaultValue, long lowerLimit) { return new LongOption(() -> defaultValue, lowerLimit, Long.MAX_VALUE); }
     public static LongOption create(long defaultValue, long lowerLimit, long upperLimit) { return new LongOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static LongOption create(@Nonnull NonNullSupplier<Long> defaultValue) { return new LongOption(defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
-    public static LongOption create(@Nonnull NonNullSupplier<Long> defaultValue, long lowerLimit) { return new LongOption(defaultValue, lowerLimit, Long.MAX_VALUE); }
-    public static LongOption create(@Nonnull NonNullSupplier<Long> defaultValue, long lowerLimit, long upperLimit) { return new LongOption(defaultValue, lowerLimit, upperLimit); }
+    public static LongOption create(@Nonnull Supplier<Long> defaultValue) { return new LongOption(defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
+    public static LongOption create(@Nonnull Supplier<Long> defaultValue, long lowerLimit) { return new LongOption(defaultValue, lowerLimit, Long.MAX_VALUE); }
+    public static LongOption create(@Nonnull Supplier<Long> defaultValue, long lowerLimit, long upperLimit) { return new LongOption(defaultValue, lowerLimit, upperLimit); }
 
 
 
