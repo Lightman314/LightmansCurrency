@@ -59,7 +59,7 @@ public class TradeComparisonResult {
      */
     public boolean isPriceCheaper() { return this.priceCheaper; }
     /**
-     * Whether the trade is now more expensive (difference < 0)
+     * Whether the trade is now more expensive (difference &lt; 0)
      */
     public boolean isPriceExpensive() { return this.priceGreater; }
     //Type Comparison Result

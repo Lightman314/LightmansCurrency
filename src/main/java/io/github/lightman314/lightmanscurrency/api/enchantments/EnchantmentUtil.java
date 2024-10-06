@@ -16,7 +16,7 @@ public class EnchantmentUtil {
     private EnchantmentUtil() {}
 
     /**
-     * Ticks the entities Money Mending & Coin Magnet enchantments.
+     * Ticks the entities Money Mending &amp; Coin Magnet enchantments.
      * @param entity The entity to run the enchantment ticks on.
      * @param entityMoney The entities money access, used to pay for Money Mending repairs.<br>
      *                    If <code>null</code> Money Mending cannot and will not be run for this entity unless it has a valid {@link IMoneyHandler} capability

@@ -42,7 +42,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts an integer between a min & max value
+	 * Restricts an integer between a min &amp; max value
 	 */
 	public static int clamp(int value, int min, int max)
 	{
@@ -60,7 +60,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts a float between a min & max value
+	 * Restricts a float between a min &amp; max value
 	 */
 	public static float clamp(float value, float min, float max)
 	{
@@ -78,7 +78,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts a double between a min & max value
+	 * Restricts a double between a min &amp; max value
 	 */
 	public static double clamp(double value, double min, double max)
 	{
@@ -96,7 +96,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts a long between a min & max value
+	 * Restricts a long between a min &amp; max value
 	 */
 	public static long clamp(long value, long min, long max)
 	{

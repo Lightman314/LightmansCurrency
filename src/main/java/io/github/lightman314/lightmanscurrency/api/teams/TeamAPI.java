@@ -16,13 +16,13 @@ public abstract class TeamAPI {
 
     /**
      * Gets the team with the given team id.<br>
-     * Works on both the logical client & server depending on your <code>isClient</code> input.
+     * Works on both the logical client &amp; server depending on your <code>isClient</code> input.
      */
     @Nullable
     public abstract ITeam GetTeam(boolean isClient, long teamID);
     /**
      * Gets the team with the given team id.<br>
-     * Works on both the logical client & server depending on whether the {@link IClientTracker context} is client-side or not
+     * Works on both the logical client &amp; server depending on whether the {@link IClientTracker context} is client-side or not
      */
     @Nullable
     public final ITeam GetTeam(@Nonnull IClientTracker context, long teamID) { return this.GetTeam(context.isClient(),teamID); }
@@ -40,13 +40,13 @@ public abstract class TeamAPI {
 
     /**
      * Gets a list of all teams on the server.<br>
-     * Works on both the logical client & server depending on your <code>isClient</code> input.
+     * Works on both the logical client &amp; server depending on your <code>isClient</code> input.
      */
     @Nonnull
     public abstract List<ITeam> GetAllTeams(boolean isClient);
     /**
      * Gets a list of all teams on the server.<br>
-     * Works on both the logical client & server depending on whether the {@link IClientTracker context} is client-side or not
+     * Works on both the logical client &amp; server depending on whether the {@link IClientTracker context} is client-side or not
      */
     @Nonnull
     public final List<ITeam> GetAllTeams(@Nonnull IClientTracker context) { return this.GetAllTeams(context.isClient()); }
@@ -63,7 +63,7 @@ public abstract class TeamAPI {
 
     /**
      * Gets a list of all teams that the player is a member of, and sorts them using {@link #sorterFor(Player)}.<br>
-     * Works on both the logical client & server.
+     * Works on both the logical client &amp; server.
      */
     @Nonnull
     public abstract List<ITeam> GetAllTeamsForPlayer(@Nonnull Player player);
@@ -77,7 +77,7 @@ public abstract class TeamAPI {
     public static List<ITeam> getAllTeamsForPlayer(@Nonnull Player player) { return API.GetAllTeamsForPlayer(player); }
 
     /**
-     * Creates a new team with the given owner & team name.<br>
+     * Creates a new team with the given owner &amp; team name.<br>
      * Should only be run on the logical server. If run on the logical client, <code>null</code> will be returned instead.
      * @return The {@link ITeam} that was created.
      */

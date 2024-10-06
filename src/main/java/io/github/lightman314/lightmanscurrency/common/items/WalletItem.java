@@ -402,7 +402,7 @@ public class WalletItem extends Item{
 	
 	/**
 	 * Gets the auto-convert state of the given Wallet Stack.
-	 * Returns false if the wallet is not capable of both exchanging & collecting coins.
+	 * Returns false if the wallet is not capable of both exchanging &amp; collecting coins.
 	 */
 	public static boolean getAutoExchange(ItemStack wallet)
 	{
@@ -419,7 +419,7 @@ public class WalletItem extends Item{
 	
 	/**
 	 * Toggles the auto-convert state of the given Wallet Stack.
-	 * Does nothing if the wallet is not capable of both converting & collecting coins.
+	 * Does nothing if the wallet is not capable of both exchanging &amp; collecting coins.
 	 */
 	public static void toggleAutoExchange(ItemStack wallet)
 	{

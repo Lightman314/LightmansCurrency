@@ -72,7 +72,7 @@ public abstract class MoneyValue {
 
     /**
      * Returns a unique name for this storage type.
-     * Used by {@link MoneyStorage} & {@link MoneyView} to seperate {@link MoneyValue}'s into their different value entries.
+     * Used by {@link MoneyStorage} and {@link MoneyView} to seperate {@link MoneyValue}'s into their different value entries.
      * For {@link CoinValue} data, this returns a combination of it's <code>chain</code> and {@link #getType()},
      * but values without varying types may simply return a String version of {@link #getType()}
      */
@@ -181,7 +181,7 @@ public abstract class MoneyValue {
 
     /**
      * Whether this value contains enough money to safely subtract the given {@link MoneyValue}.
-     * @return false if <code>this#</code>{@link #getCoreValue()} < <code>queryValue#</code>{@link #getCoreValue()},
+     * @return false if <code>this#</code>{@link #getCoreValue()} <code>queryValue#</code>{@link #getCoreValue()},
      * or if the queried value is not compatible.
      * @see #addValue(MoneyValue)
      * @see #subtractValue(MoneyValue)

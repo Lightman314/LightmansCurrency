@@ -238,7 +238,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	/**
 	 * Whether the given player has owner-level permissions.
-	 * If owned by a team, this will return true for team admins & the team owner.
+	 * If owned by a team, this will return true for team admins &amp; the team owner.
 	 */
 	public boolean isOwner(Player player) { return this.owner.isAdmin(player); }
 	

@@ -46,7 +46,7 @@ public abstract class TraderStorageTab implements LazyPacketData.IBuilderProvide
 
 	/**
 	 * Input is of type TraderStorageScreen
-	 * Output should be of type TraderStorageClientTab<?>
+	 * Output should be of type TraderStorageClientTab
 	 */
 	public abstract Object createClientTab(Object screen);
 	

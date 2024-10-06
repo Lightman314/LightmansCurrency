@@ -21,7 +21,7 @@ public enum TraderState {
     /**
      * Mod Compat Trader Status<br>
      * Means that the trader is still within the world, but not in a way that my mod can properly detect<br>
-     * Any mods that manually trigger this state are responsible for deleting & ejecting the traders data if the machine (i.e. Create Contraption) that contains the block is destroyed
+     * Any mods that manually trigger this state are responsible for deleting &amp; ejecting the traders data if the machine (i.e. Create Contraption) that contains the block is destroyed
      */
     MOVED_BY_MACHINE(false,true, true),
     /**

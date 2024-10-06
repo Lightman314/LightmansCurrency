@@ -30,7 +30,7 @@ public abstract class TraderAPI {
     public static void registerTrader(@Nonnull TraderType<?> type) { API.RegisterTrader(type); }
 
     /**
-     * Registers the given {@link TraderType}, allowing {@link TraderData} of that type to be saved & loaded from the Trader Save Data.
+     * Registers the given {@link TraderType}, allowing {@link TraderData} of that type to be saved &amp; loaded from the Trader Save Data.
      */
     public abstract void RegisterTrader(@Nonnull TraderType<?> type);
 
@@ -100,7 +100,7 @@ public abstract class TraderAPI {
     public static void registerSearchFilter(@Nonnull ITraderSearchFilter filter) { API.RegisterTraderSearchFilter(filter); }
 
     /**
-     * Registers the given {@link ITraderSearchFilter}, allowing the ability to search traders via {@link #FilterTrader(TraderData, String)} & {@link #FilterTraders(List, String)}
+     * Registers the given {@link ITraderSearchFilter}, allowing the ability to search traders via {@link #FilterTrader(TraderData, String)} &amp; {@link #FilterTraders(List, String)}
      */
     public abstract void RegisterTraderSearchFilter(@Nonnull ITraderSearchFilter filter);
 
@@ -132,7 +132,7 @@ public abstract class TraderAPI {
     public abstract List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String searchText);
 
     /**
-     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String,RegistryAccess)} & {@link #FilterTrades(List,String,RegistryAccess)}
+     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String,RegistryAccess)} &amp; {@link #FilterTrades(List,String,RegistryAccess)}
      */
     public abstract void RegisterTradeSearchFilter(@Nonnull ITradeSearchFilter filter);
     /**
@@ -147,7 +147,7 @@ public abstract class TraderAPI {
     public abstract List<TradeData> FilterTrades(@Nonnull List<TradeData> trades, @Nonnull String searchText, @Nonnull RegistryAccess registryAccess);
 
     /**
-     *  Registers the given {@link ITraderSearchFilter} & {@link ITradeSearchFilter} so that the trader & its trades can be filtered.
+     *  Registers the given {@link ITraderSearchFilter} &amp; {@link ITradeSearchFilter} so that the trader &amp; its trades can be filtered.
      * @see #RegisterTraderSearchFilter(ITraderSearchFilter)
      * @see #RegisterTradeSearchFilter(ITradeSearchFilter)
      */

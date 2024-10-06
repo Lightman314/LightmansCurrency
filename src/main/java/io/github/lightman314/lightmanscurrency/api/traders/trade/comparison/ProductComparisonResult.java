@@ -27,7 +27,7 @@ public class ProductComparisonResult {
     public boolean SameProductQuantity() { return this.quantityDifference == 0; }
     /**
      * The difference between the two quantities.
-     * Calculated as 'true quantity - expected quantity', so a difference > 0 means a larger quantity, while a difference < 0 means a smaller quantity
+     * Calculated as 'true quantity - expected quantity', so a difference > 0 means a larger quantity, while a difference &lt; 0 means a smaller quantity
      */
     public int ProductQuantityDifference() { return this.quantityDifference; }
 

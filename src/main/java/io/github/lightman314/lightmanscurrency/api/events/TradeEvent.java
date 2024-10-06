@@ -22,7 +22,7 @@ public abstract class TradeEvent extends Event {
 	public final boolean hasPlayerReference() { return this.context.hasPlayerReference(); }
 
 	/**
-	 * Player Reference is {@link Nullable} as the {@link PreTradeEvent} & {@link TradeCostEvent} Events
+	 * Player Reference is {@link Nullable} as the {@link PreTradeEvent} &amp; {@link TradeCostEvent} Events
 	 * are also called from the storage context which will does include a player reference in the trades context
 	 */
 	@Nullable

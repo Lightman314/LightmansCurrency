@@ -74,7 +74,7 @@ public abstract class CurrencyType {
     public abstract IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker);
 
     /**
-     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetATMMoneyHandler(Player, Container) MoneyAPI#GetATMMoneyHandler(Player, Container)} to create a combined {@link IMoneyHandler} for the ATM's container for use with depositing & withdrawing money from a players bank account<br>
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetATMMoneyHandler(Player, Container) MoneyAPI#GetATMMoneyHandler(Player, Container)} to create a combined {@link IMoneyHandler} for the ATM's container for use with depositing &amp; withdrawing money from a players bank account<br>
      * Default implementation returns the results of {@link #createMoneyHandlerForContainer(Container,Consumer,IClientTracker)}<br>
      * Override if your mods money is directly attached to the player in some non-item method
      */

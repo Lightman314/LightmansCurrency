@@ -127,9 +127,9 @@ public class LCClientPlugin implements REIClientPlugin {
         //Coin Chest Screen (left edge)
         zones.register(CoinChestScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize())));
         //Ejection Screen (left/right buttons)
-        zones.register(EjectionRecoveryScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop() + MoneyValueWidget.HEIGHT, screen.getXSize() + 40, 20)));
+        zones.register(EjectionRecoveryScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), screen.getXSize() + 40, 20)));
         //Player Trader Screen (chat toggle in top-right)
-        zones.register(PlayerTradeScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20)));
+        zones.register(PlayerTradeScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop() + MoneyValueWidget.HEIGHT, 20, 20)));
         //Trader Interface Screen (two buttons in top-right)
         zones.register(TraderInterfaceScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 40)));
         //Wallet Screen (3 icon buttons at top left)

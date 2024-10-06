@@ -207,7 +207,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Compares two trades to each other.<br>
 	 * Should be called by the <code>True Trade</code> that would actually be executed.<br>
 	 * If the <code>True Trade</code>'s {@link #getCost()}'s money value is greater than the <code>Expected Trade</code>'s {@link #getCost()} then {@link TradeComparisonResult#isPriceExpensive()} should be true, etc.
-	 * @param expectedTrade The <codeExpected Trade</code> that we are checking for differences from.
+	 * @param expectedTrade The trade that we are checking for differences from.
 	 */
 	public abstract TradeComparisonResult compare(TradeData expectedTrade);
 
