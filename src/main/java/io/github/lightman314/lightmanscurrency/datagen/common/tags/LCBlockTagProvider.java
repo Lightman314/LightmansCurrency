@@ -66,6 +66,19 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.CASH_REGISTER)
                 .add(ModBlocks.AUCTION_STAND);
 
+        //Misc wooden block tags for easier item position data handling
+        this.cTag(LCTags.Blocks.AUCTION_STAND)
+                .add(ModBlocks.AUCTION_STAND);
+
+        this.cTag(LCTags.Blocks.CARD_DISPLAY)
+                .add(ModBlocks.CARD_DISPLAY);
+
+        this.cTag(LCTags.Blocks.SHELF)
+                .add(ModBlocks.SHELF);
+
+        this.cTag(LCTags.Blocks.SHELF_2x2)
+                .add(ModBlocks.SHELF_2x2);
+
         ///VANILLA TAGS
         //Minable flags
         this.cTag(BlockTags.MINEABLE_WITH_PICKAXE)

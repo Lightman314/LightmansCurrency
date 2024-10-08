@@ -6,6 +6,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
 
@@ -30,11 +32,10 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
     public static ResourceLocation getResourceForBlock(@Nonnull BlockState state) { return getResourceForBlock(state.getBlock()); }
     @Nullable
     public static ResourceLocation getResourceForBlock(@Nonnull Block block) {
-        ResourceLocation blockID = ForgeRegistries.BLOCKS.getKey(block);
-        for(var d : INSTANCE.data.entrySet())
+        for(var d : INSTANCE.data.values())
         {
-            if(d.getValue().contains(blockID))
-                return d.getKey();
+            if(d.isInList(block))
+                return d.target;
         }
         return null;
     }
@@ -49,7 +50,7 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
         return ItemPositionData.EMPTY;
     }
 
-    private final Map<ResourceLocation,List<ResourceLocation>> data = new HashMap<>();
+    private final Map<ResourceLocation,BlockEntry> data = new HashMap<>();
 
     @Override
     protected void apply(@Nonnull Map<ResourceLocation, JsonElement> map, @Nonnull ResourceManager resourceManager, @Nonnull ProfilerFiller filler) {
@@ -57,20 +58,44 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
         map.forEach((id,json) -> {
             try {
                 JsonObject root = GsonHelper.convertToJsonObject(json, "top element");
+                ResourceLocation target = new ResourceLocation(GsonHelper.getAsString(root,"target",id.toString()));
                 JsonArray valueList = GsonHelper.getAsJsonArray(root, "values");
-                List<ResourceLocation> results = new ArrayList<>();
+                List<Predicate<Block>> results = new ArrayList<>();
                 for(int i = 0; i < valueList.size(); ++i)
                 {
-                    ResourceLocation rl = new ResourceLocation(GsonHelper.convertToString(valueList.get(i),"values["+i+"]"));
-                    if(rl != null)
-                        results.add(rl);
+                    String value = GsonHelper.convertToString(valueList.get(i),"values[" + i + "]");
+                    if(value.startsWith("#"))
+                        results.add(new TagPredicate(new ResourceLocation(value.substring(1))));
+                    else
+                        results.add(new BlockPredicate(new ResourceLocation(value)));
                 }
-                this.data.put(id, results);
+                this.data.put(id, new BlockEntry(target,results));
             } catch (JsonSyntaxException | IllegalArgumentException | ResourceLocationException exception) {
                 LightmansCurrency.LogError("Parsing error loading item position data " + id, exception); }
         });
         LightmansCurrency.LogDebug("Loaded " + this.data.size() + " Item Position Block entries!");
     }
 
+    private record BlockEntry(@Nonnull ResourceLocation target, @Nonnull List<Predicate<Block>> list)
+    {
+        boolean isInList(@Nonnull Block block) { return this.list.stream().anyMatch(p -> p.test(block)); }
+    }
+
+    private record TagPredicate(@Nonnull ResourceLocation tag) implements Predicate<Block>
+    {
+        @Override
+        public boolean test(Block block) {
+            return ForgeRegistries.BLOCKS.tags().getTag(BlockTags.create(this.tag)).contains(block);
+        }
+    }
+
+    private record BlockPredicate(@Nonnull ResourceLocation blockID) implements Predicate<Block>
+    {
+        @Override
+        public boolean test(Block block) {
+            ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
+            return id.equals(this.blockID);
+        }
+    }
 
 }
