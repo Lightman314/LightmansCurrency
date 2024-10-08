@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import com.mojang.math.Vector3f;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.RotationHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -27,7 +28,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                         .withEntry(new Vector3f(11f/16f, 9f/16f,4.5f/16f))
                         .withEntry(new Vector3f(5f/16f, 12f/16f,12f/16f))
                         .withEntry(new Vector3f(11f/16f, 12f/16f,12f/16f)),
-                ModBlocks.CARD_DISPLAY
+                LCTags.Blocks.CARD_DISPLAY
         );
         //Display Case
         this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID, "display_case"),ItemPositionBuilder.builder()
@@ -57,7 +58,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                         .withGlobalScale(14f/16f)
                         .withGlobalRotationType(RotationHandler.FACING)
                         .withEntry(new Vector3f(0.5f, 9f/16f,14.5f/16f)),
-                ModBlocks.SHELF
+                LCTags.Blocks.SHELF
         );
         //Shelf 2x2
         this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"shelf_2x2"), ItemPositionBuilder.builder()
@@ -67,7 +68,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                         .withEntry(new Vector3f(0.75f, 13f/16f,14.5f/16f))
                         .withEntry(new Vector3f(0.25f, 5f/16f,14.5f/16f))
                         .withEntry(new Vector3f(0.75f, 5f/16f,14.5f/16f)),
-                ModBlocks.SHELF_2x2
+                LCTags.Blocks.SHELF_2x2
         );
         //Vending Machine
         this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID, "vending_machine"), ItemPositionBuilder.builder()
@@ -107,7 +108,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
         //Auction House
         this.addDataWithBlocks(new ResourceLocation(LightmansCurrency.MODID,"auction_stand"), ItemPositionBuilder.builder()
                         .withEntry(new Vector3f(0.5f,0.75f,0.5f), 0.4f, RotationHandler.SPINNING),
-                ModBlocks.AUCTION_STAND
+                LCTags.Blocks.AUCTION_STAND
         );
 
     }

@@ -15,6 +15,11 @@ public class LCTags {
         public static final TagKey<Block> SAFE_INTERACTABLE = tag("safe_interactable");
         public static final TagKey<Block> OWNER_PROTECTED = tag("owner_protected");
 
+        public static final TagKey<Block> AUCTION_STAND = tag("auction_stand");
+        public static final TagKey<Block> CARD_DISPLAY = tag("card_display");
+        public static final TagKey<Block> SHELF = tag("shelf");
+        public static final TagKey<Block> SHELF_2x2 = tag("shelf_2x2");
+
         private static TagKey<Block> tag(String id) { return BlockTags.create(new ResourceLocation(LightmansCurrency.MODID, id)); }
 
     }

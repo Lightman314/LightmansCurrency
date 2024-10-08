@@ -33,14 +33,14 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
         if(displayItems.size() < 1)
             return;
 
-        pose.pushPose();
-
         BlockState state = blockEntity.getBlockState();
 
         ItemPositionData data = ItemPositionBlockManager.getDataForBlock(state);
         List<Vector3f> positions = data.getPositions(state, 0);
         if(positions.size() == 0)
             return;
+
+        pose.pushPose();
         Vector3f pos = positions.get(0);
         pose.translate(pos.x(), pos.y(), pos.z());
 

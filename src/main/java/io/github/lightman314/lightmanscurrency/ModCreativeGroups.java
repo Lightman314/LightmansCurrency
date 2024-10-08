@@ -137,6 +137,8 @@ public class ModCreativeGroups {
             CreativeModeTab tab = tabSource.get();
             NonNullList<ItemStack> list = NonNullList.create();
             tab.fillItemList(list);
+            if(list.isEmpty())
+                return new ItemStack(ModItems.TRADING_CORE.get());
             return list.get((int)((TimeUtil.getCurrentTime() / 1000) % list.size()));
         };
     }

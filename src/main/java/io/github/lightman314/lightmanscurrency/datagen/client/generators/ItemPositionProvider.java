@@ -13,6 +13,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -43,12 +44,13 @@ public abstract class ItemPositionProvider implements DataProvider {
         this.name = subPack != null ? modid + " (" + subPack + ")" : modid;
     }
 
-    Map<ResourceLocation, List<ResourceLocation>> blockValues = new HashMap<>();
+    Map<ResourceLocation, BlockData> blockValues = new HashMap<>();
     Map<ResourceLocation, ItemPositionBuilder> positionValues = new HashMap<>();
 
     protected abstract void addEntries();
 
-    protected final void addDataWithBlocks(@Nonnull ResourceLocation id, @Nonnull ItemPositionBuilder data, @Nonnull Object... blocks)
+    protected final void addDataWithBlocks(@Nonnull ResourceLocation id, @Nonnull ItemPositionBuilder data, @Nonnull Object... blocks) { this.addDataWithBlocks(id, id, data, blocks); }
+    protected final void addDataWithBlocks(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull ItemPositionBuilder data, @Nonnull Object... blocks)
     {
         this.addData(id, data);
         this.addBlocks(id, blocks);
@@ -62,7 +64,8 @@ public abstract class ItemPositionProvider implements DataProvider {
             throw new IllegalArgumentException("Data for '" + id + "' is already defined!");
     }
 
-    protected final void addBlocks(@Nonnull ResourceLocation id, @Nonnull Object... blocks)
+    protected final void addBlocks(@Nonnull ResourceLocation id, @Nonnull Object... blocks) { this.addBlocks(id,id,blocks); }
+    protected final void addBlocks(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull Object... blocks)
     {
         for(Object obj : blocks)
         {
@@ -72,7 +75,7 @@ public abstract class ItemPositionProvider implements DataProvider {
                 for(Object b : values)
                 {
                     if(b instanceof Block block)
-                        this.addBlock(id,block);
+                        this.addBlock(id,target,block);
                 }
             }
             else if(obj instanceof RegistryObjectBundle<?,?> bundle)
@@ -81,36 +84,48 @@ public abstract class ItemPositionProvider implements DataProvider {
                 for(Object b : values)
                 {
                     if(b instanceof Block block)
-                        this.addBlock(id,block);
+                        this.addBlock(id,target,block);
                 }
             }
             else if(obj instanceof RegistryObject<?> ro)
             {
                 if(ro.get() instanceof Block block)
-                    this.addBlock(id, block);
+                    this.addBlock(id,target,block);
+            }
+            else if(obj instanceof TagKey<?> tag)
+            {
+                if(tag.isFor(ForgeRegistries.BLOCKS.getRegistryKey()))
+                    this.addBlockTag(id,target,tag.cast(ForgeRegistries.BLOCKS.getRegistryKey()).orElse(null));
             }
             else if(obj instanceof List<?> list)
             {
                 for(Object b : list)
-                {
-                    if(b instanceof Block block)
-                        this.addBlock(id, block);
-                    else if(b instanceof ResourceLocation blockID)
-                        this.addBlock(id, blockID);
-                }
+                    this.addBlocks(id,target,b);
             }
             else if(obj instanceof ResourceLocation blockID)
                 this.addBlocks(id, blockID);
         }
     }
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull Block block) { this.addBlock(id, ForgeRegistries.BLOCKS.getKey(block)); }
+    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull Block block) { this.addBlock(id, id, block); }
+    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull Block block) { this.addBlock(id,target,ForgeRegistries.BLOCKS.getKey(block)); }
 
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation blockID)
+    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation blockID) { this.addBlock(id, id, blockID); }
+    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull ResourceLocation blockID)
     {
-        List<ResourceLocation> list = this.blockValues.getOrDefault(id, new ArrayList<>());
-        if(blockID != null && !list.contains(blockID))
-            list.add(blockID);
-        this.blockValues.put(id, list);
+        BlockData data = this.blockValues.getOrDefault(id, new BlockData(target));
+        if(blockID != null && !data.blocks.contains(blockID.toString()))
+            data.blocks.add(blockID.toString());
+        this.blockValues.put(id, data);
+    }
+
+    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, id, blockTag); }
+    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, target, blockTag != null ? blockTag.location() : null); }
+    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nullable ResourceLocation blockTag) { this.addBlockTag(id, id, blockTag); }
+    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nullable ResourceLocation blockTag) {
+        BlockData data = this.blockValues.getOrDefault(id,new BlockData(target));
+        if(blockTag != null && !data.blocks.contains("#" + blockTag))
+            data.blocks.add("#" + blockTag);
+        this.blockValues.put(id,data);
     }
 
     @Override
@@ -132,8 +147,9 @@ public abstract class ItemPositionProvider implements DataProvider {
             //Save Blocks
             JsonObject blockJson = new JsonObject();
             JsonArray blockList = new JsonArray();
-            for(ResourceLocation block : blocks)
-                blockList.add(block.toString());
+            blockJson.addProperty("target",blocks.target.toString());
+            for(String block : blocks.blocks)
+                blockList.add(block);
             blockJson.add("values", blockList);
             Path path = this.blockPathProvider.json(id);
             if(path != null)
@@ -142,6 +158,12 @@ public abstract class ItemPositionProvider implements DataProvider {
                 } catch (IOException e) { throw new RuntimeException(e); }
             }
         });
+    }
+
+    private static class BlockData {
+        public final ResourceLocation target;
+        public final List<String> blocks = new ArrayList<>();
+        public BlockData(@Nonnull ResourceLocation target) { this.target = target; }
     }
 
     @Nonnull
