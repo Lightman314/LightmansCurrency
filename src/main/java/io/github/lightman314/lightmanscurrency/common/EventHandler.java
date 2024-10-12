@@ -381,13 +381,13 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void entityTick(LivingEvent.LivingTickEvent event) {
 		LivingEntity livingEntity = event.getEntity();
-		if(livingEntity instanceof Player player && player.isCreative() && player.level().isClientSide)
+		if(livingEntity instanceof Player player && player.isCreative() && player.level().isClientSide && LightmansCurrency.getProxy().isLocalPlayer(player))
 		{
 			//Check Wallet Updates from the client if they're in creative mode and sync them to the server
 			IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
 			if(handler != null && handler.isDirty())
 			{
-				new CPacketSyncWallet(handler.getWallet()).send();
+				new CPacketSyncWallet(player.getUUID(), handler.getWallet()).send();
 				handler.clean();
 			}
 		}

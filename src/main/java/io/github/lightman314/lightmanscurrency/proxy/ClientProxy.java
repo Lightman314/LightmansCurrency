@@ -281,4 +281,8 @@ public class ClientProxy extends CommonProxy{
 			return super.getPlayerList(logicalClient);
 		return Minecraft.getInstance().getConnection().getOnlinePlayers().stream().map(PlayerInfo::getProfile).toList();
 	}
+
+	@Override
+	public boolean isLocalPlayer(@Nonnull Player player) { return player == Minecraft.getInstance().player; }
+
 }

@@ -850,7 +850,7 @@
   "key.lightmanscurrency.portable_atm": "Access Portable ATM",
   "key.lightmanscurrency.portable_terminal": "Access Portable Terminal",
   "lightmanscurrency.money.chain.chocolate_coins": "Chocolate",
-  "lightmanscurrency.money.chain.chocolate_coins.display": "CC",
+  "lightmanscurrency.money.chain.chocolate_coins.display": "%sCC",
   "lightmanscurrency.money.chain.chocolate_coins.display.wordy": "%s Chocolate Chunks",
   "lightmanscurrency.money.chain.emeralds": "Emeralds",
   "lightmanscurrency.money.chain.emeralds.display": "%sE",

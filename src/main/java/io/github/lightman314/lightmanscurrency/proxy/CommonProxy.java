@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -111,5 +112,7 @@ public class CommonProxy {
 			return server.getPlayerList().getPlayers().stream().map(ServerPlayer::getGameProfile).toList();
 		return new ArrayList<>();
 	}
+
+	public boolean isLocalPlayer(@Nonnull Player player) { return false; }
 	
 }

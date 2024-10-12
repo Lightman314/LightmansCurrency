@@ -818,7 +818,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_MONEY_STORAGE_EMPTY,"Nothing");
         this.translate(LCText.COIN_CHAIN_MAIN,"Main");
         this.translate(LCText.COIN_CHAIN_CHOCOLATE,"Chocolate");
-        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY,"CC");
+        this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY,"%sCC");
         this.translate(LCText.COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY,"%s Chocolate Chunks");
         this.translate(LCText.COIN_CHAIN_EMERALDS,"Emeralds");
         this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY,"%sE");

@@ -52,6 +52,7 @@ public class SPacketSyncWallet extends ServerToClientPacket {
 					{
 						walletHandler.syncWallet(message.walletItem);
 						walletHandler.setVisible(message.visible);
+						walletHandler.clean();
 					}
 				}
 			}
