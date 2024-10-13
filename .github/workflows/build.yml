@@ -59,7 +59,7 @@ jobs:
         # Artifact name
         name: Mod File
         # A file, directory or wildcard pattern that describes what to upload
-        path: build
+        path: build/libs
         # The desired behavior if no files are found using the provided path.
         if-no-files-found: error
     - name: Upload a Build Artifact (Resources)
