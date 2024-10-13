@@ -10,25 +10,18 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class CPacketOpenEjectionMenu extends ClientToServerPacket {
+public class CPacketOpenEjectionMenu extends ClientToServerPacket.Simple {
 
+	private static final CPacketOpenEjectionMenu INSTANCE = new CPacketOpenEjectionMenu();
 	public static final Handler<CPacketOpenEjectionMenu> HANDLER = new H();
 
 	private CPacketOpenEjectionMenu() {}
 
 	public static void sendToServer() { new CPacketOpenEjectionMenu().send(); }
 
-	@Override
-	public void encode(@Nonnull FriendlyByteBuf buffer) { }
-
-	private static class H extends Handler<CPacketOpenEjectionMenu>
+	private static class H extends SimpleHandler<CPacketOpenEjectionMenu>
 	{
-		@Nonnull
-		@Override
-		public CPacketOpenEjectionMenu decode(@Nonnull FriendlyByteBuf buffer) {
-			LightmansCurrency.LogDebug("Decoded ejection packet!");
-			return new CPacketOpenEjectionMenu();
-		}
+		protected H() { super(INSTANCE); }
 		@Override
 		protected void handle(@Nonnull CPacketOpenEjectionMenu message, @Nullable ServerPlayer sender) {
 			LightmansCurrency.LogDebug("Opening ejection menu!");

@@ -48,7 +48,9 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		//Get valid data
 		List<EjectionData> data = this.getValidEjectionData();
 		//Refresh selection, just in case it's no longer valid.
-		this.changeSelection(this.selectedIndex);
+		//Check if selection is no longer value
+		if(this.isServer() && !data.isEmpty() && (this.selectedIndex < 0 || this.selectedIndex >= data.size()))
+			this.changeSelection(this.selectedIndex);
 		if(!data.isEmpty() && this.selectedIndex >= 0 && this.selectedIndex < data.size())
 			return data.get(this.selectedIndex);
 		return this.dummyContainer;
@@ -129,7 +131,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	private void changeSelection(int newSelection, int dataSize) {
 		if(this.isClient())
 		{
-			this.SendMessage(LazyPacketData.simpleInt("ChangeSelection", this.selectedIndex));
+			this.SendMessage(LazyPacketData.simpleInt("ChangeSelection", newSelection));
 			return;
 		}
 		int oldSelection = this.selectedIndex;
