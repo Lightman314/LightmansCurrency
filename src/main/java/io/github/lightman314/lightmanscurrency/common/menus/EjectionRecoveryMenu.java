@@ -86,6 +86,8 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
+		if(message.contains("SelectionChanged"))
+			this.selectedIndex = message.getInt("SelectionChanged");
 	}
 
 	@Nonnull
@@ -135,7 +137,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		if(this.selectedIndex != oldSelection && this.isServer())
 		{
 			//Inform the other side of the change
-			this.SendMessage(LazyPacketData.simpleInt("ChangeSelection", this.selectedIndex));
+			this.SendMessage(LazyPacketData.simpleInt("SelectionChanged", this.selectedIndex));
 		}
 	}
 	

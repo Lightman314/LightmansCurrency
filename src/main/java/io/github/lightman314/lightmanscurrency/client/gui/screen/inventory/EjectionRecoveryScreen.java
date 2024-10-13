@@ -30,7 +30,6 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	
 	@Override
 	protected void initialize(ScreenArea screenArea) {
-		super.init();
 		
 		this.buttonLeft = this.addChild(new IconButton(screenArea.pos.offset(-20, 0), b -> this.changeSelection(-1), IconAndButtonUtil.ICON_LEFT)
 				.withAddons(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() > 0)));
