@@ -56,7 +56,6 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	
 	private void changeSelection(int delta) {
 		int newSelection = this.menu.getSelectedIndex() + delta;
-		LightmansCurrency.LogDebug("Attempting to select " + newSelection + " on the client!\nOld Index: " + this.menu.getSelectedIndex() + ", delta is " + delta);
 		this.menu.changeSelection(newSelection);
 	}
 

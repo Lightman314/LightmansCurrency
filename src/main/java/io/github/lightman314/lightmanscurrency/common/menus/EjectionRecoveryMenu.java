@@ -136,7 +136,6 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		}
 		int oldSelection = this.selectedIndex;
 		this.selectedIndex = MathUtil.clamp(newSelection, 0, dataSize - 1);
-		LightmansCurrency.LogDebug("Changed Selection to " + this.selectedIndex + " on the server!\nRequested index was " + newSelection + ", list size is " + dataSize);
 		if(this.selectedIndex != oldSelection && this.isServer())
 		{
 			//Inform the other side of the change
