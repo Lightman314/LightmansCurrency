@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -30,7 +31,6 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	
 	@Override
 	protected void initialize(ScreenArea screenArea) {
-		super.init();
 		
 		this.buttonLeft = this.addChild(new IconButton(screenArea.pos.offset(-20, 0), b -> this.changeSelection(-1), IconAndButtonUtil.ICON_LEFT)
 				.withAddons(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() > 0)));
@@ -56,6 +56,7 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	
 	private void changeSelection(int delta) {
 		int newSelection = this.menu.getSelectedIndex() + delta;
+		LightmansCurrency.LogDebug("Attempting to select " + newSelection + " on the client!\nOld Index: " + this.menu.getSelectedIndex() + ", delta is " + delta);
 		this.menu.changeSelection(newSelection);
 	}
 

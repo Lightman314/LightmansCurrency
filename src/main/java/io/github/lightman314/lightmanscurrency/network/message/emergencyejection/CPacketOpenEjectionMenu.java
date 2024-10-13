@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
 
 public class CPacketOpenEjectionMenu extends ClientToServerPacket.Simple {
 
-	public static final Handler<CPacketOpenEjectionMenu> HANDLER = new H();
 	private static final CPacketOpenEjectionMenu INSTANCE = new CPacketOpenEjectionMenu();
+	public static final Handler<CPacketOpenEjectionMenu> HANDLER = new H();
 
 	private CPacketOpenEjectionMenu() {}
 
