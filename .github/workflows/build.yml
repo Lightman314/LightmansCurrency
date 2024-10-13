@@ -1,0 +1,94 @@
+name: Java CI with Gradle
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: 
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
+    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+
+    - name: Make Gradle wrapper executable
+      run: chmod +x gradlew
+
+    - name: Setup Forge files
+      if: false
+      run: ./gradlew forge:setupFiles -Pminecraft_version="${{ matrix.minecraft }}"
+
+    - name: Build with Gradle Wrapper
+      run: |
+          NOW=$(date '+%Y-%m-%d-%H.%M')
+          ./gradlew build --scan
+
+    # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
+    # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
+    #
+    # - name: Setup Gradle
+    #   uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+    #   with:
+    #     gradle-version: '8.5'
+    #
+    # - name: Build with Gradle 8.5
+    #   run: gradle build
+    - name: Delete temp files
+      run: exit 0
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        # Artifact name
+        name: Mod File
+        # A file, directory or wildcard pattern that describes what to upload
+        path: build
+        # The desired behavior if no files are found using the provided path.
+        if-no-files-found: error
+    - name: Upload a Build Artifact (Resources)
+      if: false
+      uses: actions/upload-artifact@v4
+      with:
+        # Artifact name
+        name: Resource File (${{ matrix.minecraft }})
+        # A file, directory or wildcard pattern that describes what to upload
+        path: build/resources
+        # The desired behavior if no files are found using the provided path.
+        if-no-files-found: warn
+
+  dependency-submission:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.event_name != 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
+    # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
+    - name: Generate and submit dependency graph
+      uses: gradle/actions/dependency-submission@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
