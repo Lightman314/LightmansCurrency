@@ -144,9 +144,9 @@ dependencies {
 
     //Wood Compatibility (should be implementation for dataGen)
     //Biomes O' Plenty
-    compileOnly "curse.maven:biomes-o-plenty-220318:5512375"
-    compileOnly "curse.maven:glitchcore-955399:5483773"
-    compileOnly "curse.maven:terrablender-neoforge-940057:5429865"
+    implementation "curse.maven:biomes-o-plenty-220318:5512375"
+    implementation "curse.maven:glitchcore-955399:5483773"
+    implementation "curse.maven:terrablender-neoforge-940057:5429865"
     //Quark
     //Waiting for update
     //implementation "curse.maven:quark-243121:5084013"
