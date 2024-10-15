@@ -4,10 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public final class UpgradeData
 {
@@ -21,6 +25,46 @@ public final class UpgradeData
                     Codec.unboundedMap(Codec.STRING,CompoundTag.CODEC).fieldOf("compounds").forGetter(data -> data.tagData)
                     ).apply(builder,UpgradeData::new)
             );
+
+    public static final StreamCodec<FriendlyByteBuf,UpgradeData> STREAM_CODEC = StreamCodec.of(
+            (b,d) -> {
+                encodeMap(b,d.boolData,FriendlyByteBuf::writeBoolean);
+                encodeMap(b,d.intData,FriendlyByteBuf::writeLong);
+                encodeMap(b,d.floatData,FriendlyByteBuf::writeDouble);
+                encodeMap(b,d.stringData,FriendlyByteBuf::writeUtf);
+                encodeMap(b,d.tagData,(a,t) -> a.writeNbt(t));
+            },
+            (b) -> {
+                Map<String,Boolean> boolData = decodeMap(b,FriendlyByteBuf::readBoolean);
+                Map<String,Long> intData = decodeMap(b,FriendlyByteBuf::readLong);
+                Map<String,Double> floatData = decodeMap(b,FriendlyByteBuf::readDouble);
+                Map<String,String> stringData = decodeMap(b,FriendlyByteBuf::readUtf);
+                Map<String,CompoundTag> tagData = decodeMap(b,a -> a.readNbt());
+                return new UpgradeData(boolData,intData,floatData,stringData,tagData);
+            }
+    );
+
+    private static <T> void encodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Map<String,T> map, @Nonnull BiConsumer<FriendlyByteBuf,T> encoder)
+    {
+        buffer.writeInt(map.size());
+        map.forEach((key,val) -> {
+            buffer.writeUtf(key);
+            encoder.accept(buffer,val);
+        });
+    }
+
+    private static <T> Map<String,T> decodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Function<FriendlyByteBuf,T> decoder)
+    {
+        Map<String,T> map = new HashMap<>();
+        int count = buffer.readInt();
+        for(int i = 0; i < count; ++i)
+        {
+            String key = buffer.readUtf();
+            T val = decoder.apply(buffer);
+            map.put(key,val);
+        }
+        return map;
+    }
 
     public static final UpgradeData EMPTY = new UpgradeData();
 

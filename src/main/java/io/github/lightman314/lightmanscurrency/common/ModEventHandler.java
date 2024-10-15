@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common;
 
+import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
@@ -21,11 +22,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 import javax.annotation.Nonnull;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD,modid = LightmansCurrency.MODID)
 public class ModEventHandler {
+
+    @SubscribeEvent
+    private static void registerRegistries(NewRegistryEvent event)
+    {
+        event.register(LCRegistries.EJECTION_DATA);
+    }
 
     @SubscribeEvent
     private static void registerCapabilityProviders(@Nonnull RegisterCapabilitiesEvent event)

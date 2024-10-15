@@ -26,10 +26,10 @@ public class DoubleListOption extends ListOption<Double> {
     @Override
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
 
-    public static DoubleListOption create(@Nonnull List<Double> defaultValue) { return new DoubleListOption(() -> defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
+    public static DoubleListOption create(@Nonnull List<Double> defaultValue) { return new DoubleListOption(() -> defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleListOption create(@Nonnull List<Double> defaultValue, double lowerLimit) { return new DoubleListOption(() -> defaultValue, lowerLimit, Double.MAX_VALUE); }
     public static DoubleListOption create(@Nonnull List<Double> defaultValue, double lowerLimit, double upperLimit) { return new DoubleListOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static DoubleListOption create(@Nonnull Supplier<List<Double>> defaultValue) { return new DoubleListOption(defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
+    public static DoubleListOption create(@Nonnull Supplier<List<Double>> defaultValue) { return new DoubleListOption(defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleListOption create(@Nonnull Supplier<List<Double>> defaultValue, double lowerLimit) { return new DoubleListOption(defaultValue, lowerLimit, Double.MAX_VALUE); }
     public static DoubleListOption create(@Nonnull Supplier<List<Double>> defaultValue, double lowerLimit, double upperLimit) { return new DoubleListOption(defaultValue, lowerLimit, upperLimit); }
 

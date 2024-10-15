@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
@@ -37,7 +39,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 
-public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
+public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock, IUpgradeableBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
@@ -139,4 +141,12 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
             return blockEntity.allowAccess(player);
         return true;
     }
+
+    @Override
+    public boolean canUseUpgradeItem(@Nonnull IUpgradeable upgradeable, @Nonnull ItemStack stack, @Nullable Player player) {
+        if(upgradeable instanceof CoinChestBlockEntity be)
+            return be.allowAccess(player);
+        return false;
+    }
+
 }

@@ -312,7 +312,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 
 	@Nonnull
 	@Override
-	public List<ItemStack> onBlockBroken(@Nonnull Level level, @Nonnull OwnerData owner) { return this.getAsSeperatedItemList(); }
+	public List<ItemStack> onBlockBroken(@Nonnull OwnerData owner) { return this.getAsSeperatedItemList(); }
 
 	//Rounding and Sorting functions. Now static and only used on a coin values init stage as they are now immutable.
 	private static List<CoinValuePair> roundValue(@Nonnull String chain, @Nonnull List<CoinValuePair> list)

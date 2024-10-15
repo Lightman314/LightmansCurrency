@@ -185,9 +185,22 @@ public final class LCConfig {
             builder.comment("Whether LC Screens should render a white background for easier debugging & screenshots")
                     .add("debugScreenBG", this.debugScreens);
 
+            /* Wallet Position Debug
+            builder.comment("Wallet Offset X").add("offX", this.xOff);
+            builder.comment("Wallet Offset Y").add("offY", this.yOff);
+            builder.comment("Wallet Offset Z").add("offZ", this.zOff);
+            */
+
             builder.pop();
 
         }
+
+        /* Wallet Position Debug
+        public final DoubleOption xOff = DoubleOption.create(2f/16f);
+        public final DoubleOption yOff = DoubleOption.create(19f/16f);
+        public final DoubleOption zOff = DoubleOption.create(6f/16f);
+        */
+
     }
 
     public static final class Common extends ConfigFile

@@ -30,10 +30,10 @@ public class FloatOption extends ConfigOption<Float> {
     @Override
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
 
-    public static FloatOption create(float defaultValue) { return new FloatOption(() -> defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
+    public static FloatOption create(float defaultValue) { return new FloatOption(() -> defaultValue, -Float.MAX_VALUE, Float.MAX_VALUE); }
     public static FloatOption create(float defaultValue, float lowerLimit) { return new FloatOption(() -> defaultValue, lowerLimit, Float.MAX_VALUE); }
     public static FloatOption create(float defaultValue, float lowerLimit, float upperLimit) { return new FloatOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static FloatOption create(@Nonnull Supplier<Float> defaultValue) { return new FloatOption(defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
+    public static FloatOption create(@Nonnull Supplier<Float> defaultValue) { return new FloatOption(defaultValue, -Float.MAX_VALUE, Float.MAX_VALUE); }
     public static FloatOption create(@Nonnull Supplier<Float> defaultValue, float lowerLimit) { return new FloatOption(defaultValue, lowerLimit, Float.MAX_VALUE); }
     public static FloatOption create(@Nonnull Supplier<Float> defaultValue, float lowerLimit, float upperLimit) { return new FloatOption(defaultValue, lowerLimit, upperLimit); }
 

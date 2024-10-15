@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.datagen.client.resourcepacks.LCCl
 import io.github.lightman314.lightmanscurrency.datagen.common.advancements.LCAdvancementProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.*;
 import io.github.lightman314.lightmanscurrency.datagen.common.enchantments.LCEnchantmentProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootModifierProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
 import net.minecraft.core.HolderLookup;
@@ -34,6 +35,8 @@ public class LCDataEventListener {
         generator.addProvider(event.includeServer(), new LCRecipeProvider(output,lookupHolder));
         //Loot Tables
         generator.addProvider(event.includeServer(), LCLootTableProvider.create(output,lookupHolder));
+        //Global Loot Modifiers
+        generator.addProvider(event.includeServer(), new LCLootModifierProvider(output,lookupHolder));
         //Advancements
         generator.addProvider(event.includeServer(), new LCAdvancementProvider(output, lookupHolder, existingFileHelper));
 

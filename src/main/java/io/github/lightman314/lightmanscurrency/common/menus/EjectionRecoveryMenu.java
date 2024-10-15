@@ -2,8 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
@@ -29,12 +30,12 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	public EjectionRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.EJECTION_RECOVERY.get(), menuID, inventory); }
 
     public List<EjectionData> getValidEjectionData() {
-		return EjectionSaveData.GetValidEjectionData(this.isClient(), this.player);
+		return SafeEjectionAPI.getApi().getDataForPlayer(this.player);
 	}
 	
 	private int selectedIndex = 0;
 	public int getSelectedIndex() { return this.selectedIndex; }
-	public EjectionData getSelectedData() { 
+	public EjectionData getSelectedData() {
 		List<EjectionData> data = this.getValidEjectionData();
 		if(!data.isEmpty() && this.selectedIndex >= 0 && this.selectedIndex < data.size())
 			return data.get(this.selectedIndex);
@@ -46,11 +47,19 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	private Container getSelectedContainer() { 
 		//Get valid data
 		List<EjectionData> data = this.getValidEjectionData();
-		//Refresh selection, just in case it's no longer valid.
-		this.changeSelection(this.selectedIndex);
+		//Check if selection is no longer valid
+		if(this.isServer() && !data.isEmpty() && (this.selectedIndex < 0 || this.selectedIndex >= data.size()))
+			this.changeSelection(this.selectedIndex);
 		if(!data.isEmpty() && this.selectedIndex >= 0 && this.selectedIndex < data.size())
-			return data.get(this.selectedIndex);
+			return data.get(this.selectedIndex).getContents();
 		return this.dummyContainer;
+	}
+
+	private void markSelectedDirty()
+	{
+		EjectionData data = this.getSelectedData();
+		if(data != null)
+			data.setChanged();
 	}
 	
 	protected EjectionRecoveryMenu(MenuType<?> type, int menuID, Inventory inventory) {
@@ -63,7 +72,9 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		{
 			for(int x = 0; x < 9; ++x)
 			{
-				 this.addSlot(new OutputSlot(ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18));
+				OutputSlot slot = new OutputSlot(ejectionContainer, x + y * 9, 8 + x * 18, 18 + y * 18);
+				slot.setListener(this::markSelectedDirty);
+				this.addSlot(slot);
 			}
 		}
 		
@@ -85,6 +96,10 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	public void HandleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
+		if(message.contains("SelectionChanged"))
+			this.selectedIndex = message.getInt("SelectionChanged");
+		if(message.contains("SplitData"))
+			this.splitSelectedData();
 	}
 
 	@Nonnull
@@ -119,6 +134,24 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		this.clearContainer(player, this.dummyContainer);
 	}
 
+	public void splitSelectedData()
+	{
+		if(this.isClient())
+		{
+			this.SendMessage(this.builder().setFlag("SplitData"));
+			return;
+		}
+		EjectionData data = this.getSelectedData();
+		if(data != null && data.canSplit())
+		{
+			LightmansCurrency.LogDebug("Splitting data from the server!");
+			try {
+				data.splitContents();
+				data.setChanged();
+			} catch (Throwable t) { LightmansCurrency.LogError("Error splitting Ejection Contents!",t); }
+		}
+	}
+
 	public void changeSelection(int newSelection) {
 		this.changeSelection(newSelection, this.getValidEjectionData().size());
 	}
@@ -126,7 +159,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	private void changeSelection(int newSelection, int dataSize) {
 		if(this.isClient())
 		{
-			this.SendMessage(this.builder().setInt("ChangeSelection", this.selectedIndex));
+			this.SendMessage(this.builder().setInt("ChangeSelection", newSelection));
 			return;
 		}
 		int oldSelection = this.selectedIndex;
@@ -134,7 +167,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		if(this.selectedIndex != oldSelection && this.isServer())
 		{
 			//Inform the other side of the change
-			this.SendMessage(this.builder().setInt("ChangeSelection", this.selectedIndex));
+			this.SendMessage(this.builder().setInt("SelectionChanged", this.selectedIndex));
 		}
 	}
 	

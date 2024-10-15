@@ -13,16 +13,20 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -37,7 +41,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -47,7 +50,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock, IEasyEntityBlock {
+public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock, IEasyEntityBlock, IUpgradeableBlock {
 
 	private final VoxelShape shape;
 	
@@ -194,18 +197,21 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 							LightmansCurrency.LogError("Activating emergency eject protocol.");
 						}
 
-						EjectionData data = EjectionData.create(level, pos, state, trader);
-						EjectionSaveData.HandleEjectionData(level, pos, data);
+						EjectionData data = trader.buildEjectionData(level,pos,state);
+						SafeEjectionAPI.getApi().handleEjection(level,pos,data);
+						//Do not flag the block as broken here ad building the ejection data will flag it as an "Ejected" trader and will not be deleted until/unless split
 					}
 					//Remove the rest of the multi-block structure.
 					this.onInvalidRemoval(state, level, pos, trader);
 					this.removeOtherBlocks(level,state,pos);
 				}
 				else
-					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
-				
-				//Flag the block as broken, so that the trader gets deleted.
-				traderSource.onBreak();
+				{
+					LightmansCurrency.LogDebug("Trader block was broken by legal means!");
+					//Flag the block as broken, so that the trader gets deleted.
+					traderSource.onBreak();
+				}
+
 			}
 		}
 		
@@ -247,6 +253,21 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 			if(player != null)
 				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 		}
+	}
+
+	@Nullable
+	@Override
+	public IUpgradeable getUpgradeable(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+		if(this.getBlockEntity(state,level,pos) instanceof IUpgradeableBlockEntity be)
+			return be.getUpgradeable();
+		return null;
+	}
+
+	@Override
+	public boolean canUseUpgradeItem(@Nonnull IUpgradeable upgradeable, @Nonnull ItemStack stack, @Nullable Player player) {
+		if(upgradeable instanceof TraderData trader)
+			return player != null && trader.hasPermission(player,Permissions.OPEN_STORAGE);
+		return false;
 	}
 
 }

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -20,18 +21,16 @@ import java.util.Optional;
 
 public class ChocolateCoinItem extends Item {
 
-    private final List<MobEffectInstance> effects;
-    private final float healing;
-
 
     public ChocolateCoinItem(MobEffectInstance... effects) { this(0f, effects); }
     public ChocolateCoinItem(float healing, MobEffectInstance... effects) { this(new Properties(), healing, effects); }
     public ChocolateCoinItem(Properties properties, MobEffectInstance... effects) { this(properties, 0f, effects); }
     public ChocolateCoinItem(Properties properties, float healing, MobEffectInstance... effects) {
         //Same food properties as the vanilla cookie, but with AlwaysEat flag
-        super(properties.food(new FoodProperties.Builder().alwaysEdible().nutrition(2).saturationModifier(0.1f).build()));
-        this.effects = ImmutableList.copyOf(effects);
-        this.healing = healing;
+        super(properties
+                .food(new FoodProperties.Builder().alwaysEdible().nutrition(2).saturationModifier(0.1f).build())
+                .component(ModDataComponents.CHOCOLATE_HEALING,healing)
+                .component(ModDataComponents.CHOCOLATE_EFFECTS,ImmutableList.copyOf(effects)));
     }
 
     @Override
@@ -42,10 +41,12 @@ public class ChocolateCoinItem extends Item {
             return;
         if(LCConfig.SERVER.chocolateCoinEffects.get())
         {
-            if(this.healing > 0)
-                tooltip.add(LCText.TOOLTIP_HEALING.get((int)this.healing).withStyle(ChatFormatting.BLUE));
-            if(!this.effects.isEmpty())
-                new PotionContents(Optional.empty(),Optional.empty(), this.effects).addPotionTooltip(tooltip::add, 1f, context.tickRate());
+            float healing = stack.getOrDefault(ModDataComponents.CHOCOLATE_HEALING,0f);
+            if(healing > 0f)
+                tooltip.add(LCText.TOOLTIP_HEALING.get((int)healing).withStyle(ChatFormatting.BLUE));
+            List<MobEffectInstance> effects = stack.getOrDefault(ModDataComponents.CHOCOLATE_EFFECTS,ImmutableList.of());
+            if(!effects.isEmpty())
+                new PotionContents(Optional.empty(),Optional.empty(), effects).addPotionTooltip(tooltip::add, 1f, context.tickRate());
         }
     }
 
@@ -54,9 +55,11 @@ public class ChocolateCoinItem extends Item {
     public ItemStack finishUsingItem(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity) {
         if(LCConfig.SERVER.chocolateCoinEffects.get())
         {
-            if(this.healing > 0f)
-                entity.heal(this.healing);
-            for(MobEffectInstance effect : this.effects)
+            float healing = stack.getOrDefault(ModDataComponents.CHOCOLATE_HEALING,0f);
+            if(healing > 0f)
+                entity.heal(healing);
+            List<MobEffectInstance> effects = stack.getOrDefault(ModDataComponents.CHOCOLATE_EFFECTS,ImmutableList.of());
+            for(MobEffectInstance effect : effects)
                 entity.addEffect(new MobEffectInstance(effect));
         }
         return super.finishUsingItem(stack, level, entity);

@@ -129,10 +129,10 @@ dependencies {
 
     //Claim Compats
     //FTB Chunks claim purchase compat
-    implementation 'curse.maven:ftb-chunks-forge-314906:5448646'
-    implementation 'curse.maven:ftb-teams-forge-404468:5448371'
-    implementation 'curse.maven:ftb-library-forge-404465:5482367'
-    implementation 'curse.maven:architectury-api-419699:5521987'
+    compileOnly 'curse.maven:ftb-chunks-forge-314906:5448646'
+    compileOnly 'curse.maven:ftb-teams-forge-404468:5448371'
+    compileOnly 'curse.maven:ftb-library-forge-404465:5482367'
+    compileOnly 'curse.maven:architectury-api-419699:5521987'
 
     //Cadmus claim purchase compat
     //Waiting for update
@@ -144,9 +144,9 @@ dependencies {
 
     //Wood Compatibility (should be implementation for dataGen)
     //Biomes O' Plenty
-    implementation "curse.maven:biomes-o-plenty-220318:5512375"
-    implementation "curse.maven:glitchcore-955399:5483773"
-    implementation "curse.maven:terrablender-neoforge-940057:5429865"
+    compileOnly "curse.maven:biomes-o-plenty-220318:5512375"
+    compileOnly "curse.maven:glitchcore-955399:5483773"
+    compileOnly "curse.maven:terrablender-neoforge-940057:5429865"
     //Quark
     //Waiting for update
     //implementation "curse.maven:quark-243121:5084013"

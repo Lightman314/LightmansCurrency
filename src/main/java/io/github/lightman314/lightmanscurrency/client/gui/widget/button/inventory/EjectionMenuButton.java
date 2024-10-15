@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenEjectionMenu;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +33,7 @@ public class EjectionMenuButton extends InventoryButton {
 	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
 	@Override
-	protected boolean canShow() { return !EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).isEmpty(); }
+	protected boolean canShow() { return !SafeEjectionAPI.getApi().getDataForPlayer(this.getPlayer()).isEmpty(); }
 
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos.x, gui.mousePos.y))

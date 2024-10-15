@@ -1,45 +1,36 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
-import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
-import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T,M>{
-
-	private final ModelWallet<T> model;
 	
 	public WalletLayer(RenderLayerParent<T,M> renderer)
 	{
 		super(renderer);
-		this.model = new ModelWallet<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
 	}
 
 	@Override
-	public void render(@Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int light, @Nonnull T entity, float limbSwing,
+	public void render(@Nonnull PoseStack pose, @Nonnull MultiBufferSource bufferSource, int light, @Nonnull T entity, float limbSwing,
 					   float limbSwingAmount,
 					   float partialTicks,
 					   float ageInTicks,
@@ -54,24 +45,19 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 		if(wallet.getItem() instanceof WalletItem walletItem)
 		{
 
-			this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
-			this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-			this.getParentModel().copyPropertiesTo(this.model);
-			VertexConsumer vertexConsumer = ItemRenderer
-					.getFoilBuffer(bufferSource, this.model.renderType(walletItem.getModelTexture()), false, wallet.hasFoil());
-			this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
-			
+			pose.pushPose();
+			pose.translate(12f/16f, 19.5f/16f, 6f/16f);
+			//Debug Positioning to align with old model position
+			//pose.translate(LCConfig.CLIENT.xOff.get(),LCConfig.CLIENT.yOff.get(),LCConfig.CLIENT.zOff.get());
+
+			Minecraft mc = Minecraft.getInstance();
+			BakedModel model = mc.getModelManager().getModel(ModelResourceLocation.standalone(wallet.getOrDefault(ModDataComponents.WALLET_MODEL, VersionUtil.lcResource("item/wallet/null"))));
+			mc.getItemRenderer().render(wallet, ItemDisplayContext.FIXED, false, pose, bufferSource, light, OverlayTexture.NO_OVERLAY, model);
+
+			pose.popPose();
+
 		}
 		
-	}
-	
-	public static LayerDefinition createLayer() {
-		CubeDeformation cube = CubeDeformation.NONE;
-		MeshDefinition mesh = HumanoidModel.createMesh(cube, 0.0f);
-		PartDefinition part = mesh.getRoot();
-		part.addOrReplaceChild("wallet", CubeListBuilder.create().texOffs(0, 0).addBox(4f, 11.5f, -2f, 2f, 4f, 4f, cube),
-				PartPose.offsetAndRotation(0f, 0f, 0f, 0f, 0f, 0f));
-		return LayerDefinition.create(mesh, 32, 16);
 	}
 	
 }

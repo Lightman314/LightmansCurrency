@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
@@ -53,7 +53,7 @@ public class TaxBlockEntity extends EasyBlockEntity {
             //Add stored money
             for(MoneyValue value : entry.getStoredMoney().allValues())
             {
-                List<ItemStack> items = value.onBlockBroken(this.level, entry.getOwner());
+                List<ItemStack> items = value.onBlockBroken(entry.getOwner());
                 if(items != null)
                     drops.addAll(items);
             }
@@ -69,7 +69,8 @@ public class TaxBlockEntity extends EasyBlockEntity {
             //Eject the tax contents for safekeeping
             if(!this.validBreak)
             {
-                EjectionSaveData.HandleEjectionData(this.level, this.worldPosition, EjectionData.create(this.level, this.worldPosition, this.getBlockState(), IDumpable.preCollected(this.getContents(true), entry.getName(), entry.getOwner())));
+                EjectionData data = new BasicEjectionData(entry.getOwner(),this.getContents(true),entry.getName());
+                SafeEjectionAPI.getApi().handleEjection(this.level,this.worldPosition,data);
                 this.validBreak = true;
             }
             TaxSaveData.RemoveEntry(this.taxEntryID);

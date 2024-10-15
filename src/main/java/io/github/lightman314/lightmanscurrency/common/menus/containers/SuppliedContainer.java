@@ -15,7 +15,6 @@ public class SuppliedContainer implements Container{
 
 	public final Supplier<Container> source;
 	private final Container nullContainer;
-
 	
 	public SuppliedContainer(Supplier<Container> source) { this(source, new SimpleContainer(1)); }
 	public SuppliedContainer(Supplier<Container> source, Container nullContainer) { this.source = source; this.nullContainer = nullContainer; }
@@ -23,6 +22,11 @@ public class SuppliedContainer implements Container{
 	private Container safeGet() {
 		Container c = this.source.get();
 		return c == null ? this.nullContainer : c;
+	}
+	private boolean validSlot(int slot)
+	{
+		Container c = this.safeGet();
+		return slot >= 0 && slot < c.getContainerSize();
 	}
 
 	@Override
@@ -36,18 +40,33 @@ public class SuppliedContainer implements Container{
 	
 	@Nonnull
 	@Override
-	public ItemStack getItem(int slot) { return this.safeGet().getItem(slot); }
+	public ItemStack getItem(int slot) {
+		if(this.validSlot(slot))
+			return this.safeGet().getItem(slot);
+		return ItemStack.EMPTY;
+	}
 	
 	@Nonnull
 	@Override
-	public ItemStack removeItem(int slot, int count) { return this.safeGet().removeItem(slot, count); }
+	public ItemStack removeItem(int slot, int count) {
+		if(this.validSlot(slot))
+			return this.safeGet().removeItem(slot, count);
+		return ItemStack.EMPTY;
+	}
 	
 	@Nonnull
 	@Override
-	public ItemStack removeItemNoUpdate(int slot) { return this.safeGet().removeItemNoUpdate(slot); }
+	public ItemStack removeItemNoUpdate(int slot) {
+		if(this.validSlot(slot))
+			return this.safeGet().removeItemNoUpdate(slot);
+		return ItemStack.EMPTY;
+	}
 	
 	@Override
-	public void setItem(int slot, @Nonnull ItemStack stack) { this.safeGet().setItem(slot, stack); }
+	public void setItem(int slot, @Nonnull ItemStack stack) {
+		if(this.validSlot(slot))
+			this.safeGet().setItem(slot, stack);
+	}
 	
 	@Override
 	public int getMaxStackSize() { return this.safeGet().getMaxStackSize(); }
@@ -65,7 +84,7 @@ public class SuppliedContainer implements Container{
 	public void stopOpen(@Nonnull Player player) { this.safeGet().stopOpen(player); }
 	
 	@Override
-	public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return this.safeGet().canPlaceItem(slot, stack); }
+	public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return this.safeGet().canPlaceItem(slot, stack) && this.validSlot(slot); }
 	
 	@Override
 	public int countItem(@Nonnull Item item) { return this.safeGet().countItem(item); }

@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
 	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
+	public static final CoinsInChestsModifier INSTANCE  = new CoinsInChestsModifier();
 
 	public static final MapCodec<CoinsInChestsModifier> SERIALIZER = MapCodec.unit(new CoinsInChestsModifier());
 

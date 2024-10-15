@@ -8,10 +8,13 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +31,23 @@ public record WalletData(List<ItemStack> items, boolean autoExchange, int bonusS
                     Codec.BOOL.fieldOf("AutoExchange").forGetter(d -> d.autoExchange),
                     Codec.INT.fieldOf("BonusSlots").orElse(0).forGetter(d -> d.bonusSlots)
                     ).apply(builder,WalletData::new)
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf,WalletData> STREAM_CODEC = StreamCodec.of(
+            (b,d) -> {
+                b.writeInt(d.items.size());
+                for(ItemStack i : d.items)
+                    ItemStack.OPTIONAL_STREAM_CODEC.encode(b,i);
+                b.writeBoolean(d.autoExchange);
+                b.writeInt(d.bonusSlots);
+            },
+            (b) -> {
+                int itemCount = b.readInt();
+                List<ItemStack> list = new ArrayList<>();
+                for(int i = 0; i < itemCount; ++i)
+                    list.add(ItemStack.OPTIONAL_STREAM_CODEC.decode(b));
+                return new WalletData(ImmutableList.copyOf(list),b.readBoolean(),b.readInt());
+            }
     );
 
     public WalletData withItems(@Nonnull List<ItemStack> items) { return new WalletData(ImmutableList.copyOf(InventoryUtil.copyList(items)),this.autoExchange,this.bonusSlots); }

@@ -2,26 +2,27 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.SecurityUpgradeTab;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.SecurityUpgradeData;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -90,7 +91,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nonnull Player player) { return !this.isMember(be, data, player); }
+    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nullable Player player) { return player == null || !this.isMember(be, data, player); }
 
     @Override
     public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { data.editData(ModDataComponents.SECURITY_UPGRADE_DATA, SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(false)); }
@@ -109,7 +110,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
         {
             List<ItemStack> items = new ArrayList<>(be.getStorage().removeAllItems());
             items.addAll(be.getUpgrades().removeAllItems());
-            EjectionSaveData.HandleEjectionData(be.getLevel(), be.getBlockPos(), EjectionData.create(be.getLevel(), be.getBlockPos(), be.getBlockState(), IDumpable.preCollected(items, be.getDisplayName(), owner), false));
+            SafeEjectionAPI.getApi().handleEjection(be.getLevel(),be.getBlockPos(),new BasicEjectionData(owner,InventoryUtil.buildInventory(items),be.getDisplayName()));
         }
     }
 

@@ -53,7 +53,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			poseStack.mulPose(rotation);
 
 			Minecraft mc = Minecraft.getInstance();
-			BakedModel model = mc.getModelManager().getModel(new ModelResourceLocation(freezerBlock.getDoorModel(),ModelResourceLocation.STANDALONE_VARIANT));
+			BakedModel model = mc.getModelManager().getModel(ModelResourceLocation.standalone(freezerBlock.getDoorModel()));
 			ItemRenderer itemRenderer = mc.getItemRenderer();
 			itemRenderer.render(new ItemStack(freezerBlock), ItemDisplayContext.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
 

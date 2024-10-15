@@ -456,6 +456,8 @@ public class LCText {
 
     //Ejection Menu
     public static final TextEntry GUI_EJECTION_NO_DATA = TextEntry.gui(MODID,"ejection_menu.no_data");
+    public static final TextEntry TOOLTIP_EJECTION_SPLIT_GENERIC = TextEntry.tooltip(MODID,"ejection_menu.split.generic");
+    public static final TextEntry TOOLTIP_EJECTION_SPLIT_TRADER = TextEntry.tooltip(MODID,"ejection_menu.split.trader");
 
     //Coin Mint Menu
     public static final TextEntry GUI_COIN_MINT_TITLE = TextEntry.gui(MODID,"coinmint.title");
@@ -464,6 +466,8 @@ public class LCText {
     public static final TextEntry BUTTON_PLAYER_TRADING_PROPOSE = TextEntry.button(MODID,"player_trading.propose");
     public static final TextEntry BUTTON_PLAYER_TRADING_ACCEPT = TextEntry.button(MODID,"player_trading.accept");
     public static final TextEntry BUTTON_PLAYER_TRADING_CANCEL = TextEntry.button(MODID,"player_trading.cancel");
+    public static final TextEntry TOOLTIP_PLAYER_TRADING_MONEY_OPEN = TextEntry.tooltip(MODID,"player_trading.money.open");
+    public static final TextEntry TOOLTIP_PLAYER_TRADING_MONEY_CLOSE = TextEntry.tooltip(MODID,"player_trading.money.close");
     public static final TextEntry TOOLTIP_PLAYER_TRADING_CHAT_OPEN = TextEntry.tooltip(MODID,"player_trading.chat.open");
     public static final TextEntry TOOLTIP_PLAYER_TRADING_CHAT_CLOSE = TextEntry.tooltip(MODID,"player_trading.chat.close");
 

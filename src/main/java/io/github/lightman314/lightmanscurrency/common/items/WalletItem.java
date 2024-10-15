@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
+import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -23,6 +24,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -51,7 +54,6 @@ import net.minecraft.world.level.Level;
 public class WalletItem extends Item{
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER.value();
-	private final ResourceLocation modelTexture;
 	/**
 	 * A constant denoting the highest expected level of a wallet item<br>
 	 * Used to limit the input of wallet feature config options
@@ -68,34 +70,32 @@ public class WalletItem extends Item{
 	 */
 	public static final int SLOT_UPGRADE_LIMIT = 24;
 
-	private final int level;
-	private final int storageSize;
-	private final int bonusMagnet;
-	public final boolean indestructible;
+	@Nonnull
+	public static ResourceLocation lazyModel(@Nonnull String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
+	@Nonnull
+	public static ResourceLocation lazyModel(@Nonnull ResourceLocation itemID) { return itemID.withPrefix("item/wallet_hip/"); }
 
 	/**
 	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull String modelName, @Nonnull Properties properties) { this(level, storageSize, modelName, false, 0, properties); }
-	public WalletItem(int level, int storageSize, @Nonnull String modelName, boolean indestructible, int bonusMagnet, @Nonnull Properties properties) { this(level, storageSize, ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,modelName), indestructible, bonusMagnet, properties); }
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level, storageSize, model, false, 0, properties); }
 	/**
 	 * Default constructor
 	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
 	 *              Should not exceeed {@link #LARGEST_LEVEL}
 	 * @param storageSize The number of coin slots included in this wallets inventory
-	 * @param modelTexture The wallets model texture location<br>
-	 *              Automatically formatted within the constructor to find the texture in <code>assets/NAMESPACE/textures/entity/PATH.png</code>
+	 * @param model The wallets model location<br>
+	 *              See {@link #lazyModel(ResourceLocation)} or {@link #lazyModel(String)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
 	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation modelTexture, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
 	{
-		super(properties.stacksTo(1));
-		this.level = level;
-		this.storageSize = storageSize;
-		this.indestructible = indestructible;
-		this.bonusMagnet = bonusMagnet;
-		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
-		this.modelTexture = ResourceLocation.fromNamespaceAndPath(modelTexture.getNamespace(), "textures/entity/" + modelTexture.getPath() + ".png");
+		super(properties.stacksTo(1)
+				.component(ModDataComponents.WALLET_LEVEL,level)
+				.component(ModDataComponents.WALLET_CAPACITY,storageSize)
+				.component(ModDataComponents.WALLET_INVULNERABLE,indestructible)
+				.component(ModDataComponents.WALLET_BONUS_MAGNET,bonusMagnet)
+				.component(ModDataComponents.WALLET_MODEL,model));
 	}
 	
 	@Override
@@ -106,8 +106,9 @@ public class WalletItem extends Item{
 
 	@Override
 	public int getEnchantmentLevel(@Nonnull ItemStack stack, @Nonnull Holder<Enchantment> enchantment) {
-		if(this.bonusMagnet > 0 && enchantment.is(ModEnchantments.COIN_MAGNET))
-			return super.getEnchantmentLevel(stack,enchantment) + this.bonusMagnet;
+		int bonusMagnet = stack.getOrDefault(ModDataComponents.WALLET_BONUS_MAGNET,0);
+		if(bonusMagnet > 0 && enchantment.is(ModEnchantments.COIN_MAGNET))
+			return super.getEnchantmentLevel(stack,enchantment) + bonusMagnet;
 		return super.getEnchantmentLevel(stack, enchantment);
 	}
 
@@ -115,11 +116,12 @@ public class WalletItem extends Item{
 	@Override
 	public ItemEnchantments getAllEnchantments(@Nonnull ItemStack stack, @Nonnull HolderLookup.RegistryLookup<Enchantment> lookup) {
 		ItemEnchantments enchantments = super.getAllEnchantments(stack,lookup);
-		if(this.bonusMagnet > 0)
+		int bonusMagnet = stack.getOrDefault(ModDataComponents.WALLET_BONUS_MAGNET,0);
+		if(bonusMagnet > 0)
 		{
 			ItemEnchantments.Mutable e = new ItemEnchantments.Mutable(enchantments);
 			lookup.get(ModEnchantments.COIN_MAGNET).ifPresent(cm ->
-				e.set(cm,e.getLevel(cm) + this.bonusMagnet)
+				e.set(cm,e.getLevel(cm) + bonusMagnet)
 			);
 			enchantments = e.toImmutable();
 		}
@@ -128,7 +130,8 @@ public class WalletItem extends Item{
 
 	@Override
 	public boolean canBeHurtBy(@Nonnull ItemStack stack, @Nonnull DamageSource source) {
-		if(this.indestructible)
+		boolean indestructible = stack.getOrDefault(ModDataComponents.WALLET_INVULNERABLE,false);
+		if(indestructible)
 			return false;
 		return super.canBeHurtBy(stack, source);
 	}
@@ -139,7 +142,8 @@ public class WalletItem extends Item{
 		if(entity.level().isClientSide)
 			return false;
 		//Make item not despawn if indestructable
-		if(this.indestructible && entity.getAge() >= 0)
+		boolean indestructible = stack.getOrDefault(ModDataComponents.WALLET_INVULNERABLE,false);
+		if(indestructible && entity.getAge() >= 0)
 			entity.setUnlimitedLifetime();
 		return false;
 	}
@@ -191,7 +195,8 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= LCConfig.SERVER.walletExchangeLevel.get();
+		int level = new ItemStack(wallet).getOrDefault(ModDataComponents.WALLET_LEVEL,0);
+		return level >= LCConfig.SERVER.walletExchangeLevel.get();
 	}
 	
 	/**
@@ -201,7 +206,8 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= LCConfig.SERVER.walletPickupLevel.get();
+		int level = wallet.components().getOrDefault(ModDataComponents.WALLET_LEVEL.get(),0);
+		return level >= LCConfig.SERVER.walletPickupLevel.get();
 	}
 	
 	/**
@@ -211,7 +217,8 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= LCConfig.SERVER.walletBankLevel.get();
+		int level = new ItemStack(wallet).getOrDefault(ModDataComponents.WALLET_LEVEL,0);
+		return level >= LCConfig.SERVER.walletBankLevel.get();
 	}
 
 	public static int BonusSlots(@Nonnull ItemStack walletStack)
@@ -231,7 +238,8 @@ public class WalletItem extends Item{
 		if(walletStack.getItem() instanceof WalletItem wallet)
 		{
 			WalletData data = walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY);
-			return wallet.storageSize + data.bonusSlots();
+			int storageSize = MathUtil.clamp(walletStack.getOrDefault(ModDataComponents.WALLET_CAPACITY,6),1, WalletMenu.MAX_WALLET_SLOTS);
+			return storageSize + data.bonusSlots();
 		}
 		return 0;
 	}
@@ -455,10 +463,5 @@ public class WalletItem extends Item{
 			}
 		}
 	}
-
-	/**
-	 * The wallets texture. Used to renderBG the wallet on the players hip when equipped.
-	 */
-	public ResourceLocation getModelTexture() { return this.modelTexture; }
 	
 }

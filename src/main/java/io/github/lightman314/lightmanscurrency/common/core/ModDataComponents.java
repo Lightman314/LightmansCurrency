@@ -9,15 +9,22 @@ import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCard
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class ModDataComponents {
 
     public static void init() {}
 
+    //Active Data
     public static final Supplier<DataComponentType<WalletData>> WALLET_DATA;
     public static final Supplier<DataComponentType<List<BlockPos>>> CASH_REGISTER_TRADER_POSITIONS;
     public static final Supplier<DataComponentType<List<ItemStack>>> COIN_JAR_CONTENTS;
@@ -31,19 +38,46 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<ATMCardData>> ATM_CARD_DATA;
     public static final Supplier<DataComponentType<MoneyValue>> MONEY_VALUE;
 
+    //Item Attributes
+    public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
+    public static final Supplier<DataComponentType<Integer>> WALLET_CAPACITY;
+    public static final Supplier<DataComponentType<Boolean>> WALLET_INVULNERABLE;
+    public static final Supplier<DataComponentType<Integer>> WALLET_BONUS_MAGNET;
+    public static final Supplier<DataComponentType<ResourceLocation>> WALLET_MODEL;
+    public static final Supplier<DataComponentType<List<MobEffectInstance>>> CHOCOLATE_EFFECTS;
+    public static final Supplier<DataComponentType<Float>> CHOCOLATE_HEALING;
+
     static {
-        WALLET_DATA = ModRegistries.DATA_COMPONENTS.register("wallet_data", () -> new DataComponentType.Builder<WalletData>().persistent(WalletData.CODEC).build());
-        CASH_REGISTER_TRADER_POSITIONS = ModRegistries.DATA_COMPONENTS.register("cash_register_trader_positions", () -> new DataComponentType.Builder<List<BlockPos>>().persistent(BlockPos.CODEC.listOf()).build());
-        COIN_JAR_CONTENTS = ModRegistries.DATA_COMPONENTS.register("coin_jar_contents", () -> new DataComponentType.Builder<List<ItemStack>>().persistent(ItemStack.OPTIONAL_CODEC.listOf()).cacheEncoding().build());
-        TICKET_DATA = ModRegistries.DATA_COMPONENTS.register("ticket_data", () -> new DataComponentType.Builder<TicketData>().persistent(TicketData.CODEC).networkSynchronized(TicketData.STREAM_CODEC).cacheEncoding().build());
-        TRADER_ITEM_DATA = ModRegistries.DATA_COMPONENTS.register("trader_data", () -> new DataComponentType.Builder<TraderItemData>().persistent(TraderItemData.CODEC).networkSynchronized(TraderItemData.STREAM_CODEC).cacheEncoding().build());
-        UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("upgrade_data", () -> new DataComponentType.Builder<UpgradeData>().persistent(UpgradeData.CODEC).build());
-        EXCHANGE_UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("exchange_upgrade_data", () -> new DataComponentType.Builder<ExchangeUpgradeData>().persistent(ExchangeUpgradeData.CODEC).networkSynchronized(ExchangeUpgradeData.STREAM_CODEC).build());
-        SECURITY_UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("security_upgrade_data", () -> new DataComponentType.Builder<SecurityUpgradeData>().persistent(SecurityUpgradeData.CODEC).networkSynchronized(SecurityUpgradeData.STREAM_CODEC).build());
-        BANK_UPGRADE_DATA = ModRegistries.DATA_COMPONENTS.register("bank_upgrade_data", () -> new DataComponentType.Builder<BankUpgradeData>().persistent(BankUpgradeData.CODEC).networkSynchronized(BankUpgradeData.STREAM_CODEC).build());
-        UPGRADE_ACTIVE = ModRegistries.DATA_COMPONENTS.register("upgrade_active", () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).build());
-        ATM_CARD_DATA = ModRegistries.DATA_COMPONENTS.register("atm_card_data", () -> new DataComponentType.Builder<ATMCardData>().persistent(ATMCardData.CODEC).networkSynchronized(ATMCardData.STREAM_CODEC).build());
-        MONEY_VALUE = ModRegistries.DATA_COMPONENTS.register("money_value", () -> new DataComponentType.Builder<MoneyValue>().persistent(LCCodecs.MONEY_VALUE).networkSynchronized(LCCodecs.MONEY_VALUE_STREAM).build());
+
+        //Live Data
+        WALLET_DATA = register("wallet_data", builder -> builder.persistent(WalletData.CODEC).networkSynchronized(WalletData.STREAM_CODEC));
+        CASH_REGISTER_TRADER_POSITIONS = register("cash_register_trader_positions", builder -> builder.persistent(BlockPos.CODEC.listOf()));
+        COIN_JAR_CONTENTS = register("coin_jar_contents", builder -> builder.persistent(ItemStack.OPTIONAL_CODEC.listOf()).cacheEncoding());
+        TICKET_DATA = register("ticket_data", builder -> builder.persistent(TicketData.CODEC).networkSynchronized(TicketData.STREAM_CODEC).cacheEncoding());
+        TRADER_ITEM_DATA = register("trader_data", builder -> builder.persistent(TraderItemData.CODEC).networkSynchronized(TraderItemData.STREAM_CODEC).cacheEncoding());
+        UPGRADE_DATA = register("upgrade_data", builder -> builder.persistent(UpgradeData.CODEC).networkSynchronized(UpgradeData.STREAM_CODEC));
+        EXCHANGE_UPGRADE_DATA = register("exchange_upgrade_data", builder -> builder.persistent(ExchangeUpgradeData.CODEC).networkSynchronized(ExchangeUpgradeData.STREAM_CODEC));
+        SECURITY_UPGRADE_DATA = register("security_upgrade_data", builder -> builder.persistent(SecurityUpgradeData.CODEC).networkSynchronized(SecurityUpgradeData.STREAM_CODEC));
+        BANK_UPGRADE_DATA = register("bank_upgrade_data", builder -> builder.persistent(BankUpgradeData.CODEC).networkSynchronized(BankUpgradeData.STREAM_CODEC));
+        UPGRADE_ACTIVE = registerBool("upgrade_active");
+        ATM_CARD_DATA = register("atm_card_data", builder -> builder.persistent(ATMCardData.CODEC).networkSynchronized(ATMCardData.STREAM_CODEC));
+        MONEY_VALUE = register("money_value", builder -> builder.persistent(LCCodecs.MONEY_VALUE).networkSynchronized(LCCodecs.MONEY_VALUE_STREAM));
+
+        //Custom Item Attributes
+        WALLET_LEVEL = registerInt("wallet_level");
+        WALLET_CAPACITY = registerInt("wallet_capacity");
+        WALLET_INVULNERABLE = registerBool("wallet_invulnerable");
+        WALLET_BONUS_MAGNET = registerInt("wallet_bonus_magnet");
+        WALLET_MODEL = registerResource("wallet_model");
+        CHOCOLATE_EFFECTS = register("chocolate_effects", builder -> builder.persistent(MobEffectInstance.CODEC.listOf()));
+        CHOCOLATE_HEALING = registerFloat("chocolate_healing");
+
     }
+
+    private static <T> Supplier<DataComponentType<T>> register(@Nonnull String name, @Nonnull UnaryOperator<DataComponentType.Builder<T>> builder) { return ModRegistries.DATA_COMPONENTS.register(name, () -> builder.apply(DataComponentType.builder()).build()); }
+    private static Supplier<DataComponentType<Boolean>> registerBool(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.BOOL).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeBoolean,FriendlyByteBuf::readBoolean))); }
+    private static Supplier<DataComponentType<Integer>> registerInt(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.INT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeInt,FriendlyByteBuf::readInt))); }
+    private static Supplier<DataComponentType<Float>> registerFloat(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.FLOAT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeFloat,FriendlyByteBuf::readFloat))); }
+    private static Supplier<DataComponentType<ResourceLocation>> registerResource(@Nonnull String name) { return register(name,builder -> builder.persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC)); }
 
 }

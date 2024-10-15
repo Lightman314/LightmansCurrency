@@ -11,23 +11,26 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeItem;
-import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class UpgradeItem extends Item implements IUpgradeItem{
 
@@ -67,6 +70,33 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			}
 		}
 		return super.use(level, player, hand);
+	}
+
+	@Nonnull
+	@Override
+	public InteractionResult onItemUseFirst(@Nonnull ItemStack stack, @Nonnull UseOnContext context) {
+		Level level = context.getLevel();
+		BlockPos pos = context.getClickedPos();
+		BlockState state = level.getBlockState(pos);
+		if(state.getBlock() instanceof IUpgradeableBlock block)
+		{
+			IUpgradeable upgradeable = block.getUpgradeable(level,pos,state);
+			Player player = context.getPlayer();
+			if(upgradeable == null || !block.canUseUpgradeItem(upgradeable,stack,player))
+				return InteractionResult.PASS;
+			Container upgradeContainer = upgradeable.getUpgrades();
+			if(stack.getItem() instanceof UpgradeItem upgradeItem && upgradeable.allowUpgrade(upgradeItem) && UpgradeItem.noUniqueConflicts(upgradeItem,upgradeContainer))
+			{
+				ItemStack insertItem = stack.copyWithCount(1);
+				if(InventoryUtil.CanPutItemStack(upgradeContainer,insertItem))
+				{
+					InventoryUtil.PutItemStack(upgradeContainer,insertItem);
+					stack.shrink(1);
+					return InteractionResult.SUCCESS;
+				}
+			}
+		}
+		return super.onItemUseFirst(stack,context);
 	}
 
 	public final boolean addsTooltips() { return this.addTooltips; }

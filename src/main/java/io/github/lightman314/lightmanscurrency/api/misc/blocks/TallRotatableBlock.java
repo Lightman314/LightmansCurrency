@@ -39,7 +39,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 				.setValue(ISBOTTOM, true)
 		);
 	}
-	
+
 	@Nonnull
 	@Override
 	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)

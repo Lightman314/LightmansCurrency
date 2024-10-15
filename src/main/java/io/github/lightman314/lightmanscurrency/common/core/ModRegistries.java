@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
 import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModEjectionDataTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
@@ -104,6 +107,11 @@ public class ModRegistries {
 		//Criterion Triggers
 		CRITERION_TRIGGERS.register(bus);
 		LCAdvancementTriggers.init();
+
+		//LC Custom Registries
+		EJECTION_DATA.register(bus);
+		ModEjectionDataTypes.init();
+
 		
 	}
 	
@@ -141,5 +149,7 @@ public class ModRegistries {
 	public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_EFFECT_COMPONENTS = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE,LightmansCurrency.MODID);
 
 	public static final DeferredRegister<CriterionTrigger<?>> CRITERION_TRIGGERS = DeferredRegister.create(BuiltInRegistries.TRIGGER_TYPES,LightmansCurrency.MODID);
+
+	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);
 
 }

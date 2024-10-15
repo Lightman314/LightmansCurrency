@@ -48,9 +48,9 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
-		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
+		for(int i = 0; i < this.menu.getBE().getUpgrades().getContainerSize(); ++i)
 		{
-			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgrades(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
 			upgradeSlot.active = false;
 			addSlot.apply(upgradeSlot);
 			this.slots.add(upgradeSlot);

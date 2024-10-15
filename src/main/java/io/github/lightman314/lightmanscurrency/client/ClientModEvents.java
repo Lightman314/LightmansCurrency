@@ -10,13 +10,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
-import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -52,24 +53,24 @@ public class ClientModEvents {
 
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+		//Freezer Doors
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
-			registerModel(event,block.getDoorModel());
-		registerModel(event,SlotMachineBlock.LIGHT_MODEL_LOCATION);
+			event.register(ModelResourceLocation.standalone(block.getDoorModel()));
+		//Slot Machine Lights
+		event.register(ModelResourceLocation.standalone(SlotMachineBlock.LIGHT_MODEL_LOCATION));
+		//Bookshelf Traders
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
+		//Wallets
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_copper")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_iron")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_gold")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_emerald")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_diamond")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_netherite")));
+		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_nether_star")));
 	}
 
-	private static void registerModel(@Nonnull ModelEvent.RegisterAdditional event, @Nonnull ResourceLocation model)
-	{
-		event.register(new ModelResourceLocation(model,ModelResourceLocation.STANDALONE_VARIANT));
-	}
-
-	@SubscribeEvent
-	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
-	{
-		event.registerLayerDefinition(ModLayerDefinitions.WALLET, WalletLayer::createLayer);
-	}
-	
 	@SubscribeEvent
 	public static void addLayers(EntityRenderersEvent.AddLayers event)
 	{
