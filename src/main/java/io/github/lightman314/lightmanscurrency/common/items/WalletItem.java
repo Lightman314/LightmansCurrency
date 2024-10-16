@@ -195,7 +195,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		int level = new ItemStack(wallet).getOrDefault(ModDataComponents.WALLET_LEVEL,0);
+		int level = wallet.components().getOrDefault(ModDataComponents.WALLET_LEVEL.get(),0);
 		return level >= LCConfig.SERVER.walletExchangeLevel.get();
 	}
 	
@@ -217,7 +217,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		int level = new ItemStack(wallet).getOrDefault(ModDataComponents.WALLET_LEVEL,0);
+		int level = wallet.components().getOrDefault(ModDataComponents.WALLET_LEVEL.get(),0);
 		return level >= LCConfig.SERVER.walletBankLevel.get();
 	}
 

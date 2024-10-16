@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.EjectionRecoveryMenu;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,7 +22,7 @@ import java.util.List;
 
 public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.vanillaResource("textures/gui/container/generic_54.png");
 	
 	public EjectionRecoveryScreen(EjectionRecoveryMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);

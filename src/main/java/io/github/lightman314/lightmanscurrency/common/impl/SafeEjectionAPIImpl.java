@@ -28,11 +28,11 @@ public class SafeEjectionAPIImpl extends SafeEjectionAPI {
 
     @Nonnull
     @Override
-    public List<EjectionData> getAllData(@Nonnull IClientTracker context) { return context.isClient() ? ClientEjectionData.GetEjectionData() : EjectionSaveData.GetEjectionData(); }
+    public List<EjectionData> getAllData(boolean isClient) { return isClient ? ClientEjectionData.GetEjectionData() : EjectionSaveData.GetEjectionData(); }
 
     @Nonnull
     @Override
-    public List<EjectionData> getDataForPlayer(@Nonnull Player player) { return getAllData(IClientTracker.entityWrapper(player)).stream().filter(d -> !d.isEmpty()).toList(); }
+    public List<EjectionData> getDataForPlayer(@Nonnull Player player) { return getAllData(IClientTracker.entityWrapper(player)).stream().filter(d -> d.canAccess(player) && !d.isEmpty()).toList(); }
 
     @Nullable
     @Override

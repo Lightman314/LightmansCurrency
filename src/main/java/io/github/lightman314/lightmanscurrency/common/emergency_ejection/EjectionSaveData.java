@@ -39,11 +39,12 @@ public class EjectionSaveData extends SavedData {
 		for(int i = 0; i < ejectionData.size(); ++i)
 		{
 			try {
-				EjectionData e = SafeEjectionAPI.getApi().parseData(compound,lookup);
+				CompoundTag data = ejectionData.getCompound(i);
+				EjectionData e = SafeEjectionAPI.getApi().parseData(data,lookup);
 				if(e != null && !e.isEmpty())
 					this.emergencyEjectionData.add(e);
 				else
-					LightmansCurrency.LogWarning("Loaded " + (e == null ? "null" : "empty") + " Ejection Data from file!");
+					LightmansCurrency.LogWarning("Loaded " + (e == null ? "null" : "empty") + " Ejection Data from file!\n" + data.getAsString());
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
 		}
 		LightmansCurrency.LogDebug("Server loaded " + this.emergencyEjectionData.size() + " ejection data entries from file.");

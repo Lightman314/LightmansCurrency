@@ -222,10 +222,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.worldPosition = newPosition;
 		this.markDirty(this::saveLevelData);
 	}
-	public void EjectTrader()
-	{
-
-	}
 
 	private boolean creative = false;
 	public void setCreative(Player player, boolean creative) {

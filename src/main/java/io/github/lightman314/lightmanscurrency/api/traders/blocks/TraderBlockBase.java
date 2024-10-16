@@ -187,7 +187,9 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				}
 				if(!traderSource.legitimateBreak())
 				{
-					traderSource.flagAsLegitBreak();
+					//Flag as pickup so that it doesn't try to destroy the trader data when a multi-block is ejected,
+					//as the other block would then be considered a legit break and delete the trader
+					traderSource.flagAsPickup();
 					TraderData trader = traderSource.getTraderData();
 					if(trader != null)
 					{

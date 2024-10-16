@@ -54,6 +54,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	private boolean ignoreCustomTrader = false;
 
 	private boolean selfPickup = false;
+	public void flagAsPickup() { this.selfPickup = true; }
 	public boolean isSelfPickup() { return this.selfPickup; }
 	private boolean legitimateBreak = false;
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }

@@ -23,7 +23,9 @@ public abstract class SafeEjectionAPI {
     }
 
     @Nonnull
-    public abstract List<EjectionData> getAllData(@Nonnull IClientTracker context);
+    public final List<EjectionData> getAllData(@Nonnull IClientTracker context) { return this.getAllData(context.isClient()); }
+    @Nonnull
+    public abstract List<EjectionData> getAllData(boolean isClient);
 
     @Nonnull
     public abstract List<EjectionData> getDataForPlayer(@Nonnull Player player);
