@@ -64,7 +64,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         {
             for(int x = 0; x < 3; ++x)
             {
-                this.addSlot(new EasySlot(leftSideContainer, x + y * 3, 8 + x * 18, 69 + 30 + y * 18));
+                this.addSlot(new EasySlot(leftSideContainer, x + y * 3, 8 + x * 18, 30 + y * 18));
             }
         }
 
@@ -73,20 +73,20 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         {
             for(int x = 0; x < 3; ++x)
             {
-                this.addSlot(new DisplaySlot(rightSideContainer, x + y * 3, 116 + x * 18, 69 + 30 + y * 18));
+                this.addSlot(new DisplaySlot(rightSideContainer, x + y * 3, 116 + x * 18, 30 + y * 18));
             }
         }
 
         //Player's Inventory
         for(int y = 0; y < 3; ++y) {
             for(int x = 0; x < 9; ++x) {
-                this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18, 69 + 140 + y * 18));
+                this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18, 140 + y * 18));
             }
         }
 
         //Player's hotbar
         for(int x = 0; x < 9; ++x) {
-            this.addSlot(new Slot(inventory, x, 8 + x * 18, 69 + 198));
+            this.addSlot(new Slot(inventory, x, 8 + x * 18, 198));
         }
 
     }

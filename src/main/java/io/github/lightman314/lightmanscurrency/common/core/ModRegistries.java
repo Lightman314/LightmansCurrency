@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import com.mojang.serialization.Codec;
 
+import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
+import io.github.lightman314.lightmanscurrency.common.core.custom.*;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
@@ -81,6 +84,10 @@ public class ModRegistries {
 		//Loot Pool Entry Types
 		LOOT_POOL_ENTRY_TYPES.register(bus);
 		ModLootPoolEntryTypes.init();
+
+		//LC Custom Registries
+		EJECTION_DATA.register(bus);
+		ModEjectionDataTypes.init();
 		
 	}
 	
@@ -108,5 +115,7 @@ public class ModRegistries {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
+
+	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);
 
 }

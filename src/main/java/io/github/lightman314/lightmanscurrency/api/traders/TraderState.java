@@ -25,8 +25,14 @@ public enum TraderState {
      */
     MOVED_BY_MACHINE(false,true, true),
     /**
+     * Ejected Status<br>
+     *  Means that the trader was broken and/or found missing, but can be recovered via the {@link io.github.lightman314.lightmanscurrency.common.menus.EjectionRecoveryMenu EjectionRecoveryMenu} and/or the <code>/lcadmin traderdata recover</code> command
+     */
+    EJECTED(false,false,true),
+    /**
      * Persistent Trader Status<br>
-     * Means that this trade was loaded from the <code>PersistentTraders.json</code> config file
+     * Means that this trade was loaded from the <code>PersistentTraders.json</code> config file<br>
+     * Traders in this state cannot have their state changed via {@link TraderData#setState(TraderState)}
      */
     PERSISTENT(false,true, false);
 

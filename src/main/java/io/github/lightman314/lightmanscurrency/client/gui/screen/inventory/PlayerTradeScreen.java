@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -11,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.CPacketPlayerTradeInteraction;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -33,8 +34,9 @@ import java.util.List;
 
 public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading.png");
-    public static final ResourceLocation GUI_CHAT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading_chat.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading.png");
+    public static final ResourceLocation GUI_CHAT_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading_chat.png");
+    public static final ResourceLocation GUI_MONEY_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading_money.png");
 
     private int scroll = 0;
     private static final int CHAT_ROWS = 11;
@@ -44,6 +46,9 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
 
     private EasyButton buttonPropose;
     private EasyButton buttonAccept;
+
+    private IconButton buttonToggleMoneyMode;
+    private boolean moneyMode = false;
 
     private IconButton buttonToggleChat;
     private boolean chatWarning = false;
@@ -63,7 +68,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
 
     public PlayerTradeScreen(PlayerTradeMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        this.resize(176, 222 + MoneyValueWidget.HEIGHT);
+        this.resize(176, 222);
         this.menu.setChatReceiver(this::receiveChat);
     }
 
@@ -75,9 +80,9 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         if(this.chatMode)
         {
             //Render Chat History
-            gui.blit(GUI_CHAT_TEXTURE, 0, MoneyValueWidget.HEIGHT, 0, 0, this.getXSize(), this.getYSize() - MoneyValueWidget.HEIGHT);
+            gui.renderNormalBackground(GUI_CHAT_TEXTURE,this);
 
-            int yPos = 106 + MoneyValueWidget.HEIGHT;
+            int yPos = 106;
             for(int i = this.scroll; i < CHAT_ROWS + this.scroll && i < this.chatHistory.size(); ++i)
             {
                 gui.drawString(this.chatHistory.get(i), 7, yPos, 0x404040);
@@ -86,30 +91,39 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         }
         else
         {
-            //Render BG
-            gui.blit(GUI_TEXTURE, 0, MoneyValueWidget.HEIGHT, 0, 0, this.getXSize(), this.getYSize() - MoneyValueWidget.HEIGHT);
+            if(this.moneyMode)
+            {
+                //Render Money BG
+                gui.renderNormalBackground(GUI_MONEY_TEXTURE,this);
+            }
+            else
+            {
+                //Render Normal BG
+                gui.renderNormalBackground(GUI_TEXTURE, this);
 
-            //Render my arrow
-            this.setShaderColorForState(gui, this.menu.myState());
-            gui.blit(GUI_TEXTURE, 77, MoneyValueWidget.HEIGHT + 50, this.getXSize(), 0, 22, 15);
+                //Render my arrow
+                this.setShaderColorForState(gui, this.menu.myState());
+                gui.blit(GUI_TEXTURE, 77, 50, this.getXSize(), 0, 22, 15);
 
-            //Render their arrow
-            this.setShaderColorForState(gui, this.menu.otherState());
-            gui.blit(GUI_TEXTURE, 77, MoneyValueWidget.HEIGHT + 65, this.getXSize(), 15, 22, 15);
+                //Render their arrow
+                this.setShaderColorForState(gui, this.menu.otherState());
+                gui.blit(GUI_TEXTURE, 77, 65, this.getXSize(), 15, 22, 15);
 
-            gui.resetColor();
+                gui.resetColor();
+
+            }
 
             //Draw names
             Component leftName = this.menu.isHost() ? this.menu.getTradeData().getHostName() : this.menu.getTradeData().getGuestName();
             Component rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestName() : this.menu.getTradeData().getHostName();
-            gui.drawString(leftName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
-            gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 6 + MoneyValueWidget.HEIGHT, 0x404040);
+            gui.drawString(leftName, 8, 6, 0x404040);
+            gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 6, 0x404040);
 
             //Draw money values
             leftName = this.menu.isHost() ? this.menu.getTradeData().getHostMoney().getText() : this.menu.getTradeData().getGuestMoney().getText();
             rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestMoney().getText() : this.menu.getTradeData().getHostMoney().getText();
-            gui.drawString(leftName, 8, 16 + MoneyValueWidget.HEIGHT, 0x404040);
-            gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 16 + MoneyValueWidget.HEIGHT, 0x404040);
+            gui.drawString(leftName, 8, 16, 0x404040);
+            gui.drawString(rightName, this.getXSize() - 8 - this.font.width(rightName), 16, 0x404040);
 
         }
 
@@ -118,21 +132,27 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.valueInput = this.addChild(new MoneyValueWidget(screenArea.pos, this.valueInput, MoneyValue.empty(), this::onValueChanged));
+        this.valueInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset(0,30), this.valueInput, MoneyValue.empty(), this::onValueChanged));
         this.valueInput.allowFreeInput = false;
+        this.valueInput.drawBG = false;
+        this.valueInput.setVisible(false);
 
-        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110 + MoneyValueWidget.HEIGHT), 70, 20, LCText.BUTTON_PLAYER_TRADING_PROPOSE.get(), this::OnPropose));
+        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110), 70, 20, LCText.BUTTON_PLAYER_TRADING_PROPOSE.get(), this::OnPropose));
 
-        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110 + MoneyValueWidget.HEIGHT), 70, 20,  LCText.BUTTON_PLAYER_TRADING_ACCEPT.get(), this::OnAccept));
+        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110), 70, 20,  LCText.BUTTON_PLAYER_TRADING_ACCEPT.get(), this::OnAccept));
         this.buttonAccept.active = false;
 
-        this.buttonToggleChat = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, MoneyValueWidget.HEIGHT), this::ToggleChatMode, this::getToggleIcon)
+        this.buttonToggleMoneyMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width,20), this::ToggleMoneyMode, this::getToggleMoneyIcon)
+                .withAddons(EasyAddonHelper.activeCheck(() -> !this.chatMode),
+                        EasyAddonHelper.tooltip(this::getToggleMoneyTooltip)));
+
+        this.buttonToggleChat = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::ToggleChatMode, this::getToggleIcon)
                 .withAddons(EasyAddonHelper.tooltip(this::getToggleTooltip)));
-        this.chatBox = this.addChild(new EditBox(this.font, screenArea.pos.x + 9, screenArea.pos.y + 120 + MoneyValueWidget.HEIGHT, screenArea.width - 22, 12, EasyText.empty()));
+        this.chatBox = this.addChild(new EditBox(this.font, screenArea.pos.x + 9, screenArea.pos.y + 120, screenArea.width - 22, 12, EasyText.empty()));
         this.chatBox.setBordered(false);
         this.chatBox.setMaxLength(256);
 
-        this.chatScrollListener = this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width,118).offsetPosition(0,MoneyValueWidget.HEIGHT), this));
+        this.chatScrollListener = this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width,118), this));
         this.chatScrollListener.inverted = true;
 
         this.validateWidgetStates();
@@ -202,25 +222,34 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
     }
 
+    private void ToggleMoneyMode(EasyButton button) {
+        this.moneyMode = !this.moneyMode;
+        this.valueInput.setVisible(!this.valueInput.visible);
+        this.validateWidgetStates();
+    }
+
     private void ToggleChatMode(EasyButton button) {
         this.chatMode = !this.chatMode;
         if(this.chatMode)
-        {
-            this.menu.hideSlots();
             this.chatWarning = false;
-        }
-        else
-            this.menu.showSlots();
         this.validateWidgetStates();
     }
 
     private IconData getToggleIcon() { return this.chatWarning ? IconData.of(Items.WRITABLE_BOOK) : IconData.of(Items.BOOK); }
     private Component getToggleTooltip() { return this.chatMode ? LCText.TOOLTIP_PLAYER_TRADING_CHAT_CLOSE.get() : LCText.TOOLTIP_PLAYER_TRADING_CHAT_OPEN.get(); }
 
+    private IconData getToggleMoneyIcon() { return this.moneyMode ? IconData.of(Items.CHEST) : IconData.of(ModBlocks.COINPILE_GOLD); }
+    private Component getToggleMoneyTooltip() { return this.moneyMode ? LCText.TOOLTIP_PLAYER_TRADING_MONEY_CLOSE.get() : LCText.TOOLTIP_PLAYER_TRADING_MONEY_OPEN.get(); }
+
     private void validateWidgetStates()
     {
         this.chatBox.setVisible(this.chatScrollListener.active = this.chatMode);
-        this.buttonAccept.visible = this.buttonPropose.visible = this.valueInput.visible = !this.chatMode;
+        this.buttonAccept.visible = this.buttonPropose.visible = !this.chatMode && !this.moneyMode;
+        this.valueInput.visible = this.moneyMode && !this.chatMode;
+        if(this.chatMode || this.moneyMode)
+            this.menu.hideSlots();
+        else
+            this.menu.showSlots();
     }
 
     private void receiveChat(@Nonnull Component chat)

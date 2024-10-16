@@ -9,6 +9,9 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -21,7 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -70,7 +73,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity implements IUpgradeable, IDumpable, IServerTicker {
+public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity implements IUpgradeable, IDumpable, IServerTicker, IUpgradeableBlockEntity {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -207,6 +210,14 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public TradeData getTrueTrade() { return this.reference.getTrueTrade(); }
 	
 	private SimpleContainer upgradeSlots = new SimpleContainer(5);
+	@Nonnull
+	@Override
+	public Container getUpgrades() { return this.upgradeSlots; }
+
+	/**
+	 * @see #getUpgrades()
+	 */
+	@Deprecated(since = "2.2.3.5")
 	public Container getUpgradeInventory() { return this.upgradeSlots; }
 	
 	public void setUpgradeSlotsDirty() {
@@ -621,12 +632,13 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	protected boolean allowAdditionalUpgrade(UpgradeType type) { return false; }
 	
 	protected final boolean hasHopperUpgrade() { return UpgradeType.hasUpgrade(Upgrades.HOPPER, this.upgradeSlots); }
-	
+
+	@Nonnull
 	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) { 
 		List<ItemStack> contents = new ArrayList<>();
 		
 		//Drop trader block
-		if(dropBlock)
+		if(dropBlock && state != null)
 		{
 			if(state.getBlock() instanceof TraderInterfaceBlock)
 				contents.add(((TraderInterfaceBlock)state.getBlock()).getDropBlockItem(state, this));
@@ -648,9 +660,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	protected abstract void getAdditionalContents(List<ItemStack> contents);
-	
+
+	@Nonnull
 	@Override
-	public OwnerData getOwner() { return this.owner; }
-	
-	
+	public EjectionData buildEjectionData(@Nonnull Level level, @Nonnull BlockPos pos, @Nullable BlockState state) {
+		List<ItemStack> contents = this.getContents(level,pos,state,true);
+		return new BasicEjectionData(this.owner,contents,state == null ? LCText.BLOCK_ITEM_TRADER_INTERFACE.get() : state.getBlock().getName());
+	}
 }

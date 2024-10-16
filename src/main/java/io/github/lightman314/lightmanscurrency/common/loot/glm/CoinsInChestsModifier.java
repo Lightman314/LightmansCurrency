@@ -2,10 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.loot.glm;
 
 import java.util.List;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -20,8 +17,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nonnull;
 
 public class CoinsInChestsModifier implements IGlobalLootModifier {
-	
+
 	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
+
+	public static final CoinsInChestsModifier INSTANCE = new CoinsInChestsModifier();
+	public static final Codec<CoinsInChestsModifier> CODEC = Codec.unit(INSTANCE);
 	
 	@Override
 	@Nonnull
@@ -49,20 +49,6 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 	}
 	
 	@Override
-	public Codec<? extends IGlobalLootModifier> codec() { return new Serializer(); }
-
-	public static class Serializer implements Codec<CoinsInChestsModifier> {
-
-		@Override
-		public <T> DataResult<T> encode(CoinsInChestsModifier input, DynamicOps<T> ops, T prefix) {
-			return DataResult.success(prefix);
-		}
-
-		@Override
-		public <T> DataResult<Pair<CoinsInChestsModifier, T>> decode(DynamicOps<T> ops, T input) {
-			return DataResult.success(Pair.of(new CoinsInChestsModifier(), input));
-		}
-		
-	}
+	public Codec<? extends IGlobalLootModifier> codec() { return CODEC; }
 	
 }

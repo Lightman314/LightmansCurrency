@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -26,15 +27,9 @@ public class ClientEjectionData {
 		for(int i = 0; i < ejectionList.size(); ++i)
 		{
 			try {
-				EjectionData e = EjectionData.loadData(ejectionList.getCompound(i));
-				if(e != null)
-				{
-					emergencyEjectionData.add(e);
-					e.flagAsClient();
-				}
-				else
-					throw new RuntimeException("EmergencyEjectionData entry " + i + " loaded as null.");
-			} catch(Throwable t) { t.printStackTrace(); }
+				EjectionData e = SafeEjectionAPI.getApi().parseData(ejectionList.getCompound(i));
+				emergencyEjectionData.add(e.flagAsClient());
+			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data!",t); }
 		}
 		LightmansCurrency.LogDebug("Client loaded " + emergencyEjectionData.size() + " ejection data entries from the server.");
 	}

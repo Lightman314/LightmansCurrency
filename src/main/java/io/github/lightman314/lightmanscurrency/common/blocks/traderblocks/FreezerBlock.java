@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.Nonnull;
+
 public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
 	public static final int TRADECOUNT = 8;
@@ -38,8 +40,10 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	public ResourceLocation getDoorModel() { return this.doorModel; }
 
+	@Nonnull
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
+	@Nonnull
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
 		return new ResourceLocation(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}

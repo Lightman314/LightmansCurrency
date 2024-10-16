@@ -15,11 +15,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
@@ -635,8 +635,8 @@ public class TraderSaveData extends SavedData {
 						try {
 							Level level = server.getLevel(traderData.getLevel());
 							BlockPos pos = traderData.getPos();
-							EjectionData e = EjectionData.create(level, pos, null, traderData, false);
-							EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
+							EjectionData e = traderData.buildEjectionData(level,pos,null);
+							SafeEjectionAPI.getApi().handleEjection(level,pos,e);
 						} catch(NullPointerException e) { LightmansCurrency.LogError("Error deleting missing trader.",e); }
 						new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 					}

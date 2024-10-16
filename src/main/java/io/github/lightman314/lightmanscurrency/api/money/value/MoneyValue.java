@@ -22,7 +22,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -237,12 +236,11 @@ public abstract class MoneyValue {
 
     /**
      * Function called when a block that contains money is broken through either legitimate means, or by illegal means.
-     * @param level The level that the block was in.
      * @param owner Data about the blocks' owner, so that any non-item based money can instead be given to the player directly.
      * @return List of items to drop/eject. Leave empty if money is given to the owner manually.
      */
     @Nonnull
-    public abstract List<ItemStack> onBlockBroken(@Nonnull Level level, @Nonnull OwnerData owner);
+    public abstract List<ItemStack> onBlockBroken(@Nonnull OwnerData owner);
 
     /**
      * Returns the smallest non-zero value of this money value type.
@@ -421,7 +419,7 @@ public abstract class MoneyValue {
         public MoneyValue percentageOfValue(int percentage, boolean roundUp) { return FREE; }
         @Nonnull
         @Override
-        public List<ItemStack> onBlockBroken(@Nonnull Level level, @Nonnull OwnerData owner) { return new ArrayList<>(); }
+        public List<ItemStack> onBlockBroken(@Nonnull OwnerData owner) { return new ArrayList<>(); }
         @Override
         protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putBoolean("Free", this.isFree()); }
         @Override

@@ -10,6 +10,8 @@ import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -35,7 +37,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker {
+public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker, IUpgradeableBlockEntity {
 
 	private long traderID = -1;
 	public long getTraderID() { return this.traderID; }
@@ -302,5 +304,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 		return super.getRenderBoundingBox();
 	}
+
+	@Nullable
+	@Override
+	public IUpgradeable getUpgradeable() { return this.getTraderData(); }
 
 }

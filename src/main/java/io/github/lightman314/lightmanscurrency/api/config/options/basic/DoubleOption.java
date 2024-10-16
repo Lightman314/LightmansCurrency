@@ -30,10 +30,10 @@ public class DoubleOption extends ConfigOption<Double> {
     @Override
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
 
-    public static DoubleOption create(double defaultValue) { return new DoubleOption(() -> defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
+    public static DoubleOption create(double defaultValue) { return new DoubleOption(() -> defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleOption create(double defaultValue, double lowerLimit) { return new DoubleOption(() -> defaultValue, lowerLimit, Double.MAX_VALUE); }
     public static DoubleOption create(double defaultValue, double lowerLimit, double upperLimit) { return new DoubleOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static DoubleOption create(@Nonnull Supplier<Double> defaultValue) { return new DoubleOption(defaultValue, Double.MIN_VALUE, Double.MAX_VALUE); }
+    public static DoubleOption create(@Nonnull Supplier<Double> defaultValue) { return new DoubleOption(defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleOption create(@Nonnull Supplier<Double> defaultValue, double lowerLimit) { return new DoubleOption(defaultValue, lowerLimit, Double.MAX_VALUE); }
     public static DoubleOption create(@Nonnull Supplier<Double> defaultValue, double lowerLimit, double upperLimit) { return new DoubleOption(defaultValue, lowerLimit, upperLimit); }
 

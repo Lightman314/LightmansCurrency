@@ -33,10 +33,7 @@ import java.util.function.Consumer;
 
 public abstract class WalletMenuBase extends EasyMenu {
 
-	private static int maxWalletSlots = 0;
-	public static int getMaxWalletSlots() { return maxWalletSlots; }
-	public static void updateMaxWalletSlots(int slotCount) { maxWalletSlots = Math.max(maxWalletSlots, slotCount + WalletItem.SLOT_UPGRADE_LIMIT); }
-	
+	public static final int MAX_WALLET_SLOTS = 54 + WalletItem.SLOT_UPGRADE_LIMIT;
 	protected final Container dummyInventory = new SimpleContainer(1);
 	
 	protected final int walletStackIndex;
@@ -115,7 +112,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 	protected final void addCoinSlots(int yPosition) {
 		if(!this.coinSlots.isEmpty())
 			return;
-		int dummySlots = maxWalletSlots - this.coinInput.getContainerSize();
+		int dummySlots = MAX_WALLET_SLOTS - this.coinInput.getContainerSize();
 		int index = 0;
 		for(int y = 0; y < this.coinSlotHeight; y++)
 		{

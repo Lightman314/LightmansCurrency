@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -31,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -62,7 +65,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -537,7 +539,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	private SimpleContainer upgrades;
+	@Override
+	@Nonnull
 	public Container getUpgrades() { return this.upgrades; }
+	@Override
 	public final boolean allowUpgrade(@Nonnull UpgradeType type) {
 		if(type == Upgrades.NETWORK && !this.showOnTerminal() && this.canShowOnTerminal())
 			return true;
@@ -1106,20 +1111,30 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction relativeSide) { return LazyOptional.empty(); }
 	
 	//Content drops
-	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) {
-		List<ItemStack> results = new ArrayList<>();
+	@Nonnull
+	public final List<ItemStack> getContents(@Nonnull Level level, @Nonnull BlockPos pos, @Nullable BlockState state, boolean dropBlock) {
+		ItemStack blockStack = ItemStack.EMPTY;
 		if(dropBlock)
 		{
 			Block block = state != null ? state.getBlock() : null;
-			ItemStack blockStack = block != null ? new ItemStack(block.asItem()) : ItemStack.EMPTY;
+			if(block != null)
+				blockStack = new ItemStack(block);
 			if(block instanceof ITraderBlock b)
 				blockStack = b.getDropBlockItem(level, pos, state);
-			if(!blockStack.isEmpty())
-				results.add(blockStack);
-			else
+			if(blockStack.isEmpty())
 				LightmansCurrency.LogWarning("Block drop for trader is empty!");
 		}
-		
+
+		return this.getContents(blockStack);
+	}
+
+	@Nonnull
+	public final List<ItemStack> getContents(@Nonnull ItemStack item)
+	{
+		List<ItemStack> results = new ArrayList<>();
+		if(!item.isEmpty())
+			results.add(item);
+
 		//Add upgrade items
 		for(int i = 0; i < this.upgrades.getContainerSize(); ++i)
 		{
@@ -1127,19 +1142,41 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			if(!stack.isEmpty())
 				results.add(stack);
 		}
-		
+
 		//Add stored money
 		for(MoneyValue value : this.storedMoney.allValues())
 		{
-			List<ItemStack> items = value.onBlockBroken(level, this.owner);
+			List<ItemStack> items = value.onBlockBroken(this.owner);
 			if(items != null)
 				results.addAll(items);
 		}
-		
+
 		//Add trader-specific drops
 		this.getAdditionalContents(results);
-		
+
 		return results;
+	}
+
+	@Nonnull
+	@Override
+	public EjectionData buildEjectionData(@Nonnull Level level, @Nonnull BlockPos pos, @Nullable BlockState state) {
+		ItemStack item = ItemStack.EMPTY;
+		if(state == null)
+		{
+			if(this.traderBlock != null)
+				item = new ItemStack(this.traderBlock);
+		}
+		else
+			item = new ItemStack(state.getBlock());
+		if(!item.isEmpty())
+		{
+			//Give the item this traders ID for future loading
+			CompoundTag itemTag = item.getOrCreateTag();
+			itemTag.putLong("StoredTrader",this.id);
+		}
+		//Set State to Ejected
+		this.setState(TraderState.EJECTED);
+		return new TraderEjectionData(this.getID(),item);
 	}
 	
 	protected abstract void getAdditionalContents(List<ItemStack> results);

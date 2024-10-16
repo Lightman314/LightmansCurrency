@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -38,9 +40,12 @@ public class EjectionSaveData extends SavedData {
 		for(int i = 0; i < ejectionData.size(); ++i)
 		{
 			try {
-				EjectionData e = EjectionData.loadData(ejectionData.getCompound(i));
+				CompoundTag data = ejectionData.getCompound(i);
+				EjectionData e = SafeEjectionAPI.getApi().parseData(data);
 				if(e != null && !e.isEmpty())
 					this.emergencyEjectionData.add(e);
+				else
+					LightmansCurrency.LogWarning("Loaded " + (e == null ? "null" : "empty") + " Ejection Data from file!\n" + data);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
 		}
 		LightmansCurrency.LogDebug("Server loaded " + this.emergencyEjectionData.size() + " ejection data entries from file.");
@@ -67,45 +72,19 @@ public class EjectionSaveData extends SavedData {
 		}
 		return null;
 	}
-	
-	public static List<EjectionData> GetEjectionData(boolean isClient) {
-		if(isClient)
-		{
-			return ClientEjectionData.GetEjectionData();
-		}
-		else
-		{
-			EjectionSaveData esd = get();
-			if(esd != null)
-				return new ArrayList<>(esd.emergencyEjectionData);
-		}
-		return new ArrayList<>();
-	}
-	
-	public static List<EjectionData> GetValidEjectionData(boolean isClient, Player player)
-	{
-		List<EjectionData> ejectionData = GetEjectionData(isClient);
-		if(ejectionData != null)
-			return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
-		return new ArrayList<>();
-	}
 
-	/** @deprecated Use only to transfer ejection data from the old Trading Office. */
-	@Deprecated
-	public static void GiveOldEjectionData(EjectionData data) {
+	public static List<EjectionData> GetEjectionData() {
 		EjectionSaveData esd = get();
-		if(esd != null && data != null && !data.isEmpty())
-		{
-			esd.emergencyEjectionData.add(data);
-			MarkEjectionDataDirty();
-		}
+		if(esd != null)
+			return new ArrayList<>(esd.emergencyEjectionData);
+		return new ArrayList<>();
 	}
 	
 	public static void HandleEjectionData(Level level, BlockPos pos, EjectionData data) {
 		if(level.isClientSide)
 			return;
 		Objects.requireNonNull(data);
-		if(data.getContainerSize() == 0)
+		if(data.isEmpty())
 			return;
 		
 		if(LCConfig.SERVER.safelyEjectMachineContents.get() && !LCConfig.SERVER.anarchyMode.get())
@@ -118,7 +97,13 @@ public class EjectionSaveData extends SavedData {
 			}
 		}
 		else
-			InventoryUtil.dumpContents(level, pos, data);
+		{
+			//Split/dismantle the ejection data in anarchy mode, but leave it as the recoverable item if ejection is simplt turned off/disabled
+			if(data.canSplit() && LCConfig.SERVER.anarchyMode.get())
+				data.splitContents();
+			InventoryUtil.dumpContents(level, pos, data.getContents());
+		}
+
 		//Push notification to the data's owner(s)
 		data.pushNotificationToOwner();
 	}
@@ -142,6 +127,8 @@ public class EjectionSaveData extends SavedData {
 		if(esd != null)
 		{
 			esd.setDirty();
+			//Remove empty entries
+			esd.emergencyEjectionData.removeIf(EjectionData::isEmpty);
 			//Send update packet to all connected clients
 			CompoundTag compound = new CompoundTag();
 			ListTag ejectionList = new ListTag();

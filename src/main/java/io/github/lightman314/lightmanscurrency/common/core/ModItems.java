@@ -71,13 +71,13 @@ public class ModItems {
 		GOLDEN_TICKET_STUB = ModRegistries.ITEMS.register("golden_ticket_stub", () -> new Item(new Item.Properties()));
 		
 		//Wallets
-		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties()));
-		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, "wallet_iron", new Item.Properties()));
-		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, "wallet_gold", new Item.Properties()));
-		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, "wallet_emerald", new Item.Properties()));
-		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, "wallet_diamond", new Item.Properties()));
-		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().rarity(Rarity.RARE).fireResistant()));
-		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, "wallet_nether_star", true, 1, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, WalletItem.lazyModel("wallet_copper"), new Item.Properties()));
+		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, WalletItem.lazyModel("wallet_iron"), new Item.Properties()));
+		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, WalletItem.lazyModel("wallet_gold"), new Item.Properties()));
+		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, WalletItem.lazyModel("wallet_emerald"), new Item.Properties()));
+		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, WalletItem.lazyModel("wallet_diamond"), new Item.Properties()));
+		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, WalletItem.lazyModel("wallet_netherite"), new Item.Properties().rarity(Rarity.RARE).fireResistant()));
+		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, WalletItem.lazyModel("wallet_nether_star"), true, 1, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
 
 		//Portable Blocks
 		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties()));

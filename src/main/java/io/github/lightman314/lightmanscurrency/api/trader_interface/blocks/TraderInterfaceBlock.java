@@ -10,12 +10,14 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -35,7 +37,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
+public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock, IUpgradeableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
 
@@ -101,8 +103,8 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 				{
 					LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
 					LightmansCurrency.LogError("Activating emergency eject protocol.");
-					EjectionData data = EjectionData.create(level, pos, state, blockEntity);
-					EjectionSaveData.HandleEjectionData(level, pos, data);
+					EjectionData data = blockEntity.buildEjectionData(level,pos,state);
+					SafeEjectionAPI.getApi().handleEjection(level,pos,data);
 					blockEntity.flagAsRemovable();
 					//Remove the rest of the multi-block structure.
 					try {
@@ -160,5 +162,12 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	
 	public ItemStack getDropBlockItem(BlockState state, TraderInterfaceBlockEntity traderInterface) { return new ItemStack(state.getBlock()); }
-	
+
+	@Override
+	public boolean canUseUpgradeItem(@Nonnull IUpgradeable upgradeable, @Nonnull ItemStack stack, @Nullable Player player) {
+		if(player != null && upgradeable instanceof TraderInterfaceBlockEntity be)
+			return be.owner.isMember(player);
+		return false;
+	}
+
 }

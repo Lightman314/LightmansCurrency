@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import net.minecraft.data.PackOutput;
@@ -48,6 +49,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private static final ResourceLocation UPGRADE_CC_BANK = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_bank_upgrade");
     private static final ResourceLocation UPGRADE_CC_EXCHANGE = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_exchange_upgrade");
     private static final ResourceLocation UPGRADE_CC_MAGNET = new ResourceLocation("item/ender_pearl");
+
+    private static final ResourceLocation WALLET_MODEL_BASE = WalletItem.lazyModel("wallet_base");
 
     @Override
     protected void registerStatesAndModels() {
@@ -98,13 +101,13 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.TRADING_CORE);
 
         //Wallets
-        this.registerBasicItem(ModItems.WALLET_COPPER);
-        this.registerBasicItem(ModItems.WALLET_IRON);
-        this.registerBasicItem(ModItems.WALLET_GOLD);
-        this.registerBasicItem(ModItems.WALLET_EMERALD);
-        this.registerBasicItem(ModItems.WALLET_DIAMOND);
-        this.registerBasicItem(ModItems.WALLET_NETHERITE);
-        this.registerBasicItem(ModItems.WALLET_NETHER_STAR);
+        this.registerWalletItem(ModItems.WALLET_COPPER);
+        this.registerWalletItem(ModItems.WALLET_IRON);
+        this.registerWalletItem(ModItems.WALLET_GOLD);
+        this.registerWalletItem(ModItems.WALLET_EMERALD);
+        this.registerWalletItem(ModItems.WALLET_DIAMOND);
+        this.registerWalletItem(ModItems.WALLET_NETHERITE);
+        this.registerWalletItem(ModItems.WALLET_NETHER_STAR);
 
         //ATM
         this.registerTallRotatable(ModBlocks.ATM, "atm_top", "atm_bottom", "atm", true);
@@ -391,6 +394,19 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0",base)
                 .texture("layer1",tier);
+    }
+
+    private void registerWalletItem(@Nonnull RegistryObject<? extends WalletItem> item)
+    {
+        this.registerBasicItem(item);
+        ResourceLocation hipModel = item.get().model;
+        if(hipModel != null)
+        {
+            ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(item.get());
+            this.itemModels().getBuilder(hipModel.toString())
+                    .parent(new ModelFile.ExistingModelFile(WALLET_MODEL_BASE,this.models().existingFileHelper))
+                    .texture("main",itemID.withPrefix("item/wallet_hip/"));
+        }
     }
 
     private void registerBlockItemModel(RegistryObject<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }

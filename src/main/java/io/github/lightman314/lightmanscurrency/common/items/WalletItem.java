@@ -59,7 +59,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 public class WalletItem extends Item{
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER;
-	private final ResourceLocation modelTexture;
 
 	/**
 	 * A constant denoting the highest expected level of a wallet item<br>
@@ -83,18 +82,37 @@ public class WalletItem extends Item{
 	private final int bonusMagnet;
 	public final boolean indestructible;
 
+	public final ResourceLocation model;
 
-	public WalletItem(int level, int storageSize, @Nonnull String modelName, @Nonnull Properties properties) { this(level,storageSize,modelName,false,0,properties); }
-	public WalletItem(int level, int storageSize, @Nonnull String modelName, boolean indestructible, int bonusMagnet, @Nonnull Properties properties) { this(level,storageSize, VersionUtil.lcResource(modelName), indestructible, bonusMagnet, properties); }
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation modelTexture, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
+
+	@Nonnull
+	public static ResourceLocation lazyModel(@Nonnull String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
+	@Nonnull
+	public static ResourceLocation lazyModel(@Nonnull ResourceLocation itemID) { return itemID.withPrefix("item/wallet_hip/"); }
+
+	/**
+	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
+	 */
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level,storageSize,model,false,0,properties); }
+	/**
+	 * Default constructor
+	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
+	 *              Should not exceed {@link #LARGEST_LEVEL}
+	 * @param storageSize The number of coin slots included in this wallets inventory
+	 * @param model The wallets model location<br>
+	 *              See {@link #lazyModel(String) or {@link #lazyModel(ResourceLocation)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
+	 * @param indestructible Whether the wallet is immune to all forms of damage while in item form
+	 * @param bonusMagnet The level bonus given to the {@link io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnchantment CoinMagnet} enchantment
+	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
+	 */
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
 	{
 		super(properties.stacksTo(1));
 		this.level = level;
 		this.storageSize = storageSize;
 		this.indestructible = indestructible;
 		this.bonusMagnet = bonusMagnet;
-		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
-		this.modelTexture = VersionUtil.modResource(modelTexture.getNamespace(),"textures/entity/" + modelTexture.getPath() + ".png");
+		this.model = model;
 	}
 	@Nullable
 	@Override
@@ -488,10 +506,5 @@ public class WalletItem extends Item{
 			}
 		}
 	}
-
-	/**
-	 * The wallets texture. Used to renderBG the wallet on the players hip when equipped.
-	 */
-	public ResourceLocation getModelTexture() { return this.modelTexture; }
 	
 }

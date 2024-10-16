@@ -28,8 +28,6 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -134,9 +132,9 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	@Override
 	public int getStorageStackLimit() { 
 		int limit = ItemTraderData.DEFAULT_STACK_LIMIT;
-		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
+		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
 		{
-			ItemStack stack = this.getUpgradeInventory().getItem(i);
+			ItemStack stack = this.getUpgrades().getItem(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
 				if(this.allowUpgrade(upgradeItem))
@@ -404,11 +402,6 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		
 		contents.addAll(this.itemBuffer.getSplitContents());
 		
-	}
-
-	@Override
-	public MutableComponent getName() {
-		return Component.translatable("block.lightmanscurrency.item_trader_interface");
 	}
 	
 }

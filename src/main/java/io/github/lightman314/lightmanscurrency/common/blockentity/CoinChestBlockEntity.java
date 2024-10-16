@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
@@ -48,7 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeable, IClientTicker, IServerTicker, LidBlockEntity {
+public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeable, IClientTicker, IServerTicker, LidBlockEntity, IUpgradeableBlockEntity {
 
     private final ChestLidController chestLidController = new ChestLidController();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
@@ -79,6 +80,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     private CoinContainer storage;
     public final CoinContainer getStorage() { return this.storage; }
     private SimpleContainer upgrades;
+    @Nonnull
     public final SimpleContainer getUpgrades() { return this.upgrades; }
 
     private List<CoinChestUpgradeData> unfilteredUpgradeDataCache = new ArrayList<>();
@@ -281,7 +283,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     @Override
     public boolean allowUpgrade(@Nonnull UpgradeType type) { return type instanceof CoinChestUpgrade upgrade; }
 
-    public boolean allowAccess(Player player)
+    public boolean allowAccess(@Nullable Player player)
     {
         if(LCAdminMode.isAdminPlayer(player))
             return true;

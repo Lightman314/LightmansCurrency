@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -41,17 +42,22 @@ public class ClientModEvents {
 
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+		//Freezer Doors
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			event.register(block.getDoorModel());
+		//Slot Machine Lights
 		event.register(SlotMachineBlock.LIGHT_MODEL_LOCATION);
+		//Bookshelf Traders
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
-	}
-	
-	@SubscribeEvent
-	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
-	{
-		event.registerLayerDefinition(ModLayerDefinitions.WALLET, WalletLayer::createLayer);
+		//Wallets
+		event.register(WalletItem.lazyModel("wallet_copper"));
+		event.register(WalletItem.lazyModel("wallet_iron"));
+		event.register(WalletItem.lazyModel("wallet_gold"));
+		event.register(WalletItem.lazyModel("wallet_emerald"));
+		event.register(WalletItem.lazyModel("wallet_diamond"));
+		event.register(WalletItem.lazyModel("wallet_netherite"));
+		event.register(WalletItem.lazyModel("wallet_nether_star"));
 	}
 	
 	@SubscribeEvent

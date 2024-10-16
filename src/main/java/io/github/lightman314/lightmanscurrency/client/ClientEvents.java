@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -245,7 +247,13 @@ public class ClientEvents {
 		CompoundTag tag = stack.getTag();
 		if(tag != null && tag.contains("StoredTrader"))
 		{
+			//Tooltip
 			event.getToolTip().add(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA.getWithStyle(ChatFormatting.GRAY));
+			long traderID = tag.getLong("StoredTrader");
+			//Trader Name
+			TraderData trader = TraderAPI.API.GetTrader(true, traderID);
+			if(trader != null && trader.hasCustomName())
+				event.getToolTip().add(trader.getName().withStyle(ChatFormatting.GRAY));
 			if(event.getFlags().isAdvanced())
 				event.getToolTip().add(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID.get(tag.getLong("StoredTrader")).withStyle(ChatFormatting.DARK_GRAY));
 		}

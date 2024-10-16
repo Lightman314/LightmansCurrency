@@ -444,6 +444,8 @@ public class EnglishProvider extends TranslationProvider {
 
         //Ejection Menu
         this.translate(LCText.GUI_EJECTION_NO_DATA,"No Ejection Data Available");
+        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_GENERIC,"Dismandle Object into internal contents");
+        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_TRADER,"Dismantle %s into it's stored items");
 
         //Coin Mint Menu
         this.translate(LCText.GUI_COIN_MINT_TITLE, "Coin Mint");
@@ -452,6 +454,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_PLAYER_TRADING_PROPOSE,"Propose");
         this.translate(LCText.BUTTON_PLAYER_TRADING_ACCEPT,"Accept");
         this.translate(LCText.BUTTON_PLAYER_TRADING_CANCEL,"Cancel");
+        this.translate(LCText.TOOLTIP_PLAYER_TRADING_MONEY_OPEN,"Open Money Offer Input");
+        this.translate(LCText.TOOLTIP_PLAYER_TRADING_MONEY_CLOSE,"Close Money Offer Input");
         this.translate(LCText.TOOLTIP_PLAYER_TRADING_CHAT_OPEN,"Open Chat");
         this.translate(LCText.TOOLTIP_PLAYER_TRADING_CHAT_CLOSE,"Close Chat");
 

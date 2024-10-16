@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
-public interface IWideBlock {
+public interface IWideBlock extends IMultiBlock {
 
 	BooleanProperty ISLEFT = BlockStateProperties.ATTACHED;
 

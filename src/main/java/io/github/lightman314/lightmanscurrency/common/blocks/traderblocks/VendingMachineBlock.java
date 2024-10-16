@@ -26,7 +26,7 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 	public VendingMachineBlock(Properties properties) { super(properties); }
 
 	@Override
-	protected boolean isBlockOpaque(@Nonnull BlockState state) { return !state.getValue(ISBOTTOM); }
+	protected boolean isBlockOpaque(@Nonnull BlockState state) { return false; }
 
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, TRADECOUNT); }

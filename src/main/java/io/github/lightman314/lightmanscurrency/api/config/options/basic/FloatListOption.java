@@ -26,10 +26,10 @@ public class FloatListOption extends ListOption<Float> {
     @Override
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
 
-    public static FloatListOption create(@Nonnull List<Float> defaultValue) { return new FloatListOption(() -> defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
+    public static FloatListOption create(@Nonnull List<Float> defaultValue) { return new FloatListOption(() -> defaultValue, -Float.MAX_VALUE, Float.MAX_VALUE); }
     public static FloatListOption create(@Nonnull List<Float> defaultValue, float lowerLimit) { return new FloatListOption(() -> defaultValue, lowerLimit, Float.MAX_VALUE); }
     public static FloatListOption create(@Nonnull List<Float> defaultValue, float lowerLimit, float upperLimit) { return new FloatListOption(() -> defaultValue, lowerLimit, upperLimit); }
-    public static FloatListOption create(@Nonnull Supplier<List<Float>> defaultValue) { return new FloatListOption(defaultValue, Float.MIN_VALUE, Float.MAX_VALUE); }
+    public static FloatListOption create(@Nonnull Supplier<List<Float>> defaultValue) { return new FloatListOption(defaultValue, -Float.MAX_VALUE, Float.MAX_VALUE); }
     public static FloatListOption create(@Nonnull Supplier<List<Float>> defaultValue, float lowerLimit) { return new FloatListOption(defaultValue, lowerLimit, Float.MAX_VALUE); }
     public static FloatListOption create(@Nonnull Supplier<List<Float>> defaultValue, float lowerLimit, float upperLimit) { return new FloatListOption(defaultValue, lowerLimit, upperLimit); }
 
