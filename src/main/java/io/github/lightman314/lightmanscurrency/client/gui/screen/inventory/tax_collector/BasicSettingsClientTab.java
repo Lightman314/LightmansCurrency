@@ -47,11 +47,16 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
                 .withAddons(EasyAddonHelper.visibleCheck(this::canActiveToggle)));
 
         //Render Mode Selection
-        this.addChild(new DropdownWidget(screenArea.pos.offset(screenArea.width - 88, 26), 80, entry == null ? 0 : entry.getRenderMode(), this.commonTab::SetRenderMode,
-                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_NONE.get(),
-                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_MEMBERS.get(),
-                LCText.GUI_TAX_COLLECTOR_RENDER_MODE_ALL.get())
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons)));
+        this.addChild(DropdownWidget.builder()
+                        .position(screenArea.pos.offset(screenArea.width - 88, 26))
+                        .width(80)
+                        .selected(entry == null ? 0 : entry.getRenderMode())
+                        .selectAction(this.commonTab::SetRenderMode)
+                        .option(LCText.GUI_TAX_COLLECTOR_RENDER_MODE_NONE)
+                        .option(LCText.GUI_TAX_COLLECTOR_RENDER_MODE_MEMBERS)
+                        .option(LCText.GUI_TAX_COLLECTOR_RENDER_MODE_ALL)
+                        .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                        .build());
 
         //Tax Rate Selection
         this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(6, 32), b -> this.commonTab.SetRate(this.getCurrentRate() + (Screen.hasShiftDown() ? 10 : 1)))

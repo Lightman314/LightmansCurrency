@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -18,15 +20,26 @@ public abstract class EasyButton extends EasyWidget {
 
     private final Consumer<EasyButton> press;
 
+    protected EasyButton(@Nonnull EasyButtonBuilder<?> builder) { super(builder); this.press = builder.action; }
+    @Deprecated
     protected EasyButton(int x, int y, int width, int height, Runnable press) { this(x,y,width,height,b -> press.run()); }
+    @Deprecated
     protected EasyButton(int x, int y, int width, int height, Consumer<EasyButton> press) { super(x,y,width,height); this.press = press; }
+    @Deprecated
     protected EasyButton(ScreenPosition position, int width, int height, Runnable press) { this(position, width, height, b -> press.run()); }
+    @Deprecated
     protected EasyButton(ScreenPosition position, int width, int height, Consumer<EasyButton> press) { super(position, width, height); this.press = press; }
+    @Deprecated
     protected EasyButton(ScreenPosition position, int width, int height, Component title, Runnable press) { this(position, width, height, title, b -> press.run());}
+    @Deprecated
     protected EasyButton(ScreenPosition position, int width, int height, Component title, Consumer<EasyButton> press) { super(position, width, height, title); this.press = press; }
+    @Deprecated
     protected EasyButton(ScreenArea area, Runnable press) { this(area, b -> press.run()); }
+    @Deprecated
     protected EasyButton(ScreenArea area, Consumer<EasyButton> press) { super(area); this.press = press; }
+    @Deprecated
     protected EasyButton(ScreenArea area, Component title, Runnable press) { this(area, title, b -> press.run()); }
+    @Deprecated
     protected EasyButton(ScreenArea area, Component title, Consumer<EasyButton> press) { super(area, title); this.press = press; }
 
     @Override
@@ -56,5 +69,22 @@ public abstract class EasyButton extends EasyWidget {
     }
 
     protected void onPress() { this.press.accept(this); this.setFocused(false); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static abstract class EasyButtonBuilder<T extends EasyButtonBuilder<T>> extends EasyBuilder<T>
+    {
+
+        private Consumer<EasyButton> action = b -> {};
+
+        public final T pressAction(@Nonnull Consumer<EasyButton> action) { this.action = action; return this.getSelf(); }
+        public final T pressAction(@Nonnull Runnable action) { this.action = b -> action.run(); return this.getSelf(); }
+
+    }
+
+    public static abstract class EasySizableButtonBuilder<T extends EasySizableButtonBuilder<T>> extends EasyButtonBuilder<T>
+    {
+        public final T ofSize(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
+    }
 
 }

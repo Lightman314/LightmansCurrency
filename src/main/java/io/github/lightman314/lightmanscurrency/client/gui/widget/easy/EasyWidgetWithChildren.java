@@ -13,15 +13,18 @@ public abstract class EasyWidgetWithChildren extends EasyWidget {
 
     private final List<Object> children = new ArrayList<>();
 
+    @Deprecated
     protected EasyWidgetWithChildren(int x, int y, int width, int height) { super(x, y, width, height); }
-
+    @Deprecated
     protected EasyWidgetWithChildren(ScreenPosition position, int width, int height) { super(position, width, height); }
-
+    @Deprecated
     protected EasyWidgetWithChildren(ScreenPosition position, int width, int height, Component title) { super(position, width, height, title); }
-
+    @Deprecated
     protected EasyWidgetWithChildren(ScreenArea area) { super(area); }
-
+    @Deprecated
     protected EasyWidgetWithChildren(ScreenArea area, Component title) { super(area, title); }
+
+    protected EasyWidgetWithChildren(@Nonnull EasyBuilder<?> builder) { super(builder); }
 
     public boolean addChildrenBeforeThis() { return false; }
 

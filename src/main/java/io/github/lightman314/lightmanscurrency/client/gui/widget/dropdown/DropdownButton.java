@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
@@ -22,11 +23,12 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	
 	public DropdownButton(int x, int y, int width, @Nonnull Component optionText, @Nonnull Runnable onPress)
 	{
-		super(x , y, width, DropdownWidget.HEIGHT);
+		super(builder().position(x,y).width(width));
 		this.onPress = onPress;
 		this.optionText = optionText;
 	}
 
+	@Deprecated
 	@Override
 	public DropdownButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
@@ -77,5 +79,18 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {}
+
+	private static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	private static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() {}
+		@Override
+		protected int getDefaultHeight() { return DropdownWidget.HEIGHT; }
+		public Builder width(int width) { this.changeSize(width,DropdownWidget.HEIGHT); return this; }
+		@Override
+		protected Builder getSelf() { return this; }
+	}
 
 }

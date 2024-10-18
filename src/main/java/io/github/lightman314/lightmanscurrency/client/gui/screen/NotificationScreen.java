@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
@@ -80,8 +79,12 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 
 		this.notificationScroller = this.addChild(ScrollBarWidget.createOnRight(this.notificationDisplay));
 		
-		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + screenArea.width - 15, screenArea.y + 4, LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ.get(), this::markAsRead)
-				.withAddons(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory))));
+		this.buttonMarkAsSeen = this.addChild(MarkAsSeenButton
+				.builder(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ)
+				.topRight(screenArea.pos.offset(screenArea.width - 15, 4))
+				.pressAction(this::markAsRead)
+				.addon(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory)))
+				.build());
 		
 	}
 	

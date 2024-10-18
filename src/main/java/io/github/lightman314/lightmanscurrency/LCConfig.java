@@ -189,7 +189,7 @@ public final class LCConfig {
             builder.comment("Wallet Offset X").add("offX", this.xOff);
             builder.comment("Wallet Offset Y").add("offY", this.yOff);
             builder.comment("Wallet Offset Z").add("offZ", this.zOff);
-            */
+            //*/
 
             builder.pop();
 
@@ -197,9 +197,9 @@ public final class LCConfig {
 
         /* Wallet Position Debug
         public final DoubleOption xOff = DoubleOption.create(2f/16f);
-        public final DoubleOption yOff = DoubleOption.create(19f/16f);
+        public final DoubleOption yOff = DoubleOption.create(-7.5f/16f);
         public final DoubleOption zOff = DoubleOption.create(6f/16f);
-        */
+        //*/
 
     }
 
