@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -43,7 +44,9 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 		{
 
 			pose.pushPose();
-			pose.translate(12f/16f, 19.5f/16f, 6f/16f);
+			//Rotate 180 degrees so that the wallet is rendered right-side up
+			pose.mulPose(MathUtil.fromAxisAngleDegree(MathUtil.getZP(),180f));
+			pose.translate(2f/16f, -7.5f/16f, 6f/16f);
 
 			Minecraft mc = Minecraft.getInstance();
 			BakedModel model = mc.getModelManager().getModel(walletItem.model);
