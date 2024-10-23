@@ -18,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +40,7 @@ import javax.annotation.Nullable;
 @Mod.EventBusSubscriber
 public class LootManager {
 
-	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).build();
+	public static final LootContextParamSet ENTITY_PARAMS = new LootContextParamSet.Builder().optional(LootContextParams.KILLER_ENTITY).required(LootContextParams.DAMAGE_SOURCE).build();
 
 	private static final List<ILootModifier> LOOT_MODIFIERS = new ArrayList<>();
 
@@ -216,7 +217,8 @@ public class LootManager {
 		}
 
 		Player player = null;
-		if(event.getSource().getDirectEntity() instanceof Player || event.getSource().getEntity() instanceof Player)
+		DamageSource damageSource = event.getSource();
+		if(damageSource.getDirectEntity() instanceof Player || damageSource.getEntity() instanceof Player)
 		{
 			player = event.getSource().getDirectEntity() instanceof Player p ? p : (Player)event.getSource().getEntity();
 			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
@@ -226,7 +228,7 @@ public class LootManager {
 
 		EntityPoolLevel poolLevel = GetEntityPoolLevel(entity.getType());
 		if(poolLevel != null)
-			DropEntityLoot(entity, player, poolLevel);
+			DropEntityLoot(entity, player, poolLevel, damageSource);
 
 	}
 
@@ -269,7 +271,7 @@ public class LootManager {
 		}
 	}
 
-	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull EntityPoolLevel coinPool)
+	private static void DropEntityLoot(@Nonnull Entity entity, @Nullable Player player, @Nonnull EntityPoolLevel coinPool, @Nonnull DamageSource damageSource)
 	{
 
 		if(!LCConfig.COMMON.enableEntityDrops.get())
@@ -278,13 +280,13 @@ public class LootManager {
 		if(!coinPool.isBoss && player == null)
 			return;
 
-		LootContext context = generateEntityContext(entity, player);
+		LootContext context = generateEntityContext(entity, player, damageSource);
 
 		InventoryUtil.dumpContents(entity.level(), entity.blockPosition(), getLoot(coinPool.lootTable, context));
 
 	}
 
-	public static LootContext generateEntityContext(@Nonnull Entity entity, @Nullable Player player)
+	public static LootContext generateEntityContext(@Nonnull Entity entity, @Nullable Player player, @Nonnull DamageSource damageSource)
 	{
 		if(!(entity.level() instanceof ServerLevel level))
 			throw new IllegalArgumentException("Function must be run on the server side!");
@@ -292,6 +294,7 @@ public class LootManager {
 		//Add the KilledByPlayer condition to the Loot Context
 		if(player != null)
 			parameterBuilder.withParameter(LootContextParams.KILLER_ENTITY, player);
+		parameterBuilder.withParameter(LootContextParams.DAMAGE_SOURCE, damageSource);
 
 		LootParams params = parameterBuilder.create(ENTITY_PARAMS);
 		return new LootContext.Builder(params).create(new ResourceLocation(LightmansCurrency.MODID, "generated_entity_loot/" + getSafeId(entity)));
