@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -44,10 +43,20 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(125,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetDiscountButton)
+                .build());
 
-        this.buttonStartSale = this.addChild(new EasyTextButton(screenArea.pos.offset(25, 45), 156, 20, this::getButtonText, this::PressStartButton)
-                .withAddons(EasyAddonHelper.tooltip(this::getButtonTooltip)));
+        this.buttonStartSale = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(25,45))
+                .width(156)
+                .text(this::getButtonText)
+                .pressAction(this::PressStartButton)
+                .addon(EasyAddonHelper.tooltip(this::getButtonTooltip))
+                .build());
 
         this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
         this.durationInput.setTime(this.getRule().getDuration());

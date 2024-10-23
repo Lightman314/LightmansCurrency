@@ -98,8 +98,12 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		this.searchField.setValue(lastSearch);
 		this.searchField.setResponder(this::onSearchChanged);
 
-		this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 24, 4), this::OpenAllTraders, IconData.of(ModBlocks.ITEM_NETWORK_TRADER_4))
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL)));
+		this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 24,4))
+				.pressAction(this::OpenAllTraders)
+				.icon(IconData.of(ModBlocks.ITEM_NETWORK_TRADER_4))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL))
+				.build());
 
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns), 17), (NetworkTraderButton.HEIGHT * this.rows) + 2, this));
 		

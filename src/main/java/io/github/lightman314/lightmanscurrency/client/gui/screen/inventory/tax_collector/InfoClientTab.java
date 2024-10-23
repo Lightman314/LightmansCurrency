@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.InfoTab;
@@ -35,8 +34,13 @@ public class InfoClientTab extends TaxCollectorClientTab<InfoTab> {
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
         Component clearLabel = LCText.BUTTON_TAX_COLLECTOR_STATS_CLEAR.get();
         int buttonWidth = this.getFont().width(clearLabel) + 6;
-        this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - buttonWidth - 8, 15), buttonWidth, 12, clearLabel, this.commonTab::ClearInfoCache)
-                .withAddons(EasyAddonHelper.visibleCheck(this::canClearStats)));
+        this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - buttonWidth - 8, 15))
+                .size(buttonWidth,12)
+                .text(clearLabel)
+                .pressAction(this.commonTab::ClearInfoCache)
+                .addon(EasyAddonHelper.visibleCheck(this::canClearStats))
+                .build());
     }
 
     @Override

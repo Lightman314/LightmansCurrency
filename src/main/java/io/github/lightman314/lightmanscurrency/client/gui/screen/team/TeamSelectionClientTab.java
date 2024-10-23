@@ -51,7 +51,12 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
         this.newTeamName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 140, 160, 20, Component.empty()));
         this.newTeamName.setMaxLength(32);
 
-        this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, LCText.BUTTON_TEAM_CREATE.get(), this::createTeam));
+        this.buttonCreateTeam = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(120,165))
+                .width(60)
+                .text(LCText.BUTTON_TEAM_CREATE)
+                .pressAction(this::createTeam)
+                .build());
         this.buttonCreateTeam.active = false;
 
     }

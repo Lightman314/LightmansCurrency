@@ -147,7 +147,13 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
         this.freeToggle = this.addChild(new PlainButton(this.getX() + this.width - 14, this.getY() + 4, this::toggleFree, SPRITE_FREE_TOGGLE));
 
-        this.dropdown = this.addChild(new DropdownWidget(this.getX() + 10, this.getY() + 4, 64, this.handlerKeys.indexOf(this.currentHandler.getUniqueName()), this::selectHandler, this.handlerNames()));
+        this.dropdown = this.addChild(DropdownWidget.builder()
+                .position(this.getPosition().offset(10,4))
+                .width(64)
+                .selected(this.handlerKeys.indexOf(this.currentHandler.getUniqueName()))
+                .selectAction(this::selectHandler)
+                .options(this.handlerNames())
+                .build());
 
     }
 

@@ -119,10 +119,20 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         //Name Edit
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10, screenArea.pos.y + 80, screenArea.width - 20, 18, EasyText.empty()));
         this.nameInput.setValue(entry != null ? entry.getCustomName() : "");
-        this.addChild(new EasyTextButton(screenArea.pos.offset(10, 102), 70, 20, LCText.BUTTON_SETTINGS_CHANGE_NAME.get(), () -> this.commonTab.SetName(this.getCurrentNameInput()))
-                .withAddons(EasyAddonHelper.activeCheck(this::isNameDifferent)));
-        this.addChild(new EasyTextButton(screenArea.pos.offset(96, 102), 70, 20, LCText.BUTTON_SETTINGS_RESET_NAME.get(), this::ResetName)
-                .withAddons(EasyAddonHelper.activeCheck(this::hasCustomName)));
+        this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,102))
+                .width(70)
+                .text(LCText.BUTTON_SETTINGS_CHANGE_NAME)
+                .pressAction(() -> this.commonTab.SetName(this.getCurrentNameInput()))
+                .addon(EasyAddonHelper.activeCheck(this::isNameDifferent))
+                .build());
+        this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(96,102))
+                .width(70)
+                .text(LCText.BUTTON_SETTINGS_RESET_NAME)
+                .pressAction(this::ResetName)
+                .addon(EasyAddonHelper.activeCheck(this::hasCustomName))
+                .build());
 
         this.tick();
 

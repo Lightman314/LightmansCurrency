@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
@@ -52,8 +51,14 @@ public class OwnershipClientTab extends TaxCollectorClientTab<OwnershipTab> {
         this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 50, 160, 20, EasyText.empty()));
         this.playerOwnerInput.setMaxLength(16);
 
-        this.playerOwnerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 72), screenArea.width - 20, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetOwnerPlayer)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
+        this.playerOwnerButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,72))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_OWNER_SET_PLAYER)
+                .pressAction(this::SetOwnerPlayer)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
+                .build());
+
 
         this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(12,30), 152, 6, this::getCurrentOwner, this.commonTab::SetOwner, this.ownerSelectionWidget));
 

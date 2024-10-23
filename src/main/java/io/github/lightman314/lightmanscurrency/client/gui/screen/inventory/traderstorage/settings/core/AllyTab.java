@@ -47,8 +47,18 @@ public class AllyTab extends SettingsSubTab {
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 10, 160, 20, EasyText.empty()));
         this.nameInput.setMaxLength(16);
 
-        this.buttonAddAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 35), 74, 20, LCText.BUTTON_ADD.get(), this::AddAlly));
-        this.buttonRemoveAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 35), 74, 20, LCText.BUTTON_REMOVE.get(), this::RemoveAlly));
+        this.buttonAddAlly = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,35))
+                .width(74)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::AddAlly)
+                .build());
+        this.buttonRemoveAlly = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 93, 25))
+                .width(74)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::RemoveAlly)
+                .build());
 
         this.display = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(5, 60), screenArea.width - 10, 75, this::getAllyList));
         this.display.setColumnCount(2);

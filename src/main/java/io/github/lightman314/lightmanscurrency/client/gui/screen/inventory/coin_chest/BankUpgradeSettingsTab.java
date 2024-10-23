@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
@@ -31,7 +30,12 @@ public class BankUpgradeSettingsTab extends CoinChestTab.Upgrade {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), screenArea.width - 40, 20, this::getModeButtonText, this::toggleDepositMode));
+        this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,20))
+                .width(screen.width - 40)
+                .text(this::getModeButtonText)
+                .pressAction(this::toggleDepositMode)
+                .build());
 
         MoneyValue moneyLimit = MoneyValue.empty();
         CoinChestUpgradeData data = this.getUpgradeData();

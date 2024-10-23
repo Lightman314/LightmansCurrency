@@ -84,7 +84,12 @@ public class TransferTab extends ATMTab {
 		this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 84), 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 126), screenArea.width - 20, 20, () -> this.playerMode ? LCText.BUTTON_ATM_TRANSFER_PLAYER.get() : LCText.BUTTON_ATM_TRANSFER_TEAM.get(), this::PressTransfer));
+		this.buttonTransfer = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(10,126))
+				.width(screenArea.width - 20)
+				.text(() -> this.playerMode ? LCText.BUTTON_ATM_TRANSFER_PLAYER.get() : LCText.BUTTON_ATM_TRANSFER_TEAM.get())
+				.pressAction(this::PressTransfer)
+				.build());
 		this.buttonTransfer.active = false;
 		
 	}

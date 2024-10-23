@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -79,8 +80,18 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         this.nameInput.setMaxLength(32);
         this.nameInput.setValue(trader.getCustomName());
 
-        this.buttonSetName = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 50), 74, 20, LCText.BUTTON_SETTINGS_CHANGE_NAME.get(), this::SetName));
-        this.buttonResetName = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 50), 74, 20, LCText.BUTTON_SETTINGS_RESET_NAME.get(), this::ResetName));
+        this.buttonSetName = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,50))
+                .width(74)
+                .text(LCText.BUTTON_SETTINGS_CHANGE_NAME)
+                .pressAction(this::SetName)
+                .build());
+        this.buttonResetName = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 93, 50))
+                .width(74)
+                .text(LCText.BUTTON_SETTINGS_RESET_NAME)
+                .pressAction(this::ResetName)
+                .build());
 
         //Creative Toggle
         this.buttonToggleCreative = this.addChild(IconAndButtonUtil.creativeToggleButton(screenArea.pos.offset(176, 110), this::ToggleCreative, () -> {
@@ -93,8 +104,13 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
                 .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE)));
 
         //Pickup Button
-        this.buttonPickupTrader = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 118), screenArea.width - 80, 20, LCText.BUTTON_TRADER_SETTINGS_PICKUP_TRADER.get(), this::PickupTrader)
-                .withAddons(EasyAddonHelper.tooltips(this::getPickupTooltip,160)));
+        this.buttonPickupTrader = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,118))
+                .width(screenArea.width - 80)
+                .text(LCText.BUTTON_TRADER_SETTINGS_PICKUP_TRADER)
+                .pressAction(this::PickupTrader)
+                .addon(EasyAddonHelper.tooltips(this::getPickupTooltip, TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
+                .build());
 
         this.tick();
 

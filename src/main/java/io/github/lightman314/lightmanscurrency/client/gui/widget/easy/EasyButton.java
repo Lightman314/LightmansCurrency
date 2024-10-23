@@ -82,9 +82,12 @@ public abstract class EasyButton extends EasyWidget {
 
     }
 
+    @MethodsReturnNonnullByDefault
     public static abstract class EasySizableButtonBuilder<T extends EasySizableButtonBuilder<T>> extends EasyButtonBuilder<T>
     {
-        public final T ofSize(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
+        public final T width(int width) { this.changeWidth(width); return this.getSelf(); }
+        public final T height(int height) { this.changeHeight(height); return this.getSelf(); }
+        public final T size(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
     }
 
 }

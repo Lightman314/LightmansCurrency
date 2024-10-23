@@ -137,9 +137,19 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         this.valueInput.drawBG = false;
         this.valueInput.setVisible(false);
 
-        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110), 70, 20, LCText.BUTTON_PLAYER_TRADING_PROPOSE.get(), this::OnPropose));
+        this.buttonPropose = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(8,110))
+                .width(70)
+                .text(LCText.BUTTON_PLAYER_TRADING_PROPOSE)
+                .pressAction(this::OnPropose)
+                .build());
 
-        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110), 70, 20,  LCText.BUTTON_PLAYER_TRADING_ACCEPT.get(), this::OnAccept));
+        this.buttonAccept = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(98,110))
+                .width(70)
+                .text(LCText.BUTTON_PLAYER_TRADING_ACCEPT)
+                .pressAction(this::OnAccept)
+                .build());
         this.buttonAccept.active = false;
 
         this.buttonToggleMoneyMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width,20), this::ToggleMoneyMode, this::getToggleMoneyIcon)

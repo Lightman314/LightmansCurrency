@@ -62,8 +62,13 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     @Override
     public void addChildren() {
-        this.addChild(new EasyTextButton(this.getPosition().offset(80, 10), 60, 16, LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR.get(), this::AcceptTaxCollector)
-                .withAddons(EasyAddonHelper.visibleCheck(this::shouldAcceptBeVisible)));
+        this.addChild(EasyTextButton.builder()
+                .position(this.getPosition().offset(80,10))
+                .width(60)
+                .text(LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR)
+                .pressAction(this::AcceptTaxCollector)
+                .addon(EasyAddonHelper.visibleCheck(this::shouldAcceptBeVisible))
+                .build());
         this.addChild(new PlainButton(this.getPosition().offset(0, 13), this::ToggleIgnoreState, this::getForceIgnoreSprite)
                 .withAddons(EasyAddonHelper.visibleCheck(() -> this.parent.canPlayerForceIgnore() && this.entrySource.get() != null),
                         EasyAddonHelper.tooltip(this::getForceIgnoreTooltip)));

@@ -19,8 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MiscTab extends SettingsSubTab {
 
@@ -56,7 +54,12 @@ public class MiscTab extends SettingsSubTab {
 
         this.buttonToggleChatNotifications = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 75), this::ToggleChatNotifications, this::notificationsToChat));
 
-        this.buttonToggleTeamLevel = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 100), screenArea.width - 40, 20, this::TeamLevelText, this::ToggleTeamNotificationLevel));
+        this.buttonToggleTeamLevel = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,100))
+                .width(screenArea.width - 40)
+                .text(this::TeamLevelText)
+                .pressAction(this::ToggleTeamNotificationLevel)
+                .build());
 
         this.tick();
 

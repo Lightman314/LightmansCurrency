@@ -89,9 +89,9 @@ public class EasyTextButton extends EasyButton {
         @Override
         protected Builder getSelf() { return this; }
 
-        public Builder withText(Component text) { this.text = () -> text; return this; }
-        public Builder withText(Supplier<Component> text) { this.text = text; return this; }
-        public Builder withText(TextEntry text) { this.text = Suppliers.memoize(text::get); return this; }
+        public Builder text(Component text) { this.text = () -> text; return this; }
+        public Builder text(Supplier<Component> text) { this.text = text; return this; }
+        public Builder text(TextEntry text) { this.text = Suppliers.memoize(text::get); return this; }
 
         public EasyTextButton build() { return new EasyTextButton(this); }
 

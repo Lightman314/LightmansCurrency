@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -78,13 +78,15 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 		this.notificationDisplay.setDeletionHandler(this::deleteNotification,() -> !this.isGeneralSelected());
 
 		this.notificationScroller = this.addChild(ScrollBarWidget.createOnRight(this.notificationDisplay));
-		
-		this.buttonMarkAsSeen = this.addChild(MarkAsSeenButton
-				.builder(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ)
-				.topRight(screenArea.pos.offset(screenArea.width - 15, 4))
-				.pressAction(this::markAsRead)
-				.addon(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory)))
-				.build());
+
+		int textWidth = this.font.width(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ.get());
+		this.buttonMarkAsSeen = this.addChild(EasyTextButton.builder()
+						.position(screenArea.pos.offset(screenArea.width - 19 - textWidth,4))
+						.size(4 + textWidth,11)
+						.text(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ)
+						.pressAction(this::markAsRead)
+						.addon(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory)))
+						.build());
 		
 	}
 	

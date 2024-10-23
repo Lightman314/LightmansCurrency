@@ -182,13 +182,15 @@ public abstract class EasyWidget extends AbstractWidget {
         protected final void changeHeight(int height) { this.area = this.area.ofSize(this.area.width,height); }
         protected final void changeSize(int width, int height) { this.area = this.area.ofSize(width,height); }
 
-        public final T addon(@Nonnull WidgetAddon addon) { this.addons.add(addon); return this.getSelf(); }
+        public final T addon(WidgetAddon addon) { this.addons.add(addon); return this.getSelf(); }
 
     }
 
     public static abstract class EasySizableBuilder<T extends EasySizableBuilder<T>> extends EasyBuilder<T>
     {
-        public final T ofSize(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
+        public final T width(int width) { this.changeWidth(width); return this.getSelf(); }
+        public final T height(int height) { this.changeHeight(height); return this.getSelf(); }
+        public final T size(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
     }
 
 }

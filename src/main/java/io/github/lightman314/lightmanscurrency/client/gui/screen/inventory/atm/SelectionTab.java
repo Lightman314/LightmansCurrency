@@ -65,7 +65,12 @@ public class SelectionTab extends ATMTab {
 		this.playerAccountSelect = this.addChild(new EditBox(this.screen.getFont(), screenArea.x + 7, screenArea.y + 20, 162, 20, EasyText.empty()));
 		this.playerAccountSelect.visible = false;
 		
-		this.buttonSelectPlayerAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(7, 45), 162, 20, LCText.BUTTON_BANK_PLAYER_ACCOUNT.get(), this::PressSelectPlayerAccount));
+		this.buttonSelectPlayerAccount = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(7,45))
+				.width(162)
+				.text(LCText.BUTTON_BANK_PLAYER_ACCOUNT)
+				.pressAction(this::PressSelectPlayerAccount)
+				.build());
 		this.buttonSelectPlayerAccount.visible = false;
 
 		this.tick();

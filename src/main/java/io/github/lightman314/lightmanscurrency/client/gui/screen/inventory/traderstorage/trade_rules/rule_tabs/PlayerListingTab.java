@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDispl
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
@@ -42,12 +41,27 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonToggleMode = this.addChild(new EasyTextButton(screenArea.pos.offset(10,7), screenArea.width - 20, 20, this::getModeText, this::PressToggleModeButton));
+        this.buttonToggleMode = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,7))
+                .width(screenArea.width - 20)
+                .text(this::getModeText)
+                .pressAction(this::PressToggleModeButton)
+                .build());
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 29, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), 78, 20, LCText.BUTTON_ADD.get(), this::PressAddButton));
-        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 50), 78, 20, LCText.BUTTON_REMOVE.get(), this::PressForgetButton));
+        this.buttonAddPlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,50))
+                .width(78)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::PressAddButton)
+                .build());
+        this.buttonRemovePlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 88,50))
+                .width(78)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::PressForgetButton)
+                .build());
 
         //Player list display
         this.playerDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 75), screenArea.width - 14, 64, this::getPlayers));

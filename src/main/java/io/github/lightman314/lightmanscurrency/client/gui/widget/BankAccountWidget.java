@@ -48,9 +48,18 @@ public class BankAccountWidget implements IEasyTickable {
 		this.amountSelection.allowFreeInput = false;
 		addWidget.accept(this.amountSelection);
 
-		this.buttonDeposit = new EasyTextButton(screenMiddle - 5 - BUTTON_WIDTH, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, LCText.BUTTON_BANK_DEPOSIT.get(), this::OnDeposit);
+		this.buttonDeposit = EasyTextButton.builder()
+				.position(screenMiddle - 5 - BUTTON_WIDTH, this.y + MoneyValueWidget.HEIGHT + 5 + spacing)
+				.width(BUTTON_WIDTH)
+				.text(LCText.BUTTON_BANK_DEPOSIT)
+				.pressAction(this::OnDeposit).build();
 		addWidget.accept(this.buttonDeposit);
-		this.buttonWithdraw = new EasyTextButton(screenMiddle + 5, this.y + MoneyValueWidget.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, LCText.BUTTON_BANK_WITHDRAW.get(), this::OnWithdraw);
+		this.buttonWithdraw = EasyTextButton.builder()
+				.position(screenMiddle + 5, this.y + MoneyValueWidget.HEIGHT + 5 + spacing)
+				.width(BUTTON_WIDTH)
+				.text(LCText.BUTTON_BANK_WITHDRAW)
+				.pressAction(this::OnWithdraw)
+				.build();
 		addWidget.accept(this.buttonWithdraw);
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		

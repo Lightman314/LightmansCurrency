@@ -52,8 +52,13 @@ public class NotificationTab extends ATMTab {
 		this.notificationSelection.setHandlerChangeListener(this::onValueTypeChanged);
 
 		//Reset Button to tweak card validation
-		this.buttonResetATMCards = this.addChild(new EasyTextButton(screenArea.x + 20, screenArea.y + 117, screenArea.width - 40, 20, LCText.BUTTON_BANK_CARD_VERIFCATION_RESET.get(), this::resetCardVerification)
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_BANK_CARD_VERIFCATION_RESET, TooltipHelper.DEFAULT_TOOLTIP_WIDTH)));
+		this.buttonResetATMCards = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(20,117))
+				.width(screenArea.width - 40)
+				.text(LCText.BUTTON_BANK_CARD_VERIFCATION_RESET)
+				.pressAction(this::resetCardVerification)
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_BANK_CARD_VERIFCATION_RESET, TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
+				.build());
 
 	}
 

@@ -93,7 +93,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.priceSelect = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34), firstOpen ? null : this.priceSelect, MoneyValue.empty(), this::onPriceChanged));
 		this.priceSelect.drawBG = this.priceSelect.allowFreeInput = false;
 		
-		this.buttonTogglePriceMode = this.addChild(new EasyTextButton(screenArea.pos.offset(114, 4), screenArea.width - 119, 20, this::getBidModeText, b -> this.TogglePriceTarget()));
+		this.buttonTogglePriceMode = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(114,4))
+				.width(screenArea.width - 119)
+				.text(this::getBidModeText)
+				.pressAction(this::TogglePriceTarget)
+				.build());
 
 		this.buttonToggleOvertime = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(15,26), this::ToggleOvertime, () -> this.pendingAuction.isOvertimeAllowed()));
 		this.overtimeTextArea = ScreenArea.of(26, 27, this.getFont().width(LCText.GUI_TRADER_AUCTION_OVERTIME.get()),10);
@@ -106,7 +111,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.timeInput.setTime(this.timeInput.minDuration);
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.addChild(new EasyTextButton(screenArea.pos.offset(40,- 20), screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CREATE.get(), b -> this.submitAuction()));
+		this.buttonSubmitAuction = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(40,-20))
+				.width(screenArea.width - 80)
+				.text(LCText.BUTTON_TRADER_AUCTION_CREATE)
+				.pressAction(this::submitAuction)
+				.build());
 		this.buttonSubmitAuction.active = false;
 		
 		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconUtil.ICON_PERSISTENT_DATA)

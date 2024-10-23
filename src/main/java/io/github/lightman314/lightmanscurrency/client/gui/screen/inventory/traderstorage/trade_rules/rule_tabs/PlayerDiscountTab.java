@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDispl
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -46,15 +45,30 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 34, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset( 10, 55), 78, 20, LCText.BUTTON_ADD.get(), this::PressAddButton));
-        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 55), 78, 20, LCText.BUTTON_REMOVE.get(), this::PressForgetButton));
+        this.buttonAddPlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,55))
+                .width(78)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::PressAddButton)
+                .build());
+        this.buttonRemovePlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 88, 55))
+                .width(78)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::PressForgetButton)
+                .build());
 
         this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.discountInput.setMaxLength(2);
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(110, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(110,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetDiscountButton)
+                .build());
 
         this.playerList = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 78), screenArea.width - 14, 61, this::getPlayerList));
         this.playerList.setColumnCount(2);

@@ -61,8 +61,13 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
         this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 30, this.screen.getXSize() - 20, 20, EasyText.empty()));
         this.playerOwnerInput.setMaxLength(16);
 
-        this.setPlayerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 60), screenArea.width - 20, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetPlayerOwner)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
+        this.setPlayerButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,60))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_OWNER_SET_PLAYER)
+                .pressAction(this::SetPlayerOwner)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
+                .build());
 
         //Owner Selection
         this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(7, 27), this.screen.getXSize() - 22, 5, this::getCurrentOwner, this::setOwner, this.ownerSelectionWidget));

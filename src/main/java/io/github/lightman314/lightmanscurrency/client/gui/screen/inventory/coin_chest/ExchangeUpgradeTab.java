@@ -44,7 +44,12 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
         this.exchangeData.initialize(screenArea);
 
-        this.exchangeWhileOpenButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 124), screenArea.width - 20, 20, this::GetExchangeWhileOpenText, this::ToggleExchangeWhileOpen));
+        this.exchangeWhileOpenButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,124))
+                .width(screenArea.width - 20)
+                .text(this::GetExchangeWhileOpenText)
+                .pressAction(this::ToggleExchangeWhileOpen)
+                .build());
 
         this.tick();
 

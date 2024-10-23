@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -44,10 +45,20 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset((screenArea.width / 2) - 47, 17));
 		
-		this.buttonCancelPlayerGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 60), screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CANCEL_SELF.get(), b -> this.commonTab.cancelAuction(true))
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_SELF, 160)));
-		this.buttonCancelStorageGive = this.addChild(new EasyTextButton(screenArea.pos.offset(40, 85) , screenArea.width - 80, 20, LCText.BUTTON_TRADER_AUCTION_CANCEL_STORAGE.get(), b -> this.commonTab.cancelAuction(false))
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE, 160)));
+		this.buttonCancelPlayerGive = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(40,60))
+				.width(screenArea.width - 80)
+				.text(LCText.BUTTON_TRADER_AUCTION_CANCEL_SELF)
+				.pressAction(() -> this.commonTab.cancelAuction(true))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_SELF,TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
+				.build());
+		this.buttonCancelStorageGive = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(40,85))
+				.width(screenArea.width - 80)
+				.text(LCText.BUTTON_TRADER_AUCTION_CANCEL_STORAGE.get())
+				.pressAction(() -> this.commonTab.cancelAuction(false))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE,TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
+				.build());
 		
 	}
 

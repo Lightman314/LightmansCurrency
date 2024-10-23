@@ -6,17 +6,17 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
-import net.minecraft.ChatFormatting;
 
 import javax.annotation.Nonnull;
 
@@ -65,9 +65,14 @@ public class AuctionBidTab extends TraderClientTab {
 		this.bidAmount.allowFreeInput = false;
 		this.bidAmount.drawBG = false;
 		
-		this.bidButton = this.addChild(new EasyTextButton(screenArea.pos.offset(22, 119), 68, 20, LCText.BUTTON_TRADER_AUCTION_BID.get(), this::SubmitBid));
+		this.bidButton = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(22,119))
+				.width(68)
+				.text(LCText.BUTTON_TRADER_AUCTION_BID)
+				.pressAction(this::SubmitBid)
+				.build());
 		
-		this.closeButton = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 25, 5), 20, 20, EasyText.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close));
+		this.closeButton = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5),this::close, IconUtil.ICON_X));
 		
 		this.tick();
 		

@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
@@ -42,7 +41,12 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         if(rule != null)
             this.fluctuationInput.setValue(Integer.toString(rule.getFluctuation()));
 
-        this.buttonSetFluctuation = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetFluctuationButton));
+        this.buttonSetFluctuation = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(125,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetFluctuationButton)
+                .build());
 
         this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
         this.durationInput.setTime(this.getRule().getDuration());

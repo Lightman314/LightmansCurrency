@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -32,8 +31,13 @@ public class ATMCardScreen extends EasyMenuScreen<ATMCardMenu> {
 
         this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20, 25), screenArea.width - 40, 6, this::canAccess, this::getVisibleSelectedAccount, this.menu::setSelectedAccount));
 
-        this.buttonLockAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20,screenArea.height - 40), screenArea.width - 40, 20, this::getLockButtonText, this::toggleAccountLocked)
-                .withAddons(EasyAddonHelper.tooltips(this::getLockButtonTooltip)));
+        this.buttonLockAccount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,screenArea.height - 40))
+                .width(screenArea.width - 40)
+                .text(this::getLockButtonText)
+                .pressAction(this::toggleAccountLocked)
+                .addon(EasyAddonHelper.tooltips(this::getLockButtonTooltip))
+                .build());
 
     }
 

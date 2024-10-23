@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -40,9 +39,19 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         if(rule != null)
             this.limitInput.setValue(Integer.toString(rule.getLimit()));
 
-        this.buttonSetLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(41, 19), 40, 20, LCText.BUTTON_SET.get(), this::PressSetLimitButton));
-        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), screenArea.width - 20, 20, LCText.BUTTON_CLEAR_MEMORY.get(), this::PressClearMemoryButton)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY)));
+        this.buttonSetLimit = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(41,19))
+                .width(40)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetLimitButton)
+                .build());
+        this.buttonClearMemory = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,50))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_CLEAR_MEMORY)
+                .pressAction(this::PressClearMemoryButton)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY))
+                .build());
 
     }
 

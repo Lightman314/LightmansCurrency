@@ -122,10 +122,15 @@ public class IconAndButtonUtil {
 	
 	public static DropdownWidget interactionTypeDropdown(ScreenPosition pos, int width, InteractionType currentlySelected, Consumer<Integer> onSelect, List<InteractionType> blacklist) { return interactionTypeDropdown(pos.x, pos.y, width, currentlySelected, onSelect, blacklist); }
 	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, InteractionType currentlySelected, Consumer<Integer> onSelect, List<InteractionType> blacklist) {
-		List<Component> options = new ArrayList<>();
+		DropdownWidget.Builder builder = DropdownWidget.builder()
+				.position(x,y)
+				.width(width)
+				.selected(currentlySelected.index)
+				.selectAction(onSelect)
+				.activeCheck((i) ->  !blacklist.contains(InteractionType.fromIndex(i)));
 		for(int i = 0; i < InteractionType.size(); ++i)
-			options.add(InteractionType.fromIndex(i).getDisplayText());
-		return new DropdownWidget(x, y, width, currentlySelected.index, onSelect, (index) ->  !blacklist.contains(InteractionType.fromIndex(index)), options);
+			builder.option(InteractionType.fromIndex(i).getDisplayText());
+		return builder.build();
 	}
 
 }
