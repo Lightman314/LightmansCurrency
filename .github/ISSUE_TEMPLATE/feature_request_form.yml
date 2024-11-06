@@ -5,13 +5,13 @@ labels: [ "Enhancement" ]
 assignees:
   - Lightman314
 body:
-  -type: input
-    attributes:
-      label: Lightman's Currency Version
-      description: The version if Lightman's Currency you are using (including minecraft version)
-      placeholder: ex. 1.20.1-2.2.0.0
-    validations:
-      required: true
+    - type: input
+      attributes:
+        label: Lightman's Currency Version
+        description: The version if Lightman's Currency you are using (including minecraft version)
+        placeholder: ex. 1.20.1-2.2.0.0
+      validations:
+        required: true
   - type: textarea
     attributes:
       label: Is your feature request related to a problem?
