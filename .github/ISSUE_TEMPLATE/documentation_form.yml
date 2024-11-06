@@ -12,7 +12,7 @@ body:
         placeholder: e.x. https://github.com/Lightman314/LightmansCurrency/wiki/Table-Of-Contents
       validations:
         required: true
-    -type: textarea
+    - type: textarea
       attributes:
         label: Issue/Suggestion
         description: A detailed description of the inaccurate information OR the unclear information that needs more details and/or reformatting
