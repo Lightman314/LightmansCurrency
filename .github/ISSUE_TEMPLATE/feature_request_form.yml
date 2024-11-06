@@ -12,30 +12,30 @@ body:
         placeholder: ex. 1.20.1-2.2.0.0
       validations:
         required: true
-  - type: textarea
-    attributes:
-      label: Is your feature request related to a problem?
-      description: If it is, describe the problem you're having. If not, feel free to ignore.
-      placeholder: ex. My players can obtain coins too easily...
-    validations:
-      required: false
-  - type: textarea
-    attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you want to happen.
-      placeholder: ex. Add a config option that disables the players ability to mint coins with a coin mint
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Describe alternatives you've considered
-      description: What other options have you considered to obtain the change you want
-      placeholder: ex. I've tried using craft-tweaker to disable the recipe of the coin mint block, however players can still obtain it from bankers
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Additional context
-      description: Add any other context or screenshots about the feature request here.
-    validations:
-      required: false
+    - type: textarea
+      attributes:
+        label: Is your feature request related to a problem?
+        description: If it is, describe the problem you're having. If not, feel free to ignore.
+        placeholder: ex. My players can obtain coins too easily...
+      validations:
+        required: false
+    - type: textarea
+      attributes:
+        label: Describe the solution you'd like
+        description: A clear and concise description of what you want to happen.
+        placeholder: ex. Add a config option that disables the players ability to mint coins with a coin mint
+      validations:
+        required: true
+    - type: textarea
+      attributes:
+        label: Describe alternatives you've considered
+        description: What other options have you considered to obtain the change you want
+        placeholder: ex. I've tried using craft-tweaker to disable the recipe of the coin mint block, however players can still obtain it from bankers
+      validations:
+        required: true
+    - type: textarea
+      attributes:
+        label: Additional context
+        description: Add any other context or screenshots about the feature request here.
+      validations:
+        required: false
