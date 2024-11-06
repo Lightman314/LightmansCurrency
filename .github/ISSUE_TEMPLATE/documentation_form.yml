@@ -1,0 +1,22 @@
+name: Documentation Issue or Suggestion
+description: Request a correction or improvement to the wiki
+title: "Documentation: DESCRIPTION"
+labels: [ "Documentation" ]
+assignees:
+  - Lightman314
+body:
+    - type: input
+      attributes:
+        label: Wiki Link
+        description: A link to the wiki page that requires a change/update. Please limit yourself to one page per report unless they all have the same issue (such as a broken hyperlink to another wiki page)
+        placeholder: e.x. https://github.com/Lightman314/LightmansCurrency/wiki/Table-Of-Contents
+      validations:
+        required: true
+    -type: textarea
+      attributes:
+        label: Issue/Suggestion
+        description: A detailed description of the inaccurate information OR the unclear information that needs more details and/or reformatting
+        placeholder: e.x. Missing hyperlink to the new EXAMPLE FEATURE wiki page
+      validations:
+        required: true
+        
