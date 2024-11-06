@@ -1,7 +1,7 @@
 name: Translation Upload
-description: Request a correction or improvement to the wiki
-title: "Documentation: DESCRIPTION"
-labels: [ "Documentation" ]
+description: Provide a language translation of this mod
+title: "Translation: LANGUAGE"
+labels: [ "Translation" ]
 assignees:
   - Lightman314
 body:
