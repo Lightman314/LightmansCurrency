@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report a bug or crash
-title: "BUG: "
+title: "BUG: ISSUE_DESCRIPTION"
 labels: [ "Bug" ]
 assignees:
   - Lightman314
@@ -10,7 +10,7 @@ body:
         label: Minecraft Version
         description: The version of Minecraft you are using.
         options:
-          - "1.21"
+          - "1.21/1.21.1"
           - "1.20.1"
           - "1.19.2"
           - "1.18.2"
@@ -29,8 +29,8 @@ body:
         required: true
     - type: input
       attributes:
-        label: Forge Version
-        description: The version of Forge you are using.
+        label: Forge/NeoForge Version
+        description: The version of Forge/NeoForge you are using.
         placeholder: "ex. 40.1.84"
       validations:
         required: true
