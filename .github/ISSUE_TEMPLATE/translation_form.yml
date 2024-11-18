@@ -22,7 +22,7 @@ body:
     - type: textarea
       attributes:
         label: Language File
-        description: Please attach the *.json language file here. DO NOT copy/paste the files contents into this form. The latest version of the language files (including the english file) can be downloaded from here. Please be careful to not accidentally break json formatting (extra or missing comma's or quotation marks, etc.) as it will keep your language file from working.
+        description: Please attach the *.json language file here. DO NOT copy/paste the files contents into this form. The latest version of the english language file can be downloaded from [here](https://github.com/Lightman314/LightmansCurrency/tree/main/src/generated/resources/assets/lightmanscurrency/lang), and all other language files from [here](https://github.com/Lightman314/LightmansCurrency/tree/main/src/main/resources/assets/lightmanscurrency/lang). Please be careful to not accidentally break json formatting (extra or missing comma's or quotation marks, etc.) as it will keep your language file from working.
       validations:
         required: true
         
