@@ -48,7 +48,7 @@ public class PlayerReference {
 		if(isClient)
 		{
 			String n = ClientPlayerNameCache.lookupName(this.id);
-			return Objects.requireNonNull(n,this.name);
+			return Objects.requireNonNullElse(n,this.name);
 		}
 		else
 		{
