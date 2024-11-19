@@ -29,6 +29,8 @@ public class ClientBankData {
 		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
 		return new BankAccount().flagAsClient();
 	}
+
+	public static boolean HasBankAccount(@Nonnull UUID playerID) { return loadedBankAccounts.containsKey(playerID); }
 	
 	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
 
@@ -37,7 +39,7 @@ public class ClientBankData {
 	public static void UpdateBankAccount(UUID player, CompoundTag compound)
 	{
 		try {
-			BankAccount account = new BankAccount(compound, LookupHelper.getRegistryAccess(true)).flagAsClient();
+			BankAccount account = new BankAccount(compound,LookupHelper.getRegistryAccess()).flagAsClient();
 			if(player != null && account != null)
 				loadedBankAccounts.put(player, account);
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading bank account on client!",e); }

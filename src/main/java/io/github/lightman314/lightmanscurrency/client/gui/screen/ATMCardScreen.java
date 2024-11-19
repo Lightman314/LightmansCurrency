@@ -29,7 +29,14 @@ public class ATMCardScreen extends EasyMenuScreen<ATMCardMenu> {
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20, 25), screenArea.width - 40, 6, this::canAccess, this::getVisibleSelectedAccount, this.menu::setSelectedAccount));
+        this.addChild(BankAccountSelectionWidget.builder()
+                .position(screenArea.pos.offset(20,25))
+                .width(screenArea.width - 40)
+                .rows(6)
+                .filter(this::canAccess)
+                .selected(this::getVisibleSelectedAccount)
+                .handler(this.menu::setSelectedAccount)
+                .build());
 
         this.buttonLockAccount = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(20,screenArea.height - 40))

@@ -1,13 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface IEasyScreen extends LazyPacketData.IBuilderProvider {
 
@@ -35,5 +39,9 @@ public interface IEasyScreen extends LazyPacketData.IBuilderProvider {
 
     default boolean blockInventoryClosing() { return false; }
 
+    @Nullable
+    default Pair<ItemStack,ScreenArea> getHoveredItem(@Nonnull ScreenPosition mousePos) { return null; }
+    @Nullable
+    default Pair<FluidStack,ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) { return null; }
 
 }

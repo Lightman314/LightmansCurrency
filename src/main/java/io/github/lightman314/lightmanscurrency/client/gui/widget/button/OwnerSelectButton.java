@@ -4,13 +4,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -30,17 +29,12 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
 
     public static final int HEIGHT = 20;
 
-    public OwnerSelectButton(ScreenPosition pos, int width, @Nonnull Runnable press, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Supplier<PotentialOwner> ownerSupplier, @Nonnull Supplier<Boolean> parentVisible) {
-        super(ScreenArea.of(pos,width,HEIGHT), press);
-        this.currentOwner = currentOwner;
-        this.ownerSupplier = ownerSupplier;
-        this.parentVisible = parentVisible;
-    }
-
-    @Override
-    public OwnerSelectButton withAddons(WidgetAddon... addons) {
-        this.withAddonsInternal(addons);
-        return this;
+    private OwnerSelectButton(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.currentOwner = builder.selectedOwner;
+        this.ownerSupplier = builder.owner;
+        this.parentVisible = builder.visible;
     }
 
     @Override
@@ -88,6 +82,30 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
         if(owner != null)
             owner.appendTooltip(tooltip);
         return tooltip;
+    }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyButtonBuilder<Builder>
+    {
+        private Builder() { super(100,HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+
+        private Supplier<OwnerData> selectedOwner = () -> null;
+        private Supplier<PotentialOwner> owner = () -> null;
+        private Supplier<Boolean> visible = () -> true;
+
+        public Builder width(int width) { this.changeWidth(width); return this; }
+        public Builder selected(Supplier<OwnerData> selectedOwner) { this.selectedOwner = selectedOwner; return this; }
+        public Builder potentialOwner(Supplier<PotentialOwner> owner) { this.owner = owner; return this; }
+        public Builder visible(Supplier<Boolean> visible) { this.visible = visible; return this; }
+
+        public OwnerSelectButton build() { return new OwnerSelectButton(this); }
+
     }
 
 }

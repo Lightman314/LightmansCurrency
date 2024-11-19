@@ -131,7 +131,7 @@ public class EjectionSaveData extends SavedData {
 			//Send update packet to all connected clients
 			CompoundTag compound = new CompoundTag();
 			ListTag ejectionList = new ListTag();
-			HolderLookup.Provider lookup = LookupHelper.getRegistryAccess(false);
+			HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
 			esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save(lookup)));
 			compound.put("EmergencyEjectionData", ejectionList);
 			new SPacketSyncEjectionData(compound).sendToAll();
@@ -146,7 +146,7 @@ public class EjectionSaveData extends SavedData {
 		//Send ejection data
 		CompoundTag compound = new CompoundTag();
 		ListTag ejectionList = new ListTag();
-		esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save(LookupHelper.getRegistryAccess(false))));
+		esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save(LookupHelper.getRegistryAccess())));
 		compound.put("EmergencyEjectionData", ejectionList);
 		new SPacketSyncEjectionData(compound).sendTo(event.getEntity());
 	}

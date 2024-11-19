@@ -3,18 +3,19 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -28,15 +29,12 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
 
     private static final int ITEM_POSY = 22;
 
-    public SlotMachineEntryDisplayWidget(ScreenPosition pos, Supplier<SlotMachineTraderData> trader, Supplier<Integer> index) { this(pos.x, pos.y, trader, index); }
-    public SlotMachineEntryDisplayWidget(int x, int y, Supplier<SlotMachineTraderData> trader, Supplier<Integer> index) {
-        super(x, y, WIDTH, HEIGHT);
-        this.trader = trader;
-        this.index = index;
+    private SlotMachineEntryDisplayWidget(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.trader = builder.trader;
+        this.index = builder.index;
     }
-
-    @Override
-    public SlotMachineEntryDisplayWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
     @Nullable
     private SlotMachineEntry getEntry() {
@@ -106,6 +104,28 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
             }
         }
         return null;
+    }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    @ParametersAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(WIDTH,HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+
+        private Supplier<SlotMachineTraderData> trader = () -> null;
+        private Supplier<Integer> index = () -> 0;
+
+        public Builder trader(Supplier<SlotMachineTraderData> trader) { this.trader = trader; return this; }
+        public Builder index(Supplier<Integer> index) { this.index = index; return this; }
+
+        public SlotMachineEntryDisplayWidget build() { return new SlotMachineEntryDisplayWidget(this); }
+
     }
 
 }

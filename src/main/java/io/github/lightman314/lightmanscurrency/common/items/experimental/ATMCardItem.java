@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.items.experimental;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
@@ -64,6 +66,11 @@ public class ATMCardItem extends Item {
         ItemStack card = player.getItemInHand(hand);
         if(!level.isClientSide)
         {
+            if(QuarantineAPI.IsDimensionQuarantined(level))
+            {
+                EasyText.sendMessage(player,LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.getWithStyle(ChatFormatting.GOLD));
+                return InteractionResultHolder.success(card);
+            }
             int inventorySlot = -1;
             for(int i = 0; i < player.getInventory().getContainerSize() && inventorySlot < 0; ++i)
             {

@@ -7,13 +7,14 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwnerList;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.OwnerSelectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.resources.ResourceLocation;
@@ -37,30 +38,20 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     private EditBox searchBox;
     private int scroll = 0;
 
-    public OwnerSelectionWidget(int x, int y, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget) { this(ScreenPosition.of(x,y),width,rows,currentOwner,setOwner, oldWidget); }
-    public OwnerSelectionWidget(int x, int y, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget, @Nonnull Predicate<PotentialOwner> filter) { this(ScreenPosition.of(x,y),width,rows,currentOwner,setOwner, oldWidget, filter); }
-    public OwnerSelectionWidget(@Nonnull ScreenPosition pos, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget) { this(pos, width, rows, currentOwner,setOwner,oldWidget, o -> true); }
-    public OwnerSelectionWidget(@Nonnull ScreenPosition pos, int width, int rows, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Consumer<Owner> setOwner, @Nullable OwnerSelectionWidget oldWidget, @Nonnull Predicate<PotentialOwner> filter) {
-        super(pos, width, rows * OwnerSelectButton.HEIGHT + 12);
-        this.currentOwner = currentOwner;
-        this.setOwner = setOwner;
-        this.rows = rows;
-
-        //Copy data from old widget (if present)
-        if(oldWidget != null)
+    private OwnerSelectionWidget(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.currentOwner = builder.selectedOwner;
+        this.setOwner = builder.handler;
+        this.rows = builder.rows;
+        if(builder.oldWidget != null)
         {
-            this.scroll = oldWidget.scroll;
-            this.searchBox = oldWidget.searchBox;
-            this.list = oldWidget.list;
+            this.scroll = builder.oldWidget.scroll;
+            this.searchBox = builder.oldWidget.searchBox;
+            this.list = builder.oldWidget.list;
         }
         else
-            this.list = new PotentialOwnerList(Minecraft.getInstance().player, this.currentOwner,filter);
-    }
-
-    @Override
-    public OwnerSelectionWidget withAddons(WidgetAddon... addons) {
-        this.withAddonsInternal(addons);
-        return this;
+            this.list = new PotentialOwnerList(Minecraft.getInstance().player, this.currentOwner, builder.filter);
     }
 
     @Override
@@ -73,17 +64,32 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     }
 
     @Override
-    public void addChildren() {
-        this.searchBox = this.addChild(new EditBox(Minecraft.getInstance().font, this.getX() + this.width - 88, this.getY() + 2, 79, 9, this.searchBox, EasyText.empty()));
+    public void addChildren(@Nonnull ScreenArea area) {
+        this.searchBox = this.addChild(new EditBox(Minecraft.getInstance().font, area.pos.x + this.width - 88, area.pos.y + 2, 79, 9, this.searchBox, EasyText.empty()));
         this.searchBox.setBordered(false);
         this.searchBox.setResponder(this::modifySearch);
         //Scroll Bar
-        this.addChild(new ScrollBarWidget(this.getPosition().offset(this.getWidth(),12),this.getHeight() - 12,this).withAddons(EasyAddonHelper.visibleCheck(this::isVisible)));
-        this.addChild(new ScrollListener(this.getArea(), this));
+        this.addChild(ScrollBarWidget.builder()
+                .position(area.pos.offset(area.width,12))
+                .height(area.height - 12)
+                .scrollable(this)
+                .addon(EasyAddonHelper.visibleCheck(this::isVisible))
+                .build());
+        this.addChild(ScrollListener.builder()
+                .area(area)
+                .listener(this)
+                .build());
         for(int i = 0; i < this.rows; ++i)
         {
             final int index = i;
-            this.addChild(new OwnerSelectButton(this.getPosition().offset(0,i * OwnerSelectButton.HEIGHT + 12), this.width, () -> this.setOwner(index), this.currentOwner, () -> this.getOwner(index), this::isVisible));
+            this.addChild(OwnerSelectButton.builder()
+                    .position(area.pos.offset(0,i * OwnerSelectButton.HEIGHT))
+                    .width(area.width)
+                    .pressAction(() -> this.setOwner(index))
+                    .selected(this.currentOwner)
+                    .potentialOwner(() -> this.getOwner(index))
+                    .visible(this::isVisible)
+                    .build());
         }
     }
 
@@ -118,5 +124,34 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
 
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.rows, this.list.getOwners().size()); }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(100,OwnerSelectButton.HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+
+        private int rows = 1;
+        private Supplier<OwnerData> selectedOwner = () -> null;
+        private Consumer<Owner> handler = o -> {};
+        private Predicate<PotentialOwner> filter = o -> true;
+        @Nullable
+        private OwnerSelectionWidget oldWidget = null;
+
+        public Builder width(int width) { this.changeWidth(width); return this; }
+        public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * OwnerSelectButton.HEIGHT); return this; }
+        public Builder selected(Supplier<OwnerData> selectedOwner) { this.selectedOwner = selectedOwner; return this; }
+        public Builder handler(Consumer<Owner> handler) { this.handler = handler; return this; }
+        public Builder filter(Predicate<PotentialOwner> filter) { this.filter = filter; return this; }
+        public Builder oldWidget(@Nullable OwnerSelectionWidget oldWidget) { this.oldWidget = oldWidget; return this; }
+
+        public OwnerSelectionWidget build() { return new OwnerSelectionWidget(this); }
+
+    }
 
 }

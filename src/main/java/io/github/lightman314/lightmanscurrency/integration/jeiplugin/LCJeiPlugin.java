@@ -2,6 +2,10 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -10,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.JEIScreenArea;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -61,9 +66,21 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 	
 	@Override
-	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration registration)
+	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration zones)
 	{
-		
+		this.registerExclusionZones(zones, TraderScreen.class);
+		this.registerExclusionZones(zones, SlotMachineScreen.class);
+		this.registerExclusionZones(zones, TraderStorageScreen.class);
+		this.registerExclusionZones(zones, ATMScreen.class);
+		this.registerExclusionZones(zones, TaxCollectorScreen.class);
+		this.registerExclusionZones(zones,CoinChestScreen.class);
+		this.registerExclusionZones(zones,EjectionRecoveryScreen.class);
+		this.registerExclusionZones(zones,PlayerTradeScreen.class);
+		this.registerExclusionZones(zones,TraderInterfaceScreen.class);
+		this.registerExclusionZones(zones,WalletScreen.class);
+		this.registerExclusionZones(zones,WalletBankScreen.class);
+		this.registerExclusionZones(zones, TeamManagerScreen.class);
+		this.registerExclusionZones(zones, NotificationScreen.class);
 	}
 	
 	@Override
@@ -78,6 +95,11 @@ public class LCJeiPlugin implements IModPlugin{
 	{
 		registration.addRecipeTransferHandler(MintMenu.class, ModMenus.MINT.get(), COIN_MINT_TYPE, 0, 1, 2, 36);
 		registration.addRecipeTransferHandler(TicketStationMenu.class, ModMenus.TICKET_MACHINE.get(), TICKET_TYPE, 0, 2, 3, 36);
+	}
+
+	private <T extends EasyMenuScreen<?>> void registerExclusionZones(@Nonnull IGuiHandlerRegistration registration, @Nonnull Class<T> clazz)
+	{
+		registration.addGuiContainerHandler(clazz,JEIScreenArea.create(clazz));
 	}
 	
 }

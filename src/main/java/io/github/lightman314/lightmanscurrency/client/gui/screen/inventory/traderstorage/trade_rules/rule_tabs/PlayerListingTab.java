@@ -64,8 +64,13 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
                 .build());
 
         //Player list display
-        this.playerDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 75), screenArea.width - 14, 64, this::getPlayers));
-        this.playerDisplay.setColumnCount(2);
+        this.playerDisplay = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(7,75))
+                .size(screenArea.width - 14,64)
+                .text(this::getPlayers)
+                .columns(2)
+                .build());
+
     }
 
     protected boolean isWhitelistMode() {

@@ -1,9 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.providers;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +32,10 @@ public class TerminalMenuProvider implements MenuProvider {
 
     public static void OpenMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
     {
-        player.openMenu(new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
+        if(QuarantineAPI.IsDimensionQuarantined(player))
+            EasyText.sendMessage(player, LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL.getWithStyle(ChatFormatting.GOLD));
+        else
+            player.openMenu(new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
     }
 
 }

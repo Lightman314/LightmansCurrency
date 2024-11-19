@@ -24,7 +24,7 @@ public class NotificationButton extends InventoryButton {
 	public static final Sprite SPRITE_UNSEEN = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200 + SIZE, 0, SIZE, SIZE);
 
 	public NotificationButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, button -> CPacketOpenNotifications.sendToServer(), NotificationButton::getSprite);
+		super(inventoryScreen, CPacketOpenNotifications::sendToServer, NotificationButton::getSprite);
 		lastButton = this;
 	}
 

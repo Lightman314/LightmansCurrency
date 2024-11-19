@@ -5,22 +5,20 @@ import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.world.entity.player.Player;
+
+import javax.annotation.Nonnull;
 
 public class AdminTab extends TaxCollectorTab {
 
     public AdminTab(TaxCollectorMenu menu) { super(menu); }
 
     @Override
-    public boolean canBeAccessed() { return this.isAdmin() && !this.isServerEntry(); }
+    public boolean canOpen(@Nonnull Player player) { return this.isAdmin() && !this.isServerEntry(); }
 
+    @Nonnull
     @Override
-    public Object createClientTab(Object screen) { return new AdminSettingsClientTab(screen, this); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
+    public Object createClientTab(@Nonnull Object screen) { return new AdminSettingsClientTab(screen, this); }
 
     public void SetForceAcceptance(boolean newState)
     {

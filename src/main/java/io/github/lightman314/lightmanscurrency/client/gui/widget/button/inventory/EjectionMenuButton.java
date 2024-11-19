@@ -25,7 +25,7 @@ public class EjectionMenuButton extends InventoryButton {
 	private Player getPlayer() { return this.inventoryScreen.getMinecraft().player; }
 	
 	public EjectionMenuButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, b -> CPacketOpenEjectionMenu.sendToServer(), SPRITE);
+		super(inventoryScreen, CPacketOpenEjectionMenu::sendToServer, SPRITE);
 		lastButton = this;
 	}
 

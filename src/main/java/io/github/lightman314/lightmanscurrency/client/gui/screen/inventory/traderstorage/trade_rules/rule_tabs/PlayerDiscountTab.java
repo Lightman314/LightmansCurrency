@@ -70,8 +70,12 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
                 .pressAction(this::PressSetDiscountButton)
                 .build());
 
-        this.playerList = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 78), screenArea.width - 14, 61, this::getPlayerList));
-        this.playerList.setColumnCount(2);
+        this.playerList = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(7,78))
+                .size(screenArea.width - 14,61)
+                .text(this::getPlayerList)
+                .columns(2)
+                .build());
 
     }
 

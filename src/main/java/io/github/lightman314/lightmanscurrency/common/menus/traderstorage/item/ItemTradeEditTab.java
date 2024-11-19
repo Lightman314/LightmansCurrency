@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item;
 
-import java.util.function.Function;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -14,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -25,9 +22,10 @@ public class ItemTradeEditTab extends TraderStorageTab{
 
 	public ItemTradeEditTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new ItemTradeEditClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new ItemTradeEditClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
@@ -39,25 +37,14 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
-				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
+				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
 			return ((ItemTraderData)this.menu.getTrader()).getTrade(this.tradeIndex);
 		}
 		return null;
 	}
-	
-	@Override
-	public void onTabOpen() { }
-
-	@Override
-	public void onTabClose() { }
-
-	@Override
-	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
-	
-	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
+	public int selection = -1;
 	
 	public void setType(TradeDirection type) {
 		ItemTradeData trade = this.getTrade();
@@ -143,12 +130,16 @@ public class ItemTradeEditTab extends TraderStorageTab{
 	}
 
 	@Override
-	public void receiveMessage(LazyPacketData message) {
+	public void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("TradeIndex"))
-		{
 			this.tradeIndex = message.getInt("TradeIndex");
-		}
-		else if(message.contains("Slot"))
+		if(message.contains("StartingSlot"))
+			this.selection = message.getInt("StartingSlot");
+	}
+
+	@Override
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("Slot"))
 		{
 			int slot = message.getInt("Slot");
 			if(message.contains("CustomName"))

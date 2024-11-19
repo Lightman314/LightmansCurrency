@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -87,11 +88,18 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.commonTab.getAuctionItems().addListener(c -> this.UpdateAuctionItems());
 		}
 		
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, () -> this.pendingAuction, b -> {}));
-		this.tradeDisplay.setPosition(screenArea.pos.offset(15, 5));
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(15,5))
+				.context(this.menu::getContext)
+				.trade(this.pendingAuction)
+				.build());
 		
-		this.priceSelect = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34), firstOpen ? null : this.priceSelect, MoneyValue.empty(), this::onPriceChanged));
-		this.priceSelect.drawBG = this.priceSelect.allowFreeInput = false;
+		this.priceSelect = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 34))
+				.oldIfNotFirst(firstOpen,this.priceSelect)
+				.valueHandler(this::onPriceChanged)
+				.blockFreeInputs()
+				.build());
 		
 		this.buttonTogglePriceMode = this.addChild(EasyTextButton.builder()
 				.position(screenArea.pos.offset(114,4))
@@ -100,15 +108,24 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.pressAction(this::TogglePriceTarget)
 				.build());
 
-		this.buttonToggleOvertime = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(15,26), this::ToggleOvertime, () -> this.pendingAuction.isOvertimeAllowed()));
+		this.buttonToggleOvertime = this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(15,26))
+				.pressAction(this::ToggleOvertime)
+				.sprite(IconAndButtonUtil.SPRITE_CHECK(() -> this.pendingAuction.isOvertimeAllowed()))
+				.build());
 		this.overtimeTextArea = ScreenArea.of(26, 27, this.getFont().width(LCText.GUI_TRADER_AUCTION_OVERTIME.get()),10);
 
 
 		//Duration Input
-		this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(80, 112), 10, TimeUnit.DAY, TimeUnit.HOUR, this::updateDuration));
-		this.timeInput.minDuration = Math.max(LCConfig.SERVER.auctionHouseDurationMin.get() * TimeUtil.DURATION_DAY, TimeUtil.DURATION_HOUR);
-		this.timeInput.maxDuration = Math.max(LCConfig.SERVER.auctionHouseDurationMax.get(), LCConfig.SERVER.auctionHouseDurationMin.get()) * TimeUtil.DURATION_DAY;
-		this.timeInput.setTime(this.timeInput.minDuration);
+		long minDuration = Math.max(LCConfig.SERVER.auctionHouseDurationMin.get() * TimeUtil.DURATION_DAY, TimeUtil.DURATION_HOUR);
+		this.timeInput = this.addChild(TimeInputWidget.builder()
+				.position(screenArea.pos.offset(80,112))
+				.unitRange(TimeUnit.HOUR,TimeUnit.DAY)
+				.handler(this::updateDuration)
+				.minDuration(minDuration)
+				.maxDuration(Math.max(LCConfig.SERVER.auctionHouseDurationMax.get(), LCConfig.SERVER.auctionHouseDurationMin.get()) * TimeUtil.DURATION_DAY)
+				.startTime(minDuration)
+				.build());
 		
 		//Submit Button
 		this.buttonSubmitAuction = this.addChild(EasyTextButton.builder()
@@ -119,8 +136,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.build());
 		this.buttonSubmitAuction.active = false;
 		
-		this.buttonSubmitPersistentAuction = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 20, -20), this::submitPersistentAuction, IconUtil.ICON_PERSISTENT_DATA)
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_AUCTION)));
+		this.buttonSubmitPersistentAuction = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 20, -20))
+				.pressAction(this::submitPersistentAuction)
+				.icon(IconUtil.ICON_PERSISTENT_DATA)
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_AUCTION))
+				.build());
 		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		this.buttonSubmitPersistentAuction.active = false;
 		
@@ -171,7 +192,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		{
 			if(TimeUtil.compareTime(CLOSE_DELAY, this.successTime))
 			{
-				this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
+				this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return;
 			}
 		}

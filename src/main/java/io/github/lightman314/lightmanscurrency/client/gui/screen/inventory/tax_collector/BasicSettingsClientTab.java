@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -43,8 +44,12 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         TaxEntry entry = this.getEntry();
 
         //Activate Toggle
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(8, 16), this::ToggleActiveState, this::isEntryActive)
-                .withAddons(EasyAddonHelper.visibleCheck(this::canActiveToggle)));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(8, 16))
+                .pressAction(this::ToggleActiveState)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isEntryActive))
+                .addon(EasyAddonHelper.visibleCheck(this::canActiveToggle))
+                .build());
 
         //Render Mode Selection
         this.addChild(DropdownWidget.builder()
@@ -59,62 +64,99 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
                         .build());
 
         //Tax Rate Selection
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(6, 32), b -> this.commonTab.SetRate(this.getCurrentRate() + (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(6,32))
+                .pressAction(() -> this.commonTab.SetRate(this.getCurrentRate() + (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getTaxRate() < TaxEntry.maxTaxRate();
-                })));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(6, 42), b -> this.commonTab.SetRate(this.getCurrentRate() - (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+                }))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(6, 42))
+                .pressAction(() -> this.commonTab.SetRate(this.getCurrentRate() - (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getTaxRate() > 1;
-                })));
+                }))
+                .build());
 
         //Radius Selection
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(22, screenArea.height - 16), b -> this.commonTab.SetRadius(this.getCurrentRadius() + (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(22, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetRadius(this.getCurrentRadius() + (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getRadius() < TaxEntry.maxRadius();
-                })));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(32, screenArea.height - 16), b -> this.commonTab.SetRadius(this.getCurrentRadius() - (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+                }))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(32, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetRadius(this.getCurrentRadius() - (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getRadius() > TaxEntry.minRadius();
-                })));
+                }))
+                .build());
 
         //Height Selection
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset((screenArea.width / 2) - 10, screenArea.height - 16), b -> this.commonTab.SetHeight(this.getCurrentHeight() + (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset((screenArea.width / 2) - 10, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetHeight(this.getCurrentHeight() + (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getHeight() < TaxEntry.maxHeight();
-                })));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width / 2, screenArea.height - 16), b -> this.commonTab.SetHeight(this.getCurrentHeight() - (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+                }))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width / 2, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetHeight(this.getCurrentHeight() - (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getHeight() > TaxEntry.minHeight();
-                })));
+                }))
+                .build());
+
 
         //Vert Offset Selection
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width - 42, screenArea.height - 16), b -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() + (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 42, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() + (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getVertOffset() < TaxEntry.maxVertOffset();
-                })));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width - 32, screenArea.height - 16), b -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() - (Screen.hasShiftDown() ? 10 : 1)))
-                .withAddons(EasyAddonHelper.visibleCheck(this::showAreaButtons))
-                .withAddons(EasyAddonHelper.activeCheck(() -> {
+                }))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 32, screenArea.height - 16))
+                .pressAction(() -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() - (Screen.hasShiftDown() ? 10 : 1)))
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
+                .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getVertOffset() > TaxEntry.minVertOffset();
-                })));
+                }))
+                .build());
 
         //Bank Account Link Toggle
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(8, 58), b -> this.commonTab.SetBankAccountLink(!this.getCurrentBankAccountLink()), this::getCurrentBankAccountLink)
-                .withAddons(EasyAddonHelper.visibleCheck(() -> !this.menu.isServerEntry())));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(8, 58))
+                .pressAction(() -> this.commonTab.SetBankAccountLink(!this.getCurrentBankAccountLink()))
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentBankAccountLink))
+                .addon(EasyAddonHelper.visibleCheck(() -> !this.menu.isServerEntry()))
+                .build());
 
         //Name Edit
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10, screenArea.pos.y + 80, screenArea.width - 20, 18, EasyText.empty()));

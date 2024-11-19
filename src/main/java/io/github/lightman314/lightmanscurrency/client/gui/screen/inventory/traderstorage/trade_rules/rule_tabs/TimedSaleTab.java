@@ -58,8 +58,12 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
                 .addon(EasyAddonHelper.tooltip(this::getButtonTooltip))
                 .build());
 
-        this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.durationInput.setTime(this.getRule().getDuration());
+        this.durationInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,75))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getDuration())
+                .build());
 
     }
 

@@ -28,7 +28,7 @@ public class ClientEjectionData {
 		for(int i = 0; i < ejectionList.size(); ++i)
 		{
 			try {
-				EjectionData e = SafeEjectionAPI.getApi().parseData(ejectionList.getCompound(i), LookupHelper.getRegistryAccess(true));
+				EjectionData e = SafeEjectionAPI.getApi().parseData(ejectionList.getCompound(i), LookupHelper.getRegistryAccess());
 				emergencyEjectionData.add(e.flagAsClient());
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data!"); }
 		}

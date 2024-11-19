@@ -11,12 +11,6 @@ public abstract class TeamManagementTab extends EasyMenuTab<TeamManagementMenu,T
 
     public TeamManagementTab(@Nonnull TeamManagementMenu menu) { super(menu); }
 
-    @Override
-    public void onTabOpen() {}
-
-    @Override
-    public void onTabClose() { }
-
     public static abstract class Management extends TeamManagementTab
     {
         public Management(@Nonnull TeamManagementMenu menu) { super(menu); }

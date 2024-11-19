@@ -20,35 +20,25 @@ import java.util.concurrent.atomic.AtomicReference;
 @EventBusSubscriber
 public class LookupHelper {
 
-    private static RegistryAccess clientAccessCache = null;
-    private static RegistryAccess serverAccessCache = null;
+    private static RegistryAccess backupCache = null;
 
     //Collect RegistryAccess from the TagsUpdatedEvent so that we have access to it before the level is loaded
     @SubscribeEvent
     private static void tagReloadedEvent(TagsUpdatedEvent event)
     {
-        if(event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD)
-            serverAccessCache = event.getRegistryAccess();
-        else
-            clientAccessCache = event.getRegistryAccess();
+        backupCache = event.getRegistryAccess();
     }
 
     @Nonnull
-    public static RegistryAccess getRegistryAccess(boolean isClient)
+    public static RegistryAccess getRegistryAccess()
     {
-        if(isClient)
-        {
-            RegistryAccess lookup = LightmansCurrency.getProxy().getClientRegistryHolder();
-            return lookup != null ? lookup : clientAccessCache;
-        }
-        else
-        {
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if(server != null)
-                return server.registryAccess();
-            else //Get cached access, and if the cache is empty, attempt to get the client access as a fallback
-                return serverAccessCache != null ? serverAccessCache : getRegistryAccess(true);
-        }
+        //Check server first
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server != null)
+            return server.registryAccess();
+        //Check client next
+        RegistryAccess registryAccess = LightmansCurrency.getProxy().getClientRegistryHolder();
+        return registryAccess == null ? registryAccess : backupCache;
     }
 
     @Nullable

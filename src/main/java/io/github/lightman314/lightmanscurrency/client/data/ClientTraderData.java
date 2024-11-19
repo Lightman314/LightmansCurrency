@@ -33,11 +33,11 @@ public class ClientTraderData {
 		long traderID = compound.getLong("ID");
 		if(loadedTraders.containsKey(traderID))
 		{
-			loadedTraders.get(traderID).load(compound, LookupHelper.getRegistryAccess(true));
+			loadedTraders.get(traderID).load(compound, LookupHelper.getRegistryAccess());
 		}
 		else
 		{
-			TraderData trader = TraderData.Deserialize(true, compound, LookupHelper.getRegistryAccess(true));
+			TraderData trader = TraderData.Deserialize(true, compound, LookupHelper.getRegistryAccess());
 			if(trader != null)
 			{
 				loadedTraders.put(traderID, trader);

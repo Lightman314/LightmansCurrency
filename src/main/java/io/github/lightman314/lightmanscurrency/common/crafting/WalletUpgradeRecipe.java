@@ -17,6 +17,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.RecipeMatcher;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
@@ -36,14 +38,16 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public @Nonnull RecipeSerializer<?> getSerializer() {
+	@Nonnull
+	public RecipeSerializer<?> getSerializer() {
 		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**
 	 * Recipes with equal group are combined into one button in the recipe book
 	 */
-	public @Nonnull String getGroup() {
+	@Nonnull
+	public String getGroup() {
 		return this.group;
 	}
 
@@ -65,20 +69,20 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	@Override
 	public boolean matches(CraftingInput container, @Nonnull Level level) {
 	      StackedContents stackedcontents = new StackedContents();
-	      java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
+	      List<ItemStack> inputs = new ArrayList<>();
 	      int i = 0;
 
 	      for(int j = 0; j < container.size(); ++j) {
 	         ItemStack itemstack = container.getItem(j);
 	         if (!itemstack.isEmpty()) {
 	            ++i;
-	            if (isSimple)
+	            if (this.isSimple)
 	            stackedcontents.accountStack(itemstack, 1);
 	            else inputs.add(itemstack);
 	         }
 	      }
 
-	      return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, null) : RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
+	      return i == this.ingredients.size() && (this.isSimple ? stackedcontents.canCraft(this, null) : RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
 	   }
 	
 	/**

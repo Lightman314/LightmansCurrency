@@ -43,7 +43,9 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<Integer>> WALLET_CAPACITY;
     public static final Supplier<DataComponentType<Boolean>> WALLET_INVULNERABLE;
     public static final Supplier<DataComponentType<Integer>> WALLET_BONUS_MAGNET;
+    public static final Supplier<DataComponentType<Integer>> WALLET_UPGRADE_LIMIT;
     public static final Supplier<DataComponentType<ResourceLocation>> WALLET_MODEL;
+    public static final Supplier<DataComponentType<List<SoundEntry>>> WALLET_COIN_SOUND;
     public static final Supplier<DataComponentType<List<MobEffectInstance>>> CHOCOLATE_EFFECTS;
     public static final Supplier<DataComponentType<Float>> CHOCOLATE_HEALING;
 
@@ -68,7 +70,9 @@ public class ModDataComponents {
         WALLET_CAPACITY = registerInt("wallet_capacity");
         WALLET_INVULNERABLE = registerBool("wallet_invulnerable");
         WALLET_BONUS_MAGNET = registerInt("wallet_bonus_magnet");
+        WALLET_UPGRADE_LIMIT = registerInt("wallet_upgrade_limit");
         WALLET_MODEL = registerResource("wallet_model");
+        WALLET_COIN_SOUND = register("wallet_coin_sound", builder -> builder.persistent(SoundEntry.CODEC.listOf()));
         CHOCOLATE_EFFECTS = register("chocolate_effects", builder -> builder.persistent(MobEffectInstance.CODEC.listOf()));
         CHOCOLATE_HEALING = registerFloat("chocolate_healing");
 

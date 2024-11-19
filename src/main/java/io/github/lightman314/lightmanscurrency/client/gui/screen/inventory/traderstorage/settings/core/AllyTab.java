@@ -54,14 +54,18 @@ public class AllyTab extends SettingsSubTab {
                 .pressAction(this::AddAlly)
                 .build());
         this.buttonRemoveAlly = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(screenArea.width - 93, 25))
+                .position(screenArea.pos.offset(screenArea.width - 93, 35))
                 .width(74)
                 .text(LCText.BUTTON_REMOVE)
                 .pressAction(this::RemoveAlly)
                 .build());
 
-        this.display = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(5, 60), screenArea.width - 10, 75, this::getAllyList));
-        this.display.setColumnCount(2);
+        this.display = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(5,60))
+                .size(screenArea.width - 10,75)
+                .text(this::getAllyList)
+                .columns(2)
+                .build());
 
     }
 

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -92,6 +93,8 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
 
     @Override
     public void OnServerTick(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+        if(QuarantineAPI.IsDimensionQuarantined(be))
+            return;
         BankUpgradeData d = data.getData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT);
         if(d.canInteract())
             this.TryInteract(be,data);

@@ -6,15 +6,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
@@ -42,42 +40,6 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	
 	List<DropdownButton> optionButtons = new ArrayList<>();
 
-	@Deprecated
-	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Component... options) {
-		this(pos.x, pos.y, width, selected, onSelect, options);
-	}
-	@Deprecated
-	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Component... options) {
-		this(x, y, width, selected, onSelect, (index) -> true, options);
-	}
-	@Deprecated
-	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
-		this(pos.x, pos.y, width, selected, onSelect, options);
-	}
-	@Deprecated
-	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, List<Component> options) {
-		this(x, y, width, selected, onSelect, (index) -> true, options);
-	}
-	@Deprecated
-	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
-		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
-	}
-	@Deprecated
-	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
-		this(x, y, width, selected, onSelect, optionActive, Lists.newArrayList(options));
-	}
-	@Deprecated
-	public DropdownWidget(ScreenPosition pos, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
-		this(pos.x, pos.y, width, selected, onSelect, optionActive, options);
-	}
-	@Deprecated
-	public DropdownWidget(int x, int y, int width, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
-		super(x, y, width, HEIGHT);
-		this.options = options;
-		this.currentlySelected = MathUtil.clamp(selected, 0, this.options.size() - 1);
-		this.onSelect = onSelect;
-		this.optionActive = optionActive;
-	}
 	private DropdownWidget(@Nonnull Builder builder) {
 		super(builder);
 		this.options = ImmutableList.copyOf(builder.options);
@@ -86,22 +48,23 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		this.optionActive = builder.activeCheck;
 	}
 
-	@Deprecated
-	@Override
-	public DropdownWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
 	//Init the buttons before this, so that they get pressed before this closes them on an offset click
 	@Override
 	public boolean addChildrenBeforeThis() { return true; }
 
 	@Override
-	public void addChildren() {
+	public void addChildren(@Nonnull ScreenArea area) {
 		this.optionButtons = new ArrayList<>();
 		for(int i = 0; i < this.options.size(); ++i)
 		{
 			final int index = i;
-			int yPos = this.getY() + HEIGHT + (i * HEIGHT);
-			DropdownButton button = this.addChild(new DropdownButton(this.getX(), yPos, this.width, this.options.get(i), () -> this.OnSelect(index)));
+			int yOff = HEIGHT + (i * HEIGHT);
+			DropdownButton button = this.addChild(DropdownButton.builder()
+					.position(area.pos.offset(0,yOff))
+					.width(this.width)
+					.text(this.options.get(i))
+					.pressAction(() -> this.OnSelect(index))
+					.build());
 			this.optionButtons.add(button);
 			this.optionButtons.get(i).visible = this.open;
 		}
@@ -208,10 +171,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		private Consumer<Integer> action = i -> {};
 		private Function<Integer,Boolean> activeCheck = i -> true;
 
-		private Builder() { }
-
-		@Override
-		protected int getDefaultHeight() { return HEIGHT; }
+		private Builder() { super(20,HEIGHT); }
 		@Override
 		protected Builder getSelf() { return this; }
 

@@ -29,7 +29,7 @@ public final class WalletDataWrapper extends MoneyViewer {
     }
     private final WalletItem item;
     public int getContainerSize() { return WalletItem.InventorySize(this.wallet); }
-    public int getBonusSlots() { return this.getData().getBonusSlots(); }
+    public int getBonusSlots() { return this.getData().getBonusSlots(this.wallet.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0)); }
     Container contentCache = null;
 
     private WalletDataWrapper() {

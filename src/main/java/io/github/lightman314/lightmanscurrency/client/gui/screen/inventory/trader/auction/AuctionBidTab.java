@@ -58,12 +58,18 @@ public class AuctionBidTab extends TraderClientTab {
 		if(this.getTrade() == null)
 			return;
 		
-		this.tradeDisplay = this.addChild(new TradeButton(() -> this.menu.getContext(this.getAuctionHouse()), this::getTrade, b -> {}));
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.context(() -> this.menu.getContext(this.getAuctionHouse()))
+				.trade(this::getTrade)
+				.build());
 		this.tradeDisplay.setPosition(screenArea.pos.offset(screenArea.width / 2 - this.tradeDisplay.getWidth() / 2, 5));
 		
-		this.bidAmount = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 10 + this.tradeDisplay.getHeight()), firstOpen ? null : this.bidAmount, this.getTrade().getMinNextBid(), MoneyValueWidget.EMPTY_CONSUMER));
-		this.bidAmount.allowFreeInput = false;
-		this.bidAmount.drawBG = false;
+		this.bidAmount = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2,10 + this.tradeDisplay.getHeight()))
+				.oldIfNotFirst(firstOpen,this.bidAmount)
+				.startingValue(this.getTrade().getMinNextBid())
+				.blockFreeInputs()
+				.build());
 		
 		this.bidButton = this.addChild(EasyTextButton.builder()
 				.position(screenArea.pos.offset(22,119))
@@ -72,7 +78,11 @@ public class AuctionBidTab extends TraderClientTab {
 				.pressAction(this::SubmitBid)
 				.build());
 		
-		this.closeButton = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5),this::close, IconUtil.ICON_X));
+		this.closeButton = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 25,5))
+				.pressAction(this::close)
+				.icon(IconUtil.ICON_X)
+				.build());
 		
 		this.tick();
 		

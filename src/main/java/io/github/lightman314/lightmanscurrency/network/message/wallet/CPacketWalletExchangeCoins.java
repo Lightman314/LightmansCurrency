@@ -25,7 +25,7 @@ public class CPacketWalletExchangeCoins extends ClientToServerPacket {
 		@Override
 		protected void handle(@Nonnull CPacketWalletExchangeCoins message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			if(player.containerMenu instanceof WalletMenuBase menu)
-				menu.ExchangeCoints();
+				menu.ExchangeCoins();
 		}
 	}
 

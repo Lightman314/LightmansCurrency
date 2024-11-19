@@ -66,6 +66,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
 
     private static void RandomizeDisplayItems()
     {
+        randomizeNextOpportunity = false;
         TraderData trader = TraderSaveData.GetAuctionHouse(false);
         if(trader instanceof AuctionHouseTrader ah && ah.getTradeCount() > 0)
         {

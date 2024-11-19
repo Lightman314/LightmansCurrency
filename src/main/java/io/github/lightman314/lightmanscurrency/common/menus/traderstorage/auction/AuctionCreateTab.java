@@ -25,9 +25,10 @@ public class AuctionCreateTab extends TraderStorageTab {
 	
 	public AuctionCreateTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 	
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new AuctionCreateClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new AuctionCreateClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }
@@ -64,9 +65,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void onMenuClose() {
-		this.menu.clearContainer(this.auctionItems);
-	}
+	public void onMenuClose() { this.menu.clearContainer(this.auctionItems); }
 	
 	public void createAuction(AuctionTradeData trade) {
 		TraderData t = this.menu.getTrader();

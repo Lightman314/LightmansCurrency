@@ -217,7 +217,6 @@ public class BankAPIImpl extends BankAPI {
             int interest = BankSaveData.InterestTick();
             if(interest >= LCConfig.SERVER.bankAccountInterestTime.get())
             {
-                //Only calculate interest if the server has time to spare, if not wait until it does before calculating interest
                 BankSaveData.ResetInterestTick();
                 LightmansCurrency.LogDebug("Applying interest to all bank accounts!");
                 List<MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();

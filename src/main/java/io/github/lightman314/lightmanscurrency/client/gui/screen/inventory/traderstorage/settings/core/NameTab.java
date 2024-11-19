@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouse
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -19,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
 import net.minecraft.client.gui.components.EditBox;
@@ -52,10 +54,6 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
     EditBox nameInput;
     EasyButton buttonSetName;
     EasyButton buttonResetName;
-
-    IconButton buttonToggleCreative;
-    EasyButton buttonAddTrade;
-    EasyButton buttonRemoveTrade;
 
     EasyButton buttonPickupTrader;
 
@@ -93,20 +91,10 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
                 .pressAction(this::ResetName)
                 .build());
 
-        //Creative Toggle
-        this.buttonToggleCreative = this.addChild(IconAndButtonUtil.creativeToggleButton(screenArea.pos.offset(176, 110), this::ToggleCreative, () -> {
-            TraderData t = this.menu.getTrader();
-            return t != null && t.isCreative();
-        }));
-        this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(166, 110), this::AddTrade)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE)));
-        this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(166, 120), this::RemoveTrade)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE)));
-
         //Pickup Button
         this.buttonPickupTrader = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(20,118))
-                .width(screenArea.width - 80)
+                .width(screenArea.width - 40)
                 .text(LCText.BUTTON_TRADER_SETTINGS_PICKUP_TRADER)
                 .pressAction(this::PickupTrader)
                 .addon(EasyAddonHelper.tooltips(this::getPickupTooltip, TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
@@ -124,14 +112,6 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
             return;
 
         gui.drawString(LCText.GUI_NAME.get(), 20, 15, 0x404040);
-
-        //Draw current trade count
-        if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
-        {
-            String count = String.valueOf(trader.getTradeCount());
-            int width = gui.font.width(count);
-            gui.drawString(count, 164 - width, 140 - 25, 0x404040);
-        }
 
         if(this.iconEditable())
         {
@@ -161,20 +141,6 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         this.buttonResetName.active = trader.hasCustomName();
         this.buttonResetName.visible = canChangeName;
 
-        this.buttonToggleCreative.visible = LCAdminMode.isAdminPlayer(this.menu.getPlayer());
-        if(this.buttonToggleCreative.visible)
-        {
-            this.buttonAddTrade.visible = true;
-            this.buttonAddTrade.active = trader.getTradeCount() < TraderData.GLOBAL_TRADE_LIMIT;
-            this.buttonRemoveTrade.visible = true;
-            this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
-        }
-        else
-        {
-            this.buttonAddTrade.visible = false;
-            this.buttonRemoveTrade.visible = false;
-        }
-
         TraderBlockEntity<?> be = trader.getBlockEntity();
         this.buttonPickupTrader.visible = be != null && be.supportsTraderPickup() && this.menu.hasPermission(Permissions.BREAK_TRADER);
 
@@ -197,30 +163,6 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
     {
         this.nameInput.setValue("");
         this.SetName(button);
-    }
-
-    private void ToggleCreative(EasyButton button)
-    {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
-            return;
-        this.sendMessage(this.builder().setBoolean("MakeCreative", !trader.isCreative()));
-    }
-
-    private void AddTrade(EasyButton button)
-    {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
-            return;
-        new CPacketAddOrRemoveTrade(trader.getID(), true).send();
-    }
-
-    private void RemoveTrade(EasyButton button)
-    {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
-            return;
-        new CPacketAddOrRemoveTrade(trader.getID(), false).send();
     }
 
     @Override

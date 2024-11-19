@@ -50,10 +50,19 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
                 .pressAction(this::ToggleAutoSalary)
                 .build());
 
-        this.toggleSalaryNotificationButton = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(20, 45),this::ToggleSalaryNotification,this::isSalaryNotificationEnabled));
+        this.toggleSalaryNotificationButton = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,45))
+                .pressAction(this::ToggleSalaryNotification)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isSalaryNotificationEnabled))
+                .build());
 
-        this.salaryDelayInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(20, 80), 20, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.HOUR, this::SetSalaryDelay));
-        this.salaryDelayInput.setTime(team == null ? 0 : team.getSalaryDelay());
+        this.salaryDelayInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(20,80))
+                .spacing(20)
+                .unitRange(TimeUtil.TimeUnit.HOUR, TimeUtil.TimeUnit.DAY)
+                .handler(this::SetSalaryDelay)
+                .startTime(team == null ? 0 : team.getSalaryDelay())
+                .build());
 
         this.manualTriggerButton = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(20,150))

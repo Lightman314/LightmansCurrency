@@ -30,8 +30,15 @@ public class TraderInteractionTab extends TraderClientTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		//Trade Button Display
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu::getTraderSource, this.menu::getContext, screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, this::OnButtonPress, TradeButtonArea.FILTER_VALID)
-				.withTitle(screenArea.pos.offset(4,6), screenArea.width - 8, true));
+		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
+				.position(screenArea.pos.offset(3,17))
+				.size(screenArea.width - 6, 100)
+				.traderSource(this.menu::getTraderSource)
+				.context(this.menu::getContext)
+				.pressAction(this::OnButtonPress)
+				.tradeFilter(TradeData::isValid)
+				.title(screenArea.pos.offset(4,6),screenArea.width - 8,true)
+				.build());
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -138,6 +139,9 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     @Override
     public final <T> T addChild(T child) {
+        //Debug for builders accidentally passed along
+        if(child instanceof EasyWidget.EasyBuilder<?> || child instanceof EasyButton.EasyButtonBuilder<?>)
+            LightmansCurrency.LogError("Builder accidentally passed along as a widget!",new Throwable());
         if(child instanceof EasyWidgetWithChildren w)
         {
             w.pairWithScreen(this::addChild, this::removeChild);

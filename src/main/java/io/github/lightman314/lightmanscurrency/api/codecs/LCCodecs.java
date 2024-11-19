@@ -68,11 +68,11 @@ public class LCCodecs {
     private static <T> Codec<T> easyCodec2(@Nonnull final BiFunction<T, HolderLookup.Provider,CompoundTag> save, @Nonnull final BiFunction<CompoundTag,HolderLookup.Provider,T> load, @Nonnull final String object)
     {
         return CompoundTag.CODEC.comapFlatMap(tag -> {
-            T result = load.apply(tag, LookupHelper.getRegistryAccess(false));
+            T result = load.apply(tag, LookupHelper.getRegistryAccess());
             if(result == null)
                 return DataResult.error(() -> object + " could not be decoded!");
             return DataResult.success(result);
-        },t -> save.apply(t,LookupHelper.getRegistryAccess(false)));
+        },t -> save.apply(t,LookupHelper.getRegistryAccess()));
     }
 
 }

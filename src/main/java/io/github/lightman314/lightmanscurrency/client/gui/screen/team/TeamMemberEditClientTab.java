@@ -67,8 +67,12 @@ public class TeamMemberEditClientTab extends TeamManagementClientTab<TeamMemberE
                 .build());
         this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 
-        this.memberDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(10, 55), screenArea.width - 20, screenArea.height - 65, this::getMemberList));
-        this.memberDisplay.setColumnCount(2);
+        this.memberDisplay = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(10,55))
+                .size(screenArea.width - 20,screenArea.height - 65)
+                .text(this::getMemberList)
+                .columns(2)
+                .build());
 
     }
 

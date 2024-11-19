@@ -60,8 +60,12 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY))
                 .build());
 
-        this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 87), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.timeInput.setTime(this.getRule().getTimeLimit());
+        this.timeInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,87))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getTimeLimit())
+                .build());
 
     }
 

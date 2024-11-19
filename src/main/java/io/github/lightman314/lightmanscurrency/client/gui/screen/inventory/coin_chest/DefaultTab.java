@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
@@ -29,8 +30,12 @@ public class DefaultTab extends CoinChestTab {
         for(int i = 0; i < CoinChestBlockEntity.UPGRADE_SIZE; ++i)
         {
             final int index = i;
-            this.addChild(IconAndButtonUtil.toggleButton(screenArea.pos.offset(152 - 9, 20 + (i * 18)), b -> this.toggleUpgradeActive(index), () -> this.upgradeActive(index))
-                    .withAddons(EasyAddonHelper.visibleCheck(() -> this.showToggle(index))));
+            this.addChild(PlainButton.builder()
+                    .position(screenArea.pos.offset(152 - 9, 20 + (i * 18)))
+                    .pressAction(() -> this.toggleUpgradeActive(index))
+                    .sprite(IconAndButtonUtil.SPRITE_TOGGLE(() -> this.upgradeActive(index)))
+                    .addon(EasyAddonHelper.visibleCheck(() -> this.showToggle(index)))
+                    .build());
         }
     }
 

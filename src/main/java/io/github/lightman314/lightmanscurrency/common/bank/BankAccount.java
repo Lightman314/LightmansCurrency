@@ -113,9 +113,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
 
 	@Override
-	public void depositMoney(@Nonnull MoneyValue depositAmount) {
-		this.coinStorage.addValue(depositAmount);
-	}
+	public void depositMoney(@Nonnull MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
 
 	@Nonnull
 	@Override

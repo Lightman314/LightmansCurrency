@@ -52,7 +52,6 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
 
     //Visibility
     boolean visible;
-    boolean wasVisible;
     //Money Holder
     ItemStack moneyCacheWallet;
 
@@ -65,10 +64,10 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         this.walletItem = ItemStack.EMPTY;
         this.moneyCacheWallet = ItemStack.EMPTY;
         this.visible = true;
-        this.wasVisible = true;
     }
 
     private void setChanged() {
+        this.backupWallet = this.walletItem.copy();
         this.entity.setData(ModAttachmentTypes.WALLET_HANDLER.get(), this);
         if(this.isServer())
         {
@@ -105,6 +104,12 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
     public ItemStack getWallet() {
         if(LCCurios.isLoaded())
             return LCCurios.getCuriosWalletItem(this.entity);
+        return this.walletItem;
+    }
+
+    public ItemStack getVisibleWallet() {
+        if(LCCurios.isLoaded())
+            return LCCurios.getVisibleCuriosWalletItem(this.entity);
         return this.walletItem;
     }
 

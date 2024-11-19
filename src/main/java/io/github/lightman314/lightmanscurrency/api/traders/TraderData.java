@@ -1,10 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -68,7 +66,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
@@ -134,7 +131,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final TraderData allowMarkingDirty() { this.canMarkDirty = true; return this; }
 
 	@Nonnull
-    public final RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(this.isClient()); }
+    public final RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(); }
 
 	public final TraderType<?> type;
 	private long id = -1;
@@ -162,7 +159,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean shouldAlwaysShowOnTerminal() { return this.alwaysShowOnTerminal; }
 	public boolean canShowOnTerminal() { return true; }
 	public boolean showOnTerminal() {
-		if(!this.allowAccess()) //Hide from terminal if not accessible
+		if(!this.allowAccess() || this.isInQuarantine()) //Hide from terminal if not accessible or if this trader is in a quarantined dimension
 			return false;
 		if(this.alwaysShowOnTerminal)
 			return true;
@@ -171,6 +168,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	protected final boolean hasNetworkUpgrade() { return UpgradeType.hasUpgrade(Upgrades.NETWORK, this.upgrades); }
+	protected boolean allowVoidUpgrade() { return false; }
+	protected final boolean shouldStoreGoods() { return !this.creative && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
 
 	@Nonnull
 	private TraderState state = TraderState.NORMAL;
@@ -235,6 +234,22 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 	}
 	public boolean isCreative() { return this.creative; }
+
+	private boolean storeCreativeMoney = false;
+	public void setStoreCreativeMoney(Player player, boolean storeCreativeMoney)
+	{
+		if(this.hasPermission(player,Permissions.ADMIN_MODE) && this.storeCreativeMoney != storeCreativeMoney)
+		{
+			this.storeCreativeMoney = storeCreativeMoney;
+			this.markDirty(this::saveCreative);
+
+			if(player != null)
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player),"StoreCreativeMoney",String.valueOf(this.storeCreativeMoney)));
+		}
+	}
+	public boolean storesCreativeMoney() { return this.storeCreativeMoney; }
+
+	public boolean canStoreMoney() { return !this.creative || this.storeCreativeMoney; }
 
 	private boolean isClient = false;
 	public void flagAsClient() { this.isClient = true; this.logger.flagAsClient(); }
@@ -499,16 +514,20 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		return paidCache;
 	}
-	
+
+	protected boolean isInQuarantine() {
+		ResourceKey<Level> level = this.worldPosition.getDimension();
+		return level != null && QuarantineAPI.IsDimensionQuarantined(level);
+	}
 	private boolean linkedToBank = false;
 	public boolean getLinkedToBank() { return this.linkedToBank; }
 	public boolean canLinkBankAccount()
 	{
 		BankReference reference = this.owner.getValidOwner().asBankReference();
-		return reference != null && reference.get() != null;
+		return !this.isInQuarantine() && reference != null && reference.get() != null;
 	}
 	public void setLinkedToBank(Player player, boolean linkedToBank) {
-		if(this.hasPermission(player, Permissions.BANK_LINK) && linkedToBank != this.linkedToBank)
+		if(this.hasPermission(player, Permissions.BANK_LINK) && linkedToBank != this.linkedToBank && !this.isInQuarantine())
 		{
 			this.linkedToBank = linkedToBank;
 			if(this.linkedToBank)
@@ -533,7 +552,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean hasBankAccount() { return this.getBankAccount() != null; }
 	public IBankAccount getBankAccount() {
 		
-		if(this.linkedToBank)
+		if(this.linkedToBank && !this.isInQuarantine())
 		{
 			BankReference reference = this.owner.getValidOwner().asBankReference();
 			if(reference != null)
@@ -549,6 +568,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@Override
 	public final boolean allowUpgrade(@Nonnull UpgradeType type) {
 		if(type == Upgrades.NETWORK && !this.showOnTerminal() && this.canShowOnTerminal())
+			return true;
+		if(type == Upgrades.VOID && this.allowVoidUpgrade())
 			return true;
 		if(this instanceof IFlexibleOfferTrader && type == Upgrades.TRADE_OFFERS)
 			return true;
@@ -711,7 +732,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		CompoundTag updateData = new CompoundTag();
-		updateWriter.accept(updateData, LookupHelper.getRegistryAccess(false));
+		updateWriter.accept(updateData, LookupHelper.getRegistryAccess());
 		this.markDirty(updateData);
 	}
 	
@@ -786,7 +807,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected final void saveName(CompoundTag compound) { compound.putString("Name", this.customName); }
 	
-	protected final void saveCreative(CompoundTag compound) { compound.putBoolean("Creative", this.creative); }
+	protected final void saveCreative(CompoundTag compound) {
+		compound.putBoolean("Creative", this.creative);
+		compound.putBoolean("StoreCreativeMoney", this.storeCreativeMoney);
+	}
 	
 	protected final void saveShowOnTerminal(CompoundTag compound) { compound.putBoolean("AlwaysShowOnTerminal", this.alwaysShowOnTerminal); }
 	
@@ -914,6 +938,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		if(compound.contains("Creative"))
 			this.creative = compound.getBoolean("Creative");
+
+		if(compound.contains("StoreCreativeMoney"))
+			this.storeCreativeMoney = compound.getBoolean("StoreCreativeMoney");
 		
 		if(compound.contains("AlwaysShowOnTerminal"))
 			this.alwaysShowOnTerminal = compound.getBoolean("AlwaysShowOnTerminal");
@@ -1309,9 +1336,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public void addInteractionSlots(@Nonnull List<InteractionSlotData> interactionSlots) {}
 	
 	public abstract boolean canMakePersistent();
-	
-	public Function<TradeData,Boolean> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) { return TradeButtonArea.FILTER_ANY; }
-	
+
+	@Nonnull
+	public Predicate<TradeData> getStorageTradeFilter(@Nonnull ITraderStorageMenu menu) { return t -> true; }
+
 	public abstract void initStorageTabs(@Nonnull ITraderStorageMenu menu);
 
 	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message)
@@ -1411,6 +1439,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			this.setCreative(player, message.getBoolean("MakeCreative"));
 		}
+		if(message.contains("StoreCreativeMoney"))
+		{
+			this.setStoreCreativeMoney(player,message.getBoolean("StoreCreativeMoney"));
+		}
 		if(message.contains("LinkToBankAccount"))
 		{
 			this.setLinkedToBank(player, message.getBoolean("LinkToBankAccount"));
@@ -1507,7 +1539,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	@OnlyIn(Dist.CLIENT)
 	public final List<SettingsSubTab> getSettingsTabs(@Nonnull TraderSettingsClientTab tab) {
 		//Set up defailt tabs
-		List<SettingsSubTab> tabs = Lists.newArrayList(new NameTab(tab), new PersistentTab(tab), new AllyTab(tab), new PermissionsTab(tab), new MiscTab(tab), new TaxSettingsTab(tab));
+		List<SettingsSubTab> tabs = Lists.newArrayList(new NameTab(tab),new CreativeSettingsTab(tab),new PersistentTab(tab),new AllyTab(tab),new PermissionsTab(tab),new MiscTab(tab),new TaxSettingsTab(tab));
 		//Add Trader-Defined tabs
 		this.addSettingsTabs(tab, tabs);
 		//Add Ownership Tab last

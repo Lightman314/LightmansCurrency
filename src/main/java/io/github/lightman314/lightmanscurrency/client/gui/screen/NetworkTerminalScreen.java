@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -24,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +35,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 
-	private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/network_terminal.png");
+	private static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/network_terminal.png");
 	
 	private EditBox searchField;
 	private static int scroll = 0;
@@ -105,7 +105,11 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL))
 				.build());
 
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns), 17), (NetworkTraderButton.HEIGHT * this.rows) + 2, this));
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns),17))
+				.height((NetworkTraderButton.HEIGHT * this.rows) * 2)
+				.scrollable(this)
+				.build());
 		
 		this.initTraderButtons(screenArea);
 		
@@ -122,7 +126,10 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		{
 			for(int x = 0; x < this.columns; ++x)
 			{
-				NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(screenArea.pos.offset(15 + (x * NetworkTraderButton.WIDTH), 26 + (y * NetworkTraderButton.HEIGHT)), this::OpenTrader));
+				NetworkTraderButton newButton = this.addChild(NetworkTraderButton.builder()
+						.position(screenArea.pos.offset(15 + (x * NetworkTraderButton.WIDTH),26 + (y * NetworkTraderButton.HEIGHT)))
+						.pressAction(this::OpenTrader)
+						.build());
 				this.traderButtons.add(newButton);
 			}
 		}

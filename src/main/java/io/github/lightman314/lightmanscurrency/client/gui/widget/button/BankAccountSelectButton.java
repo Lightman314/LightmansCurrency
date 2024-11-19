@@ -6,12 +6,12 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -29,11 +29,12 @@ public class BankAccountSelectButton extends EasyButton implements ITooltipWidge
     private final Supplier<BankReference> account;
     private final Supplier<Boolean> parentVisible;
 
-    public BankAccountSelectButton(@Nonnull ScreenPosition position, int width, @Nonnull Runnable press, @Nonnull Supplier<BankReference> currentAccount, @Nonnull Supplier<BankReference> account, @Nonnull Supplier<Boolean> parentVisible) {
-        super(position, width, HEIGHT, press);
-        this.selectedAccount = currentAccount;
-        this.account = account;
-        this.parentVisible = parentVisible;
+    private BankAccountSelectButton(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.selectedAccount = builder.selectedAccount;
+        this.account = builder.account;
+        this.parentVisible = builder.visible;
     }
 
     @Nonnull
@@ -53,12 +54,6 @@ public class BankAccountSelectButton extends EasyButton implements ITooltipWidge
 
     @Override
     public List<Component> getTooltipText() { return Lists.newArrayList(this.accountName()); }
-
-    @Override
-    public BankAccountSelectButton withAddons(WidgetAddon... addons) {
-        this.withAddonsInternal(addons);
-        return this;
-    }
 
     @Override
     protected void renderTick() {
@@ -87,11 +82,37 @@ public class BankAccountSelectButton extends EasyButton implements ITooltipWidge
         if(icon != null)
             icon.render(gui, 2, 2);
         //Render the name
-        Component name = TextRenderUtil.fitString(this.accountName(), this.width - 22);
-        int textColor = this.isActive() ? 0xFFFFFF : 0x7F7F7F / 2;
-        gui.drawShadowed(name, 22, 6, textColor);
+        //Component name = TextRenderUtil.fitString(this.accountName(), this.width - 22);
+        int textColor = this.isActive() ? 0xFFFFFFFF : 0xFF404040 / 2;
+        gui.drawScrollingString(this.accountName(), ScreenArea.of(22,0,this.width - 24,this.height), textColor);
+        //gui.drawShadowed(name, 22, 6, textColor);
         //Reset color
         gui.resetColor();
+    }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyButtonBuilder<Builder>
+    {
+        private Builder() { super(100,HEIGHT); }
+
+        @Override
+        protected Builder getSelf() { return this; }
+
+        Supplier<BankReference> selectedAccount = () -> null;
+        Supplier<BankReference> account = () -> null;
+        Supplier<Boolean> visible = () -> true;
+
+        public Builder width(int width) { this.changeWidth(width); return this; }
+        public Builder currentlySelected(Supplier<BankReference> selectedAccount) { this.selectedAccount = selectedAccount; return this; }
+        public Builder account(Supplier<BankReference> account) { this.account = account; return this; }
+        public Builder visible(Supplier<Boolean> visible) { this.visible = visible; return this; }
+
+        public BankAccountSelectButton build() { return new BankAccountSelectButton(this); }
+
     }
 
 }

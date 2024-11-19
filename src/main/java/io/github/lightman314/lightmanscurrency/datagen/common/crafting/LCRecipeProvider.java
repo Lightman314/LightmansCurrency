@@ -104,6 +104,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Gem Terminal <-> Portable Gem Terminal
         GenerateSwapRecipes(consumer, ModBlocks.GEM_TERMINAL.get(), ModItems.PORTABLE_GEM_TERMINAL.get(), Lists.newArrayList(Pair.of("money", MoneyKnowledge()),Pair.of("trader", TraderKnowledge())));
 
+
         //Wallet Recipes
         GenerateWalletRecipes(consumer, Lists.newArrayList(
                 Pair.of(Ingredient.of(Tags.Items.INGOTS_COPPER),ModItems.WALLET_COPPER),
@@ -115,6 +116,24 @@ public class LCRecipeProvider extends RecipeProvider {
                 //2.2.3.2
                 Pair.of(Ingredient.of(Tags.Items.NETHER_STARS),ModItems.WALLET_NETHER_STAR)
         ));
+
+        //Leather Wallet Recipe
+        //2.2.4.0
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.WALLET_LEATHER.get())
+                .group("wallet_crafting")
+                .unlockedBy("coin", MoneyKnowledge())
+                .unlockedBy("wallet", LazyTrigger(LCTags.Items.WALLET))
+                .requires(Tags.Items.LEATHERS)
+                .requires(Tags.Items.STRINGS)
+                .requires(Tags.Items.LEATHERS)
+                .save(consumer,ItemID("wallet/",ModItems.WALLET_LEATHER));
+        WalletUpgradeRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.WALLET_IRON.get())
+                .group("wallet_crafting")
+                .unlockedBy("coin", MoneyKnowledge())
+                .unlockedBy("wallet", LazyTrigger(LCTags.Items.WALLET))
+                .requires(ModItems.WALLET_LEATHER.get())
+                .requires(Tags.Items.INGOTS_IRON)
+                .save(consumer,ItemID("wallet/upgrade_leather_wallet_to_",ModItems.WALLET_IRON));
 
         //Coin Recipes
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_COPPER, ModBlocks.COINPILE_COPPER, ModBlocks.COINBLOCK_COPPER);
@@ -920,7 +939,7 @@ public class LCRecipeProvider extends RecipeProvider {
             for(int i = 0; i < ingredients.size() && i <= w; ++i)
                 b.requires(ingredients.get(i));
             b.requires(leather);
-            b.save(consumer, ID("wallet/" + ItemPath(wallet)));
+            b.save(consumer, ItemID("wallet",wallet));
         }
 
         //Upgrade Wallet Recipes
@@ -939,6 +958,40 @@ public class LCRecipeProvider extends RecipeProvider {
                     b.requires(ingredients.get(i));
                 b.save(consumer, ID("wallet/upgrade_" + ItemPath(first) + "_to_" + ItemPath(result)));
             }
+        }
+    }
+
+    private static void GenerateLastWalletRecipeAndUpgrades(@Nonnull RecipeOutput consumer, List<Pair<Ingredient,Supplier<? extends ItemLike>>> ingredientWalletPairs)
+    {
+        Ingredient leather = Ingredient.of(Tags.Items.LEATHERS);
+        List<Ingredient> ingredients = ingredientWalletPairs.stream().map(Pair::getFirst).toList();
+        List<? extends ItemLike> wallets = ingredientWalletPairs.stream().map(p -> p.getSecond().get()).toList();
+
+        //Default Wallet Recipes
+        ItemLike wallet = wallets.getLast();
+        ShapelessRecipeBuilder b = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, wallet)
+                .group("wallet_crafting")
+                .unlockedBy("coin", MoneyKnowledge())
+                .unlockedBy("wallet", LazyTrigger(LCTags.Items.WALLET))
+                .requires(leather);
+        for(Ingredient ingredient : ingredients)
+            b.requires(ingredient);
+        b.requires(leather);
+        b.save(consumer, ID("wallet/" + ItemPath(wallet)));
+
+        //Upgrade Wallet Recipes
+        for(int w = 0; w < wallets.size() - 1; ++w)
+        {
+            ItemLike first = wallets.get(w);
+            ItemLike result = wallets.getLast();
+            WalletUpgradeRecipeBuilder b2 = WalletUpgradeRecipeBuilder.shapeless(RecipeCategory.MISC, result)
+                    .group("wallet_upgrading")
+                    .unlockedBy("coin", MoneyKnowledge())
+                    .unlockedBy("wallet", LazyTrigger(LCTags.Items.WALLET))
+                    .requires(first);
+            for(int i = w +1; i < ingredients.size(); ++i)
+                b2.requires(ingredients.get(i));
+            b2.save(consumer, ID("wallet/upgrade_" + ItemPath(first) + "_to_" + ItemPath(result)));
         }
     }
 

@@ -14,17 +14,17 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -43,6 +43,9 @@ public class ClientModEvents {
 		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new ATMCardColor(),ModItems.ATM_CARD.get(),ModItems.PREPAID_CARD.get());
 		event.register(SusBlockColor.INSTANCE, ModBlocks.SUS_JAR.get());
+		//Default Leather Colors for the leather wallet
+		event.register((stack, layer) -> DyedItemColor.getOrDefault(stack, -6265536),
+				ModItems.WALLET_LEATHER.get());
 	}
 
 	@SubscribeEvent
@@ -62,13 +65,14 @@ public class ClientModEvents {
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 		//Wallets
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_copper")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_iron")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_gold")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_emerald")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_diamond")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_netherite")));
-		event.register(ModelResourceLocation.standalone(WalletItem.lazyModel("wallet_nether_star")));
+		BuiltInRegistries.ITEM.forEach(item -> {
+			if(item instanceof WalletItem wallet)
+			{
+				ResourceLocation model = wallet.components().get(ModDataComponents.WALLET_MODEL.get());
+				if(model != null)
+					event.register(ModelResourceLocation.standalone(model));
+			}
+		});
 	}
 
 	@SubscribeEvent

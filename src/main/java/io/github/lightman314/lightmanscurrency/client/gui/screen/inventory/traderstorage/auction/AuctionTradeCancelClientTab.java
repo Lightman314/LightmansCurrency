@@ -32,7 +32,7 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
-	public boolean tabButtonVisible() { return false; }
+	public boolean tabVisible() { return false; }
 
 	TradeButton tradeDisplay;
 	
@@ -42,8 +42,11 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
-		this.tradeDisplay.setPosition(screenArea.pos.offset((screenArea.width / 2) - 47, 17));
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset((screenArea.width / 2) - 47,17))
+				.context(this.menu::getContext)
+				.trade(this.commonTab::getTrade)
+				.build());
 		
 		this.buttonCancelPlayerGive = this.addChild(EasyTextButton.builder()
 				.position(screenArea.pos.offset(40,60))
@@ -74,19 +77,13 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 		//Reopen the default tab if the trade is null, or we're not allowed to edit it. (Or it's already been handled).
 		AuctionTradeData trade = this.commonTab.getTrade();
 		if(trade == null || !trade.isOwner(this.screen.getPlayer()) || !trade.isValid())
-			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-	}
-	
-	@Override
-	public void receiveSelfMessage(LazyPacketData message) {
-		if(message.contains("TradeIndex"))
-			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
+			this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}
 	
 	@Override
 	public void receiveServerMessage(LazyPacketData message) {
 		if(message.contains("CancelSuccess"))
-			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
+			this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}
 	
 }

@@ -16,6 +16,9 @@ import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
+import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestID;
+import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestName;
+import io.github.lightman314.lightmanscurrency.network.message.player.SPacketUpdatePlayerCache;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.tax.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
@@ -52,7 +55,7 @@ public class LightmansCurrencyPacketHandler {
 		registerS2C(SPacketClearClientBank.HANDLER);
 		registerS2C(SPacketUpdateClientBank.HANDLER);
 		registerS2C(SPacketDeleteClientBank.HANDLER);
-		registerC2S(CPacketBankTransferTeam.HANDLER);
+		registerC2S(CPacketBankTransferAccount.HANDLER);
 		registerC2S(CPacketBankTransferPlayer.HANDLER);
 		registerS2C(SPacketBankTransferResponse.HANDLER);
 		registerC2S(CPacketATMSetPlayerAccount.HANDLER);
@@ -154,6 +157,11 @@ public class LightmansCurrencyPacketHandler {
 		registerS2C(SPacketEditMapConfig.HANDLER);
 		registerS2C(SPacketResetConfig.HANDLER);
 		registerS2C(SPacketViewConfig.HANDLER);
+
+		//Player Syncing
+		registerC2S(CPacketRequestName.HANDLER);
+		registerC2S(CPacketRequestID.HANDLER);
+		registerS2C(SPacketUpdatePlayerCache.HANDLER);
 
 		registrar = null;
 

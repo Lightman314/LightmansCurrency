@@ -32,10 +32,17 @@ public class TraderLogClientTab extends TraderStorageClientTab<TraderLogTab> {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        NotificationDisplayWidget notificationWidget = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15, 10), screenArea.width - 30, 5, this::getNotifications));
+        NotificationDisplayWidget notificationWidget = this.addChild(NotificationDisplayWidget.builder()
+                .position(screenArea.pos.offset(15,10))
+                .width(screenArea.width - 30)
+                .rowCount(5)
+                .notificationSource(this::getNotifications)
+                .build());
         notificationWidget.setDeletionHandler(this.commonTab::DeleteNotification, this.commonTab::canDeleteNotification);
 
-        this.addChild(ScrollBarWidget.createOnRight(notificationWidget));
+        this.addChild(ScrollBarWidget.builder()
+                .onRight(notificationWidget)
+                .build());
 
         this.menu.SetCoinSlotsActive(false);
 

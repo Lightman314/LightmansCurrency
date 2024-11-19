@@ -121,7 +121,7 @@ dependencies {
     runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    compileOnly 'curse.maven:adorned-1036809:5638835-sources-5638839'
+    implementation 'curse.maven:adorned-1036809:5638835-sources-5638839'
 
     //Immersive Engineering API
     //Waiting for IE update
@@ -154,8 +154,8 @@ dependencies {
 
     //Other Compats
     //Supplementaries RedMerchant compat
-    //compileOnly "curse.maven:supplementaries-412082:5068158"
-    //compileOnly "curse.maven:selene-499980:5068161"
+    compileOnly "curse.maven:supplementaries-412082:5888026"
+    compileOnly "curse.maven:selene-499980:5878698"
 
     //Farming For Blockheads trader compat
     compileOnly "curse.maven:farming-for-blockheads-261924:5426962"

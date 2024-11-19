@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -18,6 +19,9 @@ import org.joml.Vector4f;
 import javax.annotation.Nonnull;
 
 public class OutlineUtil {
+
+    private static final long SLIDE_SPEED = 3000L;
+    private static final float BOX_SPLIT_SIZE = 32f;
 
     public static Vector4f decodeColor(int color, float alpha)
     {
@@ -44,11 +48,9 @@ public class OutlineUtil {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
         float inflate = 1/64f;
-        if(area.contains(camera))
-            inflate *= -1f;
 
-        Vector3f minPos = new Vector3f((float)area.minX - inflate, (float)area.minY - inflate, (float)area.minZ - inflate);
-        Vector3f maxPos = new Vector3f((float)area.maxX + inflate, (float)area.maxY + inflate, (float)area.maxZ + inflate);
+        Vector3f minPos = new Vector3f((float)area.minX + inflate, (float)area.minY + inflate, (float)area.minZ + inflate);
+        Vector3f maxPos = new Vector3f((float)area.maxX - inflate, (float)area.maxY - inflate, (float)area.maxZ - inflate);
 
         renderBoxFaces(pose, buffer, minPos, maxPos, color);
 
@@ -60,13 +62,36 @@ public class OutlineUtil {
     private static void renderBoxFaces(@Nonnull PoseStack poseStack, @Nonnull MultiBufferSource buffer, Vector3f minPos, Vector3f maxPos, Vector4f color)
     {
         PoseStack.Pose pose = poseStack.last();
-        VertexConsumer consumer =  buffer.getBuffer(LCRenderTypes.getOutlineTranslucent());
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.DOWN, color);
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.UP, color);
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.NORTH, color);
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.SOUTH, color);
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.EAST, color);
-        renderBoxFace(pose, consumer, minPos, maxPos, Direction.WEST, color);
+        VertexConsumer consumer = buffer.getBuffer(LCRenderTypes.getTaxArea());
+
+        //Render Outer Faces Normally
+        renderBoxFace(pose,consumer,minPos,maxPos,Direction.NORTH,color);
+        renderBoxFace(pose,consumer,minPos,maxPos,Direction.SOUTH,color);
+        renderBoxFace(pose,consumer,minPos,maxPos,Direction.EAST,color);
+        renderBoxFace(pose,consumer,minPos,maxPos,Direction.WEST,color);
+
+        //Divide top & bottom sides into smaller squares so that fog won't apply to them
+        float startX = minPos.x();
+        float stopX = maxPos.x();
+        float startZ = minPos.z();
+        float stopZ = maxPos.z();
+        for(float x = startX; x < stopX;)
+        {
+            final float maxX = x + Math.min(stopX - x,BOX_SPLIT_SIZE);
+            for(float z = startZ; z < stopZ;)
+            {
+                //Create mini box of *at most* 32x32
+                final float maxZ = z + Math.min(stopZ - z,BOX_SPLIT_SIZE);
+                //Calculate new min/max boxes
+                Vector3f newMin = new Vector3f(x,minPos.y(),z);
+                Vector3f newMax = new Vector3f(maxX,maxPos.y(),maxZ);
+                //Render Top/Bottom faces
+                renderBoxFace(pose,consumer,newMin,newMax,Direction.UP,color);
+                renderBoxFace(pose,consumer,newMin,newMax,Direction.DOWN,color);
+                z = maxZ;
+            }
+            x = maxX;
+        }
     }
 
     private static void renderBoxFace(@Nonnull PoseStack.Pose pose, @Nonnull VertexConsumer consumer , Vector3f minPos, Vector3f maxPos, Direction face, Vector4f color)
@@ -83,6 +108,9 @@ public class OutlineUtil {
         float maxX = maxPos.x();
         float maxY = maxPos.y();
         float maxZ = maxPos.z();
+        float uv0 = (float)(TimeUtil.getCurrentTime() % SLIDE_SPEED) / (float)SLIDE_SPEED;
+        float uv1 = 1f;
+        float uv2 = 1f;
 
         switch (face) {
             case DOWN -> {
@@ -92,6 +120,8 @@ public class OutlineUtil {
                 pos2.set(minX, minY, maxZ);
                 pos3.set(minX, minY, minZ);
                 normal.set(0, -1, 0);
+                uv1 = maxZ - minZ + uv0;
+                uv2 = maxX - minX + uv0;
             }
             case UP -> {
                 // 4 5 6 7
@@ -100,6 +130,8 @@ public class OutlineUtil {
                 pos2.set(maxX, maxY, maxZ);
                 pos3.set(maxX, maxY, minZ);
                 normal.set(0, 1, 0);
+                uv1 = maxZ - minZ + uv0;
+                uv2 = maxX - minX + uv0;
             }
             case NORTH -> {
                 // 7 2 1 4
@@ -108,6 +140,8 @@ public class OutlineUtil {
                 pos2.set(minX, minY, minZ);
                 pos3.set(minX, maxY, minZ);
                 normal.set(0, 0, -1);
+                uv1 = maxY - minY + uv0;
+                uv2 = maxX - minX + uv0;
             }
             case SOUTH -> {
                 // 5 0 3 6
@@ -116,6 +150,8 @@ public class OutlineUtil {
                 pos2.set(maxX, minY, maxZ);
                 pos3.set(maxX, maxY, maxZ);
                 normal.set(0, 0, 1);
+                uv1 = maxY - minY + uv0;
+                uv2 = maxX - minX + uv0;
             }
             case WEST -> {
                 // 4 1 0 5
@@ -124,6 +160,8 @@ public class OutlineUtil {
                 pos2.set(minX, minY, maxZ);
                 pos3.set(minX, maxY, maxZ);
                 normal.set(-1, 0, 0);
+                uv1 = maxY - minY + uv0;
+                uv2 = maxZ - minZ + uv0;
             }
             case EAST -> {
                 // 6 3 2 7
@@ -132,6 +170,8 @@ public class OutlineUtil {
                 pos2.set(maxX, minY, minZ);
                 pos3.set(maxX, maxY, minZ);
                 normal.set(1, 0, 0);
+                uv1 = maxY - minY + uv0;
+                uv2 = maxZ - minZ + uv0;
             }
         }
 
@@ -176,28 +216,28 @@ public class OutlineUtil {
 
         consumer.addVertex(x0,y0,z0)
                 .setColor(r,g,b,a)
-                .setUv(0, 0)
+                .setUv(uv0, uv0)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
                 .setNormal(nx, ny, nz);
 
         consumer.addVertex(x1, y1, z1)
                 .setColor(r, g, b, a)
-                .setUv(0, 2)
+                .setUv(uv0, uv1)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
                 .setNormal(nx, ny, nz);
 
         consumer.addVertex(x2, y2, z2)
                 .setColor(r, g, b, a)
-                .setUv(1, 1)
+                .setUv(uv2, uv1)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
                 .setNormal(nx, ny, nz);
 
         consumer.addVertex(x3, y3, z3)
                 .setColor(r, g, b, a)
-                .setUv(1, 0)
+                .setUv(uv2, uv0)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(LightTexture.FULL_BRIGHT)
                 .setNormal(nx, ny, nz);

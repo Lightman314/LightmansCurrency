@@ -20,6 +20,8 @@ public class CPacketOpenWallet extends ClientToServerPacket {
 	
 	public CPacketOpenWallet(int walletStackIndex) { super(TYPE); this.walletStackIndex = walletStackIndex;  }
 
+	public static void sendEquippedPacket() { new CPacketOpenWallet(-1).send(); }
+
 	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketOpenWallet message) { buffer.writeInt(message.walletStackIndex); }
 	private static CPacketOpenWallet decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenWallet(buffer.readInt()); }
 

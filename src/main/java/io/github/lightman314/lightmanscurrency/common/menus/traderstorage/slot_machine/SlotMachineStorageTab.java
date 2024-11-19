@@ -26,9 +26,10 @@ public class SlotMachineStorageTab extends TraderStorageTab{
 
     public SlotMachineStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Object createClientTab(Object screen) { return new SlotMachineStorageClientTab(screen, this); }
+    public Object createClientTab(@Nonnull Object screen) { return new SlotMachineStorageClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }

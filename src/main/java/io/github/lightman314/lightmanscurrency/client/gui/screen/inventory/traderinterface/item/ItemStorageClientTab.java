@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -28,6 +30,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollable, IMouseListener {
 
@@ -41,7 +44,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	DirectionalSettingsWidget inputSettings;
 	DirectionalSettingsWidget outputSettings;
 	
-	public ItemStorageClientTab(TraderInterfaceScreen screen, ItemStorageTab commonTab) { super(screen, commonTab); }
+	public ItemStorageClientTab(Object screen, ItemStorageTab commonTab) { super(screen, commonTab); }
 
 	int scroll = 0;
 	
@@ -69,15 +72,41 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset( X_OFFSET + (18 * COLUMNS), Y_OFFSET), ROWS * 18, this));
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(X_OFFSET + (18 * COLUMNS),Y_OFFSET))
+				.height(ROWS * 18)
+				.scrollable(this)
+				.build());
 		
-		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
+		this.addChild(ScrollListener.builder()
+				.position(screenArea.pos)
+				.size(screenArea.width,118)
+				.listener(this)
+				.build());
 		
-		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
-		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getInputSettings().ignoreSides,  this::ToggleOutputSide, this::addChild);
+		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
+				.currentValue(this.getInputSettings()::get)
+				.ignore(this.getInputSettings().ignoreSides)
+				.handler(this::ToggleInputSide)
+				.build());
+		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
+				.currentValue(this.getOutputSettings()::get)
+				.ignore(this.getOutputSettings().ignoreSides)
+				.handler(this::ToggleOutputSide)
+				.build());
 		
-		this.addChild(IconAndButtonUtil.quickInsertButton(screenArea.pos.offset(22, Y_OFFSET + 18 * 5 + 8), b -> this.commonTab.quickTransfer(0)));
-		this.addChild(IconAndButtonUtil.quickExtractButton(screenArea.pos.offset(34, Y_OFFSET + 18 * 5 + 8), b -> this.commonTab.quickTransfer(1)));
+		this.addChild(PlainButton.builder()
+						.position(screenArea.pos.offset(22,Y_OFFSET + 18 * 5 + 8))
+						.pressAction(() -> this.commonTab.quickTransfer(0))
+						.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
+						.build());
+		this.addChild(PlainButton.builder()
+						.position(screenArea.pos.offset(34, Y_OFFSET + 18 * 5 + 8))
+						.pressAction(() -> this.commonTab.quickTransfer(1))
+						.sprite(IconAndButtonUtil.SPRITE_QUICK_EXTRACT)
+						.build());
 		
 	}
 
@@ -230,5 +259,33 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	private void ToggleOutputSide(Direction side) {
 		this.commonTab.toggleOutputSlot(side);
 	}
-	
+
+	@Nullable
+	@Override
+	public Pair<ItemStack, ScreenArea> getHoveredItem(@Nonnull ScreenPosition mousePos) {
+		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
+			int foundColumn = -1;
+			int foundRow = -1;
+
+			int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
+			int topEdge = this.screen.getGuiTop() + Y_OFFSET;
+			for(int x = 0; x < COLUMNS && foundColumn < 0; ++x)
+			{
+				if(mousePos.x >= leftEdge + x * 18 && mousePos.x < leftEdge + (x * 18) + 18)
+					foundColumn = x;
+			}
+			for(int y = 0; y < ROWS && foundRow < 0; ++y)
+			{
+				if(mousePos.y >= topEdge + y * 18 && mousePos.y < topEdge + (y * 18) + 18)
+					foundRow = y;
+			}
+			if(foundColumn < 0 || foundRow < 0)
+				return null;
+			int slot = (foundRow * COLUMNS) + foundColumn + (this.scroll * COLUMNS);
+			ItemStack stack = be.getItemBuffer().getStackInSlot(slot);
+			return Pair.of(stack,ScreenArea.of(leftEdge + (foundColumn * 18),topEdge + (foundRow * 18),18,18));
+		}
+		return null;
+	}
+
 }

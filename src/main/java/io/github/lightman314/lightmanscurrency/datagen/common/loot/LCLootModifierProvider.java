@@ -23,6 +23,9 @@ public class LCLootModifierProvider extends GlobalLootModifierProvider {
         this.add("additions/netherite_wallet_in_bastions", BonusItemModifier.builder(ModItems.WALLET_NETHERITE.get(), 0.1f)
                 .withTarget(BuiltInLootTables.BASTION_TREASURE)
                 .build());
+        this.add("additions/ender_dragon_wallet_in_end_cities", BonusItemModifier.builder(ModItems.WALLET_ENDER_DRAGON.get(), 0.1f)
+                .withTarget(BuiltInLootTables.END_CITY_TREASURE)
+                .build());
 
     }
 

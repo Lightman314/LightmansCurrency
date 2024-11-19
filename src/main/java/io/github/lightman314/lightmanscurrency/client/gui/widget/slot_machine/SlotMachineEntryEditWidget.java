@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
@@ -10,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
@@ -19,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -42,21 +43,22 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
 
     private static final int ITEM_POSY = 22;
 
-    public SlotMachineEntryEditWidget(ScreenPosition pos, SlotMachineEntryClientTab tab, Supplier<Integer> entryIndex) { this(pos.x, pos.y, tab, entryIndex); }
-    public SlotMachineEntryEditWidget(int x, int y, SlotMachineEntryClientTab tab, Supplier<Integer> entryIndex) {
-        super(x, y, WIDTH, HEIGHT);
-        this.tab = tab;
-        this.entryIndex = entryIndex;
+    private SlotMachineEntryEditWidget(Builder builder)
+    {
+        super(builder);
+        this.tab = builder.tab;
+        this.entryIndex = builder.index;
     }
 
     @Override
-    public SlotMachineEntryEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
-    @Override
-    public void addChildren() {
-        this.weightEdit = this.addChild(new EditBox(this.tab.getFont(), this.getX() + this.tab.getFont().width(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get()), this.getY() + 10, 36, 10, EasyText.empty()));
+    public void addChildren(@Nonnull ScreenArea area) {
+        this.weightEdit = this.addChild(new EditBox(this.tab.getFont(), area.x + this.tab.getFont().width(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get()), area.y + 10, 36, 10, EasyText.empty()));
         this.weightEdit.setMaxLength(4);
-        this.removeEntryButton = this.addChild(IconAndButtonUtil.minusButton(this.getX(), this.getY(), this::Remove));
+        this.removeEntryButton = this.addChild(PlainButton.builder()
+                .position(area.pos)
+                .pressAction(this::Remove)
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .build());
     }
 
     private SlotMachineEntry getEntry() { return this.tab.getEntry(this.entryIndex.get()); }
@@ -213,4 +215,27 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
         }
         return null;
     }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(WIDTH,HEIGHT); }
+
+        @Override
+        protected Builder getSelf() { return this; }
+
+        private SlotMachineEntryClientTab tab = null;
+        private Supplier<Integer> index = () -> 0;
+
+        public Builder tab(SlotMachineEntryClientTab tab) { this.tab = tab; return this; }
+        public Builder index(Supplier<Integer> index) { this.index = index; return this; }
+
+        public SlotMachineEntryEditWidget build() { return new SlotMachineEntryEditWidget(this); }
+
+    }
+
 }

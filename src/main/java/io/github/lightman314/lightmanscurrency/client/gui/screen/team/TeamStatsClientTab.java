@@ -51,8 +51,15 @@ public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> im
                 .pressAction(() -> this.commonTab.ClearStats(Screen.hasShiftDown()))
                 .build());
 
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
-        this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(screen.width - 10 - ScrollBarWidget.WIDTH,START_POS))
+                .height(LINE_COUNT * LINE_SIZE)
+                .scrollable(this)
+                .build());
+        this.addChild(ScrollListener.builder()
+                .area(screenArea.offsetPosition(screenArea.width,START_POS + LINE_COUNT * LINE_SIZE))
+                .listener(this)
+                .build());
 
     }
 

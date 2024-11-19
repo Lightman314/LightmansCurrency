@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCol
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 
@@ -16,16 +17,11 @@ public class OwnershipTab extends TaxCollectorTab {
     public OwnershipTab(TaxCollectorMenu menu) { super(menu); }
 
     @Override
-    public boolean canBeAccessed() { return this.isOwner() && !this.isServerEntry(); }
+    public boolean canOpen(@Nonnull Player player) { return this.isOwner() && !this.isServerEntry(); }
 
+    @Nonnull
     @Override
-    public Object createClientTab(Object screen) { return new OwnershipClientTab(screen, this); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
+    public Object createClientTab(@Nonnull Object screen) { return new OwnershipClientTab(screen, this); }
 
     public void SetOwner(@Nonnull Owner newOwner)
     {

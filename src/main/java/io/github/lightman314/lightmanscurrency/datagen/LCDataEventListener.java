@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.datagen.common.enchantments.LCEnc
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootModifierProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
+import io.github.lightman314.lightmanscurrency.datagen.integration.LCCuriosProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -59,6 +60,9 @@ public class LCDataEventListener {
 
         //Language
         generator.addProvider(event.includeClient(), new EnglishProvider(output));
+
+        //Mod Integration
+        generator.addProvider(event.includeServer(), new LCCuriosProvider(output,existingFileHelper,lookupHolder));
 
     }
 

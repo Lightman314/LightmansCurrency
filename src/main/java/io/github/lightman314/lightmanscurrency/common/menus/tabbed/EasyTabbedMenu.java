@@ -3,9 +3,12 @@ package io.github.lightman314.lightmanscurrency.common.menus.tabbed;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.IEasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 
 import javax.annotation.Nonnull;
@@ -14,16 +17,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class EasyTabbedMenu<M extends EasyTabbedMenu<M,T>,T extends EasyMenuTab<M,T>> extends LazyMessageMenu {
+public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>> extends LazyMessageMenu implements IEasyTabbedMenu<T> {
 
     private boolean tabsLocked = false;
     private int currentTabIndex = -1;
     private int currentAddIndex = 0;
     @Nonnull
-    protected final T currentTab() { return this.menuTabs.get(this.currentTabIndex); }
+    public final T currentTab() { return this.menuTabs.get(this.currentTabIndex); }
     private Map<Integer,T> menuTabs = null;
+    @Nonnull
     public final Map<Integer,T> getAllTabs() { return this.menuTabs == null ? ImmutableMap.of() : ImmutableMap.copyOf(this.menuTabs); }
 
+    private IEasyTabbedMenuScreen<M,T,?> screen = null;
+    public void setScreen(@Nonnull IEasyTabbedMenuScreen<M,T,?> screen) { this.screen = screen; }
     private Consumer<LazyPacketData> messageListener = null;
 
     public EasyTabbedMenu(@Nonnull MenuType<?> type, int id, @Nonnull Inventory inventory, @Nonnull MenuValidator validator) { super(type, id, inventory, validator); }
@@ -110,7 +116,7 @@ public abstract class EasyTabbedMenu<M extends EasyTabbedMenu<M,T>,T extends Eas
 
     public final void ChangeTab(int newTab) { this.ChangeTab(newTab,null,true); }
     public final void ChangeTab(int newTab,@Nullable LazyPacketData.Builder data) { this.ChangeTab(newTab,data == null ? null : data.build()); }
-    public final void ChangeTab(int newTab,@Nullable LazyPacketData data) { this.ChangeTab(newTab,data, true); }
+    public final void ChangeTab(int newTab,@Nullable LazyPacketData data) { this.ChangeTab(newTab,data,true); }
     private void ChangeTab(int newTab,@Nullable LazyPacketData data,boolean sendPacket)
     {
         if(newTab == this.currentTabIndex)
@@ -126,6 +132,7 @@ public abstract class EasyTabbedMenu<M extends EasyTabbedMenu<M,T>,T extends Eas
         if(data != null && data.size("ChangeTab") > 0)
             this.currentTab().OpenMessage(data);
         this.currentTab().onTabOpen();
+        this.onTabChanged(this.currentTab());
         if(sendPacket)
         {
             LazyPacketData.Builder builder;
@@ -134,14 +141,24 @@ public abstract class EasyTabbedMenu<M extends EasyTabbedMenu<M,T>,T extends Eas
             else
                 builder = this.builder();
             builder.setInt("ChangeTab",newTab);
+            LightmansCurrency.LogDebug("Sending Change Tab message from the " + DebugUtil.getSideText(this) + "\n" + builder);
             this.SendMessage(builder);
         }
+        //Force screen to be synced with the menu
+        if(this.screen != null && this.screen.getCurrentTabIndex() != this.currentTabIndex)
+            this.screen.ChangeTab(this.currentTabIndex,data,false);
     }
+
+    protected void onTabChanged(T newTab) { }
 
     @Override
     public final void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("ChangeTab"))
+        {
+            LightmansCurrency.LogDebug("Handling Change Tab message on the " + DebugUtil.getSideText(this) + "\n" + message);
             this.ChangeTab(message.getInt("ChangeTab"),message,false);
+        }
+
         this.currentTab().receiveMessage(message);
         this.HandleMessages(message);
         if(this.messageListener != null)
@@ -150,4 +167,10 @@ public abstract class EasyTabbedMenu<M extends EasyTabbedMenu<M,T>,T extends Eas
 
     protected void HandleMessages(@Nonnull LazyPacketData message) {}
 
+    @Override
+    public void removed(@Nonnull Player player) {
+        super.removed(player);
+        for(T tab : this.menuTabs.values())
+            tab.onMenuClose();
+    }
 }

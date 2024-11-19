@@ -1,62 +1,66 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ScrollListener implements IScrollListener {
+public class ScrollListener extends EasyWidget implements IScrollListener {
 
-	public ScreenArea area;
 	private final Function<Double,Boolean> listener;
-	private final IScrollListener deprecatedListener;
-	
-	public boolean active = true;
-	public boolean inverted = false;
+
+	private final boolean inverted;
 
 	private static Function<Double,Boolean> convertConsumer(Consumer<Double> consumer) { return d -> { consumer.accept(d); return false; }; }
 
-	public ScrollListener(ScreenPosition position, int width, int height, IScrollable scrollable) { this(ScreenArea.of(position, width, height), scrollable::handleScrollWheel); }
-	public ScrollListener(ScreenPosition position, int width, int height, Function<Double,Boolean> listener) { this(ScreenArea.of(position, width, height), listener); }
-	public ScrollListener(ScreenPosition position, int width, int height, Consumer<Double> listener) { this(ScreenArea.of(position, width, height), convertConsumer(listener)); }
-	public ScrollListener(int x, int y, int width, int height, IScrollable scrollable) { this(ScreenArea.of(x,y,width,height), scrollable::handleScrollWheel); }
-	public ScrollListener(int x, int y, int width, int height, Function<Double,Boolean> listener) { this(ScreenArea.of(x,y,width,height), listener); }
-	public ScrollListener(int x, int y, int width, int height, Consumer<Double> listener) { this(ScreenArea.of(x,y,width,height), convertConsumer(listener)); }
-	public ScrollListener(ScreenArea area, IScrollable scrollable) { this(area, scrollable::handleScrollWheel); }
-	public ScrollListener(ScreenArea area, Consumer<Double> listener) { this(area, convertConsumer(listener)); }
-	public ScrollListener(ScreenArea area, Function<Double,Boolean> listener)
+	private ScrollListener(@Nonnull Builder builder)
 	{
-		this.area = area;
-		this.deprecatedListener = null;
-		this.listener = listener;
+		super(builder);
+		this.listener = builder.listener;
+		this.inverted = builder.inverted;
 	}
 
+	@Override
+	protected void renderWidget(@Nonnull EasyGuiGraphics gui) { }
 
-	@Deprecated
-	public ScrollListener(ScreenPosition position, int width, int height, IScrollListener listener) { this(ScreenArea.of(position, width, height), listener); }
-	@Deprecated
-	public ScrollListener(int x, int y, int width, int height, IScrollListener listener) { this(ScreenArea.of(x, y, width, height), listener); }
-	@Deprecated
-	public ScrollListener(ScreenArea area, IScrollListener listener) {
-		this.area = area;
-		this.deprecatedListener = listener;
-		this.listener = d -> this.deprecatedListener.mouseScrolled(0d,0d,d);
-	}
-	
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
 	{
-		if(this.active && this.area.isMouseInArea(mouseX, mouseY))
-		{
-			if(this.deprecatedListener != null)
-				return this.deprecatedListener.mouseScrolled(mouseX, mouseY, delta);
-			else
-				return this.listener.apply(this.inverted ? -delta : delta);
-		}
+		if(this.isActive() && this.getArea().isMouseInArea(mouseX, mouseY))
+			return this.listener.apply(this.inverted ? -delta : delta);
 		return false;
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@ParametersAreNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasySizableBuilder<Builder>
+	{
+
+		private Builder() { }
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Function<Double,Boolean> listener = d -> false;
+		private boolean inverted = false;
+
+		public Builder listener(Function<Double,Boolean> listener) { this.listener = listener; return this; }
+		public Builder listener(IScrollable listener) { this.listener = listener::handleScrollWheel; return this; }
+		public Builder invert() { this.inverted = true; return this; }
+
+		public ScrollListener build() { return new ScrollListener(this); }
+
 	}
 
 }

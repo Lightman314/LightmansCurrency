@@ -4,14 +4,16 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -39,10 +41,18 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public static final Sprite SPRITE_LEFT_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 50, HEIGHT, 10, 20);
     public static final Sprite SPRITE_RIGHT_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 60, HEIGHT, 10, 20);
 
+    /**
+     * @deprecated No longer necessary as you can just not define the consumer within the builder now
+     */
+    @Deprecated
     public static final Consumer<MoneyValue> EMPTY_CONSUMER = v -> {};
 
     private static String lastSelectedHandler = MoneyAPI.MODID + ":coins!main";
 
+    /**
+     * When constructed by the builder, default value is <code>false</code><br>
+     * Leaving default value as true to ensure it still follows legacy behaviour for the old constructor
+     */
     public boolean drawBG = true;
     public boolean allowFreeInput = true;
     private boolean locked = false;
@@ -72,21 +82,23 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     @Nonnull
     public final MoneyValue getCurrentValue() { return this.currentValue; }
     private final Consumer<MoneyValue> changeHandler;
-    private Consumer<MoneyValueWidget> handlerChangeConsumer = w -> {};
-    public void setHandlerChangeListener(@Nonnull Consumer<MoneyValueWidget> consumer) { this.handlerChangeConsumer = consumer; }
+    private final Consumer<MoneyValueWidget> handlerChangeConsumer;
 
     private final MoneyValueWidget oldWidget;
 
     private DropdownWidget dropdown = null;
     private EasyButton freeToggle = null;
 
-    public MoneyValueWidget(int x, int y, @Nullable MoneyValueWidget oldWidget, @Nonnull MoneyValue startingValue, @Nonnull Consumer<MoneyValue> changeHandler) { this(ScreenPosition.of(x,y), oldWidget, startingValue, changeHandler); }
-    public MoneyValueWidget(@Nonnull ScreenPosition pos, @Nullable MoneyValueWidget oldWidget, @Nonnull MoneyValue startingValue, @Nonnull Consumer<MoneyValue> changeHandler) {
-        super(pos, WIDTH, HEIGHT);
-        this.changeHandler = changeHandler;
-        this.currentValue = oldWidget != null ? oldWidget.currentValue : startingValue;
+    private MoneyValueWidget(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.changeHandler = builder.handler;
+        this.handlerChangeConsumer = builder.typeChangeHandler;
+        this.currentValue = builder.oldWidget != null ? builder.oldWidget.currentValue : builder.startingValue;
         this.availableHandlers = this.setupHandlers();
-        this.oldWidget = oldWidget;
+        this.oldWidget = builder.oldWidget;
+        this.drawBG = builder.drawBG;
+        this.allowFreeInput = builder.allowFree;
     }
 
     private Map<String,MoneyInputHandler> setupHandlers()
@@ -135,20 +147,18 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    public MoneyValueWidget withAddons(WidgetAddon... addons) {
-        this.withAddonsInternal(addons);
-        return this;
-    }
-
-    @Override
-    public void addChildren() {
+    public void addChildren(@Nonnull ScreenArea area) {
 
         this.setHandler(this.findDefaultHandler());
 
-        this.freeToggle = this.addChild(new PlainButton(this.getX() + this.width - 14, this.getY() + 4, this::toggleFree, SPRITE_FREE_TOGGLE));
+        this.freeToggle = this.addChild(PlainButton.builder()
+                .position(area.pos.offset(area.width - 14,4))
+                .pressAction(this::toggleFree)
+                .sprite(SPRITE_FREE_TOGGLE)
+                .build());
 
         this.dropdown = this.addChild(DropdownWidget.builder()
-                .position(this.getPosition().offset(10,4))
+                .position(area.pos.offset(10,4))
                 .width(64)
                 .selected(this.handlerKeys.indexOf(this.currentHandler.getUniqueName()))
                 .selectAction(this::selectHandler)
@@ -255,5 +265,39 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     @Override
     public boolean hideFromMouse() { return true; }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(WIDTH,HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+
+        @Nullable
+        private MoneyValueWidget oldWidget = null;
+        private Consumer<MoneyValue> handler = v -> {};
+        private Consumer<MoneyValueWidget> typeChangeHandler = w -> {};
+        private MoneyValue startingValue = MoneyValue.empty();
+        private boolean drawBG = false;
+        private boolean allowFree = true;
+
+        public Builder old(@Nullable MoneyValueWidget widget) { this.oldWidget = widget; return this; }
+        public Builder oldIfNotFirst(boolean firstOpen, @Nullable MoneyValueWidget widget) { if(firstOpen) return this; return this.old(widget); }
+        public Builder valueHandler(Runnable handler) { this.handler = v -> handler.run(); return this; }
+        public Builder valueHandler(Consumer<MoneyValue> handler) { this.handler = handler; return this; }
+        public Builder typeChangeListener(Consumer<MoneyValueWidget> handler) { this.typeChangeHandler = handler; return this; }
+        public Builder typeChangeListener(Runnable handler) { this.typeChangeHandler = w -> handler.run(); return this; }
+        public Builder startingValue(MoneyValue value) { this.startingValue = value; return this; }
+        public Builder startingValue(@Nullable TradeData trade) { if(trade == null) return this; return this.startingValue(trade.getCost()); }
+        public Builder drawBG() { this.drawBG = true; return this; }
+        public Builder blockFreeInputs() { this.allowFree = false; return this; }
+
+        public MoneyValueWidget build() { return new MoneyValueWidget(this); }
+
+    }
 
 }

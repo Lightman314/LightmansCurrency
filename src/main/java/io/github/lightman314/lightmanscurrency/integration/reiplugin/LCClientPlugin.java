@@ -1,11 +1,16 @@
 package io.github.lightman314.lightmanscurrency.integration.reiplugin;
 
-import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
+import dev.architectury.event.CompoundEventResult;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
@@ -39,6 +44,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -73,6 +79,23 @@ public class LCClientPlugin implements REIClientPlugin {
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 80, screen.getGuiTop() + 21, 22, 16), MintScreen.class, CoinMintCategory.ID);
         //Click area for the Ticket Station is on the title text as the arrow is already a clickable button
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 8, screen.getGuiTop() + 6, 100,10), TicketStationScreen.class, TicketStationCategory.ID);
+        //Focus Stack Provider
+        registry.registerFocusedStack(((screen, mouse) -> {
+            if(screen instanceof EasyMenuScreen<?> s)
+            {
+                ScreenPosition mousePos = ScreenPosition.of(mouse.x,mouse.y);
+                Pair<ItemStack,ScreenArea> item = s.getHoveredItem(mousePos);
+                if(item != null && !item.getFirst().isEmpty())
+                    return CompoundEventResult.interruptTrue(EntryStack.of(VanillaEntryTypes.ITEM,item.getFirst()));
+                Pair<FluidStack,ScreenArea> fluid = s.getHoveredFluid(mousePos);
+                if(fluid != null && !fluid.getFirst().isEmpty())
+                {
+                    FluidStack f = fluid.getFirst();
+                    return CompoundEventResult.interruptTrue(EntryStack.of(VanillaEntryTypes.FLUID,dev.architectury.fluid.FluidStack.create(f.getFluid(),f.getAmount(),f.getComponentsPatch())));
+                }
+            }
+            return CompoundEventResult.pass();
+        }));
     }
 
     @Override
@@ -104,50 +127,19 @@ public class LCClientPlugin implements REIClientPlugin {
 
     @Override
     public void registerExclusionZones(ExclusionZones zones) {
-        //Trader Screen (bottom left corner where the "back to terminal
-        zones.register(TraderScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop() + screen.getYSize() - 60, 20, 60)));
-        //Slot Machine Screen (same as trader screen)
-        zones.register(SlotMachineScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop() + screen.getYSize() - 60, 20, 60)));
-        //Trader Storage Screen Exclusion Zone
-        zones.register(TraderStorageScreen.class, screen -> Lists.newArrayList(
-                new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize()),
-                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 25, screen.getYSize())
-        ));
-        //ATM Screen (left edge)
-        zones.register(ATMScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize())));
-        //Tax Collector Screen
-        zones.register(TaxCollectorScreen.class, screen -> Lists.newArrayList(
-                //Left Edge
-                new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize()),
-                //Collect Money button in top-right corner
-                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20)
-        ));
-        //Coin Chest Screen (left edge)
-        zones.register(CoinChestScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize())));
-        //Ejection Screen
-        zones.register(EjectionRecoveryScreen.class,screen -> Lists.newArrayList(
-                //Left edge (2 buttons)
-                new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), 20, 40),
-                //Right edge (1 button)
-                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20)
-        ));
-        //Player Trader Screen (chat & money toggle in top-right)
-        zones.register(PlayerTradeScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 40)));
-        //Trader Interface Screen (two buttons in top-right)
-        zones.register(TraderInterfaceScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 40)));
-        //Wallet Screen (3 icon buttons at top left)
-        zones.register(WalletScreen.class,screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 20, screen.getGuiTop(), 20, 60)));
-        //Wallet Bank Screen
-        zones.register(WalletBankScreen.class,screen -> Lists.newArrayList(
-                //Tabs on left edge
-                new Rectangle(screen.getGuiLeft() - 25,screen.getGuiTop(), 25, 25 * screen.getTabCount()),
-                //Button on top-right
-                new Rectangle(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 20, 20))
-        );
-        //Team Management Screen (entire outside edge)
-        zones.register(TeamManagerScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop() - 25, screen.getXSize() + 50, screen.getYSize() + 50)));
-        //Notification Screen (left edge)
-        zones.register(NotificationScreen.class, screen -> Lists.newArrayList(new Rectangle(screen.getGuiLeft() - 25, screen.getGuiTop(), 25, screen.getYSize())));
+        this.registerExclusionZones(zones,TraderScreen.class);
+        this.registerExclusionZones(zones,SlotMachineScreen.class);
+        this.registerExclusionZones(zones,TraderStorageScreen.class);
+        this.registerExclusionZones(zones,ATMScreen.class);
+        this.registerExclusionZones(zones,TaxCollectorScreen.class);
+        this.registerExclusionZones(zones,CoinChestScreen.class);
+        this.registerExclusionZones(zones,EjectionRecoveryScreen.class);
+        this.registerExclusionZones(zones,PlayerTradeScreen.class);
+        this.registerExclusionZones(zones,TraderInterfaceScreen.class);
+        this.registerExclusionZones(zones,WalletScreen.class);
+        this.registerExclusionZones(zones,WalletBankScreen.class);
+        this.registerExclusionZones(zones,TeamManagerScreen.class);
+        this.registerExclusionZones(zones,NotificationScreen.class);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -176,8 +168,26 @@ public class LCClientPlugin implements REIClientPlugin {
         registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/jar_of_sus"),LCText.REI_GROUP_JAR_OF_SUS.get(),isItem(ModBlocks.SUS_JAR));
 
         //ATM Card
-        registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/atm_card"),LCText.REI_GROUP_FREEZER.get(),isItem(ModItems.ATM_CARD));
+        registry.group(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"rei_groups/atm_card"),LCText.REI_GROUP_ATM_CARD.get(),isItem(ModItems.ATM_CARD));
 
+    }
+
+    private <T extends EasyMenuScreen<?>>void registerExclusionZones(@Nonnull ExclusionZones zones, @Nonnull Class<T> clazz)
+    {
+        zones.register(clazz,screen -> {
+            List<Rectangle> areas = new ArrayList<>();
+            ScreenArea screenArea = screen.getArea();
+            for(var child : screen.children())
+            {
+                if(child instanceof EasyWidget widget && widget.visible)
+                {
+                    ScreenArea area = widget.getArea();
+                    if(screenArea.isOutside(area))
+                        areas.add(new Rectangle(area.x,area.y,area.width,area.height));
+                }
+            }
+            return areas;
+        });
     }
 
     private Predicate<? extends EntryStack<?>> isItem(@Nonnull Supplier<? extends ItemLike> item)
@@ -206,4 +216,5 @@ public class LCClientPlugin implements REIClientPlugin {
             return false;
         };
     }
+
 }

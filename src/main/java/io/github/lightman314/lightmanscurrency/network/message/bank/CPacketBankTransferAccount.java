@@ -15,36 +15,35 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
-public class CPacketBankTransferTeam extends ClientToServerPacket {
+public class CPacketBankTransferAccount extends ClientToServerPacket {
 
-	private static final Type<CPacketBankTransferTeam> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_bank_transfer_team"));
-	public static final Handler<CPacketBankTransferTeam> HANDLER = new H();
+	private static final Type<CPacketBankTransferAccount> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_bank_transfer_team"));
+	public static final Handler<CPacketBankTransferAccount> HANDLER = new H();
 
-	long teamID;
+	BankReference target;
 	MoneyValue amount;
 	
-	public CPacketBankTransferTeam(long teamID, MoneyValue amount) {
+	public CPacketBankTransferAccount(BankReference target, MoneyValue amount) {
 		super(TYPE);
-		this.teamID = teamID;
+		this.target = target;
 		this.amount = amount;
 	}
 	
-	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketBankTransferTeam message) {
-		buffer.writeLong(message.teamID);
+	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketBankTransferAccount message) {
+		message.target.encode(buffer);
 		message.amount.encode(buffer);
 	}
 
-	private static CPacketBankTransferTeam decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankTransferTeam(buffer.readLong(),MoneyValue.decode(buffer)); }
+	private static CPacketBankTransferAccount decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankTransferAccount(BankReference.decode(buffer),MoneyValue.decode(buffer)); }
 
-	private static class H extends Handler<CPacketBankTransferTeam>
+	private static class H extends Handler<CPacketBankTransferAccount>
 	{
-		protected H() { super(TYPE, easyCodec(CPacketBankTransferTeam::encode,CPacketBankTransferTeam::decode)); }
+		protected H() { super(TYPE, easyCodec(CPacketBankTransferAccount::encode, CPacketBankTransferAccount::decode)); }
 		@Override
-		protected void handle(@Nonnull CPacketBankTransferTeam message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+		protected void handle(@Nonnull CPacketBankTransferAccount message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 			{
-				BankReference destination = TeamBankReference.of(message.teamID);
-				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, destination.get());
+				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, message.target.get());
 				if(response != null)
 					context.reply(new SPacketBankTransferResponse(response));
 			}

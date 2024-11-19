@@ -17,6 +17,7 @@ public class CommandLoader {
 		CommandTicket.register(event.getDispatcher());
 		CommandBank.register(event.getDispatcher(), event.getBuildContext());
 		CommandConfig.register(event.getDispatcher());
+		CommandTerminal.register(event.getDispatcher());
 	}
 	
 }

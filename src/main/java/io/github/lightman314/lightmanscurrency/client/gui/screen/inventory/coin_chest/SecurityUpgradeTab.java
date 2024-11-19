@@ -70,10 +70,22 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
                 .build());
 
         //Owner Selection
-        this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(7, 27), this.screen.getXSize() - 22, 5, this::getCurrentOwner, this::setOwner, this.ownerSelectionWidget));
+        this.ownerSelectionWidget = this.addChild(OwnerSelectionWidget.builder()
+                .position(screenArea.pos.offset(7,27))
+                .width(screenArea.width - 22)
+                .rows(5)
+                .selected(this::getCurrentOwner)
+                .handler(this::setOwner)
+                .oldWidget(this.ownerSelectionWidget)
+                .build());
 
         //Toggle Mode button
-        this.buttonToggleInputMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
+        this.buttonToggleInputMode = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 25,5))
+                .pressAction(this::toggleInputMode)
+                .icon(this::getModeIcon)
+                .addon(EasyAddonHelper.tooltip(this::getModeTooltip))
+                .build());
 
         this.updateMode();
 

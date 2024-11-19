@@ -523,6 +523,7 @@ public final class LCConfig {
 
         public final BooleanOption safelyEjectMachineContents = BooleanOption.createTrue();
         public final BooleanOption anarchyMode = BooleanOption.createFalse();
+        public final ResourceListOption quarantinedDimensions = ResourceListOption.create(new ArrayList<>());
 
         //Coin Minting/Melting
         public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
@@ -586,6 +587,7 @@ public final class LCConfig {
         public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
 
         //Terminal Options
+        public final BooleanOption openTerminalCommand = BooleanOption.createFalse();
         public final BooleanOption moveUnnamedTradersToBottom = BooleanOption.createFalse();
 
         //Paygate Options
@@ -614,17 +616,6 @@ public final class LCConfig {
         public final IntOption claimingMaxForceloadCount = IntOption.create(100,1);
         public final IntOption flanClaimingBlocksPerChunk = IntOption.create(64, 1, 64);
 
-        //LDI Settings
-        public final StringOption ldiCurrencyChannel = StringOption.create("000000000000000000");
-        public final StringOption ldiCurrencyCommandPrefix = StringOption.create("!");
-        public final BooleanOption ldiLimitSearchToNetworkTraders = BooleanOption.createTrue();
-
-        public final BooleanOption ldiNetworkTraderNotification = BooleanOption.createTrue();
-        public final BooleanOption ldiAuctionCreateNotification = BooleanOption.createTrue();
-        public final BooleanOption ldiAuctionPersistentCreateNotification = BooleanOption.createTrue();
-        public final BooleanOption ldiAuctionCancelNotification = BooleanOption.createFalse();
-        public final BooleanOption ldiAuctionWinNotification = BooleanOption.createTrue();
-
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -644,6 +635,11 @@ public final class LCConfig {
             builder.comment("Whether block break protection will be disabled completely.",
                     "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.")
                             .add("anarchyMode", this.anarchyMode);
+
+            builder.comment("A list of dimension ids that are quarantined from all cross-dimensional interactions.",
+                            "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
+                            "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.")
+                    .add("quarantinedDimensions", this.quarantinedDimensions);
 
             builder.pop();
 
@@ -710,7 +706,7 @@ public final class LCConfig {
                             walletLevelDescription)
                     .add("bankLevel", this.walletBankLevel);
 
-            builder.comment("Whether wallets can have " + WalletItem.SLOT_UPGRADE_LIMIT + " additional slots added by using an upgrade item on them from their inventory",
+            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
                     .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 
@@ -825,6 +821,9 @@ public final class LCConfig {
 
             builder.comment("Network Terminal Settings").push("terminal");
 
+            builder.comment("Whether the /lcterminal command will exist allowing players to access the Trading Terminal without the physical item/block")
+                    .add("lcterminalCommand",this.openTerminalCommand);
+
             builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
                     .add("sortUnnamedTradersToBottom", this.moveUnnamedTradersToBottom);
 
@@ -905,37 +904,6 @@ public final class LCConfig {
                     .add("blocksPerChunk", this.flanClaimingBlocksPerChunk);
 
             //Pop flan -> claim_purchasing
-            builder.pop().pop();
-
-            builder.comment("Lightman's Discord Compat Settings.").push("ldi");
-
-            builder.comment("The channel where users can run the currency commands and where currency related announcements will be made.")
-                    .add("channel", this.ldiCurrencyChannel);
-            builder.comment("Prefix for currency commands.")
-                    .add("prefix", this.ldiCurrencyCommandPrefix);
-            builder.comment("Whether the !search command should limit its search results to only Network Traders, or if it should list all traders.")
-                    .add("limitSearchToNetwork", this.ldiLimitSearchToNetworkTraders);
-
-            builder.comment("Currency Bot Notification Options").push("notifications");
-
-            builder.comment("Whether a notification will appear in the currency bot channel when a Network Trader is created.",
-                            "Notification will have a 60 second delay to allow them time to customize the traders name, etc.")
-                    .add("networkTraderBuilt", this.ldiNetworkTraderNotification);
-
-            builder.comment("Whether a notification will appear in the currency bot channel when a player starts an auction.")
-                    .add("auctionCreated", this.ldiAuctionCreateNotification);
-
-            builder.comment("Whether a notification will appear in the currency bot channel when a Persistent Auction is created automatically.",
-                            "Requires that auction house creation notifications also be enabled.")
-                    .add("auctionPersistentCreations", this.ldiAuctionPersistentCreateNotification);
-
-            builder.comment("Whether a notification will appear in the currency bot channel when an Auction is cancelled in the Auction House.")
-                    .add("auctionCancelled", this.ldiAuctionCancelNotification);
-
-            builder.comment("Whether a notification will appear in the currency bot channel when an Auction is completed and had a bidder.")
-                    .add("auctionWon", this.ldiAuctionWinNotification);
-
-            //Pop notifications -> ldi
             builder.pop().pop();
 
             //Pop compat section

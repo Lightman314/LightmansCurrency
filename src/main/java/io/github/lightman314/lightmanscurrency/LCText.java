@@ -72,6 +72,7 @@ public class LCText {
     public static final TextEntry ITEM_COIN_CHOCOLATE_NETHERITE_PLURAL = TextEntry.plural(ITEM_COIN_CHOCOLATE_NETHERITE);
     public static final TextEntry ITEM_COIN_CHOCOLATE_NETHERITE_INITIAL = TextEntry.initial(ITEM_COIN_CHOCOLATE_NETHERITE);
 
+    public static final TextEntry ITEM_WALLET_LEATHER = TextEntry.item(ModItems.WALLET_LEATHER);
     public static final TextEntry ITEM_WALLET_COPPER = TextEntry.item(ModItems.WALLET_COPPER);
     public static final TextEntry ITEM_WALLET_IRON = TextEntry.item(ModItems.WALLET_IRON);
     public static final TextEntry ITEM_WALLET_GOLD = TextEntry.item(ModItems.WALLET_GOLD);
@@ -79,6 +80,7 @@ public class LCText {
     public static final TextEntry ITEM_WALLET_DIAMOND = TextEntry.item(ModItems.WALLET_DIAMOND);
     public static final TextEntry ITEM_WALLET_NETHERITE = TextEntry.item(ModItems.WALLET_NETHERITE);
     public static final TextEntry ITEM_WALLET_NETHER_STAR = TextEntry.item(ModItems.WALLET_NETHER_STAR);
+    public static final TextEntry ITEM_WALLET_ENDER_DRAGON = TextEntry.item(ModItems.WALLET_ENDER_DRAGON);
 
     public static final TextEntry ITEM_TRADING_CORE = TextEntry.item(ModItems.TRADING_CORE);
 
@@ -111,6 +113,7 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_OFFER_5 = TextEntry.item(ModItems.OFFER_UPGRADE_5);
     public static final TextEntry ITEM_UPGRADE_OFFER_6 = TextEntry.item(ModItems.OFFER_UPGRADE_6);
     public static final TextEntry ITEM_UPGRADE_NETWORK = TextEntry.item(ModItems.NETWORK_UPGRADE);
+    public static final TextEntry ITEM_UPGRADE_VOID = TextEntry.item(ModItems.VOID_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_HOPPER = TextEntry.item(ModItems.HOPPER_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_COIN_EXCHANGE = TextEntry.item(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_MAGNET_1 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
@@ -282,6 +285,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
     public static final TextEntry TOOLTIP_ANARCHY_WARNING = TextEntry.tooltip(MODID,"ownable.anarchy_warning");
+    public static final TextEntry MESSAGE_DIMENSION_QUARANTINED_BANK = TextEntry.message(MODID,"dimension_quarantined.bank");
+    public static final TextEntry MESSAGE_DIMENSION_QUARANTINED_TERMINAL = TextEntry.message(MODID,"dimension_quarantined.terminal");
+    public static final TextEntry TOOLTIP_DIMENSION_QUARANTINED_NETWORK_TRADER = TextEntry.message(MODID,"dimension_quarantined.network_traders");
 
     //Coin Tooltips
     public static final TextEntry TOOLTIP_COIN_WORTH_DOWN = TextEntry.tooltip(MODID,"coinworth.down");
@@ -326,6 +332,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_UPGRADE_ITEM_CAPACITY = TextEntry.tooltip(MODID,"upgrade.item_capacity");
     public static final TextEntry TOOLTIP_UPGRADE_SPEED = TextEntry.tooltip(MODID,"upgrade.speed");
     public static final TextEntry TOOLTIP_UPGRADE_NETWORK = TextEntry.tooltip(MODID,"upgrade.network");
+    public static final MultiLineTextEntry TOOLTIP_UPGRADE_VOID = MultiLineTextEntry.tooltip(MODID,"upgrade.void");
     public static final TextEntry TOOLTIP_UPGRADE_HOPPER = TextEntry.tooltip(MODID,"upgrade.hopper");
 
     public static final TextEntry TOOLTIP_UPGRADE_COIN_EXCHANGE = TextEntry.tooltip(MODID,"upgrade.coin_exchange");
@@ -436,9 +443,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_ATM_LOGS = TextEntry.tooltip(MODID,"atm.log");
     public static final TextEntry TOOLTIP_ATM_TRANSFER = TextEntry.tooltip(MODID,"atm.transfer");
     public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_PLAYER = TextEntry.tooltip(MODID,"atm.transfer.mode.player");
-    public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_TEAM = TextEntry.tooltip(MODID,"atm.transfer.mode.team");
-    public static final TextEntry BUTTON_ATM_TRANSFER_PLAYER = TextEntry.button(MODID,"bank.transfer.player");
-    public static final TextEntry BUTTON_ATM_TRANSFER_TEAM = TextEntry.button(MODID,"bank.transfer.team");
+    public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_LIST = TextEntry.tooltip(MODID,"atm.transfer.mode.list");
+    public static final TextEntry TOOLTIP_ATM_TRANSFER_TRIGGER = TextEntry.tooltip(MODID,"bank.transfer.list");
 
     //Money Chest Menu
     public static final TextEntry BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES = TextEntry.button(MODID,"upgrade.coin_chest.exchange.while_open.y");
@@ -572,11 +578,14 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_LOGS = TextEntry.tooltip(MODID,"trader.log");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS = TextEntry.tooltip(MODID,"trader.settings");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_NAME = TextEntry.tooltip(MODID,"trader.settings.name");
-    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_ENABLE = TextEntry.tooltip(MODID,"trader.settings.creative.enable");
-    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_DISABLE = TextEntry.tooltip(MODID,"trader.settings.creative.disable");
-    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE = TextEntry.tooltip(MODID,"trader.settings.creative.add_trade");
-    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE = TextEntry.tooltip(MODID,"trader.settings.creative.remove_trade");
     public static final TextEntry GUI_TRADER_SETTINGS_CUSTOM_ICON = TextEntry.tooltip(MODID,"trader.settings.custom_icon");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CREATIVE = TextEntry.tooltip(MODID,"trader.settings.creative");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_CREATIVE_ENABLED = TextEntry.button(MODID,"trader.settings.creative.enabled");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_CREATIVE_DISABLED = TextEntry.button(MODID,"trader.settings.creative.disabled");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_CREATIVE_ADD_TRADE = TextEntry.button(MODID,"trader.settings.creative.add_trade");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE = TextEntry.button(MODID,"trader.settings.creative.remove_trade");
+    public static final TextEntry GUI_TRADER_SETTINGS_CREATIVE_TRADE_COUNT = TextEntry.gui(MODID,"trader.settings.creative.trade_offers");
+    public static final TextEntry GUI_TRADER_SETTINGS_CREATIVE_STORE_MONEY = TextEntry.tooltip(MODID,"trader.settings.creative.store_money");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_PERSISTENT = TextEntry.tooltip(MODID,"trader.settings.persistent");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY = TextEntry.tooltip(MODID,"trader.settings.ally");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_ALLY_PERMS = TextEntry.tooltip(MODID,"trader.settings.allyperms");

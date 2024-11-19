@@ -25,7 +25,7 @@ import java.util.List;
 
 public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceStatsTab> implements IScrollable {
 
-    public InterfaceStatsClientTab(TraderInterfaceScreen screen, InterfaceStatsTab commonTab) { super(screen, commonTab); }
+    public InterfaceStatsClientTab(Object screen, InterfaceStatsTab commonTab) { super(screen, commonTab); }
 
     private static final int LINE_COUNT = 10;
     private static final int LINE_SIZE = 10;
@@ -51,8 +51,15 @@ public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceS
                 .pressAction(() -> this.commonTab.clearStats(Screen.hasShiftDown()))
                 .build());
 
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
-        this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH,START_POS))
+                .height(LINE_COUNT * LINE_SIZE)
+                .scrollable(this)
+                .build());
+        this.addChild(ScrollListener.builder()
+                .area(screenArea.ofSize(screenArea.width,START_POS + LINE_SIZE * LINE_COUNT))
+                .listener(this)
+                .build());
 
     }
 

@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -48,7 +48,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -104,7 +103,7 @@ public class EventHandler {
 			if(!pickupItem.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, pickupItem);
 			if(!player.level().isClientSide)
-				SPacketPlayCoinSound.INSTANCE.sendTo(player);
+				WalletItem.playCollectSound(player,wallet);
 			event.setCanPickup(TriState.FALSE);
 		}
 		
@@ -341,8 +340,11 @@ public class EventHandler {
 	{
 		if(event.hasTime())
 		{
+			ProfilerFiller filler = event.getServer().getProfiler();
+			filler.push("Date Trigger Tick");
 			for(ServerPlayer player : event.getServer().getPlayerList().getPlayers())
 				DateTrigger.INSTANCE.trigger(player);
+			filler.pop();
 		}
 	}
 

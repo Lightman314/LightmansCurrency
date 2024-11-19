@@ -6,14 +6,16 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nonnull;
 
@@ -25,32 +27,30 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	private final Supplier<ITeam> selectedTeam;
 	private final Consumer<Integer> onPress;
 	private final List<TeamButton> teamButtons = new ArrayList<>();
-	
-	public TeamSelectWidget(ScreenPosition pos, int rows, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, teamSource, selectedTeam, onPress); }
-	public TeamSelectWidget(int x, int y, int rows, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) {
-		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
-	}
-	
-	public TeamSelectWidget(ScreenPosition pos, int rows, Size size, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, size, teamSource, selectedTeam, onPress); }
-	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<ITeam>> teamSource, Supplier<ITeam> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, size.width, TeamButton.HEIGHT * rows);
-		this.rows = rows;
-		this.size = size;
-		this.teamSource = teamSource;
-		this.selectedTeam = selectedTeam;
-		this.onPress = onPress;
+
+	private TeamSelectWidget(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.rows = builder.rows;
+		this.size = builder.size;
+		this.teamSource = builder.teams;
+		this.selectedTeam = builder.selected;
+		this.onPress = builder.handler;
 	}
 
 	@Override
-	public TeamSelectWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
-	@Override
-	public void addChildren() {
+	public void addChildren(@Nonnull ScreenArea area) {
 		this.teamButtons.clear();
 		for(int i = 0; i < this.rows; ++i)
 		{
-			int index = i;
-			TeamButton button = this.addChild(new TeamButton(this.getPosition().offset(0, i * TeamButton.HEIGHT), this.size, this::onTeamSelect, () -> this.getTeam(index), () -> this.isSelected(index)));
+			final int index = i;
+			TeamButton button = this.addChild(TeamButton.builder()
+					.position(area.pos.offset(0,i * TeamButton.HEIGHT))
+					.size(this.size)
+					.pressAction(this::onTeamSelect)
+					.team(() -> this.getTeam(index))
+					.selected(() -> this.isSelected(index))
+					.build());
 			this.teamButtons.add(button);
 		}
 	}
@@ -137,6 +137,33 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 		if(index < 0)
 			return;
 		this.onPress.accept(this.scroll + index);
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(Size.NORMAL.width,TeamButton.HEIGHT); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Size size = Size.NORMAL;
+		private int rows = 1;
+		private Supplier<List<ITeam>> teams = ArrayList::new;
+		private Supplier<ITeam> selected = () -> null;
+		private Consumer<Integer> handler = i -> {};
+
+		public Builder size(Size size) { this.size = size; this.changeWidth(this.size.width); return this; }
+		public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * TeamButton.HEIGHT); return this; }
+		public Builder teams(Supplier<List<ITeam>> teams) { this.teams = teams; return this; }
+		public Builder selected(Supplier<ITeam> selected) { this.selected = selected; return this; }
+		public Builder handler(Consumer<Integer> handler) { this.handler = handler; return this; }
+
+		public TeamSelectWidget build() { return new TeamSelectWidget(this); }
+
 	}
 
 }

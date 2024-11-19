@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
 public class BankSaveData extends SavedData {
 
 	
-	private final Map<UUID, Pair<BankAccount,BankReference>> playerBankData = new HashMap<>();
+	private final Map<UUID,Pair<BankAccount,BankReference>> playerBankData = new HashMap<>();
 	private int interestTick = 0;
 	
 	private BankSaveData() {}
@@ -178,7 +178,7 @@ public class BankSaveData extends SavedData {
 			bsd.setDirty();
 			//Send update packet to all connected clients
 			BankAccount bankAccount = GetBankAccount(false, player);
-			new SPacketUpdateClientBank(player, bankAccount.save(LookupHelper.getRegistryAccess(false))).sendToAll();
+			new SPacketUpdateClientBank(player, bankAccount.save(LookupHelper.getRegistryAccess())).sendToAll();
 		}
 	}
 	

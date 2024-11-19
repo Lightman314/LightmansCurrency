@@ -111,7 +111,6 @@ public class ModRegistries {
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
-
 		
 	}
 	

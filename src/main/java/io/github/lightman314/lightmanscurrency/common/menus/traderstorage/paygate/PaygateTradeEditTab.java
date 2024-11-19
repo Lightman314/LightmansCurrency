@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate;
 
-import java.util.function.Function;
-
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
@@ -11,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -22,9 +19,10 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 
 	public PaygateTradeEditTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new PaygateTradeEditClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new PaygateTradeEditClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
@@ -36,25 +34,13 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		{
 			if(this.tradeIndex >= paygate.getTradeCount() || this.tradeIndex < 0)
 			{
-				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
+				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
 			return paygate.getTrade(this.tradeIndex);
 		}
 		return null;
 	}
-	
-	@Override
-	public void onTabOpen() { }
-
-	@Override
-	public void onTabClose() { }
-
-	@Override
-	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
-	
-	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
 	public void setPrice(MoneyValue price) {
 		PaygateTradeData trade = this.getTrade();
@@ -106,12 +92,14 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 	}
 
 	@Override
-	public void receiveMessage(LazyPacketData message) {
+	public void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("TradeIndex"))
-		{
 			this.tradeIndex = message.getInt("TradeIndex");
-		}
-		else if(message.contains("NewPrice"))
+	}
+
+	@Override
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("NewPrice"))
 		{
 			this.setPrice(message.getMoneyValue("NewPrice"));
 		}

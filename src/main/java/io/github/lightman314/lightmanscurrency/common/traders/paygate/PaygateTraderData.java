@@ -421,10 +421,13 @@ public class PaygateTraderData extends TraderData {
 	@OnlyIn(Dist.CLIENT)
 	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource)
 	{
-		return new IconButton(0,0, b -> new CPacketCollectTicketStubs(this.getID()).send(), IconData.of(ModItems.TICKET_STUB))
-				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()), EasyText::empty),
-				EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)),
-				EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0));
+		return IconButton.builder()
+				.pressAction(() -> new CPacketCollectTicketStubs(this.getID()).send())
+				.icon(IconData.of(ModItems.TICKET_STUB))
+				.addon(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()), EasyText::empty))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE)))
+				.addon(EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0))
+				.build();
 	}
 
 	private boolean areTicketStubsRelevant() {

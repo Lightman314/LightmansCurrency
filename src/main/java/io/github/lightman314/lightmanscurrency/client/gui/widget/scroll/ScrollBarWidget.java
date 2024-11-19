@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.scroll;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -21,24 +21,26 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 	public static final int SMALL_KNOB_HEIGHT = 9;
 	
 	private final IScrollable scrollable;
-	
-	public boolean smallKnob = false;
+
+	private final boolean smallKnob;
 	
 	public boolean isDragging = false;
 	
 	private int getKnobHeight() { return this.smallKnob ? SMALL_KNOB_HEIGHT : KNOB_HEIGHT; }
-	
-	public ScrollBarWidget(ScreenPosition pos, int height, IScrollable scrollable) { this(pos.x, pos.y, height, scrollable); }
-	public ScrollBarWidget(int x, int y, int height, IScrollable scrollable) {
-		super(x, y, WIDTH, height);
-		this.scrollable = scrollable;
+
+	private ScrollBarWidget(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.scrollable = builder.scrollable;
+		this.smallKnob = builder.smallKnob;
 	}
 
+	/**
+	 * @deprecated Use {@link Builder#onRight(EasyWidget)} instead
+	 */
+	@Deprecated
 	@Nonnull
-	public static <T extends EasyWidget & IScrollable> ScrollBarWidget createOnRight(@Nonnull T widget) { return new ScrollBarWidget(widget.getX() + widget.getWidth(), widget.getY(), widget.getHeight(), widget); }
-
-	@Override
-	public ScrollBarWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	public static <T extends EasyWidget & IScrollable> ScrollBarWidget createOnRight(@Nonnull T widget) { return builder().onRight(widget).build(); }
 
 	public boolean visible() { return this.visible && this.scrollable.getMaxScroll() > this.scrollable.getMinScroll(); }
 
@@ -164,6 +166,30 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 			LightmansCurrency.LogDebug("Stopped dragging.");
 		}
 		return false;
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(WIDTH,20); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private boolean smallKnob = false;
+		private IScrollable scrollable = null;
+
+		public Builder height(int height) { this.changeHeight(height); return this; }
+		public <T extends EasyWidget & IScrollable> Builder onLeft(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(-1 * WIDTH,0)); this.changeHeight(widget.getHeight()); return this; }
+		public <T extends EasyWidget & IScrollable> Builder onRight(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(widget.getWidth(),0)); this.changeHeight(widget.getHeight()); return this; }
+		public Builder scrollable(IScrollable scrollable) { this.scrollable = scrollable; return this; }
+		public Builder smallKnob() { this.smallKnob = true; return this; }
+
+		public ScrollBarWidget build() { return new ScrollBarWidget(this); }
+
 	}
 	
 }

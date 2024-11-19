@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
@@ -41,15 +40,17 @@ public class NotificationTab extends ATMTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		EasySlot.SetInactive(this.screen.getMenu());
+		this.screen.setCoinSlotsActive(false);
 
-		this.notificationSelection = this.addChild(new MoneyValueWidget(screenArea.x, screenArea.y, this.notificationSelection, MoneyValue.empty(), this::onValueChanged));
-		this.notificationSelection.drawBG = false;
-		this.notificationSelection.allowFreeInput = false;
-		//
+		this.notificationSelection = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos)
+				.old(this.notificationSelection)
+				.valueHandler(this::onValueChanged)
+				.typeChangeListener(this::onValueTypeChanged)
+				.blockFreeInputs()
+				.build());
+		//Manually trigger type change to set the widgets current value as appropriate
 		this.onValueTypeChanged(this.notificationSelection);
-		//Set change listener to update input value
-		this.notificationSelection.setHandlerChangeListener(this::onValueTypeChanged);
 
 		//Reset Button to tweak card validation
 		this.buttonResetATMCards = this.addChild(EasyTextButton.builder()
@@ -64,8 +65,6 @@ public class NotificationTab extends ATMTab {
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
-		this.hideCoinSlots(gui);
 
 		IBankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
@@ -91,7 +90,7 @@ public class NotificationTab extends ATMTab {
 	}
 	
 	@Override
-	protected void closeAction() { EasySlot.SetActive(this.screen.getMenu()); }
+	protected void closeAction() { this.screen.setCoinSlotsActive(true); }
 	
 	public void onValueChanged(MoneyValue value) {
 		if(value.isEmpty() || value.isFree())

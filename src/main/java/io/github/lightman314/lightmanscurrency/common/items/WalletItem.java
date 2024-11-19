@@ -12,23 +12,21 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
-import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.util.ListUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -38,6 +36,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -50,6 +49,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class WalletItem extends Item{
 	
@@ -61,14 +61,15 @@ public class WalletItem extends Item{
 	public static final int LARGEST_LEVEL = 6;
 	public static final int CONFIG_LIMIT = LARGEST_LEVEL + 1;
 
+	public static final int MAX_WALLET_SLOTS = 78;
+
 	/**
 	 * The number of slots added by each upgrade material
 	 */
 	public static final int SLOTS_PER_UPGRADE = 6;
-	/**
-	 * Maximum slots that can be added by an upgrade
-	 */
-	public static final int SLOT_UPGRADE_LIMIT = 24;
+	public static final int DEFAULT_UPGRADE_LIMIT = 24;
+
+	public static final ResourceLocation DEFAULT_COIN_COLLECT_SOUND = VersionUtil.lcResource("coins_clinking");
 
 	@Nonnull
 	public static ResourceLocation lazyModel(@Nonnull String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
@@ -78,7 +79,7 @@ public class WalletItem extends Item{
 	/**
 	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level, storageSize, model, false, 0, properties); }
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level, storageSize, model, false, 0, DEFAULT_UPGRADE_LIMIT, SoundEntry.WALLET_DEFAULT, properties); }
 	/**
 	 * Default constructor
 	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
@@ -88,14 +89,26 @@ public class WalletItem extends Item{
 	 *              See {@link #lazyModel(ResourceLocation)} or {@link #lazyModel(String)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
 	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, int upgradeLimit, @Nonnull Properties properties) { this(level,storageSize,model,indestructible,bonusMagnet,upgradeLimit,SoundEntry.WALLET_DEFAULT,properties); }
+	/**
+	 * Default constructor
+	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
+	 *              Should not exceeed {@link #LARGEST_LEVEL}
+	 * @param storageSize The number of coin slots included in this wallets inventory
+	 * @param model The wallets model location<br>
+	 *              See {@link #lazyModel(ResourceLocation)} or {@link #lazyModel(String)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
+	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
+	 */
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, int upgradeLimit, @Nonnull List<SoundEntry> coinCollectSound, @Nonnull Properties properties)
 	{
 		super(properties.stacksTo(1)
 				.component(ModDataComponents.WALLET_LEVEL,level)
 				.component(ModDataComponents.WALLET_CAPACITY,storageSize)
 				.component(ModDataComponents.WALLET_INVULNERABLE,indestructible)
 				.component(ModDataComponents.WALLET_BONUS_MAGNET,bonusMagnet)
-				.component(ModDataComponents.WALLET_MODEL,model));
+				.component(ModDataComponents.WALLET_UPGRADE_LIMIT,upgradeLimit)
+				.component(ModDataComponents.WALLET_MODEL,model)
+				.component(ModDataComponents.WALLET_COIN_SOUND,coinCollectSound));
 	}
 	
 	@Override
@@ -138,13 +151,19 @@ public class WalletItem extends Item{
 
 	@Override
 	public boolean onEntityItemUpdate(@Nonnull ItemStack stack, @Nonnull ItemEntity entity) {
-		//Do nothing on the client
-		if(entity.level().isClientSide)
-			return false;
 		//Make item not despawn if indestructable
 		boolean indestructible = stack.getOrDefault(ModDataComponents.WALLET_INVULNERABLE,false);
-		if(indestructible && entity.getAge() >= 0)
-			entity.setUnlimitedLifetime();
+		if(indestructible)
+		{
+			if(entity.getAge() >= 0 && !entity.level().isClientSide)
+				entity.setUnlimitedLifetime();
+			//If indestructible and y < minimum build height, set y velocity to a positive number to force it to bounce in the void
+			if(entity.position().y <= entity.level().getMinBuildHeight())
+			{
+				Vec3 velocity = entity.getDeltaMovement();
+				entity.setDeltaMovement(velocity.x,0.5d,velocity.z);
+			}
+		}
 		return false;
 	}
 
@@ -153,15 +172,18 @@ public class WalletItem extends Item{
 		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && InventoryUtil.ItemHasTag(item, LCTags.Items.WALLET_UPGRADE_MATERIAL))
 		{
 			WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.createFor(wallet));
-			int bonusSlots = data.getBonusSlots();
+			int upgradeLimit = wallet.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0);
+			int bonusSlots = data.getBonusSlots(wallet.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0));
 			//Still consume the interaction if the item was in fact an upgrade item
-			if(bonusSlots >= SLOT_UPGRADE_LIMIT)
+			if(bonusSlots >= wallet.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0))
 				return true;
 			//Don't allow when in the wallet menu, just to be on the safe side
 			if(player.containerMenu instanceof WalletMenuBase walletMenu)
 				return true;
 			item.shrink(1);
 			wallet.set(ModDataComponents.WALLET_DATA,data.withAddedBonusSlots(SLOTS_PER_UPGRADE));
+			//Trigger set item code
+			slot.set(wallet);
 			return true;
 		}
 		return false;
@@ -224,7 +246,7 @@ public class WalletItem extends Item{
 	public static int BonusSlots(@Nonnull ItemStack walletStack)
 	{
 		if(walletStack.getItem() instanceof WalletItem wallet)
-			return walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY).getBonusSlots();
+			return walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY).getBonusSlots(walletStack.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0));
 		return 0;
 	}
 
@@ -238,8 +260,8 @@ public class WalletItem extends Item{
 		if(walletStack.getItem() instanceof WalletItem wallet)
 		{
 			WalletData data = walletStack.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY);
-			int storageSize = MathUtil.clamp(walletStack.getOrDefault(ModDataComponents.WALLET_CAPACITY,6),1, WalletMenu.MAX_WALLET_SLOTS);
-			return storageSize + data.bonusSlots();
+			int storageSize = walletStack.getOrDefault(ModDataComponents.WALLET_CAPACITY,6);
+			return MathUtil.clamp(storageSize + data.bonusSlots(),1,MAX_WALLET_SLOTS);
 		}
 		return 0;
 	}
@@ -262,7 +284,7 @@ public class WalletItem extends Item{
 
 		tooltip.add(LCText.TOOLTIP_WALLET_CAPACITY.get(data.getContainerSize()).withStyle(ChatFormatting.YELLOW));
 
-		if(data.getBonusSlots() < WalletItem.SLOT_UPGRADE_LIMIT)
+		if(data.getBonusSlots() < stack.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0))
 		{
 			ItemStack exampleItem = ListUtil.randomItemFromList(InventoryUtil.GetItemStacksWithTag(LCTags.Items.WALLET_UPGRADE_MATERIAL),ItemStack.EMPTY);
 			if(!exampleItem.isEmpty())
@@ -462,6 +484,22 @@ public class WalletItem extends Item{
 				}
 			}
 		}
+	}
+
+	public static void playCollectSound(@Nonnull LivingEntity entity, @Nonnull ItemStack wallet)
+	{
+		Level level = entity.level();
+		BuiltInRegistries.SOUND_EVENT.getOptional(getCoinCollectSound(level,wallet))
+				.ifPresent(sound -> level.playSound(null, entity, sound, SoundSource.PLAYERS, 0.4f, 1f));
+	}
+
+	@Nonnull
+	public static ResourceLocation getCoinCollectSound(@Nonnull Level level, @Nonnull ItemStack wallet)
+	{
+		if(!isWallet(wallet))
+			return DEFAULT_COIN_COLLECT_SOUND;
+		List<SoundEntry> soundEntries = wallet.getOrDefault(ModDataComponents.WALLET_COIN_SOUND,SoundEntry.WALLET_DEFAULT);
+		return SoundEntry.getRandomEntry(level.getRandom(),soundEntries,DEFAULT_COIN_COLLECT_SOUND);
 	}
 	
 }

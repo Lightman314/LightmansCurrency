@@ -92,7 +92,7 @@ public final class CoinAPIImpl extends CoinAPI {
             if(fileData.has("CoinEntries") && !fileData.has("Chains"))
                 loadDeprecatedData(GsonHelper.getAsJsonArray(fileData, "CoinEntries"));
             else
-                loadMoneyDataFromJson(fileData, LookupHelper.getRegistryAccess(false));
+                loadMoneyDataFromJson(fileData, LookupHelper.getRegistryAccess());
         } catch (JsonParseException | ResourceLocationException | IOException e) {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
@@ -103,7 +103,7 @@ public final class CoinAPIImpl extends CoinAPI {
     public static void LoadEditedData(@Nonnull String customJson) {
         try {
             JsonObject json = GsonHelper.parse(customJson);
-            INSTANCE.loadMoneyDataFromJson(json,LookupHelper.getRegistryAccess(false));
+            INSTANCE.loadMoneyDataFromJson(json,LookupHelper.getRegistryAccess());
             INSTANCE.createMoneyDataFile(new File(MONEY_FILE_LOCATION),INSTANCE.loadedChains,false);
         } catch (JsonParseException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing custom json data!",e); }
     }
@@ -330,7 +330,7 @@ public final class CoinAPIImpl extends CoinAPI {
         {
             if(hideEventChains && chain.isEvent)
                 continue;
-            chainArray.add(chain.getAsJson(LookupHelper.getRegistryAccess(false)));
+            chainArray.add(chain.getAsJson(LookupHelper.getRegistryAccess()));
         }
 
         fileJson.add("Chains", chainArray);
@@ -541,7 +541,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson(),LookupHelper.getRegistryAccess(true)); }
+    public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson(),LookupHelper.getRegistryAccess()); }
 
     private static class CoinSorter implements Comparator<ItemStack>
     {

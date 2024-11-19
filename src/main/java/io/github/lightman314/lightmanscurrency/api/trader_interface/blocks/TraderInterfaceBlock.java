@@ -9,9 +9,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
@@ -21,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -45,12 +49,17 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	{
 		if(!level.isClientSide)
 		{
-			TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
-			if(blockEntity != null)
+			if(QuarantineAPI.IsDimensionQuarantined(level))
+				EasyText.sendMessage(player, LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL.getWithStyle(ChatFormatting.GOLD));
+			else
 			{
-				//Send update packet for safety, and open the menu
-				BlockEntityUtil.sendUpdatePacket(blockEntity);
-				blockEntity.openMenu(player);
+				TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
+				if(blockEntity != null)
+				{
+					//Send update packet for safety, and open the menu
+					BlockEntityUtil.sendUpdatePacket(blockEntity);
+					blockEntity.openMenu(player);
+				}
 			}
 		}
 		return InteractionResult.SUCCESS;

@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +25,9 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 
 public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T,M>{
-	
+
+	public static final ResourceLocation NULL_MODEL = VersionUtil.lcResource("item/wallet_hip/wallet_base");
+
 	public WalletLayer(RenderLayerParent<T,M> renderer)
 	{
 		super(renderer);
@@ -42,8 +45,8 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 		if(handler == null || !handler.visible())
 			return;
 		
-		ItemStack wallet = handler.getWallet();
-		if(wallet.getItem() instanceof WalletItem walletItem)
+		ItemStack wallet = handler.getVisibleWallet();
+		if(WalletItem.isWallet(wallet))
 		{
 
 			pose.pushPose();
@@ -54,7 +57,8 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 			//pose.translate(LCConfig.CLIENT.xOff.get(), LCConfig.CLIENT.yOff.get(),LCConfig.CLIENT.zOff.get());
 
 			Minecraft mc = Minecraft.getInstance();
-			BakedModel model = mc.getModelManager().getModel(ModelResourceLocation.standalone(wallet.getOrDefault(ModDataComponents.WALLET_MODEL, VersionUtil.lcResource("item/wallet/null"))));
+			ResourceLocation modelID = wallet.getOrDefault(ModDataComponents.WALLET_MODEL,NULL_MODEL);
+			BakedModel model = mc.getModelManager().getModel(ModelResourceLocation.standalone(modelID));
 			mc.getItemRenderer().render(wallet, ItemDisplayContext.FIXED, false, pose, bufferSource, light, OverlayTexture.NO_OVERLAY, model);
 
 			pose.popPose();

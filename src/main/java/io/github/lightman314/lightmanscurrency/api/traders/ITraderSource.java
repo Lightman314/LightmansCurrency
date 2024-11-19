@@ -50,7 +50,7 @@ public interface ITraderSource {
 
 		@Nonnull
 		@Override
-		public RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(this.isClient); }
+		public RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(); }
 
 	}
 	

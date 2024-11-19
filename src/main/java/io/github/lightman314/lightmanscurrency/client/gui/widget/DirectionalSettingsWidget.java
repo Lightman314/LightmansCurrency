@@ -1,28 +1,30 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class DirectionalSettingsWidget {
+public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 
 	private static final Map<Direction,Sprite> SPRITE_CACHE_TRUE = new HashMap<>();
 	private static final Map<Direction,Sprite> SPRITE_CACHE_FALSE = new HashMap<>();
@@ -33,29 +35,48 @@ public class DirectionalSettingsWidget {
 	
 	private static final int SPACING = 20;
 	
-	private final Function<Direction,Boolean> currentValueSource;
+	private final Predicate<Direction> currentValueSource;
 	private final Consumer<Direction> onPress;
-	List<PlainButton> directionButtons;
+	List<Object> deprecatedWidgets = null;
+	final List<Direction> ignoreSides;
 	
 	public boolean visible = true;
-	
-	public DirectionalSettingsWidget(ScreenPosition pos, Function<Direction,Boolean> currentValueSource, ImmutableList<Direction> ignoreSides, Consumer<Direction> onPress, Consumer<Object> addButton) { this(pos.x, pos.y, currentValueSource, ignoreSides, onPress, addButton); }
-	public DirectionalSettingsWidget(int x, int y, Function<Direction,Boolean> currentValueSource, ImmutableList<Direction> ignoreSides, Consumer<Direction> onPress, Consumer<Object> addButton)
-	{
-		//DOWN, UP, NORTH, SOUTH, WEST, EAST
-		this.currentValueSource = currentValueSource;
-		this.onPress = onPress;
-		this.directionButtons = Lists.newArrayListWithCapacity(Direction.values().length);
 
-		for (Direction side : DIRECTIONS) {
-			PlainButton button = new PlainButton(x + this.getSidePosX(side), y + this.getSidePosY(side), this::onButtonPress, spriteForSide(side, () -> this.currentValueSource.apply(side)))
-					.withAddons(EasyAddonHelper.tooltip(InputTraderData.getFacingName(side)));
-			button.visible = !ignoreSides.contains(side);
-			this.directionButtons.add(button);
-			addButton.accept(button);
-		}
-		
+	private DirectionalSettingsWidget(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.currentValueSource = builder.currentValue;
+		this.onPress = builder.handler;
+		this.ignoreSides = ImmutableList.copyOf(builder.ignoreSides);
 	}
+
+	@Override
+	public boolean addChildrenBeforeThis() { return true; }
+
+	@Override
+	public void addChildren(@Nonnull ScreenArea area) {
+		//Delete widgets created by deprecated methods
+		if(this.deprecatedWidgets != null)
+		{
+			for(Object w : this.deprecatedWidgets)
+				this.removeChild(w);
+		}
+		for (Direction side : DIRECTIONS) {
+			if(!this.ignoreSides.contains(side))
+			{
+				PlainButton button = this.addChild(PlainButton.builder()
+						.position(area.pos.offset(this.getSidePosX(side),this.getSidePosY(side)))
+						.pressAction(() -> this.onButtonPress(side))
+						.sprite(spriteForSide(side,() -> this.currentValueSource.test(side)))
+						.addon(EasyAddonHelper.tooltip(InputTraderData.getFacingName(side)))
+						.build());
+			}
+		}
+
+	}
+
+	@Override
+	protected void renderWidget(@Nonnull EasyGuiGraphics gui) { }
 
 	@Nonnull
 	private static Supplier<Sprite> spriteForSide(@Nonnull Direction side, @Nonnull Supplier<Boolean> value) { return () -> getSprite(side,value.get()); }
@@ -88,15 +109,34 @@ public class DirectionalSettingsWidget {
 	
 	private static int getSideU(Direction side) { return side.get3DDataValue() * 16; }
 	
-	private void onButtonPress(EasyButton button)
+	private void onButtonPress(Direction side)
 	{
-		if(button instanceof PlainButton)
-		{
-			int index = this.directionButtons.indexOf(button);
-			if(index < 0)
-				return;
-			this.onPress.accept(Direction.from3DDataValue(index));
-		}
+		this.onPress.accept(side);
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	@ParametersAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(56,56); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Predicate<Direction> currentValue = d -> false;
+		private Consumer<Direction> handler = d -> {};
+		private final List<Direction> ignoreSides = new ArrayList<>();
+
+		public Builder currentValue(Predicate<Direction> currentValue) { this.currentValue = currentValue; return this; }
+		public Builder handler(Consumer<Direction> handler) { this.handler = handler; return this; }
+		public Builder ignore(Direction direction) { if(!this.ignoreSides.contains(direction)) this.ignoreSides.add(direction); return this; }
+		public Builder ignore(Iterable<Direction> directions) { for(Direction d : directions) this.ignore(d); return this; }
+
+		public DirectionalSettingsWidget build() { return new DirectionalSettingsWidget(this); }
+
 	}
 	
 }

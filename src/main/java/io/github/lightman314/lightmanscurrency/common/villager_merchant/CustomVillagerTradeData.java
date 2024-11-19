@@ -66,7 +66,7 @@ public class CustomVillagerTradeData {
     @Nonnull
     public static Map<Integer,List<ItemListing>> getVillagerData(@Nonnull ResourceLocation villager) {
         File file = getVillagerDataFile(villager);
-        HolderLookup.Provider lookup = LookupHelper.getRegistryAccess(false);
+        HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
         if(file.exists())
         {
             try{

@@ -15,11 +15,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> implements IScrollable {
 
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/ticket_machine.png");
 
 	public static final Sprite SPRITE_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 176, 0, 24, 16);
 
@@ -76,13 +76,18 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	@Override
 	protected void initialize(ScreenArea screenArea)
 	{
-		this.addChild(new PlainButton(screenArea.x + 79, screenArea.y + 21, this::craftTicket, SPRITE_ARROW)
-				.withAddons(
-						EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.menu.roomForOutput(this.selectedRecipe.value())),
-						EasyAddonHelper.tooltip(this::getArrowTooltip)
-				));
+		this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(79,21))
+				.pressAction(this::craftTicket)
+				.sprite(SPRITE_ARROW)
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.menu.roomForOutput(this.selectedRecipe.value())))
+				.addon(EasyAddonHelper.tooltip(this::getArrowTooltip))
+				.build());
 		//Add scroll area for recipe selection.
-		this.addChild(new ScrollListener(SELECTION_AREA.offsetPosition(screenArea.pos), this));
+		this.addChild(ScrollListener.builder()
+				.area(SELECTION_AREA.offsetPosition(screenArea.pos))
+				.listener(this)
+				.build());
 		this.validateSelectedRecipe();
 	}
 	@Override

@@ -2,10 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm;
 
 import java.util.function.Consumer;
 
+import com.mojang.blaze3d.FieldsAreNonnullByDefault;
+import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -22,14 +23,12 @@ public class ATMExchangeButton extends EasyButton {
 	public final ATMExchangeButtonData data;
 
 	public boolean selected = false;
-	
-	public ATMExchangeButton(ScreenPosition corner, ATMExchangeButtonData data, Consumer<String> commandHandler) {
-		super(corner.offset(data.position), data.width, HEIGHT, b -> commandHandler.accept(data.command));
-		this.data = data;
-	}
 
-	@Override
-	public ATMExchangeButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	private ATMExchangeButton(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.data = builder.data;
+	}
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
@@ -62,6 +61,26 @@ public class ATMExchangeButton extends EasyButton {
 
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
+	}
+
+	@Nonnull
+	public static Builder builder(@Nonnull ATMExchangeButtonData data) { return new Builder(data); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+		private final ATMExchangeButtonData data;
+		private Builder(ATMExchangeButtonData data) { super(data.width,HEIGHT); this.data = data; }
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		public Builder screenCorner(ScreenPosition corner) { return this.position(corner.offset(data.position)); }
+		public Builder commandHandler(Consumer<String> commandHandler) { return this.pressAction(() -> commandHandler.accept(this.data.command)); }
+
+		public ATMExchangeButton build() { return new ATMExchangeButton(this); }
+
 	}
 	
 }

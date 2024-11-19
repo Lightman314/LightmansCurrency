@@ -124,26 +124,29 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		return UpgradeData.EMPTY;
 	}
 	
-	public static List<Component> getUpgradeTooltip(ItemStack stack)
+	public static List<Component> getUpgradeTooltip(@Nonnull ItemStack stack, @Nonnull TooltipContext context)
 	{
 		try {
-			return getUpgradeTooltip(stack, false);
+			return getUpgradeTooltip(stack, false, context);
 		} catch (Throwable ignored) {}
 		return new ArrayList<>();
 	}
 	
-	public static List<Component> getUpgradeTooltip(ItemStack stack, boolean forceCollection)
+	public static List<Component> getUpgradeTooltip(@Nonnull ItemStack stack, boolean forceCollection, @Nonnull TooltipContext context)
 	{
 		if(stack.getItem() instanceof UpgradeItem item)
 		{
 			if(!item.addTooltips && !forceCollection) //Block if tooltips have been blocked
-				return Lists.newArrayList();
+				return new ArrayList<>();
 			UpgradeType type = item.getUpgradeType();
 			UpgradeData data = getUpgradeData(stack);
 			if(item.customTooltips != null)
 				return item.customTooltips.apply(data);
 			//Get initial list and force it to be editable, as the UpgradeType#getTooltip may return an immutable list
             List<Component> tooltip = new ArrayList<>(type.getTooltip(data));
+			//Add context-dependent tooltips
+			tooltip.addAll(type.getTooltipWithContext(data,context));
+			//Add Unique flag tooltip
 			if(type.isUnique())
 				tooltip.add(LCText.TOOLTIP_UPGRADE_UNIQUE.getWithStyle(ChatFormatting.BOLD,ChatFormatting.GOLD));
 			List<Component> targets = type.getPossibleTargets();
@@ -165,7 +168,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		//Add upgrade tooltips
-		List<Component> upgradeTooltips = getUpgradeTooltip(stack);
+		List<Component> upgradeTooltips = getUpgradeTooltip(stack,context);
 		if(upgradeTooltips != null)
 			tooltip.addAll(upgradeTooltips);
 		

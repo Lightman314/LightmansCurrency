@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
@@ -49,8 +48,12 @@ public class PersistentTab extends SettingsSubTab {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonSavePersistentTrader = this.addChild(new IconButton(screenArea.pos.offset(10, 30), this::SavePersistentTraderData, IconUtil.ICON_PERSISTENT_DATA)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_TRADER)));
+        this.buttonSavePersistentTrader = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(10,30))
+                .pressAction(this::SavePersistentTraderData)
+                .icon(IconUtil.ICON_PERSISTENT_DATA)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_TRADER))
+                .build());
 
         int idWidth = this.getFont().width(LCText.GUI_PERSISTENT_ID.get());
         this.persistentTraderIDInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 37 + idWidth, screenArea.y + 110, 108 - idWidth, 18, EasyText.empty()));

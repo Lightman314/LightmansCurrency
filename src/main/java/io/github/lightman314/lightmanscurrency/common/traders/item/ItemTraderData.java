@@ -101,6 +101,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
+	protected boolean allowVoidUpgrade() { return true; }
+
+	@Override
 	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		super.saveAdditional(compound,lookup);
 		
@@ -544,7 +547,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				}
 			}
 
+			//Give the paid cost to storage
 			MoneyValue taxesPaid = MoneyValue.empty();
+			if(this.canStoreMoney())
+				taxesPaid = this.addStoredMoney(price, true);
 
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
@@ -552,8 +558,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				//Remove the sold items from storage
 				trade.RemoveItemsFromStorage(this.getStorage(),soldItems);
 				this.markStorageDirty();
-				//Give the paid cost to storage
-				taxesPaid = this.addStoredMoney(price, true);
 				
 				//Push out of stock notification
 				if(!trade.hasStock(this))
@@ -603,21 +607,23 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			context.givePayment(price);
 
 			MoneyValue taxesPaid = MoneyValue.empty();
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.isCreative())
+
+			//Ignore editing internal storage if this is flagged as creative or a void upgrade is equipped
+			if(this.shouldStoreGoods())
 			{
 				//Put the item(s) in storage
 				for(ItemStack item : collectableItems)
 					this.getStorage().forceAddItem(item);
 				this.markStorageDirty();
-				//Remove the coins from storage
-				taxesPaid = this.removeStoredMoney(price, true);
-				
+
 				//Push out of stock notification
 				if(!trade.hasStock(this))
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
-				
+			}
+			if(!this.isCreative())
+			{
+				//Remove the coins from storage
+				taxesPaid = this.removeStoredMoney(price, true);
 			}
 
 			//Handle Stats
@@ -695,21 +701,27 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), MoneyValue.empty()));
 			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.isCreative())
+			//Ignore editing internal storage if this is flagged as creative or a void upgrade is equipped
+			boolean storageChanged = false;
+			if(this.shouldStoreGoods())
 			{
 				//Put the item in storage
 				for(ItemStack item : collectableItems)
 					this.storage.forceAddItem(item);
+				storageChanged = true;
+			}
+			if(!this.isCreative())
+			{
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
-				this.markStorageDirty();
-				
+				storageChanged = true;
+
 				//Push out of stock notification
 				if(!trade.hasStock(this))
 					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
-				
 			}
+			if(storageChanged)
+				this.markStorageDirty();
 			
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, MoneyValue.empty());

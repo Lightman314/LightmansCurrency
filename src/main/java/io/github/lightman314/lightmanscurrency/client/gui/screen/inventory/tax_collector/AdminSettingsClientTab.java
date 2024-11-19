@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -29,8 +30,16 @@ public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
         //Admin Options
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(8, 32), b -> this.commonTab.SetForceAcceptance(!this.getCurrentForceAcceptance()), this::getCurrentForceAcceptance));
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(8, 42), b -> this.commonTab.SetInfiniteRange(!this.getCurrentInfiniteRange()), this::getCurrentInfiniteRange));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(8,32))
+                .pressAction(() -> this.commonTab.SetForceAcceptance(!this.getCurrentForceAcceptance()))
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentForceAcceptance))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(8,42))
+                .pressAction(() -> this.commonTab.SetInfiniteRange(!this.getCurrentInfiniteRange()))
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentInfiniteRange))
+                .build());
     }
 
     @Override

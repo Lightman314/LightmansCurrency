@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable {
 
-	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
+	public TraderSelectClientTab(Object screen, TraderSelectTab tab) { super(screen,tab); }
 
 	@Nonnull
 	@Override
@@ -95,7 +95,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		
 		this.initTraderButtons(screenArea.pos);
 		
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(30 + NetworkTraderButton.WIDTH, 18), NetworkTraderButton.HEIGHT * 4, this));
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(30 + NetworkTraderButton.WIDTH,18))
+				.height(NetworkTraderButton.HEIGHT * 4)
+				.scrollable(this)
+				.build());
 		
 		this.tick();
 		
@@ -109,8 +113,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.updateTraderButtons();
 		}
 		
-		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this));
-			
+		this.addChild(ScrollListener.builder()
+				.position(0,0)
+				.size(screen.width,screen.height)
+				.listener(this)
+				.build());
 		
 	}
 	
@@ -119,7 +126,10 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 4; ++y)
 		{
-			NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(corner.offset(30, 18 + (y * NetworkTraderButton.HEIGHT)), this::SelectTrader));
+			NetworkTraderButton newButton = this.addChild(NetworkTraderButton.builder()
+					.position(corner.offset(30,18 + (y * NetworkTraderButton.HEIGHT)))
+					.pressAction(this::SelectTrader)
+					.build());
 			this.traderButtons.add(newButton);
 		}
 	}

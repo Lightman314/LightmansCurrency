@@ -80,7 +80,10 @@ public final class ATMPageManager {
 
     private void addButton(@Nonnull ATMExchangeButtonData data)
     {
-        ATMExchangeButton button = new ATMExchangeButton(this.corner, data, this.commandProcessor);
+        ATMExchangeButton button = ATMExchangeButton.builder(data)
+                .screenCorner(this.corner)
+                .commandHandler(this.commandProcessor)
+                .build();
         this.buttons.add(button);
         this.addChild.accept(button);
     }

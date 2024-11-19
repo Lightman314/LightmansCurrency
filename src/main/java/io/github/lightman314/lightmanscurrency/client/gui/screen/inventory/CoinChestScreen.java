@@ -6,13 +6,17 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -24,10 +28,11 @@ import java.util.List;
 
 public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/coin_chest.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/coin_chest.png");
 
     int currentTabIndex = 0;
     List<CoinChestTab> tabs = new ArrayList<>();
+    LazyWidgetPositioner tabPositioner;
 
     public List<CoinChestTab> getTabs() { return this.tabs; }
     public CoinChestTab currentTab() { return this.tabs.get(this.currentTabIndex); }
@@ -53,6 +58,8 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     @Override
     protected void initialize(ScreenArea screenArea) {
 
+        this.tabPositioner = this.addChild(LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT), ScreenPosition.of(-25,0),25));
+
         this.refreshTabs(false);
 
         this.currentTab().onOpen();
@@ -69,6 +76,7 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
                 this.removeChild(tab);
 
             oldTabType = this.currentTab().getClass();
+            this.tabPositioner.clear();
         }
 
         this.tabs = Lists.newArrayList(new DefaultTab(this));
@@ -91,32 +99,27 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
 
         }
 
+
+
         this.tabButtons = new ArrayList<>();
         for(int i = 0; i < this.tabs.size(); ++i)
         {
-            TabButton button = this.addChild(new TabButton(this::clickedOnTab, this.tabs.get(i)));
-            button.active = i != this.currentTabIndex;
+            final int index = i;
+            CoinChestTab tab = this.tabs.get(index);
+            TabButton button = this.addChild(TabButton.builder()
+                    .pressAction(() -> this.changeTab(index))
+                    .tab(tab)
+                    .addon(EasyAddonHelper.visibleCheck(tab::isVisible))
+                    .addon(EasyAddonHelper.activeCheck(() -> index != this.currentTabIndex))
+                    .build());
             this.tabButtons.add(button);
+            this.tabPositioner.addWidget(button);
         }
 
-        this.validateTabVisiblity();
         this.validateSlotVisibility();
 
         this.currentTab().onOpen();
 
-    }
-
-    public void validateTabVisiblity()
-    {
-        int y = 0;
-        for(int i = 0; i < this.tabButtons.size() && i < this.tabs.size(); ++i)
-        {
-            TabButton button = this.tabButtons.get(i);
-            CoinChestTab tab = this.tabs.get(i);
-            button.visible = tab.isVisible();
-            if(button.visible)
-                button.reposition(this.leftPos - TabButton.SIZE, this.topPos + y++ * TabButton.SIZE, 3);
-        }
     }
 
     public void validateSlotVisibility()
@@ -150,8 +153,6 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
 
     @Override
     protected void renderTick() {
-        //Hide any tabs that the player doesn't have permission/access to.
-        this.validateTabVisiblity();
         if(!this.currentTab().isVisible())
             this.changeTab(0);
     }
@@ -165,26 +166,18 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     public void changeTab(int tabIndex)
     {
 
+        tabIndex = MathUtil.clamp(tabIndex, 0, this.tabs.size() - 1);
+        if(tabIndex == this.currentTabIndex)
+            return;
+
         //Close the old tab
         this.currentTab().onClose();
-        this.tabButtons.get(this.currentTabIndex).active = true;
-        this.currentTabIndex = MathUtil.clamp(tabIndex, 0, this.tabs.size() - 1);
-        this.tabButtons.get(this.currentTabIndex).active = false;
+        this.currentTabIndex = tabIndex;
 
         //Initialize the new tab
         this.currentTab().onOpen();
         this.validateSlotVisibility();
 
-    }
-
-    private void clickedOnTab(EasyButton tab)
-    {
-        int tabIndex = -1;
-        if(tab instanceof TabButton)
-            tabIndex = this.tabButtons.indexOf(tab);
-        if(tabIndex < 0)
-            return;
-        this.changeTab(tabIndex);
     }
 
     private void ClientMessageHandler(LazyPacketData message)

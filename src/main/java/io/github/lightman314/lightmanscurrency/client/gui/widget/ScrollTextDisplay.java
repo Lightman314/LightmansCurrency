@@ -1,16 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class ScrollTextDisplay extends EasyWidget {
 
@@ -18,18 +21,14 @@ public class ScrollTextDisplay extends EasyWidget {
 	public boolean invertText = false;
 	public int backgroundColor = 0xFF000000;
 	public int textColor = 0xFFFFFF;
-	private int columnCount = 1;
-	public void setColumnCount(int columnCount) { this.columnCount = MathUtil.clamp(columnCount, 1, Integer.MAX_VALUE); }
-	
-	public ScrollTextDisplay(ScreenPosition pos, int width, int height, Supplier<List<? extends Component>> textSource) { this(pos.x, pos.y, width, height, textSource); }
-	public ScrollTextDisplay(int x, int y, int width, int height, Supplier<List<? extends Component>> textSource)
-	{
-		super(x, y, width, height);
-		this.textSource = textSource;
-	}
+	private final int columnCount;
 
-	@Override
-	public ScrollTextDisplay withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	private ScrollTextDisplay(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.textSource = builder.text;
+		this.columnCount = builder.columns;
+	}
 
 	private int scroll = 0;
 	
@@ -124,5 +123,26 @@ public class ScrollTextDisplay extends EasyWidget {
 		return true;
 	}
 
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	@ParametersAreNonnullByDefault
+	public static class Builder extends EasySizableBuilder<Builder>
+	{
+		private Builder() { }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		int columns = 1;
+		private Supplier<List<? extends Component>> text = ArrayList::new;
+
+		public Builder text(Supplier<List<? extends Component>> text) { this.text = text; return this; }
+		public Builder columns(int columns) { this.columns = columns; return this; }
+
+		public ScrollTextDisplay build() { return new ScrollTextDisplay(this); }
+
+	}
 
 }

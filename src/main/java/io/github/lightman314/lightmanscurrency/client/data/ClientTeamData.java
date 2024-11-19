@@ -29,7 +29,7 @@ public class ClientTeamData {
 	
 	public static void UpdateTeam(CompoundTag compound)
 	{
-		Team updatedTeam = Team.load(compound, LookupHelper.getRegistryAccess(true));
+		Team updatedTeam = Team.load(compound, LookupHelper.getRegistryAccess());
 		loadedTeams.put(updatedTeam.getID(), updatedTeam.flagAsClient());
 	}
 	

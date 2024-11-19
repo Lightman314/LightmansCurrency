@@ -22,7 +22,7 @@ public record WalletData(List<ItemStack> items, boolean autoExchange, int bonusS
 
     public static final WalletData EMPTY = new WalletData(ImmutableList.of(),false,0);
 
-    public int getBonusSlots() { return LCConfig.SERVER.walletCapacityUpgradeable.get() ? MathUtil.clamp(this.bonusSlots, 0, WalletItem.SLOT_UPGRADE_LIMIT) : 0; }
+    public int getBonusSlots(int upgradeLimit) { return LCConfig.SERVER.walletCapacityUpgradeable.get() ? MathUtil.clamp(this.bonusSlots,0,upgradeLimit) : 0; }
 
     public static WalletData createFor(@Nonnull ItemStack wallet) { return new WalletData(initList(WalletItem.InventorySize(wallet)),true,0); }
 

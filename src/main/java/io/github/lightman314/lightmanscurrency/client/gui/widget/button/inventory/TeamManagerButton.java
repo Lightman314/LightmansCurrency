@@ -21,7 +21,7 @@ public class TeamManagerButton extends InventoryButton {
 
 	
 	public TeamManagerButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, button -> CPacketOpenTeamManager.sendToServer(), SPRITE);
+		super(inventoryScreen, CPacketOpenTeamManager::sendToServer, SPRITE);
 		lastButton = this;
 	}
 

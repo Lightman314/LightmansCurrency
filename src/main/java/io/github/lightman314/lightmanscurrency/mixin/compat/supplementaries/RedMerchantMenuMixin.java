@@ -1,5 +1,5 @@
 package io.github.lightman314.lightmanscurrency.mixin.compat.supplementaries;
-/*
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -229,4 +229,3 @@ public abstract class RedMerchantMenuMixin {
     }
 
 }
-//*/

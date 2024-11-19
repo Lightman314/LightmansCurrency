@@ -37,7 +37,7 @@ import javax.annotation.Nonnull;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
-	public InfoClientTab(TraderInterfaceScreen screen, InfoTab tab) { super(screen, tab); }
+	public InfoClientTab(Object screen, InfoTab tab) { super(screen, tab); }
 
 	TradeButton tradeDisplay;
 	TradeButton newTradeDisplay;
@@ -58,18 +58,29 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
     @Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getReferencedTrade, TradeButton.NULL_PRESS));
-		this.tradeDisplay.setPosition(screenArea.pos.offset(6, 47));
-		this.tradeDisplay.displayOnly = true;
-		this.newTradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getTrueTrade, TradeButton.NULL_PRESS));
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(6,47))
+				.context(this.menu::getTradeContext)
+				.trade(this.menu.getBE()::getReferencedTrade)
+				.displayOnly()
+				.build());
+		this.newTradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(6,91))
+				.context(this.menu::getTradeContext)
+				.trade(this.menu.getBE()::getTrueTrade)
+				.displayOnly()
+				.build());
 		this.newTradeDisplay.setPosition(screenArea.pos.offset(6, 91));
 		this.newTradeDisplay.visible = false;
-		this.newTradeDisplay.displayOnly = true;
 		
 		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
 		
-		this.acceptChangesButton = this.addChild(new IconButton(screenArea.pos.offset(181,90), this::AcceptTradeChanges, IconUtil.ICON_CHECKMARK)
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES.get())));
+		this.acceptChangesButton = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(181,90))
+				.pressAction(this::AcceptTradeChanges)
+				.icon(IconUtil.ICON_CHECKMARK)
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES))
+				.build());
 		this.acceptChangesButton.visible = false;
 		
 	}

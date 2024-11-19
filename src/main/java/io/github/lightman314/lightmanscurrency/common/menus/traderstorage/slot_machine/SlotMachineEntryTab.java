@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -18,27 +17,18 @@ import net.neoforged.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
 public class SlotMachineEntryTab extends TraderStorageTab {
 
     public SlotMachineEntryTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Object createClientTab(Object screen) { return new SlotMachineEntryClientTab(screen, this); }
+    public Object createClientTab(@Nonnull Object screen) { return new SlotMachineEntryClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
-
-    @Override
-    public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     public void AddEntry()
     {

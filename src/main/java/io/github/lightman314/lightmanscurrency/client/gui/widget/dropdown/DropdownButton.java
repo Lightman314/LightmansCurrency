@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ILateRender;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -20,17 +21,20 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	
 	private final Component optionText;
 	private final Runnable onPress;
-	
+
+	@Deprecated
 	public DropdownButton(int x, int y, int width, @Nonnull Component optionText, @Nonnull Runnable onPress)
 	{
 		super(builder().position(x,y).width(width));
 		this.onPress = onPress;
 		this.optionText = optionText;
 	}
-
-	@Deprecated
-	@Override
-	public DropdownButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	private DropdownButton(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.onPress = builder.pressAction;
+		this.optionText = builder.text;
+	}
 
 	@Override
 	public void lateRender(@Nonnull EasyGuiGraphics gui) {
@@ -80,17 +84,26 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {}
 
-	private static Builder builder() { return new Builder(); }
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
 
 	@MethodsReturnNonnullByDefault
-	private static class Builder extends EasyBuilder<Builder>
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
 	{
-		private Builder() {}
-		@Override
-		protected int getDefaultHeight() { return DropdownWidget.HEIGHT; }
-		public Builder width(int width) { this.changeSize(width,DropdownWidget.HEIGHT); return this; }
+		private Builder() { super(20,DropdownWidget.HEIGHT); }
 		@Override
 		protected Builder getSelf() { return this; }
+
+		private Runnable pressAction = () -> {};
+		private Component text = EasyText.empty();
+
+		public Builder width(int width) { this.changeWidth(width); return this; }
+		public Builder pressAction(Runnable pressAction) { this.pressAction = pressAction; return this; }
+		public Builder text(Component text) { this.text = text; return this; }
+
+		public DropdownButton build() { return new DropdownButton(this); }
+
 	}
 
 }

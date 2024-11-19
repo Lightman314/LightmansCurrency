@@ -68,6 +68,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.COINPILE_NETHERITE);
                     ezPop(p, ModBlocks.COINBLOCK_NETHERITE);
                     //Wallets
+                    ezPop(p, ModItems.WALLET_LEATHER);
                     ezPop(p, ModItems.WALLET_COPPER);
                     ezPop(p, ModItems.WALLET_IRON);
                     ezPop(p, ModItems.WALLET_GOLD);
@@ -75,6 +76,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_DIAMOND);
                     ezPop(p, ModItems.WALLET_NETHERITE);
                     ezPop(p, ModItems.WALLET_NETHER_STAR);
+                    ezPop(p, ModItems.WALLET_ENDER_DRAGON);
                     //Bank Card
                     ezPop(p, ModItems.ATM_CARD);
                     //Perhaps example prepaid card?
@@ -198,6 +200,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.OFFER_UPGRADE_5);
                     ezPop(p, ModItems.OFFER_UPGRADE_6);
                     ezPop(p, ModItems.NETWORK_UPGRADE);
+                    ezPop(p, ModItems.VOID_UPGRADE);
                     ezPop(p, ModItems.HOPPER_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
@@ -280,7 +283,6 @@ public class ModCreativeGroups {
         for (ItemLike item : list) result.add(new ItemStack(item));
         return result;
     }
-
 
     public static final Supplier<CreativeModeTab> COIN_GROUP;
     public static final Supplier<CreativeModeTab> MACHINE_GROUP;

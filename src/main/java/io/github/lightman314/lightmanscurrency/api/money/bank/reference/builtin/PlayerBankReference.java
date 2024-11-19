@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -22,47 +21,57 @@ public class PlayerBankReference extends BankReference {
 
     public static final BankReferenceType TYPE = new Type();
 
-    public final UUID playerID;
+    private final PlayerReference player;
 
-    protected PlayerBankReference(@Nonnull UUID playerID) { super(TYPE); this.playerID = playerID; }
-
-
-    public static BankReference of(@Nonnull UUID player) { return new PlayerBankReference(player); }
+    protected PlayerBankReference(@Nonnull PlayerReference player) { super(TYPE); this.player = player; }
+    
+    public static BankReference of(@Nonnull UUID player) { return new PlayerBankReference(PlayerReference.of(player,"")); }
     @Nullable
-    public static BankReference of(@Nullable PlayerReference player) { return player != null ? new PlayerBankReference(player.id) : null; }
-    public static BankReference of(@Nonnull Player player) { return of(player.getUUID()).flagAsClient(player.level().isClientSide); }
+    public static BankReference of(@Nullable PlayerReference player) { return player != null ? new PlayerBankReference(player) : null; }
+    public static BankReference of(@Nonnull Player player) { return of(PlayerReference.of(player)).flagAsClient(player.level().isClientSide); }
 
     @Override
     public int sortPriority() { return 1000000; }
 
     @Nullable
     @Override
-    public IconData getIcon() { return IconData.of(ItemStackHelper.skullForPlayer(this.playerID)); }
+    public IconData getIcon() { return IconData.of(this.player.getSkull(this.isClient())); }
 
     @Nullable
     @Override
-    public IBankAccount get() { return BankSaveData.GetBankAccount(this.isClient(), this.playerID); }
+    public IBankAccount get() { return BankSaveData.GetBankAccount(this.isClient(), this.player.id); }
 
     @Override
-    public boolean allowedAccess(@Nonnull PlayerReference player) { return this.playerID.equals(player.id); }
+    public boolean allowedAccess(@Nonnull PlayerReference player) { return this.player.is(player); }
     @Override
-    public boolean allowedAccess(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.playerID.equals(player.getUUID()); }
+    public boolean allowedAccess(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.player.is(player.getUUID()); }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putUUID("PlayerID", this.playerID); }
+    protected void saveAdditional(@Nonnull CompoundTag tag) {
+        tag.put("Player",this.player.save());
+    }
 
     @Override
-    protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) { buffer.writeUUID(this.playerID); }
+    protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) {
+        this.player.encode(buffer,this.isClient());
+    }
 
     @Override
-    public boolean canPersist(@Nonnull Player player) { return this.playerID.equals(player.getUUID()); }
+    public boolean canPersist(@Nonnull Player player) { return this.player.is(player); }
 
     private static final class Type extends BankReferenceType {
         Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "personal")); }
         @Override
-        public BankReference load(CompoundTag tag) { return of(tag.getUUID("PlayerID")); }
+        public BankReference load(CompoundTag tag) {
+            if(tag.contains("PlayerID"))
+                return of(tag.getUUID("PlayerID"));
+            else
+                return of(PlayerReference.load(tag.getCompound("Player")));
+        }
         @Override
-        public BankReference decode(FriendlyByteBuf buffer) { return of(buffer.readUUID()); }
+        public BankReference decode(FriendlyByteBuf buffer) {
+            return of(PlayerReference.decode(buffer));
+        }
     }
 
 }

@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,7 +44,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
-	public boolean tabButtonVisible() { return false; }
+	public boolean tabVisible() { return false; }
 	
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -66,15 +65,27 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 
 		PaygateTradeData trade = this.commonTab.getTrade();
 		
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(10,18))
+				.context(this.menu::getContext)
+				.trade(this.commonTab::getTrade)
+				.build());
 		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
-		this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(TraderScreen.WIDTH / 2 - MoneyValueWidget.WIDTH / 2, 55), firstOpen ? null : this.priceSelection, trade == null ? MoneyValue.empty() : trade.getCost(), this::onValueChanged)
-				.withAddons(EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && !t.isTicketTrade(); })));
-		this.priceSelection.drawBG = false;
+		this.priceSelection = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos.offset(TraderScreen.WIDTH / 2 - MoneyValueWidget.WIDTH / 2, 55))
+				.oldIfNotFirst(firstOpen,this.priceSelection)
+				.startingValue(trade)
+				.valueHandler(this::onValueChanged)
+				.addon(EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && !t.isTicketTrade(); }))
+				.build());
 
-		this.ticketStubButton = this.addChild(new IconButton(screenArea.pos.offset(10, 55), this::ToggleTicketStubHandling, this::GetTicketStubIcon)
-				.withAddons(EasyAddonHelper.tooltip(this::getTicketStubButtonTooltip),
-						EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && t.isTicketTrade(); })));
+		this.ticketStubButton = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(10,55))
+				.pressAction(this::ToggleTicketStubHandling)
+				.icon(this::GetTicketStubIcon)
+				.addon(EasyAddonHelper.tooltip(this::getTicketStubButtonTooltip))
+				.addon(EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && t.isTicketTrade(); }))
+				.build());
 		
 		int labelWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION.get());
 		int unitWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get());
@@ -116,12 +127,6 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		if(trade != null)
 			return trade.shouldStoreTicketStubs() ? LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP.get() : LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE.get();
 		return null;
-	}
-	
-	@Override
-	public void receiveSelfMessage(LazyPacketData message) {
-		if(message.contains("TradeIndex", LazyPacketData.TYPE_INT))
-			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 	}
 
 	@Override

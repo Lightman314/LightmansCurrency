@@ -126,7 +126,7 @@ public class TeamSaveData extends SavedData {
 			Team team = GetTeam(false, teamID);
 			if(team != null)
 			{
-				CompoundTag compound = team.save(LookupHelper.getRegistryAccess(false));
+				CompoundTag compound = team.save(LookupHelper.getRegistryAccess());
 				new SPacketUpdateClientTeam(compound).sendToAll();
 			}
 		}
@@ -180,7 +180,9 @@ public class TeamSaveData extends SavedData {
 	@SubscribeEvent
 	public static void OnServerTick(ServerTickEvent.Pre event)
 	{
-		get().teams.forEach((id,team) -> team.tick());
+		TeamSaveData data = get();
+		if(data != null)
+			data.teams.forEach((id,team) -> team.tick());
 	}
 	
 	

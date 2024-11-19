@@ -254,7 +254,7 @@ public class TaxEntry implements ITaxCollector {
 
     protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxSaveData.MarkTaxEntryDirty(this.id, packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
-    protected final void markDirty(BiFunction<CompoundTag,HolderLookup.Provider,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag(),LookupHelper.getRegistryAccess(this.isClient)));}
+    protected final void markDirty(BiFunction<CompoundTag,HolderLookup.Provider,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag(),LookupHelper.getRegistryAccess()));}
 
     public TaxEntry() { }
     public TaxEntry(long id, @Nullable BlockEntity core, @Nullable Player owner)

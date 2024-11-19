@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 
 public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 
-	public OwnershipClientTab(TraderInterfaceScreen screen, OwnershipTab tab) { super(screen, tab); }
+	public OwnershipClientTab(Object screen, OwnershipTab tab) { super(screen, tab); }
 	
 	@Nonnull
 	@Override
@@ -61,9 +61,22 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
 				.build());
 
-		this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(22,26), 153, 5, this::getCurrentOwner, this.commonTab::setOwner, this.ownerSelectionWidget, this::hasBankAccount));
+		this.ownerSelectionWidget = this.addChild(OwnerSelectionWidget.builder()
+				.position(screenArea.pos.offset(22,26))
+				.width(153)
+				.rows(5)
+				.selected(this::getCurrentOwner)
+				.handler(this.commonTab::setOwner)
+				.oldWidget(this.ownerSelectionWidget)
+				.filter(this::hasBankAccount)
+				.build());
 
-		this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
+		this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 25,5))
+				.pressAction(this::toggleInputMode)
+				.icon(this::getModeIcon)
+				.addon(EasyAddonHelper.tooltip(this::getModeTooltip))
+				.build());
 
 		this.updateMode();
 		

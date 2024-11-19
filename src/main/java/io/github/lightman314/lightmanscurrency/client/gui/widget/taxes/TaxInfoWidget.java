@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.taxes;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -11,11 +10,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class TaxInfoWidget extends EasyWidgetWithChildren {
@@ -29,15 +33,11 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     private final Supplier<ITaxCollector> entrySource;
     private final ITaxInfoInteractable parent;
 
-    public TaxInfoWidget(@Nonnull ScreenPosition pos, @Nonnull Supplier<ITaxCollector> entry, @Nonnull ITaxInfoInteractable parent) { this(pos.x, pos.y, entry, parent); }
-    public TaxInfoWidget(int x, int y, @Nonnull Supplier<ITaxCollector> entry, @Nonnull ITaxInfoInteractable parent) {
-        super(x, y, WIDTH, HEIGHT);
-        this.entrySource = entry;
-        this.parent = parent;
+    private TaxInfoWidget(@Nonnull Builder builder) {
+        super(builder);
+        this.entrySource = builder.entry;
+        this.parent = Objects.requireNonNull(builder.parent);
     }
-
-    @Override
-    public TaxInfoWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
     @Override
     protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
@@ -61,17 +61,21 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    public void addChildren() {
+    public void addChildren(@Nonnull ScreenArea area) {
         this.addChild(EasyTextButton.builder()
-                .position(this.getPosition().offset(80,10))
+                .position(area.pos.offset(80,10))
                 .width(60)
                 .text(LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR)
                 .pressAction(this::AcceptTaxCollector)
                 .addon(EasyAddonHelper.visibleCheck(this::shouldAcceptBeVisible))
                 .build());
-        this.addChild(new PlainButton(this.getPosition().offset(0, 13), this::ToggleIgnoreState, this::getForceIgnoreSprite)
-                .withAddons(EasyAddonHelper.visibleCheck(() -> this.parent.canPlayerForceIgnore() && this.entrySource.get() != null),
-                        EasyAddonHelper.tooltip(this::getForceIgnoreTooltip)));
+        this.addChild(PlainButton.builder()
+                .position(area.pos.offset(0,13))
+                .pressAction(this::ToggleIgnoreState)
+                .sprite(this::getForceIgnoreSprite)
+                .addon(EasyAddonHelper.visibleCheck(() -> this.parent.canPlayerForceIgnore() && this.entrySource.get() != null))
+                .addon(EasyAddonHelper.tooltip(this::getForceIgnoreTooltip))
+                .build());
 
     }
 
@@ -113,6 +117,29 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
             else
                 this.parent.ForceIgnoreTaxCollector(entry.getID());
         }
+    }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    @ParametersAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(WIDTH,HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+
+        Supplier<ITaxCollector> entry = () -> null;
+        @Nullable
+        ITaxInfoInteractable parent = null;
+
+        public Builder entry(Supplier<ITaxCollector> entry) { this.entry = entry; return this; }
+        public Builder parent(ITaxInfoInteractable parent) { this.parent = parent; return this; }
+
+        public TaxInfoWidget build() { return new TaxInfoWidget(this); }
+
     }
 
 }

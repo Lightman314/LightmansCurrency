@@ -59,8 +59,12 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_FREE_SAMPLE_RESET))
                 .build());
 
-        this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 92), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.timeInput.setTime(this.getRule().getTimeLimit());
+        this.timeInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,92))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getTimeLimit())
+                .build());
 
     }
 

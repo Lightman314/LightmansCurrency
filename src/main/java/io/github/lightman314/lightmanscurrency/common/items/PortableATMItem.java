@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -24,10 +27,16 @@ public class PortableATMItem extends TooltipItem{
 	
 	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(@Nonnull Level world, @Nonnull Player player, @Nonnull InteractionHand hand)
+	public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand)
 	{
-		if(!player.level().isClientSide)
-			player.openMenu(getMenuProvider(), EasyMenu.nullEncoder());
+		if(!level.isClientSide)
+		{
+			if(QuarantineAPI.IsDimensionQuarantined(level))
+				EasyText.sendMessage(player,LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.getWithStyle(ChatFormatting.GOLD));
+			else
+				player.openMenu(getMenuProvider(), EasyMenu.nullEncoder());
+		}
+
 		return InteractionResultHolder.success(player.getItemInHand(hand));
 	}
 	

@@ -103,7 +103,7 @@ public class TaxSaveData extends SavedData {
             {
                 entry = new TaxEntry(SERVER_TAX_ID, null, null);
                 data.entries.put(SERVER_TAX_ID, entry);
-                MarkTaxEntryDirty(SERVER_TAX_ID, entry.save(LookupHelper.getRegistryAccess(false)));
+                MarkTaxEntryDirty(SERVER_TAX_ID, entry.save(LookupHelper.getRegistryAccess()));
             }
             return entry;
         }
@@ -134,7 +134,7 @@ public class TaxSaveData extends SavedData {
             long id = data.nextID++;
             TaxEntry entry = new TaxEntry(id, spawnBE, player);
             data.entries.put(id, entry.unlock());
-            MarkTaxEntryDirty(id, entry.save(LookupHelper.getRegistryAccess(false)));
+            MarkTaxEntryDirty(id, entry.save(LookupHelper.getRegistryAccess()));
             return id;
         }
         return -1;

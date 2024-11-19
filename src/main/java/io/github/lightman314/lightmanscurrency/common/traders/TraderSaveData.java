@@ -13,6 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
+import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
@@ -39,6 +40,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -81,7 +83,7 @@ public class TraderSaveData extends SavedData {
 			ah.setID(traderID);
 			
 			LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
-			this.AddTraderInternal(traderID, ah, LookupHelper.getRegistryAccess(false));
+			this.AddTraderInternal(traderID, ah, LookupHelper.getRegistryAccess());
 		}
 	}
 
@@ -292,7 +294,7 @@ public class TraderSaveData extends SavedData {
 		try {
 			this.persistentTraderJson = GsonHelper.parse(Files.readString(ptf.toPath()));
 			LightmansCurrency.LogDebug("Loading PersistentTraders.json\n" +  FileUtil.GSON.toJson(this.persistentTraderJson));
-			this.loadPersistentTrader(this.persistentTraderJson, LookupHelper.getRegistryAccess(false));
+			this.loadPersistentTrader(this.persistentTraderJson, LookupHelper.getRegistryAccess());
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Persistent Traders.", e);
 			//If an error occurs while loading, set the data to default.
@@ -447,7 +449,7 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			long newID = tsd.getNextID();
-			tsd.AddTraderInternal(newID, newTrader, LookupHelper.getRegistryAccess(false));
+			tsd.AddTraderInternal(newID, newTrader, LookupHelper.getRegistryAccess());
 			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
 				NeoForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
@@ -575,8 +577,10 @@ public class TraderSaveData extends SavedData {
 			TraderSaveData tsd = get();
 			if(tsd != null)
 			{
-				if(tsd.cleanTick++ >= 1200 && event.hasTime())
+				ProfilerFiller filler = server.getProfiler();
+				if(tsd.cleanTick++ >= 1200)
 				{
+					filler.push("Trader Data Position Validation");
 					tsd.cleanTick = 0;
 					List<TraderData> remove = new ArrayList<>();
 					for(TraderData traderData : new ArrayList<>(tsd.traderData.values()))
@@ -597,9 +601,11 @@ public class TraderSaveData extends SavedData {
 						} catch(NullPointerException e) { LightmansCurrency.LogError("Error deleting missing trader.",e); }
 						new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 					}
+					filler.pop();
 				}
 				if(server.getTickCount() % 20 == 0 && !tsd.persistentAuctionData.isEmpty())
 				{
+					filler.push("Persistent Auction Tick");
 					List<TraderData> traders = tsd.traderData.values().stream().toList();
 					AuctionHouseTrader ah = null;
 					for(int i = 0; i < traders.size() && ah == null; ++i)
@@ -622,8 +628,11 @@ public class TraderSaveData extends SavedData {
 							}
 						}
 					}
+					filler.pop();
 				}
+				filler.push("Trader Ticks");
 				tsd.tickers.forEach(IEasyTickable::tick);
+				filler.pop();
 			}
 		}
 	}
@@ -646,7 +655,7 @@ public class TraderSaveData extends SavedData {
 	private void resendTraderData()
 	{
 		SPacketClearClientTraders.INSTANCE.sendToAll();
-		this.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save(LookupHelper.getRegistryAccess(false))).sendToAll());
+		this.traderData.forEach((id,trader) -> new SPacketUpdateClientTrader(trader.save(LookupHelper.getRegistryAccess())).sendToAll());
 	}
 	
 	

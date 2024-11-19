@@ -10,13 +10,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHo
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Function;
 
 public abstract class TradeRulesTab extends TraderStorageTab {
 
@@ -27,15 +25,6 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADE_RULES); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
-
-    @Override
-    public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     public void EditTradeRule(@Nonnull TradeRuleType<?> type, @Nonnull LazyPacketData.Builder updateMessage) { EditTradeRule(type.type, updateMessage); }
     public void EditTradeRule(@Nonnull ResourceLocation type, @Nonnull LazyPacketData.Builder updateMessage)
@@ -66,9 +55,10 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
         public Trader(TraderStorageMenu menu) { super(menu); }
 
+        @Nonnull
         @Override
         @OnlyIn(Dist.CLIENT)
-        public Object createClientTab(Object screen) { return new TradeRulesClientTab.Trader(screen, this); }
+        public Object createClientTab(@Nonnull Object screen) { return new TradeRulesClientTab.Trader(screen, this); }
 
         @Nullable
         @Override
@@ -82,9 +72,10 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         public int getTradeIndex() { return this.tradeIndex; }
         public Trade(TraderStorageMenu menu) { super(menu); }
 
+        @Nonnull
         @Override
         @OnlyIn(Dist.CLIENT)
-        public Object createClientTab(Object screen) { return new TradeRulesClientTab.Trade(screen, this); }
+        public Object createClientTab(@Nonnull Object screen) { return new TradeRulesClientTab.Trade(screen, this); }
 
         @Override
         public boolean canOpen(Player player) { return super.canOpen(player) && this.menu.hasPermission(Permissions.EDIT_TRADES); }
@@ -94,7 +85,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
         @Override
         public void goBack() {
-            this.menu.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, this.builder().setInt("TradeIndex", this.tradeIndex));
+            this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_ADVANCED, this.builder().setInt("TradeIndex", this.tradeIndex));
         }
 
         @Nullable

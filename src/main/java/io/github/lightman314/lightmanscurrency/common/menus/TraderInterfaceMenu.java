@@ -1,14 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -19,37 +17,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class TraderInterfaceMenu extends LazyMessageMenu {
+public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,TraderInterfaceTab> {
 
 	private final TraderInterfaceBlockEntity blockEntity;
 	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
 	
 	public static final int SLOT_OFFSET = 15;
-	
-	private boolean canEditTabs;
-	Map<Integer,TraderInterfaceTab> availableTabs = new HashMap<>();
-	public Map<Integer,TraderInterfaceTab> getAllTabs() { return this.availableTabs; }
-	public void setTab(int key, TraderInterfaceTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
-	int currentTab = TraderInterfaceTab.TAB_INFO;
-	public int getCurrentTabIndex() { return this.currentTab; }
-	public TraderInterfaceTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
 
     public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
 		this.blockEntity = blockEntity;
-		this.canEditTabs = true;
 
 		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		this.addValidator(this.blockEntity::canAccess);
-
-		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
-		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
-		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
-		this.setTab(TraderInterfaceTab.TAB_STATS, new InterfaceStatsTab(this));
-		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
-		if(this.blockEntity != null)
-			this.blockEntity.initMenuTabs(this);
-		this.canEditTabs = false;
+		this.addValidator(() -> !QuarantineAPI.IsDimensionQuarantined(this.blockEntity));
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -64,22 +45,22 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 		{
 			this.addSlot(new Slot(inventory, x, SLOT_OFFSET + 8 + x * 18, 212));
 		}
-		
-		this.availableTabs.forEach((key, tab) -> tab.addStorageMenuSlots(this::addSlot));
-		
-		//Run the tab open code for the current tab
-		try {
-			this.getCurrentTab().onTabOpen();
-		} catch(Throwable t) { LightmansCurrency.LogError("Error opening tab!",t); }
+
+		this.initializeTabs();
 		
 	}
-	
+
 	@Override
-	public void removed(@Nonnull Player player) {
-		super.removed(player);
-		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
+	protected void registerTabs() {
+		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
+		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
+		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
+		this.setTab(TraderInterfaceTab.TAB_STATS, new InterfaceStatsTab(this));
+		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
+		if(this.blockEntity != null)
+			this.blockEntity.initMenuTabs(this);
+
 	}
-	
 
 	public TradeContext getTradeContext() {
 		return this.blockEntity.getTradeContext();
@@ -101,7 +82,7 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 			if(index < 36)
 			{
 				//Move from inventory to current tab
-				if(!this.getCurrentTab().quickMoveStack(slotStack))
+				if(!this.currentTab().quickMoveStack(slotStack))
 				{
 					//Else, move from inventory to additional slots
 					if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
@@ -132,24 +113,10 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 		return clickedStack;
 		
 	}
-	
+
+	@Deprecated
 	public void changeTab(int key) {
-		if(this.currentTab == key)
-			return;
-		if(this.availableTabs.containsKey(key))
-		{
-			if(this.availableTabs.get(key).canOpen(this.player))
-			{
-				//Close the old tab
-				this.getCurrentTab().onTabClose();
-				//Change the tab
-				this.currentTab = key;
-				//Open the new tab
-				this.getCurrentTab().onTabOpen();
-			}
-		}
-		else
-			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
+		this.ChangeTab(key);
 	}
 	
 	public void changeMode(ActiveMode newMode) {
@@ -165,15 +132,10 @@ public class TraderInterfaceMenu extends LazyMessageMenu {
 	}
 
 	@Override
-	public void HandleMessage(@Nonnull LazyPacketData message) {
-		if(message.contains("ChangeTab"))
-			this.changeTab(message.getInt("ChangeTab"));
+	public void HandleMessages(@Nonnull LazyPacketData message) {
 		if(message.contains("ModeChange"))
 			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
 		if(message.contains("OnlineModeChange"))
 			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
-		try {
-			this.getCurrentTab().handleMessage(message);
-		} catch (Throwable t) { LightmansCurrency.LogError("Error handling Trader Interface Message!",t); }
 	}
 }

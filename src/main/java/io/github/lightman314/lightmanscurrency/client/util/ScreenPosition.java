@@ -1,11 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
 import java.util.Optional;
 
+@MethodsReturnNonnullByDefault
+@FieldsAreNonnullByDefault
+@ParametersAreNonnullByDefault
+@Immutable
 public final class ScreenPosition {
 
     public static final ScreenPosition ZERO = of(0,0);
@@ -14,11 +22,11 @@ public final class ScreenPosition {
     public final int y;
     private ScreenPosition(int x, int y) { this.x = x; this.y = y; }
 
-    public ScreenPosition offset(ScreenPosition other) { return other != null ? of(this.x + other.x, this.y + other.y) : this; }
+    public ScreenPosition offset(ScreenPosition other) { return of(this.x + other.x, this.y + other.y); }
     public ScreenPosition offset(int x, int y) { return of(this.x + x, this.y + y); }
-    public ScreenPosition offset(AbstractWidget widget) { return widget != null ? of(this.x + widget.getX(), this.y + widget.getY()) : this; }
-    public ScreenPosition offset(IEasyScreen screen) { return screen != null ? this.offset(screen.getCorner()) : this; }
-    public ScreenPosition offsetScreen(AbstractContainerScreen<?> screen) { return screen != null ? this.offset(getScreenCorner(screen)) : this; }
+    public ScreenPosition offset(AbstractWidget widget) { return of(this.x + widget.getX(), this.y + widget.getY()); }
+    public ScreenPosition offset(IEasyScreen screen) { return this.offset(screen.getCorner()); }
+    public ScreenPosition offsetScreen(AbstractContainerScreen<?> screen) { return this.offset(getScreenCorner(screen)); }
 
     public void setPosition(AbstractWidget widget) { widget.setPosition(this.x, this.y); }
 
@@ -28,15 +36,14 @@ public final class ScreenPosition {
 
     public ScreenArea asArea(int width, int height) { return ScreenArea.of(this, width, height); }
 
-
     @Override
-    public String toString() { return this.x + ", " + this.y; }
+    public String toString() { return this.x + "," + this.y; }
 
     public static ScreenPosition of(int x, int y) { return new ScreenPosition(x,y); }
     public static ScreenPosition of(double x, double y) { return of((int)x,(int)y); }
-    public static ScreenPosition of(ScreenPosition offset, int x, int y) { return offset != null ? offset.offset(x,y) : of(x,y); }
-    public static ScreenPosition of(IEasyScreen screen, int x, int y) { return screen != null ? screen.getCorner().offset(x,y) : of(x,y); }
+    public static ScreenPosition of(ScreenPosition offset, int x, int y) { return offset.offset(x,y); }
+    public static ScreenPosition of(IEasyScreen screen, int x, int y) { return screen.getCorner().offset(x,y); }
     public static Optional<ScreenPosition> ofOptional(int x, int y) { return Optional.of(of(x, y)); }
-    public static ScreenPosition getScreenCorner(AbstractContainerScreen<?> screen) { return screen != null ? of(screen.getGuiLeft(), screen.getGuiTop()) : ScreenPosition.ZERO; }
+    public static ScreenPosition getScreenCorner(AbstractContainerScreen<?> screen) { return of(screen.getGuiLeft(), screen.getGuiTop()); }
 
 }

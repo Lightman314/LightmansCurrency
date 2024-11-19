@@ -5,15 +5,14 @@ import javax.annotation.Nonnull;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class TeamButton extends EasyButton {
@@ -36,17 +35,14 @@ public class TeamButton extends EasyButton {
 	private final Supplier<ITeam> teamSource;
 	public ITeam getTeam() { return this.teamSource.get(); }
 	private final Supplier<Boolean> selectedSource;
-	
-	public TeamButton(ScreenPosition pos, Size size, Consumer<EasyButton> press, @Nonnull Supplier<ITeam> teamSource, @Nonnull Supplier<Boolean> selectedSource)
-	{
-		super(pos, size.width, HEIGHT, press);
-		this.size = size;
-		this.teamSource = teamSource;
-		this.selectedSource = selectedSource;
-	}
 
-	@Override
-	public TeamButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	private TeamButton(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.size = builder.size;
+		this.teamSource = builder.team;
+		this.selectedSource = builder.selected;
+	}
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
@@ -70,6 +66,29 @@ public class TeamButton extends EasyButton {
 		if(!this.visible || this.getTeam() == null)
 			return;
 		super.playDownSound(soundManager);
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+		private Builder() { super(Size.NORMAL.width,HEIGHT); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Size size = Size.NORMAL;
+		private Supplier<ITeam> team = () -> null;
+		private Supplier<Boolean> selected = () -> false;
+
+		public Builder size(Size size) { this.size = size; this.changeWidth(this.size.width); return this; }
+		public Builder team(Supplier<ITeam> team) { this.team = team; return this; }
+		public Builder selected(Supplier<Boolean> selected) { this.selected = selected; return this; }
+
+		public TeamButton build() { return new TeamButton(this); }
+
 	}
 	
 }

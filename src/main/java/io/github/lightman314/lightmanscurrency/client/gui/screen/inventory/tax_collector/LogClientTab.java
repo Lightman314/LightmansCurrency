@@ -2,11 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.LogTab;
@@ -35,9 +33,16 @@ public class LogClientTab extends TaxCollectorClientTab<LogTab> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        NotificationDisplayWidget display = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15,16), screenArea.width - 30, 7, this::getNotifications));
+        NotificationDisplayWidget display = this.addChild(NotificationDisplayWidget.builder()
+                .position(screenArea.pos.offset(15,16))
+                .width(screenArea.width - 30)
+                .rowCount(7)
+                .notificationSource(this::getNotifications)
+                .build());
 
-        this.addChild(ScrollBarWidget.createOnRight(display));
+        this.addChild(ScrollBarWidget.builder()
+                .onRight(display)
+                .build());
 
     }
 

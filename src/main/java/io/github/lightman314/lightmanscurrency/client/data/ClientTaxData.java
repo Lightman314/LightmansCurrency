@@ -26,11 +26,11 @@ public class ClientTaxData {
     {
         long entryID = tag.getLong("ID");
         if(loadedEntries.containsKey(entryID))
-            loadedEntries.get(entryID).load(tag, LookupHelper.getRegistryAccess(true));
+            loadedEntries.get(entryID).load(tag, LookupHelper.getRegistryAccess());
         else
         {
             TaxEntry newEntry = new TaxEntry();
-            newEntry.load(tag,LookupHelper.getRegistryAccess(true));
+            newEntry.load(tag,LookupHelper.getRegistryAccess());
             loadedEntries.put(entryID, newEntry.flagAsClient());
         }
     }

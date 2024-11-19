@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -27,6 +29,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu {
 
@@ -36,18 +40,25 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	private final IMoneyHandler moneyHandler = MoneyAPI.API.GetATMMoneyHandler(this.player, this.coinInput);
 	public SimpleContainer getCoinInput() { return this.coinInput; }
 	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
+	private final List<CoinSlot> coinSlots;
+	public List<CoinSlot> getCoinSlots() { return this.coinSlots; }
 	
 	private Component transferMessage = null;
 	
 	public ATMMenu(int windowId, Inventory inventory, MenuValidator validator)
 	{
 		super(ModMenus.ATM.get(), windowId, inventory, validator);
-		
-		//Coinslots
+		this.addValidator(() -> !QuarantineAPI.IsDimensionQuarantined(this.player));
+
+		List<CoinSlot> temp = new ArrayList<>();
+		//Coin Slots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
-			this.addSlot(new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false));
+			CoinSlot slot = new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false);
+			this.addSlot(slot);
+			temp.add(slot);
 		}
+		this.coinSlots = ImmutableList.copyOf(temp);
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)

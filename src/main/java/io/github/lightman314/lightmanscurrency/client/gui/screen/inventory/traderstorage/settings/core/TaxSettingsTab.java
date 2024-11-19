@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -38,13 +39,25 @@ public class TaxSettingsTab extends SettingsSubTab {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(20, 30), this::increaseAcceptableTaxRate)
-                .withAddons(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() < 99)));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(20, 40), this::decreaseAcceptableTaxRate)
-                .withAddons(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() > 0)));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,30))
+                .pressAction(this::increaseAcceptableTaxRate)
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() < 99))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,40))
+                .pressAction(this::decreaseAcceptableTaxRate)
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() > 0))
+                .build());
 
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(30, 80), this::toggleIgnoreAllTaxes, this::getIgnoreAllTaxes)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isIgnoreAllTaxesVisible)));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(30,80))
+                .pressAction(this::toggleIgnoreAllTaxes)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getIgnoreAllTaxes))
+                .addon(EasyAddonHelper.visibleCheck(this::isIgnoreAllTaxesVisible))
+                .build());
 
     }
 

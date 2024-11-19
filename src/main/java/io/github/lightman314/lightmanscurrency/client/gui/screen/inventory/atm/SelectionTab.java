@@ -1,13 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -55,12 +57,23 @@ public class SelectionTab extends ATMTab {
 		if(firstOpen)
 			this.responseMessage = EasyText.empty();
 
-		EasySlot.SetInactive(this.screen.getMenu());
+		this.screen.setCoinSlotsActive(false);
 
-		this.bankAccountSelectionWidget = this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20, 15), screenArea.width - 40, 6, this::canAccess, this::getBankReference, this::selectAccount));
+		this.bankAccountSelectionWidget = this.addChild(BankAccountSelectionWidget.builder()
+				.position(screenArea.pos.offset(20,15))
+				.width(screenArea.width - 40)
+				.rows(6)
+				.filter(this::canAccess)
+				.selected(this::getBankReference)
+				.handler(this::selectAccount)
+				.build());
 
-		this.buttonToggleAdminMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
-		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
+		this.buttonToggleAdminMode = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width,0))
+				.pressAction(this::ToggleAdminMode)
+				.icon(IconData.of(Items.COMMAND_BLOCK))
+				.addon(EasyAddonHelper.visibleCheck(() -> LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer())))
+				.build());
 		
 		this.playerAccountSelect = this.addChild(new EditBox(this.screen.getFont(), screenArea.x + 7, screenArea.y + 20, 162, 20, EasyText.empty()));
 		this.playerAccountSelect.visible = false;
@@ -111,8 +124,6 @@ public class SelectionTab extends ATMTab {
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
-		this.hideCoinSlots(gui);
 
 		gui.drawString(this.getTooltip(), 8, 6, 0x404040);
 
@@ -124,17 +135,15 @@ public class SelectionTab extends ATMTab {
 		}
 		
 	}
-	
-	@Override
-	public void tick() {
-		this.buttonToggleAdminMode.visible = LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer());
-	}
 
 	@Override
-	public void closeAction() {
-		EasySlot.SetActive(this.screen.getMenu());
+	public void closeAction() { this.screen.setCoinSlotsActive(true); }
+
+	@Override
+	public List<ScreenArea> getOffscreenButtons() {
+		if(this.buttonToggleAdminMode.isVisible())
+			return Lists.newArrayList(this.buttonToggleAdminMode.getArea());
+		return new ArrayList<>();
 	}
-
-
 
 }

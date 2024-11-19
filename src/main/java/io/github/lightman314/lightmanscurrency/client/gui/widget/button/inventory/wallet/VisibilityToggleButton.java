@@ -3,13 +3,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.InventoryButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
-import java.util.function.Consumer;
 
 public class VisibilityToggleButton extends InventoryButton {
 
@@ -18,7 +15,7 @@ public class VisibilityToggleButton extends InventoryButton {
 	public static final Sprite SPRITE_VISIBLE = Sprite.SimpleSprite(ClientEvents.WALLET_SLOT_TEXTURE, 28 + SIZE, 0, SIZE, SIZE);
 	public static final Sprite SPRITE_INVISIBLE = Sprite.SimpleSprite(ClientEvents.WALLET_SLOT_TEXTURE, 28, 0, SIZE, SIZE);
 
-	public VisibilityToggleButton(AbstractContainerScreen<?> inventoryScreen, Consumer<EasyButton> pressable) { super(inventoryScreen, pressable, VisibilityToggleButton::getSprite); }
+	public VisibilityToggleButton(AbstractContainerScreen<?> inventoryScreen, Runnable pressable) { super(inventoryScreen, pressable, VisibilityToggleButton::getSprite); }
 	
 	private static boolean isWalletVisible() {
 		WalletHandler walletHandler = WalletHandler.get(Minecraft.getInstance().player);

@@ -11,11 +11,13 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -23,6 +25,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -42,6 +46,7 @@ import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
@@ -116,11 +121,9 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	private final int columns;
 	private final int rows;
 
-	public int searchOffX;
-	public int searchOffY;
+	private final ScreenPosition searchOffset;
 
-	public int stackSizeOffX;
-	public int stackSizeOffY;
+	private final ScreenPosition stackSizeOffset;
 
 	private static final List<ItemStack> allItems = new ArrayList<>();
 	private static final Map<ResourceLocation,List<ItemStack>> preFilteredItems = new HashMap<>();
@@ -140,21 +143,19 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	private EditBox getOldSearchInput() { return this.oldItemEdit != null ? this.oldItemEdit.searchInput : null; }
 	private String getOldSearchString() { return this.oldItemEdit != null ? this.oldItemEdit.searchString : ""; }
 
-	public ItemEditWidget(ScreenPosition pos, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) { this(pos.x, pos.y, columns, rows, oldItemEdit, listener); }
-	public ItemEditWidget(int x, int y, int columns, int rows, @Nullable ItemEditWidget oldItemEdit, IItemEditListener listener) {
-		super(x, y, columns * 18, rows * 18);
+	private ItemEditWidget(@Nonnull Builder builder)
+	{
+		super(builder);
 		latestInstance = this;
-		this.listener = listener;
-		this.oldItemEdit = oldItemEdit;
+		this.listener = builder.handler;
+		this.oldItemEdit = builder.oldWidget;
 
-		this.columns = columns;
-		this.rows = rows;
+		this.columns = builder.columns;
+		this.rows = builder.rows;
 
-		this.searchOffX = this.width - 90;
-		this.searchOffY = -13;
+        this.searchOffset = Objects.requireNonNullElse(builder.searchOffset,ScreenPosition.of(this.width - 90, -13));
 
-		this.stackSizeOffX = this.width + 13;
-		this.stackSizeOffY = 0;
+		this.stackSizeOffset = Objects.requireNonNullElse(builder.stackSizeOffset,ScreenPosition.of(this.width + 13, 0));
 
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
@@ -169,9 +170,6 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			this.setScroll(this.oldItemEdit.scroll);
 
 	}
-
-	@Override
-	public ItemEditWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
 	/**
 	 * Re-initializes the item edit list on a different thread.
@@ -392,7 +390,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				else
 				{
 					boolean enchantmentMatch = false;
-					ItemEnchantments enchantments = stack.getAllEnchantments(LookupHelper.getRegistryAccess(true).lookupOrThrow(Registries.ENCHANTMENT));
+					ItemEnchantments enchantments = stack.getAllEnchantments(LookupHelper.getRegistryAccess().lookupOrThrow(Registries.ENCHANTMENT));
 					for(var entry : enchantments.entrySet())
 					{
 						if(entry.getKey().getRegisteredName().contains(this.searchString))
@@ -416,14 +414,24 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@Override
-	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, this.getOldSearchInput(), LCText.GUI_ITEM_EDIT_SEARCH.get()));
+	public void addChildren(@Nonnull ScreenArea area) {
+		this.searchInput = this.addChild(new EditBox(this.font, area.x + this.searchOffset.x + 2, area.y + this.searchOffset.y + 2, 79, 9, this.getOldSearchInput(), LCText.GUI_ITEM_EDIT_SEARCH.get()));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 		this.searchInput.setResponder(this::modifySearch);
 
-		this.stackScrollListener = this.addChild(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
+		this.stackScrollListener = this.addChild(ScrollListener.builder()
+				.position(area.pos.offset(this.stackSizeOffset))
+				.size(18,18)
+				.listener(this::stackCountScroll)
+				.build());
+
+		this.addChild(ScrollBarWidget.builder()
+				.onRight(this)
+				.smallKnob()
+				.addon(EasyAddonHelper.visibleCheck(this::isVisible))
+				.build());
 
 	}
 
@@ -456,10 +464,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 		//Render the search field
 		gui.resetColor();
-		gui.blit(GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
+		gui.blit(GUI_TEXTURE, this.searchOffset, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
-		gui.blit(GUI_TEXTURE, this.stackSizeOffX, this.stackSizeOffY, 108, 0, 18, 18);
+		gui.blit(GUI_TEXTURE, this.stackSizeOffset, 108, 0, 18, 18);
 
 	}
 
@@ -486,7 +494,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {
-		return mouseX >= this.getX() + this.stackSizeOffX && mouseX < this.getX() + this.stackSizeOffX + 18 && mouseY >= this.getY() + this.stackSizeOffY && mouseY < this.getY() + this.stackSizeOffY + 18;
+		return this.stackSizeOffset.offset(this.getPosition()).asArea(18,18).isMouseInArea(mouseX,mouseY);
 	}
 
 	private int isMouseOverSlot(double mouseX, double mouseY) {
@@ -596,10 +604,46 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		public static ItemInsertRule beforeItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, null, (s) -> s.getItem() == item); }
 		public static ItemInsertRule beforeCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, null, check); }
 
-
 		public boolean shouldInsertBefore(ItemStack insertedItem) { return this.beforeItemCheck.test(insertedItem); }
 		public boolean shouldInsertAfter(ItemStack insertedItem) { return this.afterItemCheck.test(insertedItem); }
 		public boolean shouldInsertAtEnd() { return this.afterItemCheck == NULLCHECK && this.beforeItemCheck == null; }
+
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	@ParametersAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(18,18); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		int columns = 1;
+		int rows = 1;
+		@Nullable
+		IItemEditListener handler = null;
+		@Nullable
+		ItemEditWidget oldWidget = null;
+		@Nullable
+		ScreenPosition searchOffset = null;
+		@Nullable
+		ScreenPosition stackSizeOffset = null;
+
+		public Builder columns(int columns) { this.columns = columns; this.changeWidth(18 * this.columns); return this; }
+		public Builder rows(int rows) { this.rows = rows; this.changeHeight(18 * this.rows); return this; }
+		public Builder handler(IItemEditListener handler) { this.handler = handler; return this; }
+		public Builder oldWidget(@Nullable ItemEditWidget oldWidget) { this.oldWidget = oldWidget; return this; }
+
+		public Builder searchOffset(ScreenPosition searchOffset) { this.searchOffset = searchOffset; return this; }
+		public Builder searchOffset(int searchOffX, int searchOffY) { this.searchOffset = ScreenPosition.of(searchOffX,searchOffY); return this; }
+		public Builder stackSizeOffset(ScreenPosition stackSizeOffset) { this.stackSizeOffset = stackSizeOffset; return this; }
+		public Builder stackSizeOffset(int stackSizeOffX, int stackSizeOffY) { this.stackSizeOffset = ScreenPosition.of(stackSizeOffX,stackSizeOffY); return this; }
+
+		public ItemEditWidget build() { return new ItemEditWidget(this); }
 
 	}
 

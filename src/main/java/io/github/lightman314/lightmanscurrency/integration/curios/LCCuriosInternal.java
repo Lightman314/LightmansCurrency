@@ -68,6 +68,20 @@ public class LCCuriosInternal {
         return ItemStack.EMPTY;
     }
 
+    @Nonnull
+    public static ItemStack getVisibleCuriosWalletItem(@Nonnull LivingEntity entity)
+    {
+        try {
+            ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
+            if(handler != null && handler.getSlots() > 0)
+            {
+                ItemStack cosmetic = handler.getCosmeticStacks().getStackInSlot(0);
+                return cosmetic.isEmpty() ? handler.getStacks().getStackInSlot(0) : cosmetic;
+            }
+        } catch (Throwable t) { LightmansCurrency.LogError("Error with Curios Integration!", t); }
+        return ItemStack.EMPTY;
+    }
+
     public static void setCuriosWalletItem(@Nonnull LivingEntity entity, @Nonnull ItemStack item)
     {
         try {

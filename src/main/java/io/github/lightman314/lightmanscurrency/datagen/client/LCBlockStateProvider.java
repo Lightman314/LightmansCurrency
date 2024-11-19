@@ -44,6 +44,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private static final ResourceLocation UPGRADE_ITEM_CAPACITY = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/item_capacity_upgrade");
     private static final ResourceLocation UPGRADE_TRADE_OFFER = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/trading_core");
     private static final ResourceLocation UPGRADE_NETWORK = ResourceLocation.withDefaultNamespace("item/ender_eye");
+    private static final ResourceLocation UPGRADE_VOID = ResourceLocation.withDefaultNamespace("item/barrier");
     private static final ResourceLocation UPGRADE_SPEED = ResourceLocation.withDefaultNamespace("item/clock_00");
     private static final ResourceLocation UPGRADE_HOPPER = ResourceLocation.withDefaultNamespace("item/hopper");
     private static final ResourceLocation UPGRADE_CC_SECURITY = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item/coin_chest_security_upgrade");
@@ -102,6 +103,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.TRADING_CORE);
 
         //Wallets
+        this.registerWalletItem(ModItems.WALLET_LEATHER);
         this.registerWalletItem(ModItems.WALLET_COPPER);
         this.registerWalletItem(ModItems.WALLET_IRON);
         this.registerWalletItem(ModItems.WALLET_GOLD);
@@ -109,6 +111,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerWalletItem(ModItems.WALLET_DIAMOND);
         this.registerWalletItem(ModItems.WALLET_NETHERITE);
         this.registerWalletItem(ModItems.WALLET_NETHER_STAR);
+        //Ender Dragon Wallet has its own model, so we don't need to datagen a generic wallet model
+        this.registerBasicItem(ModItems.WALLET_ENDER_DRAGON);
 
         //ATM
         this.registerTallRotatable(ModBlocks.ATM, "atm_top", "atm_bottom", "atm", true);
@@ -351,6 +355,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerUpgradeItem(ModItems.OFFER_UPGRADE_6,UPGRADE_TRADE_OFFER,UPGRADE_TIER_NETHERITE);
 
         this.registerUpgradeItem(ModItems.NETWORK_UPGRADE,UPGRADE_NETWORK,UPGRADE_TIER_GOLD);
+
+        this.registerUpgradeItem(ModItems.VOID_UPGRADE,UPGRADE_VOID,UPGRADE_TIER_GOLD);
 
         this.registerUpgradeItem(ModItems.HOPPER_UPGRADE,UPGRADE_HOPPER,UPGRADE_TIER_GOLD);
 

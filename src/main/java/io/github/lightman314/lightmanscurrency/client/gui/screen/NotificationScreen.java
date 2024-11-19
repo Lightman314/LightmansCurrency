@@ -6,11 +6,11 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
 
 public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/notifications.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/notifications.png");
 	
 	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
 
@@ -70,14 +71,26 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 		
 		this.tabButtons = new ArrayList<>();
 		for(NotificationCategory cat : this.getCategories())
-			this.tabButtons.add(this.addChild(new NotificationTabButton(this::SelectTab, this::getNotifications, cat)));
+			this.tabButtons.add(this.addChild(NotificationTabButton.nBuilder()
+					.pressAction(() -> this.SelectTab(cat))
+					.data(this::getNotifications)
+					.category(cat)
+					.build()));
 		this.positionTabButtons();
 
-		this.notificationDisplay = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15,15),screenArea.width - 30,NOTIFICATIONS_PER_PAGE,this::getVisibleNotifications,this::isGeneralSelected));
+		this.notificationDisplay = this.addChild(NotificationDisplayWidget.builder()
+				.position(screenArea.pos.offset(15,15))
+				.width(screenArea.width - 30)
+				.rowCount(NOTIFICATIONS_PER_PAGE)
+				.notificationSource(this::getVisibleNotifications)
+				.showGeneral(this::isGeneralSelected)
+				.build());
 		this.notificationDisplay.colorIfUnseen = true;
 		this.notificationDisplay.setDeletionHandler(this::deleteNotification,() -> !this.isGeneralSelected());
 
-		this.notificationScroller = this.addChild(ScrollBarWidget.createOnRight(this.notificationDisplay));
+		this.notificationScroller = this.addChild(ScrollBarWidget.builder()
+						.onRight(this.notificationDisplay)
+						.build());
 
 		int textWidth = this.font.width(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ.get());
 		this.buttonMarkAsSeen = this.addChild(EasyTextButton.builder()
@@ -115,7 +128,8 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 			if(i >= startIndex && i < startIndex + TABS_PER_PAGE)
 			{
 				tab.visible = true;
-				tab.reposition(pos, 3);
+				tab.setPosition(pos);
+				tab.setRotation(WidgetRotation.LEFT);
 				if(i < categories.size()) //Use match code, as some categories are generated on get, and a new instance may have been generated due to reloading, etc.
 					tab.active = !categories.get(i).matches(this.selectedCategory);
 				else
@@ -142,24 +156,13 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 		return this.getNotifications().getNotifications(this.selectedCategory);
 	}
 	
-	private void SelectTab(EasyButton button) {
-		int tabIndex = -1;
-		if(button instanceof NotificationTabButton)
-			tabIndex = this.tabButtons.indexOf(button);
-		if(tabIndex >= 0)
+	private void SelectTab(NotificationCategory newCategory) {
+		if(!newCategory.matches(this.selectedCategory))
 		{
-			List<NotificationCategory> categories = this.getCategories();
-			if(tabIndex < categories.size())
-			{
-				NotificationCategory newCategory = categories.get(tabIndex);
-				if(!newCategory.matches(this.selectedCategory))
-				{
-					this.selectedCategory = newCategory;
-					//Reset notification scroll as a new category was selected
-					this.notificationDisplay.setScroll(0);
-					this.positionTabButtons();
-				}
-			}
+			this.selectedCategory = newCategory;
+			//Reset notification scroll as a new category was selected
+			this.notificationDisplay.setScroll(0);
+			this.positionTabButtons();
 		}
 	}
 

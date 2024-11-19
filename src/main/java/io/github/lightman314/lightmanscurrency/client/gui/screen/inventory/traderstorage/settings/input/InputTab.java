@@ -83,8 +83,18 @@ public class InputTab extends SettingsSubTab {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.inputWidget = new DirectionalSettingsWidget(screenArea.pos.offset(20, 25), this::getInputSideValue, this.getIgnoreList(), this::ToggleInputSide, this::addChild);
-        this.outputWidget = new DirectionalSettingsWidget(screenArea.pos.offset(110, 25), this::getOutputSideValue, this.getIgnoreList(), this::ToggleOutputSide, this::addChild);
+        this.inputWidget = this.addChild(DirectionalSettingsWidget.builder()
+                .position(screenArea.pos.offset(20,25))
+                .currentValue(this::getInputSideValue)
+                .ignore(this.getIgnoreList())
+                .handler(this::ToggleInputSide)
+                .build());
+        this.outputWidget = this.addChild(DirectionalSettingsWidget.builder()
+                .position(screenArea.pos.offset(110,25))
+                .currentValue(this::getOutputSideValue)
+                .ignore(this.getIgnoreList())
+                .handler(this::ToggleOutputSide)
+                .build());
 
         this.getAddons().forEach(a -> a.onOpen(this, screenArea, firstOpen));
 

@@ -2,10 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,8 +11,8 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
@@ -33,6 +30,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -40,35 +39,31 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource, IEasyTickable {
-	
+
+	@Deprecated
 	public static final Function<TradeData,Boolean> FILTER_VALID = TradeData::isValid;
+	@Deprecated
 	public static final Function<TradeData,Boolean> FILTER_ANY = trade -> true;
 	
 	private final Supplier<? extends ITraderSource> traderSource;
 	private final Function<TraderData, TradeContext> getContext;
 	
-	private BiFunction<TraderData,TradeData,Boolean> isSelected = (trader,trade) -> false;
-	public void setSelectionDefinition(@Nonnull BiFunction<TraderData,TradeData,Boolean> isSelected) { this.isSelected = isSelected; }
+	private final BiFunction<TraderData,TradeData,Boolean> isSelected;
 
-	private InteractionConsumer interactionConsumer = null;
-	@Deprecated(since = "2.2.3.0")
-	public void setInteractionConsumer(InteractionConsumer consumer) { this.interactionConsumer = consumer; }
-	private TradeInteractionHandler interactionHandler = null;
-	public void setInteractionHandler(TradeInteractionHandler handler) { this.interactionHandler = handler; }
-
+	private final TradeInteractionHandler interactionHandler;
 	
 	private final List<TradeButton> allButtons = new ArrayList<>();
-	
+
 	private final Font font;
 
 	private final BiConsumer<TraderData,TradeData> onPress;
-	private final Function<TradeData,Boolean> tradeFilter;
+	private final Predicate<TradeData> tradeFilter;
 	
 	private int scroll = 0;
 
 
 	ScrollBarWidget scrollBar;
-	private boolean allowSearching = true;
+	private final boolean allowSearching;
 	EditBox searchBox;
 	private String lastSearch = "";
 
@@ -78,15 +73,23 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	private int actualTitleWidth() { return this.isSearchBoxRelevant() ? this.titleWidth - 90 : this.titleWidth; }
 	private boolean renderNameOnly = false;
 	private ScreenArea searchBoxArea = ScreenArea.of(ScreenPosition.ZERO,90,12);
+
+	/**
+	 * @deprecated Use {@link Builder#title(ScreenPosition, int, boolean)} instead
+	 */
+	@Deprecated
 	public TradeButtonArea withTitle(ScreenPosition titlePosition, int titleWidth, boolean renderNameOnly) { this.hasTitlePosition = true; this.titlePosition = titlePosition; this.titleWidth = titleWidth; this.renderNameOnly = renderNameOnly; return this; }
 
-	public TradeButtonArea blockSearchBox() { this.allowSearching = false; return this; }
 	public boolean isSearchBoxRelevant() { return this.searchBox != null && this.searchBox.isVisible(); }
 
-	private ScreenPosition scrollBarOffset = ScreenPosition.of(-9,0);
-	public TradeButtonArea withScrollBarOffset(@Nonnull ScreenPosition scrollBarOffset) { this.scrollBarOffset = scrollBarOffset; return this; }
+	private final ScreenPosition scrollBarOffset;
 
 	private int scrollBarHeight;
+
+	/**
+	 * @deprecated Use {@link Builder#scrollBarHeight(int)} instead
+	 */
+	@Deprecated
 	public TradeButtonArea withScrollBarHeight(int height) { this.scrollBarHeight = height; return this; }
 
 	//Variant of getAvailableWidth that assumes we'll have the smallest amount of available space.
@@ -94,28 +97,57 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public int getMinAvailableWidth() { return this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width; }
 	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width) : this.width; }
 
-	public TradeButtonArea(@Nonnull Supplier<? extends ITraderSource> traderSource, @Nonnull Function<TraderData, TradeContext> getContext, int x, int y, int width, int height, @Nonnull BiConsumer<TraderData,TradeData> onPress, @Nonnull Function<TradeData,Boolean> tradeFilter)
+	private TradeButtonArea(@Nonnull Builder builder)
 	{
-		super(x, y, width, height);
-		this.traderSource = traderSource;
-		this.getContext = getContext;
-		this.onPress = onPress;
-		this.tradeFilter = tradeFilter;
-		
+		super(builder);
+		//Trades & Traders
+		this.traderSource = builder.traderSource;
+		this.getContext = builder.context;
+		this.onPress = builder.pressAction;
+		this.tradeFilter = builder.tradeFilter;
+
+		//Font Collection
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 
-		this.scrollBarHeight = this.height - 5;
+		//Title
+		if(builder.titlePosition != null)
+		{
+			this.hasTitlePosition = true;
+			this.titlePosition = builder.titlePosition;
+			this.titleWidth = builder.titleWidth;
+			this.renderNameOnly = builder.titleNameOnly;
+		}
+
+		//Search Box
+		this.allowSearching = builder.allowSearching;
+
+		//Scroll Bar
+		this.scrollBarOffset = builder.scrollBarOffset;
+		if(builder.scrollBarHeight > 0)
+			this.scrollBarHeight = builder.scrollBarHeight;
+		else
+			this.scrollBarHeight = this.height - 5;
+
+		//Selection State
+		this.isSelected = builder.selectionTrigger;
+
+		//Interaction Handler
+		this.interactionHandler = builder.interactionHandler;
 
 	}
 
 	@Override
-	public TradeButtonArea withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
-	@Override
-	public void addChildren() {
-		this.addChild(new ScrollListener(this.getArea(),this));
-		this.scrollBar = this.addChild(this.scrollBar = new ScrollBarWidget(this.getX() + this.width + this.scrollBarOffset.x, this.getY() + this.scrollBarOffset.y, this.scrollBarHeight, this));
+	public void addChildren(@Nonnull ScreenArea area) {
+		this.addChild(ScrollListener.builder()
+				.area(area)
+				.listener(this)
+				.build());
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(area.pos.offset(area.width + this.scrollBarOffset.x,this.scrollBarOffset.y))
+				.height(this.scrollBarHeight)
+				.scrollable(this)
+				.build());
 		if(this.hasTitlePosition && this.allowSearching)
 		{
 			//Make search box take 1/3 of the width
@@ -162,7 +194,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			TradeContext context = this.getContext.apply(trader);
 			List<? extends TradeData> trades = trader.getTradeData();
 			for (TradeData trade : trades) {
-				if (this.tradeFilter.apply(trade) && this.tradeMatchesSearch(source, trade,search)) {
+				if (this.tradeFilter.test(trade) && this.tradeMatchesSearch(source, trade,search)) {
 					TradeRenderManager<?> trm = trade.getButtonRenderer();
 					int tradeWidth = trm.tradeButtonWidth(context);
 					if (currentRowWidth + tradeWidth > this.getMinAvailableWidth() && !currentRow.isEmpty()) {
@@ -217,7 +249,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 		if(!this.hasValidTrade())
 		{
-			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_NO_TRADES.get(), this.width / 2, (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_NO_TRADES.get(), this.width / 2, (this.height / 2) - (gui.font.lineHeight / 2), 0x404040);
 		}
 		//Render title
 		if(this.hasTitlePosition)
@@ -289,7 +321,11 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		{
 			final int di = i;
 			//Create the trade button
-			TradeButton newButton = this.addChild(new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di)));
+			TradeButton newButton = this.addChild(TradeButton.builder()
+					.pressAction(() -> this.OnTraderPress(di))
+					.context(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()))
+					.trade(() -> this.getTradeAndTrader(di).getSecond())
+					.build());
 			this.allButtons.add(newButton);
 		}
 		
@@ -308,7 +344,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			List<? extends TradeData> trades = trader.getTradeData();
 			for(TradeData trade : trades)
 			{
-				if(trade != null && this.tradeFilter.apply(trade) && this.tradeMatchesSearch(ts,trade,true))
+				if(trade != null && this.tradeFilter.test(trade) && this.tradeMatchesSearch(ts,trade,true))
 					return true;
 			}
 		}
@@ -413,11 +449,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 				TradeContext context = this.getContext.apply(traderPair.getFirst());
 				if(context.isStorageMode)
 				{
-					if(this.interactionConsumer != null)
-					{
-						b.onInteractionClick((int)mouseX, (int)mouseY, button, this.interactionConsumer);
-						return true;
-					}
 					if(this.interactionHandler != null)
 					{
 						b.HandleInteractionClick((int)mouseX,(int)mouseY, button, this.interactionHandler);
@@ -434,13 +465,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return true; }
 
-	@Deprecated(since = "2.2.3.0")
-	public interface InteractionConsumer {
-		void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);
-		void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);
-		void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton);
-	}
-
 	@Override
 	public int currentScroll() { return this.scroll; }
 
@@ -454,5 +478,54 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.fittableLines(), this.getTradesInRows(true).size()); }
-	
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasySizableBuilder<Builder>
+	{
+
+		private Builder() {}
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Supplier<ITraderSource> traderSource = () -> null;
+		private Function<TraderData,TradeContext> context = t -> null;
+		private BiConsumer<TraderData,TradeData> pressAction = (t,d) -> {};
+		private Predicate<TradeData> tradeFilter = t -> true;
+		@Nullable
+		private ScreenPosition titlePosition = null;
+		int titleWidth = 0;
+		boolean titleNameOnly = false;
+		boolean allowSearching = true;
+		ScreenPosition scrollBarOffset = ScreenPosition.of(-9,0);
+		int scrollBarHeight = 0;
+		BiFunction<TraderData,TradeData,Boolean> selectionTrigger = (t,d) -> false;
+		@Nullable
+		TradeInteractionHandler interactionHandler = null;
+
+		public Builder traderSource(Supplier<ITraderSource> source) { this.traderSource = source; return this; }
+		public Builder context(Supplier<TradeContext> contextSource) { return this.context(t -> contextSource.get()); }
+		public Builder context(Function<TraderData,TradeContext> contextBuilder) { this.context = contextBuilder; return this; }
+		public Builder pressAction(BiConsumer<TraderData,TradeData> pressAction) { this.pressAction = pressAction; return this; }
+		public Builder tradeFilter(Predicate<TradeData> tradeFilter) { this.tradeFilter = tradeFilter; return this; }
+		public Builder tradeFilter(@Nullable TraderData trader, ITraderStorageMenu menu) {
+			if(trader != null)
+				return this.tradeFilter(trader.getStorageTradeFilter(menu));
+			return this;
+		}
+		public Builder title(ScreenPosition titlePosition, int titleWidth, boolean renderNameOnly) { this.titlePosition = titlePosition; this.titleWidth = titleWidth; this.titleNameOnly = renderNameOnly; return this; }
+		public Builder blockSearchBox() { this.allowSearching = false; return this; }
+		public Builder scrollBarOffset(ScreenPosition offset) { this.scrollBarOffset = offset; return this; }
+		public Builder scrollBarHeight(int height) { this.scrollBarHeight = height; return this; }
+		public Builder selectedState(BiFunction<TraderData,TradeData,Boolean> selectedState) { this.selectionTrigger = selectedState; return this; }
+		public Builder interactionHandler(TradeInteractionHandler handler) { this.interactionHandler = handler; return this; }
+
+
+		public TradeButtonArea build() { return new TradeButtonArea(this); }
+
+	}
+
 }

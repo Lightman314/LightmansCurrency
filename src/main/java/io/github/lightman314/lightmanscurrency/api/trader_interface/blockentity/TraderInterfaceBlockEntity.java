@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -162,7 +163,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		return null;
 	}
 	@Nullable
-	public BankReference getAccountReference() { return this.owner.getValidOwner().asBankReference(); }
+	public BankReference getAccountReference() {
+		if(QuarantineAPI.IsDimensionQuarantined(this))
+			return null;
+		return this.owner.getValidOwner().asBankReference();
+	}
 
 	public final StatTracker statTracker = new StatTracker(() -> {},this);
 
@@ -493,6 +498,9 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	@Override
 	public void serverTick() {
+		//Disable all functions if dimension is quarantined just to be safe
+		if(QuarantineAPI.IsDimensionQuarantined(this))
+			return;
 		if(this.isActive())
 		{
 			if(--this.waitTimer <= 0)
