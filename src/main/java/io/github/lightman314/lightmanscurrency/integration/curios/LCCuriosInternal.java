@@ -75,7 +75,9 @@ public class LCCuriosInternal {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
             if(handler != null && handler.getSlots() > 0)
             {
-                ItemStack cosmetic = handler.getCosmeticStacks().getStackInSlot(0);
+                ItemStack cosmetic = ItemStack.EMPTY;
+                if(handler.getCosmeticStacks().getSlots() > 0)
+                    cosmetic = handler.getCosmeticStacks().getStackInSlot(0);
                 return cosmetic.isEmpty() ? handler.getStacks().getStackInSlot(0) : cosmetic;
             }
         } catch (Throwable t) { LightmansCurrency.LogError("Error with Curios Integration!", t); }

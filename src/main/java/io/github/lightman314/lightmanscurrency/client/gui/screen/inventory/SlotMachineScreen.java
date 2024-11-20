@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryDisplayWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -151,7 +150,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
             {
                 int displayIndex = (y * ENTRY_COLUMNS) + x;
                 this.addChild(SlotMachineEntryDisplayWidget.builder()
-                        .position(screenArea.pos.offset(19 + (x * SlotMachineEntryDisplayWidget.WIDTH),10 + (y * SlotMachineEntryEditWidget.WIDTH)))
+                        .position(screenArea.pos.offset(19 + (x * SlotMachineEntryDisplayWidget.WIDTH),10 + (y * SlotMachineEntryDisplayWidget.HEIGHT)))
                         .trader(this.menu::getTrader)
                         .index(() -> this.getTrueIndex(displayIndex))
                         .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))

@@ -113,11 +113,6 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 		return clickedStack;
 		
 	}
-
-	@Deprecated
-	public void changeTab(int key) {
-		this.ChangeTab(key);
-	}
 	
 	public void changeMode(ActiveMode newMode) {
 		this.blockEntity.setMode(newMode);

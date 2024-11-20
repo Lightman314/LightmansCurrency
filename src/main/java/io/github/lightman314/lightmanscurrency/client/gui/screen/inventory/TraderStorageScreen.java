@@ -30,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorageMenu,TraderStorageMenu,TraderStorageTab,ITraderStorageScreen> implements ITraderStorageScreen {
 	
@@ -147,16 +146,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 			new CPacketOpenTrades(this.menu.getTrader().getID()).send();
 		}
 		
-	}
-
-	@Deprecated
-	@Override
-	public void changeTab(int newTab) { this.ChangeTab(newTab); }
-
-	@Deprecated
-	@Override
-	public void changeTab(int newTab, boolean sendMessage, @Nullable LazyPacketData.Builder selfMessage) {
-		this.ChangeTab(newTab,selfMessage != null ? selfMessage.build() : null, sendMessage);
 	}
 
 	public void serverMessage(LazyPacketData message) { this.getCurrentTab().receiveServerMessage(message); }

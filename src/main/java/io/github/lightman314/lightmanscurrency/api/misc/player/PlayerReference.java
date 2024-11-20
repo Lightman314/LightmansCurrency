@@ -236,7 +236,7 @@ public class PlayerReference {
 		if(isClient)
 		{
 			UUID id = ClientPlayerNameCache.lookupID(playerName);
-			if(id == null)
+			if(id != null)
 				return PlayerReference.of(id,playerName);
 			//LightmansCurrency.LogWarning("Attempted to assemble a player reference from name alone on a client. Should not be doing that.");
 			return null;

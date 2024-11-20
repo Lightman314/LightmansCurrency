@@ -1,11 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -29,7 +26,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -223,8 +219,4 @@ public class TransferTab extends ATMTab {
 	@Override
 	public boolean blockInventoryClosing() { return this.playerMode; }
 
-	@Override
-	public List<ScreenArea> getOffscreenButtons() {
-		return Lists.newArrayList(this.buttonToggleMode.getArea(),this.buttonTransfer.getArea());
-	}
 }

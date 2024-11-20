@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -138,12 +136,5 @@ public class SelectionTab extends ATMTab {
 
 	@Override
 	public void closeAction() { this.screen.setCoinSlotsActive(true); }
-
-	@Override
-	public List<ScreenArea> getOffscreenButtons() {
-		if(this.buttonToggleAdminMode.isVisible())
-			return Lists.newArrayList(this.buttonToggleAdminMode.getArea());
-		return new ArrayList<>();
-	}
 
 }

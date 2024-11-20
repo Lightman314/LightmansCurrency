@@ -22,13 +22,6 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	private final Component optionText;
 	private final Runnable onPress;
 
-	@Deprecated
-	public DropdownButton(int x, int y, int width, @Nonnull Component optionText, @Nonnull Runnable onPress)
-	{
-		super(builder().position(x,y).width(width));
-		this.onPress = onPress;
-		this.optionText = optionText;
-	}
 	private DropdownButton(@Nonnull Builder builder)
 	{
 		super(builder);

@@ -939,7 +939,7 @@ public class LCRecipeProvider extends RecipeProvider {
             for(int i = 0; i < ingredients.size() && i <= w; ++i)
                 b.requires(ingredients.get(i));
             b.requires(leather);
-            b.save(consumer, ItemID("wallet",wallet));
+            b.save(consumer, ItemID("wallet/",wallet));
         }
 
         //Upgrade Wallet Recipes
