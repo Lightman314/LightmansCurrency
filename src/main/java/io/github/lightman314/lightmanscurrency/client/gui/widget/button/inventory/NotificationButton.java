@@ -15,16 +15,16 @@ public class NotificationButton extends InventoryButton {
 
 
 	private static NotificationButton lastButton = null;
-	
+
 	public static final int SIZE = 9;
-	
+
 	public static final ScreenPosition OFFSET = ScreenPosition.of(10,0);
 
 	public static final Sprite SPRITE_NORMAL = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200, 0, SIZE, SIZE);
 	public static final Sprite SPRITE_UNSEEN = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200 + SIZE, 0, SIZE, SIZE);
 
 	public NotificationButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, button -> CPacketOpenNotifications.sendToServer(), NotificationButton::getSprite);
+		super(inventoryScreen, CPacketOpenNotifications::sendToServer, NotificationButton::getSprite);
 		lastButton = this;
 	}
 
@@ -32,10 +32,10 @@ public class NotificationButton extends InventoryButton {
 	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
 	private static Sprite getSprite() { return ClientNotificationData.GetNotifications().unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
-	
+
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos))
 			gui.renderTooltip(LCText.TOOLTIP_NOTIFICATION_BUTTON.get());
 	}
-	
+
 }

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -40,9 +39,19 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         if(rule != null)
             this.limitInput.setValue(Integer.toString(rule.getLimit()));
 
-        this.buttonSetLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(41, 19), 40, 20, LCText.BUTTON_SET.get(), this::PressSetLimitButton));
-        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), screenArea.width - 20, 20, LCText.BUTTON_CLEAR_MEMORY.get(), this::PressClearMemoryButton)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY)));
+        this.buttonSetLimit = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(41,19))
+                .width(40)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetLimitButton)
+                .build());
+        this.buttonClearMemory = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,50))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_CLEAR_MEMORY)
+                .pressAction(this::PressClearMemoryButton)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADE_LIMIT_CLEAR_MEMORY))
+                .build());
 
     }
 
@@ -65,7 +74,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.setLimit(limit);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Limit", limit));
+        this.sendUpdateMessage(this.builder().setInt("Limit", limit));
     }
 
     void PressClearMemoryButton(EasyButton button)
@@ -73,7 +82,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
         TradeLimit rule = this.getRule();
         if(rule != null)
             rule.resetCount();
-        this.sendUpdateMessage(LazyPacketData.simpleFlag("ClearMemory"));
+        this.sendUpdateMessage(this.builder().setFlag("ClearMemory"));
     }
 
 }

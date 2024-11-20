@@ -33,9 +33,16 @@ public class LogClientTab extends TaxCollectorClientTab<LogTab> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        NotificationDisplayWidget display = this.addChild(new NotificationDisplayWidget(screenArea.pos.offset(15,16), screenArea.width - 30, 7, this::getNotifications));
+        NotificationDisplayWidget display = this.addChild(NotificationDisplayWidget.builder()
+                .position(screenArea.pos.offset(15,16))
+                .width(screenArea.width - 30)
+                .rowCount(7)
+                .notificationSource(this::getNotifications)
+                .build());
 
-        this.addChild(ScrollBarWidget.createOnRight(display));
+        this.addChild(ScrollBarWidget.builder()
+                .onRight(display)
+                .build());
 
     }
 

@@ -33,8 +33,12 @@ public class TeamMemberListClientTab extends TeamManagementClientTab<TeamMemberL
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.memberDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(10, 10), screenArea.width - 20, screenArea.height - 20, this::getMemberList));
-        this.memberDisplay.setColumnCount(2);
+        this.memberDisplay = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(10,10))
+                .size(screenArea.width - 20,screenArea.height - 20)
+                .text(this::getMemberList)
+                .columns(2)
+                .build());
 
     }
 

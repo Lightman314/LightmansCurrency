@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -46,12 +47,24 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
 
         this.refreshTeamList();
 
-        this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 20), 5, () -> this.teamList, this.menu::selectedTeam, this::selectTeamButton));
+        this.teamSelection = this.addChild(TeamSelectWidget.builder()
+                .position(screenArea.pos.offset(10,20))
+                .size(TeamButton.Size.WIDE)
+                .rows(5)
+                .teams(() -> this.teamList)
+                .selected(this.menu::selectedTeam)
+                .handler(this::selectTeamButton)
+                .build());
 
         this.newTeamName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 140, 160, 20, Component.empty()));
         this.newTeamName.setMaxLength(32);
 
-        this.buttonCreateTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(120, 165), 60, 20, LCText.BUTTON_TEAM_CREATE.get(), this::createTeam));
+        this.buttonCreateTeam = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(120,165))
+                .width(60)
+                .text(LCText.BUTTON_TEAM_CREATE)
+                .pressAction(this::createTeam)
+                .build());
         this.buttonCreateTeam.active = false;
 
     }

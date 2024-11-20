@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
+import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.experimental.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
@@ -71,13 +72,21 @@ public class ModItems {
 		GOLDEN_TICKET_STUB = ModRegistries.ITEMS.register("golden_ticket_stub", () -> new Item(new Item.Properties()));
 		
 		//Wallets
+		WALLET_LEATHER = ModRegistries.ITEMS.register("wallet_leather", () -> new WalletItem.Colored(0,6,WalletItem.lazyModel("wallet_leather"), false, 0, 0, SoundEntry.WALLET_DEFAULT, new Item.Properties()));
 		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, WalletItem.lazyModel("wallet_copper"), new Item.Properties()));
 		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, WalletItem.lazyModel("wallet_iron"), new Item.Properties()));
 		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, WalletItem.lazyModel("wallet_gold"), new Item.Properties()));
 		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, WalletItem.lazyModel("wallet_emerald"), new Item.Properties()));
 		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, WalletItem.lazyModel("wallet_diamond"), new Item.Properties()));
 		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, WalletItem.lazyModel("wallet_netherite"), new Item.Properties().rarity(Rarity.RARE).fireResistant()));
-		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, WalletItem.lazyModel("wallet_nether_star"), true, 1, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, WalletItem.lazyModel("wallet_nether_star"), true, 1, WalletItem.MAX_WALLET_SLOTS - 54, SoundEntry.WALLET_DEFAULT, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+		WALLET_ENDER_DRAGON = ModRegistries.ITEMS.register("wallet_ender_dragon", () -> new WalletItem(6, 42, WalletItem.lazyModel("wallet_ender_dragon"), false, 3, WalletItem.MAX_WALLET_SLOTS - 45, SoundEntry.builder()
+				.add(50,WalletItem.DEFAULT_COIN_COLLECT_SOUND)
+				.addVanilla(25,"entity.ender_dragon.growl")
+				.addVanilla(25,"entity.ender_dragon.ambient")
+				.addVanilla(1,"entity.player.burp")
+				.build(),
+				new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
 
 		//Portable Blocks
 		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties()));
@@ -107,7 +116,10 @@ public class ModItems {
 
 		//Network Upgrade
 		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(Upgrades.NETWORK, new Item.Properties()));
-		
+
+		//Void Upgrade
+		VOID_UPGRADE = ModRegistries.ITEMS.register("void_upgrade", () -> new UpgradeItem.Simple(Upgrades.VOID,new Item.Properties()));
+
 		//Hopper Upgrade
 		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(Upgrades.HOPPER, new Item.Properties()));
 
@@ -159,6 +171,7 @@ public class ModItems {
 	public static final RegistryObject<Item> GOLDEN_TICKET_MASTER;
 	public static final RegistryObject<Item> GOLDEN_TICKET_STUB;
 	
+	public static final RegistryObject<WalletItem> WALLET_LEATHER;
 	public static final RegistryObject<WalletItem> WALLET_COPPER;
 	public static final RegistryObject<WalletItem> WALLET_IRON;
 	public static final RegistryObject<WalletItem> WALLET_GOLD;
@@ -166,6 +179,7 @@ public class ModItems {
 	public static final RegistryObject<WalletItem> WALLET_DIAMOND;
 	public static final RegistryObject<WalletItem> WALLET_NETHERITE;
 	public static final RegistryObject<WalletItem> WALLET_NETHER_STAR;
+	public static final RegistryObject<WalletItem> WALLET_ENDER_DRAGON;
 
 	public static final RegistryObject<Item> PORTABLE_TERMINAL;
 	public static final RegistryObject<Item> PORTABLE_GEM_TERMINAL;
@@ -190,7 +204,9 @@ public class ModItems {
 	public static final RegistryObject<Item> OFFER_UPGRADE_6;
 	
 	public static final RegistryObject<Item> NETWORK_UPGRADE;
-	
+
+	public static final RegistryObject<Item> VOID_UPGRADE;
+
 	public static final RegistryObject<Item> HOPPER_UPGRADE;
 
 	public static final RegistryObject<Item> COIN_CHEST_EXCHANGE_UPGRADE;

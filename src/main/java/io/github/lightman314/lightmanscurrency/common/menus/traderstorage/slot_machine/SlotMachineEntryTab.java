@@ -9,9 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,27 +17,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
 public class SlotMachineEntryTab extends TraderStorageTab {
 
     public SlotMachineEntryTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Object createClientTab(Object screen) { return new SlotMachineEntryClientTab(screen, this); }
+    public Object createClientTab(@Nonnull Object screen) { return new SlotMachineEntryClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
-
-    @Override
-    public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     public void AddEntry()
     {
@@ -49,7 +38,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             trader.addEntry();
             if(this.menu.isClient())
-                this.menu.SendMessage(LazyPacketData.simpleFlag("AddEntry"));
+                this.menu.SendMessage(this.builder().setFlag("AddEntry"));
         }
     }
 
@@ -61,7 +50,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             trader.removeEntry(entryIndex);
             if(this.menu.isClient())
-                this.menu.SendMessage(LazyPacketData.simpleInt("RemoveEntry", entryIndex));
+                this.menu.SendMessage(this.builder().setInt("RemoveEntry", entryIndex));
         }
     }
 
@@ -100,9 +89,9 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.builder()
+                this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
-                        .setCompound("AddItem", item.save(new CompoundTag())));
+                        .setItem("AddItem",item));
             }
         }
     }
@@ -129,10 +118,10 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.builder()
+                this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
                         .setInt("ItemIndex", itemIndex)
-                        .setCompound("EditItem", item.save(new CompoundTag())));
+                        .setItem("EditItem",item));
             }
         }
     }
@@ -154,7 +143,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             this.markEntriesDirty();
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.builder()
+                this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
                         .setInt("RemoveItem", itemIndex));
             }
@@ -176,7 +165,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             LightmansCurrency.LogDebug("Changed entry[" + entryIndex + "]'s weight on the " + DebugUtil.getSideText(this.menu) + "!");
             if(this.menu.isClient())
             {
-                this.menu.SendMessage(LazyPacketData.builder()
+                this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
                         .setInt("SetWeight", newWeight));
             }
@@ -194,11 +183,11 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             int entryIndex = message.getInt("EditEntry");
             if(message.contains("AddItem"))
             {
-                this.AddEntryItem(entryIndex, ItemStack.of(message.getNBT("AddItem")));
+                this.AddEntryItem(entryIndex, message.getItem("AddItem"));
             }
             else if(message.contains("EditItem") && message.contains("ItemIndex"))
             {
-                this.EditEntryItem(entryIndex, message.getInt("ItemIndex"), ItemStack.of(message.getNBT("EditItem")));
+                this.EditEntryItem(entryIndex, message.getInt("ItemIndex"), message.getItem("EditItem"));
             }
             else if(message.contains("RemoveItem"))
             {
@@ -210,6 +199,5 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             }
         }
     }
-
 
 }

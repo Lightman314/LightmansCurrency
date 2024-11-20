@@ -18,7 +18,10 @@ public class LCCurios {
 
 	@Nonnull
 	public static ItemStack getCuriosWalletItem(@Nonnull LivingEntity entity) { return isLoaded() ? LCCuriosInternal.getCuriosWalletItem(entity) : ItemStack.EMPTY; }
-	
+
+	@Nonnull
+	public static ItemStack getVisibleCuriosWalletItem(@Nonnull LivingEntity entity) { return isLoaded() ? LCCuriosInternal.getVisibleCuriosWalletItem(entity) : ItemStack.EMPTY; }
+
 	public static void setCuriosWalletItem(@Nonnull LivingEntity entity, @Nonnull ItemStack stack) {
 		if(isLoaded())
 			LCCuriosInternal.setCuriosWalletItem(entity,stack);

@@ -25,8 +25,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
-import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -113,7 +112,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level().isClientSide)
-				SPacketPlayCoinSound.INSTANCE.sendTo(player);
+				WalletItem.playCollectSound(player,wallet);
 			event.setCanceled(true);
 		}
 		
@@ -381,16 +380,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void entityTick(LivingEvent.LivingTickEvent event) {
 		LivingEntity livingEntity = event.getEntity();
-		if(livingEntity instanceof Player player && player.isCreative() && player.level().isClientSide && LightmansCurrency.getProxy().isLocalPlayer(player))
-		{
-			//Check Wallet Updates from the client if they're in creative mode and sync them to the server
-			IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
-			if(handler != null && handler.isDirty())
-			{
-				new CPacketSyncWallet(player.getUUID(), handler.getWallet()).send();
-				handler.clean();
-			}
-		}
 		if(livingEntity.level().isClientSide) //Do nothing client side
 			return;
 
@@ -423,8 +412,11 @@ public class EventHandler {
 	{
 		if(event.haveTime())
 		{
+			ProfilerFiller filler = event.getServer().getProfiler();
+			filler.push("Date Trigger Tick");
 			for(ServerPlayer player : event.getServer().getPlayerList().getPlayers())
 				DateTrigger.INSTANCE.trigger(player);
+			filler.pop();
 		}
 	}
 

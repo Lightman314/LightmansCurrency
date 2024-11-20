@@ -1,47 +1,64 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import com.mojang.blaze3d.FieldsAreNonnullByDefault;
+import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class PlainButton extends EasyButton {
 
-	private NonNullSupplier<Sprite> sprite;
-	
-	public PlainButton(@Nonnull ScreenPosition pos, @Nonnull Consumer<EasyButton> pressable, @Nonnull Sprite sprite) { this(pos.x, pos.y, pressable, sprite); }
-	public PlainButton(int x, int y, @Nonnull Consumer<EasyButton> pressable, @Nonnull Sprite sprite) { this(x, y, pressable, () -> sprite); }
+	private Supplier<Sprite> sprite;
 
-	public PlainButton(@Nonnull ScreenPosition pos, @Nonnull Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<Sprite> sprite) { this(pos.x, pos.y, pressable, sprite); }
-	public PlainButton(int x, int y, @Nonnull Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<Sprite> sprite)
+	protected PlainButton(@Nonnull Builder builder)
 	{
-		super(x, y, sprite.get().width, sprite.get().height, pressable);
-		this.sprite = sprite;
+		super(builder);
+		this.sprite = builder.sprite;
 	}
-	
+
 	public void setSprite(@Nonnull Sprite sprite) { this.setSprite(() -> sprite); }
-	
-	public void setSprite(@Nonnull NonNullSupplier<Sprite> sprite) { this.sprite = sprite; }
-	
+
+	public void setSprite(@Nonnull Supplier<Sprite> sprite) { this.sprite = sprite; }
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		gui.resetColor();
-        if(!this.active)
+		if(!this.active)
 			gui.setColor(0.5f,0.5f,0.5f);
 		gui.blitSprite(this.sprite.get(), 0, 0, this.isHovered);
 		gui.resetColor();
 	}
 
-	@Override
-	public PlainButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
 
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+		protected Builder() {}
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private Supplier<Sprite> sprite = null;
+		public Builder sprite(Sprite sprite) { this.sprite = () -> sprite; this.changeSize(sprite.width,sprite.height); return this; }
+		public Builder sprite(Supplier<Sprite> sprite) {
+			this.sprite = sprite;
+			Sprite example = sprite.get();
+			if(example != null)
+				this.changeSize(example.width,example.height);
+			return this;
+		}
+
+		public PlainButton build() { return new PlainButton(this); }
+
+	}
 }

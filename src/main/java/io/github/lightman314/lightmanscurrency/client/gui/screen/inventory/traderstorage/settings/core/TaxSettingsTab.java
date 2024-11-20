@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -39,13 +39,25 @@ public class TaxSettingsTab extends SettingsSubTab {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(20, 30), this::increaseAcceptableTaxRate)
-                .withAddons(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() < 99)));
-        this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(20, 40), this::decreaseAcceptableTaxRate)
-                .withAddons(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() > 0)));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,30))
+                .pressAction(this::increaseAcceptableTaxRate)
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .addon(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() < 99))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,40))
+                .pressAction(this::decreaseAcceptableTaxRate)
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .addon(EasyAddonHelper.activeCheck(() -> this.getAcceptableTaxRate() > 0))
+                .build());
 
-        this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(30, 80), this::toggleIgnoreAllTaxes, this::getIgnoreAllTaxes)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isIgnoreAllTaxesVisible)));
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(30,80))
+                .pressAction(this::toggleIgnoreAllTaxes)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getIgnoreAllTaxes))
+                .addon(EasyAddonHelper.visibleCheck(this::isIgnoreAllTaxesVisible))
+                .build());
 
     }
 
@@ -86,7 +98,7 @@ public class TaxSettingsTab extends SettingsSubTab {
     {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            this.sendMessage(LazyPacketData.simpleBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
+            this.sendMessage(this.builder().setBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
     }
 
     private void increaseAcceptableTaxRate(EasyButton button)
@@ -96,7 +108,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate + 10 : oldRate + 1;
-            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
+            this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }
     }
 
@@ -107,7 +119,7 @@ public class TaxSettingsTab extends SettingsSubTab {
         {
             int oldRate = trader.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate - 10 : oldRate - 1;
-            this.sendMessage(LazyPacketData.simpleInt("AcceptableTaxRate", newRate));
+            this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }
     }
 

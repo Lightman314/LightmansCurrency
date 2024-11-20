@@ -4,14 +4,16 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -22,7 +24,6 @@ import java.util.List;
 public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends TraderStorageClientTab<T> {
 
     private int selectedTab = 0;
-    private final List<TabButton> tabButtons = new ArrayList<>();
     private final List<TradeRulesClientSubTab> tabs = new ArrayList<>();
 
     private TradeRulesClientSubTab getCurrentTab() {
@@ -45,8 +46,41 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.tabButtons.clear();
-        this.refreshTabs();
+        //Collect tabs
+        this.tabs.clear();
+        this.tabs.add(new RuleToggleTab(this));
+        //Reset Selected Tabs
+        if(firstOpen)
+            this.selectedTab = 0;
+        ITradeRuleHost host = this.commonTab.getHost();
+        if(host != null)
+        {
+            for(TradeRule rule : host.getRules())
+            {
+                try{
+                    this.tabs.add(rule.createTab(this));
+                } catch(Throwable t) {
+                    LightmansCurrency.LogError("Trade Rule of type '" + rule.type + "' encountered an error creating its tab. Trade Rule will not be editable!", t);
+                }
+            }
+        }
+
+        LazyWidgetPositioner tabPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(screenArea.width,0),25));
+
+        //Create Tab buttons
+        for(int i = 0; i < this.tabs.size(); ++i)
+        {
+            final int tabIndex = i;
+
+            TradeRulesClientSubTab tab = this.tabs.get(tabIndex);
+            TabButton button = this.addChild(TabButton.builder()
+                    .pressAction(() -> this.openTab(tabIndex))
+                    .tab(tab)
+                    .addon(EasyAddonHelper.visibleCheck(tab::isVisible))
+                    .addon(EasyAddonHelper.activeCheck(() -> tabIndex != this.selectedTab))
+                    .build());
+            tabPositioner.addWidget(button);
+        }
 
         //Set up the "Current Tab"
         this.getCurrentTab().onOpen();
@@ -84,18 +118,6 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
             }
         }
 
-        //Remove Existing Tab Buttons
-        for(TabButton b : this.tabButtons)
-            this.removeChild(b);
-        this.tabButtons.clear();
-
-        //Create Tab buttons
-        for(int i = 0; i < this.tabs.size(); ++i)
-        {
-            final int tabIndex = i;
-            this.tabButtons.add(this.addChild(new TabButton(b -> this.openTab(tabIndex), this.tabs.get(tabIndex))));
-        }
-
     }
 
     public void openTab(int index)
@@ -109,25 +131,6 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     @Override
     public void tick() {
-
-        //Update Tab Button visiblity
-        for(int i = 0; i < this.tabs.size() && i < this.tabButtons.size(); ++i)
-        {
-            this.tabButtons.get(i).visible = this.tabs.get(i).isVisible();
-            this.tabButtons.get(i).active = this.selectedTab != i;
-        }
-
-        //Reposition buttons
-        ScreenArea screenArea = this.screen.getArea();
-        int yPos = 0;
-        for(TabButton button : this.tabButtons)
-        {
-            if(button.visible)
-            {
-                button.reposition(screenArea.pos.offset(screenArea.width, yPos), 1);
-                yPos += TabButton.SIZE;
-            }
-        }
 
         this.getCurrentTab().tick();
 
@@ -156,13 +159,11 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         public Trade(Object screen, TradeRulesTab.Trade commonTab) { super(screen, commonTab); }
 
         @Override
-        public boolean tabButtonVisible() { return false; }
+        public boolean tabVisible() { return false; }
 
         @Override
         public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE.get(); }
 
-        @Override
-        public void receiveSelfMessage(LazyPacketData message) { this.commonTab.receiveMessage(message); }
     }
 
 }

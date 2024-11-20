@@ -3,13 +3,15 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.BankAccountSelectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,24 +31,37 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
 
     private int scroll = 0;
 
-    public BankAccountSelectionWidget(int x, int y, int width, int rows,@Nonnull Predicate<BankReference> filter, @Nonnull Supplier<BankReference> currentlySelected, @Nonnull Consumer<BankReference> consumer) { this(ScreenPosition.of(x,y),width,rows,filter,currentlySelected,consumer); }
-    public BankAccountSelectionWidget(@Nonnull ScreenPosition position, int width, int rows, @Nonnull Predicate<BankReference> filter, @Nonnull Supplier<BankReference> selectedAccount, @Nonnull Consumer<BankReference> consumer) {
-        super(position, width, rows * BankAccountSelectButton.HEIGHT);
-        this.rows = rows;
-        this.filter = filter;
-        this.selectedAccount = selectedAccount;
-        this.consumer = consumer;
+    private BankAccountSelectionWidget(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.rows = builder.rows;
+        this.filter = builder.filter;
+        this.selectedAccount = builder.selectedAccount;
+        this.consumer = builder.handler;
     }
 
     @Override
-    public void addChildren() {
+    public void addChildren(@Nonnull ScreenArea area) {
         //Scroll Bar
-        this.addChild(new ScrollBarWidget(this.getPosition().offset(this.getWidth(),0),this.getHeight(),this).withAddons(EasyAddonHelper.visibleCheck(this::isVisible)));
-        this.addChild(new ScrollListener(this.getArea(), this));
+        this.addChild(ScrollBarWidget.builder()
+                .onRight(this)
+                .addon(EasyAddonHelper.visibleCheck(this::isVisible))
+                .build());
+        this.addChild(ScrollListener.builder()
+                .area(area)
+                .listener(this)
+                .build());
         for(int i = 0; i < this.rows; ++i)
         {
             final int index = i;
-            this.addChild(new BankAccountSelectButton(this.getPosition().offset(0,i * BankAccountSelectButton.HEIGHT), this.width, () -> this.selectAccount(index), this.selectedAccount, () -> this.getAccount(index), this::isVisible));
+            this.addChild(BankAccountSelectButton.builder()
+                    .position(area.pos.offset(0,i * BankAccountSelectButton.HEIGHT))
+                    .width(this.width)
+                    .pressAction(() -> this.selectAccount(index))
+                    .currentlySelected(this.selectedAccount)
+                    .account(() -> this.getAccount(index))
+                    .visible(this::isVisible)
+                    .build());
         }
     }
 
@@ -72,12 +87,6 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         BankReference account = this.getAccount(index);
         if(account != null)
             this.consumer.accept(account);
-    }
-
-    @Override
-    public BankAccountSelectionWidget withAddons(WidgetAddon... addons) {
-        this.withAddonsInternal(addons);
-        return this;
     }
 
     @Override
@@ -119,4 +128,32 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
     {
         return reference != null && reference.equals(this.selectedAccount.get());
     }
+
+    @Nonnull
+    public static Builder builder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+        private Builder() { super(100,BankAccountSelectButton.HEIGHT); }
+
+        @Override
+        protected Builder getSelf() { return this; }
+
+        int rows = 1;
+        Predicate<BankReference> filter = r -> true;
+        Supplier<BankReference> selectedAccount = () -> null;
+        Consumer<BankReference> handler = r -> {};
+
+        public Builder width(int width) { this.changeWidth(width); return this; }
+        public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * BankAccountSelectButton.HEIGHT); return this; }
+        public Builder filter(Predicate<BankReference> filter) { this.filter = filter; return this; }
+        public Builder selected(Supplier<BankReference> selectedAccount) { this.selectedAccount = selectedAccount; return this; }
+        public Builder handler(Consumer<BankReference> handler) { this.handler = handler; return this; }
+
+        public BankAccountSelectionWidget build() { return new BankAccountSelectionWidget(this); }
+
+    }
+
 }

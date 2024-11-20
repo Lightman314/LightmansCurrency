@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -48,11 +47,25 @@ public class AllyTab extends SettingsSubTab {
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 10, 160, 20, EasyText.empty()));
         this.nameInput.setMaxLength(16);
 
-        this.buttonAddAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 35), 74, 20, LCText.BUTTON_ADD.get(), this::AddAlly));
-        this.buttonRemoveAlly = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 93, 35), 74, 20, LCText.BUTTON_REMOVE.get(), this::RemoveAlly));
+        this.buttonAddAlly = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,35))
+                .width(74)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::AddAlly)
+                .build());
+        this.buttonRemoveAlly = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 93, 35))
+                .width(74)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::RemoveAlly)
+                .build());
 
-        this.display = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(5, 60), screenArea.width - 10, 75, this::getAllyList));
-        this.display.setColumnCount(2);
+        this.display = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(5,60))
+                .size(screenArea.width - 10,75)
+                .text(this::getAllyList)
+                .columns(2)
+                .build());
 
     }
 
@@ -70,21 +83,20 @@ public class AllyTab extends SettingsSubTab {
 
     @Override
     public void tick() {
-        this.nameInput.tick();
         this.buttonAddAlly.active = this.buttonRemoveAlly.active = !this.nameInput.getValue().isEmpty();
     }
 
     private void AddAlly(EasyButton button)
     {
         String allyName = this.nameInput.getValue();
-        this.sendMessage(LazyPacketData.simpleString("AddAlly", allyName));
+        this.sendMessage(this.builder().setString("AddAlly", allyName));
         this.nameInput.setValue("");
     }
 
     private void RemoveAlly(EasyButton button)
     {
         String allyName = this.nameInput.getValue();
-        this.sendMessage(LazyPacketData.simpleString("RemoveAlly", allyName));
+        this.sendMessage(this.builder().setString("RemoveAlly", allyName));
         this.nameInput.setValue("");
     }
 

@@ -29,6 +29,7 @@ public class LCCuriosInternal {
 
     public static final String WALLET_SLOT = "wallet";
 
+    @SuppressWarnings("removal")
     @Nullable
     private static ICuriosItemHandler getCurios(@Nonnull LivingEntity entity) {
         return CuriosApi.getCuriosHelper().getCuriosHandler(entity).orElse(null);
@@ -57,6 +58,22 @@ public class LCCuriosInternal {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
             if(handler != null && handler.getSlots() > 0)
                 return handler.getStacks().getStackInSlot(0);
+        } catch (Throwable t) { LightmansCurrency.LogError("Error with Curios Integration!", t); }
+        return ItemStack.EMPTY;
+    }
+
+    @Nonnull
+    public static ItemStack getVisibleCuriosWalletItem(@Nonnull LivingEntity entity)
+    {
+        try {
+            ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
+            if(handler != null && handler.getSlots() > 0)
+            {
+                ItemStack cosmetic = ItemStack.EMPTY;
+                if(handler.getCosmeticStacks().getSlots() > 0)
+                    cosmetic = handler.getCosmeticStacks().getStackInSlot(0);
+                return cosmetic.isEmpty() ? handler.getStacks().getStackInSlot(0) : cosmetic;
+            }
         } catch (Throwable t) { LightmansCurrency.LogError("Error with Curios Integration!", t); }
         return ItemStack.EMPTY;
     }

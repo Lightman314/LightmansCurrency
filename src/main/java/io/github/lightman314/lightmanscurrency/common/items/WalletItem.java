@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
@@ -18,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletH
 import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -43,18 +45,22 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class WalletItem extends Item{
 	
@@ -67,6 +73,8 @@ public class WalletItem extends Item{
 	public static final int LARGEST_LEVEL = 6;
 	public static final int CONFIG_LIMIT = LARGEST_LEVEL + 1;
 
+	public static final int MAX_WALLET_SLOTS = 78;
+
 	/**
 	 * The number of slots added by each upgrade material
 	 */
@@ -74,7 +82,9 @@ public class WalletItem extends Item{
 	/**
 	 * Maximum slots that can be added by an upgrade
 	 */
-	public static final int SLOT_UPGRADE_LIMIT = 24;
+	public static final int DEFAULT_UPGRADE_LIMIT = 24;
+
+	public static final ResourceLocation DEFAULT_COIN_COLLECT_SOUND = VersionUtil.lcResource("coins_clinking");
 	
 	private final int level;
 	private final int storageSize;
@@ -83,6 +93,8 @@ public class WalletItem extends Item{
 	public final boolean indestructible;
 
 	public final ResourceLocation model;
+	public final int upgradeLimit;
+	private final List<SoundEntry> coinCollectSound;
 
 
 	@Nonnull
@@ -93,7 +105,7 @@ public class WalletItem extends Item{
 	/**
 	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level,storageSize,model,false,0,properties); }
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { this(level,storageSize,model,false,0,DEFAULT_UPGRADE_LIMIT,SoundEntry.WALLET_DEFAULT,properties); }
 	/**
 	 * Default constructor
 	 * @param level The wallets numerical level. Used to allow abilities to be gained at a specific level<br>
@@ -105,7 +117,7 @@ public class WalletItem extends Item{
 	 * @param bonusMagnet The level bonus given to the {@link io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnchantment CoinMagnet} enchantment
 	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
 	 */
-	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, @Nonnull Properties properties)
+	public WalletItem(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, int upgradeLimit, @Nonnull List<SoundEntry> coinCollectSound, @Nonnull Properties properties)
 	{
 		super(properties.stacksTo(1));
 		this.level = level;
@@ -113,6 +125,8 @@ public class WalletItem extends Item{
 		this.indestructible = indestructible;
 		this.bonusMagnet = bonusMagnet;
 		this.model = model;
+		this.upgradeLimit = upgradeLimit;
+		this.coinCollectSound = ImmutableList.copyOf(coinCollectSound);
 	}
 	@Nullable
 	@Override
@@ -159,29 +173,37 @@ public class WalletItem extends Item{
 
 	@Override
 	public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-		//Do nothing on the client
-		if(entity.level().isClientSide)
-			return false;
-		//Make item not despawn if indestructable
-		if(this.indestructible && entity.getAge() >= 0)
-			entity.setUnlimitedLifetime();
+		if(this.indestructible)
+		{
+			//Make item not despawn if indestructable
+			if(entity.getAge() >= 0 && !entity.level().isClientSide)
+				entity.setUnlimitedLifetime();
+			//If indestructable and y < minimum build height, set y velocity to a positive number to force it to bounce in the void
+			if(entity.position().y <= entity.level().getMinBuildHeight())
+			{
+				Vec3 velocity = entity.getDeltaMovement();
+				entity.setDeltaMovement(new Vec3(velocity.x,0.5d,velocity.z));
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public boolean overrideOtherStackedOnMe(@Nonnull ItemStack wallet, @Nonnull ItemStack item, @Nonnull Slot slot, @Nonnull ClickAction action, @Nonnull Player player, @Nonnull SlotAccess slotAccess) {
-		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && InventoryUtil.ItemHasTag(item, LCTags.Items.WALLET_UPGRADE_MATERIAL))
+		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && InventoryUtil.ItemHasTag(item, LCTags.Items.WALLET_UPGRADE_MATERIAL) && wallet.getItem() instanceof WalletItem walletItem)
 		{
 			CompoundTag tag = wallet.getOrCreateTag();
 			int bonusSlots = tag.getInt("BonusSlots");
 			//Still consume the interaction if the item was in fact an upgrade item
-			if(bonusSlots >= SLOT_UPGRADE_LIMIT)
+			if(bonusSlots >= walletItem.upgradeLimit)
 				return true;
 			//Don't allow when in the wallet menu, just to be on the safe side
 			if(player.containerMenu instanceof WalletMenuBase)
 				return true;
 			item.shrink(1);
-			tag.putInt("BonusSlots", Math.min(SLOT_UPGRADE_LIMIT,bonusSlots + SLOTS_PER_UPGRADE));
+			tag.putInt("BonusSlots", Math.min(walletItem.upgradeLimit,bonusSlots + SLOTS_PER_UPGRADE));
+			//Trigger set item code
+			slot.set(wallet);
 			return true;
 		}
 		return false;
@@ -240,10 +262,10 @@ public class WalletItem extends Item{
 
 	public static int BonusSlots(@Nonnull ItemStack walletStack)
 	{
-		if(walletStack.getItem() instanceof WalletItem)
+		if(walletStack.getItem() instanceof WalletItem wallet)
 		{
 			CompoundTag tag = walletStack.getOrCreateTag();
-			return Math.min(SLOT_UPGRADE_LIMIT,tag.getInt("BonusSlots"));
+			return Math.min(wallet.upgradeLimit,tag.getInt("BonusSlots"));
 		}
 		return 0;
 	}
@@ -269,7 +291,7 @@ public class WalletItem extends Item{
 		tooltip.add(LCText.TOOLTIP_WALLET_CAPACITY.get(InventorySize(stack)).withStyle(ChatFormatting.YELLOW));
 
 		int bonusSlots = BonusSlots(stack);
-		if(bonusSlots < SLOT_UPGRADE_LIMIT)
+		if(stack.getItem() instanceof WalletItem wallet && bonusSlots < wallet.upgradeLimit)
 		{
 			ItemStack exampleItem = ListUtil.randomItemFromList(InventoryUtil.GetItemStacksWithTag(LCTags.Items.WALLET_UPGRADE_MATERIAL),ItemStack.EMPTY);
 			if(!exampleItem.isEmpty())
@@ -505,6 +527,28 @@ public class WalletItem extends Item{
 				}
 			}
 		}
+	}
+
+	public static void playCollectSound(@Nonnull LivingEntity entity, @Nonnull ItemStack wallet)
+	{
+		Level level = entity.level();
+		SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(getCoinCollectSound(level,wallet));
+		if(sound != null)
+			level.playSound(null,entity,sound,SoundSource.PLAYERS,0.4f,1f);
+	}
+
+	@Nonnull
+	public static ResourceLocation getCoinCollectSound(@Nonnull Level level, @Nonnull ItemStack wallet)
+	{
+		if(wallet.getItem() instanceof WalletItem item)
+            return SoundEntry.getRandomEntry(level.getRandom(),item.coinCollectSound,DEFAULT_COIN_COLLECT_SOUND);
+		return DEFAULT_COIN_COLLECT_SOUND;
+	}
+
+	public static class Colored extends WalletItem implements DyeableLeatherItem
+	{
+		public Colored(int level, int storageSize, @Nonnull ResourceLocation model, @Nonnull Properties properties) { super(level, storageSize, model, properties); }
+		public Colored(int level, int storageSize, @Nonnull ResourceLocation model, boolean indestructible, int bonusMagnet, int upgradeLimit, @Nonnull List<SoundEntry> coinCollectSound, @Nonnull Properties properties) { super(level, storageSize, model, indestructible, bonusMagnet, upgradeLimit, coinCollectSound, properties); }
 	}
 	
 }

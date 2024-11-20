@@ -36,6 +36,6 @@ public class ResourceOption extends ConfigOption<ResourceLocation> {
 
         @Nonnull
         @Override
-        public String write(@Nonnull ResourceLocation value) { return value.toString(); }
+        public String write(@Nonnull ResourceLocation value) { return StringOption.PARSER.write(value.toString()); }
     }
 }

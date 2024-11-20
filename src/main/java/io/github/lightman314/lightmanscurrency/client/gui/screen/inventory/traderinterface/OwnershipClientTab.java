@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.OwnerSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -29,15 +28,15 @@ import javax.annotation.Nullable;
 
 public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 
-	public OwnershipClientTab(TraderInterfaceScreen screen, OwnershipTab tab) { super(screen, tab); }
-	
+	public OwnershipClientTab(Object screen, OwnershipTab tab) { super(screen, tab); }
+
 	@Nonnull
 	@Override
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_SETTINGS_OWNER.get(); }
-	
+
 	@Override
 	public boolean blockInventoryClosing() { return true; }
 
@@ -46,22 +45,40 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	private OwnerSelectionWidget ownerSelectionWidget;
 	private EditBox playerOwnerInput;
 	private EasyButton playerOwnerButton;
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
 		this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 23, screenArea.y + 26, 160, 20, EasyText.empty()));
 		this.playerOwnerInput.setMaxLength(16);
 
-		this.playerOwnerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(23, 47), 160, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetOwnerPlayer)
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
+		this.playerOwnerButton = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(23,47))
+				.width(160)
+				.text(LCText.BUTTON_OWNER_SET_PLAYER)
+				.pressAction(this::SetOwnerPlayer)
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
+				.build());
 
-		this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(22,26), 153, 5, this::getCurrentOwner, this.commonTab::setOwner, this.ownerSelectionWidget, this::hasBankAccount));
+		this.ownerSelectionWidget = this.addChild(OwnerSelectionWidget.builder()
+				.position(screenArea.pos.offset(22,26))
+				.width(153)
+				.rows(5)
+				.selected(this::getCurrentOwner)
+				.handler(this.commonTab::setOwner)
+				.oldWidget(this.ownerSelectionWidget)
+				.filter(this::hasBankAccount)
+				.build());
 
-		this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
+		this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 25,5))
+				.pressAction(this::toggleInputMode)
+				.icon(this::getModeIcon)
+				.addon(EasyAddonHelper.tooltip(this::getModeTooltip))
+				.build());
 
 		this.updateMode();
-		
+
 	}
 
 	private boolean hasBankAccount(@Nonnull PotentialOwner owner)
@@ -72,12 +89,12 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
+
 		if(this.menu.getBE() == null)
 			return;
 
 		gui.drawString(TextRenderUtil.fitString(LCText.GUI_OWNER_CURRENT.get(this.menu.getBE().getOwnerName()), this.screen.getXSize() - 20), 10, 10, 0x404040);
-		
+
 	}
 
 	@Override

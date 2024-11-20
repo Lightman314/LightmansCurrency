@@ -38,6 +38,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -609,7 +610,7 @@ public class TraderSaveData extends SavedData {
 	@SubscribeEvent
 	public static void onTick(TickEvent.ServerTickEvent event)
 	{
-		if(event.phase != TickEvent.Phase.START || !event.side.isServer())
+		if(event.phase != TickEvent.Phase.START)
 			return;
 		
 		MinecraftServer server = event.getServer();
@@ -618,8 +619,10 @@ public class TraderSaveData extends SavedData {
 			TraderSaveData tsd = get();
 			if(tsd != null)
 			{
-				if(tsd.cleanTick++ >= 1200 && event.haveTime())
+				ProfilerFiller filler = server.getProfiler();
+				if(tsd.cleanTick++ >= 1200)
 				{
+					filler.push("Trader Data Position Validation");
 					tsd.cleanTick = 0;
 					List<TraderData> remove = new ArrayList<>();
 					for(TraderData traderData : new ArrayList<>(tsd.traderData.values()))
@@ -640,9 +643,11 @@ public class TraderSaveData extends SavedData {
 						} catch(NullPointerException e) { LightmansCurrency.LogError("Error deleting missing trader.",e); }
 						new SPacketMessageRemoveClientTrader(traderData.getID()).sendToAll();
 					}
+					filler.pop();
 				}
 				if(server.getTickCount() % 20 == 0 && !tsd.persistentAuctionData.isEmpty())
 				{
+					filler.push("Persistent Auction Tick");
 					List<TraderData> traders = tsd.traderData.values().stream().toList();
 					AuctionHouseTrader ah = null;
 					for(int i = 0; i < traders.size() && ah == null; ++i)
@@ -665,8 +670,11 @@ public class TraderSaveData extends SavedData {
 							}
 						}
 					}
+					filler.pop();
 				}
+				filler.push("Trader Ticks");
 				tsd.tickers.forEach(IEasyTickable::tick);
+				filler.pop();
 			}
 		}
 	}

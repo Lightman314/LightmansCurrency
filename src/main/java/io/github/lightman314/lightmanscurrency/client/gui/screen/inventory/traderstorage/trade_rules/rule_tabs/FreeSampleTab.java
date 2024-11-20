@@ -45,12 +45,26 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
         if(rule != null)
             this.limitInput.setValue(Integer.toString(rule.getLimit()));
 
-        this.buttonSetLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(41, 19), 40, 20, LCText.BUTTON_SET.get(), this::PressSetLimitButton));
-        this.buttonClearMemory = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 55), screenArea.width - 20, 20, LCText.BUTTON_FREE_SAMPLE_RESET.get(), this::PressClearMemoryButton)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_FREE_SAMPLE_RESET)));
+        this.buttonSetLimit = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(41,19))
+                .width(40)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetLimitButton)
+                .build());
+        this.buttonClearMemory = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,55))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_FREE_SAMPLE_RESET)
+                .pressAction(this::PressClearMemoryButton)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_FREE_SAMPLE_RESET))
+                .build());
 
-        this.timeInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 92), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.timeInput.setTime(this.getRule().getTimeLimit());
+        this.timeInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,92))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getTimeLimit())
+                .build());
 
     }
 

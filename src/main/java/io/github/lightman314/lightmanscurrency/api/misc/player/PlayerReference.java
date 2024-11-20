@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.misc.player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -13,14 +14,18 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
+import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -38,8 +43,13 @@ public class PlayerReference {
 	private final String name;
 	public String getName(boolean isClient)
 	{
-		if(isClient || this.forceName)
+		if(this.forceName)
 			return this.name;
+		if(isClient)
+		{
+			String n = ClientPlayerNameCache.lookupName(this.id);
+			return Objects.requireNonNullElse(n,this.name);
+		}
 		else
 		{
 			String n = getPlayerName(this.id);
@@ -49,6 +59,7 @@ public class PlayerReference {
 		}
 	}
 	public MutableComponent getNameComponent(boolean isClient) { return Component.literal(this.getName(isClient)); }
+	public ItemStack getSkull(boolean isClient) { return ItemStackHelper.skullForPlayer(this.getName(isClient)); }
 	
 	private PlayerReference(UUID playerID, String name)
 	{
@@ -120,6 +131,12 @@ public class PlayerReference {
 		json.addProperty("name", this.getName(false));
 		return json;
 	}
+
+	public void encode(FriendlyByteBuf buffer, boolean isClient)
+	{
+		buffer.writeUUID(this.id);
+		buffer.writeUtf(this.getName(isClient));
+	}
 	
 	public static PlayerReference load(CompoundTag compound)
 	{
@@ -143,6 +160,8 @@ public class PlayerReference {
 			return of(id, name);
 		} catch(Exception e) {LightmansCurrency.LogError("Error loading PlayerReference from JsonObject", e); return null; }
 	}
+
+	public static PlayerReference decode(FriendlyByteBuf buffer) { return of(buffer.readUUID(),buffer.readUtf()); }
 	
 	public static void saveList(CompoundTag compound, List<PlayerReference> playerList, String tag)
 	{
@@ -216,7 +235,9 @@ public class PlayerReference {
 			return null;
 		if(isClient)
 		{
-			LightmansCurrency.LogWarning("Attempted to assemble a player reference from name alone on a client. Should not be doing that.");
+			UUID id = ClientPlayerNameCache.lookupID(playerName);
+			if(id != null)
+				return of(id,playerName);
 			return null;
 		}
 		UUID playerID = getPlayerID(playerName);

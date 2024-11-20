@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
@@ -22,6 +23,7 @@ public class TerminalMenu extends EasyMenu implements IValidatedMenu {
     {
         super(ModMenus.NETWORK_TERMINAL.get(), id, inventory, validator);
         this.validator = validator;
+        this.addValidator(p -> !QuarantineAPI.IsDimensionQuarantined(p));
     }
 
     @Nonnull

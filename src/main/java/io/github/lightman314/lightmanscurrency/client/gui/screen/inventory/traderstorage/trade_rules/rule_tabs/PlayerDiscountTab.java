@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
@@ -46,18 +45,37 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 34, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset( 10, 55), 78, 20, LCText.BUTTON_ADD.get(), this::PressAddButton));
-        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 55), 78, 20, LCText.BUTTON_REMOVE.get(), this::PressForgetButton));
+        this.buttonAddPlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,55))
+                .width(78)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::PressAddButton)
+                .build());
+        this.buttonRemovePlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 88, 55))
+                .width(78)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::PressForgetButton)
+                .build());
 
         this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.discountInput.setMaxLength(2);
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(110, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(110,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetDiscountButton)
+                .build());
 
-        this.playerList = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 78), screenArea.width - 14, 61, this::getPlayerList));
-        this.playerList.setColumnCount(2);
+        this.playerList = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(7,78))
+                .size(screenArea.width - 14,61)
+                .text(this::getPlayerList)
+                .columns(2)
+                .build());
 
     }
 
@@ -93,7 +111,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", true)
                     .setString("Name", name));
         }
@@ -105,7 +123,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", false)
                     .setString("Name", name));
         }
@@ -117,7 +135,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             rule.setDiscount(discount);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Discount", discount));
+        this.sendUpdateMessage(this.builder().setInt("Discount", discount));
     }
 
 }

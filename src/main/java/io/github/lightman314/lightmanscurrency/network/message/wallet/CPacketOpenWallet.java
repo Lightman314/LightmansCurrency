@@ -15,7 +15,9 @@ public class CPacketOpenWallet extends ClientToServerPacket {
 	private final int walletStackIndex;
 	
 	public CPacketOpenWallet(int walletStackIndex) { this.walletStackIndex = walletStackIndex;  }
-	
+
+	public static void sendEquippedPacket() { new CPacketOpenWallet(-1).send(); }
+
 	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeInt(this.walletStackIndex); }
 
 	private static class H extends Handler<CPacketOpenWallet>

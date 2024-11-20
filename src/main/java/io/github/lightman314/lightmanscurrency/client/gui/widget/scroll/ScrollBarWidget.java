@@ -1,44 +1,47 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.scroll;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreRender {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/scroll.png");
-	
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/scroll.png");
+
 	public static final int WIDTH = 8;
 	public static final int KNOB_HEIGHT = 29;
 	public static final int SMALL_KNOB_HEIGHT = 9;
-	
+
 	private final IScrollable scrollable;
-	
-	public boolean smallKnob = false;
-	
+
+	private final boolean smallKnob;
+
 	public boolean isDragging = false;
-	
+
 	private int getKnobHeight() { return this.smallKnob ? SMALL_KNOB_HEIGHT : KNOB_HEIGHT; }
-	
-	public ScrollBarWidget(ScreenPosition pos, int height, IScrollable scrollable) { this(pos.x, pos.y, height, scrollable); }
-	public ScrollBarWidget(int x, int y, int height, IScrollable scrollable) {
-		super(x, y, WIDTH, height);
-		this.scrollable = scrollable;
+
+	private ScrollBarWidget(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.scrollable = builder.scrollable;
+		this.smallKnob = builder.smallKnob;
 	}
 
+	/**
+	 * @deprecated Use {@link Builder#onRight(EasyWidget)} instead
+	 */
+	@Deprecated
 	@Nonnull
-	public static <T extends EasyWidget & IScrollable> ScrollBarWidget createOnRight(@Nonnull T widget) { return new ScrollBarWidget(widget.getX() + widget.getWidth(), widget.getY(), widget.getHeight(), widget); }
-
-	@Override
-	public ScrollBarWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	public static <T extends EasyWidget & IScrollable> ScrollBarWidget createOnRight(@Nonnull T widget) { return builder().onRight(widget).build(); }
 
 	public boolean visible() { return this.visible && this.scrollable.getMaxScroll() > this.scrollable.getMinScroll(); }
 
@@ -50,7 +53,7 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-		
+
 		if(!this.visible())
 			return;
 
@@ -67,16 +70,16 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 		}
 		//Render the bottom
 		gui.blit(GUI_TEXTURE, 0, this.height - 8, 0, 248, WIDTH, 8);
-		
+
 		int knobPosition;
 		if(this.isDragging)
 			knobPosition = MathUtil.clamp(gui.mousePos.y - this.getY() - (this.getKnobHeight() / 2), 0, this.height - this.getKnobHeight());
 		else
 			knobPosition = this.getNaturalKnobPosition();
-		
+
 		//Render the knob
 		gui.blit(GUI_TEXTURE, 0, knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
-		
+
 	}
 
 	@Override
@@ -101,32 +104,32 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 			this.isDragging = false;
 			return;
 		}
-		
+
 		//Calculate the y offset
 		int scroll = this.getScrollFromMouse(mouseY);
-		
+
 		if(this.scrollable.currentScroll() != scroll)
 			this.scrollable.setScroll(scroll);
-		
+
 	}
-	
+
 	private int getScrollFromMouse(double mouseY) {
-		
+
 		mouseY -= (double)this.getKnobHeight() / 2d;
 		//Check if the mouse is out of bounds, upon which return the max/min scroll respectively
 		if(mouseY <= this.getY())
 			return this.scrollable.getMinScroll();
 		if(mouseY >= this.getY() + this.height - this.getKnobHeight())
 			return this.scrollable.getMaxScroll();
-		
+
 		//Calculate the scroll based on the mouse position
 		int deltaScroll = this.scrollable.getMaxScroll() - this.scrollable.getMinScroll();
 		if(deltaScroll <= 0)
 			return Integer.MIN_VALUE;
-		
+
 		double sectionHeight = (double)(this.height - this.getKnobHeight()) / (double)deltaScroll;
 		double yPos = (double)this.getY() - (sectionHeight / 2d);
-		
+
 		for(int i = this.scrollable.getMinScroll(); i <= this.scrollable.getMaxScroll(); ++i)
 		{
 			if(mouseY >= yPos && mouseY < yPos + sectionHeight)
@@ -165,5 +168,29 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 		}
 		return false;
 	}
-	
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(WIDTH,20); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private boolean smallKnob = false;
+		private IScrollable scrollable = null;
+
+		public Builder height(int height) { this.changeHeight(height); return this; }
+		public <T extends EasyWidget & IScrollable> Builder onLeft(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(-1 * WIDTH,0)); this.changeHeight(widget.getHeight()); return this; }
+		public <T extends EasyWidget & IScrollable> Builder onRight(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(widget.getWidth(),0)); this.changeHeight(widget.getHeight()); return this; }
+		public Builder scrollable(IScrollable scrollable) { this.scrollable = scrollable; return this; }
+		public Builder smallKnob() { this.smallKnob = true; return this; }
+
+		public ScrollBarWidget build() { return new ScrollBarWidget(this); }
+
+	}
+
 }

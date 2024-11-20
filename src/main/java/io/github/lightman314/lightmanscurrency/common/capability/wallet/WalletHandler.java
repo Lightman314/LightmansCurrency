@@ -85,6 +85,13 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
     }
 
     @Override
+    public ItemStack getVisibleWallet() {
+        if(LCCurios.isLoaded())
+            return LCCurios.getVisibleCuriosWalletItem(this.entity);
+        return this.walletItem;
+    }
+
+    @Override
     public void setWallet(ItemStack walletStack) {
 
         if(LCCurios.hasWalletSlot(this.entity))

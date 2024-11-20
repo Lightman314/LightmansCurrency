@@ -37,54 +37,65 @@ import javax.annotation.Nonnull;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
-	public InfoClientTab(TraderInterfaceScreen screen, InfoTab tab) { super(screen, tab); }
+	public InfoClientTab(Object screen, InfoTab tab) { super(screen, tab); }
 
 	TradeButton tradeDisplay;
 	TradeButton newTradeDisplay;
-	
+
 	DropdownWidget interactionDropdown;
-	
+
 	EasyButton acceptChangesButton;
 
 	private final ScreenArea WARNING_AREA = ScreenArea.of(45, 69, 16, 16);
-	
+
 	@Nonnull
-    @Override
+	@Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_INFO.get(); }
 
-    @Override
+	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getReferencedTrade, TradeButton.NULL_PRESS));
-		this.tradeDisplay.setPosition(screenArea.pos.offset(6, 47));
-		this.tradeDisplay.displayOnly = true;
-		this.newTradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getTrueTrade, TradeButton.NULL_PRESS));
+
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(6,47))
+				.context(this.menu::getTradeContext)
+				.trade(this.menu.getBE()::getReferencedTrade)
+				.displayOnly()
+				.build());
+		this.newTradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(6,91))
+				.context(this.menu::getTradeContext)
+				.trade(this.menu.getBE()::getTrueTrade)
+				.displayOnly()
+				.build());
 		this.newTradeDisplay.setPosition(screenArea.pos.offset(6, 91));
 		this.newTradeDisplay.visible = false;
-		this.newTradeDisplay.displayOnly = true;
-		
+
 		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
-		
-		this.acceptChangesButton = this.addChild(new IconButton(screenArea.pos.offset(181,90), this::AcceptTradeChanges, IconUtil.ICON_CHECKMARK)
-				.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES.get())));
+
+		this.acceptChangesButton = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(181,90))
+				.pressAction(this::AcceptTradeChanges)
+				.icon(IconUtil.ICON_CHECKMARK)
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES))
+				.build());
 		this.acceptChangesButton.visible = false;
-		
+
 	}
-	
+
 	private List<Component> getWarningMessages() {
 		if(this.menu.getBE() == null)
 			return new ArrayList<>();
-		
+
 		//Get last result
 		List<Component> list = new ArrayList<>();
 		TradeResult result = this.menu.getBE().mostRecentTradeResult();
 		Component message = result.getMessage();
 		if(message != null)
 			list.add(message);
-		
+
 		if(this.menu.getBE().getInteractionType().trades)
 		{
 			TradeData referencedTrade = this.menu.getBE().getReferencedTrade();
@@ -120,7 +131,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
+
 		if(this.menu.getBE() == null)
 			return;
 
@@ -139,11 +150,11 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				infoText = LCText.GUI_INTERFACE_INFO_TRADER_NULL.get();
 		}
 		gui.drawString(TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), 8, 16, 0x404040);
-		
+
 		this.tradeDisplay.visible = this.menu.getBE().getInteractionType().trades;
 		this.newTradeDisplay.visible = this.tradeDisplay.visible && this.changeInTrades();
 		this.acceptChangesButton.visible = this.newTradeDisplay.visible;
-		
+
 		if(this.tradeDisplay.visible)
 		{
 			//If no defined trade, give "No Trade Selected" message.
@@ -155,11 +166,11 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			//Render the down arrow
 			gui.resetColor();
 			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
-			
+
 			//If no found trade, give "Trade No Longer Exists" message.
 			if(this.menu.getBE().getTrueTrade() == null)
 				gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_MISSING.getWithStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
-			
+
 		}
 
 		IBankAccount account = this.menu.getBE().getBankAccount();
@@ -179,9 +190,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			gui.resetColor();
 			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
 		}
-		
+
 	}
-	
+
 	public boolean changeInTrades() {
 		TradeData referencedTrade = this.menu.getBE().getReferencedTrade();
 		TradeData trueTrade = this.menu.getBE().getTrueTrade();
@@ -194,7 +205,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 	@Override
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
-		
+
 		if(this.menu.getBE() == null)
 			return;
 
@@ -204,14 +215,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			if(!warnings.isEmpty())
 				gui.renderComponentTooltip(warnings);
 		}
-		
+
 	}
-	
+
 	private void onInteractionSelect(int newTypeIndex) {
 		InteractionType newType = InteractionType.fromIndex(newTypeIndex);
 		this.commonTab.changeInteractionType(newType);
 	}
-	
+
 	private void AcceptTradeChanges(EasyButton button) {
 		this.commonTab.acceptTradeChanges();
 	}

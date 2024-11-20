@@ -72,7 +72,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         if(this.isFree())
             this.input.setValue("");
         if(!this.prefix.getString().isEmpty())
-            gui.drawShadowed(this.prefix, widgetArea.pos.offset(10, 28), 0xFFFFFF);
+            gui.drawShadowed(this.prefix, 10, 28, 0xFFFFFF);
         if(!this.postfix.getString().isEmpty())
         {
             int width = gui.font.width(this.postfix);

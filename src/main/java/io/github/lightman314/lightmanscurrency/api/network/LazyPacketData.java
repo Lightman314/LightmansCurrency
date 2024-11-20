@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class LazyPacketData {
 
@@ -223,6 +224,19 @@ public final class LazyPacketData {
         public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value)); return this; }
         public Builder setOwner(String key, Owner value) { this.data.put(key, Data.ofOwner(value)); return this; }
 
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder("LazyPacketData$Builder[");
+            AtomicBoolean notFirst = new AtomicBoolean(false);
+            this.data.forEach((key,val) -> {
+                if(notFirst.get())
+                    builder.append(",");
+                builder.append(key).append(":");
+                builder.append(val.toString());
+                notFirst.set(true);
+            });
+            return builder.append("]").toString();
+        }
 
         public LazyPacketData build() { return new LazyPacketData(this.data); }
 
@@ -232,6 +246,20 @@ public final class LazyPacketData {
     {
         @Nonnull
         Builder builder();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("LazyPacketData[");
+        AtomicBoolean notFirst = new AtomicBoolean(false);
+        this.dataMap.forEach((key,val) -> {
+            if(notFirst.get())
+                builder.append(",");
+            builder.append(key).append(":");
+            builder.append(val.toString());
+            notFirst.set(true);
+        });
+        return builder.append("]").toString();
     }
 
     private record Data(byte type, Object value) {
@@ -322,6 +350,9 @@ public final class LazyPacketData {
                 return ofNBT(buffer.readAnySizeNbt());
             throw new RuntimeException("Could not decode entry of type " + type + "as it is not a valid data entry type!");
         }
+
+        @Override
+        public String toString() { return String.valueOf(this.value); }
 
     }
 

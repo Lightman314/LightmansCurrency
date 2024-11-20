@@ -6,6 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -67,23 +70,13 @@ public abstract class EasyWidget extends AbstractWidget {
 
     public final boolean isMouseOver(ScreenPosition mousePos) { return this.isMouseOver(mousePos.x, mousePos.y); }
 
-    protected EasyWidget(int x, int y, int width, int height) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height)); }
-    protected EasyWidget(int x, int y, int width, int height, Component title) { this(ScreenArea.of(ScreenPosition.of(x, y), width, height), title); }
-    protected EasyWidget(ScreenPosition position, int width, int height) { this(ScreenArea.of(position, width, height)); }
-    protected EasyWidget(ScreenPosition position, int width, int height, Component title) { this(ScreenArea.of(position, width, height), title); }
-    protected EasyWidget(ScreenArea area) { this(area, EasyText.empty()); }
-    protected EasyWidget(ScreenArea area, Component title)
-    {
-        super(area.x, area.y, area.width, area.height, title);
-        this.area = area;
+    protected EasyWidget(@Nonnull EasyBuilder<?> builder) {
+        super(builder.area.x, builder.area.y, builder.area.width, builder.area.height, EasyText.empty());
+        this.area = builder.area;
+        this.withAddonsInternal(builder.addons);
     }
 
-    /**
-     * Should be overridden with { this.withAddonsInternal(addons); return this; }
-     */
-    public abstract Object withAddons(WidgetAddon... addons);
-
-    protected final void withAddonsInternal(WidgetAddon... addons)
+    protected final void withAddonsInternal(@Nonnull List<WidgetAddon> addons)
     {
         if(this.lockAddons)
             return;
@@ -108,12 +101,6 @@ public abstract class EasyWidget extends AbstractWidget {
             consumer.accept(addon);
     }
 
-    @Override
-    public final void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-        this.renderTickInternal();
-        super.render(gui, mouseX, mouseY, partialTick);
-    }
-
     private void visibleTickInternal() {
         this.addons.forEach(WidgetAddon::visibleTick);
     }
@@ -123,7 +110,7 @@ public abstract class EasyWidget extends AbstractWidget {
         this.addons.forEach(WidgetAddon::activeTick);
     }
 
-    private void renderTickInternal() {
+    public void renderTickInternal() {
         this.activeTickInternal();
         this.addons.forEach(WidgetAddon::renderTick);
         this.renderTick();
@@ -150,5 +137,51 @@ public abstract class EasyWidget extends AbstractWidget {
 
     @Override
     protected void updateWidgetNarration(@Nonnull NarrationElementOutput narrator) { }
+
+    @FieldsAreNonnullByDefault
+    @MethodsReturnNonnullByDefault
+    public static abstract class EasyBuilder<T extends EasyBuilder<T>>
+    {
+
+        private ScreenArea area;
+        private final List<WidgetAddon> addons = new ArrayList<>();
+
+        protected EasyBuilder() { this(20,20); }
+        protected EasyBuilder(int defaultWidth,int defaultHeight) { this.area = ScreenArea.of(0,0,defaultWidth,defaultHeight); }
+
+        protected abstract T getSelf();
+
+        public final T position(int x, int y) { this.area = this.area.atPosition(x,y); return this.getSelf(); }
+        public final T position(ScreenPosition position) { this.area = this.area.atPosition(position); return this.getSelf(); }
+
+        protected final void changeWidth(int width) { this.area = this.area.ofSize(width,this.area.height); }
+        protected final void changeHeight(int height) { this.area = this.area.ofSize(this.area.width,height); }
+        protected final void changeSize(int width, int height) { this.area = this.area.ofSize(width,height); }
+
+        public final T addon(WidgetAddon addon) { this.addons.add(addon); return this.getSelf(); }
+
+        public final T copyFrom(EasyBuilder<?> other) {
+            this.area = other.area;
+            this.addons.clear();
+            this.addons.addAll(other.addons);
+            return this.getSelf();
+        }
+
+    }
+
+    public static abstract class EasySizableBuilder<T extends EasySizableBuilder<T>> extends EasyBuilder<T>
+    {
+        protected EasySizableBuilder() { }
+        protected EasySizableBuilder(int defaultWidth, int defaultHeight) { super(defaultWidth,defaultHeight); }
+
+        public final T area(ScreenArea area) { this.changeSize(area.width,area.height); this.position(area.pos); return this.getSelf(); }
+        public final T width(int width) { this.changeWidth(width); return this.getSelf(); }
+        public final T height(int height) { this.changeHeight(height); return this.getSelf(); }
+        public final T size(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
+    }
+
+    public static void drawScrollingString(GuiGraphics gui, Font font, Component text, int startX, int startY, int stopX, int stopY, int color) {
+        AbstractWidget.renderScrollingString(gui,font,text,startX,startY,stopX,stopY,color);
+    }
 
 }

@@ -67,16 +67,35 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         {
             buttonCount = MAX_BUTTON_COUNT;
 
-            this.addChild(new ScrollListener(widgetArea, this));
-            this.buttonScrollLeft = this.addChild(new PlainButton(widgetArea.pos.offset(4,29), b -> this.scrollLeft(), MoneyValueWidget.SPRITE_LEFT_ARROW));
-            this.buttonScrollRight = this.addChild(new PlainButton(widgetArea.pos.offset(widgetArea.width - 14, 29), b -> this.scrollRight(), MoneyValueWidget.SPRITE_RIGHT_ARROW));
+            this.addChild(ScrollListener.builder()
+                    .area(widgetArea)
+                    .listener(this)
+                    .build());
+            this.buttonScrollLeft = this.addChild(PlainButton.builder()
+                    .position(widgetArea.pos.offset(4,29))
+                    .pressAction(this::scrollLeft)
+                    .sprite(MoneyValueWidget.SPRITE_LEFT_ARROW)
+                    .build());
+            this.buttonScrollRight = this.addChild(PlainButton.builder()
+                    .position(widgetArea.pos.offset(widgetArea.width - 14, 29))
+                    .pressAction(this::scrollRight)
+                    .sprite(MoneyValueWidget.SPRITE_RIGHT_ARROW)
+                    .build());
         }
         int startX = this.getStartX(widgetArea);
         for(int x = 0; x < buttonCount; x++)
         {
-            EasyButton newButton = this.addChild(new PlainButton(widgetArea.pos.offset(startX + (x * SEGMENT_TOTAL),19), this::IncreaseButtonHit, MoneyValueWidget.SPRITE_UP_ARROW));
+            EasyButton newButton = this.addChild(PlainButton.builder()
+                    .position(widgetArea.pos.offset(startX + (x * SEGMENT_TOTAL),19))
+                    .pressAction(this::IncreaseButtonHit)
+                    .sprite(MoneyValueWidget.SPRITE_UP_ARROW)
+                    .build());
             this.increaseButtons.add(newButton);
-            newButton = this.addChild(new PlainButton(widgetArea.pos.offset(startX + (x * SEGMENT_TOTAL),57), this::DecreaseButtonHit, MoneyValueWidget.SPRITE_DOWN_ARROW));
+            newButton = this.addChild(PlainButton.builder()
+                    .position(widgetArea.pos.offset(startX + (x * SEGMENT_TOTAL),57))
+                    .pressAction(this::DecreaseButtonHit)
+                    .sprite(MoneyValueWidget.SPRITE_DOWN_ARROW)
+                    .build());
             this.decreaseButtons.add(newButton);
         }
     }

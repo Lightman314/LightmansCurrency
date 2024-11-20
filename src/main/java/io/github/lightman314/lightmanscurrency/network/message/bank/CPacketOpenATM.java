@@ -1,8 +1,12 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.ChatFormatting;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -26,7 +30,12 @@ public class CPacketOpenATM extends ClientToServerPacket.Simple {
 		@Override
 		public void handle(@Nonnull CPacketOpenATM message, @Nullable ServerPlayer sender) {
 			if(sender != null)
-				NetworkHooks.openScreen(sender, PortableATMItem.getMenuProvider(), EasyMenu.nullEncoder());
+			{
+				if(QuarantineAPI.IsDimensionQuarantined(sender))
+					EasyText.sendMessage(sender, LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.getWithStyle(ChatFormatting.GOLD));
+				else
+					NetworkHooks.openScreen(sender, PortableATMItem.getMenuProvider(), EasyMenu.nullEncoder());
+			}
 		}
 	}
 

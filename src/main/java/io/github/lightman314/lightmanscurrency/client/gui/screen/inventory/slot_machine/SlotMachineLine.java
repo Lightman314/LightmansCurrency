@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 
 public final class SlotMachineLine {
 
-
     public static int BLOCK_SIZE = 18;
 
     private final SlotMachineRenderer parent;

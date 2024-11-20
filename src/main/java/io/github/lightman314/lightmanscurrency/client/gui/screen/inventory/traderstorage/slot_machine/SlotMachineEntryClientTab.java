@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -30,8 +31,6 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public static final int ENTRY_COLUMNS = 2;
     public static final int ENTRIES_PER_PAGE = ENTRY_ROWS * ENTRY_COLUMNS;
 
-
-
     private int scroll = 0;
     private EasyButton buttonAddEntry;
 
@@ -48,19 +47,35 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public void initialize(ScreenArea screenArea, boolean firstOpen)
     {
 
-        this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 145, this));
+        this.addChild(ScrollListener.builder()
+                .position(screenArea.pos)
+                .size(screenArea.width,145)
+                .listener(this)
+                .build());
 
         for(int y = 0; y < ENTRY_ROWS; ++y)
         {
             for(int x = 0; x < ENTRY_COLUMNS; x++)
             {
-                this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * 2) + x)));
+                this.addChild(SlotMachineEntryEditWidget.builder()
+                        .position(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)))
+                        .tab(this)
+                        .index(this.supplierForIndex((y * 2) + x))
+                        .build());
             }
         }
 
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(19 + (SlotMachineEntryEditWidget.WIDTH * 2), 10), SlotMachineEntryEditWidget.HEIGHT * ENTRY_ROWS, this));
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(19 + (SlotMachineEntryEditWidget.WIDTH * 2),10))
+                .height(SlotMachineEntryEditWidget.HEIGHT * ENTRY_ROWS)
+                .scrollable(this)
+                .build());
 
-        this.buttonAddEntry = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width - 14, 4), this::AddEntry));
+        this.buttonAddEntry = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 14,4))
+                .pressAction(this::AddEntry)
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .build());
 
         this.tick();
 

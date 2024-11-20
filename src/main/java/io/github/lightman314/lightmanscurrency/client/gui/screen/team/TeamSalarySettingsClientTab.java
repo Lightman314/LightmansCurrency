@@ -43,14 +43,33 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
 
         ITeam team = this.menu.selectedTeam();
 
-        this.toggleAutoSalaryButton = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), screenArea.width - 40, 20, this::getToggleButtonText, this::ToggleAutoSalary));
+        this.toggleAutoSalaryButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,20))
+                .width(screenArea.width - 40)
+                .text(this::getToggleButtonText)
+                .pressAction(this::ToggleAutoSalary)
+                .build());
 
-        this.toggleSalaryNotificationButton = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(20, 45),this::ToggleSalaryNotification,this::isSalaryNotificationEnabled));
+        this.toggleSalaryNotificationButton = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,45))
+                .pressAction(this::ToggleSalaryNotification)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isSalaryNotificationEnabled))
+                .build());
 
-        this.salaryDelayInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(20, 80), 20, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.HOUR, this::SetSalaryDelay));
-        this.salaryDelayInput.setTime(team == null ? 0 : team.getSalaryDelay());
+        this.salaryDelayInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(20,80))
+                .spacing(20)
+                .unitRange(TimeUtil.TimeUnit.HOUR, TimeUtil.TimeUnit.DAY)
+                .handler(this::SetSalaryDelay)
+                .startTime(team == null ? 0 : team.getSalaryDelay())
+                .build());
 
-        this.manualTriggerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 150), screenArea.width - 40, 20, LCText.BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY.get(), this.commonTab::ManuallyTriggerSalary));
+        this.manualTriggerButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,150))
+                .width(screenArea.width - 40)
+                .text(LCText.BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY)
+                .pressAction(this.commonTab::ManuallyTriggerSalary)
+                .build());
 
     }
 

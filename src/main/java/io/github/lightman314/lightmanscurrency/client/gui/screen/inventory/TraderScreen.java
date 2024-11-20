@@ -2,13 +2,16 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -21,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,20 +32,20 @@ import net.minecraft.world.inventory.Slot;
 
 public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderScreen {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
-	
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/trader.png");
+
 	public static final int WIDTH = 206;
 	public static final int HEIGHT = 236;
 
 	private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(TraderMenu.SLOT_OFFSET + 160, HEIGHT - 96);
 
 	private final TraderClientTab DEFAULT_TAB = new TraderInteractionTab(this);
-	
+
 	IconButton buttonOpenStorage;
 	IconButton buttonCollectCoins;
 
 	IconButton buttonOpenTerminal;
-	
+
 	TraderClientTab currentTab = DEFAULT_TAB;
 	@Override
 	public void setTab(@Nonnull TraderClientTab tab) {
@@ -53,24 +57,34 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	}
 	public void closeTab() { this.setTab(DEFAULT_TAB); }
 
-	public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_BOTTOMUP, -20, TraderScreen.HEIGHT - 20, 20);
-	
+	public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createBottomup(), -20, TraderScreen.HEIGHT - 20, 20);
+
 	protected boolean forceShowTerminalButton() { return false; }
 
 	public TraderScreen(TraderMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		this.resize(TraderScreen.WIDTH, TraderScreen.HEIGHT);
 	}
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea) {
 
 		this.leftEdgePositioner.clear();
 		this.addChild(this.leftEdgePositioner);
-		
-		this.buttonOpenStorage = this.addChild(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
-		this.buttonCollectCoins = this.addChild(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
-		this.buttonOpenTerminal = this.addChild(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
+
+		this.buttonOpenStorage = this.addChild(IconButton.builder()
+				.pressAction(this::OpenStorage)
+				.icon(IconUtil.ICON_STORAGE)
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE))
+				.build());
+		this.buttonCollectCoins = this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getSingleTrader));
+		this.buttonOpenTerminal = this.addChild(IconButton.builder()
+				.pressAction(this::OpenTerminal)
+				.icon(IconUtil.ICON_BACK)
+				.addon(EasyAddonHelper.visibleCheck(this::showTerminalButton))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
+				.build());
 		this.buttonOpenTerminal.visible = this.showTerminalButton();
 
 		this.leftEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
@@ -87,14 +101,14 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		this.currentTab.onOpen();
 
 		this.containerTick();
-		
+
 	}
-	
+
 	private boolean showTerminalButton() { return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); }
 
 	@Override
 	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
+
 		//Main BG
 		gui.renderNormalBackground(GUI_TEXTURE, this);
 
@@ -109,7 +123,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
 			gui.blit(GUI_TEXTURE, this.menu.getInteractionSlot().x - 1, this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
-		
+
 		try { this.currentTab.renderBG(gui);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader tab " + this.currentTab.getClass().getName(), t); }
 
@@ -131,17 +145,17 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 			gui.renderComponentTooltip(this.menu.getContext(null).getAvailableFundsDescription());
 
 	}
-	
+
 	private void OpenStorage(EasyButton button) {
 		if(this.menu.isSingleTrader())
 			new CPacketOpenStorage(this.menu.getSingleTrader().getID()).send();
 	}
-	
+
 	private void CollectCoins(EasyButton button) {
 		if(this.menu.isSingleTrader())
 			CPacketCollectCoins.sendToServer();
 	}
-	
+
 	private void OpenTerminal(EasyButton button) {
 		if(this.showTerminalButton())
 			new CPacketOpenNetworkTerminal().send();

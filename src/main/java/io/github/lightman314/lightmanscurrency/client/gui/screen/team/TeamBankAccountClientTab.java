@@ -35,9 +35,19 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonCreateBankAccount = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), 160, 20, LCText.BUTTON_TEAM_BANK_CREATE.get(), this::createBankAccount));
+        this.buttonCreateBankAccount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,20))
+                .width(160)
+                .text(LCText.BUTTON_TEAM_BANK_CREATE)
+                .pressAction(this::createBankAccount)
+                .build());
 
-        this.buttonToggleAccountLimit = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 60), 160, 20, this::getBankLimitText, this::toggleBankLimit));
+        this.buttonToggleAccountLimit = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,60))
+                .width(160)
+                .text(this::getBankLimitText)
+                .pressAction(this::toggleBankLimit)
+                .build());
 
     }
 
@@ -85,9 +95,6 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
         return team == null ? 2 : team.getBankLimit();
     }
 
-    private Component getBankLimitText()
-    {
-        return LCText.BUTTON_TEAM_BANK_LIMIT.get(Owner.getOwnerLevelBlurb(this.getBankLimit()));
-    }
+    private Component getBankLimitText() { return LCText.BUTTON_TEAM_BANK_LIMIT.get(Owner.getOwnerLevelBlurb(this.getBankLimit())); }
 
 }

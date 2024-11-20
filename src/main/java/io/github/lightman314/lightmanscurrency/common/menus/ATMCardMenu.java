@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -27,6 +28,7 @@ public class ATMCardMenu extends LazyMessageMenu {
         super(ModMenus.ATM_CARD.get(), id, inventory);
         this.addValidator(this::isBankCardValid);
         this.addValidator(player -> !this.getAccountLocked() || LCAdminMode.isAdminPlayer(player));
+        this.addValidator(player -> !QuarantineAPI.IsDimensionQuarantined(player));
         this.inventorySlot = inventorySlot;
         //Add slot with the card item to force it to be synced with the client?
         this.addSlot(new DisplaySlot(inventory,inventorySlot,6,6));

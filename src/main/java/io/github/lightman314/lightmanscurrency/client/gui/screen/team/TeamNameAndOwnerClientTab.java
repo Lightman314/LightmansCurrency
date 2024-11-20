@@ -49,18 +49,33 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
         this.nameInput.setMaxLength(Team.MAX_NAME_LENGTH);
         this.nameInput.setValue(this.safeGetName());
 
-        this.buttonChangeName = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 45), 160, 20, LCText.BUTTON_TEAM_RENAME.get(), this::changeName));
+        this.buttonChangeName = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,45))
+                .width(160)
+                .text(LCText.BUTTON_TEAM_RENAME)
+                .pressAction(this::changeName)
+                .build());
         this.buttonChangeName.active = false;
 
         this.newOwnerName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 90, 160, 20, EasyText.empty()));
         this.newOwnerName.setMaxLength(16);
 
-        this.buttonChangeOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 115), 160, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::setNewOwner)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
+        this.buttonChangeOwner = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,115))
+                .width(160)
+                .text(LCText.BUTTON_OWNER_SET_PLAYER)
+                .pressAction(this::setNewOwner)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW)))
+                .build());
         this.buttonChangeOwner.active = false;
 
-        this.buttonDisbandTeam = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 160),160, 20, LCText.BUTTON_TEAM_DISBAND.get(), this::disbandTeam)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW))));
+        this.buttonDisbandTeam = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,160))
+                .width(160)
+                .text(LCText.BUTTON_TEAM_DISBAND)
+                .pressAction(this::disbandTeam)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW)))
+                .build());
 
         this.tick();
 

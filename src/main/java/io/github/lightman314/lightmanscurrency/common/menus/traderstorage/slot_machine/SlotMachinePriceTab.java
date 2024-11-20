@@ -8,33 +8,23 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
-import java.util.function.Function;
 
 public class SlotMachinePriceTab extends TraderStorageTab {
 
 
     public SlotMachinePriceTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Object createClientTab(Object screen) { return new SlotMachinePriceClientTab(screen, this); }
+    public Object createClientTab(@Nonnull Object screen) { return new SlotMachinePriceClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
-
-    @Override
-    public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 
     public void SetPrice(MoneyValue newPrice)
     {
@@ -42,7 +32,7 @@ public class SlotMachinePriceTab extends TraderStorageTab {
         {
             trader.setPrice(newPrice);
             if(this.menu.isClient())
-                this.menu.SendMessage(LazyPacketData.simpleMoneyValue("SetPrice", newPrice));
+                this.menu.SendMessage(this.builder().setMoneyValue("SetPrice", newPrice));
         }
     }
 

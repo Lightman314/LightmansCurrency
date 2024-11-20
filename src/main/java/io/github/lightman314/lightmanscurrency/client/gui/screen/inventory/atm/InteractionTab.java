@@ -6,24 +6,23 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.BankInteractionWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.IBankInteractionHandler;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 
-public class InteractionTab extends ATMTab implements IBankAccountWidget{
+public class InteractionTab extends ATMTab implements IBankInteractionHandler {
 
 	public InteractionTab(ATMScreen screen) { super(screen); }
-	
-	BankAccountWidget accountWidget;
-	
+
+	BankInteractionWidget accountWidget;
+
 	@Nonnull
 	@Override
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
@@ -33,10 +32,13 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		this.accountWidget = this.addChild(new BankAccountWidget(screenArea.y, this, 14, this::addChild));
-		this.accountWidget.getAmountSelection().drawBG = false;
-		
+
+		this.accountWidget = this.addChild(BankInteractionWidget.builder()
+				.position(screenArea.pos)
+				.handler(this)
+				.spacing(19)
+				.build());
+
 	}
 
 	@Override
@@ -46,11 +48,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 		if(account != null)
 			accountName = account.getName();
 		gui.drawString(accountName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
-		this.accountWidget.renderInfo(gui);
 	}
-
-	@Override
-	public Screen getScreen() { return this.screen; }
 
 	@Override
 	public IBankAccount getBankAccount() { return this.screen.getMenu().getBankAccount(); }

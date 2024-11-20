@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.google.gson.JsonObject;
 
@@ -303,9 +303,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public void loadAdditionalPersistentData(CompoundTag data) { }
 
 	@Override
-	public Function<TradeData,Boolean> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) {
-		return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid();
-	}
+	public Predicate<TradeData> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) { return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid(); }
 	
 	@Override
 	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {

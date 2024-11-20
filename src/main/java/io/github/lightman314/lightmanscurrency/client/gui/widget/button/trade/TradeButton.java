@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -13,15 +12,16 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +29,7 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class TradeButton extends EasyButton implements ITooltipSource {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/trade.png");
 
 	public static  final int ARROW_WIDTH = 22;
 	public static  final int ARROW_HEIGHT = 18;
@@ -48,17 +48,17 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	}
 	private final Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
-	public boolean displayOnly = false;
 
-	public TradeButton(@Nonnull Supplier<TradeContext> contextSource, @Nonnull Supplier<TradeData> tradeSource, Consumer<EasyButton> press) {
-		super(0, 0, 0, BUTTON_HEIGHT, press);
-		this.tradeSource = tradeSource;
-		this.contextSource = contextSource;
+	private final boolean displayOnly;
+
+	private TradeButton(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.tradeSource = builder.trade;
+		this.contextSource = builder.context;
+		this.displayOnly = builder.displayOnly;
 		this.recalculateSize();
 	}
-
-	@Override
-	public TradeButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
 
 	private void recalculateSize()
 	{
@@ -71,7 +71,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	}
 
 	/**
-	 * @deprecated Use setPosition(x,y) or setPosition(ScreenPosition)
+	 * @deprecated Use {@link #setPosition(int, int)}, {@link #setPosition(ScreenPosition)}, or set the position in {@link Builder}
 	 */
 	@Deprecated
 	public void move(int x, int y) { this.setPosition(x, y); }
@@ -242,48 +242,6 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			tooltips.add(alert.getFormattedMessage());
 	}
 
-	@Deprecated(since = "2.2.3.0")
-	public void onInteractionClick(int mouseX, int mouseY, int button, InteractionConsumer consumer)
-	{
-		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
-			return;
-
-		TradeData trade = this.getTrade();
-		if(trade == null)
-			return;
-		TradeRenderManager<?> tr = trade.getButtonRenderer();
-		if(tr == null)
-			return;
-
-		TradeContext context = this.getContext();
-
-		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(tr, context);
-		for(int i = 0; i < inputDisplays.size(); ++i)
-		{
-			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
-			{
-				consumer.onTradeButtonInputInteraction(context.getTrader(), trade, i, button);
-				return;
-			}
-		}
-
-		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(tr, context);
-		for(int i = 0; i < outputDisplays.size(); ++i)
-		{
-			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
-			{
-				consumer.onTradeButtonOutputInteraction(context.getTrader(), trade, i, button);
-				return;
-			}
-		}
-
-		//Only run the default interaction code if you didn't hit an input or output display
-		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.getX(), mouseY - this.getY(), button);
-
-	}
-
 	public void HandleInteractionClick(int mouseX, int mouseY, int button, @Nonnull TradeInteractionHandler handler)
 	{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
@@ -360,6 +318,30 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		if(this.getContext().isStorageMode || this.displayOnly)
 			return false;
 		return super.isValidClickButton(button);
+	}
+
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+		private Builder() { super(0,BUTTON_HEIGHT); }
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		Supplier<TradeContext> context = () -> null;
+		Supplier<TradeData> trade = () -> null;
+		boolean displayOnly = false;
+
+		public Builder context(Supplier<TradeContext> context) { this.context = context; return this; }
+		public Builder trade(TradeData trade) { return this.trade(() -> trade); }
+		public Builder trade(Supplier<TradeData> trade) { this.trade = trade; return this; }
+		public Builder displayOnly() { this.displayOnly = true; return this; }
+
+		public TradeButton build() { return new TradeButton(this); }
+
 	}
 
 }

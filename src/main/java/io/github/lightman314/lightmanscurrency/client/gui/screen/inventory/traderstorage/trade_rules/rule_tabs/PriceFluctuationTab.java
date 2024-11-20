@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
@@ -42,10 +41,19 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         if(rule != null)
             this.fluctuationInput.setValue(Integer.toString(rule.getFluctuation()));
 
-        this.buttonSetFluctuation = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetFluctuationButton));
+        this.buttonSetFluctuation = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(125,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetFluctuationButton)
+                .build());
 
-        this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.durationInput.setTime(this.getRule().getDuration());
+        this.durationInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,75))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getDuration())
+                .build());
 
     }
 
@@ -73,7 +81,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         PriceFluctuation rule = this.getRule();
         if(rule != null)
             rule.setFluctuation(fluctuation);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Fluctuation", fluctuation));
+        this.sendUpdateMessage(this.builder().setInt("Fluctuation", fluctuation));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)
@@ -81,8 +89,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         PriceFluctuation rule = this.getRule();
         if(rule != null)
             rule.setDuration(newTime.miliseconds);
-        this.sendUpdateMessage(LazyPacketData.simpleLong("Duration", newTime.miliseconds));
+        this.sendUpdateMessage(this.builder().setLong("Duration", newTime.miliseconds));
     }
-
 
 }

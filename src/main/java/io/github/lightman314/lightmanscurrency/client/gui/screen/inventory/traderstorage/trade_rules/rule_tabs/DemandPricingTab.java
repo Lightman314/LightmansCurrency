@@ -37,9 +37,13 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
         DemandPricing rule = this.getRule();
-        this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(TraderScreen.WIDTH / 2 - MoneyValueWidget.WIDTH / 2, 30), firstOpen ? null : this.priceSelection, rule == null ? MoneyValue.empty() : rule.getOtherPrice(), this::onValueChanged));
-        this.priceSelection.drawBG = false;
-        this.priceSelection.setHandlerChangeListener(this::onWidgetHandlerChanged);
+        this.priceSelection = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset(TraderScreen.WIDTH / 2 - MoneyValueWidget.WIDTH / 2,30))
+                .oldIfNotFirst(firstOpen,this.priceSelection)
+                .startingValue(rule == null ? MoneyValue.empty() : rule.getOtherPrice())
+                .valueHandler(this::onValueChanged)
+                .typeChangeListener(this::onWidgetHandlerChanged)
+                .build());
         this.onWidgetHandlerChanged(this.priceSelection);
 
         this.smallStockEdit = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10, screenArea.pos.y + 110, 80, 20, this.smallStockEdit, EasyText.empty()));

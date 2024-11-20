@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -21,14 +20,14 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,7 +39,7 @@ import java.util.List;
 
 public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/slot_machine.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine.png");
 
     public static final int WIDTH = 176;
     public static final int HEIGHT = 222;
@@ -72,7 +71,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(160, HEIGHT - 96);
 
-    public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_BOTTOMUP, -20, HEIGHT - 20, 20);
+    public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createBottomup(), -20, HEIGHT - 20, 20);
 
     public SlotMachineScreen(SlotMachineMenu menu, Inventory inventory, Component title)
     {
@@ -87,47 +86,84 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.buttonOpenStorage = this.addChild(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.getTrader() != null && this.menu.getTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
-        this.buttonCollectCoins = this.addChild(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getTrader));
-        this.buttonOpenTerminal = this.addChild(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
+        this.buttonOpenStorage = this.addChild(IconButton.builder()
+                .pressAction(this::OpenStorage)
+                .icon(IconUtil.ICON_STORAGE)
+                .addon(EasyAddonHelper.visibleCheck(() -> this.menu.getTrader() != null && this.menu.getTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)))
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE))
+                .build());
+        this.buttonCollectCoins = this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
+        this.buttonOpenTerminal = this.addChild(IconButton.builder()
+                .pressAction(this::OpenTerminal)
+                .icon(IconUtil.ICON_BACK)
+                .addon(EasyAddonHelper.visibleCheck(this::showTerminalButton))
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
+                .build());
         this.buttonOpenTerminal.visible = this.showTerminalButton();
 
         this.leftEdgePositioner.clear();
         this.leftEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
         this.addChild(this.leftEdgePositioner);
 
-        this.buttonInteract = this.addChild(new PlainButton(this.leftPos + 52, this.topPos + 107, b -> this.ExecuteTrade(1), SPRITE_INTERACT_1)
-                .withAddons(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(1)),
-                        EasyAddonHelper.activeCheck(this::allowInteraction),
-                        EasyAddonHelper.visibleCheck(this::isInteractMode)));
-        this.buttonInteract5 = this.addChild(new PlainButton(this.leftPos + 29, this.topPos + 107, b -> this.ExecuteTrade(5), SPRITE_INTERACT_5)
-                .withAddons(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(5)),
-                        EasyAddonHelper.activeCheck(this::allowInteraction),
-                        EasyAddonHelper.visibleCheck(this::isInteractMode)));
-        this.buttonInteract10 = this.addChild(new PlainButton(this.leftPos + 7, this.topPos + 107, b -> this.ExecuteTrade(10), SPRITE_INTERACT_10)
-                .withAddons(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(10)),
-                        EasyAddonHelper.activeCheck(this::allowInteraction),
-                        EasyAddonHelper.visibleCheck(this::isInteractMode)));
+        this.buttonInteract = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(52,107))
+                .pressAction(() -> this.ExecuteTrade(1))
+                .sprite(SPRITE_INTERACT_1)
+                .addon(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(1)))
+                .addon(EasyAddonHelper.activeCheck(this::allowInteraction))
+                .addon(EasyAddonHelper.visibleCheck(this::isInteractMode))
+                .build());
+        this.buttonInteract5 = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(29,107))
+                .pressAction(() -> this.ExecuteTrade(5))
+                .sprite(SPRITE_INTERACT_5)
+                .addon(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(5)))
+                .addon(EasyAddonHelper.activeCheck(this::allowInteraction))
+                .addon(EasyAddonHelper.visibleCheck(this::isInteractMode))
+                .build());
+        this.buttonInteract10 = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(7,107))
+                .pressAction(() -> this.ExecuteTrade(10))
+                .sprite(SPRITE_INTERACT_10)
+                .addon(EasyAddonHelper.tooltips(() -> this.getInteractionTooltip(10)))
+                .addon(EasyAddonHelper.activeCheck(this::allowInteraction))
+                .addon(EasyAddonHelper.visibleCheck(this::isInteractMode))
+                .build());
 
-        this.buttonInfo = this.addChild(new PlainButton(screenArea.pos.offset(SM_INFO_WIDGET), this::ToggleMode, SPRITE_INFO)
-                .withAddons(EasyAddonHelper.tooltips(this::getInfoTooltip)));
+        this.buttonInfo = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(SM_INFO_WIDGET))
+                .pressAction(this::ToggleMode)
+                .sprite(SPRITE_INFO)
+                .addon(EasyAddonHelper.tooltips(this::getInfoTooltip))
+                .build());
 
 
-        this.scrollListener = this.addChild(new ScrollListener(screenArea, this));
-        this.scrollListener.active = this.isInfoMode();
+        this.scrollListener = this.addChild(ScrollListener.builder()
+                .area(screenArea)
+                .listener(this)
+                .addon(EasyAddonHelper.activeCheck(this::isInfoMode))
+                .build());
 
         for(int y = 0; y < ENTRY_ROWS; ++y)
         {
             for(int x = 0; x < ENTRY_COLUMNS; x++)
             {
                 int displayIndex = (y * ENTRY_COLUMNS) + x;
-                this.addChild(new SlotMachineEntryDisplayWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryDisplayWidget.WIDTH), 10 + (y * SlotMachineEntryDisplayWidget.HEIGHT)), this.menu::getTrader, () -> this.getTrueIndex(displayIndex))
-                        .withAddons(EasyAddonHelper.visibleCheck(this::isInfoMode)));
+                this.addChild(SlotMachineEntryDisplayWidget.builder()
+                        .position(screenArea.pos.offset(19 + (x * SlotMachineEntryDisplayWidget.WIDTH),10 + (y * SlotMachineEntryDisplayWidget.HEIGHT)))
+                        .trader(this.menu::getTrader)
+                        .index(() -> this.getTrueIndex(displayIndex))
+                        .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))
+                        .build());
             }
         }
 
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(8, 10), 2 * SlotMachineEntryDisplayWidget.HEIGHT, this)
-                .withAddons(EasyAddonHelper.visibleCheck(this::isInfoMode)));
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(8,10))
+                .height(2 * SlotMachineEntryDisplayWidget.HEIGHT)
+                .scrollable(this)
+                .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))
+                .build());
 
         //Add renderer as child for auto-ticking
         this.addChild(this.slotRenderer);
@@ -222,7 +258,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         return ImmutableList.of();
     }
 
-    private void ExecuteTrade(int count) { this.menu.SendMessageToServer(LazyPacketData.builder().setInt("ExecuteTrade", count)); }
+    private void ExecuteTrade(int count) { this.menu.SendMessageToServer(this.builder().setInt("ExecuteTrade", count)); }
 
     private void OpenStorage(EasyButton button) {
         if(this.menu.getTrader() != null)
@@ -241,7 +277,6 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     @Override
     protected void screenTick() {
-        this.scrollListener.active = this.isInfoMode();
         if(this.isInfoMode())
             this.validateScroll();
     }

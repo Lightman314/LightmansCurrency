@@ -509,6 +509,7 @@ public final class LCConfig {
 
         public final BooleanOption safelyEjectMachineContents = BooleanOption.createTrue();
         public final BooleanOption anarchyMode = BooleanOption.createFalse();
+        public final ResourceListOption quarantinedDimensions = ResourceListOption.create(new ArrayList<>());
 
         //Coin Minting/Melting
         public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
@@ -572,6 +573,7 @@ public final class LCConfig {
         public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
 
         //Terminal Options
+        public final BooleanOption openTerminalCommand = BooleanOption.createFalse();
         public final BooleanOption moveUnnamedTradersToBottom = BooleanOption.createFalse();
 
         //Paygate Options
@@ -630,6 +632,11 @@ public final class LCConfig {
             builder.comment("Whether block break protection will be disabled completely.",
                     "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.")
                             .add("anarchyMode", this.anarchyMode);
+
+            builder.comment("A list of dimension ids that are quarantined from all cross-dimensional interactions.",
+                    "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
+                    "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.")
+                            .add("quarantinedDimensions",this.quarantinedDimensions);
 
             builder.pop();
 
@@ -696,7 +703,7 @@ public final class LCConfig {
                             walletLevelDescription)
                     .add("bankLevel", this.walletBankLevel);
 
-            builder.comment("Whether wallets can have " + WalletItem.SLOT_UPGRADE_LIMIT + " additional slots added by using an upgrade item on them from their inventory",
+            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
                     .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 
@@ -810,6 +817,9 @@ public final class LCConfig {
             builder.pop();
 
             builder.comment("Network Terminal Settings").push("terminal");
+
+            builder.comment("Whether the /lcterminal command will exist allowing players to access the Trading Terminal without the physical item/block")
+                            .add("lcterminalCommand",this.openTerminalCommand);
 
             builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
                     .add("sortUnnamedTradersToBottom", this.moveUnnamedTradersToBottom);

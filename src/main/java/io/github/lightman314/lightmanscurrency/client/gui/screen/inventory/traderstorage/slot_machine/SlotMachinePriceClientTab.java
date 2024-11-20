@@ -32,8 +32,12 @@ public class SlotMachinePriceClientTab extends TraderStorageClientTab<SlotMachin
         MoneyValue startingPrice = MoneyValue.empty();
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader)
             startingPrice = trader.getPrice();
-        this.priceInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset((this.screen.getXSize() / 2) - (MoneyValueWidget.WIDTH / 2), 12), firstOpen ? null : this.priceInput, startingPrice, this::ChangePrice));
-        this.priceInput.drawBG = false;
+        this.priceInput = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 12))
+                .oldIfNotFirst(firstOpen,this.priceInput)
+                .startingValue(startingPrice)
+                .valueHandler(this::ChangePrice)
+                .build());
     }
 
     @Override

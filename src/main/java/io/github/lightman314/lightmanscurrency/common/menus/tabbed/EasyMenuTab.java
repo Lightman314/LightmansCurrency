@@ -9,9 +9,9 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public abstract class EasyMenuTab<M extends EasyTabbedMenu<M,? super T>,T extends EasyMenuTab<M,? super T>> implements LazyPacketData.IBuilderProvider, IClientTracker {
+public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>> implements LazyPacketData.IBuilderProvider, IClientTracker {
 
-    protected final M menu;
+    public final M menu;
 
     @Override
     public final boolean isClient() { return this.menu.isClient(); }
@@ -33,19 +33,22 @@ public abstract class EasyMenuTab<M extends EasyTabbedMenu<M,? super T>,T extend
     /**
      * Called when the tab is opened. Use this to unhide slots.
      */
-    public abstract void onTabOpen();
+    public void onTabOpen() { }
 
     /**
      * Called when the tab is closed. Use this to hide slots.
      */
-    public abstract void onTabClose();
+    public void onTabClose() { }
 
+    /**
+     * Called when the menu is closed. Use this to clear the contents of any slots connected to temporary inventories.
+     */
     public void onMenuClose() { }
 
     /**
      * Called when the menu is loaded to add any tab-specific slots.
      */
-    public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {}
+    public void addStorageMenuSlots(Function<Slot,Slot> addSlot) { }
 
     public boolean quickMoveStack(ItemStack stack) { return false; }
 
@@ -55,6 +58,6 @@ public abstract class EasyMenuTab<M extends EasyTabbedMenu<M,? super T>,T extend
      * Called when this tab is opened if the open packet contained additional data<br>
      * Is run before {@link #onTabOpen()}
      */
-    public final void OpenMessage(@Nonnull LazyPacketData message) {}
+    public void OpenMessage(@Nonnull LazyPacketData message) { this.receiveMessage(message); }
 
 }

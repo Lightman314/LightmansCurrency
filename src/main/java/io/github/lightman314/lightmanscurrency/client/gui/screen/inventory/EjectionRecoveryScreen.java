@@ -37,14 +37,26 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	@Override
 	protected void initialize(ScreenArea screenArea) {
 
-		this.buttonLeft = this.addChild(new IconButton(screenArea.pos.offset(-20, 0), b -> this.changeSelection(-1), IconUtil.ICON_LEFT)
-				.withAddons(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() > 0)));
-		this.buttonRight = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), b -> this.changeSelection(1), IconUtil.ICON_RIGHT)
-				.withAddons(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() < this.menu.getValidEjectionData().size() - 1)));
+		this.buttonLeft = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(-20,0))
+				.pressAction(() -> this.changeSelection(-1))
+				.icon(IconUtil.ICON_LEFT)
+				.addon(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() > 0))
+				.build());
+		this.buttonRight = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width,0))
+				.pressAction(() -> this.changeSelection(1))
+				.icon(IconUtil.ICON_RIGHT)
+				.addon(EasyAddonHelper.activeCheck(() -> this.menu.getSelectedIndex() < this.menu.getValidEjectionData().size() - 1))
+				.build());
 
-		this.buttonSplit = this.addChild(new IconButton(screenArea.pos.offset(-20,20), this::splitData, this::getSplitIcon)
-				.withAddons(EasyAddonHelper.visibleCheck(this::canSplit),
-						EasyAddonHelper.tooltips(this::getSplitTooltip)));
+		this.buttonSplit = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(-20,20))
+				.pressAction(this::splitData)
+				.icon(this::getSplitIcon)
+				.addon(EasyAddonHelper.visibleCheck(this::canSplit))
+				.addon(EasyAddonHelper.tooltips(this::getSplitTooltip))
+				.build());
 
 	}
 

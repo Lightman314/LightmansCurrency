@@ -44,10 +44,22 @@ public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> im
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
-        this.buttonClear = this.addChild(new EasyTextButton(screenArea.pos.offset(10,10), screenArea.width - 20, 20, LCText.BUTTON_TRADER_STATS_CLEAR.get(), () -> this.commonTab.ClearStats(Screen.hasShiftDown())));
+        this.buttonClear = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,10))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_TRADER_STATS_CLEAR)
+                .pressAction(() -> this.commonTab.ClearStats(Screen.hasShiftDown()))
+                .build());
 
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH, START_POS), LINE_COUNT * LINE_SIZE, this));
-        this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, START_POS + LINE_COUNT * LINE_SIZE), this));
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(screen.width - 10 - ScrollBarWidget.WIDTH,START_POS))
+                .height(LINE_COUNT * LINE_SIZE)
+                .scrollable(this)
+                .build());
+        this.addChild(ScrollListener.builder()
+                .area(screenArea.offsetPosition(screenArea.width,START_POS + LINE_COUNT * LINE_SIZE))
+                .listener(this)
+                .build());
 
     }
 

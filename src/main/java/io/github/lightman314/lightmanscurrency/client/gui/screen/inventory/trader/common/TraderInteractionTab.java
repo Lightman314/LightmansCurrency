@@ -30,8 +30,15 @@ public class TraderInteractionTab extends TraderClientTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		//Trade Button Display
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu::getTraderSource, this.menu::getContext, screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, this::OnButtonPress, TradeButtonArea.FILTER_VALID)
-				.withTitle(screenArea.pos.offset(4,6), screenArea.width - 8, true));
+		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
+				.position(screenArea.pos.offset(3,17))
+				.size(screenArea.width - 6, 100)
+				.traderSource(this.menu::getTraderSource)
+				.context(this.menu::getContext)
+				.pressAction(this::OnButtonPress)
+				.tradeFilter(TradeData::isValid)
+				.title(screenArea.pos.offset(4,6),screenArea.width - 8,true)
+				.build());
 	}
 
 	@Override
@@ -63,7 +70,7 @@ public class TraderInteractionTab extends TraderClientTab {
 	private static long lastPress = 0;
 
 	private void OnButtonPress(TraderData trader, TradeData trade) {
-		
+
 		if(trader == null || trade == null)
 			return;
 
@@ -78,22 +85,22 @@ public class TraderInteractionTab extends TraderClientTab {
 			this.menu.getPlayer().closeContainer();
 			return;
 		}
-		
+
 		List<TraderData> traders = ts.getTraders();
 		int ti = traders.indexOf(trader);
 		if(ti < 0)
 			return;
-		
+
 		TraderData t = traders.get(ti);
 		if(t == null)
 			return;
-		
+
 		int tradeIndex = t.getTradeData().indexOf(trade);
 		if(tradeIndex < 0)
 			return;
-		
+
 		new CPacketExecuteTrade(ti, tradeIndex).send();
-		
+
 	}
-	
+
 }

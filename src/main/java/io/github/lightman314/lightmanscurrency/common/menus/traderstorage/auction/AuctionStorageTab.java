@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction;
 
-import java.util.function.Function;
-
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
@@ -10,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPla
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,24 +17,16 @@ import javax.annotation.Nonnull;
 public class AuctionStorageTab extends TraderStorageTab {
 
 	public AuctionStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
-	
+
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new AuctionStorageClientTab(screen, this); }
-	
+	public Object createClientTab(@Nonnull Object screen) { return new AuctionStorageClientTab(screen, this); }
+
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
-	@Override
-	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
-	
-	@Override
-	public void onTabOpen() { }
-	
-	@Override
-	public void onTabClose() { }
-	
-	public void clickedOnSlot(int storageSlot, boolean isShiftHeld) 
+
+	public void clickedOnSlot(int storageSlot, boolean isShiftHeld)
 	{
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
@@ -86,34 +75,34 @@ public class AuctionStorageTab extends TraderStorageTab {
 			}
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("ClickedSlot", storageSlot)
 						.setBoolean("HeldShift", isShiftHeld));
 			}
 		}
 	}
-	
+
 	public void quickTransfer() {
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
 			AuctionPlayerStorage storage = trader.getStorage(this.menu.getPlayer());
 			storage.collectItems(this.menu.getPlayer());
 			trader.markStorageDirty();
-			
+
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("QuickTransfer"));
+				this.menu.SendMessage(this.builder().setFlag("QuickTransfer"));
 		}
 	}
-	
+
 	public void collectCoins() {
 		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
 			AuctionPlayerStorage storage = trader.getStorage(this.menu.getPlayer());
 			storage.collectedMoney(this.menu.getPlayer());
 			trader.markStorageDirty();
-			
+
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleFlag("CollectMoney"));
+				this.menu.SendMessage(this.builder().setFlag("CollectMoney"));
 		}
 	}
 

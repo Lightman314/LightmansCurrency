@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -20,9 +19,9 @@ import javax.annotation.Nonnull;
 public class LogTab extends ATMTab{
 
 	public LogTab(ATMScreen screen) { super(screen); }
-	
+
 	NotificationDisplayWidget logWidget;
-	
+
 	@Nonnull
 	@Override
 	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
@@ -32,14 +31,19 @@ public class LogTab extends ATMTab{
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		EasySlot.SetInactive(this.screen.getMenu());
-		
-		this.logWidget = this.addChild(new NotificationDisplayWidget(screenArea.x + 7, screenArea.y + 15, screenArea.width - 14, 6, this::getNotifications));
+
+		this.screen.setCoinSlotsActive(false);
+
+		this.logWidget = this.addChild(NotificationDisplayWidget.builder()
+				.position(screenArea.pos.offset(7,15))
+				.width(screenArea.width - 14)
+				.rowCount(6)
+				.notificationSource(this::getNotifications)
+				.build());
 		this.logWidget.backgroundColor = 0;
-		
+
 	}
-	
+
 	private List<Notification> getNotifications() {
 		IBankAccount ba = this.screen.getMenu().getBankAccount();
 		if(ba != null)
@@ -48,12 +52,9 @@ public class LogTab extends ATMTab{
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		this.hideCoinSlots(gui);
-		gui.drawString(this.getTooltip(), 8, 6, 0x404040);
-	}
+	public void renderBG(@Nonnull EasyGuiGraphics gui) { gui.drawString(this.getTooltip(), 8, 6, 0x404040); }
 
 	@Override
-	protected void closeAction() { EasySlot.SetActive(this.screen.getMenu()); }
+	protected void closeAction() { this.screen.setCoinSlotsActive(false); }
 
 }

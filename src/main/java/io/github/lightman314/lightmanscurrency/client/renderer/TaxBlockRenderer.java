@@ -48,7 +48,7 @@ public class TaxBlockRenderer {
                     //Use same pose translation as used in LevelRenderer when rendering block entities
                     pose.translate(center.getX() - cameraX, center.getY() - cameraY, center.getZ() - cameraZ);
                     //Render the outline
-                    OutlineUtil.renderBox(pose, buffer, renderArea, entry.getRenderColor(player), 0.1f);
+                    OutlineUtil.renderBox(pose, buffer, renderArea, entry.getRenderColor(player), 0.5f);
                     pose.popPose();
                 }
             }

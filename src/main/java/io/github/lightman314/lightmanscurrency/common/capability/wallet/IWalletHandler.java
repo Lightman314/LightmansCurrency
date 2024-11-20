@@ -13,7 +13,13 @@ public interface IWalletHandler extends IMoneyHandler, IClientTracker, IEasyTick
 	 * The currently equipped wallet on the player.
 	 */
 	ItemStack getWallet();
-	
+
+	/**
+	 * The wallet that should be rendered on the players hip.<br>
+	 * May be different from {@link #getWallet()} if curios is installed and has a wallet equipped in the cosmetic slot
+	 */
+	ItemStack getVisibleWallet();
+
 	/**
 	 * Sets the currently equipped wallet on the player.
 	 */

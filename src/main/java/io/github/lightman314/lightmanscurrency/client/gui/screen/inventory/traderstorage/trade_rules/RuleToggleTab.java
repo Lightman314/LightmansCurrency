@@ -2,9 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -16,14 +17,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RuleToggleTab extends TradeRulesClientSubTab {
 
     public RuleToggleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent); }
-
-    private final List<EasyButton> toggleRuleButtons = new ArrayList<>();
 
     @Override
     public boolean isVisible() { return true; }
@@ -31,21 +29,26 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.toggleRuleButtons.clear();
         int count = this.getFilteredRules().size();
         for(int i = 0; i < count; ++i)
         {
             final int index = i;
-            this.toggleRuleButtons.add(this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(20, 25 + (12 * i)), this::PressManagerActiveButton, () -> {
-                List<TradeRule> rules = this.getFilteredRules();
-                if(index < rules.size())
-                    return rules.get(index).isActive();
-                return false;
-            })));
+            this.addChild(PlainButton.builder()
+                    .position(screenArea.pos.offset(20,25 + (12 * i)))
+                    .pressAction(() -> this.PressManagerActiveButton(index))
+                    .sprite(IconAndButtonUtil.SPRITE_CHECK(() -> this.isRuleActive(index)))
+                    .addon(EasyAddonHelper.visibleCheck(() -> this.isValidRuleIndex(index)))
+                    .build());
         }
 
         if(this.commonTab.getHost().isTrade())
-            this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::ClickBackButton, IconUtil.ICON_BACK));
+        {
+            this.addChild(IconButton.builder()
+                    .position(screenArea.pos.offset(screenArea.width - 25, 5))
+                    .pressAction(this::ClickBackButton)
+                    .icon(IconUtil.ICON_BACK)
+                    .build());
+        }
 
     }
 
@@ -71,23 +74,29 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADE_RULES_MANAGER.get(); }
 
-    void PressManagerActiveButton(EasyButton button)
+    private boolean isRuleActive(int ruleIndex)
     {
-        int ruleIndex = this.toggleRuleButtons.indexOf(button);
-        if(ruleIndex >= 0)
+        List<TradeRule> rules = this.getFilteredRules();
+        if(ruleIndex < rules.size())
+            return rules.get(ruleIndex).isActive();
+        return false;
+    }
+
+    private boolean isValidRuleIndex(int ruleIndex) { return ruleIndex >= 0 && ruleIndex < this.getFilteredRules().size(); }
+
+    void PressManagerActiveButton(int ruleIndex)
+    {
+        List<TradeRule> rules = this.getFilteredRules();
+        if(ruleIndex < rules.size())
         {
-            List<TradeRule> rules = this.getFilteredRules();
-            if(ruleIndex < rules.size())
-            {
-                TradeRule rule = rules.get(ruleIndex);
-                this.commonTab.EditTradeRule(rule.type, LazyPacketData.simpleBoolean("SetActive",!rule.isActive()));
-            }
+            TradeRule rule = rules.get(ruleIndex);
+            this.commonTab.EditTradeRule(rule.type, this.builder().setBoolean("SetActive",!rule.isActive()));
         }
     }
 
     private void ClickBackButton(@Nonnull EasyButton button)
     {
-        this.screen.changeTab(TraderStorageTab.TAB_TRADE_ADVANCED, true,null);
+        this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_ADVANCED);
     }
 
 }

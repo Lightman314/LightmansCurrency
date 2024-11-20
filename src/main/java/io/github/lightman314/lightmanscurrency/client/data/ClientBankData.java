@@ -28,6 +28,8 @@ public class ClientBankData {
 		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
 		return new BankAccount().flagAsClient();
 	}
+
+	public static boolean HasBankAccount(@Nonnull UUID playerID) { return loadedBankAccounts.containsKey(playerID); }
 	
 	public static void ClearBankAccounts() { loadedBankAccounts.clear(); }
 

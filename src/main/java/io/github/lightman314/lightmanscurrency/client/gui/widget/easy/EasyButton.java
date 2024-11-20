@@ -1,13 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nonnull;
@@ -19,16 +17,7 @@ public abstract class EasyButton extends EasyWidget {
 
     private final Consumer<EasyButton> press;
 
-    protected EasyButton(int x, int y, int width, int height, Runnable press) { this(x,y,width,height,b -> press.run()); }
-    protected EasyButton(int x, int y, int width, int height, Consumer<EasyButton> press) { super(x,y,width,height); this.press = press; }
-    protected EasyButton(ScreenPosition position, int width, int height, Runnable press) { this(position, width, height, b -> press.run()); }
-    protected EasyButton(ScreenPosition position, int width, int height, Consumer<EasyButton> press) { super(position, width, height); this.press = press; }
-    protected EasyButton(ScreenPosition position, int width, int height, Component title, Runnable press) { this(position, width, height, title, b -> press.run());}
-    protected EasyButton(ScreenPosition position, int width, int height, Component title, Consumer<EasyButton> press) { super(position, width, height, title); this.press = press; }
-    protected EasyButton(ScreenArea area, Runnable press) { this(area, b -> press.run()); }
-    protected EasyButton(ScreenArea area, Consumer<EasyButton> press) { super(area); this.press = press; }
-    protected EasyButton(ScreenArea area, Component title, Runnable press) { this(area, title, b -> press.run()); }
-    protected EasyButton(ScreenArea area, Component title, Consumer<EasyButton> press) { super(area, title); this.press = press; }
+    protected EasyButton(@Nonnull EasyButtonBuilder<?> builder) { super(builder); this.press = builder.action; }
 
     @Override
     protected boolean isValidClickButton(int button) { return button == 0; }
@@ -57,5 +46,39 @@ public abstract class EasyButton extends EasyWidget {
     }
 
     protected void onPress() { this.press.accept(this); this.setFocused(false); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static abstract class EasyButtonBuilder<T extends EasyButtonBuilder<T>> extends EasyBuilder<T>
+    {
+
+        protected EasyButtonBuilder() { }
+        protected EasyButtonBuilder(int defaultWidth, int defaultHeight) { super(defaultWidth,defaultHeight); }
+
+        private Consumer<EasyButton> action = b -> {};
+
+        public final T pressAction(@Nonnull Consumer<EasyButton> action) { this.action = action; return this.getSelf(); }
+        public final T pressAction(@Nonnull Runnable action) { this.action = b -> action.run(); return this.getSelf(); }
+
+        public final T copyFrom(@Nonnull EasyButtonBuilder<?> other)
+        {
+            this.copyFrom((EasyBuilder<?>)other);
+            this.action = other.action;
+            return this.getSelf();
+        }
+
+    }
+
+    @MethodsReturnNonnullByDefault
+    public static abstract class EasySizableButtonBuilder<T extends EasySizableButtonBuilder<T>> extends EasyButtonBuilder<T>
+    {
+
+        protected EasySizableButtonBuilder() { }
+        protected EasySizableButtonBuilder(int defaultWidth, int defaultHeight) { super(defaultWidth,defaultHeight); }
+
+        public final T width(int width) { this.changeWidth(width); return this.getSelf(); }
+        public final T height(int height) { this.changeHeight(height); return this.getSelf(); }
+        public final T size(int width, int height) { this.changeSize(width,height); return this.getSelf(); }
+    }
 
 }

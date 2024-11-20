@@ -128,6 +128,9 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     @Override
     public final <T> T addChild(T child) {
+        //Debug for builders accidentally passed along
+        if(child instanceof EasyWidget.EasyBuilder<?>)
+            LightmansCurrency.LogError("Builder accidentally passed along as a widget!",new Throwable());
         if(child instanceof EasyWidgetWithChildren w)
         {
             w.pairWithScreen(this::addChild, this::removeChild);

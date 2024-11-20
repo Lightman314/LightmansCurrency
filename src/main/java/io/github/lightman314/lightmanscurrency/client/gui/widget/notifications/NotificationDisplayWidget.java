@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -16,11 +16,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -57,28 +59,27 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 			this.canDelete = canDelete;
 	}
 
-	public NotificationDisplayWidget(@Nonnull ScreenPosition pos, int width, int rowCount, @Nonnull Supplier<List<Notification>> notificationSource) { this(pos.x, pos.y, width, rowCount, notificationSource); }
-	public NotificationDisplayWidget(@Nonnull ScreenPosition pos, int width, int rowCount, @Nonnull Supplier<List<Notification>> notificationSource, @Nonnull Supplier<Boolean> showGeneralMessage) { this(pos.x, pos.y, width, rowCount, notificationSource, showGeneralMessage); }
-	public NotificationDisplayWidget(int x, int y, int width, int rowCount, @Nonnull Supplier<List<Notification>> notificationSource) { this(x,y,width,rowCount,notificationSource,() -> false); }
-	public NotificationDisplayWidget(int x, int y, int width, int rowCount, @Nonnull Supplier<List<Notification>> notificationSource, @Nonnull Supplier<Boolean> showGeneralMessage) {
-		super(x, y, width, CalculateHeight(rowCount));
-		this.notificationSource = notificationSource;
-		this.showGeneralMessage = showGeneralMessage;
-		this.rowCount = rowCount;
+	private NotificationDisplayWidget(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.notificationSource = builder.source;
+		this.showGeneralMessage = builder.showGeneral;
+		this.rowCount = builder.rowCount;
 	}
 
 	@Override
-	public NotificationDisplayWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
-	@Override
-	public void addChildren() {
+	public void addChildren(@Nonnull ScreenArea area) {
 		this.deleteButtons = null;
 		for(int i = 0; i < this.rowCount; ++i)
 		{
 			final int row = i;
-			this.addChild(new IconButton(this.getPosition().offset(this.width - 21,1 + (i * HEIGHT_PER_ROW)),b -> this.deleteNotification(row), IconUtil.ICON_X)
-					.withAddons(EasyAddonHelper.visibleCheck(deleteButtonVisible(row)),
-							EasyAddonHelper.tooltip(LCText.TOOLTIP_NOTIFICATION_DELETE)));
+			this.addChild(IconButton.builder()
+					.position(area.pos.offset(this.width - 21, 1 + (i * HEIGHT_PER_ROW)))
+					.pressAction(() -> this.deleteNotification(row))
+					.icon(IconUtil.ICON_X)
+					.addon(EasyAddonHelper.visibleCheck(deleteButtonVisible(row)))
+					.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_NOTIFICATION_DELETE))
+					.build());
 		}
 	}
 
@@ -153,8 +154,11 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 				for(int l = 0; l < lines.size() && l < 2; ++l)
 					gui.drawString(lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
 			}
+			int maxX = this.getX() + this.width;
+			if(this.canDelete.get())
+				maxX -= 22;
 			//Collect the tooltips
-			if(this.tooltip == null && gui.mousePos.x >= this.getX() && gui.mousePos.x < this.getX() + this.width && gui.mousePos.y >= this.getY() + yPos && gui.mousePos.y < this.getY() + yPos + HEIGHT_PER_ROW)
+			if(this.tooltip == null && gui.mousePos.x >= this.getX() && gui.mousePos.x < maxX && gui.mousePos.y >= this.getY() + yPos && gui.mousePos.y < this.getY() + yPos + HEIGHT_PER_ROW)
 			{
 				this.tooltip = new ArrayList<>();
 				if(n.hasTimeStamp())
@@ -199,6 +203,32 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		int notificationRow = buttonRow + this.scroll;
 		if(this.deletionHandler != null)
 			this.deletionHandler.accept(notificationRow);
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(100,CalculateHeight(1)); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		private int rowCount = 1;
+		private Supplier<List<Notification>> source = ImmutableList::of;
+		private Supplier<Boolean> showGeneral = () -> false;
+
+		public Builder width(int width) { this.changeWidth(width); return this; }
+		public Builder rowCount(int rowCount) { this.rowCount = rowCount; this.changeHeight(CalculateHeight(this.rowCount)); return this; }
+
+		public Builder notificationSource(@Nonnull Supplier<List<Notification>> source) { this.source = source; return this; }
+
+		public Builder showGeneral(@Nonnull Supplier<Boolean> showGeneral) { this.showGeneral = showGeneral; return this; }
+
+		public NotificationDisplayWidget build() { return new NotificationDisplayWidget(this); }
+
 	}
 
 }

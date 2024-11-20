@@ -6,13 +6,11 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
@@ -29,23 +27,24 @@ public class ItemStorageTab extends TraderInterfaceTab{
 
 	public ItemStorageTab(TraderInterfaceMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new ItemStorageClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
+
 	//Eventually will add upgrade slots
 	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
-	
+
 	@Override
 	public void onTabOpen() { EasySlot.SetActive(this.slots); }
 
 	@Override
 	public void onTabClose() { EasySlot.SetInactive(this.slots); }
-	
+
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgrades().getContainerSize(); ++i)
@@ -56,9 +55,9 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			this.slots.add(upgradeSlot);
 		}
 	}
-	
+
 	private void onUpgradeModified() { this.menu.getBE().setUpgradeSlotsDirty(); }
-	
+
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
@@ -72,7 +71,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 		}
 		return super.quickMoveStack(stack);
 	}
-	
+
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
 		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
@@ -86,12 +85,12 @@ public class ItemStorageTab extends TraderInterfaceTab{
 				{
 					ItemStack stackToRemove = storageContents.get(storageSlot).copy();
 					ItemStack removeStack = stackToRemove.copy();
-					
+
 					//Assume we're moving a whole stack for now
 					int tempAmount = Math.min(stackToRemove.getMaxStackSize(), stackToRemove.getCount());
 					stackToRemove.setCount(tempAmount);
 					int removedAmount;
-					
+
 					//Right-click, attempt to cut the stack in half
 					if(!leftClick)
 					{
@@ -99,7 +98,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 							tempAmount = tempAmount / 2;
 						stackToRemove.setCount(tempAmount);
 					}
-					
+
 					if(isShiftHeld)
 					{
 						//Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
@@ -149,14 +148,14 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			}
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.builder()
+				this.menu.SendMessage(this.builder()
 						.setInt("ClickedSlot",storageSlot)
 						.setBoolean("HeldShift", isShiftHeld)
 						.setBoolean("LeftClick", leftClick));
 			}
 		}
 	}
-	
+
 	public void quickTransfer(int type) {
 		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
@@ -206,30 +205,30 @@ public class ItemStorageTab extends TraderInterfaceTab{
 					}
 				}
 			}
-			
+
 			if(changed)
 				be.setItemBufferDirty();
-			
+
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
-			
+				this.menu.SendMessage(this.builder().setInt("QuickTransfer", type));
+
 		}
 	}
-	
+
 	public void toggleInputSlot(Direction side) {
 		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
 			be.getItemHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}
-	
+
 	public void toggleOutputSlot(Direction side) {
 		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
 			be.getItemHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}
-	
+
 	@Override
 	public void handleMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("ClickedSlot"))

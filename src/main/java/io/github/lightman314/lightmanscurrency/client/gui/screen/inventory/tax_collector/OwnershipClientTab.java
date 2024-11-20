@@ -51,13 +51,31 @@ public class OwnershipClientTab extends TaxCollectorClientTab<OwnershipTab> {
         this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 50, 160, 20, EasyText.empty()));
         this.playerOwnerInput.setMaxLength(16);
 
-        this.playerOwnerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 72), screenArea.width - 20, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::SetOwnerPlayer)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
+        this.playerOwnerButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,72))
+                .width(screenArea.width - 20)
+                .text(LCText.BUTTON_OWNER_SET_PLAYER)
+                .pressAction(this::SetOwnerPlayer)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
+                .build());
 
-        this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(12,30), 152, 6, this::getCurrentOwner, this.commonTab::SetOwner, this.ownerSelectionWidget));
+
+        this.ownerSelectionWidget = this.addChild(OwnerSelectionWidget.builder()
+                .position(screenArea.pos.offset(12,30))
+                .width(152)
+                .rows(6)
+                .selected(this::getCurrentOwner)
+                .handler(this.commonTab::SetOwner)
+                .oldWidget(this.ownerSelectionWidget)
+                .build());
 
         //Toggle Mode button
-        this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
+        this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 25,5))
+                .pressAction(this::toggleInputMode)
+                .icon(this::getModeIcon)
+                .addon(EasyAddonHelper.tooltip(this::getModeTooltip))
+                .build());
 
         this.updateMode();
 

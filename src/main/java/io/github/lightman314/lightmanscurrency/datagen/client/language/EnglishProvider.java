@@ -62,6 +62,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_COIN_CHOCOLATE_NETHERITE_PLURAL,"Chocolate Netherite Coins");
         this.translate(LCText.ITEM_COIN_CHOCOLATE_NETHERITE_INITIAL,"n");
 
+        this.translate(LCText.ITEM_WALLET_LEATHER, "Basic Wallet");
         this.translate(LCText.ITEM_WALLET_COPPER, "Wallet (Copper)");
         this.translate(LCText.ITEM_WALLET_IRON, "Wallet (Iron)");
         this.translate(LCText.ITEM_WALLET_GOLD, "Wallet (Gold)");
@@ -69,6 +70,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_WALLET_DIAMOND, "Wallet (Diamond)");
         this.translate(LCText.ITEM_WALLET_NETHERITE, "Wallet (Netherite)");
         this.translate(LCText.ITEM_WALLET_NETHER_STAR, "Wallet (Nether Star)");
+        this.translate(LCText.ITEM_WALLET_ENDER_DRAGON, "Wallet (Ender Dragon)");
 
         this.translate(LCText.ITEM_TRADING_CORE,"Trading Core");
 
@@ -100,6 +102,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_OFFER_5, "Trade Offer Upgrade (Diamond)");
         this.translate(LCText.ITEM_UPGRADE_OFFER_6, "Trade Offer Upgrade (Netherite)");
         this.translate(LCText.ITEM_UPGRADE_NETWORK, "Network Upgrade");
+        this.translate(LCText.ITEM_UPGRADE_VOID, "Void Upgrade");
         this.translate(LCText.ITEM_UPGRADE_HOPPER, "Hopper Upgrade");
         this.translate(LCText.ITEM_UPGRADE_COIN_EXCHANGE, "Coin Exchange Upgrade");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_1, "Magnet Upgrade (Copper)");
@@ -268,6 +271,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
         this.translate(LCText.TOOLTIP_ANARCHY_WARNING,"Server is in Anarchy Mode. Block will not be break-protected!");
+        this.translate(LCText.MESSAGE_DIMENSION_QUARANTINED_BANK,"Bank Accounts cannot be accessed from this dimension!");
+        this.translate(LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL,"Network Traders cannot be accessed from this dimension!");
+        this.translate(LCText.TOOLTIP_DIMENSION_QUARANTINED_NETWORK_TRADER,"Network Traders will not be visible from terminals when in this dimension!");
 
         //Wallet
         this.translate(LCText.MESSAGE_WALLET_NONE_EQUIPPED, "No wallet equipped to your wallet slot. Cannot open wallet.");
@@ -312,6 +318,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_UPGRADE_ITEM_CAPACITY, "Increases item storage capacity by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_SPEED, "Decreases the delay between interactions by %s ticks");
         this.translate(LCText.TOOLTIP_UPGRADE_NETWORK,"Makes a trader visible from a trading terminal");
+        this.translate(LCText.TOOLTIP_UPGRADE_VOID,"Makes a trader void all goods purchased from a customer","Intended for Admin Use Only to keep pseudo-creative traders from getting full");
         this.translate(LCText.TOOLTIP_UPGRADE_HOPPER,"Allows the block to collect inputs from its neighboring containers");
 
         this.translate(LCText.TOOLTIP_UPGRADE_COIN_EXCHANGE, "Allows the Money Chest to automatically exchange coins upon insertion");
@@ -422,9 +429,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ATM_LOGS,"Account Logs");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER,"Transfer Money");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_PLAYER,"Select From Players");
-        this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_TEAM,"Select From Teams");
-        this.translate(LCText.BUTTON_ATM_TRANSFER_PLAYER,"Transfer to Player");
-        this.translate(LCText.BUTTON_ATM_TRANSFER_TEAM,"Transfer to Team");
+        this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_LIST,"Select From List");
+        this.translate(LCText.TOOLTIP_ATM_TRANSFER_TRIGGER,"Transfer %1$s to %2$s");
 
         //Coin Chest
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES,"Always Allowed");
@@ -444,7 +450,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Ejection Menu
         this.translate(LCText.GUI_EJECTION_NO_DATA,"No Ejection Data Available");
-        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_GENERIC,"Dismandle Object into internal contents");
+        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_GENERIC,"Dismantle Object into internal contents");
         this.translate(LCText.TOOLTIP_EJECTION_SPLIT_TRADER,"Dismantle %s into it's stored items");
 
         //Coin Mint Menu
@@ -574,10 +580,13 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_LOGS,"Trader Logs");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS,"Trader Settings");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_NAME,"Trader Name");
-        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ENABLE,"Enable Creative Trader");
-        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_DISABLE,"Disable Creative Trader");
-        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_ADD_TRADE,"Add Additional Trade");
-        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE,"Remove Trade");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE,"Creative Trader");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_CREATIVE_ENABLED,"Trader Mode: CREATIVE");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_CREATIVE_DISABLED,"Trader Mode: STANDARD");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_CREATIVE_ADD_TRADE,"Add Trade Offer");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_CREATIVE_REMOVE_TRADE,"Remove Trade Offer");
+        this.translate(LCText.GUI_TRADER_SETTINGS_CREATIVE_TRADE_COUNT,"Trade Offers: %s");
+        this.translate(LCText.GUI_TRADER_SETTINGS_CREATIVE_STORE_MONEY,"Store Earned Money");
         this.translate(LCText.GUI_TRADER_SETTINGS_CUSTOM_ICON,"Custom Terminal Icon");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_PERSISTENT,"Build Persistent Copy");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_ALLY, "Allies");

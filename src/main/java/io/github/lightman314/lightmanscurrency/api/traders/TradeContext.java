@@ -22,6 +22,8 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
@@ -40,6 +42,8 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class TradeContext {
 
@@ -640,6 +644,9 @@ public class TradeContext {
 	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
 	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
 
+	@MethodsReturnNonnullByDefault
+	@ParametersAreNonnullByDefault
+	@FieldsAreNonnullByDefault
 	public static class Builder
 	{
 		
@@ -653,17 +660,21 @@ public class TradeContext {
 		private final List<IMoneyHolder> moneyHandlers = new ArrayList<>();
 		
 		//Interaction Slots
+		@Nullable
 		private InteractionSlot interactionSlot;
 		
 		//Item
+		@Nullable
 		private IItemHandler itemHandler;
 		//Fluid
+		@Nullable
 		private IFluidHandler fluidHandler;
 		//Energy
+		@Nullable
 		private IEnergyStorage energyHandler;
 		
-		private Builder(@Nonnull TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(@Nonnull TraderData trader, @Nonnull Player player, boolean playerInteractable) {
+		private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
+		private Builder(TraderData trader, Player player, boolean playerInteractable) {
 			this.trader = trader;
 			this.player = player;
 			this.playerReference = PlayerReference.of(player);
@@ -671,23 +682,22 @@ public class TradeContext {
 			if(playerInteractable)
 				this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player));
 		}
-		private Builder(@Nonnull TraderData trader, @Nonnull PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
+		private Builder(TraderData trader, PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 
-		public Builder withBankAccount(@Nonnull BankReference bankAccount) { return this.withMoneyHolder(bankAccount); }
-		public Builder withCoinSlots(@Nonnull Container coinSlots) {
+		public Builder withBankAccount(BankReference bankAccount) { return this.withMoneyHolder(bankAccount); }
+		public Builder withCoinSlots(Container coinSlots) {
 			if(this.player == null)
 				return this;
 			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
-		public Builder withMoneyHandler(@Nonnull IMoneyHandler moneyHandler, @Nonnull Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
-		public Builder withMoneyHolder(@Nonnull IMoneyHolder moneyHandler) { if(!this.moneyHandlers.contains(moneyHandler)) this.moneyHandlers.add(moneyHandler); return this; }
+		public Builder withMoneyHandler(IMoneyHandler moneyHandler, Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
+		public Builder withMoneyHolder(IMoneyHolder moneyHandler) { if(!this.moneyHandlers.contains(moneyHandler)) this.moneyHandlers.add(moneyHandler); return this; }
 
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }
 		
-		public Builder withItemHandler(@Nonnull IItemHandler itemHandler) { this.itemHandler = itemHandler; return this; }
-		public Builder withFluidHandler(@Nonnull IFluidHandler fluidHandler) { this.fluidHandler = fluidHandler; return this; }
-		public Builder withEnergyHandler(@Nonnull IEnergyStorage energyHandler) { this.energyHandler = energyHandler; return this; }
-		
+		public Builder withItemHandler(IItemHandler itemHandler) { this.itemHandler = itemHandler; return this; }
+		public Builder withFluidHandler(IFluidHandler fluidHandler) { this.fluidHandler = fluidHandler; return this; }
+		public Builder withEnergyHandler(IEnergyStorage energyHandler) { this.energyHandler = energyHandler; return this; }
 		
 		public TradeContext build() { return new TradeContext(this); }
 		

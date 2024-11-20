@@ -138,7 +138,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     private void addItemEditInfo(@Nonnull List<Component> tooltips, boolean isStorageMode)
     {
         if(isStorageMode)
-            tooltips.add(0,LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT.get());
+            tooltips.add(0,LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT.getWithStyle(ChatFormatting.ITALIC));
     }
 
     private void addNBTWarning(@Nonnull List<Component> tooltips, boolean purchase, boolean enforceNBT)

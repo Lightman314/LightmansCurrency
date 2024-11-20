@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
@@ -50,7 +49,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
-	public boolean tabButtonVisible() { return false; }
+	public boolean tabVisible() { return false; }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -63,7 +62,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	EditBox customNameInput;
 
 	ItemEditWidget itemEdit = null;
-	ScrollBarWidget itemEditScroll;
 
 	EasyButton buttonToggleTradeType;
 	PlainButton buttonToggleNBTEnforcement;
@@ -77,23 +75,41 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 		ItemTradeData trade = this.getTrade();
 
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
-		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
-		this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(TraderScreen.WIDTH / 2 - MoneyValueWidget.WIDTH / 2, 40), firstOpen ? null : this.priceSelection, trade == null ? MoneyValue.empty() : trade.getCost(), this::onValueChanged));
-		this.priceSelection.drawBG = false;
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(10,18))
+				.context(this.menu::getContext)
+				.trade(this.commonTab::getTrade)
+				.build());
+		this.priceSelection = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 40))
+				.oldIfNotFirst(firstOpen,this.priceSelection)
+				.startingValue(trade)
+				.valueHandler(this::onValueChanged)
+				.build());
 
-		this.itemEdit = this.addChild(new ItemEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this.itemEdit, this));
-
-		this.itemEditScroll = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + 18 * COLUMNS, Y_OFFSET), 18 * ROWS, this.itemEdit));
-		this.itemEditScroll.smallKnob = true;
+		this.itemEdit = this.addChild(ItemEditWidget.builder()
+				.position(screenArea.pos.offset(X_OFFSET,Y_OFFSET))
+				.columns(COLUMNS)
+				.rows(ROWS)
+				.oldWidget(this.itemEdit)
+				.handler(this)
+				.build());
 
 		int labelWidth = this.getFont().width(LCText.GUI_NAME.get());
 		this.customNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 28 - labelWidth, 18, EasyText.empty()));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 
-		this.buttonToggleTradeType = this.addChild(new EasyTextButton(screenArea.pos.offset(113, 15), 80, 20, EasyText.empty(), this::ToggleTradeType));
-		this.buttonToggleNBTEnforcement = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(113, 4), this::ToggleNBTEnforcement, this::getEnforceNBTState));
+		this.buttonToggleTradeType = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(113,15))
+				.width(80)
+				.pressAction(this::ToggleTradeType)
+				.build());
+		this.buttonToggleNBTEnforcement = this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(113,4))
+				.pressAction(this::ToggleNBTEnforcement)
+				.sprite(IconAndButtonUtil.SPRITE_CHECK(this::getEnforceNBTState))
+				.build());
 
 	}
 
@@ -155,9 +171,14 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	private void validateRenderables() {
-
+		ItemTradeData trade = this.getTrade();
+		if(trade == null)
+		{
+			this.priceSelection.visible = this.itemEdit.visible = this.customNameInput.visible = false;
+			return;
+		}
 		this.priceSelection.visible = this.selection < 0 && !this.getTrade().isBarter();
-		this.itemEdit.visible = this.itemEditScroll.visible = (this.getTrade().isBarter() && this.selection >=2) || (this.getTrade().isPurchase() && this.selection >= 0);
+		this.itemEdit.visible = (this.getTrade().isBarter() && this.selection >=2) || (this.getTrade().isPurchase() && this.selection >= 0);
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
@@ -179,9 +200,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void receiveSelfMessage(LazyPacketData message) {
-		if(message.contains("TradeIndex"))
-			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
+	public void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("StartingSlot"))
 			this.selection = message.getInt("StartingSlot");
 	}

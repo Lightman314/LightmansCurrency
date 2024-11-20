@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -13,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,8 +47,13 @@ public class ATMBlock extends TallRotatableBlock{
 	{
 		if(player instanceof ServerPlayer sp)
 		{
-			MenuValidator validator = BlockValidator.of(pos, this);
-			NetworkHooks.openScreen(sp, new SimpleMenuProvider((id, inventory, p) -> new ATMMenu(id, inventory, validator), EasyText.empty()), EasyMenu.encoder(validator));
+			if(QuarantineAPI.IsDimensionQuarantined(level))
+				EasyText.sendMessage(player,LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.getWithStyle(ChatFormatting.GOLD));
+			else
+			{
+				MenuValidator validator = BlockValidator.of(pos, this);
+				NetworkHooks.openScreen(sp, new SimpleMenuProvider((id, inventory, p) -> new ATMMenu(id, inventory, validator), EasyText.empty()), EasyMenu.encoder(validator));
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}

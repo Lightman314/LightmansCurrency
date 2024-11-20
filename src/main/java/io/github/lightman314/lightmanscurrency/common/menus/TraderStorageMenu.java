@@ -1,16 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
@@ -18,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStatsTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
@@ -41,7 +40,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu, ITraderStorageMenu, IMoneyCollectionMenu {
+public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderStorageTab> implements IValidatedMenu, ITraderStorageMenu, IMoneyCollectionMenu {
 
 	@Nonnull
 	@Override
@@ -62,29 +61,6 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	public boolean areCoinSlotsVisible() { return this.coinSlotsVisible; }
 	List<MoneySlot> coinSlots = new ArrayList<>();
 	public List<MoneySlot> getCoinSlots() { return this.coinSlots; }
-	
-	private boolean canEditTabs;
-	Map<Integer,TraderStorageTab> availableTabs = new HashMap<>();
-	public Map<Integer,TraderStorageTab> getAllTabs() { return this.availableTabs; }
-	@Override
-	public void setTab(int key, @Nonnull TraderStorageTab tab) { if(this.canEditTabs) this.availableTabs.put(key, tab); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
-	@Override
-	public void clearTab(int key)
-	{
-		if(this.canEditTabs)
-		{
-			if(key == TraderStorageTab.TAB_TRADE_BASIC)
-				LightmansCurrency.LogError("Attempted to clear the basic trade tab!\nTabs at this index cannot be removed, as there must be one present at all times.\nIf you wish to replace this tab with your own use setTab!");
-			else
-				this.availableTabs.remove(key);
-		}
-		else
-			LightmansCurrency.LogError("Attempted to clear the tab in " + key + " but the tabs have been locked.");
-	}
-
-	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
-	public int getCurrentTabIndex() { return this.currentTab; }
-	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
 
 	private final List<Consumer<LazyPacketData>> listeners = new ArrayList<>();
 
@@ -113,30 +89,18 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 	public TraderStorageMenu(int windowID, Inventory inventory, long traderID, @Nonnull  MenuValidator validator) {
 		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID), validator);
 	}
-	
+
 	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource, @Nonnull MenuValidator validator) {
 		super(type, windowID, inventory);
 		this.validator = validator;
 		this.traderSource = traderSource;
 		this.coinSlotContainer = new SimpleContainer(5);
 		this.coinSlotHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinSlotContainer, inventory.player);
+		this.initializeTabs();
 
 		this.addValidator(() -> this.hasPermission(Permissions.OPEN_STORAGE));
 		this.addValidator(this.validator);
 
-		this.canEditTabs = true;
-		TraderData trader = this.traderSource.get();
-		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_STATS, new TraderStatsTab(this));
-		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
-		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
-		this.setTab(TraderStorageTab.TAB_TAX_INFO, new TaxInfoTab(this));
-		if(trader != null)
-			trader.initStorageTabs(this);
-		this.canEditTabs = false;
-		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -150,7 +114,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		{
 			this.addSlot(new Slot(inventory, x, SLOT_OFFSET + 8 + x * 18, 212));
 		}
-		
+
 		//Coin Slots
 		for(int x = 0; x < this.coinSlotContainer.getContainerSize(); x++)
 		{
@@ -158,28 +122,34 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 			this.coinSlots.add(newSlot);
 			this.addSlot(newSlot);
 		}
-		
-		this.availableTabs.forEach((key, tab) -> tab.addStorageMenuSlots(this::addSlot));
-		
-		//Run the tab open code for the current tab
-		try {
-			this.getCurrentTab().onTabOpen();
-		} catch(Throwable t) { LightmansCurrency.LogError("Error opening storage tab.",t); }
-		
+
 		this.getTrader().userOpen(this.player);
-		
+
 	}
-	
+
+	@Override
+	protected void registerTabs() {
+		TraderData trader = this.traderSource.get();
+		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_STATS, new TraderStatsTab(this));
+		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
+		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
+		this.setTab(TraderStorageTab.TAB_TAX_INFO, new TaxInfoTab(this));
+		if(trader != null)
+			trader.initStorageTabs(this);
+	}
+
 	@Override
 	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coinSlotContainer);
-		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 		TraderData trader = this.getTrader();
 		if(trader != null)
 			trader.userClose(player);
 	}
-	
+
 	/**
 	 * Public access to the AbstractContainerMenu.clearContainer(Player,Container) function.
 	 */
@@ -191,20 +161,21 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		boolean canAddCoins = this.hasCoinSlotAccess();
 		for(MoneySlot slot : this.coinSlots) slot.active = canAddCoins && this.coinSlotsVisible;
 	}
-	
+
 	private boolean hasCoinSlotAccess() {
 		TraderData trader = this.getTrader();
 		return trader != null && trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.hasBankAccount();
 	}
-	
+
 	@Override
-	public @Nonnull ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
 	{
-		
+
 		ItemStack clickedStack = ItemStack.EMPTY;
-		
+
 		Slot slot = this.slots.get(index);
-		
+
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -212,7 +183,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 			if(index < 36)
 			{
 				//Move from inventory to current tab
-				if(!this.getCurrentTab().quickMoveStack(slotStack))
+				if(!this.currentTab().quickMoveStack(slotStack))
 				{
 					if(this.hasCoinSlotAccess())
 					{
@@ -241,7 +212,7 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 					return ItemStack.EMPTY;
 				}
 			}
-			
+
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -251,9 +222,9 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 				slot.setChanged();
 			}
 		}
-		
+
 		return clickedStack;
-		
+
 	}
 
 	@Override
@@ -264,83 +235,32 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		return 0;
 	}
 
-	@Override
-	public void changeTab(int key) {
-		if(this.currentTab == key)
-			return;
-		if(this.availableTabs.containsKey(key))
-		{
-			if(this.availableTabs.get(key).canOpen(this.player))
-			{
-				//Close the old tab
-				this.getCurrentTab().onTabClose();
-				//Change the tab
-				this.currentTab = key;
-				//Open the new tab
-				this.getCurrentTab().onTabOpen();
-			}
-		}
-		else
-			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
-	}
-
-	public void changeTab(int key, @Nullable LazyPacketData.Builder message)
-	{
-		this.changeTab(key);
-		if(message != null)
-			this.HandleMessage(message.build());
-		this.SendMessage(this.createTabChangeMessage(key,message));
-	}
-
-	@Nonnull
-	public LazyPacketData.Builder createTabChangeMessage(int newTab) { return this.createTabChangeMessage(newTab, null); }
-	@Nonnull
-	public LazyPacketData.Builder createTabChangeMessage(int newTab, @Nullable LazyPacketData.Builder extraData) {
-		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
-		message.setInt("ChangeTab", newTab);
-		return message;
-	}
-
-
 	public void SetCoinSlotsActive(boolean nowActive)
 	{
 		this.coinSlotsVisible = nowActive;
-		MoneySlot.SetActive(this.coinSlots, nowActive);
+		EasySlot.SetActive(this.coinSlots, nowActive);
 		if(this.isClient())
 			this.SendMessage(this.createCoinSlotActiveMessage(nowActive, null));
 	}
 
+	@Nonnull
 	public LazyPacketData.Builder createCoinSlotActiveMessage(boolean nowActive, @Nullable LazyPacketData.Builder extraData) {
-		LazyPacketData.Builder message = extraData == null ? LazyPacketData.builder() : extraData;
+		LazyPacketData.Builder message = extraData == null ? this.builder() : extraData;
 		message.setBoolean("SetCoinSlotsActive", nowActive);
 		return message;
 	}
 
 	@Override
-	public void HandleMessage(@Nonnull LazyPacketData message) {
-		//Change Tab
-		if(message.contains("ChangeTab", LazyPacketData.TYPE_INT))
-			this.changeTab(message.getInt("ChangeTab"));
+	protected void HandleMessages(@Nonnull LazyPacketData message) {
 		//Set Coin Slots Active/Inactive
 		if(message.contains("SetCoinSlotsActive", LazyPacketData.TYPE_BOOLEAN))
 			this.SetCoinSlotsActive(message.getBoolean("SetCoinSlotsActive"));
-		//Tab Listener
-		try { this.getCurrentTab().receiveMessage(message); }
-		catch (Throwable ignored) {}
-		for(Consumer<LazyPacketData> listener : this.listeners)
-			try { listener.accept(message); } catch (Throwable ignored) {}
-
 	}
 
-	public void addListener(Consumer<LazyPacketData> listener) {
-		if(!this.listeners.contains(listener) && listener != null)
-			this.listeners.add(listener);
-	}
-	
 	public boolean HasCoinsToAdd() { return !this.coinSlotHandler.getStoredMoney().isEmpty(); }
 
 	public void CollectStoredMoney() {
-		
+
 		TraderData trader = this.getTrader();
 		if(trader == null)
 		{
@@ -349,9 +269,9 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		}
 		trader.CollectStoredMoney(this.player);
 	}
-	
+
 	public void AddCoins() {
-		
+
 		TraderData trader = this.getTrader();
 		if(trader == null)
 		{
@@ -368,5 +288,5 @@ public class TraderStorageMenu extends LazyMessageMenu implements IValidatedMenu
 		else
 			Permissions.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
 	}
-	
+
 }

@@ -2,79 +2,76 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.IRotatableWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class TabButton extends EasyButton implements ITooltipSource, IRotatableWidget {
-	
+
 	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
-	
+
 	public static final int SIZE = 25;
+	public static final int NEGATIVE_SIZE = 25 * -1;
 
 	public boolean hideTooltip = false;
-	
+
 	public final ITab tab;
 
-	//Rotation:
-	//0: Top
-	//1: Right
-	//2: Bottom
-	//3: Left
-	private int rotation = 0;
-	
-	public TabButton(Consumer<EasyButton> pressable, ITab tab)
+	private WidgetRotation rotation;
+
+	protected TabButton(Builder builder)
 	{
-		super(0, 0, SIZE, SIZE, pressable);
-		this.tab = tab;
+		super(builder);
+		this.tab = builder.tab;
+		this.rotation = builder.rotation;
 	}
 
-	@Override
-	public TabButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
+	@Deprecated
 	public void reposition(ScreenPosition pos, int rotation) { this.reposition(pos.x, pos.y, rotation); }
+	@Deprecated
 	public void reposition(int x, int y, int rotation)
 	{
 		this.setPosition(x, y);
-		this.rotation = MathUtil.clamp(rotation, 0, 3);
+		this.rotation = WidgetRotation.fromIndex(rotation);
 	}
 
 	@Override
-	public void setRotation(int rotation) { this.rotation = MathUtil.clamp(rotation,0,3); }
+	public void setRotation(@Nonnull WidgetRotation rotation) { this.rotation = rotation; }
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		//Set the texture & color for the button
-
 		gui.setColor(this.getColor(), 1f);
-        int xOffset = this.rotation < 2 ? 0 : this.width;
-        int yOffset = (this.rotation % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
-        //Render the background
+		int xOffset = this.rotation.ordinal() < 2 ? 0 : this.width;
+		int yOffset = (this.rotation.ordinal() % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
+		//Render the background
 		gui.blit(GUI_TEXTURE, 0, 0, 200 + xOffset, yOffset, this.width, this.height);
 
 		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
-        this.tab.getIcon().render(gui, 4, 4);
+		this.tab.getIcon().render(gui, 4, 4);
 
 		gui.resetColor();
 
 	}
-	
+
 	protected int getColor() { return this.tab.getColor(); }
 
 	@Override
@@ -85,4 +82,29 @@ public class TabButton extends EasyButton implements ITooltipSource, IRotatableW
 			return ImmutableList.of(this.tab.getTooltip());
 		return null;
 	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	@ParametersAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+
+		protected Builder() { super(SIZE,SIZE); }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		@Nullable
+		private ITab tab = null;
+		private WidgetRotation rotation = WidgetRotation.TOP;
+
+		public Builder tab(ITab tab) { this.tab = tab; return this; }
+		public Builder rotation(WidgetRotation rotation) { this.rotation = rotation; return this; }
+
+		public TabButton build() { return new TabButton(this); }
+
+	}
+
 }

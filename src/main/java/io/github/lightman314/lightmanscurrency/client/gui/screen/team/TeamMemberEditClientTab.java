@@ -47,13 +47,32 @@ public class TeamMemberEditClientTab extends TeamManagementClientTab<TeamMemberE
         this.memberNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 11, screenArea.y + 9, 178, 20, EasyText.empty()));
         this.memberNameInput.setMaxLength(16);
 
-        this.buttonAddMember = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 30), 60, 20, LCText.BUTTON_ADD.get(), this::addMember));
-        this.buttonPromoteMember = this.addChild(new EasyTextButton(screenArea.pos.offset(70, 30), 60, 20, LCText.BUTTON_TEAM_MEMBER_PROMOTE.get(), this::addAdmin));
-        this.buttonRemoveMember = this.addChild(new EasyTextButton(screenArea.pos.offset(130, 30), 60, 20, LCText.BUTTON_REMOVE.get(), this::removeMember));
+        this.buttonAddMember = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,30))
+                .width(60)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::addMember)
+                .build());
+        this.buttonPromoteMember = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(70,30))
+                .width(60)
+                .text(LCText.BUTTON_TEAM_MEMBER_PROMOTE)
+                .pressAction(this::addAdmin)
+                .build());
+        this.buttonRemoveMember = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(130,30))
+                .width(60)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::removeMember)
+                .build());
         this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 
-        this.memberDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(10, 55), screenArea.width - 20, screenArea.height - 65, this::getMemberList));
-        this.memberDisplay.setColumnCount(2);
+        this.memberDisplay = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(10,55))
+                .size(screenArea.width - 20,screenArea.height - 65)
+                .text(this::getMemberList)
+                .columns(2)
+                .build());
 
     }
 

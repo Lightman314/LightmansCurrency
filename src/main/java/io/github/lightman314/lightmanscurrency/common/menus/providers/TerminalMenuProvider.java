@@ -1,9 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.providers;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -28,9 +32,12 @@ public class TerminalMenuProvider implements MenuProvider {
     @Override
     public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new TerminalMenu(id, inventory, this.validator); }
 
-    public static void OpenMenu(@Nonnull ServerPlayer player, @Nonnull MenuValidator validator)
+    public static void OpenMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
     {
-        NetworkHooks.openScreen(player, new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
+        if(QuarantineAPI.IsDimensionQuarantined(player))
+            EasyText.sendMessage(player, LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL.getWithStyle(ChatFormatting.GOLD));
+        else if(player instanceof ServerPlayer sp)
+            NetworkHooks.openScreen(sp,new TerminalMenuProvider(validator), EasyMenu.encoder(validator));
     }
 
 }

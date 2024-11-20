@@ -11,8 +11,10 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -95,6 +97,9 @@ public class MoneyMendingEnchantment extends Enchantment {
 				//If payment was successful, repair the item
 				handler.extractMoney(finalCost, false);
 				item.setDamageValue(currentDamage - repairAmount);
+				//Make Money Mending Sound Effect
+				if(entity instanceof ServerPlayer player)
+					SPacketPlayCoinSound.INSTANCE.sendTo(player);
 			}
 		}
 	}

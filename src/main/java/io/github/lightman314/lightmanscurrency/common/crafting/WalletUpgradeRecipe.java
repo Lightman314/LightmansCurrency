@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -19,6 +18,8 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
@@ -70,22 +71,23 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 */
 	@Override
 	public boolean matches(CraftingContainer container, @Nonnull Level level) {
-	      StackedContents stackedcontents = new StackedContents();
-	      java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
-	      int i = 0;
+	  	StackedContents stackedcontents = new StackedContents();
+	 	List<ItemStack> inputs = new ArrayList<>();
+	  	int i = 0;
 
-	      for(int j = 0; j < container.getContainerSize(); ++j) {
-	         ItemStack itemstack = container.getItem(j);
-	         if (!itemstack.isEmpty()) {
-	            ++i;
-	            if (isSimple)
-	            stackedcontents.accountStack(itemstack, 1);
-	            else inputs.add(itemstack);
-	         }
-	      }
+	  	for(int j = 0; j < container.getContainerSize(); ++j) {
+		 	ItemStack itemstack = container.getItem(j);
+		 	if (!itemstack.isEmpty()) {
+				++i;
+				if (this.isSimple)
+					stackedcontents.accountStack(itemstack, 1);
+	            else
+					inputs.add(itemstack);
+		 	}
+		}
 
-	      return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
-	   }
+	  	return i == this.ingredients.size() && (this.isSimple ? stackedcontents.canCraft(this, null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
+   	}
 	
 	/**
 	 * Returns an Item that is the result of this recipe

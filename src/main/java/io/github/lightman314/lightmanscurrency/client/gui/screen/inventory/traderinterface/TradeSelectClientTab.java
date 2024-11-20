@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -18,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTab> {
 
-	public TradeSelectClientTab(TraderInterfaceScreen screen, TradeSelectTab commonTab) { super(screen, commonTab); }
+	public TradeSelectClientTab(Object screen, TradeSelectTab commonTab) { super(screen, commonTab); }
 
 	@Nonnull
 	@Override
@@ -28,43 +27,47 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_TRADE_SELECT.get(); }
 
 	@Override
-	public boolean tabButtonVisible() { return this.commonTab.canOpen(this.menu.player); }
-
-	@Override
 	public boolean blockInventoryClosing() { return this.tradeDisplay.isSearchBoxRelevant(); }
 
 	TradeButtonArea tradeDisplay;
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.getBE()::getTrader, trader -> this.menu.getBE().getTradeContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this::SelectTrade, TradeButtonArea.FILTER_VALID)
-				.withTitle(this.screen.getCorner().offset(4,6), this.screen.getXSize() - 8, false));
-		this.tradeDisplay.setSelectionDefinition(this::isTradeSelected);
-		
+
+		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
+				.position(screenArea.pos.offset(3,17))
+				.size(screenArea.width - 6,100)
+				.traderSource(this.menu.getBE()::getTrader)
+				.context(this.menu.getBE()::getTradeContext)
+				.pressAction(this::SelectTrade)
+				.tradeFilter(TradeData::isValid)
+				.title(screenArea.pos.offset(4,6),screenArea.width - 8,false)
+				.selectedState(this::isTradeSelected)
+				.build());
+
 	}
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) { }
-	
+
 	@Override
 	public void tick() {
 		if(!this.commonTab.canOpen(this.menu.player))
 			this.screen.changeTab(TraderInterfaceTab.TAB_INFO);
 	}
-	
+
 	private boolean isTradeSelected(TraderData trader, TradeData trade) {
 		return this.menu.getBE().getTrueTrade() == trade;
 	}
-	
+
 	private int getTradeIndex(TraderData trader, TradeData trade) {
 		return trader.getTradeData().indexOf(trade);
 	}
-	
+
 	private void SelectTrade(TraderData trader, TradeData trade) {
-		
+
 		this.commonTab.setTradeIndex(this.getTradeIndex(trader, trade));
-		
+
 	}
 
 }

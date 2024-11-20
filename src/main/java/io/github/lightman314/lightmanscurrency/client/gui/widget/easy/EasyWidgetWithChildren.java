@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.easy;
 
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -13,19 +11,12 @@ public abstract class EasyWidgetWithChildren extends EasyWidget {
 
     private final List<Object> children = new ArrayList<>();
 
-    protected EasyWidgetWithChildren(int x, int y, int width, int height) { super(x, y, width, height); }
-
-    protected EasyWidgetWithChildren(ScreenPosition position, int width, int height) { super(position, width, height); }
-
-    protected EasyWidgetWithChildren(ScreenPosition position, int width, int height, Component title) { super(position, width, height, title); }
-
-    protected EasyWidgetWithChildren(ScreenArea area) { super(area); }
-
-    protected EasyWidgetWithChildren(ScreenArea area, Component title) { super(area, title); }
+    protected EasyWidgetWithChildren(@Nonnull EasyBuilder<?> builder) { super(builder); }
 
     public boolean addChildrenBeforeThis() { return false; }
 
-    public abstract void addChildren();
+    public void addChildren() { this.addChildren(this.getArea()); }
+    public abstract void addChildren(@Nonnull ScreenArea area);
     public final void removeChildren()
     {
         for(Object c : this.children)
@@ -50,6 +41,5 @@ public abstract class EasyWidgetWithChildren extends EasyWidget {
         this.children.remove(widget);
         this.removeConsumer.accept(widget);
     }
-
 
 }

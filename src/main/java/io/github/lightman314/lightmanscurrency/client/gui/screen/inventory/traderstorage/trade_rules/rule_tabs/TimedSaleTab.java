@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
@@ -10,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -45,13 +43,27 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, LCText.BUTTON_SET.get(), this::PressSetDiscountButton));
+        this.buttonSetDiscount = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(125,10))
+                .width(50)
+                .text(LCText.BUTTON_SET)
+                .pressAction(this::PressSetDiscountButton)
+                .build());
 
-        this.buttonStartSale = this.addChild(new EasyTextButton(screenArea.pos.offset(25, 45), 156, 20, this::getButtonText, this::PressStartButton)
-                .withAddons(EasyAddonHelper.tooltip(this::getButtonTooltip)));
+        this.buttonStartSale = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(25,45))
+                .width(156)
+                .text(this::getButtonText)
+                .pressAction(this::PressStartButton)
+                .addon(EasyAddonHelper.tooltip(this::getButtonTooltip))
+                .build());
 
-        this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
-        this.durationInput.setTime(this.getRule().getDuration());
+        this.durationInput = this.addChild(TimeInputWidget.builder()
+                .position(screenArea.pos.offset(63,75))
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
+                .handler(this::onTimeSet)
+                .startTime(rule.getDuration())
+                .build());
 
     }
 
@@ -99,7 +111,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             rule.setDiscount(discount);
-        this.sendUpdateMessage(LazyPacketData.simpleInt("Discount", discount));
+        this.sendUpdateMessage(this.builder().setInt("Discount", discount));
     }
 
     void PressStartButton(EasyButton button)
@@ -108,7 +120,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         boolean setActive = rule != null && !rule.timerActive();
         if(rule != null)
             rule.setStartTime(rule.timerActive() ? 0 : TimeUtil.getCurrentTime());
-        this.sendUpdateMessage(LazyPacketData.simpleBoolean("StartSale", setActive));
+        this.sendUpdateMessage(this.builder().setBoolean("StartSale", setActive));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)
@@ -116,7 +128,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         if(rule != null)
             rule.setDuration(newTime.miliseconds);
-        this.sendUpdateMessage(LazyPacketData.simpleLong("Duration", newTime.miliseconds));
+        this.sendUpdateMessage(this.builder().setLong("Duration", newTime.miliseconds));
     }
 
 }

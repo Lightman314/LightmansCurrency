@@ -5,25 +5,16 @@ import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.world.inventory.Slot;
 
-import java.util.function.Function;
+import javax.annotation.Nonnull;
 
 public class BasicSettingsTab extends TaxCollectorTab {
 
     public BasicSettingsTab(TaxCollectorMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
-    public Object createClientTab(Object screen) { return new BasicSettingsClientTab(screen, this); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
-
-    @Override
-    public void addMenuSlots(Function<Slot, Slot> addSlot) { }
+    public Object createClientTab(@Nonnull Object screen) { return new BasicSettingsClientTab(screen, this); }
 
     public void SetActive(boolean newState)
     {
@@ -32,7 +23,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setActive(newState, this.menu.player);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleBoolean("SetActive", newState));
+                this.menu.SendMessageToServer(this.builder().setBoolean("SetActive", newState));
         }
     }
 
@@ -43,7 +34,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setRadius(newRadius);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeRadius", newRadius));
+                this.menu.SendMessageToServer(this.builder().setInt("ChangeRadius", newRadius));
         }
     }
 
@@ -54,7 +45,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setHeight(newHeight);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeHeight", newHeight));
+                this.menu.SendMessageToServer(this.builder().setInt("ChangeHeight", newHeight));
         }
     }
 
@@ -65,7 +56,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setVertOffset(newVertOffset);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeVertOffset", newVertOffset));
+                this.menu.SendMessageToServer(this.builder().setInt("ChangeVertOffset", newVertOffset));
         }
     }
 
@@ -76,7 +67,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setTaxRate(newRate);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeTaxRate", newRate));
+                this.menu.SendMessageToServer(this.builder().setInt("ChangeTaxRate", newRate));
         }
     }
 
@@ -87,7 +78,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setRenderMode(newMode);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleInt("ChangeRenderMode", newMode));
+                this.menu.SendMessageToServer(this.builder().setInt("ChangeRenderMode", newMode));
         }
     }
 
@@ -98,7 +89,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setName(name);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleString("ChangeName", name));
+                this.menu.SendMessageToServer(this.builder().setString("ChangeName", name));
         }
     }
 
@@ -109,7 +100,7 @@ public class BasicSettingsTab extends TaxCollectorTab {
         {
             entry.setLinkedToBank(newState);
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleBoolean("ChangeLinkedToBank", newState));
+                this.menu.SendMessageToServer(this.builder().setBoolean("ChangeLinkedToBank", newState));
         }
     }
 

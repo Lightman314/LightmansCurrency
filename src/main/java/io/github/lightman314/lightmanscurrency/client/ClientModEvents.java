@@ -17,10 +17,12 @@ import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
@@ -32,6 +34,12 @@ public class ClientModEvents {
 		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new ATMCardColor(), ModItems.ATM_CARD.get(),ModItems.PREPAID_CARD.get());
 		event.register(SusBlockColor.INSTANCE, ModBlocks.SUS_JAR.get());
+		//Default Leather Colors for the leather wallet
+		event.register((stack,layer) -> {
+			if(stack.getItem() instanceof DyeableLeatherItem item)
+				return item.getColor(stack);
+			return -1;
+		},ModItems.WALLET_LEATHER.get());
 	}
 
 	@SubscribeEvent
@@ -51,13 +59,10 @@ public class ClientModEvents {
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 		//Wallets
-		event.register(WalletItem.lazyModel("wallet_copper"));
-		event.register(WalletItem.lazyModel("wallet_iron"));
-		event.register(WalletItem.lazyModel("wallet_gold"));
-		event.register(WalletItem.lazyModel("wallet_emerald"));
-		event.register(WalletItem.lazyModel("wallet_diamond"));
-		event.register(WalletItem.lazyModel("wallet_netherite"));
-		event.register(WalletItem.lazyModel("wallet_nether_star"));
+		ForgeRegistries.ITEMS.forEach(item -> {
+			if(item instanceof WalletItem wallet)
+				event.register(wallet.model);
+		});
 	}
 	
 	@SubscribeEvent

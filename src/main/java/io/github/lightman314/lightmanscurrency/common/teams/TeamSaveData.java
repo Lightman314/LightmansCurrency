@@ -181,7 +181,11 @@ public class TeamSaveData extends SavedData {
 	public static void OnServerTick(TickEvent.ServerTickEvent event)
 	{
 		if(event.phase == TickEvent.Phase.START)
-			get().teams.forEach((id,team) -> team.tick());
+		{
+			TeamSaveData data = get();
+			if(data != null)
+				data.teams.forEach((id,team) -> team.tick());
+		}
 	}
 	
 	

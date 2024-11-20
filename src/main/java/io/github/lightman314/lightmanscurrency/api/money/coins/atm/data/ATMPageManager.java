@@ -60,7 +60,16 @@ public final class ATMPageManager {
         this.corner = screen.pos;
         //Create dropdown widget if more than one valid option
         if(this.validData.size() > 1)
-            this.addChild.accept(new DropdownWidget(screen.pos.offset(screen.width - 70, 6), 64, this.validData.indexOf(this.selectedData), this::changeSelection, this.getOptions()));
+        {
+            this.addChild.accept(DropdownWidget.builder()
+                    .position(screen.pos.offset(screen.width - 70, 6))
+                    .width(64)
+                    .selected(this.validData.indexOf(this.selectedData))
+                    .selectAction(this::changeSelection)
+                    .options(this.getOptions())
+                    .build());
+        }
+
         this.buttons.clear();
         if(this.selectedData != null)
         {
@@ -71,7 +80,10 @@ public final class ATMPageManager {
 
     private void addButton(@Nonnull ATMExchangeButtonData data)
     {
-        ATMExchangeButton button = new ATMExchangeButton(this.corner, data, this.commandProcessor);
+        ATMExchangeButton button = ATMExchangeButton.builder(data)
+                .screenCorner(this.corner)
+                .commandHandler(this.commandProcessor)
+                .build();
         this.buttons.add(button);
         this.addChild.accept(button);
     }

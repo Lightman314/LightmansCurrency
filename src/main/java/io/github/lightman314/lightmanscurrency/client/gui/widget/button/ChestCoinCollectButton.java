@@ -8,10 +8,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketChestQuickCollect;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class ChestCoinCollectButton extends IconButton {
 
@@ -19,9 +23,9 @@ public class ChestCoinCollectButton extends IconButton {
 
     private final ContainerScreen screen;
 
-    public ChestCoinCollectButton(ContainerScreen screen) {
-        super(0,0, b -> CPacketChestQuickCollect.sendToServer(), ChestCoinCollectButton::getIcon);
-        this.screen = screen;
+    private ChestCoinCollectButton(@Nonnull Builder builder) {
+        super(IconButton.builder().pressAction(CPacketChestQuickCollect::sendToServer).icon(ChestCoinCollectButton::getIcon));
+        this.screen = builder.screen;
         lastButton = this;
         //Position in the top-right corner
         this.setPosition(this.screen.getGuiLeft() + this.screen.getXSize() - this.width, this.screen.getGuiTop() - this.height);
@@ -60,6 +64,25 @@ public class ChestCoinCollectButton extends IconButton {
     public static void tryRenderTooltip(EasyGuiGraphics gui, int mouseX, int mouseY) {
         if(lastButton != null && lastButton.isMouseOver(mouseX, mouseY))
             gui.renderTooltip(LCText.TOOLTIP_CHEST_COIN_COLLECTION_BUTTON.get());
+    }
+
+    public static Builder chestBuilder() { return new Builder(); }
+
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyBuilder<Builder>
+    {
+
+        private Builder() {}
+        @Override
+        protected Builder getSelf() { return this; }
+
+        private ContainerScreen screen = null;
+
+        public Builder screen(@Nonnull ContainerScreen screen) { this.screen = screen; return this; }
+
+        public ChestCoinCollectButton build() { return new ChestCoinCollectButton(this); }
+
     }
 
 }

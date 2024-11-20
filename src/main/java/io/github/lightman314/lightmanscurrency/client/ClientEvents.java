@@ -135,7 +135,7 @@ public class ClientEvents {
 				return;
 
 			//Add Wallet-Related buttons if Curios doesn't exist
-			event.addListener(new WalletButton(gui, b -> new CPacketOpenWallet(-1).send()));
+			event.addListener(new WalletButton(gui, CPacketOpenWallet::sendEquippedPacket));
 
 			event.addListener(new VisibilityToggleButton(gui, ClientEvents::toggleVisibility));
 
@@ -143,12 +143,12 @@ public class ClientEvents {
 		else if(screen instanceof ContainerScreen chestScreen)
 		{
 			//Add Chest Quick-Collect Button
-			event.addListener(new ChestCoinCollectButton(chestScreen));
+			event.addListener(ChestCoinCollectButton.chestBuilder().screen(chestScreen).build());
 		}
 
 	}
 	
-	private static void toggleVisibility(EasyButton button) {
+	private static void toggleVisibility() {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
 		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);

@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
+import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.tax.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
@@ -62,7 +63,7 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
 		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
 		register(SPacketDeleteClientBank.class, SPacketDeleteClientBank.HANDLER);
-		register(CPacketBankTransferTeam.class, CPacketBankTransferTeam.HANDLER);
+		register(CPacketBankTransferAccount.class, CPacketBankTransferAccount.HANDLER);
 		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
 		register(SPacketBankTransferResponse.class, SPacketBankTransferResponse.HANDLER);
 		register(CPacketATMSetPlayerAccount.class, CPacketATMSetPlayerAccount.HANDLER);
@@ -93,7 +94,6 @@ public class LightmansCurrencyPacketHandler {
 
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
-		register(CPacketSyncWallet.class, CPacketSyncWallet.HANDLER);
 		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
 		register(CPacketCreativeWalletEdit.class, CPacketCreativeWalletEdit.HANDLER);
 
@@ -167,6 +167,9 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketResetConfig.class, SPacketResetConfig.HANDLER);
 		register(SPacketViewConfig.class, SPacketViewConfig.HANDLER);
 
+		register(CPacketRequestName.class, CPacketRequestName.HANDLER);
+		register(CPacketRequestID.class,CPacketRequestID.HANDLER);
+		register(SPacketUpdatePlayerCache.class,SPacketUpdatePlayerCache.HANDLER);
 
 	}
 

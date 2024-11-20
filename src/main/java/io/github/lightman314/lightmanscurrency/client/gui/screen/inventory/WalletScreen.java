@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -20,20 +20,18 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpe
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletExchangeCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletQuickCollect;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletToggleAutoExchange;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 import javax.annotation.Nonnull;
 
 public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet.png");
-
-	public static final Sprite SPRITE_QUICK_COLLECT = Sprite.SimpleSprite(GUI_TEXTURE, 192, 0, 10, 10);
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/wallet.png");
 
 	IconButton buttonToggleAutoExchange;
 	EasyButton buttonExchange;
@@ -43,7 +41,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 	EasyButton buttonQuickCollect;
 
-	private final LazyWidgetPositioner positioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, -20, 0, 20);
+	private final LazyWidgetPositioner positioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), -20, 0, 20);
 
 	public WalletScreen(WalletMenu container, Inventory inventory, Component title) { super(container, inventory, title); }
 
@@ -62,15 +60,21 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		if(this.menu.canExchange())
 		{
 			//Create the buttons
-			this.buttonExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressExchangeButton, IconData.of(GUI_TEXTURE, 176, 0))
-					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE)));
+			this.buttonExchange = this.addChild(IconButton.builder()
+					.pressAction(this::PressExchangeButton)
+					.icon(IconData.of(GUI_TEXTURE,176,0))
+					.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE))
+					.build());
 
 			this.positioner.addWidget(this.buttonExchange);
 
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoExchange = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressAutoExchangeToggleButton, IconData.of(GUI_TEXTURE, 176, 16))
-						.withAddons(EasyAddonHelper.tooltip(this::getAutoExchangeTooltip)));
+				this.buttonToggleAutoExchange = this.addChild(IconButton.builder()
+						.pressAction(this::PressAutoExchangeToggleButton)
+						.icon(IconData.of(GUI_TEXTURE, 176, 16))
+						.addon(EasyAddonHelper.tooltip(this::getAutoExchangeTooltip))
+						.build());
 				this.updateToggleButton();
 				this.positioner.addWidget(this.buttonToggleAutoExchange);
 			}
@@ -78,12 +82,20 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 		if(this.menu.hasBankAccess())
 		{
-			this.buttonOpenBank = this.addChild(new IconButton(ScreenPosition.ZERO, this::PressOpenBankButton, IconData.of(ModBlocks.ATM.get()))
-					.withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK)));
+			this.buttonOpenBank = this.addChild(IconButton.builder()
+					.pressAction(this::PressOpenBankButton)
+					.icon(IconData.of(ModBlocks.ATM))
+					.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK))
+					.addon(EasyAddonHelper.visibleCheck(() -> !QuarantineAPI.IsDimensionQuarantined(this.menu.player)))
+					.build());
 			this.positioner.addWidget(this.buttonOpenBank);
 		}
 
-		this.buttonQuickCollect = this.addChild(new PlainButton(screenArea.pos.offset(159 + this.menu.halfBonusWidth, screenArea.height - 95), this::PressQuickCollectButton, SPRITE_QUICK_COLLECT));
+		this.buttonQuickCollect = this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(159 + this.menu.halfBonusWidth,screenArea.height - 95))
+				.pressAction(this::PressQuickCollectButton)
+				.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
+				.build());
 
 	}
 

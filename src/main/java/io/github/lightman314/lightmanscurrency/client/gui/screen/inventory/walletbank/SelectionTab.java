@@ -32,9 +32,14 @@ public class SelectionTab extends WalletBankTab {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.bankAccountSelection = this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20,15),screenArea.width - 40, 5, this::allowedAccess, this.menu::getBankAccountReference, this::selectAccount));
-
-		this.tick();
+		this.bankAccountSelection = this.addChild(BankAccountSelectionWidget.builder()
+				.position(screenArea.pos.offset(20,15))
+				.width(screenArea.width - 40)
+				.rows(5)
+				.filter(this::allowedAccess)
+				.selected(this.menu::getBankAccountReference)
+				.handler(this::selectAccount)
+				.build());
 
 	}
 

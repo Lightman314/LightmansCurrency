@@ -46,11 +46,22 @@ public class TaxInfoClientTab extends TraderStorageClientTab<TaxInfoTab> impleme
         for(int i = 0; i < DISPLAY_ENTRIES; ++i)
         {
             final int index = i;
-            this.addChild(new TaxInfoWidget(screenArea.pos.offset(TraderStorageMenu.SLOT_OFFSET, (TaxInfoWidget.HEIGHT * i) + 20), () -> this.getEntryOfIndex(index), this));
+            this.addChild(TaxInfoWidget.builder()
+                    .position(screenArea.pos.offset(TraderStorageMenu.SLOT_OFFSET,(TaxInfoWidget.HEIGHT * i) + 20))
+                    .entry(() -> this.getEntryOfIndex(index))
+                    .parent(this)
+                    .build());
         }
 
-        this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width, TaxInfoWidget.HEIGHT * DISPLAY_ENTRIES).atPosition(screenArea.pos.offset(0,10)), this));
-        this.addChild(new ScrollBarWidget(screenArea.pos.offset(TraderStorageMenu.SLOT_OFFSET + TaxInfoWidget.WIDTH, 20), TaxInfoWidget.HEIGHT * DISPLAY_ENTRIES, this));
+        this.addChild(ScrollListener.builder()
+                .area(screenArea.ofSize(screenArea.width,TaxInfoWidget.HEIGHT * DISPLAY_ENTRIES).offsetPosition(0,10))
+                .listener(this)
+                .build());
+        this.addChild(ScrollBarWidget.builder()
+                .position(screenArea.pos.offset(TraderStorageMenu.SLOT_OFFSET + TaxInfoWidget.WIDTH,20))
+                .height(TaxInfoWidget.HEIGHT * DISPLAY_ENTRIES)
+                .scrollable(this)
+                .build());
 
         //Hide Coin Slots
         this.menu.SetCoinSlotsActive(false);

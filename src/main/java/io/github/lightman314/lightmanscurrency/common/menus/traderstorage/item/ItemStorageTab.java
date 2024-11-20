@@ -27,16 +27,17 @@ public class ItemStorageTab extends TraderStorageTab{
 
 	public ItemStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new ItemStorageClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
+
 	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
-	
+
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
@@ -52,14 +53,14 @@ public class ItemStorageTab extends TraderStorageTab{
 			}
 		}
 	}
-	
+
 	@Override
 	public void onTabOpen() { EasySlot.SetActive(this.slots); }
 
 	@Override
 	public void onTabClose() { EasySlot.SetInactive(this.slots); }
-	
-	
+
+
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
 		if(this.menu.getTrader() instanceof ItemTraderData trader) {
@@ -71,11 +72,11 @@ public class ItemStorageTab extends TraderStorageTab{
 				storage.tryAddItem(stack);
 				trader.markStorageDirty();
 				return true;
-			}	
+			}
 		}
 		return super.quickMoveStack(stack);
 	}
-	
+
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
 		if(this.menu.getTrader() instanceof ItemTraderData trader)
 		{
@@ -91,12 +92,12 @@ public class ItemStorageTab extends TraderStorageTab{
 				{
 					ItemStack stackToRemove = storageContents.get(storageSlot).copy();
 					ItemStack removeStack = stackToRemove.copy();
-					
+
 					//Assume we're moving a whole stack for now
 					int tempAmount = Math.min(stackToRemove.getMaxStackSize(), stackToRemove.getCount());
 					stackToRemove.setCount(tempAmount);
 					int removedAmount;
-					
+
 					//Right-click, attempt to cut the stack in half
 					if(!leftClick)
 					{
@@ -104,7 +105,7 @@ public class ItemStorageTab extends TraderStorageTab{
 							tempAmount = tempAmount / 2;
 						stackToRemove.setCount(tempAmount);
 					}
-					
+
 					if(isShiftHeld)
 					{
 						//Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
@@ -156,14 +157,14 @@ public class ItemStorageTab extends TraderStorageTab{
 				this.sendStorageClickMessage(storageSlot, isShiftHeld, leftClick);
 		}
 	}
-	
+
 	private void sendStorageClickMessage(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		this.menu.SendMessage(LazyPacketData.builder()
+		this.menu.SendMessage(this.builder()
 				.setInt("ClickedSlot", storageSlot)
 				.setBoolean("HeldShift", isShiftHeld)
 				.setBoolean("LeftClick", leftClick));
 	}
-	
+
 	public void quickTransfer(int type) {
 		if(this.menu.getTrader() instanceof ItemTraderData trader) {
 			if(trader.isPersistent())
@@ -214,16 +215,16 @@ public class ItemStorageTab extends TraderStorageTab{
 					}
 				}
 			}
-			
+
 			if(changed)
 				trader.markStorageDirty();
-			
+
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("QuickTransfer", type));
-			
+				this.menu.SendMessage(this.builder().setInt("QuickTransfer", type));
+
 		}
 	}
-	
+
 	@Override
 	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("ClickedSlot", LazyPacketData.TYPE_INT))

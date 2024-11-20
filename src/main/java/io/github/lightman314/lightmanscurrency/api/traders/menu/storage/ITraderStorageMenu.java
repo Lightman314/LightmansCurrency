@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.menus.tabbed.IEasyTabbedMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -11,20 +11,13 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface ITraderStorageMenu extends IClientTracker, LazyPacketData.IBuilderProvider {
+public interface ITraderStorageMenu extends IEasyTabbedMenu<TraderStorageTab> {
 
     void setTab(int slot, @Nonnull TraderStorageTab tab);
     void clearTab(int slot);
-    void changeTab(int slot);
-    void changeTab(int slot, @Nullable LazyPacketData.Builder message);
 
     @Nonnull
     TradeContext getContext();
-
-    @Nonnull
-    LazyPacketData.Builder createTabChangeMessage(int newTab);
-    @Nonnull
-    LazyPacketData.Builder createTabChangeMessage(int newTab, @Nullable LazyPacketData.Builder extraData);
 
     @Nullable
     TraderData getTrader();

@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -19,8 +20,8 @@ import java.util.List;
 
 public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettingsTab> {
 
+    //private LazyWidgetPositioner tabPositioner;
     private int selectedTab = 0;
-    private final List<TabButton> tabButtons = new ArrayList<>();
     private final List<SettingsSubTab> tabs = new ArrayList<>();
 
     private SettingsSubTab getCurrentTab() {
@@ -46,8 +47,29 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.tabButtons.clear();
-        this.refreshTabs();
+        LazyWidgetPositioner tabPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createClockwiseWraparound(screenArea,WidgetRotation.RIGHT),TabButton.SIZE));
+
+        if(firstOpen)
+            this.selectedTab = 0;
+
+        this.tabs.clear();
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
+            this.tabs.addAll(trader.getSettingsTabs(this));
+
+        //Create Tab buttons
+        for(int i = 0; i < this.tabs.size(); ++i)
+        {
+            final int tabIndex = i;
+            SettingsSubTab tab = this.tabs.get(i);
+            TabButton newButton = this.addChild(TabButton.builder()
+                    .pressAction(() -> this.openTab(tabIndex))
+                    .tab(tab)
+                    .addon(EasyAddonHelper.visibleCheck(tab::canOpen))
+                    .addon(EasyAddonHelper.activeCheck(() -> this.selectedTab != tabIndex))
+                    .build());
+            tabPositioner.addWidget(newButton);
+        }
 
         //Set up the "Current Tab"
         this.getCurrentTab().onOpen();
@@ -65,35 +87,6 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
         this.menu.SetCoinSlotsActive(true);
     }
 
-    public void refreshTabs()
-    {
-        //Collect tabs
-        this.tabs.clear();
-        //Reset Selected Tabs
-        this.selectedTab = 0;
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-            this.tabs.addAll(trader.getSettingsTabs(this));
-
-        //Remove Existing Tab Buttons
-        for(TabButton b : this.tabButtons)
-            this.screen.removeChild(b);
-        this.tabButtons.clear();
-
-        //Create Tab buttons
-        for(int i = 0; i < this.tabs.size(); ++i)
-        {
-            final int tabIndex = i;
-            SettingsSubTab tab = this.tabs.get(i);
-            TabButton newButton = this.addChild(new TabButton(b -> this.openTab(tabIndex), tab)
-                    .withAddons(EasyAddonHelper.visibleCheck(tab::canOpen),
-                            EasyAddonHelper.activeCheck(() -> this.selectedTab != tabIndex)));
-            newButton.visible = tab.canOpen();
-            this.tabButtons.add(newButton);
-        }
-
-    }
-
     public void openTab(int index)
     {
         if(index == this.selectedTab || index < 0 || index >= this.tabs.size())
@@ -105,18 +98,6 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
 
     @Override
     public void tick() {
-
-        //Position buttons
-        ScreenPosition corner = this.screen.getCorner();
-        int yPos = 0;
-        for(TabButton button : this.tabButtons)
-        {
-            if(button.visible)
-            {
-                button.reposition(corner.offset(this.screen.getXSize(), yPos), 1);
-                yPos += TabButton.SIZE;
-            }
-        }
 
         //Force close the tab if they don't have access to it anymore
         if(!this.getCurrentTab().canOpen() && this.selectedTab != 0)

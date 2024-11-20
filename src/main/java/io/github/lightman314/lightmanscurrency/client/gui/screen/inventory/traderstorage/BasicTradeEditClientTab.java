@@ -5,8 +5,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -24,7 +24,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	public BasicTradeEditClientTab(Object screen, T commonTab) {
 		super(screen, commonTab);
-		this.commonTab.setClient(((TraderStorageScreen)screen)::selfMessage);
+		//this.commonTab.overrideTabChangeHandler(this.screen::ChangeTab);
 	}
 
 	@Nonnull
@@ -42,13 +42,27 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu::getTrader, t -> this.menu.getContext(), screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu))
-				.withTitle(screenArea.pos.offset(4, 6), screenArea.width - (this.renderAddRemoveButtons() ? 28 : 8), true)
-				.blockSearchBox());
-		this.tradeDisplay.setInteractionHandler(this);
+		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
+				.position(screenArea.pos.offset(3,17))
+				.size(screenArea.width - 6,100)
+				.traderSource(this.menu::getTrader)
+				.context(this.menu::getContext)
+				.tradeFilter(this.menu.getTrader(),this.menu)
+				.title(screenArea.pos.offset(4,6),screenArea.width - (this.renderAddRemoveButtons() ? 28 : 8),true)
+				.interactionHandler(this)
+				.blockSearchBox()
+				.build());
 
-		this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width - 25, 4), this::AddTrade));
-		this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width - 14, 4), this::RemoveTrade));
+		this.buttonAddTrade = this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 25, 4))
+				.pressAction(this::AddTrade)
+				.sprite(IconAndButtonUtil.SPRITE_PLUS)
+				.build());
+		this.buttonRemoveTrade = this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 14, 4))
+				.pressAction(this::RemoveTrade)
+				.sprite(IconAndButtonUtil.SPRITE_MINUS)
+				.build());
 
 		this.tick();
 
@@ -77,47 +91,26 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = false;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-		{
-			try {
-				trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, data, this.menu.getHeldItem());
-			} catch (Throwable t) {
-				trade.OnInputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, data.mouseButton(), this.menu.getHeldItem());
-			}
-		}
+			trade.OnInputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-		{
-			try {
-				trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, data, this.menu.getHeldItem());
-			} catch (Throwable t) {
-				trade.OnOutputDisplayInteraction(this.commonTab, this.screen::selfMessage, index, data.mouseButton(), this.menu.getHeldItem());
-			}
-		}
+			trade.OnOutputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-		{
-			try {
-				trade.OnInteraction(this.commonTab, this.screen::selfMessage, data, this.menu.getHeldItem());
-			} catch (Throwable t) {
-				trade.OnInteraction(this.commonTab, this.screen::selfMessage, data.localMouseX(), data.localMouseY(), data.mouseButton(), this.menu.getHeldItem());
-			}
-		}
+			trade.OnInteraction(this.commonTab, data, this.menu.getHeldItem());
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}

@@ -39,7 +39,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 		if(handler == null || !handler.visible())
 			return;
 		
-		ItemStack wallet = handler.getWallet();
+		ItemStack wallet = handler.getVisibleWallet();
 		if(wallet.getItem() instanceof WalletItem walletItem)
 		{
 

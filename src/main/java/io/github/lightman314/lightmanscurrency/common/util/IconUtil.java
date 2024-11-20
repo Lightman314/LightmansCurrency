@@ -1,25 +1,25 @@
 package io.github.lightman314.lightmanscurrency.common.util;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
+
+import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class IconUtil {
 
     /**
      * Texture file used for miscellaneous icons, most of which are refferred to in the IconData constants below.
      */
-    public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png");
+    public static final ResourceLocation ICON_TEXTURE = VersionUtil.lcResource("textures/gui/icons.png");
 
     public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
     public static final IconData ICON_TRADER_ALT = IconData.of(ICON_TEXTURE, 80, 0);
@@ -37,20 +37,20 @@ public class IconUtil {
     public static final IconData ICON_DOWN = IconData.of(ICON_TEXTURE, 128, 16);
 
     public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
-    public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 
-    public static NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
-        return b -> {
-            boolean creative = b.isHovered() != isCreative.get();
-            return creative ? ICON_CREATIVE_ON : ICON_CREATIVE_OFF;
+    public static Function<IconButton,IconData> ICON_CREATIVE_TOGGLE(@Nonnull Supplier<Boolean> isCreative)
+    {
+        return (b) -> {
+            boolean c = b.isHovered() != isCreative.get();
+            return c ? ICON_CREATIVE : ICON_CREATIVE_OFF;
         };
     }
-    private static final IconData ICON_CREATIVE_ON = IconData.of(ICON_TEXTURE, 48, 16);
-    private static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
+    public static final IconData ICON_CREATIVE = IconData.of(ICON_TEXTURE, 48, 16);
+    public static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
 
     public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
 
-    public static NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
+    public static Supplier<IconData> ICON_INTERFACE_ACTIVE(Supplier<Boolean> isActive) {
         return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
     }
     private static final IconData ICON_INTERFACE_ON = IconData.of(Items.REDSTONE_TORCH);
@@ -87,8 +87,9 @@ public class IconUtil {
 
     public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
 
-    public static final IconData ICON_ALEX_HEAD;
     public static final ItemStack ITEM_ALEX_HEAD;
+
+    public static final IconData ICON_ALEX_HEAD;
 
     public static final IconData ICON_TAXES = IconData.of(ICON_TEXTURE, 96, 0);
 

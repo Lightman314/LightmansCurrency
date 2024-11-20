@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
@@ -56,17 +55,31 @@ public class OwnershipTab extends SettingsSubTab {
         this.playerOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 50, 160, 20, EasyText.empty()));
         this.playerOwnerInput.setMaxLength(16);
 
-        this.setPlayerButton = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 80), 160, 20, LCText.BUTTON_OWNER_SET_PLAYER.get(), this::setPlayerOwner)
-                .withAddons(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD))));
+        this.setPlayerButton = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,80))
+                .width(160)
+                .text(LCText.BUTTON_OWNER_SET_PLAYER)
+                .pressAction(this::setPlayerOwner)
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)))
+                .build());
 
         //Owner Selection
-        this.ownerSelectionWidget = this.addChild(new OwnerSelectionWidget(screenArea.pos.offset(20, 27), 160, 5, this::getCurrentOwner, this::setOwner, this.ownerSelectionWidget));
+        this.ownerSelectionWidget = this.addChild(OwnerSelectionWidget.builder()
+                .position(screenArea.pos.offset(20,27))
+                .width(160)
+                .rows(5)
+                .selected(this::getCurrentOwner)
+                .handler(this::setOwner)
+                .oldWidget(this.ownerSelectionWidget)
+                .build());
 
         //Toggle Mode button
-        this.buttonToggleInputMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
-
-        //Toggle Mode button
-        this.buttonToggleInputMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 25, 5), this::toggleInputMode, this::getModeIcon).withAddons(EasyAddonHelper.tooltip(this::getModeTooltip)));
+        this.buttonToggleInputMode = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 25,5))
+                .pressAction(this::toggleInputMode)
+                .icon(this::getModeIcon)
+                .addon(EasyAddonHelper.tooltip(this::getModeTooltip))
+                .build());
 
         this.updateMode();
 
@@ -83,7 +96,7 @@ public class OwnershipTab extends SettingsSubTab {
 
     protected void setOwner(@Nonnull Owner newOwner)
     {
-        this.sendMessage(LazyPacketData.simpleTag("ChangeOwner", newOwner.save()));
+        this.sendMessage(this.builder().setOwner("ChangeOwner", newOwner));
     }
 
     @Override
@@ -107,7 +120,7 @@ public class OwnershipTab extends SettingsSubTab {
     {
         if(this.playerOwnerInput.getValue().isBlank())
             return;
-        this.sendMessage(LazyPacketData.simpleString("ChangePlayerOwner", this.playerOwnerInput.getValue()));
+        this.sendMessage(this.builder().setString("ChangePlayerOwner", this.playerOwnerInput.getValue()));
         this.playerOwnerInput.setValue("");
     }
 

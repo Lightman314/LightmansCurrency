@@ -132,28 +132,53 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.valueInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset(0,30), this.valueInput, MoneyValue.empty(), this::onValueChanged));
-        this.valueInput.allowFreeInput = false;
-        this.valueInput.drawBG = false;
+        this.valueInput = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset(0,30))
+                .old(this.valueInput)
+                .valueHandler(this::onValueChanged)
+                .blockFreeInputs()
+                .build());
         this.valueInput.setVisible(false);
 
-        this.buttonPropose = this.addChild(new EasyTextButton(screenArea.pos.offset(8, 110), 70, 20, LCText.BUTTON_PLAYER_TRADING_PROPOSE.get(), this::OnPropose));
+        this.buttonPropose = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(8,110))
+                .width(70)
+                .text(LCText.BUTTON_PLAYER_TRADING_PROPOSE)
+                .pressAction(this::OnPropose)
+                .build());
 
-        this.buttonAccept = this.addChild(new EasyTextButton(screenArea.pos.offset(98, 110), 70, 20,  LCText.BUTTON_PLAYER_TRADING_ACCEPT.get(), this::OnAccept));
+        this.buttonAccept = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(98,110))
+                .width(70)
+                .text(LCText.BUTTON_PLAYER_TRADING_ACCEPT)
+                .pressAction(this::OnAccept)
+                .build());
         this.buttonAccept.active = false;
 
-        this.buttonToggleMoneyMode = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width,20), this::ToggleMoneyMode, this::getToggleMoneyIcon)
-                .withAddons(EasyAddonHelper.activeCheck(() -> !this.chatMode),
-                        EasyAddonHelper.tooltip(this::getToggleMoneyTooltip)));
+        this.buttonToggleMoneyMode = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width,20))
+                .pressAction(this::ToggleMoneyMode)
+                .icon(this::getToggleMoneyIcon)
+                .addon(EasyAddonHelper.activeCheck(() -> !this.chatMode))
+                .addon(EasyAddonHelper.tooltip(this::getToggleMoneyTooltip))
+                .build());
 
-        this.buttonToggleChat = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width, 0), this::ToggleChatMode, this::getToggleIcon)
-                .withAddons(EasyAddonHelper.tooltip(this::getToggleTooltip)));
+        this.buttonToggleChat = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width,0))
+                .pressAction(this::ToggleChatMode)
+                .icon(this::getToggleIcon)
+                .color(() -> this.chatWarning ? 0xFFFF00 : 0xFFFFFF)
+                .addon(EasyAddonHelper.tooltip(this::getToggleTooltip))
+                .build());
         this.chatBox = this.addChild(new EditBox(this.font, screenArea.pos.x + 9, screenArea.pos.y + 120, screenArea.width - 22, 12, EasyText.empty()));
         this.chatBox.setBordered(false);
         this.chatBox.setMaxLength(256);
 
-        this.chatScrollListener = this.addChild(new ScrollListener(screenArea.ofSize(screenArea.width,118), this));
-        this.chatScrollListener.inverted = true;
+        this.chatScrollListener = this.addChild(ScrollListener.builder()
+                .area(screenArea.ofSize(screenArea.width,118))
+                .listener(this)
+                .invert()
+                .build());
 
         this.validateWidgetStates();
 
@@ -175,7 +200,6 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
 
         if(this.chatMode)
             this.setFocused(this.chatBox);
-        this.buttonToggleChat.bgColor = this.chatWarning ? 0xFFFF00 : 0xFFFFFF;
 
     }
 

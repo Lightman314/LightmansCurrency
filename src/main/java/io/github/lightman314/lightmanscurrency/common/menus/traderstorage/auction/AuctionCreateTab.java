@@ -22,24 +22,25 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nonnull;
 
 public class AuctionCreateTab extends TraderStorageTab {
-	
+
 	public AuctionCreateTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
-	
+
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new AuctionCreateClientTab(screen, this); }
-	
+	public Object createClientTab(@Nonnull Object screen) { return new AuctionCreateClientTab(screen, this); }
+
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
+
 	List<EasySlot> slots = new ArrayList<>();
 	public List<EasySlot> getSlots() { return this.slots; }
 	SimpleContainer auctionItems = new SimpleContainer(2);
 	public SimpleContainer getAuctionItems() { return this.auctionItems; }
-	
+
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
-		
+
 		for(int i = 0; i < this.auctionItems.getContainerSize(); ++i)
 		{
 			EasySlot newSlot = new EasySlot(this.auctionItems, i, TraderMenu.SLOT_OFFSET + 8 + i * 18, 122);
@@ -47,34 +48,32 @@ public class AuctionCreateTab extends TraderStorageTab {
 			this.slots.add(newSlot);
 		}
 		EasySlot.SetActive(this.slots, false);
-		
+
 	}
-	
+
 	@Override
 	public void onTabOpen() {
 		EasySlot.SetActive(this.slots);
 		for(EasySlot slot : this.slots)
 			slot.locked = false;
 	}
-	
+
 	@Override
 	public void onTabClose() {
 		EasySlot.SetInactive(this.slots);
 		this.menu.clearContainer(this.auctionItems);
 	}
-	
+
 	@Override
-	public void onMenuClose() {
-		this.menu.clearContainer(this.auctionItems);
-	}
-	
+	public void onMenuClose() { this.menu.clearContainer(this.auctionItems); }
+
 	public void createAuction(AuctionTradeData trade) {
 		TraderData t = this.menu.getTrader();
 		if(t instanceof AuctionHouseTrader trader)
 		{
 			if(this.menu.isClient())
 			{
-				this.menu.SendMessage(LazyPacketData.simpleTag("CreateAuction", trade.getAsNBT()));
+				this.menu.SendMessage(this.builder().setCompound("CreateAuction", trade.getAsNBT()));
 				return;
 			}
 			//Set the trade's auction items based on the items currently in the auction item slots
@@ -82,7 +81,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			if(!trade.isValid())
 			{
 				//Send failure message to the client.
-				this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", false));
+				this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", false));
 				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
 				return;
 			}
@@ -90,7 +89,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			//Delete the contents of the auctionItems
 			this.auctionItems.clearContent();
 			//Send response message to the client
-			this.menu.SendMessage(LazyPacketData.simpleBoolean("AuctionCreated", true));
+			this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", true));
 			for(EasySlot slot : this.slots) slot.locked = true;
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}

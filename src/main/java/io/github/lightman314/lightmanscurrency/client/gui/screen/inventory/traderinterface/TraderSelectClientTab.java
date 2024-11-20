@@ -33,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable {
 
-	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
+	public TraderSelectClientTab(Object screen, TraderSelectTab tab) { super(screen,tab); }
 
 	@Nonnull
 	@Override
@@ -44,25 +44,25 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
-	
+
 	EditBox searchField;
-	
+
 	ScrollBarWidget scrollBar;
-	
+
 	List<NetworkTraderButton> traderButtons;
-	
+
 	private int scroll;
-	
+
 	private List<TraderData> filteredTraderList = new ArrayList<>();
 
 	String previousInput = "";
-	
+
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
 		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
-	
+
 	private List<TraderData> filterTraders(List<TraderData> allTraders) {
 		List<TraderData> traders = new ArrayList<>();
 		TraderInterfaceBlockEntity be = this.menu.getBE();
@@ -80,10 +80,10 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		}
 		return traders;
 	}
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
-		
+
 		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
@@ -92,15 +92,19 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.previousInput = "";
 		else
 			this.searchField.setValue(this.previousInput);
-		
+
 		this.initTraderButtons(screenArea.pos);
-		
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(30 + NetworkTraderButton.WIDTH, 18), NetworkTraderButton.HEIGHT * 4, this));
-		
+
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(30 + NetworkTraderButton.WIDTH,18))
+				.height(NetworkTraderButton.HEIGHT * 4)
+				.scrollable(this)
+				.build());
+
 		this.tick();
-		
+
 		this.updateTraderList();
-		
+
 		//Automatically go to the page with the currently selected trader.
 		TraderData selectedTrader = this.menu.getBE().getTrader();
 		if(selectedTrader!= null)
@@ -108,35 +112,39 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.scroll = this.scrollOf(selectedTrader);
 			this.updateTraderButtons();
 		}
-		
-		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this));
-			
-		
+
+		this.addChild(ScrollListener.builder()
+				.position(0,0)
+				.size(screen.width,screen.height)
+				.listener(this)
+				.build());
+
 	}
-	
+
 	private void initTraderButtons(ScreenPosition corner)
 	{
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 4; ++y)
 		{
-			NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(corner.offset(30, 18 + (y * NetworkTraderButton.HEIGHT)), this::SelectTrader));
+			NetworkTraderButton newButton = this.addChild(NetworkTraderButton.builder()
+					.position(corner.offset(30,18 + (y * NetworkTraderButton.HEIGHT)))
+					.pressAction(this::SelectTrader)
+					.build());
 			this.traderButtons.add(newButton);
 		}
 	}
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
+
 		RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		gui.blit(TraderInterfaceScreen.GUI_TEXTURE,  28, 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
-		
+
 	}
-	
+
 	@Override
 	public void tick() {
-		
-		this.searchField.tick();
 
 		for (NetworkTraderButton button : this.traderButtons) {
 			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();
@@ -149,7 +157,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		}
 
 	}
-	
+
 	private void SelectTrader(EasyButton button) {
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
@@ -158,7 +166,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.commonTab.setTrader(traderID);
 		}
 	}
-	
+
 	private int getTraderIndex(EasyButton button) {
 		if(button instanceof NetworkTraderButton)
 		{
@@ -170,9 +178,9 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		}
 		return -1;
 	}
-	
+
 	public int getMaxScroll() { return Math.max(this.filteredTraderList.size() - this.traderButtons.size(), 0); }
-	
+
 	private int scrollOf(TraderData trader) {
 		if(this.filteredTraderList != null)
 		{
@@ -183,17 +191,17 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		}
 		return this.scroll;
 	}
-	
+
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TraderAPI.filterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), this.searchField.getValue());
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())
 			this.scroll = this.getMaxScroll();
 	}
-	
+
 	private void updateTraderButtons()
 	{
 		int startIndex = this.scroll;
@@ -214,5 +222,5 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.scroll = Math.min(newScroll, this.getMaxScroll());
 		this.updateTraderButtons();
 	}
-	
+
 }

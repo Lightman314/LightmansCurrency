@@ -6,6 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -13,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,16 +46,39 @@ public class MiscTab extends SettingsSubTab {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonAlwaysShowSearchBox = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 15), this::ToggleShowSearchBox, this::alwaysShowSearchBox));
+        this.buttonAlwaysShowSearchBox = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(35,15))
+                .pressAction(this::ToggleShowSearchBox)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::alwaysShowSearchBox))
+                .build());
 
-        this.buttonToggleBankLink = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 35), this::ToggleBankLink, () -> { TraderData t = this.menu.getTrader(); return t != null && t.getLinkedToBank(); }));
-        this.buttonToggleBankLink.visible = this.menu.hasPermission(Permissions.BANK_LINK);
+        this.buttonToggleBankLink = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(35,35))
+                .pressAction(this::ToggleBankLink)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::linkedToBank))
+                .addon(EasyAddonHelper.visibleCheck(this::showBankLink))
+                .addon(EasyAddonHelper.activeCheck(this::bankLinkPossible))
+                .build());
 
-        this.buttonToggleNotifications = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 55), this::ToggleNotifications, this::notificationsEnabled));
+        this.buttonToggleNotifications = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(35,55))
+                .pressAction(this::ToggleNotifications)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsEnabled))
+                .build());
 
-        this.buttonToggleChatNotifications = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 75), this::ToggleChatNotifications, this::notificationsToChat));
+        this.buttonToggleChatNotifications = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(35,75))
+                .pressAction(this::ToggleChatNotifications)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsToChat))
+                .build());
 
-        this.buttonToggleTeamLevel = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 100), screenArea.width - 40, 20, this::TeamLevelText, this::ToggleTeamNotificationLevel));
+        this.buttonToggleTeamLevel = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,100))
+                .width(screenArea.width - 40)
+                .text(this::TeamLevelText)
+                .pressAction(this::ToggleTeamNotificationLevel)
+                .addon(EasyAddonHelper.visibleCheck(this::teamLevelVisible))
+                .build());
 
         this.tick();
 
@@ -75,18 +99,24 @@ public class MiscTab extends SettingsSubTab {
         return t != null && t.alwaysShowSearchBox();
     }
 
-    @Override
-    public void tick() {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
-            return;
+    private boolean linkedToBank() {
+        TraderData t = this.menu.getTrader();
+        return t != null && t.getLinkedToBank();
+    }
 
-        this.buttonToggleTeamLevel.visible = trader.getOwner().getValidOwner().hasNotificationLevels();
+    private boolean showBankLink() {
+        TraderData t = this.menu.getTrader();
+        return t.hasPermission(this.menu.getPlayer(),Permissions.BANK_LINK) && !t.isCreative();
+    }
 
-        boolean canLinkAccount = this.menu.hasPermission(Permissions.BANK_LINK) && !trader.isCreative();
-        this.buttonToggleBankLink.visible = canLinkAccount;
-        if(canLinkAccount)
-            this.buttonToggleBankLink.active = trader.canLinkBankAccount() || trader.getLinkedToBank();
+    private boolean bankLinkPossible() {
+        TraderData t = this.menu.getTrader();
+        return t != null && (t.canLinkBankAccount() || t.getLinkedToBank());
+    }
+
+    private boolean teamLevelVisible() {
+        TraderData t = this.menu.getTrader();
+        return t != null && t.getOwner().getValidOwner().hasNotificationLevels();
     }
 
     @Override
@@ -100,7 +130,7 @@ public class MiscTab extends SettingsSubTab {
         gui.drawString(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX.get(), 47, 16, 0x404040);
 
         //Render the "Link to Bank Account" text
-        if(this.menu.hasPermission(Permissions.BANK_LINK) && !trader.isCreative())
+        if(this.menu.hasPermission(Permissions.BANK_LINK) && trader.canStoreMoney())
             gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 47, 36, 0x404040);
 
         //Render the enable notification test

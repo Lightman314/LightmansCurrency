@@ -44,31 +44,37 @@ public class TeamSalaryPaymentsClientTab extends TeamManagementClientTab<TeamSal
 
         ITeam team = this.menu.selectedTeam();
 
-        this.creativeSalaryToggle = this.addChild(new IconButton(screenArea.pos.offset(screenArea.width - 24,4),this::toggleCreativeSalary,IconUtil.ICON_CREATIVE(this::isSalaryCreative))
-                .withAddons(EasyAddonHelper.visibleCheck(() -> this.isSalaryCreative() || LCAdminMode.isAdminPlayer(this.menu.player)),
-                        EasyAddonHelper.tooltip(() -> this.isSalaryCreative() ? LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE.get() : LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE.get())));
+        this.creativeSalaryToggle = this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 24,4))
+                .pressAction(this::toggleCreativeSalary)
+                .icon(IconUtil.ICON_CREATIVE_TOGGLE(this::isSalaryCreative))
+                .addon(EasyAddonHelper.visibleCheck(() -> this.isSalaryCreative() || LCAdminMode.isAdminPlayer(this.menu.player)))
+                .addon(EasyAddonHelper.tooltip(() -> this.isSalaryCreative() ? LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE.get() : LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE.get()))
+                .build());
 
-        this.memberSalaryInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2), 20), this.memberSalaryInput, team != null ? team.getMemberSalary() : MoneyValue.empty(), this.commonTab::SetMemberSalary));
-        this.memberSalaryInput.drawBG = false;
-        this.memberSalaryInput.allowFreeInput = false;
+        this.memberSalaryInput = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 20))
+                .old(this.memberSalaryInput)
+                .startingValue(team == null ? MoneyValue.empty() : team.getMemberSalary())
+                .valueHandler(this.commonTab::SetMemberSalary)
+                .blockFreeInputs()
+                .build());
 
-        this.adminSeperationToggle = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(20, 100), this::toggleAdminSeperation,this::isAdminSalarySeperate));
+        this.adminSeperationToggle = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20,100))
+                .pressAction(this::toggleAdminSeperation)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isAdminSalarySeperate))
+                .build());
 
-        this.adminSalaryInput = this.addChild(new MoneyValueWidget(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2), 125), this.adminSalaryInput, team != null ? team.getAdminSalary() : MoneyValue.empty(), this.commonTab::SetAdminSalary));
-        this.adminSalaryInput.drawBG = false;
-        this.adminSalaryInput.allowFreeInput = false;
+        this.adminSalaryInput = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 125))
+                .old(this.adminSalaryInput)
+                .startingValue(team == null ? MoneyValue.empty() : team.getAdminSalary())
+                .valueHandler(this.commonTab::SetAdminSalary)
+                .blockFreeInputs()
+                .addon(EasyAddonHelper.visibleCheck(this::isAdminSalaryVisible))
+                .build());
 
-        this.tick();
-
-    }
-
-    @Override
-    public void tick() {
-        ITeam team = this.menu.selectedTeam();
-        if(team == null)
-            return;
-        boolean isOwner = this.adminSeperationToggle.visible = team.isOwner(this.menu.player);
-        this.adminSalaryInput.visible = isOwner && team.isAdminSalarySeperate();
     }
 
     private boolean isSalaryCreative() {
@@ -79,6 +85,13 @@ public class TeamSalaryPaymentsClientTab extends TeamManagementClientTab<TeamSal
     private boolean isAdminSalarySeperate() {
         ITeam team = this.menu.selectedTeam();
         return team != null && team.isAdminSalarySeperate();
+    }
+
+    private boolean isAdminSalaryVisible() {
+        ITeam team = this.menu.selectedTeam();
+        if(team == null)
+            return false;
+        return team.isAdminSalarySeperate() && team.isOwner(this.menu.player);
     }
 
     @Override

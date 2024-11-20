@@ -6,18 +6,15 @@ import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCol
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import javax.annotation.Nonnull;
+
 public class InfoTab extends TaxCollectorTab {
 
     public InfoTab(TaxCollectorMenu menu) { super(menu); }
 
+    @Nonnull
     @Override
-    public Object createClientTab(Object screen) { return new InfoClientTab(screen, this); }
-
-    @Override
-    public void onTabOpen() { }
-
-    @Override
-    public void onTabClose() { }
+    public Object createClientTab(@Nonnull Object screen) { return new InfoClientTab(screen, this); }
 
     public boolean CanClearCache(TaxEntry entry) { return entry != null && (entry.isServerEntry() || entry.getOwner().isAdmin(this.menu.player)); }
 
@@ -28,7 +25,7 @@ public class InfoTab extends TaxCollectorTab {
         {
             entry.stats.clear();
             if(this.isClient())
-                this.menu.SendMessageToServer(LazyPacketData.simpleFlag("ClearInfoCache"));
+                this.menu.SendMessageToServer(this.builder().setFlag("ClearInfoCache"));
         }
     }
 

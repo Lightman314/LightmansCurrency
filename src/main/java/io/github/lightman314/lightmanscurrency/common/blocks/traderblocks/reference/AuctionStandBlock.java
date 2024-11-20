@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.reference;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
@@ -11,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -47,9 +51,14 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
     public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result) {
         if(!level.isClientSide && AuctionHouseTrader.isEnabled())
         {
-            TraderData ah = TraderSaveData.GetAuctionHouse(false);
-            if(ah != null)
-                ah.openTraderMenu(player, BlockValidator.of(pos, this));
+            if(QuarantineAPI.IsDimensionQuarantined(level))
+                EasyText.sendMessage(player, LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL.getWithStyle(ChatFormatting.GOLD));
+            else
+            {
+                TraderData ah = TraderSaveData.GetAuctionHouse(false);
+                if(ah != null)
+                    ah.openTraderMenu(player, BlockValidator.of(pos, this));
+            }
         }
         return InteractionResult.SUCCESS;
     }

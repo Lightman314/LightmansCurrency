@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
-
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class ScrollTextDisplay extends EasyWidget {
 
@@ -21,34 +21,30 @@ public class ScrollTextDisplay extends EasyWidget {
 	public boolean invertText = false;
 	public int backgroundColor = 0xFF000000;
 	public int textColor = 0xFFFFFF;
-	private int columnCount = 1;
-	public void setColumnCount(int columnCount) { this.columnCount = MathUtil.clamp(columnCount, 1, Integer.MAX_VALUE); }
-	
-	public ScrollTextDisplay(ScreenPosition pos, int width, int height, Supplier<List<? extends Component>> textSource) { this(pos.x, pos.y, width, height, textSource); }
-	public ScrollTextDisplay(int x, int y, int width, int height, Supplier<List<? extends Component>> textSource)
+	private final int columnCount;
+
+	private ScrollTextDisplay(@Nonnull Builder builder)
 	{
-		super(x, y, width, height);
-		this.textSource = textSource;
+		super(builder);
+		this.textSource = builder.text;
+		this.columnCount = builder.columns;
 	}
 
-	@Override
-	public ScrollTextDisplay withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
-
 	private int scroll = 0;
-	
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
-		
+
 		if(!this.visible)
 			return;
-		
+
 		//Render the background
 		gui.fill(this.getArea().atPosition(ScreenPosition.ZERO), this.backgroundColor);
-		
+
 		//Start rendering the text
 		List<? extends Component> text = this.textSource.get();
-		
+
 		this.validateScroll(text.size());
 		int i = this.getStartingIndex(text.size());
 		int columnWidth = this.getColumnWidth();
@@ -70,47 +66,47 @@ public class ScrollTextDisplay extends EasyWidget {
 			}
 			yPos += rowHeight;
 		}
-		
+
 	}
-	
+
 	private void validateScroll(int listSize)
 	{
 		if(this.scroll * columnCount >= listSize)
 			this.scroll = MathUtil.clamp(this.scroll, 0, (listSize / columnCount - 1));
 	}
-	
+
 	private int getStartingIndex(int listSize)
 	{
 		return this.invertText ? listSize - 1 - (this.scroll * this.columnCount) : this.scroll * this.columnCount;
 	}
-	
+
 	private int getColumnWidth()
 	{
 		return ((this.width - 4) / this.columnCount);
 	}
-	
+
 	private int getXPos(int column)
 	{
 		int columnSpacing = this.width / this.columnCount;
 		return 2 + column * columnSpacing;
 	}
-	
+
 	private boolean canScrollDown()
 	{
 		return this.scroll < this.textSource.get().size();
 	}
-	
+
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
-	
+
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
 	{
 		if(!this.visible)
 			return false;
-		
+
 		if(delta < 0)
-		{			
+		{
 			if(this.canScrollDown())
 				scroll++;
 			else
@@ -123,12 +119,30 @@ public class ScrollTextDisplay extends EasyWidget {
 			else
 				return false;
 		}
-		
+
 		return true;
 	}
 
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
 
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	@ParametersAreNonnullByDefault
+	public static class Builder extends EasySizableBuilder<Builder>
+	{
+		private Builder() { }
+		@Override
+		protected Builder getSelf() { return this; }
+
+		int columns = 1;
+		private Supplier<List<? extends Component>> text = ArrayList::new;
+
+		public Builder text(Supplier<List<? extends Component>> text) { this.text = text; return this; }
+		public Builder columns(int columns) { this.columns = columns; return this; }
+
+		public ScrollTextDisplay build() { return new ScrollTextDisplay(this); }
+
+	}
 
 }

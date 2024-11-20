@@ -2,56 +2,38 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
 
 import javax.annotation.Nonnull;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class IconButton extends EasyButton {
-	
+
 	public static final int SIZE = 20;
-	
-	private NonNullFunction<IconButton, IconData> iconSource;
 
-	public int bgColor = 0xFFFFFF;
+	private Function<IconButton, IconData> iconSource;
 
-	public IconButton(ScreenPosition pos, Consumer<EasyButton> pressable, @Nonnull IconData icon) { this(pos.x, pos.y, pressable, icon); }
-	public IconButton(int x, int y, Consumer<EasyButton> pressable, @Nonnull IconData icon)
-	{
-		super(x, y, SIZE, SIZE, pressable);
-		this.setIcon(icon);
-	}
-	
-	public IconButton(ScreenPosition pos, Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<IconData> iconSource) { this(pos.x, pos.y, pressable, iconSource); }
-	public IconButton(int x, int y, Consumer<EasyButton> pressable, @Nonnull NonNullSupplier<IconData> iconSource)
-	{
-		super(x, y, SIZE, SIZE, pressable);
-		this.setIcon(iconSource);
-	}
-	
-	public IconButton(ScreenPosition pos, Consumer<EasyButton> pressable, @Nonnull NonNullFunction<IconButton,IconData> iconSource) { this(pos.x, pos.y, pressable, iconSource); }
-	public IconButton(int x, int y, Consumer<EasyButton> pressable, @Nonnull NonNullFunction<IconButton,IconData> iconSource)
-	{
-		super(x,y,SIZE, SIZE, pressable);
-		this.setIcon(iconSource);
-	}
+	private final Function<IconButton,Integer> color;
 
-	@Override
-	public IconButton withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+	protected IconButton(@Nonnull Builder builder)
+	{
+		super(builder);
+		this.setIcon(builder.icon);
+		this.color = builder.color;
+	}
 
 	public void setIcon(@Nonnull IconData icon) { this.iconSource = b -> icon; }
-	
-	public void setIcon(@Nonnull NonNullSupplier<IconData> iconSource) { this.iconSource = b -> iconSource.get(); }
-	
-	public void setIcon(@Nonnull NonNullFunction<IconButton,IconData> iconSource) { this.iconSource = iconSource; }
+
+	public void setIcon(@Nonnull Supplier<IconData> iconSource) { this.iconSource = b -> iconSource.get(); }
+
+	public void setIcon(@Nonnull Function<IconButton,IconData> iconSource) { this.iconSource = iconSource; }
 
 	//Copy/pasted from AbstractButton.getTextureY()
 	private int getTextureY() {
@@ -69,14 +51,41 @@ public class IconButton extends EasyButton {
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 
-		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY(), this.bgColor);
+		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this.getTextureY(), this.color.apply(this));
 
-        if(!this.active)
-            gui.setColor(0.5f, 0.5f, 0.5f,this.alpha);
-        
-        this.iconSource.apply(this).render(gui, 2, 2);
+		if(!this.active)
+			gui.setColor(0.5f, 0.5f, 0.5f,this.alpha);
+
+		this.iconSource.apply(this).render(gui, 2, 2);
 
 		gui.resetColor();
+
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyButtonBuilder<Builder>
+	{
+
+		private Function<IconButton,IconData> icon = b -> IconData.Null();
+		private Function<IconButton,Integer> color = b -> 0xFFFFFF;
+
+		protected Builder() {}
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		public Builder icon(IconData icon) { this.icon = b -> icon; return this; }
+		public Builder icon(Supplier<IconData> icon) { this.icon = b -> icon.get(); return this; }
+		public Builder icon(Function<IconButton,IconData> icon) { this.icon = icon; return this; }
+		public Builder color(int color) { this.color = b -> color; return this; }
+		public Builder color(Supplier<Integer> color) { this.color = b -> color.get(); return this; }
+		public Builder color(Function<IconButton,Integer> color) { this.color = color; return this; }
+
+		public IconButton build() { return new IconButton(this); }
 
 	}
 

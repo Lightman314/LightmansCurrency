@@ -103,7 +103,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				}
 				if(trader != null) //Open the trader menu
 				{
-					if(trader.shouldAlwaysShowOnTerminal())
+					if(trader.shouldAlwaysShowOnTerminal() && trader.hasPermission(player,Permissions.OPEN_STORAGE))
 						trader.openStorageMenu(player, BlockEntityValidator.of(traderSource));
 					else
 						trader.openTraderMenu(player, BlockEntityValidator.of(traderSource));

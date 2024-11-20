@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletH
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnchantment;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -43,9 +43,12 @@ public class EnchantmentUtil {
      */
     public static void tickCoinMagnet(@Nonnull LivingEntity entity)
     {
+        ProfilerFiller filler = entity.level().getProfiler();
+        filler.push("Coin Magnet Tick");
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
         if(walletHandler != null)
             CoinMagnetEnchantment.runEntityTick(walletHandler,entity);
+        filler.pop();
     }
 
     /**
@@ -55,7 +58,10 @@ public class EnchantmentUtil {
      */
     public static void tickMoneyMending(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler entityMoney)
     {
+        ProfilerFiller filler = entity.level().getProfiler();
+        filler.push("Money Mending Tick");
         MoneyMendingEnchantment.runEntityTick(entity, entityMoney);
+        filler.pop();
     }
 
 }

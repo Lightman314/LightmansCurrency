@@ -26,7 +26,14 @@ public class BankUpgradeSelectTab extends CoinChestTab.Upgrade {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(new BankAccountSelectionWidget(screenArea.pos.offset(20,15),screenArea.width - 40, 6, this::allowedAccess, this::selectedAccount, this::selectAccount));
+        this.addChild(BankAccountSelectionWidget.builder()
+                .position(screenArea.pos.offset(20,15))
+                .width(screenArea.width - 40)
+                .rows(6)
+                .filter(this::allowedAccess)
+                .selected(this::selectedAccount)
+                .handler(this::selectAccount)
+                .build());
 
     }
 

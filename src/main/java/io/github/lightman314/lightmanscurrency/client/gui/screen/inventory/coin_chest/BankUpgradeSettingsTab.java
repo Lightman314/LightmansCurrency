@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
@@ -31,19 +31,32 @@ public class BankUpgradeSettingsTab extends CoinChestTab.Upgrade {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(new EasyTextButton(screenArea.pos.offset(20, 20), screenArea.width - 40, 20, this::getModeButtonText, this::toggleDepositMode));
+        this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(20,20))
+                .width(screenArea.width - 40)
+                .text(this::getModeButtonText)
+                .pressAction(this::toggleDepositMode)
+                .build());
 
         MoneyValue moneyLimit = MoneyValue.empty();
         CoinChestUpgradeData data = this.getUpgradeData();
         if(data != null && data.upgrade instanceof CoinChestBankUpgrade upgrade)
             moneyLimit = upgrade.getMoneyLimit(data);
 
-        this.oldWidget = this.addChild(new MoneyValueWidget(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2),50),this.oldWidget, moneyLimit, this::onMoneyLimitChange));
-        this.oldWidget.allowFreeInput = false;
-        this.oldWidget.drawBG = false;
+        this.oldWidget = this.addChild(MoneyValueWidget.builder()
+                .position(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2),50))
+                .old(this.oldWidget)
+                .startingValue(moneyLimit)
+                .valueHandler(this::onMoneyLimitChange)
+                .blockFreeInputs()
+                .build());
 
-        this.addChild(new IconButton(screenArea.pos.offset(screen.width,0), this::collectOverflowItems, IconUtil.ICON_STORAGE)
-                .withAddons(EasyAddonHelper.visibleCheck(this::hasOverflowItems)));
+        this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width,0))
+                .pressAction(this::collectOverflowItems)
+                .icon(IconUtil.ICON_STORAGE)
+                .addon(EasyAddonHelper.visibleCheck(this::hasOverflowItems))
+                .build());
 
     }
 
@@ -59,21 +72,26 @@ public class BankUpgradeSettingsTab extends CoinChestTab.Upgrade {
 
             //Draw operation info
             Component text;
-            if(account == null)
-                text = LCText.GUI_BANK_UPGRADE_DETAILS_NO_ACCOUNT.get();
-            else if(depositMode)
-            {
-                if(moneyLimit.isEmpty())
-                    text = LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_UNLIMITED.get();
-                else
-                    text = LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_LIMITED.get(moneyLimit.getText());
-            }
+            if(QuarantineAPI.IsDimensionQuarantined(this.menu.be))
+                text = LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.get();
             else
             {
-                if(moneyLimit.isEmpty())
-                    text = LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW_INVALID.get();
+                if(account == null)
+                    text = LCText.GUI_BANK_UPGRADE_DETAILS_NO_ACCOUNT.get();
+                else if(depositMode)
+                {
+                    if(moneyLimit.isEmpty())
+                        text = LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_UNLIMITED.get();
+                    else
+                        text = LCText.GUI_BANK_UPGRADE_DETAILS_DEPOSIT_LIMITED.get(moneyLimit.getText());
+                }
                 else
-                    text = LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW.get(moneyLimit.getText());
+                {
+                    if(moneyLimit.isEmpty())
+                        text = LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW_INVALID.get();
+                    else
+                        text = LCText.GUI_BANK_UPGRADE_DETAILS_WITHDRAW.get(moneyLimit.getText());
+                }
             }
 
             TextRenderUtil.drawCenteredMultilineText(gui,text, 20, this.screen.getXSize() - 40, 122, 0x404040);

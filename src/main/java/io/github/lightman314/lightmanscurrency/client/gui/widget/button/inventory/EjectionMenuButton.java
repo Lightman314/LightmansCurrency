@@ -13,8 +13,9 @@ import net.minecraft.world.entity.player.Player;
 
 public class EjectionMenuButton extends InventoryButton {
 
+
 	private static EjectionMenuButton lastButton = null;
-	
+
 	public static final int SIZE = 9;
 
 	public static final Sprite SPRITE = Sprite.SimpleSprite(IconAndButtonUtil.WIDGET_TEXTURE, 20, 0, SIZE, SIZE);
@@ -22,9 +23,9 @@ public class EjectionMenuButton extends InventoryButton {
 	public static final ScreenPosition OFFSET = ScreenPosition.of(-10, 0);
 
 	private Player getPlayer() { return this.inventoryScreen.getMinecraft().player; }
-	
+
 	public EjectionMenuButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, b -> CPacketOpenEjectionMenu.sendToServer(), SPRITE);
+		super(inventoryScreen, CPacketOpenEjectionMenu::sendToServer, SPRITE);
 		lastButton = this;
 	}
 

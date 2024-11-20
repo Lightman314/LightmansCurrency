@@ -118,6 +118,24 @@ public class LCRecipeProvider extends RecipeProvider {
                 Pair.of(Ingredient.of(Tags.Items.NETHER_STARS),ModItems.WALLET_NETHER_STAR)
         ));
 
+        //Leather Wallet Recipe
+        //2.2.4.0
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.WALLET_LEATHER.get())
+                .group("wallet_crafting")
+                .unlockedBy("coin",MoneyKnowledge())
+                .unlockedBy("wallet",LazyTrigger(LCTags.Items.WALLET))
+                .requires(Tags.Items.LEATHER)
+                .requires(Tags.Items.STRING)
+                .requires(Tags.Items.LEATHER)
+                .save(consumer,ItemID("wallet/",ModItems.WALLET_LEATHER));
+        WalletUpgradeRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.WALLET_IRON.get())
+                .group("wallet_crafting")
+                .unlockedBy("coin",MoneyKnowledge())
+                .unlockedBy("wallet",LazyTrigger(LCTags.Items.WALLET))
+                .requires(ModItems.WALLET_LEATHER.get())
+                .requires(Tags.Items.INGOTS_IRON)
+                .save(consumer,ItemID("wallet/upgrade_leather_wallet_to",ModItems.WALLET_IRON));
+
         //Coin Recipes
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_COPPER, ModBlocks.COINPILE_COPPER, ModBlocks.COINBLOCK_COPPER);
         GenerateCoinBlockRecipes(consumer, ModItems.COIN_IRON, ModBlocks.COINPILE_IRON, ModBlocks.COINBLOCK_IRON);
@@ -950,7 +968,7 @@ public class LCRecipeProvider extends RecipeProvider {
             for(int i = 0; i < ingredients.size() && i <= w; ++i)
                 b.requires(ingredients.get(i));
             b.requires(leather);
-            b.save(consumer, ID("wallet/" + ItemPath(wallet)));
+            b.save(consumer, ItemID("wallet/",wallet));
         }
 
         //Upgrade Wallet Recipes

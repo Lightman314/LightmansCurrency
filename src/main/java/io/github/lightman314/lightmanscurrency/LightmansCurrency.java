@@ -47,7 +47,6 @@ import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
-import io.github.lightman314.lightmanscurrency.integration.supplementaries.LCSupplementaries;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
@@ -152,7 +151,6 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
-		IntegrationUtil.SafeRunIfLoaded("supplementaries", LCSupplementaries::setup, null);
 
     }
 

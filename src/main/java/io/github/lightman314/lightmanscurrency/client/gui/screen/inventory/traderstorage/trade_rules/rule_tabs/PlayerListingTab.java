@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -42,16 +41,36 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.buttonToggleMode = this.addChild(new EasyTextButton(screenArea.pos.offset(10,7), screenArea.width - 20, 20, this::getModeText, this::PressToggleModeButton));
+        this.buttonToggleMode = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,7))
+                .width(screenArea.width - 20)
+                .text(this::getModeText)
+                .pressAction(this::PressToggleModeButton)
+                .build());
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 29, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 50), 78, 20, LCText.BUTTON_ADD.get(), this::PressAddButton));
-        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 50), 78, 20, LCText.BUTTON_REMOVE.get(), this::PressForgetButton));
+        this.buttonAddPlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(10,50))
+                .width(78)
+                .text(LCText.BUTTON_ADD)
+                .pressAction(this::PressAddButton)
+                .build());
+        this.buttonRemovePlayer = this.addChild(EasyTextButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 88,50))
+                .width(78)
+                .text(LCText.BUTTON_REMOVE)
+                .pressAction(this::PressForgetButton)
+                .build());
 
         //Player list display
-        this.playerDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 75), screenArea.width - 14, 64, this::getPlayers));
-        this.playerDisplay.setColumnCount(2);
+        this.playerDisplay = this.addChild(ScrollTextDisplay.builder()
+                .position(screenArea.pos.offset(7,75))
+                .size(screenArea.width - 14,64)
+                .text(this::getPlayers)
+                .columns(2)
+                .build());
+
     }
 
     protected boolean isWhitelistMode() {
@@ -84,7 +103,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", true)
                     .setString("Name", name));
         }
@@ -96,7 +115,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         if(!name.isBlank())
         {
             nameInput.setValue("");
-            this.sendUpdateMessage(LazyPacketData.builder()
+            this.sendUpdateMessage(this.builder()
                     .setBoolean("Add", false)
                     .setString("Name", name));
         }
@@ -107,7 +126,7 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         PlayerListing rule = this.getRule();
         if(rule == null)
             return;
-        this.sendUpdateMessage(LazyPacketData.simpleBoolean("ChangeMode", rule.isBlacklistMode()));
+        this.sendUpdateMessage(this.builder().setBoolean("ChangeMode", rule.isBlacklistMode()));
     }
 
 }
