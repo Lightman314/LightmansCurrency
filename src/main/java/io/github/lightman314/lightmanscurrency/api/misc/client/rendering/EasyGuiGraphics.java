@@ -210,7 +210,7 @@ public final class EasyGuiGraphics {
     public void drawScrollingString(String text, ScreenArea area, int color) { this.drawScrollingString(EasyText.literal(text),area,color); }
     public void drawScrollingString(Component text, ScreenArea area, int color) {
         //Offset position based on the current offset
-        area.offsetPosition(this.offset);
+        area = area.offsetPosition(this.offset);
         EasyWidget.drawScrollingString(this.gui,this.font,text,area.x,area.y,area.x + area.width,area.y + area.height,color);
     }
 
