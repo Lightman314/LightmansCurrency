@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;

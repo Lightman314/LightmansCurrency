@@ -83,7 +83,7 @@ public final class EasyGuiGraphics {
         this.blitBackgroundOfSize(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
         this.popOffset();
     }
-    public void renderSlot(IEasyScreen screen, Slot slot) { this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
+    public void renderSlot(IEasyScreen screen, Slot slot) { if(slot.isActive()) this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
     public void renderSlot(IEasyScreen screen, ScreenPosition position)
     {
         this.resetColor();

@@ -55,6 +55,6 @@ public class LogTab extends ATMTab{
 	public void renderBG(@Nonnull EasyGuiGraphics gui) { gui.drawString(this.getTooltip(), 8, 6, 0x404040); }
 
 	@Override
-	protected void closeAction() { this.screen.setCoinSlotsActive(false); }
+	protected void closeAction() { this.screen.setCoinSlotsActive(true); }
 
 }

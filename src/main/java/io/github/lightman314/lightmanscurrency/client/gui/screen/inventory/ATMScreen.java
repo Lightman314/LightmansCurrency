@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
@@ -59,6 +60,8 @@ public class ATMScreen extends EasyClientTabbedMenuScreen<ATMMenu,ATMScreen,ATMT
 
 	}
 
-	public void setCoinSlotsActive(boolean active) { EasySlot.SetActive(this.menu.getCoinSlots(),active); }
+	public void setCoinSlotsActive(boolean active) {
+		EasySlot.SetActive(this.menu.getCoinSlots(),active);
+	}
 
 }

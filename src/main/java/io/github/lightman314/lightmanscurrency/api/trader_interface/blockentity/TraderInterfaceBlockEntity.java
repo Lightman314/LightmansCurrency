@@ -464,16 +464,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	 * @see #TryExecuteTrade()
 	 */
 	@Nonnull
-	public TradeResult interactWithTrader() {
-		TradeContext tradeContext = this.getTradeContext();
-		TraderData trader = this.getTrader();
-		if(trader != null)
-			this.lastResult = trader.TryExecuteTrade(tradeContext, this.reference.getTradeIndex());
-		else
-			this.lastResult = TradeResult.FAIL_NULL;
-		this.setLastResultDirty();
-		return this.lastResult;
-	}
+	public TradeResult interactWithTrader() { return this.TryExecuteTrade().simpleResult; }
 
 	@Nonnull
 	public FullTradeResult TryExecuteTrade()
