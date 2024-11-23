@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -177,7 +178,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			this.priceSelection.visible = this.itemEdit.visible = this.customNameInput.visible = false;
 			return;
 		}
-		this.priceSelection.visible = this.selection < 0 && !this.getTrade().isBarter();
+		this.priceSelection.setVisible(this.selection < 0 && !this.getTrade().isBarter());
 		this.itemEdit.visible = (this.getTrade().isBarter() && this.selection >=2) || (this.getTrade().isPurchase() && this.selection >= 0);
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))

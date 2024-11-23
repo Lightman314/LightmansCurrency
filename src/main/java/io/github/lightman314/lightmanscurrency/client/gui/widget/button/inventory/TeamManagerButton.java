@@ -19,7 +19,6 @@ public class TeamManagerButton extends InventoryButton {
 
 	public static final ScreenPosition OFFSET = ScreenPosition.ZERO;
 
-
 	public TeamManagerButton(AbstractContainerScreen<?> inventoryScreen) {
 		super(inventoryScreen, CPacketOpenTeamManager::sendToServer, SPRITE);
 		lastButton = this;

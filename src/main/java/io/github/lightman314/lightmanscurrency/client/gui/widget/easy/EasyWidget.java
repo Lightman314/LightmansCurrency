@@ -119,6 +119,12 @@ public abstract class EasyWidget extends AbstractWidget {
     protected void renderTick() { }
 
     @Override
+    public final void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+        this.renderTickInternal();
+        super.render(gui, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
     protected final void renderWidget(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         try {
             this.renderWidget(EasyGuiGraphics.create(gui, mouseX, mouseY, partialTicks).pushOffset(this.getPosition()));
