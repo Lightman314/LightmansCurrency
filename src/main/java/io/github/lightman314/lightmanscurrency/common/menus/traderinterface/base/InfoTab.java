@@ -23,12 +23,12 @@ public class InfoTab extends TraderInterfaceTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	public void acceptTradeChanges() {
+	public void acceptTradeChanges(int reference) {
 		if(this.menu.getBE().canAccess(this.menu.player))
 		{
-			this.menu.getBE().acceptTradeChanges();
+			this.menu.getBE().acceptTradeChanges(reference);
 			if(this.menu.isClient())
-				this.menu.SendMessage(this.builder().setFlag("AcceptTradeChanges"));
+				this.menu.SendMessage(this.builder().setInt("AcceptTradeChanges",reference));
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class InfoTab extends TraderInterfaceTab {
 		if(message.contains("NewInteractionType"))
 			this.changeInteractionType(InteractionType.fromIndex(message.getInt("NewInteractionType")));
 		if(message.contains("AcceptTradeChanges"))
-			this.acceptTradeChanges();
+			this.acceptTradeChanges(message.getInt("AcceptTradeChanges"));
 	}
 
 }

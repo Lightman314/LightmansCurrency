@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;

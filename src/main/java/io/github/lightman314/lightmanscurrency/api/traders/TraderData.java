@@ -1393,7 +1393,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
-				PlayerReference newAlly = PlayerReference.of(this.isClient, message.getString("AddAlly"));
+				PlayerReference newAlly = PlayerReference.load(message.getNBT("AddAlly"));
 				if(newAlly != null && !PlayerReference.isInList(this.allies, newAlly.id))
 				{
 					this.allies.add(newAlly);
@@ -1407,7 +1407,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
-				PlayerReference oldAlly = PlayerReference.of(this.isClient, message.getString("RemoveAlly"));
+				PlayerReference oldAlly = PlayerReference.load(message.getNBT("RemoveAlly"));
 				if(PlayerReference.removeFromList(this.allies, oldAlly))
 				{
 					this.markDirty(this::saveAllies);

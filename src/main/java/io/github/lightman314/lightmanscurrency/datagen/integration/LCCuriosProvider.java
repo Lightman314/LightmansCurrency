@@ -29,7 +29,7 @@ public class LCCuriosProvider extends CuriosDataProvider {
                 .size(1);
 
         this.createEntities("lightmanscurrency_default_slots")
-                .addEntities(EntityType.PLAYER)
+                .addPlayer()
                 .addSlots("wallet","charm");
 
     }

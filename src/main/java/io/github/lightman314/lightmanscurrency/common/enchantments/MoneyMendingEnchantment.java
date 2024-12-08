@@ -53,7 +53,7 @@ public class MoneyMendingEnchantment {
 		{
 			//If we failed to get a vanilla entry, check the curios slots (if applicable)
 			if(LCCurios.isLoaded())
-				item = LCCurios.getRandomItem(entity,s -> EnchantmentHelper.has(s, ModEnchantments.REPAIR_WITH_MONEY.get()));
+				item = LCCurios.getRandomItem(entity,s -> s.isDamaged() && EnchantmentHelper.has(s, ModEnchantments.REPAIR_WITH_MONEY.get()));
 		}
 		else
 			item = entry.get().itemStack();

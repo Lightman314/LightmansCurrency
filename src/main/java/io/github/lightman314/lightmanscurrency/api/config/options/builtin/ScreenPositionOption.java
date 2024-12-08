@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
@@ -23,6 +24,10 @@ public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
     public static ScreenPositionOption create(int x, int y) { return create(ScreenPosition.of(x,y)); }
     public static ScreenPositionOption create(@Nonnull ScreenPosition defaultValue) { return new ScreenPositionOption(() -> defaultValue); }
     public static ScreenPositionOption create(@Nonnull Supplier<ScreenPosition> defaultValue) { return new ScreenPositionOption(defaultValue); }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
 
     private static class Parser implements ConfigParser<ScreenPosition>
     {

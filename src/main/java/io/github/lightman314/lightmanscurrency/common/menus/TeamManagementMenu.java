@@ -31,7 +31,6 @@ public class TeamManagementMenu extends EasyTabbedMenu<TeamManagementMenu,TeamMa
     @Override
     protected void registerTabs() {
         this.addTab(new TeamSelectionTab(this));
-        this.addTab(new TeamMemberListTab(this));
         this.addTab(new TeamMemberEditTab(this));
         this.addTab(new TeamBankAccountTab(this));
         this.addTab(new TeamSalaryInfoTab(this));

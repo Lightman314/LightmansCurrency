@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyView
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.BankInteractionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.IBankInteractionHandler;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -47,7 +48,7 @@ public class InteractionTab extends ATMTab implements IBankInteractionHandler {
 		IBankAccount account = this.getBankAccount();
 		if(account != null)
 			accountName = account.getName();
-		gui.drawString(accountName, 8, 6 + MoneyValueWidget.HEIGHT, 0x404040);
+		TextRenderUtil.drawCenteredText(gui,TextRenderUtil.fitString(accountName,this.screen.getXSize() - 12), this.screen.getXSize() / 2, 6 + MoneyValueWidget.HEIGHT,0x404040);
 	}
 
 	@Override

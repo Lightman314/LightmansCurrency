@@ -37,7 +37,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
         if(this.trade.isTicketTrade())
             return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketItem(), this.trade.getTicketID(), this.trade.getTicketColor()), 1, LCText.TOOLTIP_TICKET_ID.getAsList(this.trade.getTicketID())));
         else
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
+            return this.lazyPriceDisplayList(context);
     }
 
     @Override

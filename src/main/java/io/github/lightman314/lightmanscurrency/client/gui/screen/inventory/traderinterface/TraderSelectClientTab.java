@@ -54,8 +54,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private int scroll;
 	
 	private List<TraderData> filteredTraderList = new ArrayList<>();
-
-	String previousInput = "";
 	
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
@@ -74,7 +72,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			if(be.validTraderType(trader))
 			{
 				//Confirm that the trader either has a valid trade, or we have interaction permissions
-				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && be.hasTraderPermissions(trader)))
+				if((interaction.trades() && trader.hasValidTrade()) || (interaction.targetsTraders() && be.hasTraderPermissions(trader)))
 					traders.add(trader);
 			}
 		}
@@ -84,14 +82,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
+		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, firstOpen ? null : this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
-		if(firstOpen)
-			this.previousInput = "";
-		else
-			this.searchField.setValue(this.previousInput);
+		this.searchField.setResponder(this::onSearchChanged);
 		
 		this.initTraderButtons(screenArea.pos);
 		
@@ -104,14 +99,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.tick();
 		
 		this.updateTraderList();
-		
-		//Automatically go to the page with the currently selected trader.
-		TraderData selectedTrader = this.menu.getBE().getTrader();
-		if(selectedTrader!= null)
-		{
-			this.scroll = this.scrollOf(selectedTrader);
-			this.updateTraderButtons();
-		}
 		
 		this.addChild(ScrollListener.builder()
 				.position(0,0)
@@ -126,9 +113,10 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 4; ++y)
 		{
+			final int buttonIndex = y;
 			NetworkTraderButton newButton = this.addChild(NetworkTraderButton.builder()
 					.position(corner.offset(30,18 + (y * NetworkTraderButton.HEIGHT)))
-					.pressAction(this::SelectTrader)
+					.pressAction(() -> this.ToggleTrader(buttonIndex))
 					.build());
 			this.traderButtons.add(newButton);
 		}
@@ -146,24 +134,24 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void tick() {
 
+		List<TraderData> selectedTraders = this.menu.getBE().targets.getTraders();
 		for (NetworkTraderButton button : this.traderButtons) {
-			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();
-		}
-
-		if(!Objects.equals(this.previousInput, this.searchField.getValue()))
-		{
-			this.previousInput = this.searchField.getValue();
-			this.updateTraderList();
+			button.selected = button.getData() != null && selectedTraders.contains(button.getData());
 		}
 
 	}
+
+	private void onSearchChanged(String newSearch)
+	{
+		this.updateTraderList();
+	}
 	
-	private void SelectTrader(EasyButton button) {
-		int index = getTraderIndex(button);
+	private void ToggleTrader(int traderButtonIndex) {
+		int index = traderButtonIndex + this.scroll;
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
 			long traderID = this.filteredTraderList.get(index).getID();
-			this.commonTab.setTrader(traderID);
+			this.commonTab.toggleTrader(traderID);
 		}
 	}
 	

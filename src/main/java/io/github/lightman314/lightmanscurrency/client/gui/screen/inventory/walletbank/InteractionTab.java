@@ -47,7 +47,7 @@ public class InteractionTab extends WalletBankTab implements IBankInteractionHan
 		IBankAccount ba = this.screen.getMenu().getBankAccount();
 		if(ba != null)
 			accountName = ba.getName();
-		TextRenderUtil.drawCenteredText(gui, accountName, this.screen.getXSize() / 2, MoneyValueWidget.HEIGHT + 1, 0x404040);
+		TextRenderUtil.drawCenteredText(gui, TextRenderUtil.fitString(accountName,this.screen.getXSize() - 12), this.screen.getXSize() / 2, MoneyValueWidget.HEIGHT + 1, 0x404040);
 	}
 
 	@Override

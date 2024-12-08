@@ -22,6 +22,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TraderInterfaceTargets;
 import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
@@ -29,7 +31,6 @@ import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.NetworkTradeReference;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.SidedHandler;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -39,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.InteractionUpgrade;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceHandlerMessage;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
@@ -75,25 +77,22 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public void flagAsRemovable() { this.allowRemoval = true; }
 	
 	public enum InteractionType {
-		RESTOCK_AND_DRAIN(true, true, true, false, 3),
-		RESTOCK(true, true, false, false, 1),
-		DRAIN(true, false, true, false, 2),
-		TRADE(false, false, false, true, 0);
-		
-		public final boolean requiresPermissions;
-		public final boolean restocks;
-		public final boolean drains;
-		public final boolean trades;
+		RESTOCK_AND_DRAIN(3),
+		RESTOCK(1),
+		DRAIN(2),
+		TRADE(0);
+
 		public final int index;
 		public final Component getDisplayText() { return LCText.GUI_INTERFACE_INTERACTION_TYPE.get(this).get(); }
 
-		InteractionType(boolean requiresPermissions, boolean restocks, boolean drains, boolean trades, int index) {
-			this.requiresPermissions =  requiresPermissions;
-			this.restocks = restocks;
-			this.drains = drains;
-			this.trades = trades;
+		InteractionType(int index) {
 			this.index = index;
 		}
+
+		public boolean targetsTraders() { return this != TRADE; }
+		public boolean restocks() { return this == RESTOCK || this == RESTOCK_AND_DRAIN; }
+		public boolean drains() { return this == DRAIN || this == RESTOCK_AND_DRAIN; }
+		public boolean trades() { return this == TRADE; }
 		
 		public static InteractionType fromIndex(int index) {
 			for(InteractionType type : InteractionType.values())
@@ -145,7 +144,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public void initOwner(Entity owner) { if(!this.owner.hasOwner() && owner instanceof Player player) this.owner.SetOwner(PlayerOwner.of(player)); }
 	private void OnOwnerChanged() {
 		this.mode = ActiveMode.DISABLED;
-		this.cachedContext = null;
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()),this.level.registryAccess()));
@@ -194,58 +192,58 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	public List<InteractionType> getBlacklistedInteractions() { return new ArrayList<>(); }
 	
-	NetworkTradeReference reference = new NetworkTradeReference(this::isClient, () -> this.level.registryAccess(), this::deserializeTrade);
-	public boolean hasTrader() { return this.getTrader() != null; }
-	public TraderData getTrader() {
-		TraderData trader = this.reference.getTrader();
-		if(this.interaction.requiresPermissions && !this.hasTraderPermissions(trader))
-			return null;
-		return trader;
-	}
-	public int getTradeIndex() { return this.reference.getTradeIndex(); }
-	public TradeData getReferencedTrade() { return this.reference.getLocalTrade(); }
-	public TradeData getTrueTrade() { return this.reference.getTrueTrade(); }
+	public final TraderInterfaceTargets targets = new TraderInterfaceTargets(this);
 	
 	private SimpleContainer upgradeSlots = new SimpleContainer(5);
 	@Nonnull
 	@Override
 	public Container getUpgrades() { return this.upgradeSlots; }
-	/**
-	 * @see #getUpgrades()
-	 */
-	@Deprecated(since = "2.2.3.5")
-	public Container getUpgradeInventory() { return this.upgradeSlots; }
-	
+
+	public int getSelectableCount()
+	{
+		int count = 1;
+		for(int i = 0; i < this.upgradeSlots.getContainerSize(); ++i)
+		{
+			ItemStack stack = this.upgradeSlots.getItem(i);
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			{
+				if(upgradeItem.getUpgradeType() == Upgrades.INTERACTION)
+				{
+					count += UpgradeItem.getUpgradeData(stack).getIntValue(InteractionUpgrade.INTERACTIONS);
+				}
+			}
+		}
+		return count;
+	}
+
 	public void setUpgradeSlotsDirty() {
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag(), this.level.registryAccess()));
 	}
-	
-	public void setTrader(long traderID) {
-		//Trader is the same id. Ignore the change.
-		if(this.reference.getTraderID() == traderID)
-			return;
-		this.reference.setTrader(traderID);
-		this.reference.setTrade(-1);
-		this.cachedContext = null;
-		this.setTradeReferenceDirty();
-	}
-	
-	public void setTradeIndex(int tradeIndex) {
-		this.reference.setTrade(tradeIndex);
-		this.setTradeReferenceDirty();
-	}
-	
-	public void acceptTradeChanges() {
-		this.reference.refreshTrade();
-		this.setTradeReferenceDirty();
-	}
-	
-	private TradeResult lastResult = TradeResult.SUCCESS;
-	public TradeResult mostRecentTradeResult() { return this.lastResult; }
 
-	protected abstract TradeData deserializeTrade(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup);
+	public void toggleTrader(long traderID)
+	{
+		if(this.targets.toggleTrader(traderID))
+			this.setTargetsDirty();
+	}
+
+	public void toggleTradeIndex(int tradeIndex) {
+		if(this.targets.toggleTrade(tradeIndex))
+			this.setTargetsDirty();
+	}
+
+	public void acceptTradeChanges(int entry)
+	{
+		List<TradeReference> references = this.targets.getTradeReferences();
+		if(entry < 0 || entry >= references.size())
+			return;
+		references.get(entry).refreshTrade();
+		this.setTargetsDirty();
+	}
+
+	@Nullable
+	public abstract TradeData deserializeTrade(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup);
 	
 	private int waitTimer = INTERACTION_DELAY;
 	
@@ -272,12 +270,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveOnlineMode(new CompoundTag()));
 	}
-	
-	public void setLastResultDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveLastResult(new CompoundTag()));
-	}
 
 	public void setStatsDirty() {
 		this.setChanged();
@@ -287,18 +279,12 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	protected abstract TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext);
 
-	private TradeContext cachedContext = null;
-
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
-	public TradeContext getTradeContext() {
-		if(this.cachedContext == null)
-		{
-			if(this.interaction.trades)
-				this.cachedContext = this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
-			else
-				this.cachedContext = TradeContext.createStorageMode(this.getTrader());
-		}
-		return this.cachedContext;
+	public TradeContext getTradeContext(@Nonnull TraderData trader) {
+		if(this.interaction.trades())
+			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
+		else
+			return TradeContext.createStorageMode(trader);
 	}
 	
 	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
@@ -313,8 +299,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.saveMode(compound);
 		this.saveOnlineMode(compound);
 		this.saveInteraction(compound);
-		this.saveLastResult(compound);
-		this.saveReference(compound,lookup);
+		this.saveTargets(compound,lookup);
 		this.saveUpgradeSlots(compound, lookup);
 		this.saveStatTracker(compound,lookup);
 	}
@@ -340,13 +325,8 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		return compound;
 	}
 	
-	protected final CompoundTag saveLastResult(CompoundTag compound) {
-		compound.putString("LastResult", this.lastResult.name());
-		return compound;
-	}
-	
-	protected final CompoundTag saveReference(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-		compound.put("Trade", this.reference.save(lookup));
+	protected final CompoundTag saveTargets(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+		compound.put("Targets", this.targets.save(lookup));
 		return compound;
 	}
 	
@@ -374,21 +354,17 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	@Override
 	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
-		{
 			this.owner.load(compound.getCompound("Owner"),lookup);
-			this.cachedContext = null;
-		}
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
 			this.onlineMode = compound.getBoolean("OnlineMode");
 		if(compound.contains("InteractionType", Tag.TAG_STRING))
-		{
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
-			this.cachedContext = null;
-		}
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
-			this.reference.load(compound.getCompound("Trade"),lookup);
+			this.targets.loadFromOldData(compound.getCompound("Trade"),lookup);
+		if(compound.contains("Targets",Tag.TAG_COMPOUND))
+			this.targets.load(compound.getCompound("Targets"),lookup);
 		if(compound.contains("Upgrades"))
 			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5, lookup);
 		if(compound.contains("Stats"))
@@ -426,31 +402,21 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		}
 	}
 	
-	public void setTradeReferenceDirty() {
+	public void setTargetsDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveReference(new CompoundTag(),this.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveTargets(new CompoundTag(),this.registryAccess()));
 	}
 
-	/**
-	 * @see #TryExecuteTrade()
-	 */
 	@Nonnull
-	public TradeResult interactWithTrader() { return this.TryExecuteTrade().simpleResult; }
-
-	@Nonnull
-	public FullTradeResult TryExecuteTrade()
+	public FullTradeResult TryExecuteTrade(@Nonnull TradeReference target)
 	{
-		TradeContext context = this.getTradeContext();
-		TraderData trader = this.getTrader();
+		TraderData trader = this.targets.getTrader();
 		if(trader != null)
 		{
-			FullTradeResult result = trader.TryExecuteTradeWithResults(context, this.reference.getTradeIndex());
-			if(this.lastResult != result.simpleResult)
-			{
-				this.lastResult = result.simpleResult;
-				this.setLastResultDirty();
-			}
+			TradeContext context = this.getTradeContext(trader);
+			FullTradeResult result = trader.TryExecuteTradeWithResults(context, target.getTradeIndex());
+			target.setLastResult(result.simpleResult);
 			//Automatically log money paid/earned & trade executed
 			if(result.isSuccess())
 			{
@@ -465,12 +431,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			}
 			return result;
 		}
-		if(this.lastResult != TradeResult.FAIL_NULL)
+		else
 		{
-			this.lastResult = TradeResult.FAIL_NULL;
-			this.setLastResultDirty();
+			target.setLastResult(TradeResult.FAIL_NULL);
+			return FullTradeResult.failure(TradeResult.FAIL_NULL);
 		}
-		return FullTradeResult.failure(this.lastResult);
 	}
 	
 	public boolean isActive() { return this.mode.isActive(this) && this.onlineCheck(); }
@@ -501,25 +466,33 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		//Disable all functions if dimension is quarantined just to be safe
 		if(QuarantineAPI.IsDimensionQuarantined(this))
 			return;
+		if(this.targets.tick(this::validTrader))
+			this.setTargetsDirty();
 		if(this.isActive())
 		{
 			if(--this.waitTimer <= 0)
 			{
 				this.waitTimer = this.getInteractionDelay();
-				if(this.interaction.requiresPermissions)
+				if(this.interaction.targetsTraders())
 				{
-					if(!this.validTrader() || !this.hasTraderPermissions(this.getTrader()))
-						return;
-					if(this.interaction.drains)
-						this.drainTick();
-					if(this.interaction.restocks)
-						this.restockTick();
+					for(TraderData trader : this.targets.getTraders())
+					{
+						if(!this.validTrader(trader) && !this.hasTraderPermissions(trader))
+							continue;
+						if(this.interaction.drains())
+							this.drainTick(trader);
+						if(this.interaction.restocks())
+							this.restockTick(trader);
+					}
 				}
-				else if(this.interaction.trades)
+				else if(this.interaction.trades())
 				{
-					if(!this.validTrade())
-						return;
-					this.tradeTick();
+					for(TradeReference trade : this.targets.getTradeReferences())
+					{
+						if(!this.validTrade(trade))
+							continue;
+						this.tradeTick(trade);
+					}
 				}
 				if(this.hasHopperUpgrade())
 				{
@@ -532,14 +505,13 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	
 	//Returns whether the trader referenced is valid
-	public boolean validTrader() {
-		TraderData trader = this.getTrader();
+	public boolean validTrader(@Nonnull TraderData trader) {
 		return trader != null && this.validTraderType(trader);
 	}
 	
-	public boolean validTrade() {
-		TradeData expectedTrade = this.getReferencedTrade();
-		TradeData trueTrade = this.getTrueTrade();
+	public boolean validTrade(@Nonnull TradeReference trade) {
+		TradeData expectedTrade = trade.getLocalTrade();
+		TradeData trueTrade = trade.getTrueTrade();
 		if(expectedTrade == null || trueTrade == null)
 			return false;
 		return trueTrade.AcceptableDifferences(trueTrade.compare(expectedTrade));
@@ -547,11 +519,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public abstract boolean validTraderType(TraderData trader);
 	
-	protected abstract void drainTick();
+	protected abstract void drainTick(@Nonnull TraderData trader);
 	
-	protected abstract void restockTick();
+	protected abstract void restockTick(@Nonnull TraderData trader);
 	
-	protected abstract void tradeTick();
+	protected abstract void tradeTick(@Nonnull TradeReference trade);
 	
 	protected abstract void hopperTick();
 	
@@ -593,7 +565,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
 	public boolean allowUpgrade(@Nonnull UpgradeType type) {
-		return type == Upgrades.SPEED || (type == Upgrades.HOPPER && this.allowHopperUpgrade() && !this.hasHopperUpgrade()) || this.allowAdditionalUpgrade(type);
+		return type == Upgrades.SPEED || (type == Upgrades.HOPPER && this.allowHopperUpgrade()) || type == Upgrades.INTERACTION || this.allowAdditionalUpgrade(type);
 	}
 	
 	protected boolean allowHopperUpgrade() { return true; }

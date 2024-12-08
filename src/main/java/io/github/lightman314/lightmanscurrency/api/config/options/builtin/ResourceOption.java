@@ -8,6 +8,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class ResourceOption extends ConfigOption<ResourceLocation> {
@@ -22,6 +23,10 @@ public class ResourceOption extends ConfigOption<ResourceLocation> {
     @Nonnull
     @Override
     protected ConfigParser<ResourceLocation> getParser() { return PARSER; }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
 
     private static class Parser implements ConfigParser<ResourceLocation>
     {

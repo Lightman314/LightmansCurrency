@@ -106,7 +106,7 @@ public class MiscTab extends SettingsSubTab {
 
     private boolean showBankLink() {
         TraderData t = this.menu.getTrader();
-        return t.hasPermission(this.menu.getPlayer(),Permissions.BANK_LINK) && !t.isCreative();
+        return t.hasPermission(this.menu.getPlayer(),Permissions.BANK_LINK) && t.canStoreMoney();
     }
 
     private boolean bankLinkPossible() {

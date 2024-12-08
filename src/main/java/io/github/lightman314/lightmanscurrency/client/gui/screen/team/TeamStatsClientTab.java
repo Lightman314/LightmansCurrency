@@ -52,12 +52,13 @@ public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> im
                 .build());
 
         this.addChild(ScrollBarWidget.builder()
-                .position(screenArea.pos.offset(screen.width - 10 - ScrollBarWidget.WIDTH,START_POS))
+                .position(screenArea.pos.offset(screenArea.width - 10 - ScrollBarWidget.WIDTH,START_POS))
                 .height(LINE_COUNT * LINE_SIZE)
                 .scrollable(this)
                 .build());
         this.addChild(ScrollListener.builder()
-                .area(screenArea.offsetPosition(screenArea.width,START_POS + LINE_COUNT * LINE_SIZE))
+                .area(screenArea.offsetPosition(0,START_POS)
+                .ofSize(screenArea.width,LINE_COUNT * LINE_SIZE))
                 .listener(this)
                 .build());
 

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
@@ -7,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class LongOption extends ConfigOption<Long> {
@@ -26,9 +28,14 @@ public class LongOption extends ConfigOption<Long> {
     @Nonnull
     @Override
     protected ConfigParser<Long> getParser() { return this.parser; }
-    @Nullable
+    @Nonnull
     @Override
-    protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
+    protected List<String> bonusComments() {
+        return Lists.newArrayList(
+                "Range: " + this.lowerLimit + " -> " + this.upperLimit,
+                "Default: " + this.getDefaultValue()
+        );
+    }
 
     public static LongOption create(long defaultValue) { return new LongOption(() -> defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
     public static LongOption create(long defaultValue, long lowerLimit) { return new LongOption(() -> defaultValue, lowerLimit, Long.MAX_VALUE); }

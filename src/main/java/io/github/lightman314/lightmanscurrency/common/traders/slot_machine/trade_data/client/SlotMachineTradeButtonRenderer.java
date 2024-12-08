@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -12,13 +10,16 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
-import net.minecraft.client.Minecraft;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachineTrade> {
 
@@ -34,17 +35,15 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
     @Override
-    public List<DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context))); }
+    public List<DisplayEntry> getInputDisplays(TradeContext context) { return this.lazyPriceDisplayList(context); }
 
     @Override
     public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(59, 1, 68, 16); }
 
+    @Nullable
     private SlotMachineEntry getTimedEntry()
     {
-        List<SlotMachineEntry> entries = this.trade.trader.getValidEntries();
-        if(entries.isEmpty())
-            return null;
-        return entries.get((int)Minecraft.getInstance().level.getGameTime()/20 % entries.size());
+        return ListUtil.randomItemFromList(this.trade.trader.getValidEntries(),(Supplier<SlotMachineEntry>)() -> null);
     }
 
     @Override
@@ -55,21 +54,16 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
         List<DisplayEntry> entries = new ArrayList<>();
         String odds = this.trade.trader.getOdds(entry.getWeight());
         for(ItemStack item : entry.items)
-            entries.add(DisplayEntry.of(item, item.getCount(), this.getTooltip(item, entry.getWeight(), odds)));
+            entries.add(DisplayEntry.of(item, item.getCount(), this.tweakTooltip(item, entry.getWeight(), odds)));
         return entries;
     }
 
-    private List<Component> getTooltip(ItemStack stack, int weight, String odds)
+    private Consumer<List<Component>> tweakTooltip(ItemStack stack, int weight, String odds)
     {
-        if(stack.isEmpty())
-            return null;
-
-        List<Component> tooltips = EasyScreenHelper.getTooltipFromItem(stack);
-        tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
-        tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
-
-        return tooltips;
-
+        return tooltips -> {
+            tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
+            tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
+        };
     }
 
     @Override

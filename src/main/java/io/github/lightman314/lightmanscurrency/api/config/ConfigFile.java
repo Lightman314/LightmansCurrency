@@ -17,10 +17,13 @@ import java.util.function.Consumer;
 
 public abstract class ConfigFile {
 
-    private static final List<ConfigFile> loadableFiles = new ArrayList<>();
-    public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles); }
+    private static final Map<String,ConfigFile> loadableFiles = new HashMap<>();
+    @Nonnull
+    public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles.values()); }
+    @Nullable
+    public static ConfigFile lookupFile(@Nonnull String fileName) { return loadableFiles.get(fileName); }
 
-    private static void registerConfig(@Nonnull ConfigFile file) { loadableFiles.add(file); }
+    private static void registerConfig(@Nonnull ConfigFile file) { loadableFiles.put(file.fileName,file); }
 
     /**
      * Load flag to ensure the configs are loaded at the correct times.
@@ -49,7 +52,7 @@ public abstract class ConfigFile {
     //Used to load server & common files
     public static void loadServerFiles(@Nonnull LoadPhase phase) { loadFiles(false, phase); }
     public static void loadFiles(boolean logicalClient, @Nonnull LoadPhase phase) {
-        for(ConfigFile file : loadableFiles)
+        for(ConfigFile file : loadableFiles.values())
         {
             try {
                 if(!file.isLoaded() && file.shouldReload(logicalClient) && file.loadPhase == phase)
@@ -62,7 +65,7 @@ public abstract class ConfigFile {
 
     private static void reloadFiles(boolean logicalClient)
     {
-        for(ConfigFile file : loadableFiles)
+        for(ConfigFile file : loadableFiles.values())
         {
             try {
                 if(file.shouldReload(logicalClient))

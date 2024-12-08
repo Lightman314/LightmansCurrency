@@ -1,35 +1,26 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AllyTab extends SettingsSubTab {
 
     public AllyTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
-
-    EditBox nameInput;
-    EasyButton buttonAddAlly;
-    EasyButton buttonRemoveAlly;
-
-    ScrollTextDisplay display;
 
     @Override
     @Nonnull
@@ -44,27 +35,13 @@ public class AllyTab extends SettingsSubTab {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 10, 160, 20, EasyText.empty()));
-        this.nameInput.setMaxLength(16);
-
-        this.buttonAddAlly = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,35))
-                .width(74)
-                .text(LCText.BUTTON_ADD)
-                .pressAction(this::AddAlly)
-                .build());
-        this.buttonRemoveAlly = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(screenArea.width - 93, 35))
-                .width(74)
-                .text(LCText.BUTTON_REMOVE)
-                .pressAction(this::RemoveAlly)
-                .build());
-
-        this.display = this.addChild(ScrollTextDisplay.builder()
-                .position(screenArea.pos.offset(5,60))
-                .size(screenArea.width - 10,75)
-                .text(this::getAllyList)
-                .columns(2)
+        this.addChild(PlayerListWidget.builder()
+                .position(screenArea.pos.offset(20,10))
+                .width(screenArea.width - 40)
+                .rows(4)
+                .action(PlayerAction.easyRemove(this::RemoveAlly).build())
+                .addPlayer(this::AddAlly)
+                .playerList(this::getAllyList)
                 .build());
 
     }
@@ -72,32 +49,22 @@ public class AllyTab extends SettingsSubTab {
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
-    private List<Component> getAllyList()
+    private List<PlayerReference> getAllyList()
     {
-        List<Component> list = Lists.newArrayList();
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            trader.getAllies().forEach(ally -> list.add(ally.getNameComponent(true)));
-        return list;
+            return trader.getAllies();
+        return new ArrayList<>();
     }
 
-    @Override
-    public void tick() {
-        this.buttonAddAlly.active = this.buttonRemoveAlly.active = !this.nameInput.getValue().isEmpty();
-    }
-
-    private void AddAlly(EasyButton button)
+    private void AddAlly(@Nonnull PlayerReference player)
     {
-        String allyName = this.nameInput.getValue();
-        this.sendMessage(this.builder().setString("AddAlly", allyName));
-        this.nameInput.setValue("");
+        this.sendMessage(this.builder().setCompound("AddAlly",player.save()));
     }
 
-    private void RemoveAlly(EasyButton button)
+    private void RemoveAlly(@Nonnull PlayerReference player)
     {
-        String allyName = this.nameInput.getValue();
-        this.sendMessage(this.builder().setString("RemoveAlly", allyName));
-        this.nameInput.setValue("");
+        this.sendMessage(this.builder().setCompound("RemoveAlly",player.save()));
     }
 
 }

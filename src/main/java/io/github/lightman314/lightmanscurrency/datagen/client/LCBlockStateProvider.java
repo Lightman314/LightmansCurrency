@@ -378,6 +378,11 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //2.1.2.3
         this.registerRotatableInv(ModBlocks.SUS_JAR, "jars/sus_jar", true);
 
+        //2.2.4.1
+        this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_1,UPGRADE_NETWORK,UPGRADE_TIER_EMERALD);
+        this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_2,UPGRADE_NETWORK,UPGRADE_TIER_DIAMOND);
+        this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_3,UPGRADE_NETWORK,UPGRADE_TIER_NETHERITE);
+
 
     }
 

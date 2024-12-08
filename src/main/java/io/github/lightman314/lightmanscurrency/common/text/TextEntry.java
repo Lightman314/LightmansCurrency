@@ -34,6 +34,7 @@ public final class TextEntry {
     public MutableComponent get(Object... objects) { return Component.translatableEscape(this.getKey(),objects);}
     public MutableComponent getWithStyle(ChatFormatting... format) { return Component.translatableEscape(this.getKey()).withStyle(format); }
     public List<Component> getAsList(Object... objects) { return Lists.newArrayList(this.get(objects)); }
+    public List<Component> getAsListWithStyle(ChatFormatting... format) { return Lists.newArrayList(this.getWithStyle(format)); }
     public void tooltip(@Nonnull List<Component> tooltip, Object... objects) { tooltip.add(this.get(objects)); }
     @Nonnull
     public IconData icon(Object... objects) { return IconData.of(this.get(objects)); }

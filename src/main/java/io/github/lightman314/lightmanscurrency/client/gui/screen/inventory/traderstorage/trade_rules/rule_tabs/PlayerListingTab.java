@@ -1,24 +1,23 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
@@ -31,44 +30,23 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
 
     EasyButton buttonToggleMode;
 
-    EditBox nameInput;
-
-    EasyButton buttonAddPlayer;
-    EasyButton buttonRemovePlayer;
-
-    ScrollTextDisplay playerDisplay;
-
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         this.buttonToggleMode = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(10,7))
-                .width(screenArea.width - 20)
+                .position(screenArea.pos.offset(20,7))
+                .width(screenArea.width - 40)
                 .text(this::getModeText)
                 .pressAction(this::PressToggleModeButton)
                 .build());
 
-        this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 29, screenArea.width - 20, 20, EasyText.empty()));
-
-        this.buttonAddPlayer = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(10,50))
-                .width(78)
-                .text(LCText.BUTTON_ADD)
-                .pressAction(this::PressAddButton)
-                .build());
-        this.buttonRemovePlayer = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(screenArea.width - 88,50))
-                .width(78)
-                .text(LCText.BUTTON_REMOVE)
-                .pressAction(this::PressForgetButton)
-                .build());
-
-        //Player list display
-        this.playerDisplay = this.addChild(ScrollTextDisplay.builder()
-                .position(screenArea.pos.offset(7,75))
-                .size(screenArea.width - 14,64)
-                .text(this::getPlayers)
-                .columns(2)
+        this.addChild(PlayerListWidget.builder()
+                .position(screenArea.pos.offset(20,29))
+                .width(screenArea.width - 40)
+                .rows(3)
+                .addPlayer(this::AddPlayer)
+                .action(PlayerAction.easyRemove(this::RemovePlayer).build())
+                .playerList(this::getPlayers)
                 .build());
 
     }
@@ -83,42 +61,25 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
         return this.isWhitelistMode() ? LCText.BUTTON_PLAYER_LISTING_MODE_WHITELIST.get() : LCText.BUTTON_PLAYER_LISTING_MODE_BLACKLIST.get();
     }
 
-    private List<Component> getPlayers()
+    private List<PlayerReference> getPlayers()
     {
-        List<Component> playerList = Lists.newArrayList();
         PlayerListing rule = this.getRule();
         if(rule == null)
-            return playerList;
-        for(PlayerReference player : rule.getPlayerList())
-            playerList.add(player.getNameComponent(true));
-        return playerList;
+            return new ArrayList<>();
+        return rule.getPlayerList();
     }
 
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
-    void PressAddButton(EasyButton button)
+    void AddPlayer(PlayerReference player)
     {
-        String name = nameInput.getValue();
-        if(!name.isBlank())
-        {
-            nameInput.setValue("");
-            this.sendUpdateMessage(this.builder()
-                    .setBoolean("Add", true)
-                    .setString("Name", name));
-        }
+        this.sendUpdateMessage(this.builder().setCompound("AddPlayer",player.save()));
     }
 
-    void PressForgetButton(EasyButton button)
+    void RemovePlayer(PlayerReference player)
     {
-        String name = nameInput.getValue();
-        if(!name.isBlank())
-        {
-            nameInput.setValue("");
-            this.sendUpdateMessage(this.builder()
-                    .setBoolean("Add", false)
-                    .setString("Name", name));
-        }
+        this.sendUpdateMessage(this.builder().setCompound("RemovePlayer",player.save()));
     }
 
     void PressToggleModeButton(EasyButton button)

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -21,7 +22,7 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	
-	public static final ResourceLocation BUTTON_TEXTURES = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/universaltraderbuttons.png");
+	public static final ResourceLocation BUTTON_TEXTURES = VersionUtil.lcResource("textures/gui/universaltraderbuttons.png");
 	
 	public static final int WIDTH = 146;
 	public static final int HEIGHT = 30;
@@ -41,8 +42,6 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
-		//Set active status
-		this.active = this.data != null && !this.selected;
 		//Render nothing if there is no data
 		if(this.data == null)
 			return;
@@ -53,8 +52,10 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 			gui.setColor(0.5f,0.5f,0.5f);
 		
 		int offset = 0;
-		if(this.isHovered || this.selected)
+		if(this.isHovered)
 			offset = HEIGHT;
+		if(this.selected)
+			offset += HEIGHT * 2;
 		//Draw Button BG
 		gui.blit(BUTTON_TEXTURES, 0,0, 0, offset, WIDTH, HEIGHT);
 		

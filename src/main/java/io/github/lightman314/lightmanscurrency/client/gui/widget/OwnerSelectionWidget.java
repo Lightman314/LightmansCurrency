@@ -83,7 +83,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
         {
             final int index = i;
             this.addChild(OwnerSelectButton.builder()
-                    .position(area.pos.offset(0,i * OwnerSelectButton.HEIGHT))
+                    .position(area.pos.offset(0,12 + i * OwnerSelectButton.HEIGHT))
                     .width(area.width)
                     .pressAction(() -> this.setOwner(index))
                     .selected(this.currentOwner)
@@ -132,7 +132,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
-        private Builder() { super(100,OwnerSelectButton.HEIGHT); }
+        private Builder() { super(100,12 + OwnerSelectButton.HEIGHT); }
         @Override
         protected Builder getSelf() { return this; }
 
@@ -144,7 +144,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
         private OwnerSelectionWidget oldWidget = null;
 
         public Builder width(int width) { this.changeWidth(width); return this; }
-        public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * OwnerSelectButton.HEIGHT); return this; }
+        public Builder rows(int rows) { this.rows = rows; this.changeHeight(12 + rows * OwnerSelectButton.HEIGHT); return this; }
         public Builder selected(Supplier<OwnerData> selectedOwner) { this.selectedOwner = selectedOwner; return this; }
         public Builder handler(Consumer<Owner> handler) { this.handler = handler; return this; }
         public Builder filter(Predicate<PotentialOwner> filter) { this.filter = filter; return this; }

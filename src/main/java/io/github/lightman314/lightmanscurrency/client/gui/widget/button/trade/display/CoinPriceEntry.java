@@ -26,12 +26,13 @@ public class CoinPriceEntry extends DisplayEntry {
 
     private static List<Component> getTooltip(@Nonnull MoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
         List<Component> tooltips = new ArrayList<>();
+        //Put bonus tooltips first
+        if(additionalTooltips != null)
+            tooltips.addAll(additionalTooltips);
         if(tooltipOverride && additionalTooltips != null)
             return additionalTooltips;
         if(!price.isFree() && !price.isEmpty())
             tooltips.add(price.getText());
-        if(additionalTooltips != null)
-            tooltips.addAll(additionalTooltips);
         return tooltips;
     }
 

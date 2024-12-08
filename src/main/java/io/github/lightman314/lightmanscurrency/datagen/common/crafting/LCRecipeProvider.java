@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.conditions.ConfigCraftingCondition;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
@@ -198,7 +200,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .pattern("ppp")
                 .define('p', ItemTags.PLANKS)
                 .define('r', Items.COMPARATOR)
-                .save(consumer.withConditions(LCCraftingConditions.CoinChest.INSTANCE), ItemID(ModBlocks.COIN_CHEST));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChest)), ItemID(ModBlocks.COIN_CHEST));
 
         //Trader Recipes
         //Display Case
@@ -359,7 +361,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_1"));
+                .save(consumer.withConditions(LCCraftingConditions.NETWORK_TRADER),ID("network/item_network_trader_1"));
 
         //T2
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_2.get())
@@ -374,7 +376,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_1.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_2"));
+                .save(consumer.withConditions(LCCraftingConditions.NETWORK_TRADER),ID("network/item_network_trader_2"));
 
         //T3
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_3.get())
@@ -389,7 +391,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_2.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_3"));
+                .save(consumer.withConditions(LCCraftingConditions.NETWORK_TRADER),ID("network/item_network_trader_3"));
 
         //T4
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ITEM_NETWORK_TRADER_4.get())
@@ -404,7 +406,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModBlocks.ITEM_NETWORK_TRADER_3.get())
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(consumer.withConditions(LCCraftingConditions.NetworkTrader.INSTANCE),ID("network/item_network_trader_4"));
+                .save(consumer.withConditions(LCCraftingConditions.NETWORK_TRADER),ID("network/item_network_trader_4"));
 
         //Specialty Traders
         //Armor Display
@@ -501,11 +503,11 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', Tags.Items.CHESTS_WOODEN)
-                .save(consumer.withConditions(LCCraftingConditions.TraderInterface.INSTANCE),ItemID(ModBlocks.ITEM_TRADER_INTERFACE));
+                .save(consumer.withConditions(LCCraftingConditions.TRADER_INTERFACE),ItemID(ModBlocks.ITEM_TRADER_INTERFACE));
 
         //Auction Stands
         ModBlocks.AUCTION_STAND.forEach((woodType, auction_stand) -> {
-            ICondition[] conditions = woodType.isModded() ? new ICondition[] { new ModLoadedCondition(woodType.getModID()), LCCraftingConditions.AuctionStand.INSTANCE } : new ICondition[] { LCCraftingConditions.AuctionStand.INSTANCE };
+            ICondition[] conditions = woodType.isModded() ? new ICondition[] { new ModLoadedCondition(woodType.getModID()), ConfigCraftingCondition.of(LCConfig.COMMON.canCraftAuctionStands) } : new ICondition[] { ConfigCraftingCondition.of(LCConfig.COMMON.canCraftAuctionStands) };
             WoodData data = woodType.getData();
             Item log = data == null ? null : data.getLog();
             if(log != null)
@@ -712,7 +714,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_EXCHANGE_UPGRADE.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeExchange.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeExchange)), ItemID("upgrades/", ModItems.COIN_CHEST_EXCHANGE_UPGRADE));
 
         //Magnet Upgrades
         SmithingTransformRecipeBuilder.smithing(
@@ -723,7 +725,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_MAGNET_UPGRADE_1.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeMagnet)), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_1));
 
         SmithingTransformRecipeBuilder.smithing(
                 TEMPLATE,
@@ -734,7 +736,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_1))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeMagnet)), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_2));
 
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
@@ -745,7 +747,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_2))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeMagnet)), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_3));
 
         SmithingTransformRecipeBuilder.smithing(
                         TEMPLATE,
@@ -756,7 +758,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("previous", LazyTrigger(ModItems.COIN_CHEST_MAGNET_UPGRADE_3))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeMagnet.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeMagnet)), ItemID("upgrades/", ModItems.COIN_CHEST_MAGNET_UPGRADE_4));
 
         //Security Upgrade
         SmithingTransformRecipeBuilder.smithing(
@@ -767,7 +769,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 ModItems.COIN_CHEST_SECURITY_UPGRADE.get())
                 .unlocks("money", MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeSecurity.INSTANCE), ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeSecurity)), ItemID("upgrades/", ModItems.COIN_CHEST_SECURITY_UPGRADE));
 
         //2.1.2.2
         //The Jar of Sus
@@ -790,7 +792,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModItems.TRADING_CORE.get())
                 .define('h', Items.HOPPER)
                 .define('e', Tags.Items.ENDER_PEARLS)
-                .save(consumer.withConditions(LCCraftingConditions.TaxCollector.INSTANCE), ItemID(ModBlocks.TAX_COLLECTOR));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftTaxBlock)), ItemID(ModBlocks.TAX_COLLECTOR));
 
         //2.2.0.0
         //Ticket Station crafting as an actual recipe
@@ -907,7 +909,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("money",MoneyKnowledge())
                 .unlocks("coin_chest", LazyTrigger(ModBlocks.COIN_CHEST))
                 .unlocks("atm",LazyTrigger(LCTags.Items.ATM))
-                .save(consumer.withConditions(LCCraftingConditions.CoinChestUpgradeBank.INSTANCE),ItemID("upgrades/",ModItems.COIN_CHEST_BANK_UPGRADE));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinChestUpgradeBank)),ItemID("upgrades/",ModItems.COIN_CHEST_BANK_UPGRADE));
 
 
         //2.2.3.2
@@ -918,7 +920,43 @@ public class LCRecipeProvider extends RecipeProvider {
                 .requires(Items.PAPER)
                 .requires(Tags.Items.ENDER_PEARLS)
                 .requires(Tags.Items.NUGGETS_IRON)
-                .save(consumer.withConditions(LCCraftingConditions.ATMCard.INSTANCE),ItemID(ModItems.ATM_CARD));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftATMCard)),ItemID(ModItems.ATM_CARD));
+
+        //2.2.4.1
+        //Interaction Upgrades
+        SmithingTransformRecipeBuilder.smithing(
+                TEMPLATE,
+                Ingredient.of(ModItems.NETWORK_UPGRADE.get()),
+                Ingredient.of(Tags.Items.GEMS_EMERALD),
+                RecipeCategory.MISC,
+                ModItems.INTERACTION_UPGRADE_1.get())
+                .unlocks("trader_interface",LazyTrigger(LCTags.Items.TRADER_INTERFACE))
+                .unlocks("terminal",LazyTrigger(LCTags.Items.NETWORK_TERMINAL))
+                .unlocks("network_trader",LazyTrigger(LCTags.Items.TRADER_NETWORK))
+                .unlocks("previous",LazyTrigger(ModItems.NETWORK_UPGRADE))
+                .save(consumer,ItemID("upgrades/",ModItems.INTERACTION_UPGRADE_1));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.INTERACTION_UPGRADE_1.get()),
+                        Ingredient.of(Tags.Items.GEMS_DIAMOND),
+                        RecipeCategory.MISC,
+                        ModItems.INTERACTION_UPGRADE_2.get())
+                .unlocks("trader_interface",LazyTrigger(LCTags.Items.TRADER_INTERFACE))
+                .unlocks("terminal",LazyTrigger(LCTags.Items.NETWORK_TERMINAL))
+                .unlocks("network_trader",LazyTrigger(LCTags.Items.TRADER_NETWORK))
+                .unlocks("previous",LazyTrigger(ModItems.NETWORK_UPGRADE))
+                .save(consumer,ItemID("upgrades/",ModItems.INTERACTION_UPGRADE_2));
+        SmithingTransformRecipeBuilder.smithing(
+                        TEMPLATE,
+                        Ingredient.of(ModItems.INTERACTION_UPGRADE_2.get()),
+                        Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                        RecipeCategory.MISC,
+                        ModItems.INTERACTION_UPGRADE_3.get())
+                .unlocks("trader_interface",LazyTrigger(LCTags.Items.TRADER_INTERFACE))
+                .unlocks("terminal",LazyTrigger(LCTags.Items.NETWORK_TERMINAL))
+                .unlocks("network_trader",LazyTrigger(LCTags.Items.TRADER_NETWORK))
+                .unlocks("previous",LazyTrigger(ModItems.NETWORK_UPGRADE))
+                .save(consumer,ItemID("upgrades/",ModItems.INTERACTION_UPGRADE_3));
 
     }
 

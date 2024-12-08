@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollection
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.MultiPriceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStatsTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TaxInfoTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
@@ -131,6 +132,7 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	protected void registerTabs() {
 		TraderData trader = this.traderSource.get();
 		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADE_MULTI_PRICE, new MultiPriceTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_STATS, new TraderStatsTab(this));

@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class ItemOption extends ConfigOption<Item> {
@@ -25,6 +26,10 @@ public class ItemOption extends ConfigOption<Item> {
 
     public static ItemOption create(@Nonnull Supplier<Item> defaultValue) { return new ItemOption(defaultValue,true); }
     public static ItemOption create(@Nonnull Supplier<Item> defaultValue, boolean allowAir) { return new ItemOption(defaultValue,allowAir); }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
 
     private static class Parser implements ConfigParser<Item>
     {

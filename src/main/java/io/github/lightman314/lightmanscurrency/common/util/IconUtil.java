@@ -62,6 +62,7 @@ public class IconUtil {
 
     public static final IconData ICON_PLUS = IconData.of(ICON_TEXTURE, 0, 32);
     public static final IconData ICON_X = IconData.of(ICON_TEXTURE, 16, 32);
+    public static final IconData ICON_MINUS = IconData.of(ICON_TEXTURE, 16, 48);
 
     public static final IconData ICON_WHITELIST = IconData.of(ICON_TEXTURE, 32, 32);
     public static final IconData ICON_BLACKLIST = IconData.of(ICON_TEXTURE, 48, 32);
@@ -72,6 +73,7 @@ public class IconUtil {
     public static final IconData ICON_FREE_SAMPLE = IconData.of(ICON_TEXTURE, 112, 32);
     public static final IconData ICON_PRICE_FLUCTUATION = IconData.of(ICON_TEXTURE, 128, 32);
     public static final IconData ICON_DEMAND_PRICING = IconData.of(ICON_TEXTURE, 144, 32);
+    public static final IconData ICON_DAILY_TRADE = IconData.of(ICON_TEXTURE, 160, 32);
 
     public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
 

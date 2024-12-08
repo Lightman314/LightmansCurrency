@@ -40,7 +40,6 @@ public class LogTab extends ATMTab{
 				.rowCount(6)
 				.notificationSource(this::getNotifications)
 				.build());
-		this.logWidget.backgroundColor = 0;
 		
 	}
 	
@@ -55,6 +54,6 @@ public class LogTab extends ATMTab{
 	public void renderBG(@Nonnull EasyGuiGraphics gui) { gui.drawString(this.getTooltip(), 8, 6, 0x404040); }
 
 	@Override
-	protected void closeAction() { this.screen.setCoinSlotsActive(false); }
+	protected void closeAction() { this.screen.setCoinSlotsActive(true); }
 
 }

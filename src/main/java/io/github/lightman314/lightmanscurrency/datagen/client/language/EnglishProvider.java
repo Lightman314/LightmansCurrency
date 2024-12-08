@@ -104,6 +104,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_NETWORK, "Network Upgrade");
         this.translate(LCText.ITEM_UPGRADE_VOID, "Void Upgrade");
         this.translate(LCText.ITEM_UPGRADE_HOPPER, "Hopper Upgrade");
+        this.translate(LCText.ITEM_UPGRADE_INTERACTION_1, "Interaction Upgrade (Emerald)");
+        this.translate(LCText.ITEM_UPGRADE_INTERACTION_2, "Interaction Upgrade (Diamond)");
+        this.translate(LCText.ITEM_UPGRADE_INTERACTION_3, "Interaction Upgrade (Netherite)");
         this.translate(LCText.ITEM_UPGRADE_COIN_EXCHANGE, "Coin Exchange Upgrade");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_1, "Magnet Upgrade (Copper)");
         this.translate(LCText.ITEM_UPGRADE_MAGNET_2, "Magnet Upgrade (Iron)");
@@ -317,6 +320,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_UPGRADE_TRADE_OFFER, "Increases traders offer limit by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_ITEM_CAPACITY, "Increases item storage capacity by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_SPEED, "Decreases the delay between interactions by %s ticks");
+        this.translate(LCText.TOOLTIP_UPGRADE_INTERACTION, "Increases the number of Traders or Trades that the Trader Interface can interact with by %s");
         this.translate(LCText.TOOLTIP_UPGRADE_NETWORK,"Makes a trader visible from a trading terminal");
         this.translate(LCText.TOOLTIP_UPGRADE_VOID,"Makes a trader void all goods purchased from a customer","Intended for Admin Use Only to keep pseudo-creative traders from getting full");
         this.translate(LCText.TOOLTIP_UPGRADE_HOPPER,"Allows the block to collect inputs from its neighboring containers");
@@ -380,8 +384,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TEAM_SELECT,"Select Team to Manage:");
         this.translate(LCText.GUI_TEAM_CREATE,"Create New Team");
         this.translate(LCText.TOOLTIP_TEAM_MEMBERS,"Members");
-        this.translate(LCText.TOOLTIP_TEAM_MEMBER_EDIT,"Add/Promote/Remove Members");
-        this.translate(LCText.BUTTON_TEAM_MEMBER_PROMOTE,"Set Admin");
+        this.translate(LCText.BUTTON_TEAM_MEMBER_PROMOTE,"Promote");
+        this.translate(LCText.BUTTON_TEAM_MEMBER_DEMOTE,"Demote");
         this.translate(LCText.TOOLTIP_TEAM_BANK,"Bank Account Settings");
         this.translate(LCText.BUTTON_TEAM_BANK_CREATE,"Create Bank Account");
         this.translate(LCText.BUTTON_TEAM_BANK_LIMIT,"Limit To: %s");
@@ -520,7 +524,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_INTERFACE_ONLINE_MODE_OFF, "On even if Owner is Offline");
         this.translate(LCText.TOOLTIP_INTERFACE_INFO,"Status");
         this.translate(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES,"Accept Trade Changes");
-        this.translate(LCText.GUI_INTERFACE_INFO_MISSING_PERMISSIONS,"You no longer have permission to link with this trader");
+        this.translate(LCText.GUI_INTERFACE_INFO_MISSING_PERMISSIONS,"You no longer have permission to link with %s");
         this.translate(LCText.GUI_INTERFACE_INFO_TRADER_NULL,"Not linked to any trader");
         this.translate(LCText.GUI_INTERFACE_INFO_TRADER_REMOVED,"Linked Trader no longer exists");
         this.translate(LCText.GUI_INTERFACE_INFO_TRADE_NOT_DEFINED,"No Trade linked");
@@ -577,6 +581,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE,"Edit Trade-Specific Rules");
         this.translate(LCText.GUI_TRADER_NO_TRADES, "No Available Trades");
         this.translate(LCText.TOOLTIP_TRADER_EDIT_TRADES,"Edit Trades");
+        this.translate(LCText.TOOLTIP_TRADER_SELECT_ALL_TRADES,"Select All Trades");
+        this.translate(LCText.TOOLTIP_TRADER_DESELECT_ALL_TRADES,"Deselect All Trades");
+        this.translate(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED,"Edit Price for All %s Selected Trade(s)");
+        this.translate(LCText.BUTTON_TRADER_SET_ALL_PRICES,"Set Price for %s Trade(s)");
         this.translate(LCText.TOOLTIP_TRADER_LOGS,"Trader Logs");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS,"Trader Settings");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_NAME,"Trader Name");
@@ -615,6 +623,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //General Trade Tooltips
         this.translate(LCText.TOOLTIP_TRADE_EDIT_PRICE, "Click to Edit Price");
+        this.translate(LCText.TOOLTIP_TRADE_SELECT, "Ctrl + Click to Select Trade");
         this.translate(LCText.TOOLTIP_TRADE_INFO_TITLE, "Trade Info:");
         this.translate(LCText.TOOLTIP_TRADE_INFO_ORIGINAL_NAME, "Original Name: %s");
         this.translate(LCText.TOOLTIP_TRADE_INFO_STOCK, "%s trade(s) in stock");
@@ -738,6 +747,14 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_DEMAND_PRICING_INFO_INVALID_HOST, "Trade is not a Sale which means stock count may be dependent on the price");
         this.translate(LCText.GUI_DEMAND_PRICING_STOCK_SMALL, "Lower Stock:");
         this.translate(LCText.GUI_DEMAND_PRICING_STOCK_LARGE, "Upper Stock:");
+        this.translate(LCText.TRADE_RULE_DAILY_TRADES,"Daily Trade Progression");
+        this.translate(LCText.TRADE_RULE_DAILY_TRADES_ALLOWED,"Trade is unlocked");
+        this.translate(LCText.TRADE_RULE_DAILY_TRADES_LOCKED_COMPLETE,"Trade has already been redeemed");
+        this.translate(LCText.TRADE_RULE_DAILY_TRADES_LOCKED_WAITING,"Trade can be redeemed in %s");
+        this.translate(LCText.TRADE_RULE_DAILY_TRADES_LOCKED_NOT_NEXT,"Waiting for previous trade to be redeemed");
+        this.translate(LCText.BUTTON_DAILY_TRADES_RESET,"Reset Interaction Data");
+        this.translate(LCText.TOOLTIP_DAILY_TRADES_RESET,"Forgets each players progress through the trade list, resetting them back to the initial trade");
+        this.translate(LCText.GUI_DAILY_TRADES_INFO,"Players can interact with a trade %s after interacting with the previous one");
 
         //Permissions
         this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage");

@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade.client;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -11,9 +13,12 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -59,6 +64,36 @@ public abstract class TradeRenderManager<T extends TradeData> {
      * The output display entries. For a sale this would be the product being sold.
      */
     public abstract List<DisplayEntry> getOutputDisplays(TradeContext context);
+
+    protected final List<DisplayEntry> lazyPriceDisplayList(TradeContext context) { return Lists.newArrayList(this.lazyPriceDisplay(context)); }
+
+    protected final DisplayEntry lazyPriceDisplay(TradeContext context)
+    {
+        List<Component> extraTooltips = null;
+        if(context.isStorageMode && this.hasPermission(context,Permissions.EDIT_TRADES))
+            extraTooltips = LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsListWithStyle(ChatFormatting.YELLOW);
+        return DisplayEntry.of(this.trade.getCost(context),extraTooltips);
+    }
+
+    protected final boolean hasPermission(TradeContext context, String permission)
+    {
+        TraderData trader = context.getTrader();
+        if(trader == null)
+            return false;
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        return trader.hasPermission(player,permission);
+    }
+
+    protected final int getPermissionLevel(TradeContext context, String permission)
+    {
+        TraderData trader = context.getTrader();
+        if(trader == null)
+            return 0;
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        return trader.getPermissionLevel(player,permission);
+    }
 
     /**
      * List of alert data. Used for Out of Stock, Cannot Afford, or Trade Rule messages.

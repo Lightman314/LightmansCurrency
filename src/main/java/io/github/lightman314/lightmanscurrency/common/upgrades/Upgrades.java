@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.InteractionUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.ItemCapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestBankUpgrade;
@@ -19,6 +20,8 @@ public class Upgrades {
     public static final ItemCapacityUpgrade ITEM_CAPACITY = new ItemCapacityUpgrade();
 
     public static final SpeedUpgrade SPEED = new SpeedUpgrade();
+
+    public static final InteractionUpgrade INTERACTION = new InteractionUpgrade();
 
     public static final UpgradeType.Simple NETWORK = UpgradeType.Simple.builder()
             .unique()

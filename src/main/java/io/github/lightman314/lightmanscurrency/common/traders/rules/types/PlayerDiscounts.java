@@ -117,17 +117,19 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	{
 		if(updateInfo.contains("Discount"))
 			this.discount = updateInfo.getInt("Discount");
-		else if(updateInfo.contains("Add"))
+		else if(updateInfo.contains("AddPlayer"))
 		{
-			boolean add = updateInfo.getBoolean("Add");
-			String name = updateInfo.getString("Name");
-			PlayerReference player = PlayerReference.of(false, name);
-			if(player == null)
+			PlayerReference player = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
+			if(player == null || this.isOnList(player))
 				return;
-			if(add && !this.isOnList(player))
-				this.playerList.add(player);
-			if(!add && this.isOnList(player))
-				PlayerReference.removeFromList(this.playerList, player);
+			this.playerList.add(player);
+		}
+		else if(updateInfo.contains("RemovePlayer"))
+		{
+			PlayerReference player = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
+			if(player == null || !this.isOnList(player))
+				return;
+			PlayerReference.removeFromList(this.playerList,player);
 		}
 	}
 	

@@ -529,6 +529,7 @@ public final class LCConfig {
         public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
         public final BooleanOption coinMintCanMelt = BooleanOption.createFalse();
         public final IntOption coinMintDefaultDuration = IntOption.create(100,1,72000);
+        public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f,0f,1f);
 
         //Mint Specific Options
         public final BooleanOption coinMintMintableCopper = BooleanOption.createTrue();
@@ -558,6 +559,11 @@ public final class LCConfig {
         public final IntOption itemCapacityUpgrade2 = IntOption.create(6*64, 2, 100*64);
         public final IntOption itemCapacityUpgrade3 = IntOption.create(9*64, 3, 100*64);
         public final IntOption itemCapacityUpgrade4 = IntOption.create(18*64, 4, 100*64);
+
+        //Interaction Upgrade Settings
+        public final IntOption interactionUpgrade1 = IntOption.create(5,1,100);
+        public final IntOption interactionUpgrade2 = IntOption.create(10,1,100);
+        public final IntOption interactionUpgrade3 = IntOption.create(15,1,100);
 
         //Money Chest Upgrades
         public final IntOption coinChestMagnetRange1 = IntOption.create(4,1,50);
@@ -614,7 +620,7 @@ public final class LCConfig {
         public final BooleanOption claimingAllowForceloadPurchase = BooleanOption.createFalse();
         public final MoneyValueOption claimingForceloadPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 1000000));
         public final IntOption claimingMaxForceloadCount = IntOption.create(100,1);
-        public final IntOption flanClaimingBlocksPerChunk = IntOption.create(64, 1, 64);
+        public final IntOption flanClaimingBlocksPerChunk = IntOption.create(256, 1, 256);
 
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
@@ -656,6 +662,9 @@ public final class LCConfig {
             builder.comment("Default number of ticks it takes to process a Coin Mint recipe.",
                             "Does not apply to Coin Mint recipes with a defined \"duration\" input.")
                     .add("defaultMintDuration", this.coinMintDefaultDuration);
+
+            builder.comment("The volume of the noise played whenever the Coin Mint finishes the crafting process.")
+                    .add("soundVolume", this.coinMintSoundVolume);
 
             builder.comment("Default Recipes").push("recipes").comment("Minting").push("mint");
 
@@ -726,6 +735,13 @@ public final class LCConfig {
                     .add("itemCapacity3", this.itemCapacityUpgrade3);
             builder.comment("The amount of item storage added by the Item Capacity Upgrade (Netherite)")
                     .add("itemCapacity4", this.itemCapacityUpgrade4);
+
+            builder.comment("The amount of bonus selections added by the Interaction Upgrade (Emerald)")
+                    .add("interactionCount1", this.interactionUpgrade1);
+            builder.comment("The amount of bonus selections added by the Interaction Upgrade (Diamond)")
+                    .add("interactionCount2", this.interactionUpgrade2);
+            builder.comment("The amount of bonus selections added by the Interaction Upgrade (Netherite)")
+                    .add("interactionCount3", this.interactionUpgrade3);
 
             builder.pop().comment("Money Chest Magnet Upgrade").push("money_chest_magnet");
 

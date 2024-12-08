@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class StringOption extends ConfigOption<String> {
@@ -19,6 +20,10 @@ public class StringOption extends ConfigOption<String> {
     @Nonnull
     @Override
     protected ConfigParser<String> getParser() { return PARSER; }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
 
     private static class Parser implements ConfigParser<String>
     {

@@ -475,14 +475,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Abort if the trade is null
 		if(trade == null)
 		{
-			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
+			//LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
 		//Abort if the trade is not valid
 		if(!trade.isValid())
 		{
-			LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			//LightmansCurrency.LogDebug("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return TradeResult.FAIL_INVALID_TRADE;
 		}
 		
@@ -503,7 +503,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 			if(trade.outOfStock(context) && !this.isCreative())
 			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 
@@ -512,21 +512,21 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough items in inventory
 			if(soldItems == null)
 			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
 			{
-				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
+				//LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
 			}
 			
 			if(!context.getPayment(price))
 			{
-				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
-						"\nPrice: " + price.getString("Null") + "\nAvailable Funds: " + context.getAvailableFunds().getString());
+				//LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
+				//		"\nPrice: " + price.getString("Null") + "\nAvailable Funds: " + context.getAvailableFunds().getString());
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
@@ -585,20 +585,20 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough items in the item slots
 			if(!context.hasItems(collectableItems))
 			{
-				LightmansCurrency.LogDebug("Not enough items in the item slots to make the purchase.");
+				//LightmansCurrency.LogDebug("Not enough items in the item slots to make the purchase.");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
 			//Abort if not enough room to store the purchased items (unless we're creative)
 			if(!trade.hasSpace(this, collectableItems) && !this.isCreative())
 			{
-				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
+				//LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return TradeResult.FAIL_NO_INPUT_SPACE;
 			}
 			//Abort if not enough money to pay them back
 			if(trade.outOfStock(context) && !this.isCreative())
 			{
-				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
+				//LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 			//Passed the checks. Take the item(s) from the input slot
@@ -648,20 +648,20 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough items in the item slots
 			if(collectableItems == null)
 			{
-				LightmansCurrency.LogDebug("Collectable items returned a null list!");
+				//LightmansCurrency.LogDebug("Collectable items returned a null list!");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
 			//Abort if not enough room to store the purchased items (unless we're creative)
 			if(!trade.hasSpace(this, collectableItems) && !this.isCreative())
 			{
-				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
+				//LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return TradeResult.FAIL_NO_INPUT_SPACE;
 			}
 
 			if(trade.outOfStock(context) && !this.isCreative())
 			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 
@@ -669,14 +669,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough items in inventory
 			if(soldItems == null)
 			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 
 			//Abort if no space to put the sold items
 			if(!context.canFitItems(soldItems))
 			{
-				LightmansCurrency.LogDebug("Not enough space to store the purchased items.");
+				//LightmansCurrency.LogDebug("Not enough space to store the purchased items.");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
 			}
 			

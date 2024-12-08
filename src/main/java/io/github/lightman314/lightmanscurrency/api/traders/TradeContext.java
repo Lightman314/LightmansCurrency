@@ -58,8 +58,10 @@ public class TradeContext {
 	public TraderData getTrader() { return this.trader; }
 	
 	//Player Data
+	@Nullable
 	private final Player player;
 	public boolean hasPlayer() { return this.player != null; }
+	@Nullable
 	public Player getPlayer() { return this.player; }
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
@@ -646,9 +648,9 @@ public class TradeContext {
 		return false;
 	}
 	
-	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
-	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
+	public static TradeContext createStorageMode(@Nonnull TraderData trader) { return new Builder(trader).build(); }
+	public static Builder create(@Nonnull TraderData trader, @Nonnull Player player) { return new Builder(trader, player,true); }
+	public static Builder create(@Nonnull TraderData trader, @Nonnull PlayerReference player) { return new Builder(trader, player); }
 
 	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
@@ -658,7 +660,9 @@ public class TradeContext {
 		//Core
 		private final boolean storageMode;
 		private final TraderData trader;
+		@Nullable
 		private final Player player;
+		@Nullable
 		private final PlayerReference playerReference;
 		
 		//Money
@@ -679,7 +683,7 @@ public class TradeContext {
 		private IEnergyStorage energyHandler;
 
 		private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(TraderData trader, Player player, boolean playerInteractable) {
+		private Builder(TraderData trader, @Nullable Player player, boolean playerInteractable) {
 			this.trader = trader;
 			this.player = player;
 			this.playerReference = PlayerReference.of(player);
@@ -687,7 +691,7 @@ public class TradeContext {
 			if(playerInteractable)
 				this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player));
 		}
-		private Builder(TraderData trader, PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
+		private Builder(TraderData trader, @Nullable PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 
 		public Builder withBankAccount(@Nullable BankReference bankAccount) {
 			if(bankAccount == null)
