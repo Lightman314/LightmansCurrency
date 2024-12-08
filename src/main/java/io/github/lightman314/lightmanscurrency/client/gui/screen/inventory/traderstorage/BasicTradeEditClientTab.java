@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -7,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -16,9 +19,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements TradeInteractionHandler {
 
@@ -39,6 +44,9 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	EasyButton buttonAddTrade;
 	EasyButton buttonRemoveTrade;
 
+	EasyButton buttonSelectAllTrades;
+	EasyButton buttonOpenMultiEdit;
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
@@ -48,53 +56,91 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.traderSource(this.menu::getTrader)
 				.context(this.menu::getContext)
 				.tradeFilter(this.menu.getTrader(),this.menu)
-				.title(screenArea.pos.offset(4,6),screenArea.width - (this.renderAddRemoveButtons() ? 28 : 8),true)
+				.title(screenArea.pos.offset(4,6),screenArea.width - (this.addRemoveVisible() ? 28 : 8),true)
 				.interactionHandler(this)
+				.selectedState(this.commonTab::isSelected)
 				.blockSearchBox()
+				.extraTooltips(this::tradeSelectTooltip)
 				.build());
 
 		this.buttonAddTrade = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 25, 4))
 				.pressAction(this::AddTrade)
 				.sprite(IconAndButtonUtil.SPRITE_PLUS)
+				.addon(EasyAddonHelper.visibleCheck(this::addRemoveVisible))
+				.addon(EasyAddonHelper.activeCheck(this::addActive))
 				.build());
 		this.buttonRemoveTrade = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 14, 4))
 				.pressAction(this::RemoveTrade)
 				.sprite(IconAndButtonUtil.SPRITE_MINUS)
+				.addon(EasyAddonHelper.visibleCheck(this::addRemoveVisible))
+				.addon(EasyAddonHelper.activeCheck(this::removeActive))
 				.build());
 
-		this.tick();
+		this.buttonSelectAllTrades = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width,0))
+				.pressAction(this.commonTab::SelectAllTrades)
+				.icon(this::selectAllIcon)
+				.addon(EasyAddonHelper.visibleCheck(this.commonTab::allowTradeSelection))
+				.addon(EasyAddonHelper.tooltip(this::selectAllTooltip))
+				.build());
+
+		this.buttonOpenMultiEdit = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width,20))
+				.pressAction(this.commonTab::OpenMultiEditTab)
+				.icon(IconUtil.ICON_TRADER_ALT)
+				.addon(EasyAddonHelper.activeCheck(this.commonTab::canOpenMultiEdit))
+				.addon(EasyAddonHelper.visibleCheck(this.commonTab::allowTradeSelection))
+				.addon(EasyAddonHelper.tooltip(this::multiEditTooltip))
+				.build());
+
+
 
 	}
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
-	private boolean renderAddRemoveButtons() {
-		if(this.menu.getTrader() != null)
-			return this.menu.getTrader().canEditTradeCount();
-		return false;
-	}
-
-	@Override
-	public void tick() {
-
+	private boolean addRemoveVisible()
+	{
 		TraderData trader = this.menu.getTrader();
-		if(trader != null)
-		{
-			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = trader.canEditTradeCount();
-			this.buttonAddTrade.active = trader.getTradeCount() < trader.getMaxTradeCount();
-			this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
-		}
-		else
-			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = false;
+		return trader != null && trader.canEditTradeCount();
 	}
+
+	private boolean addActive()
+	{
+		TraderData trader = this.menu.getTrader();
+		return trader != null && trader.getTradeCount() < trader.getMaxTradeCount();
+	}
+
+	private boolean removeActive()
+	{
+		TraderData trader = this.menu.getTrader();
+		return trader != null && trader.getTradeCount() > 1;
+	}
+
+	private List<Component> tradeSelectTooltip()
+	{
+		if(this.commonTab.allowTradeSelection())
+			return Lists.newArrayList(LCText.TOOLTIP_TRADE_SELECT.getWithStyle(ChatFormatting.YELLOW));
+		return null;
+	}
+
+	private IconData selectAllIcon() { return this.commonTab.allTradesSelected() ? IconUtil.ICON_MINUS : IconUtil.ICON_PLUS; }
+	private Component selectAllTooltip() { return this.commonTab.allTradesSelected() ? LCText.TOOLTIP_TRADER_DESELECT_ALL_TRADES.get() : LCText.TOOLTIP_TRADER_SELECT_ALL_TRADES.get(); }
+
+	private Component multiEditTooltip() { return LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED.get(this.commonTab.selectedCount()); }
 
 	@Override
 	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnInputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
+		{
+			if(data.ctrlHeld())
+				this.commonTab.ToggleTradeSelection(trader.indexOfTrade(trade));
+			else
+				trade.OnInputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
@@ -102,7 +148,12 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnOutputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
+		{
+			if(data.ctrlHeld())
+				this.commonTab.ToggleTradeSelection(trader.indexOfTrade(trade));
+			else
+				trade.OnOutputDisplayInteraction(this.commonTab, index, data, this.menu.getHeldItem());
+		}
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
@@ -110,13 +161,19 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
-			trade.OnInteraction(this.commonTab, data, this.menu.getHeldItem());
+		{
+			if(data.ctrlHeld())
+				this.commonTab.ToggleTradeSelection(trader.indexOfTrade(trade));
+			else
+				trade.OnInteraction(this.commonTab, data, this.menu.getHeldItem());
+		}
+
 		else
 			Permissions.PermissionWarning(this.menu.getPlayer(), "edit trade", Permissions.EDIT_TRADES);
 	}
 
-	private void AddTrade(EasyButton button) { this.commonTab.addTrade(); }
+	private void AddTrade() { this.commonTab.addTrade(); }
 
-	private void RemoveTrade(EasyButton button) { this.commonTab.removeTrade(); }
+	private void RemoveTrade() { this.commonTab.removeTrade(); }
 
 }

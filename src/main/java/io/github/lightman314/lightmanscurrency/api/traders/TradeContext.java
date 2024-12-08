@@ -59,8 +59,10 @@ public class TradeContext {
 	public TraderData getTrader() { return this.trader; }
 	
 	//Player Data
+	@Nullable
 	private final Player player;
 	public boolean hasPlayer() { return this.player != null; }
+	@Nullable
 	public Player getPlayer() { return this.player; }
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
@@ -640,9 +642,9 @@ public class TradeContext {
 		return false;
 	}
 	
-	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
-	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
+	public static TradeContext createStorageMode(@Nonnull TraderData trader) { return new Builder(trader).build(); }
+	public static Builder create(@Nonnull TraderData trader, @Nonnull Player player) { return new Builder(trader, player,true); }
+	public static Builder create(@Nonnull TraderData trader, @Nonnull PlayerReference player) { return new Builder(trader, player); }
 
 	@MethodsReturnNonnullByDefault
 	@ParametersAreNonnullByDefault
@@ -653,7 +655,9 @@ public class TradeContext {
 		//Core
 		private final boolean storageMode;
 		private final TraderData trader;
+		@Nullable
 		private final Player player;
+		@Nullable
 		private final PlayerReference playerReference;
 		
 		//Money

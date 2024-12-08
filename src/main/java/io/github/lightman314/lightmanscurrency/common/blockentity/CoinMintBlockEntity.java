@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -123,7 +124,9 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 			{
 				this.mintTime = 0;
 				this.mintCoin();
-				this.level.playSound(null, this.worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.5f, 1f);
+				float volume = LCConfig.SERVER.coinMintSoundVolume.get();
+				if(volume > 0f)
+					this.level.playSound(null, this.worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, volume, 1f);
 			}
 			this.markMintTimeDirty();
 		}

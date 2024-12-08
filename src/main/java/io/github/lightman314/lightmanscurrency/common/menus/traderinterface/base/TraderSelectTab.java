@@ -22,24 +22,17 @@ public class TraderSelectTab extends TraderInterfaceTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 
-	public void setTrader(long traderID) {
-		this.menu.getBE().setTrader(traderID);
+	public void toggleTrader(long traderID) {
+		this.menu.getBE().toggleTrader(traderID);
 		//Don't need to mark dirty, as that's done on the BE's side automatically
 		if(this.menu.isClient())
-		{
-			if(traderID >= 0)
-				this.menu.SendMessage(this.builder().setLong("NewTrader", traderID));
-			else
-				this.menu.SendMessage(this.builder().setFlag("NullTrader"));
-		}
+			this.menu.SendMessage(this.builder().setLong("ToggleTrader",traderID));
 	}
 
 	@Override
 	public void handleMessage(@Nonnull LazyPacketData message) {
-		if(message.contains("NewTrader"))
-			this.setTrader(message.getLong("NewTrader"));
-		else if(message.contains("NullTrader"))
-			this.setTrader(-1);
+		if(message.contains("ToggleTrader"))
+			this.toggleTrader(message.getLong("ToggleTrader"));
 	}
 
 }

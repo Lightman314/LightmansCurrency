@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class IntOption extends ConfigOption<Integer> {
@@ -26,9 +27,15 @@ public class IntOption extends ConfigOption<Integer> {
     @Nonnull
     @Override
     protected ConfigParser<Integer> getParser() { return this.parser; }
-    @Nullable
+
+    @Nonnull
     @Override
-    protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
+    protected List<String> bonusComments() {
+        return Lists.newArrayList(
+                "Range: " + this.lowerLimit + " -> " + this.upperLimit,
+                "Default: " + this.getDefaultValue()
+        );
+    }
 
     public static IntOption create(int defaultValue) { return new IntOption(() -> defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
     public static IntOption create(int defaultValue, int lowerLimit) { return new IntOption(() -> defaultValue, lowerLimit, Integer.MAX_VALUE); }

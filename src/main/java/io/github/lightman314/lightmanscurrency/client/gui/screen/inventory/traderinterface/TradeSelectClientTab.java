@@ -37,9 +37,9 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
 				.position(screenArea.pos.offset(3,17))
 				.size(screenArea.width - 6,100)
-				.traderSource(this.menu.getBE()::getTrader)
+				.traderSource(this.menu.getBE().targets::getTrader)
 				.context(this.menu.getBE()::getTradeContext)
-				.pressAction(this::SelectTrade)
+				.pressAction(this::ToggleTrade)
 				.tradeFilter(TradeData::isValid)
 				.title(screenArea.pos.offset(4,6),screenArea.width - 8,false)
 				.selectedState(this::isTradeSelected)
@@ -57,16 +57,16 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	}
 
 	private boolean isTradeSelected(TraderData trader, TradeData trade) {
-		return this.menu.getBE().getTrueTrade() == trade;
+		return this.menu.getBE().targets.getTradeReferences().stream().anyMatch(t -> t.getTrueTrade() == trade);
 	}
 
 	private int getTradeIndex(TraderData trader, TradeData trade) {
 		return trader.getTradeData().indexOf(trade);
 	}
 
-	private void SelectTrade(TraderData trader, TradeData trade) {
+	private void ToggleTrade(TraderData trader, TradeData trade) {
 
-		this.commonTab.setTradeIndex(this.getTradeIndex(trader, trade));
+		this.commonTab.toggleTradeIndex(this.getTradeIndex(trader, trade));
 
 	}
 

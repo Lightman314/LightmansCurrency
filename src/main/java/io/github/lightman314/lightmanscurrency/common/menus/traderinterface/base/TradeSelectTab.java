@@ -21,23 +21,23 @@ public class TradeSelectTab extends TraderInterfaceTab {
 
 	@Override
 	public boolean canOpen(Player player) {
-		return this.menu.getBE().getInteractionType().trades && this.menu.getBE().getTrader() != null;
+		return this.menu.getBE().getInteractionType().trades() && this.menu.getBE().targets.getTrader() != null;
 	}
 
-	public void setTradeIndex(int tradeIndex) {
+	public void toggleTradeIndex(int tradeIndex) {
 		//LightmansCurrency.LogInfo("Setting trade index to " + tradeIndex + " on the " + DebugUtil.getSideText(this.menu.player));
 		if(this.menu.getBE().canAccess(this.menu.player))
 		{
-			this.menu.getBE().setTradeIndex(tradeIndex);
+			this.menu.getBE().toggleTradeIndex(tradeIndex);
 			if(this.menu.isClient())
-				this.menu.SendMessage(this.builder().setInt("NewTradeIndex", tradeIndex));
+				this.menu.SendMessage(this.builder().setInt("ToggleTradeIndex", tradeIndex));
 		}
 	}
 
 	@Override
 	public void handleMessage(@Nonnull LazyPacketData message) {
-		if(message.contains("NewTradeIndex"))
-			this.setTradeIndex(message.getInt("NewTradeIndex"));
+		if(message.contains("ToggleTradeIndex"))
+			this.toggleTradeIndex(message.getInt("ToggleTradeIndex"));
 	}
 
 }

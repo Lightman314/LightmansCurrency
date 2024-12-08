@@ -11,6 +11,7 @@ public abstract class TraderStorageTab extends EasyMenuTab<ITraderStorageMenu,Tr
 	public static final int TAB_TRADE_STORAGE = 1;
 	public static final int TAB_TRADE_ADVANCED = 2;
 	public static final int TAB_TRADE_MISC = 3;
+	public static final int TAB_TRADE_MULTI_PRICE = 9;
 
 	//10-49 "Settings and Logs"
 	public static final int TAB_TRADER_LOGS = 10;

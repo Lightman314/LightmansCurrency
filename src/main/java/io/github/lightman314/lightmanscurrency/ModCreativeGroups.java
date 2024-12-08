@@ -201,6 +201,9 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.NETWORK_UPGRADE);
                     ezPop(p, ModItems.VOID_UPGRADE);
                     ezPop(p, ModItems.HOPPER_UPGRADE);
+                    ezPop(p, ModItems.INTERACTION_UPGRADE_1);
+                    ezPop(p, ModItems.INTERACTION_UPGRADE_2);
+                    ezPop(p, ModItems.INTERACTION_UPGRADE_3);
                     ezPop(p, ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_2);

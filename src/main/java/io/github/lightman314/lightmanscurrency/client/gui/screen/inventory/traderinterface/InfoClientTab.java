@@ -6,11 +6,16 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -31,11 +36,13 @@ import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
+public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements IScrollable {
 
 	public InfoClientTab(Object screen, InfoTab tab) { super(screen, tab); }
 
@@ -47,6 +54,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	EasyButton acceptChangesButton;
 
 	private final ScreenArea WARNING_AREA = ScreenArea.of(45, 69, 16, 16);
+
+	private int scroll = 0;
 
 	@Nonnull
 	@Override
@@ -60,17 +69,18 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 		this.tradeDisplay = this.addChild(TradeButton.builder()
 				.position(screenArea.pos.offset(6,47))
-				.context(this.menu::getTradeContext)
-				.trade(this.menu.getBE()::getReferencedTrade)
+				.context(this::getTradeContext)
+				.trade(this::getReferencedTrade)
 				.displayOnly()
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.getBE().getInteractionType().trades()))
 				.build());
 		this.newTradeDisplay = this.addChild(TradeButton.builder()
 				.position(screenArea.pos.offset(6,91))
-				.context(this.menu::getTradeContext)
-				.trade(this.menu.getBE()::getTrueTrade)
+				.context(this::getTradeContext)
+				.trade(this::getTrueTrade)
 				.displayOnly()
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.getBE().getInteractionType().trades() && this.changeInTrades()))
 				.build());
-		this.newTradeDisplay.setPosition(screenArea.pos.offset(6, 91));
 		this.newTradeDisplay.visible = false;
 
 		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
@@ -80,8 +90,25 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				.pressAction(this::AcceptTradeChanges)
 				.icon(IconUtil.ICON_CHECKMARK)
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_INTERFACE_INFO_ACCEPT_CHANGES))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.getBE().getInteractionType().trades() && this.changeInTrades()))
 				.build());
 		this.acceptChangesButton.visible = false;
+
+		this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(-20,98))
+				.pressAction(() -> this.changeScroll(-1))
+				.icon(IconUtil.ICON_LEFT)
+				.addon(EasyAddonHelper.activeCheck(() -> this.scroll > 0))
+				.addon(EasyAddonHelper.visibleCheck(this::isScrollRelevant))
+				.build());
+
+		this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width,98))
+				.pressAction(() -> this.changeScroll(1))
+				.icon(IconUtil.ICON_RIGHT)
+				.addon(EasyAddonHelper.activeCheck(() -> this.scroll < this.getMaxScroll() && this.getMaxScroll() > 0))
+				.addon(EasyAddonHelper.visibleCheck(this::isScrollRelevant))
+				.build());
 
 	}
 
@@ -90,18 +117,19 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			return new ArrayList<>();
 
 		//Get last result
+		TradeReference tradeReference = this.getTradeReference();
+		if(tradeReference == null)
+			return new ArrayList<>();
 		List<Component> list = new ArrayList<>();
-		TradeResult result = this.menu.getBE().mostRecentTradeResult();
+		TradeResult result = tradeReference.getLastResult();
 		Component message = result.getMessage();
 		if(message != null)
 			list.add(message);
 
-		if(this.menu.getBE().getInteractionType().trades)
+		if(this.menu.getBE().getInteractionType().trades())
 		{
-			TradeData referencedTrade = this.menu.getBE().getReferencedTrade();
-			TradeData trueTrade = this.menu.getBE().getTrueTrade();
-			if(referencedTrade == null)
-				return new ArrayList<>();
+			TradeData referencedTrade = tradeReference.getLocalTrade();
+			TradeData trueTrade = tradeReference.getTrueTrade();
 			if(trueTrade == null)
 			{
 				list.add(LCText.GUI_TRADE_DIFFERENCE_MISSING.getWithStyle(ChatFormatting.RED));
@@ -118,16 +146,48 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			list.addAll(trueTrade.GetDifferenceWarnings(differences));
 			return list;
 		}
-		else if(this.menu.getBE().getInteractionType().requiresPermissions)
-		{
-			TraderData trader = this.menu.getBE().getTrader();
-			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
-			{
-				list.add(LCText.GUI_INTERFACE_INFO_MISSING_PERMISSIONS.getWithStyle(ChatFormatting.RED));
-			}
-		}
 		return list;
 	}
+
+	private TradeContext getTradeContext() {
+		TraderInterfaceBlockEntity be = this.menu.getBE();
+		TraderData trader =	be.targets.getTrader();
+		if(trader == null)
+			return null;
+		return be.getTradeContext(trader);
+	}
+
+	@Nullable
+	private TradeReference getTradeReference()
+	{
+		TraderInterfaceBlockEntity be = this.menu.getBE();
+		if(be.getInteractionType().trades())
+		{
+			List<TradeReference> trades = be.targets.getTradeReferences();
+			this.validateScroll();
+			if(this.scroll < 0 || this.scroll >= trades.size())
+				return null;
+			return trades.get(this.scroll);
+		}
+		else
+			return null;
+	}
+
+	@Nullable
+	private TradeData getReferencedTrade()
+	{
+		TradeReference tradeReference = this.getTradeReference();
+		return tradeReference == null ? null : tradeReference.getLocalTrade();
+	}
+
+	@Nullable
+	private TradeData getTrueTrade()
+	{
+		TradeReference tradeReference = this.getTradeReference();
+		return tradeReference == null ? null : tradeReference.getTrueTrade();
+	}
+
+	public boolean isScrollRelevant() { return this.menu.getBE().getInteractionType().trades() && this.menu.getBE().getSelectableCount() > 1; }
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
@@ -138,64 +198,85 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		//Block name
 		gui.drawString(this.menu.getBE().getBlockState().getBlock().getName(), 8, 6, 0x404040);
 		//Trader name
-		TraderData trader = this.menu.getBE().getTrader();
-		Component infoText;
-		if(trader != null)
-			infoText = trader.getTitle();
+		TraderInterfaceBlockEntity be = this.menu.getBE();
+		if(be.getInteractionType().targetsTraders())
+		{
+			//Render list of trader names
+			List<TraderData> traders = be.targets.getTraders();
+			MutableComponent traderNames = EasyText.empty();
+			if(traders.isEmpty())
+				traderNames = LCText.GUI_INTERFACE_INFO_TRADER_NULL.get();
+			else
+			{
+				for(TraderData trader : traders)
+				{
+					if(traderNames.getString().isEmpty())
+						traderNames.append(trader.getTitle());
+					else
+						traderNames.append(LCText.GUI_SEPERATOR.get()).append(trader.getTitle());
+				}
+			}
+			List<FormattedCharSequence> lines = gui.font.split(traderNames,this.screen.getXSize() - 40);
+			for(int y = 0; y < lines.size() && y < 8; ++y)
+				gui.drawString(lines.get(y),8,38 + 10 * y,0x404040);
+		}
 		else
 		{
-			if(this.menu.getBE().hasTrader())
-				infoText = LCText.GUI_INTERFACE_INFO_TRADER_REMOVED.getWithStyle(ChatFormatting.RED);
+			//Trader Title
+			TraderData trader = be.targets.getTrader();
+			Component traderName;
+			if(trader != null)
+				traderName = trader.getTitle();
 			else
-				infoText = LCText.GUI_INTERFACE_INFO_TRADER_NULL.get();
-		}
-		gui.drawString(TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), 8, 16, 0x404040);
+				traderName = LCText.GUI_INTERFACE_INFO_TRADER_NULL.get();
+			gui.drawString(TextRenderUtil.fitString(traderName, this.screen.getXSize() - 16), 8, 16, 0x404040);
 
-		this.tradeDisplay.visible = this.menu.getBE().getInteractionType().trades;
-		this.newTradeDisplay.visible = this.tradeDisplay.visible && this.changeInTrades();
-		this.acceptChangesButton.visible = this.newTradeDisplay.visible;
+			//Bank Account
+			IBankAccount account = this.menu.getBE().getBankAccount();
+			if(account != null)
+			{
+				Component accountName = TextRenderUtil.fitString(account.getName(), 160);
+				gui.drawString(accountName, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(accountName) / 2), 120, 0x404040);
+				Component balanceText = account.getBalanceText();
+				gui.drawString(balanceText, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(balanceText) / 2), 130, 0x404040);
+			}
 
-		if(this.tradeDisplay.visible)
-		{
-			//If no defined trade, give "No Trade Selected" message.
-			if(this.menu.getBE().getReferencedTrade() == null)
-				gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_NOT_DEFINED.get(), 6, 40, 0x404040);
-		}
-		if(this.newTradeDisplay.visible)
-		{
-			//Render the down arrow
-			gui.resetColor();
-			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
+			//If no trader is selected,no warnings or trade comparisons to draw
+			if(trader == null)
+				return;
 
-			//If no found trade, give "Trade No Longer Exists" message.
-			if(this.menu.getBE().getTrueTrade() == null)
-				gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_MISSING.getWithStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
+			//Trade Comparisons
+			if(this.changeInTrades())
+			{
+				//Render the down arrow
+				gui.resetColor();
+				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
 
-		}
+				//If no found trade, give "Trade No Longer Exists" message.
+				if(this.getTrueTrade() == null)
+					gui.drawString(LCText.GUI_INTERFACE_INFO_TRADE_MISSING.getWithStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
+			}
 
-		IBankAccount account = this.menu.getBE().getBankAccount();
-		if(account != null && this.menu.getBE().getInteractionType().trades)
-		{
-			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
-			gui.drawString(accountName, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(accountName) / 2), 120, 0x404040);
-			Component balanceText = account.getBalanceText();
-			gui.drawString(balanceText, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(balanceText) / 2), 130, 0x404040);
-		}
+			//Warnings
+			if(!this.getWarningMessages().isEmpty())
+			{
+				//Render warning widget
+				RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
+				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+				gui.resetColor();
+				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
+			}
 
-		if(!this.getWarningMessages().isEmpty())
-		{
-			//Render warning widget
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			gui.resetColor();
-			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
 		}
 
 	}
 
 	public boolean changeInTrades() {
-		TradeData referencedTrade = this.menu.getBE().getReferencedTrade();
-		TradeData trueTrade = this.menu.getBE().getTrueTrade();
+		TradeReference tradeReference = this.getTradeReference();
+		if(tradeReference == null)
+			return false;
+		TradeData referencedTrade = tradeReference.getLocalTrade();
+		TradeData trueTrade = tradeReference.getTrueTrade();
 		if(referencedTrade == null)
 			return false;
 		if(trueTrade == null)
@@ -223,8 +304,17 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		this.commonTab.changeInteractionType(newType);
 	}
 
-	private void AcceptTradeChanges(EasyButton button) {
-		this.commonTab.acceptTradeChanges();
-	}
+	private void AcceptTradeChanges() { this.commonTab.acceptTradeChanges(this.scroll); }
+
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) { this.scroll = newScroll; }
+
+	private void changeScroll(int delta) { this.setScroll(this.scroll + delta); this.validateScroll(); }
+
+	@Override
+	public int getMaxScroll() { return Math.max(0,this.menu.getBE().targets.getTradeReferences().size() - 1); }
 
 }

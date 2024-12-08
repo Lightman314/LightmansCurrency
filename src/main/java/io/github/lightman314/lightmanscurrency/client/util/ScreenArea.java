@@ -26,6 +26,9 @@ public final class ScreenArea {
         this.height = height;
     }
 
+    public int centerX() { return this.x + this.width / 2; }
+    public int centerY() { return this.y + this.height / 2; }
+
     public static ScreenArea of(int x, int y, int width, int height) { return of(ScreenPosition.of(x,y),width,height); }
     public static ScreenArea of(ScreenPosition position, int width, int height) { return new ScreenArea(position, width, height); }
 

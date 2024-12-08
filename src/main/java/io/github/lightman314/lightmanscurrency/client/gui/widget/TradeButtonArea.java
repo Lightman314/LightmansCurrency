@@ -7,6 +7,7 @@ import java.util.function.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -29,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -74,6 +76,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	private boolean renderNameOnly = false;
 	private ScreenArea searchBoxArea = ScreenArea.of(ScreenPosition.ZERO,90,12);
 
+	private final BiFunction<TraderData,TradeData,List<Component>> extraTooltips;
+
 	/**
 	 * @deprecated Use {@link Builder#title(ScreenPosition, int, boolean)} instead
 	 */
@@ -105,6 +109,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		this.getContext = builder.context;
 		this.onPress = builder.pressAction;
 		this.tradeFilter = builder.tradeFilter;
+		this.extraTooltips = builder.extraTooltips;
 
 		//Font Collection
 		Minecraft mc = Minecraft.getInstance();
@@ -325,6 +330,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 					.pressAction(() -> this.OnTraderPress(di))
 					.context(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()))
 					.trade(() -> this.getTradeAndTrader(di).getSecond())
+					.selectedState(this.isSelected)
+					.extraTooltips(this.extraTooltips)
 					.build());
 			this.allButtons.add(newButton);
 		}
@@ -392,7 +399,6 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					button.setPosition(this.getPosition().offset(xOffset, yOffset));
 					button.visible = true;
-					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
 					xOffset += trade.getSecond().getButtonRenderer().tradeButtonWidth(context) + spacing;
 
 				} else
@@ -505,6 +511,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		BiFunction<TraderData,TradeData,Boolean> selectionTrigger = (t,d) -> false;
 		@Nullable
 		TradeInteractionHandler interactionHandler = null;
+		BiFunction<TraderData,TradeData,List<Component>> extraTooltips = (a,b) -> null;
 
 		public Builder traderSource(Supplier<ITraderSource> source) { this.traderSource = source; return this; }
 		public Builder context(Supplier<TradeContext> contextSource) { return this.context(t -> contextSource.get()); }
@@ -522,7 +529,11 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		public Builder scrollBarHeight(int height) { this.scrollBarHeight = height; return this; }
 		public Builder selectedState(BiFunction<TraderData,TradeData,Boolean> selectedState) { this.selectionTrigger = selectedState; return this; }
 		public Builder interactionHandler(TradeInteractionHandler handler) { this.interactionHandler = handler; return this; }
-
+		public Builder extraTooltips(Component tooltip) { this.extraTooltips = (a, b) -> ImmutableList.of(tooltip); return this;}
+		public Builder extraTooltips(TextEntry tooltip) { this.extraTooltips = (a, b) -> tooltip.getAsList(); return this;}
+		public Builder extraTooltips(List<Component> tooltip) { this.extraTooltips = (a, b) -> tooltip; return this;}
+		public Builder extraTooltips(Supplier<List<Component>> tooltip) { this.extraTooltips = (a, b) -> tooltip.get(); return this; }
+		public Builder extraTooltips(BiFunction<TraderData,TradeData,List<Component>> tooltip) { this.extraTooltips = tooltip; return this; }
 
 		public TradeButtonArea build() { return new TradeButtonArea(this); }
 

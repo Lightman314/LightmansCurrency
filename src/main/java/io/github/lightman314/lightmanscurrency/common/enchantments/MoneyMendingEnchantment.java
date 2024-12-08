@@ -66,7 +66,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 		{
 			//If we failed to get a vanilla entry, check the curios slots (if applicable)
 			if(LCCurios.isLoaded())
-				item = LCCurios.getRandomItem(entity,i -> EnchantmentHelper.getEnchantments(i).containsKey(ModEnchantments.MONEY_MENDING.get()));
+				item = LCCurios.getRandomItem(entity,s -> s.isDamaged() && EnchantmentHelper.getEnchantments(s).containsKey(ModEnchantments.MONEY_MENDING.get()));
 			else
 				item = null;
 		}

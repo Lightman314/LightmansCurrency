@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 public class LCText {
 
@@ -115,6 +116,9 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_NETWORK = TextEntry.item(ModItems.NETWORK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_VOID = TextEntry.item(ModItems.VOID_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_HOPPER = TextEntry.item(ModItems.HOPPER_UPGRADE);
+    public static final TextEntry ITEM_UPGRADE_INTERACTION_1 = TextEntry.item(ModItems.INTERACTION_UPGRADE_1);
+    public static final TextEntry ITEM_UPGRADE_INTERACTION_2 = TextEntry.item(ModItems.INTERACTION_UPGRADE_2);
+    public static final TextEntry ITEM_UPGRADE_INTERACTION_3 = TextEntry.item(ModItems.INTERACTION_UPGRADE_3);
     public static final TextEntry ITEM_UPGRADE_COIN_EXCHANGE = TextEntry.item(ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_MAGNET_1 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
     public static final TextEntry ITEM_UPGRADE_MAGNET_2 = TextEntry.item(ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
@@ -331,6 +335,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_UPGRADE_TRADE_OFFER = TextEntry.tooltip(MODID,"upgrade.trade_offer");
     public static final TextEntry TOOLTIP_UPGRADE_ITEM_CAPACITY = TextEntry.tooltip(MODID,"upgrade.item_capacity");
     public static final TextEntry TOOLTIP_UPGRADE_SPEED = TextEntry.tooltip(MODID,"upgrade.speed");
+    public static final TextEntry TOOLTIP_UPGRADE_INTERACTION = TextEntry.tooltip(MODID,"upgrade.interaction");
     public static final TextEntry TOOLTIP_UPGRADE_NETWORK = TextEntry.tooltip(MODID,"upgrade.network");
     public static final MultiLineTextEntry TOOLTIP_UPGRADE_VOID = MultiLineTextEntry.tooltip(MODID,"upgrade.void");
     public static final TextEntry TOOLTIP_UPGRADE_HOPPER = TextEntry.tooltip(MODID,"upgrade.hopper");
@@ -394,8 +399,8 @@ public class LCText {
     public static final TextEntry GUI_TEAM_SELECT = TextEntry.button(MODID,"team.select");
     public static final TextEntry GUI_TEAM_CREATE = TextEntry.gui(MODID,"team.create");
     public static final TextEntry TOOLTIP_TEAM_MEMBERS = TextEntry.tooltip(MODID,"team.members");
-    public static final TextEntry TOOLTIP_TEAM_MEMBER_EDIT = TextEntry.tooltip(MODID,"team.member_edit");
     public static final TextEntry BUTTON_TEAM_MEMBER_PROMOTE = TextEntry.button(MODID,"team.member.promote");
+    public static final TextEntry BUTTON_TEAM_MEMBER_DEMOTE = TextEntry.button(MODID,"team.member.demote");
     public static final TextEntry TOOLTIP_TEAM_BANK = TextEntry.tooltip(MODID,"team.bank");
     public static final TextEntry BUTTON_TEAM_BANK_CREATE = TextEntry.button(MODID,"team.bank.create");
     public static final TextEntry BUTTON_TEAM_BANK_LIMIT = TextEntry.button(MODID,"team.bank.limit");
@@ -575,6 +580,10 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_TRADE_RULES_TRADE = TextEntry.tooltip(MODID,"trader.trade_rules.trade");
     public static final TextEntry GUI_TRADER_NO_TRADES = TextEntry.gui(MODID,"notrades");
     public static final TextEntry TOOLTIP_TRADER_EDIT_TRADES = TextEntry.tooltip(MODID,"trader.edit_trades");
+    public static final TextEntry TOOLTIP_TRADER_SELECT_ALL_TRADES = TextEntry.tooltip(MODID,"trader.all_trades.select");
+    public static final TextEntry TOOLTIP_TRADER_DESELECT_ALL_TRADES = TextEntry.tooltip(MODID,"trader.all_trades.deselect");
+    public static final TextEntry TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED = TextEntry.tooltip(MODID,"trader.open_multi_edit.selected");
+    public static final TextEntry BUTTON_TRADER_SET_ALL_PRICES = TextEntry.button(MODID,"trader.set_all_prices");
     public static final TextEntry TOOLTIP_TRADER_LOGS = TextEntry.tooltip(MODID,"trader.log");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS = TextEntry.tooltip(MODID,"trader.settings");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_NAME = TextEntry.tooltip(MODID,"trader.settings.name");
@@ -613,6 +622,7 @@ public class LCText {
 
     //General Trade Tooltips
     public static final TextEntry TOOLTIP_TRADE_EDIT_PRICE = TextEntry.tooltip(MODID,"trade.edit_price");
+    public static final TextEntry TOOLTIP_TRADE_SELECT = TextEntry.tooltip(MODID,"trade.select");
     public static final TextEntry TOOLTIP_TRADE_INFO_TITLE = TextEntry.tooltip(MODID,"trade.info.title");
     public static final TextEntry TOOLTIP_TRADE_INFO_ORIGINAL_NAME = TextEntry.tooltip(MODID,"trade.info.original_name");
     public static final TextEntry TOOLTIP_TRADE_INFO_STOCK = TextEntry.tooltip(MODID,"trade.info.stock");
@@ -729,7 +739,14 @@ public class LCText {
     public static final TextEntry GUI_DEMAND_PRICING_INFO_INVALID_HOST = TextEntry.gui(MODID,"trade_rule.demand_pricing.info.invalid_host");
     public static final TextEntry GUI_DEMAND_PRICING_STOCK_SMALL = TextEntry.gui(MODID,"trade_rule.demand_pricing.small_stock");
     public static final TextEntry GUI_DEMAND_PRICING_STOCK_LARGE = TextEntry.gui(MODID,"trade_rule.demand_pricing.large_stock");
-
+    public static final TextEntry TRADE_RULE_DAILY_TRADES = TextEntry.tradeRule(DailyTrades.TYPE);
+    public static final TextEntry TRADE_RULE_DAILY_TRADES_ALLOWED = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"allowed");
+    public static final TextEntry TRADE_RULE_DAILY_TRADES_LOCKED_COMPLETE = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"locked.complete");
+    public static final TextEntry TRADE_RULE_DAILY_TRADES_LOCKED_WAITING = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"locked.waiting");
+    public static final TextEntry TRADE_RULE_DAILY_TRADES_LOCKED_NOT_NEXT = TextEntry.tradeRuleMessage(DemandPricing.TYPE,"locked.not_next");
+    public static final TextEntry BUTTON_DAILY_TRADES_RESET = TextEntry.button(MODID,"trade_rule.daily_trades.reset");
+    public static final TextEntry TOOLTIP_DAILY_TRADES_RESET = TextEntry.tooltip(MODID,"trade_rule.daily_trades.reset");
+    public static final TextEntry GUI_DAILY_TRADES_INFO = TextEntry.gui(MODID,"trade_rule.daily_trades.info");
 
     //Permissions
     public static final TextEntry PERMISSION_OPEN_STORAGE = TextEntry.permission(Permissions.OPEN_STORAGE);
@@ -862,10 +879,10 @@ public class LCText {
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(VersionUtil.lcResource("bank_deposit"));
-    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"),"server");
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(VersionUtil.modResource(MODID,"bank_deposit_or_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(VersionUtil.modResource(MODID,"bank_deposit"));
+    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.modResource(MODID,"bank_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.modResource(MODID,"bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
     //Ejection Notifications
     public static final TextEntry NOTIFICATION_EJECTION_ANARCHY = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"anarchy");
@@ -900,7 +917,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_MONEY = TextEntry.notification(PaygateNotification.TYPE,"money");
     public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE = TextEntry.notification(SlotMachineTradeNotification.TYPE);
     //Item Notification Parts
-    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.modResource(MODID,"items"),"format");
 
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");

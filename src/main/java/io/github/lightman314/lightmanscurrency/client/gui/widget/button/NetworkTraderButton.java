@@ -53,8 +53,10 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 			gui.setColor(0.5f,0.5f,0.5f);
 
 		int offset = 0;
-		if(this.isHovered || this.selected)
+		if(this.isHovered)
 			offset = HEIGHT;
+		if(this.selected)
+			offset += HEIGHT * 2;
 		//Draw Button BG
 		gui.blit(BUTTON_TEXTURES, 0,0, 0, offset, WIDTH, HEIGHT);
 

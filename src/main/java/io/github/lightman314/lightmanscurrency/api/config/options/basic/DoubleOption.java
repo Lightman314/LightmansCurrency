@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class DoubleOption extends ConfigOption<Double> {
@@ -26,9 +27,14 @@ public class DoubleOption extends ConfigOption<Double> {
     @Nonnull
     @Override
     protected ConfigParser<Double> getParser() { return this.parser; }
-    @Nullable
+
+    @Nonnull
     @Override
-    protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
+    protected List<String> bonusComments() {
+        return Lists.newArrayList(
+                "Range: " + this.lowerLimit + " -> " + this.upperLimit,
+                "Default: " + this.getDefaultValue());
+    }
 
     public static DoubleOption create(double defaultValue) { return new DoubleOption(() -> defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleOption create(double defaultValue, double lowerLimit) { return new DoubleOption(() -> defaultValue, lowerLimit, Double.MAX_VALUE); }

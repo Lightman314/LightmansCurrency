@@ -10,6 +10,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class ItemOption extends ConfigOption<Item> {
@@ -26,6 +27,10 @@ public class ItemOption extends ConfigOption<Item> {
 
     public static ItemOption create(@Nonnull Supplier<? extends ItemLike> defaultValue) { return new ItemOption(() -> defaultValue.get().asItem(),true); }
     public static ItemOption create(@Nonnull Supplier<? extends ItemLike> defaultValue, boolean allowAir) { return new ItemOption(() -> defaultValue.get().asItem(),allowAir); }
+
+    @Nullable
+    @Override
+    protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
 
     private static class Parser implements ConfigParser<Item>
     {

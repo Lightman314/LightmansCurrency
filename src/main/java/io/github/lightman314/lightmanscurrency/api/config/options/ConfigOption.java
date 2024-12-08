@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.config.options;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
@@ -27,6 +28,8 @@ public abstract class ConfigOption<T> implements Supplier<T> {
             LightmansCurrency.LogWarning("Attempted to define an options comments twice!");
     }
     private ConfigFile parent = null;
+    @Nullable
+    public final ConfigFile getFile() { return this.parent; }
     private String name = "null";
     @Nonnull
     public String getName() { return this.name; }
@@ -43,11 +46,8 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     }
     @Nonnull
     public final List<String> getComments() {
-        String c = this.bonusComment();
-        if(c == null)
-            return this.comments;
         List<String> cl = new ArrayList<>(this.comments);
-        cl.add(c);
+        cl.addAll(this.bonusComments());
         return cl;
     }
 
@@ -56,6 +56,14 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     private T syncedValue = null;
 
     protected ConfigOption(@Nonnull Supplier<T> defaultValue) { this.defaultValue = defaultValue; }
+
+    @Nonnull
+    protected List<String> bonusComments() {
+        String bonus = this.bonusComment();
+        if(bonus == null)
+            return new ArrayList<>();
+        return Lists.newArrayList(bonus);
+    }
 
     @Nullable
     protected String bonusComment() { return null; }

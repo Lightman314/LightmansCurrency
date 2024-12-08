@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.util.TriConsumer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -13,9 +14,12 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 
 public final class LazyPacketData {
 
@@ -151,6 +155,24 @@ public final class LazyPacketData {
         return defaultValue;
     }
 
+    public <T> List<T> getList(String key, BiFunction<LazyPacketData,String,T> reader) { return this.getList(key,new ArrayList<>(),reader); }
+    public <T> List<T> getList(String key, List<T> defaultValue, BiFunction<LazyPacketData,String,T> reader)
+    {
+        //Check if original key is present, as we set a flag with that key to confirm that the list was written
+        if(!this.contains(key))
+            return defaultValue;
+        List<T> list = new ArrayList<>();
+        int index = 0;
+        while(true)
+        {
+            String thisKey = key + "_" + index++;
+            if(this.contains(thisKey))
+                list.add(reader.apply(this,thisKey));
+            else
+                return list;
+        }
+    }
+
     public void encode(FriendlyByteBuf buffer)
     {
         //Write the entry count
@@ -223,6 +245,21 @@ public final class LazyPacketData {
         public Builder setItem(@Nonnull String key, ItemStack value) { this.data.put(key, Data.ofItem(value)); return this; }
         public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value)); return this; }
         public Builder setOwner(String key, Owner value) { this.data.put(key, Data.ofOwner(value)); return this; }
+
+        /**
+         * Addes a list to the data builder
+         * @param key The root key of the data entry. Will be present in the resulting data as a flag to make it easy to confirm this lists presence.
+         * @param list The list to write to the data builder
+         * @param writer The normal Builder#setDATA_TYPE method used to write the values to the builder, e.g. LazyPacketData.Builder::setInt for an integer list
+         */
+        public <T> Builder setList(@Nonnull String key, @Nonnull List<T> list, @Nonnull TriConsumer<Builder,String,T> writer)
+        {
+            //Set flag at original key to make it known that the list was written even if it's empty
+            this.setFlag(key);
+            for(int i = 0; i < list.size(); ++i)
+                writer.accept(this,key + "_" + i,list.get(i));
+            return this;
+        }
 
         @Override
         public String toString() {

@@ -195,79 +195,53 @@ public class Team implements ITeam {
 	@Override
 	public boolean isMember(@Nonnull UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
 
-	public void changeAddMember(Player requestor, String name) {
+	public void changePromoteMember(@Nonnull Player requestor, @Nonnull PlayerReference player)
+	{
 		if(!this.isAdmin(requestor))
 			return;
-		PlayerReference player = PlayerReference.of(false, name);
-		if(player == null)
+		//Cannot promote the admins as they're already at the highest level (including the owner as well)
+		if(this.isAdmin(player))
 			return;
-		//Add or remove the member
-		//Confirm that this player isn't already on a list
-		if(this.isMember(player.id))
-			return;
-		//Add the member
-		this.members.add(player);
+		if(this.isMember(player))
+		{
+			//Only the owner can promote members into admins
+			if(!this.isOwner(requestor))
+				return;
+			PlayerReference.removeFromList(this.members,player);
+			this.admins.add(player);
+		}
+		else
+			this.members.add(player);
 		this.markDirty();
 	}
-	public void changeAddAdmin(Player requestor, String name) {
-		if(!this.isAdmin(requestor))
+
+	public void changeDemoteMember(@Nonnull Player requestor, @Nonnull PlayerReference player)
+	{
+		boolean isSelf = player.is(requestor);
+		//Only admins can demote unless you're demoting yourself
+		if(!this.isAdmin(requestor) && !isSelf)
 			return;
-		PlayerReference player = PlayerReference.of(false, name);
-		if(player == null)
-			return;
-		//Add or remove the admin
-		//Check if the player is an admin. If they are demote them
-		if(this.isAdmin(player.id))
+		if(this.isAdmin(player))
 		{
-			//If the player is the owner, cannot do anything. Requires the owner transfer command
-			if(this.isOwner(player.id))
+			//Cannot demote the owner
+			if(this.isOwner(player))
 				return;
-			//Can only demote admins if owner or self
-			if(player.is(requestor) || this.isOwner(requestor))
-			{
-				//Remove them from the admin list
-				PlayerReference.removeFromList(this.admins, player);
-				//Add them as a member
-				this.members.add(player);
-				this.markDirty();
-			}
+			//Only the owner can demote admins
+			if(!this.isOwner(requestor) && !isSelf)
+				return;
+			PlayerReference.removeFromList(this.admins,player);
+			//Add to the top of the member list if demoted from admin
+			this.members.add(0,player);
+			this.markDirty();
 		}
-		//If the player is not already an admin, confirm that this is the owner promoting them and promote them to admin
-		else if(this.isOwner(requestor))
+		else if(this.isMember(player))
 		{
-			//Remove from the member list if making them an admin
-			if(this.isMember(player.id))
-				PlayerReference.removeFromList(this.members, player);
-			//Add to the admin list
-			this.admins.add(player);
+			//We've already checked if this is an admin or self requesting, so simply remove from the member list
+			PlayerReference.removeFromList(this.members,player);
 			this.markDirty();
 		}
 	}
-	public void changeRemoveMember(Player requestor, String name) {
-		PlayerReference player = PlayerReference.of(false, name);
-		if(player == null)
-			return;
-		if(!this.isAdmin(requestor) && !player.is(requestor))
-			return;
-		//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
-		if(!this.isMember(player.id))
-			return;
 
-		//Confirm that this player isn't an admin, and if they are, confirm that this is the owner or self
-		if(this.isAdmin(player.id) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(player)))
-			return;
-		//Cannot remove the owner, can only replace them with the Owner-transfer category.
-		if(this.isOwner(player.id))
-			return;
-
-		if(this.isAdmin(player.id))
-			PlayerReference.removeFromList(this.admins, player);
-		else
-			PlayerReference.removeFromList(this.members, player);
-
-		this.markDirty();
-
-	}
 	public void changeOwner(Player requestor, String name) {
 		if(!this.isOwner(requestor))
 			return;

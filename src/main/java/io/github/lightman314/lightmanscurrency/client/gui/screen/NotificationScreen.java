@@ -84,8 +84,8 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 				.rowCount(NOTIFICATIONS_PER_PAGE)
 				.notificationSource(this::getVisibleNotifications)
 				.showGeneral(this::isGeneralSelected)
+				.colorIfUnseen()
 				.build());
-		this.notificationDisplay.colorIfUnseen = true;
 		this.notificationDisplay.setDeletionHandler(this::deleteNotification,() -> !this.isGeneralSelected());
 
 		this.notificationScroller = this.addChild(ScrollBarWidget.builder()

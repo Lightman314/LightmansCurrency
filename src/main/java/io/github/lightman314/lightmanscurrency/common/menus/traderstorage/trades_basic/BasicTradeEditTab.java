@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.BasicTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -17,6 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BasicTradeEditTab extends TraderStorageTab implements IClientTracker {
 
 	public BasicTradeEditTab(TraderStorageMenu menu) { super(menu); }
@@ -25,17 +29,36 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 	public static final int INTERACTION_OUTPUT = 1;
 	public static final int INTERACTION_OTHER = 2;
 
+	private final List<Integer> selectedTrades = new ArrayList<>();
+	public int selectedCount() { return this.selectedTrades.size(); }
+	public boolean isSelected(@Nonnull TraderData trader, @Nonnull TradeData trade) { return this.allowTradeSelection() && this.selectedTrades.contains(trader.indexOfTrade(trade)); }
+	public boolean allTradesSelected()
+	{
+		TraderData trader = this.menu.getTrader();
+		return trader != null && trader.getTradeCount() == this.selectedTrades.size();
+	}
+
+	public boolean allowTradeSelection()
+	{
+		TraderData trader = this.menu.getTrader();
+		if(trader == null)
+			return false;
+		return trader.getTradeCount() > 1 && trader.hasPermission(this.menu.getPlayer(),Permissions.EDIT_TRADES);
+	}
+
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Object createClientTab(@Nonnull Object screen) { return new BasicTradeEditClientTab<>(screen, this); }
 
 	@Override
+	public void onTabClose() { this.selectedTrades.clear(); }
+
+	@Override
 	public boolean canOpen(Player player) { return true; }
 
 	public void sendOpenTabMessage(int newTab, @Nullable LazyPacketData.Builder additionalData) {
 		this.menu.ChangeTab(newTab,additionalData);
-		//this.tabChangeHandler.accept(newTab,additionalData);
 	}
 
 	public void SendInputInteractionMessage(int tradeIndex, int interactionIndex, @Nonnull TradeInteractionData data, ItemStack heldItem) {
@@ -65,6 +88,54 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 				.setInt("InteractionType", INTERACTION_OTHER)
 				.setItem("HeldItem", heldItem)
 		));
+	}
+
+	public void SelectAllTrades()
+	{
+		TraderData trader = this.menu.getTrader();
+		if(trader == null)
+			return;
+		if(!this.allowTradeSelection())
+			return;
+		int tradeCount = trader.getTradeCount();
+		//If all trades are already selected, deselect all trades
+		if(this.selectedTrades.size() == tradeCount)
+			this.selectedTrades.clear();
+		else
+		{
+			this.selectedTrades.clear();
+			for(int i = 0; i < tradeCount; ++i)
+				this.selectedTrades.add(i);
+		}
+		if(this.isClient())
+			this.menu.SendMessage(this.builder().setFlag("SelectAllTrades"));
+	}
+
+	public void ToggleTradeSelection(int tradeIndex)
+	{
+		//Cannot toggle an invalid index
+		if(tradeIndex < 0)
+			return;
+		if(!this.allowTradeSelection())
+			return;
+		if(this.selectedTrades.contains(tradeIndex))
+			this.selectedTrades.remove((Object)tradeIndex);
+		else
+			this.selectedTrades.add(tradeIndex);
+		if(this.isClient())
+			this.menu.SendMessage(this.builder().setInt("SelectTradeForEdit",tradeIndex));
+	}
+
+	public boolean canOpenMultiEdit() { return !this.selectedTrades.isEmpty(); }
+
+	public void OpenMultiEditTab()
+	{
+		if(!this.canOpenMultiEdit())
+			return;
+		if(this.isClient())
+			this.menu.SendMessage(this.builder().setFlag("OpenMultiEdit"));
+		else
+			this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_MULTI_PRICE, this.builder().setList("Selected",this.selectedTrades,LazyPacketData.Builder::setInt));
 	}
 
 	public void addTrade() {
@@ -103,7 +174,6 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 			TradeData trade = this.menu.getTrader().getTrade(tradeIndex);
 			TradeInteractionData data = TradeInteractionData.decode(message);
 
-
 			switch (interaction) {
 				case INTERACTION_INPUT ->
 						trade.OnInputDisplayInteraction(this, interactionIndex, data, heldItem);
@@ -123,6 +193,12 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 			this.addTrade();
 		if(message.contains("RemoveTrade"))
 			this.removeTrade();
+		if(message.contains("SelectTradeForEdit"))
+			this.ToggleTradeSelection(message.getInt("SelectTradeForEdit"));
+		if(message.contains("SelectAllTrades"))
+			this.SelectAllTrades();
+		if(message.contains("OpenMultiEdit"))
+			this.OpenMultiEditTab();
 	}
 
 }

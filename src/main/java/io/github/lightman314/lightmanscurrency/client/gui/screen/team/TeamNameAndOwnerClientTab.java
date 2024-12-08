@@ -96,7 +96,7 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
         if(team == null)
             return;
 
-        gui.drawString(LCText.GUI_TEAM_NAME_CURRENT.get(team.getName()), 20, 10, 0x404040);
+        gui.drawString(TextRenderUtil.fitString(LCText.GUI_TEAM_NAME_CURRENT.get(team.getName()),this.screen.getXSize() - 30), 20, 10, 0x404040);
 
         if(team.isOwner(this.menu.player))
         {

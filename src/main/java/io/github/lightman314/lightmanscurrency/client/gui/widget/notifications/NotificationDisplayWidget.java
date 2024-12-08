@@ -39,8 +39,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 	private final Supplier<Boolean> showGeneralMessage;
 	private final Supplier<List<Notification>> notificationSource;
 	private final int rowCount;
-	public boolean colorIfUnseen = false;
-	public int backgroundColor = 0xFFC6C6C6;
+	private final boolean colorIfUnseen;
 
 	public static int CalculateHeight(int rowCount) { return rowCount * HEIGHT_PER_ROW; }
 
@@ -65,6 +64,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		this.notificationSource = builder.source;
 		this.showGeneralMessage = builder.showGeneral;
 		this.rowCount = builder.rowCount;
+		this.colorIfUnseen = builder.colorIfUnseen;
 	}
 
 	@Override
@@ -103,8 +103,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		int index = this.scroll;
 
 		boolean deletingEnabled = this.canDelete.get();
-
-		gui.fill(0, 0, this.width, this.height, this.backgroundColor);
 
 		for(int y = 0; y < this.rowCount && index < notifications.size(); ++y)
 		{
@@ -219,6 +217,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		private int rowCount = 1;
 		private Supplier<List<Notification>> source = ImmutableList::of;
 		private Supplier<Boolean> showGeneral = () -> false;
+		private boolean colorIfUnseen = false;
 
 		public Builder width(int width) { this.changeWidth(width); return this; }
 		public Builder rowCount(int rowCount) { this.rowCount = rowCount; this.changeHeight(CalculateHeight(this.rowCount)); return this; }
@@ -226,6 +225,8 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		public Builder notificationSource(@Nonnull Supplier<List<Notification>> source) { this.source = source; return this; }
 
 		public Builder showGeneral(@Nonnull Supplier<Boolean> showGeneral) { this.showGeneral = showGeneral; return this; }
+
+		public Builder colorIfUnseen() { this.colorIfUnseen = true; return this; }
 
 		public NotificationDisplayWidget build() { return new NotificationDisplayWidget(this); }
 

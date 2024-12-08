@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import top.theillusivec4.curios.api.CuriosDataProvider;
@@ -29,7 +28,7 @@ public class LCCuriosProvider extends CuriosDataProvider {
                 .size(1);
 
         this.createEntities("lightmanscurrency_default_slots")
-                .addEntities(EntityType.PLAYER)
+                .addPlayer()
                 .addSlots("wallet","charm");
 
     }

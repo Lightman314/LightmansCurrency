@@ -40,7 +40,6 @@ public class LogTab extends ATMTab{
 				.rowCount(6)
 				.notificationSource(this::getNotifications)
 				.build());
-		this.logWidget.backgroundColor = 0;
 
 	}
 

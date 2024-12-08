@@ -14,12 +14,14 @@ public class ClientPlayerNameCache {
     private static final List<String> sentIDRequests = new ArrayList<>();
 
     @Nullable
-    public static String lookupName(@Nonnull UUID playerID)
+    public static String lookupName(@Nonnull UUID playerID) { return lookupName(playerID,true); }
+    @Nullable
+    public static String lookupName(@Nonnull UUID playerID, boolean sendDataRequest)
     {
         if(cache.containsKey(playerID))
             return cache.get(playerID);
         //Send name request to the server if we haven't already
-        if(!sentNameRequests.contains(playerID))
+        if(sendDataRequest && !sentNameRequests.contains(playerID))
         {
             sentNameRequests.add(playerID);
             new CPacketRequestName(playerID).send();
@@ -28,7 +30,9 @@ public class ClientPlayerNameCache {
     }
 
     @Nullable
-    public static UUID lookupID(@Nonnull String playerName)
+    public static UUID lookupID(@Nonnull String playerName) { return lookupID(playerName,true); }
+    @Nullable
+    public static UUID lookupID(@Nonnull String playerName, boolean sendDataRequest)
     {
         for(Map.Entry<UUID,String> entry : cache.entrySet())
         {
@@ -37,7 +41,7 @@ public class ClientPlayerNameCache {
                 return entry.getKey();
         }
         //Send ID request to the server if we haven't already
-        if(!sentIDRequests.contains(playerName))
+        if(sendDataRequest && !sentIDRequests.contains(playerName))
         {
             sentIDRequests.add(playerName);
             new CPacketRequestID(playerName).send();

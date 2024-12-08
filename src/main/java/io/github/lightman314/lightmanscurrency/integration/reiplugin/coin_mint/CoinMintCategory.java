@@ -57,7 +57,7 @@ public final class CoinMintCategory implements DisplayCategory<CoinMintDisplay> 
                 .markOutput());
 
         //Animated Arrow
-        widgets.add(Widgets.createArrow(new Point(startPoint.x + 24, startPoint.y + 4))
+        widgets.add(new CoinMintArrow(new Point(startPoint.x + 25,startPoint.y + 5))
                 .animationDurationTicks(display.recipe.getDuration()));
 
         if(!display.recipe.allowed())

@@ -2,14 +2,17 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
@@ -19,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -48,6 +52,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	}
 	private final Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
+	private final BiFunction<TraderData,TradeData,Boolean> isSelected;
+	private final BiFunction<TraderData,TradeData,List<Component>> extraTooltips;
 
 	private final boolean displayOnly;
 
@@ -57,6 +63,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		this.tradeSource = builder.trade;
 		this.contextSource = builder.context;
 		this.displayOnly = builder.displayOnly;
+		this.isSelected = builder.isSelected;
+		this.extraTooltips = builder.extraTooltips;
 		this.recalculateSize();
 	}
 
@@ -84,15 +92,18 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			return;
 
 		TradeContext context = this.getContext();
+		if(context == null)
+			return;
 
+		boolean selected = this.isSelected.apply(context.getTrader(),tr.trade);
 		boolean hovered = !context.isStorageMode && !this.displayOnly && this.isHovered;
 
 		this.recalculateSize();
 
-		this.renderBackground(gui,hovered);
+		this.renderBackground(gui,hovered,selected);
 
 		LazyOptional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
-		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(gui, arrowPos, hovered));
+		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(gui,arrowPos,hovered,selected));
 
 		//Render custom display stuff in front of the arrow, not behind it.
 		try { tr.renderAdditional(this, gui, context);
@@ -106,7 +117,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 	}
 
-	private void renderBackground(@Nonnull EasyGuiGraphics gui, boolean isHovered)
+	private void renderBackground(@Nonnull EasyGuiGraphics gui, boolean isHovered, boolean selected)
 	{
 		if(this.width < 8)
 		{
@@ -119,6 +130,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			gui.setColor(0.5f,0.5f,0.5f);
 
 		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
+		if(selected)
+			vOffset += 2 * BUTTON_HEIGHT;
 
 		//Render the left
 		gui.blit(GUI_TEXTURE, 0, 0, 0, vOffset, 4, BUTTON_HEIGHT);
@@ -135,7 +148,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 	}
 
-	private void renderArrow(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, boolean isHovered)
+	private void renderArrow(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, boolean isHovered, boolean selected)
 	{
 
 		if(this.active)
@@ -143,7 +156,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
 
-		int vOffset = isHovered ? ARROW_HEIGHT : 0;
+		int vOffset = isHovered || selected ? ARROW_HEIGHT : 0;
 
 		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
 
@@ -180,11 +193,17 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			return;
 
 		TradeContext context = this.getContext();
+		if(context == null)
+			return;
 
 		int mouseX = gui.mousePos.x;
 		int mouseY = gui.mousePos.y;
 
 		List<Component> tooltips = new ArrayList<>();
+
+		List<Component> extra = this.extraTooltips.apply(context.getTrader(),tr.trade);
+		if(extra != null && !extra.isEmpty())
+			tooltips.addAll(extra);
 
 		this.tryAddTooltip(tooltips, tr.getAdditionalTooltips(context, mouseX - this.getX(), mouseY - this.getY()));
 
@@ -334,11 +353,19 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		Supplier<TradeContext> context = () -> null;
 		Supplier<TradeData> trade = () -> null;
 		boolean displayOnly = false;
+		BiFunction<TraderData,TradeData,Boolean> isSelected = (a,b) -> false;
+		BiFunction<TraderData,TradeData,List<Component>> extraTooltips = (a,b) -> null;
 
 		public Builder context(Supplier<TradeContext> context) { this.context = context; return this; }
 		public Builder trade(TradeData trade) { return this.trade(() -> trade); }
 		public Builder trade(Supplier<TradeData> trade) { this.trade = trade; return this; }
 		public Builder displayOnly() { this.displayOnly = true; return this; }
+		public Builder selectedState(BiFunction<TraderData,TradeData,Boolean> isSelected) { this.isSelected = isSelected; return this; }
+		public Builder extraTooltips(Component tooltip) { this.extraTooltips = (a,b) -> ImmutableList.of(tooltip); return this;}
+		public Builder extraTooltips(TextEntry tooltip) { this.extraTooltips = (a, b) -> tooltip.getAsList(); return this;}
+		public Builder extraTooltips(List<Component> tooltip) { this.extraTooltips = (a, b) -> tooltip; return this;}
+		public Builder extraTooltips(Supplier<List<Component>> tooltip) { this.extraTooltips = (a, b) -> tooltip.get(); return this; }
+		public Builder extraTooltips(BiFunction<TraderData,TradeData,List<Component>> tooltip) { this.extraTooltips = tooltip; return this; }
 
 		public TradeButton build() { return new TradeButton(this); }
 

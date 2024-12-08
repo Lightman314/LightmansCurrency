@@ -118,21 +118,19 @@ public class PlayerListing extends TradeRule {
 
     @Override
     protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
-        if(updateInfo.contains("Add"))
+        if(updateInfo.contains("AddPlayer"))
         {
-            boolean add = updateInfo.getBoolean("Add");
-            String name = updateInfo.getString("Name");
-            PlayerReference player = PlayerReference.of(false, name);
-            if(player == null)
+            PlayerReference player = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
+            if(player == null || this.isInList(player))
                 return;
-            if(add && !this.isInList(player))
-            {
-                this.playerList.add(player);
-            }
-            else if(!add && this.isInList(player))
-            {
-                PlayerReference.removeFromList(this.playerList, player);
-            }
+            this.playerList.add(player);
+        }
+        if(updateInfo.contains("RemovePlayer"))
+        {
+            PlayerReference player = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
+            if(player == null || !this.isInList(player))
+                return;
+            PlayerReference.removeFromList(this.playerList,player);
         }
         if(updateInfo.contains("ChangeMode"))
         {

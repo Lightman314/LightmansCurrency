@@ -123,6 +123,11 @@ public class ModItems {
 		//Hopper Upgrade
 		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(Upgrades.HOPPER, new Item.Properties()));
 
+		//Selection Upgrade
+		INTERACTION_UPGRADE_1 = ModRegistries.ITEMS.register("interaction_upgrade_1", () -> new InteractionUpgradeItem(new Item.Properties(),LCConfig.SERVER.interactionUpgrade1));
+		INTERACTION_UPGRADE_2 = ModRegistries.ITEMS.register("interaction_upgrade_2", () -> new InteractionUpgradeItem(new Item.Properties(),LCConfig.SERVER.interactionUpgrade2));
+		INTERACTION_UPGRADE_3 = ModRegistries.ITEMS.register("interaction_upgrade_3", () -> new InteractionUpgradeItem(new Item.Properties(),LCConfig.SERVER.interactionUpgrade3));
+
 		//Coin Chest Upgrades
 		COIN_CHEST_EXCHANGE_UPGRADE = ModRegistries.ITEMS.register("coin_chest_exchange_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_EXCHANGE, new Item.Properties()));
 		COIN_CHEST_MAGNET_UPGRADE_1 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_1", () -> new MagnetUpgradeItem(LCConfig.SERVER.coinChestMagnetRange1, new Item.Properties()));
@@ -208,6 +213,10 @@ public class ModItems {
 	public static final RegistryObject<Item> VOID_UPGRADE;
 
 	public static final RegistryObject<Item> HOPPER_UPGRADE;
+
+	public static final RegistryObject<Item> INTERACTION_UPGRADE_1;
+	public static final RegistryObject<Item> INTERACTION_UPGRADE_2;
+	public static final RegistryObject<Item> INTERACTION_UPGRADE_3;
 
 	public static final RegistryObject<Item> COIN_CHEST_EXCHANGE_UPGRADE;
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_1;

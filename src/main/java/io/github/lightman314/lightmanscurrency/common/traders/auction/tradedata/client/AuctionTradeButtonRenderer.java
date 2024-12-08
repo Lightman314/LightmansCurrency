@@ -15,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -70,7 +68,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         List<DisplayEntry> entries = new ArrayList<>();
         for (ItemStack item : this.trade.getAuctionItems()) {
             if (!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount(), Screen.getTooltipFromItem(Minecraft.getInstance(), item)));
+                entries.add(DisplayEntry.of(item, item.getCount()));
         }
         return entries;
     }

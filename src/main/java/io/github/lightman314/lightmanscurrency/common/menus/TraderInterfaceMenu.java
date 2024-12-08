@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -62,8 +63,8 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 
 	}
 
-	public TradeContext getTradeContext() {
-		return this.blockEntity.getTradeContext();
+	public TradeContext getTradeContext(@Nonnull TraderData trader) {
+		return this.blockEntity.getTradeContext(trader);
 	}
 
 	@Nonnull

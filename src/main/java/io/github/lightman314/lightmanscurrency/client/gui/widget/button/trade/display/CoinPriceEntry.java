@@ -26,12 +26,12 @@ public class CoinPriceEntry extends DisplayEntry {
 
     private static List<Component> getTooltip(@Nonnull MoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
         List<Component> tooltips = new ArrayList<>();
+        if(additionalTooltips != null)
+            tooltips.addAll(additionalTooltips);
         if(tooltipOverride && additionalTooltips != null)
             return additionalTooltips;
         if(!price.isFree() && !price.isEmpty())
             tooltips.add(price.getText());
-        if(additionalTooltips != null)
-            tooltips.addAll(additionalTooltips);
         return tooltips;
     }
 
@@ -48,7 +48,7 @@ public class CoinPriceEntry extends DisplayEntry {
                 int left = this.getTopLeft(x + pos.xOffset(), pos.width());
                 int top = this.getTopLeft(y + pos.yOffset(), pos.height());
                 ItemStack stack = new ItemStack(entries.get(i).coin);
-                stack.setCount((int)entries.get(i).amount);
+                stack.setCount(entries.get(i).amount);
                 gui.renderItem(stack, left, top);
             }
         }
@@ -61,7 +61,7 @@ public class CoinPriceEntry extends DisplayEntry {
             for(int i = entries.size() - 1; i >= 0; --i)
             {
                 ItemStack stack = new ItemStack(entries.get(i).coin);
-                stack.setCount((int)entries.get(i).amount);
+                stack.setCount(entries.get(i).amount);
                 gui.renderItem(stack, left, top);
                 left -= spacing;
             }
