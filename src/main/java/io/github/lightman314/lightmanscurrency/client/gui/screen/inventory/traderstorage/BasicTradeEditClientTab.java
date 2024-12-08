@@ -82,7 +82,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.position(screenArea.pos.offset(screenArea.width,0))
 				.pressAction(this.commonTab::SelectAllTrades)
 				.icon(this::selectAllIcon)
-				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasPermission(Permissions.EDIT_TRADES)))
+				.addon(EasyAddonHelper.visibleCheck(this.commonTab::allowTradeSelection))
 				.addon(EasyAddonHelper.tooltip(this::selectAllTooltip))
 				.build());
 
@@ -91,7 +91,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.pressAction(this.commonTab::OpenMultiEditTab)
 				.icon(IconUtil.ICON_TRADER_ALT)
 				.addon(EasyAddonHelper.activeCheck(this.commonTab::canOpenMultiEdit))
-				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasPermission(Permissions.EDIT_TRADES)))
+				.addon(EasyAddonHelper.visibleCheck(this.commonTab::allowTradeSelection))
 				.addon(EasyAddonHelper.tooltip(this::multiEditTooltip))
 				.build());
 
@@ -122,7 +122,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	private List<Component> tradeSelectTooltip()
 	{
-		if(this.menu.hasPermission(Permissions.EDIT_TRADES))
+		if(this.commonTab.allowTradeSelection())
 			return Lists.newArrayList(LCText.TOOLTIP_TRADE_SELECT.getWithStyle(ChatFormatting.YELLOW));
 		return null;
 	}

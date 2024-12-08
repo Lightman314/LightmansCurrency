@@ -54,11 +54,11 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
         List<DisplayEntry> entries = new ArrayList<>();
         String odds = this.trade.trader.getOdds(entry.getWeight());
         for(ItemStack item : entry.items)
-            entries.add(DisplayEntry.of(item, item.getCount(), this.tweakTooltip(item, entry.getWeight(), odds)));
+            entries.add(DisplayEntry.of(item, item.getCount(), this.tweakTooltip(entry.getWeight(), odds)));
         return entries;
     }
 
-    private Consumer<List<Component>> tweakTooltip(ItemStack stack, int weight, String odds)
+    private Consumer<List<Component>> tweakTooltip(int weight, String odds)
     {
         return tooltips -> {
             tooltips.addFirst(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));

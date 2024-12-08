@@ -778,7 +778,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			ItemStack stack = this.getUpgrades().getItem(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+				if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() == Upgrades.ITEM_CAPACITY)
 					limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 			}
 		}

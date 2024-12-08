@@ -38,6 +38,14 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 		return trader != null && trader.getTradeCount() == this.selectedTrades.size();
 	}
 
+	public boolean allowTradeSelection()
+	{
+		TraderData trader = this.menu.getTrader();
+		if(trader == null)
+			return false;
+		return trader.getTradeCount() > 1 && trader.hasPermission(this.menu.getPlayer(),Permissions.EDIT_TRADES);
+	}
+
 	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -87,6 +95,8 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 		TraderData trader = this.menu.getTrader();
 		if(trader == null)
 			return;
+		if(!this.allowTradeSelection())
+			return;
 		int tradeCount = trader.getTradeCount();
 		//If all trades are already selected, deselect all trades
 		if(this.selectedTrades.size() == tradeCount)
@@ -105,6 +115,8 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 	{
 		//Cannot toggle an invalid index
 		if(tradeIndex < 0)
+			return;
+		if(!this.allowTradeSelection())
 			return;
 		if(this.selectedTrades.contains(tradeIndex))
 			this.selectedTrades.remove((Object)tradeIndex);

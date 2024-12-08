@@ -473,7 +473,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             ItemStack stack = this.getUpgrades().getItem(i);
             if(stack.getItem() instanceof UpgradeItem upgradeItem)
             {
-                if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+                if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() == Upgrades.ITEM_CAPACITY)
                     limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
             }
         }

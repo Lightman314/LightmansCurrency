@@ -736,6 +736,8 @@ public final class LCConfig {
             builder.comment("The amount of item storage added by the Item Capacity Upgrade (Netherite)")
                     .add("itemCapacity4", this.itemCapacityUpgrade4);
 
+            builder.pop().comment("Interaction Upgrade").push("interaction_upgrade");
+
             builder.comment("The amount of bonus selections added by the Interaction Upgrade (Emerald)")
                     .add("interactionCount1", this.interactionUpgrade1);
             builder.comment("The amount of bonus selections added by the Interaction Upgrade (Diamond)")

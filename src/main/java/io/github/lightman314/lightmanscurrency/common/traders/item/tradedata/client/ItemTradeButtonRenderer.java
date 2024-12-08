@@ -79,7 +79,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!item.isEmpty())
                 entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsListWithStyle(ChatFormatting.YELLOW)));
+                entries.add(this.makeEmptySlot(this.trade.getRestriction().getEmptySlotBG(),context));
         }
         return entries;
     }
@@ -126,9 +126,14 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!item.isEmpty())
                 entries.add(DisplayEntry.of(item, item.getCount(), this.getBarterTooltips(this.trade.getEnforceNBT(i + 2), context.isStorageMode, context), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
-                entries.add(DisplayEntry.of(EasySlot.BACKGROUND, LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsListWithStyle(ChatFormatting.YELLOW)));
+                entries.add(this.makeEmptySlot(EasySlot.BACKGROUND,context));
         }
         return entries;
+    }
+
+    private DisplayEntry makeEmptySlot(Pair<ResourceLocation,ResourceLocation> background, TradeContext context)
+    {
+        return DisplayEntry.of(background,this.hasPermission(context,Permissions.EDIT_TRADES) ? LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsListWithStyle(ChatFormatting.YELLOW) : null);
     }
 
     private Pair<ResourceLocation,ResourceLocation> getNBTHightlight(boolean enforceNBT) {
