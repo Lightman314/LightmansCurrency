@@ -333,7 +333,8 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	
 	@Override
 	protected boolean isValidClickButton(int button) {
-		if(this.getContext().isStorageMode || this.displayOnly)
+		TradeContext context = this.getContext();
+		if(context == null || context.isStorageMode || this.displayOnly)
 			return false;
 		return super.isValidClickButton(button);
 	}
