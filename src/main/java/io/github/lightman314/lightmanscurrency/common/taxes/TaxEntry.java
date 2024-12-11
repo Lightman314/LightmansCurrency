@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
@@ -259,7 +260,7 @@ public class TaxEntry implements ITaxCollector {
         this.id = id;
         if(core != null)
             this.center = WorldPosition.ofBE(core);
-        this.owner.SetOwner(PlayerOwner.of(owner));
+        this.owner.SetOwner(owner != null ? PlayerOwner.of(owner) : FakeOwner.of("NULL"));
     }
 
     public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
