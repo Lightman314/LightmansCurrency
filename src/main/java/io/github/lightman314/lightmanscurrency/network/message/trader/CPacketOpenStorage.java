@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +34,7 @@ public class CPacketOpenStorage extends ClientToServerPacket {
 			MenuValidator validator = SimpleValidator.NULL;
 			if(player.containerMenu instanceof IValidatedMenu tm)
 				validator = tm.getValidator();
-			TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+			TraderData trader = TraderAPI.API.GetTrader(false, message.traderID);
 			if(trader != null)
 				trader.openStorageMenu(player, validator);
 		}

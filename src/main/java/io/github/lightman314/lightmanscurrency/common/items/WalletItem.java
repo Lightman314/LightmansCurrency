@@ -477,7 +477,7 @@ public class WalletItem extends Item{
 			for(int i = 0; i < container.getContainerSize(); ++i)
 			{
 				ItemStack stack = container.getItem(i);
-				if(CoinAPI.API.IsCoin(stack, allowSideChain))
+				if(CoinAPI.API.IsAllowedInCoinContainer(stack, allowSideChain))
 				{
 					stack = PickupCoin(wallet, stack);
 					container.setItem(i, stack);

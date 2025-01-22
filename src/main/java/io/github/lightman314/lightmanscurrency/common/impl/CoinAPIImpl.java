@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.ICoinLike;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -59,6 +60,7 @@ public final class CoinAPIImpl extends CoinAPI {
 
     Map<String, ChainData> loadedChains = null;
     Map<ResourceLocation,ChainData> itemIdToChainMap = null;
+    private final List<Comparator<ItemStack>> customSorters = new ArrayList<>();
 
     private boolean setup = false;
 
@@ -401,6 +403,16 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
+    public boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(coin.getItem(),allowSideChains); }
+
+    @Override
+    public boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains) {
+        if(coin instanceof ICoinLike coinLike)
+            return allowSideChains || !coinLike.isFromSideChain();
+        return this.IsCoin(coin,allowSideChains);
+    }
+
+    @Override
     public void CoinExchangeAllUp(@Nonnull Container container) {
         if(this.NoDataAvailable())
             return;
@@ -488,6 +500,7 @@ public final class CoinAPIImpl extends CoinAPI {
 
     @Override
     public void SortCoinsByValue(@Nonnull Container container) {
+
         //Merge like stacks
         InventoryUtil.MergeStacks(container);
 
@@ -510,6 +523,12 @@ public final class CoinAPIImpl extends CoinAPI {
             container.setItem(index++, oldInventory.getFirst());
             oldInventory.removeFirst();
         }
+    }
+
+    @Override
+    public void RegisterCustomSorter(@Nonnull Comparator<ItemStack> sorter) {
+        if(!this.customSorters.contains(sorter))
+            this.customSorters.add(sorter);
     }
 
     //Reload
@@ -547,25 +566,33 @@ public final class CoinAPIImpl extends CoinAPI {
     {
         @Override
         public int compare(ItemStack stack1, ItemStack stack2) {
-            //Sort by count if they're the same item
-            if(stack1.getItem() == stack2.getItem())
-                return Integer.compare(stack2.getCount(), stack1.getCount());
-
             //Start comparing chains
             ChainData chain1 = API.ChainDataOfCoin(stack1);
             ChainData chain2 = API.ChainDataOfCoin(stack2);
             if(chain1 == null && chain2 == null)
+            {
+                //If neither item has a coin chain, use custom sorters
+                for(Comparator<ItemStack> custom : INSTANCE.customSorters)
+                {
+                    int result = custom.compare(stack1,stack2);
+                    if(result != 0)
+                        return result;
+                }
                 return 0;
+            }
             if(chain2 == null)
-                return 1;
-            if(chain1 == null)
                 return -1;
+            if(chain1 == null)
+                return 1;
             if(chain1 != chain2) //Sort by chain name
                 return chain2.getDisplayName().getString().compareToIgnoreCase(chain1.getDisplayName().getString());
 
             //Sort by individual value
             CoinEntry entry1 = chain1.findEntry(stack1);
             CoinEntry entry2 = chain2.findEntry(stack2);
+            //Sort by count if they're the same item
+            if(entry1 == entry2)
+                return Integer.compare(stack2.getCount(), stack1.getCount());
             return Long.compare(entry2.getCoreValue(), entry1.getCoreValue());
         }
     }

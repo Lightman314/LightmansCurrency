@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.impl;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
+import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
@@ -94,6 +95,6 @@ public class NotificationAPIImpl extends NotificationAPI {
     }
 
     @Override
-    public void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat) { NotificationSaveData.PushNotification(playerID,notification,pushToChat); }
+    public void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat) { NotificationDataCache.TYPE.get(false).pushNotification(playerID,notification,pushToChat); }
 
 }

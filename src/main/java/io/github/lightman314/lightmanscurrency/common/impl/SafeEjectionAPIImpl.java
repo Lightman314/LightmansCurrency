@@ -5,8 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
-import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.EjectionDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.OldEjectionDataHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -28,7 +27,7 @@ public class SafeEjectionAPIImpl extends SafeEjectionAPI {
 
     @Nonnull
     @Override
-    public List<EjectionData> getAllData(boolean isClient) { return isClient ? ClientEjectionData.GetEjectionData() : EjectionSaveData.GetEjectionData(); }
+    public List<EjectionData> getAllData(boolean isClient) { return EjectionDataCache.TYPE.get(isClient).getData(); }
 
     @Nonnull
     @Override
@@ -45,10 +44,19 @@ public class SafeEjectionAPIImpl extends SafeEjectionAPI {
             LightmansCurrency.LogWarning("Could not parse Ejection Data as no EjectionDataType was registered for '" + tag.getString("type") + "'!");
             return null;
         }
-        return type.load(tag,lookup);
+        EjectionData data = type.load(tag,lookup);
+        if(tag.contains("ID"))
+            data.setID(tag.getLong("ID"));
+        return data;
     }
 
     @Override
-    public void handleEjection(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull EjectionData data) { EjectionSaveData.HandleEjectionData(level,pos,data); }
+    public void handleEjection(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull EjectionData data) {
+        if(level.isClientSide)
+            return;
+        EjectionDataCache d = EjectionDataCache.TYPE.get(false);
+        if(d != null)
+            d.handleEjection(level,pos,data);
+    }
 
 }

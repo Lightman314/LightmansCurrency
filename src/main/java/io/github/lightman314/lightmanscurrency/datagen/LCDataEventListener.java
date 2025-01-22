@@ -4,9 +4,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.datagen.client.*;
 import io.github.lightman314.lightmanscurrency.datagen.client.language.EnglishProvider;
 import io.github.lightman314.lightmanscurrency.datagen.client.resourcepacks.LCCloserItemPositionProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.LCDatapackProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.advancements.LCAdvancementProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.*;
-import io.github.lightman314.lightmanscurrency.datagen.common.enchantments.LCEnchantmentProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootModifierProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
@@ -43,7 +43,7 @@ public class LCDataEventListener {
         generator.addProvider(event.includeServer(), new LCAdvancementProvider(output, lookupHolder, existingFileHelper));
 
         //Enchantments
-        generator.addProvider(event.includeServer(), new LCEnchantmentProvider(output,lookupHolder));
+        generator.addProvider(event.includeServer(), new LCDatapackProvider(output,lookupHolder));
 
         //Tags
         LCBlockTagProvider blockTagProvider = new LCBlockTagProvider(output, lookupHolder, existingFileHelper);

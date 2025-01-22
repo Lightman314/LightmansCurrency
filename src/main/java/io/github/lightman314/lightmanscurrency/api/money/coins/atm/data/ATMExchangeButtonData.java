@@ -29,6 +29,7 @@ public class ATMExchangeButtonData {
 
 	public final ScreenPosition position;
 	public final int width;
+	public final int height;
 	public final String command;
 	private final List<ATMIconData> icons;
 	public ImmutableList<ATMIconData> getIcons() { return ImmutableList.copyOf(this.icons); }
@@ -38,6 +39,9 @@ public class ATMExchangeButtonData {
 	private ATMExchangeButtonData(@Nonnull JsonObject data, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		this.position = ScreenPosition.of(GsonHelper.getAsInt(data, "x"), GsonHelper.getAsInt(data,"y"));
 		this.width = GsonHelper.getAsInt(data,"width");
+		this.height = GsonHelper.getAsInt(data,"height",18);
+		if(this.height <= 0)
+			throw new JsonSyntaxException("height cannot be 0 or less!");
 		this.command = ATMAPI.UpdateCommand(GsonHelper.getAsString(data,"command"));
 		
 		this.icons = new ArrayList<>();
@@ -58,9 +62,11 @@ public class ATMExchangeButtonData {
 		}
 	}
 	
-	public ATMExchangeButtonData(int xPos, int yPos, int width, @Nonnull String command, @Nonnull List<ATMIconData> icons) {
+	public ATMExchangeButtonData(int xPos, int yPos, int width, @Nonnull String command, @Nonnull List<ATMIconData> icons) { this(xPos,yPos,width,0,command,icons);}
+	public ATMExchangeButtonData(int xPos, int yPos, int width, int height, @Nonnull String command, @Nonnull List<ATMIconData> icons) {
 		this.position = ScreenPosition.of(xPos, yPos);
 		this.width = width;
+		this.height = height == 0 ? 18 : height;
 		this.command = ATMAPI.UpdateCommand(command);
 		this.icons = icons;
 	}
@@ -72,6 +78,7 @@ public class ATMExchangeButtonData {
 		data.addProperty("x", this.position.x);
 		data.addProperty("y", this.position.y);
 		data.addProperty("width", this.width);
+		data.addProperty("height",this.height);
 		data.addProperty("command", this.command);
 		
 		JsonArray iconListData = new JsonArray();

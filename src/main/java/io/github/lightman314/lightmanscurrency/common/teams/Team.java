@@ -15,12 +15,13 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -91,6 +92,8 @@ public class Team implements ITeam {
 	@Override
 	@Nullable
 	public IBankAccount getBankAccount() { return this.bankAccount; }
+	@Override
+	@Nullable
 	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
 
 	private final StatTracker statTracker = new StatTracker(this::markDirty,this);
@@ -294,7 +297,7 @@ public class Team implements ITeam {
 		{
 			if(player != null && player.id != null)
 			{
-				NotificationSaveData.PushNotification(player.id, notification.get());
+				NotificationAPI.API.PushPlayerNotification(player.id, notification.get());
 			}
 		}
 	}
@@ -331,7 +334,7 @@ public class Team implements ITeam {
 	public void markDirty()
 	{
 		if(!this.isClient)
-			TeamSaveData.MarkTeamDirty(this.id);
+			TeamDataCache.TYPE.get(this).markTeamDirty(this.id);
 	}
 
 	@Nonnull

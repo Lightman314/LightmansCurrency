@@ -5,16 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -29,36 +27,9 @@ public class CommonProxy {
 	public void init(@Nonnull ModContainer modContainer) {}
 
 	public void setupClient() {}
-	
-	public void clearClientTraders() {}
-	
-	public void updateTrader(CompoundTag compound) {}
-	
-	public void removeTrader(long traderID) {}
-	
-	public void clearTeams() {}
-	
-	public void updateTeam(CompoundTag compound) {}
-	
-	public void removeTeam(long teamID) {}
-	
-	public void clearBankAccounts() {}
-	
-	public void updateBankAccount(UUID player, CompoundTag compound) {}
 
-	public void removeBankAccount(UUID player) {}
-
-	public void receiveEmergencyEjectionData(CompoundTag compound) {}
-	
-	public void updateNotifications(NotificationData data) {}
-	
+	//Leave this one as it's used for notifications in chat
 	public void receiveNotification(Notification notification) {}
-	
-	public void receiveSelectedBankAccount(BankReference selectedAccount) {}
-
-	public void updateTaxEntries(CompoundTag compound) {}
-
-	public void removeTaxEntry(long id) {}
 	
 	public void playCoinSound() {}
 	
@@ -111,6 +82,8 @@ public class CommonProxy {
 			return server.getPlayerList().getPlayers().stream().map(ServerPlayer::getGameProfile).toList();
 		return new ArrayList<>();
 	}
+
+	public boolean isSelf(@Nonnull Player player) { return false; }
 
 	public RegistryAccess getClientRegistryHolder() { return null; }
 	

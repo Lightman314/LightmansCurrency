@@ -22,7 +22,7 @@ public abstract class VillagerTradeMod {
     {
         if(replacement == null)
             return cost;
-        return new ItemCost(BuiltInRegistries.ITEM.createIntrusiveHolder(replacement),cost.count(),cost.components());
+        return new ItemCost(BuiltInRegistries.ITEM.wrapAsHolder(replacement),cost.count(),cost.components());
     }
     protected final ItemStack copyWithNewItem(@Nonnull ItemStack result, @Nullable Item replacement)
     {

@@ -4,8 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.common.impl.CoinAPIImpl;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
-import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -74,6 +72,16 @@ public abstract class CoinAPI {
     public abstract boolean IsCoin(@Nonnull Item coin, boolean allowSideChains);
 
     /**
+     * Whether the given item should be treated like a coin even though it's not registered as such in the MasterCoinList
+     */
+    public abstract boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains);
+
+    /**
+     * Whether the given item should be treated like a coin even though it's not registered as such in the MasterCoinList
+     */
+    public abstract boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains);
+
+    /**
      * Exchanges all coins in the container to the largest value coin possible
      */
     public abstract void CoinExchangeAllUp(@Nonnull Container container);
@@ -110,5 +118,7 @@ public abstract class CoinAPI {
      * Handles the coin data sync packet from the logical client.
      */
     public abstract void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet);
+
+    public abstract void RegisterCustomSorter(@Nonnull Comparator<ItemStack> sorter);
 
 }

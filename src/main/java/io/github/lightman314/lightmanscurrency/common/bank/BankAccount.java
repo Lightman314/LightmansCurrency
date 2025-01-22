@@ -15,8 +15,8 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
@@ -97,7 +97,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 	
 	public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
-		return (notification) -> NotificationSaveData.PushNotification(playerID, notification.get());
+		return (notification) -> NotificationAPI.API.PushPlayerNotification(playerID, notification.get());
 	}
 	
 	private final NotificationData logger = new NotificationData();
@@ -210,6 +210,9 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public void applyInterest(double interestMultiplier, @Nonnull List<MoneyValue> limits, boolean forceInterest, boolean notifyPlayers) {
 		for(MoneyValue value : this.coinStorage.allValues())
 		{
+			//Don't calculate interest if the value has decided to opt out
+			if(!value.allowInterest())
+				continue;
 			MoneyValue interest = value.multiplyValue(interestMultiplier);
 			if(interest.isEmpty() && forceInterest)
 				interest = value.getSmallestValue();

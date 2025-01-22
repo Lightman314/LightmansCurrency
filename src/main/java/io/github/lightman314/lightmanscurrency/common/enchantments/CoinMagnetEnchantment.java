@@ -73,7 +73,7 @@ public class CoinMagnetEnchantment {
 
 	public static boolean coinMagnetEntityFilter(Entity entity) {
 		if(entity instanceof ItemEntity item)
-			return CoinAPI.API.IsCoin(item.getItem(), false);
+			return CoinAPI.API.IsAllowedInCoinContainer(item.getItem(), false);
 		return false;
 	}
 	

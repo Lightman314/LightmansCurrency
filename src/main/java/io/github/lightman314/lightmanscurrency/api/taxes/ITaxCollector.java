@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.taxes;
 
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;

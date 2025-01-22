@@ -3,16 +3,17 @@ package io.github.lightman314.lightmanscurrency.datagen.common.advancements;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DateTrigger;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.AdvancementTextEntry;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.datagen.util.EmptyHolder;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.Advancement.Builder;
@@ -149,24 +150,32 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
                 ,"currency/jar_of_sus");
 
 
+        //Ancient Coins
+        AdvancementHolder ancientCoins = save(consumer,Builder.advancement()
+                .parent(mfp)
+                .display(ezDisplay(AncientCoinType.GOLD.asItem(),LCText.ADVANCEMENT_ANCIENT_COIN, AdvancementType.GOAL, true, true, true))
+                .addCriterion("ancient_coin", ezItemTrigger(ModItems.COIN_ANCIENT.get()))
+                .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("unlock_ancient_coins"))),
+                "currency/ancient_coin");
+
         //Events
         AdvancementHolder chocolateCoins = save(consumer,Builder.advancement()
                         .parent(mfp)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_COPPER,LCText.ADVANCEMENT_EVENT_CHOCOLATE, AdvancementType.CHALLENGE,true,false,true))
                         .addCriterion("has_coins",ezItemTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE))
-                        .rewards(AdvancementRewards.Builder.function(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"events/unlock_chocolate")))
+                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/unlock_chocolate")))
                 ,"currency/events/chocolate_coins");
         AdvancementHolder christmas = save(consumer,Builder.advancement()
                         .parent(chocolateCoins)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_GOLD,LCText.ADVANCEMENT_EVENT_CHRISTMAS,AdvancementType.TASK,true))
                         .addCriterion("event", ezEventTrigger(12,1,12,31))
-                        .rewards(AdvancementRewards.Builder.function(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"events/gift_chocolate")))
+                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/gift_chocolate")))
                 ,"currency/events/christmas");
         AdvancementHolder valentines = save(consumer,Builder.advancement()
                         .parent(chocolateCoins)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_DIAMOND,LCText.ADVANCEMENT_EVENT_VALENTINES,AdvancementType.TASK,true))
                         .addCriterion("event", ezEventTrigger(2,13,2,15))
-                        .rewards(AdvancementRewards.Builder.function(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"events/gift_chocolate")))
+                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/gift_chocolate")))
                 ,"currency/events/valentines");
     }
 
@@ -222,7 +231,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
     }
 
     private AdvancementHolder save(@Nonnull Consumer<AdvancementHolder> consumer, @Nonnull Advancement.Builder builder, @Nonnull String id) {
-        AdvancementHolder a = builder.build(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id));
+        AdvancementHolder a = builder.build(VersionUtil.lcResource(id));
         consumer.accept(a);
         return a;
     }

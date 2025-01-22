@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TicketDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -50,7 +50,7 @@ public class CommandTicket {
 
     static int createTicketNonColored(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         ServerPlayer player = commandContext.getSource().getPlayerOrException();
-        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketSaveData.createNextID());
+        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketDataCache.TYPE.get(false).createNextID());
         giveItemToPlayer(player, ticket);
         return 1;
     }
@@ -58,7 +58,7 @@ public class CommandTicket {
     static int createTicketColored(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         ServerPlayer player = commandContext.getSource().getPlayerOrException();
         int color = ColorArgument.getColor(commandContext,"color");
-        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketSaveData.createNextID(), color);
+        ItemStack ticket = TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(), TicketDataCache.TYPE.get(false).createNextID(), color);
         giveItemToPlayer(player, ticket);
         return 1;
     }

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -86,7 +87,7 @@ public class WalletMenu extends WalletMenuBase {
 		for(int i = 0; i < inv.getContainerSize(); ++i)
 		{
 			ItemStack item = inv.getItem(i);
-			if(CoinAPI.API.IsCoin(item, false))
+			if(item.getItem() == ModItems.COIN_ANCIENT.get() || CoinAPI.API.IsCoin(item, false))
 			{
 				ItemStack result = this.PickupCoins(item);
 				inv.setItem(i, result);

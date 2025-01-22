@@ -3,7 +3,16 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.151'
+    id 'net.neoforged.gradle.userdev' version '7.0.170'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
+    // Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
+    // documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
+    // file size for Gradle. If you do switch this to ALL, run the Gradle wrapper task twice afterwards.
+    // (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 version = mod_version
@@ -97,6 +106,10 @@ repositories {
     }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.architectury.dev/" }
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
 }
 
 dependencies {
@@ -121,11 +134,11 @@ dependencies {
     runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    implementation 'curse.maven:adorned-1036809:5638835-sources-5638839'
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     //Immersive Engineering API
-    //Waiting for IE update
-    //compileOnly "curse.maven:immersive-engineering-231951:4782978"
+    compileOnly "curse.maven:immersive-engineering-231951:5828000"
 
     //Claim Compats
     //FTB Chunks claim purchase compat

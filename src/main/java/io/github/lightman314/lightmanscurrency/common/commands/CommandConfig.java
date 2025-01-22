@@ -17,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -51,7 +51,7 @@ public class CommandConfig {
             //Reload config files
             ConfigFile.reloadServerFiles();
             //Reload Persistent Traders
-            TraderSaveData.ReloadPersistentTraders();
+            TraderDataCache.TYPE.get(false).reloadPersistentTraders();
             result++;
         }
         ServerPlayer player = commandContext.getSource().getPlayer();

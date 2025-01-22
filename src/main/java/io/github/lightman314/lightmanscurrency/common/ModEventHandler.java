@@ -33,6 +33,7 @@ public class ModEventHandler {
     private static void registerRegistries(NewRegistryEvent event)
     {
         event.register(LCRegistries.EJECTION_DATA);
+        event.register(LCRegistries.CUSTOM_DATA);
     }
 
     @SubscribeEvent

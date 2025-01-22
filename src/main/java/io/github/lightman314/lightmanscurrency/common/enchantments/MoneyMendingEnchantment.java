@@ -35,11 +35,9 @@ public class MoneyMendingEnchantment {
 	public static MoneyValue getRepairCost(@Nonnull ItemStack item, @Nonnull RepairWithMoneyData data, @Nonnull HolderLookup.Provider lookup)
 	{
 		MoneyValue baseCost = data.getBaseCost();
-		MoneyValue cost = baseCost;
-		Holder<Enchantment> infinity = LookupHelper.lookupEnchantment(lookup, Enchantments.INFINITY);
+
 		ItemEnchantments enchantments = item.getItem() == Items.ENCHANTED_BOOK ? item.getOrDefault(DataComponents.STORED_ENCHANTMENTS,ItemEnchantments.EMPTY) : item.getAllEnchantments(lookup.lookupOrThrow(Registries.ENCHANTMENT));
-		if(infinity != null && enchantments.getLevel(infinity) > 0)
-			cost = baseCost.addValue(data.getInfinityExtraCost());
+		MoneyValue cost = data.getRepairCost(item,enchantments);
 
 		return cost == null ? baseCost : cost;
 	}

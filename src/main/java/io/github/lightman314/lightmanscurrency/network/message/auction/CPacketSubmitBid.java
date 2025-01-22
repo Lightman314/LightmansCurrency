@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.auction;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
@@ -45,7 +45,7 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 			if(player.containerMenu instanceof TraderMenu menu)
 			{
 				//Get the auction house
-				TraderData data = TraderSaveData.GetTrader(false, message.auctionHouseID);
+				TraderData data = TraderAPI.API.GetTrader(false, message.auctionHouseID);
 				if(data instanceof AuctionHouseTrader ah)
 					ah.makeBid(player, menu, message.tradeIndex, message.bidAmount);
 			}

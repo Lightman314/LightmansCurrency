@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,10 @@ public class CPacketSelectBankAccount extends ClientToServerPacket {
 		protected H() { super(TYPE, easyCodec(CPacketSelectBankAccount::encode,CPacketSelectBankAccount::decode)); }
 		@Override
 		protected void handle(@Nonnull CPacketSelectBankAccount message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			BankSaveData.SetSelectedBankAccount(player, message.account);
+			BankDataCache data = BankDataCache.TYPE.get(false);
+			if(data == null)
+				return;
+			data.setSelectedAccount(player, message.account);
 		}
 	}
 

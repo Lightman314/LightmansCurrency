@@ -20,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -49,7 +48,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	List<NetworkTraderButton> traderButtons;
 	
 	private List<TraderData> traderList(){
-		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
+		List<TraderData> traderList = TraderAPI.API.GetAllNetworkTraders(true);
 		//No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
 		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;

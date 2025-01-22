@@ -156,13 +156,6 @@ public class LCCuriosInternal {
     public static void setup(IEventBus modBus)
     {
         modBus.addListener(LCCuriosInternal::registerCuriosItems);
-        CuriosApi.registerCurio(ModItems.WALLET_COPPER.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_IRON.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_GOLD.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_EMERALD.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_DIAMOND.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_NETHERITE.get(),WalletCurio.INSTANCE);
-        CuriosApi.registerCurio(ModItems.WALLET_NETHER_STAR.get(),WalletCurio.INSTANCE);
     }
 
     private static void registerCuriosItems(@Nonnull FMLCommonSetupEvent event)

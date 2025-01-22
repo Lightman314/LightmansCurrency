@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
 import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
@@ -48,6 +49,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<List<SoundEntry>>> WALLET_COIN_SOUND;
     public static final Supplier<DataComponentType<List<MobEffectInstance>>> CHOCOLATE_EFFECTS;
     public static final Supplier<DataComponentType<Float>> CHOCOLATE_HEALING;
+    public static final Supplier<DataComponentType<AncientCoinType>> ANCIENT_COIN_TYPE;
 
     static {
 
@@ -75,6 +77,7 @@ public class ModDataComponents {
         WALLET_COIN_SOUND = register("wallet_coin_sound", builder -> builder.persistent(SoundEntry.CODEC.listOf()));
         CHOCOLATE_EFFECTS = register("chocolate_effects", builder -> builder.persistent(MobEffectInstance.CODEC.listOf()));
         CHOCOLATE_HEALING = registerFloat("chocolate_healing");
+        ANCIENT_COIN_TYPE = register("ancient_coin_type", builder -> builder.persistent(AncientCoinType.CODEC));
 
     }
 

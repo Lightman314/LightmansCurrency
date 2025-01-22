@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 
 import com.google.common.collect.ImmutableList;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -25,7 +26,11 @@ import java.util.List;
 public class TabButton extends EasyButton implements ITooltipSource, IRotatableWidget {
 	
 	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
-	
+
+	public static final Pair<ResourceLocation,ScreenPosition> NORMAL = Pair.of(GUI_TEXTURE,ScreenPosition.of(200,0));
+	public static final Pair<ResourceLocation,ScreenPosition> YELLOW = Pair.of(GUI_TEXTURE,ScreenPosition.of(150,0));
+	public static final Pair<ResourceLocation,ScreenPosition> RED = Pair.of(GUI_TEXTURE,ScreenPosition.of(100,0));
+
 	public static final int SIZE = 25;
 	public static final int NEGATIVE_SIZE = 25 * -1;
 
@@ -58,11 +63,13 @@ public class TabButton extends EasyButton implements ITooltipSource, IRotatableW
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		//Set the texture & color for the button
-		gui.setColor(this.getColor(), 1f);
+		gui.resetColor();
+
         int xOffset = this.rotation.ordinal() < 2 ? 0 : this.width;
         int yOffset = (this.rotation.ordinal() % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
+		Pair<ResourceLocation,ScreenPosition> sprite = this.getSprite();
         //Render the background
-		gui.blit(GUI_TEXTURE, 0, 0, 200 + xOffset, yOffset, this.width, this.height);
+		gui.blit(sprite.getFirst(), 0, 0, sprite.getSecond().x + xOffset, sprite.getSecond().y + yOffset, this.width, this.height);
 
 		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
@@ -71,8 +78,11 @@ public class TabButton extends EasyButton implements ITooltipSource, IRotatableW
 		gui.resetColor();
 
 	}
-	
-	protected int getColor() { return this.tab.getColor(); }
+
+	protected Pair<ResourceLocation,ScreenPosition> getSprite() {
+		Pair<ResourceLocation,ScreenPosition> result = this.tab.getSprite();
+		return result == null ? NORMAL : result;
+	}
 
 	@Override
 	public List<Component> getTooltipText(int mouseX, int mouseY) {

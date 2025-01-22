@@ -46,4 +46,6 @@ public enum TraderState {
         this.allowRecovery = allowRecovery;
     }
 
+    public boolean shouldEject() { return this == NORMAL || this == MOVED_BY_MACHINE; }
+
 }

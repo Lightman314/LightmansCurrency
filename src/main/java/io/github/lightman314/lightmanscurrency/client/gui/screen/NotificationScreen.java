@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -21,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -34,7 +34,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/notifications.png");
 	
-	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
+	public final NotificationData getNotifications() { return NotificationDataCache.TYPE.get(true).getNotifications(this.menu.player); }
 
 	private static final int SCREEN_WIDTH = 200;
 	private static final int SCREEN_HEIGHT = 200;

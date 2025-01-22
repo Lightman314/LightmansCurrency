@@ -6,11 +6,11 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -116,7 +116,7 @@ public class TransferTab extends ATMTab {
 				//Check if selected account exists
 				String playerName = this.playerInput.getValue();
 				UUID playerID = ClientPlayerNameCache.lookupID(playerName);
-				if(playerID == null || !ClientBankData.HasBankAccount(playerID))
+				if(playerID == null || BankDataCache.TYPE.get(true).getAccount(playerID) == null)
 					return ChatFormatting.GOLD.getColor();
 			}
 			return 0x00FF00;

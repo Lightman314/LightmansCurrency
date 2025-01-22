@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 
@@ -61,6 +62,23 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_COIN_CHOCOLATE_NETHERITE,"Chocolate Netherite Coin");
         this.translate(LCText.ITEM_COIN_CHOCOLATE_NETHERITE_PLURAL,"Chocolate Netherite Coins");
         this.translate(LCText.ITEM_COIN_CHOCOLATE_NETHERITE_INITIAL,"n");
+
+        this.translateAncientCoin(AncientCoinType.COPPER,"Ancient Copper Coin");
+        this.translateAncientCoinInitial(AncientCoinType.COPPER,"AC");
+        this.translateAncientCoin(AncientCoinType.IRON,"Ancient Iron Coin");
+        this.translateAncientCoinInitial(AncientCoinType.IRON,"AI");
+        this.translateAncientCoin(AncientCoinType.GOLD,"Ancient Gold Coin");
+        this.translateAncientCoinInitial(AncientCoinType.GOLD,"AG");
+        this.translateAncientCoin(AncientCoinType.EMERALD,"Ancient Emerald Coin");
+        this.translateAncientCoinInitial(AncientCoinType.EMERALD,"AE");
+        this.translateAncientCoin(AncientCoinType.DIAMOND,"Ancient Diamond Coin");
+        this.translateAncientCoinInitial(AncientCoinType.DIAMOND,"AD");
+        this.translateAncientCoin(AncientCoinType.NETHERITE_H,"Ancient Netherite Coin");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_H,"AN");
+        this.translateAncientCoin(AncientCoinType.LAPIS,"Ancient Lapis Coin");
+        this.translateAncientCoinInitial(AncientCoinType.LAPIS,"AL");
+        this.translateAncientCoin(AncientCoinType.ENDER_PEARL,"Ancient Ender Pearl Coin");
+        this.translateAncientCoinInitial(AncientCoinType.ENDER_PEARL,"AP");
 
         this.translate(LCText.ITEM_WALLET_LEATHER, "Basic Wallet");
         this.translate(LCText.ITEM_WALLET_COPPER, "Wallet (Copper)");
@@ -313,6 +331,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_COIN_ADVANCED_VALUE,"Value: %s");
         this.translate(LCText.TOOLTIP_COIN_ADVANCED_CORE_CHAIN,"Core Chain");
         this.translate(LCText.TOOLTIP_COIN_ADVANCED_SIDE_CHAIN,"Side Chain");
+        this.translate(LCText.TOOLTIP_ANCIENT_COIN_ADVANCED_TYPE,"Type: %s");
 
         //Upgrade Tooltips
         this.translate(LCText.TOOLTIP_UPGRADE_TARGETS,"Upgrade can be used by:");
@@ -853,6 +872,25 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COIN_CHAIN_EMERALDS,"Emeralds");
         this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY,"%sE");
         this.translate(LCText.COIN_CHAIN_EMERALDS_DISPLAY_WORDY,"%s Emeralds");
+        this.translate(LCText.ANCIENT_COIN_VALUE_NAME,"Ancient");
+        this.translate(LCText.ANCIENT_COIN_VALUE_DISPLAY,"%1$s %2$s");
+
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.COPPER),"Copper");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.IRON),"Iron");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.GOLD),"Gold");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.EMERALD),"Emerald");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.DIAMOND),"Diamond");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_H),"Netherite v1");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_E1),"Netherite v2");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_R1),"Netherite v3");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_O),"Netherite v4");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_B),"Netherite v5");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_R2),"Netherite v6");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_I),"Netherite v7");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_N),"Netherite v8");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.NETHERITE_E2),"Netherite v9");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.LAPIS),"Lapis");
+        this.translate(LCText.ANCIENT_COIN_TYPE_LABEL.get(AncientCoinType.ENDER_PEARL),"Ender Pearl");
 
         //Generic Text
         this.translate(LCText.BUTTON_CHANGE_NAME_ICON,"Aa");
@@ -949,6 +987,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Command Arguments
         this.translate(LCText.ARGUMENT_MONEY_VALUE_NOT_A_COIN,"'%s' is not a valid coin!");
+        this.translate(LCText.ARGUMENT_MONEY_VALUE_NOT_AN_ANCIENT_COIN,"'%s' is not a valid ancient coin!");
         this.translate(LCText.ARGUMENT_MONEY_VALUE_NO_VALUE,"Value parsed had no value!");
         this.translate(LCText.ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE,"Input is not 'free' or 'empty'!");
         this.translate(LCText.ARGUMENT_COLOR_INVALID,"Color could not be parsed");
@@ -1082,6 +1121,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ADVANCEMENT_CASH_REGISTER,"All in one interaction!","Craft a cash register so that players can interact with all of your nearby traders at once!");
         this.translate(LCText.ADVANCEMENT_CASHIER_TRADE,"Hourly work, hourly pay","Buy something for coins from a cashier");
         this.translate(LCText.ADVANCEMENT_JAR_OF_SUS,"Sus Bank Check","WHY DID IT HAVE TO BE SOUP!?");
+        this.translate(LCText.ADVANCEMENT_ANCIENT_COIN,"Archaeology pays off!","Find an ancient coin in a suspicious area");
 
         this.translate(LCText.ADVANCEMENT_EVENT_CHOCOLATE,"Chocolate Wonders","Play during a special holiday! Unlocks the ability to use chocolate coins as money");
         this.translate(LCText.ADVANCEMENT_EVENT_CHRISTMAS,"A Christmas Shopping Spree!","Played during a very jolly time!");
@@ -1110,6 +1150,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.REI_GROUP_AUCTION_STAND,"Auction Stands");
         this.translate(LCText.REI_GROUP_JAR_OF_SUS,"Jars of Sus");
         this.translate(LCText.REI_GROUP_ATM_CARD,"ATM Cards");
+        this.translate(LCText.REI_GROUP_ANCIENT_COINS,"Ancient Coins");
 
     }
 

@@ -21,6 +21,8 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -41,6 +43,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanI
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
+import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -124,8 +127,7 @@ public class LightmansCurrency {
 
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
-		//IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
-		//IntegrationUtil.SafeRunIfLoaded("supplementaries", LCSupplementaries::setup, null);
+		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
         
     }
@@ -145,6 +147,9 @@ public class LightmansCurrency {
 		//Register built-in Currency Types
 		MoneyAPI.API.RegisterCurrencyType(CoinCurrencyType.INSTANCE);
 		MoneyAPI.API.RegisterCurrencyType(NullCurrencyType.INSTANCE);
+		//Ancient Money
+		MoneyAPI.API.RegisterCurrencyType(AncientMoneyType.INSTANCE);
+		CoinAPI.API.RegisterCustomSorter(AncientCoinSorter.INSTANCE);
 
 		//Ownership API data
 		OwnershipAPI.API.registerOwnerType(Owner.NULL_TYPE);

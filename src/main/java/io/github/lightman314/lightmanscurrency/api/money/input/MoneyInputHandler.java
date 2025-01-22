@@ -21,6 +21,8 @@ public abstract class MoneyInputHandler {
     @Nonnull
     public abstract String getUniqueName();
 
+    public boolean isForValue(@Nonnull MoneyValue value) { return value.getUniqueName().equals(this.getUniqueName()); }
+
     private MoneyValueWidget parent;
     protected boolean isVisible() { return this.parent.isVisible(); }
     protected boolean isLocked() { return this.parent.isLocked(); }

@@ -1,0 +1,1 @@
+lcadmin events @s unlock ancient_coins

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,7 +27,10 @@ public class NotificationMenu extends LazyMessageMenu {
             NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("MarkAsRead"),message.lookup);
             if(category == null)
                 return;
-            NotificationData data = NotificationSaveData.GetNotifications(this.player);
+            NotificationDataCache d = NotificationDataCache.TYPE.get(false);
+            if(d == null)
+                return;
+            NotificationData data = d.getNotifications(this.player);
             if(data != null && data.unseenNotification(category))
             {
                 for(Notification n : data.getNotifications(category))
@@ -34,7 +38,7 @@ public class NotificationMenu extends LazyMessageMenu {
                     if(!n.wasSeen())
                         n.setSeen();
                 }
-                NotificationSaveData.MarkNotificationsDirty(this.player.getUUID());
+                d.markNotificationsDirty(this.player.getUUID());
             }
         }
         if(message.contains("DeleteNotification"))
@@ -42,11 +46,14 @@ public class NotificationMenu extends LazyMessageMenu {
             NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("Category"),message.lookup);
             if(category == null)
                 return;
-            NotificationData data = NotificationSaveData.GetNotifications(this.player);
+            NotificationDataCache d = NotificationDataCache.TYPE.get(false);
+            if(d == null)
+                return;
+            NotificationData data = d.getNotifications(this.player);
             if(data != null)
             {
                 data.deleteNotification(category,message.getInt("DeleteNotification"));
-                NotificationSaveData.MarkNotificationsDirty(this.player.getUUID());
+                d.markNotificationsDirty(this.player.getUUID());
             }
         }
     }

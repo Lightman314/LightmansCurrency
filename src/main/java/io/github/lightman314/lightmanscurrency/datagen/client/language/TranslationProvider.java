@@ -6,8 +6,10 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.*;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import javax.annotation.Nonnull;
@@ -91,6 +93,17 @@ public abstract class TranslationProvider extends LanguageProvider {
     protected final <S,T> void translate(@Nonnull TextEntryBiBundle<S,T> bundle, @Nonnull String format, @Nonnull Function<S,String> key1ToText, @Nonnull Function<T,String> key2ToText)
     {
         bundle.forEach((key1,key2,entry) -> this.translate(entry,format.formatted(key1ToText.apply(key1),key2ToText.apply(key2))));
+    }
+
+    protected final void translateAncientCoin(@Nonnull AncientCoinType type, @Nonnull String text)
+    {
+        ItemStack item = type.asItem();
+        this.add(item.getDescriptionId(),text);
+    }
+
+    protected final void translateAncientCoinInitial(@Nonnull AncientCoinType type, @Nonnull String text)
+    {
+        this.translate(new TextEntry(type.initialKey()),text);
     }
 
 }

@@ -26,6 +26,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
     protected void setPostfix(@Nonnull Component postfix) { this.postfix = postfix; }
 
     private EditBox input;
+    private Component error = null;
 
     @Override
     public void initialize(@Nonnull ScreenArea widgetArea) {
@@ -38,6 +39,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         if(prefixWidth + postfixWidth > widgetArea.width + 40)
         {
             LightmansCurrency.LogError("Prefix & Postfix are too long. Cannot setup display!\nPrefix: " + this.prefix.getString() + "\nPostfix: " + this.postfix.getString());
+            this.error = EasyText.empty().append(this.prefix).append(EasyText.literal("###")).append(this.postfix);
             return;
         }
         this.input = this.addChild(new EditBox(this.getFont(), widgetArea.x + 10 + prefixWidth, widgetArea.y + 22, MoneyValueWidget.WIDTH - 20 - prefixWidth - postfixWidth, 20, EasyText.empty()));
@@ -47,7 +49,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         this.onValueChanged(this.currentValue());
     }
 
-    protected int maxLength() { return 10; }
+    protected int maxLength() { return 32; }
 
     @Override
     public void renderTick() {
@@ -64,9 +66,11 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         super.renderBG(widgetArea, gui);
         if(this.input == null)
         {
-            TextRenderUtil.drawCenteredText(gui, this.getErrorText(), widgetArea.width / 2, (widgetArea.height / 2) - 10, 0xFF0000);
-            Component formatText = EasyText.empty().append(this.prefix).append(EasyText.literal("###")).append(this.postfix);
-            TextRenderUtil.drawCenteredText(gui, formatText, widgetArea.width / 2, (widgetArea.height / 2), 0xFF0000);
+            if(this.error != null)
+            {
+                TextRenderUtil.drawCenteredText(gui, this.getErrorText(), widgetArea.width / 2, (widgetArea.height / 2) - 10, 0xFF0000);
+                TextRenderUtil.drawCenteredText(gui, this.error, widgetArea.width / 2, (widgetArea.height / 2), 0xFF0000);
+            }
             return;
         }
         if(this.isFree())
@@ -85,10 +89,8 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         if(this.isFree())
             return;
         final double valueNumber = TextInputUtil.getDoubleValue(this.input);
-        new Thread(() -> {
-            MoneyValue newValue = this.getValueFromInput(valueNumber);
-            this.changeValue(newValue);
-        }).start();
+        MoneyValue newValue = this.getValueFromInput(valueNumber);
+        this.changeValue(newValue);
     }
 
     @Override

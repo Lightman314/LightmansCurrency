@@ -46,6 +46,10 @@ public abstract class MoneyValueParser {
     @Nonnull
     public <S> CompletableFuture<Suggestions> listSuggestions(final @Nonnull CommandContext<S> context, final @Nonnull SuggestionsBuilder builder, @Nonnull String trail, @Nonnull HolderLookup<Item> items) { return Suggestions.empty(); }
 
+    protected void suggest(@Nonnull SuggestionsBuilder builder, @Nonnull String value) {
+        builder.suggest(this.prefix + ";" + value);
+    }
+
     public void addExamples(@Nonnull List<String> examples) {}
 
     /**

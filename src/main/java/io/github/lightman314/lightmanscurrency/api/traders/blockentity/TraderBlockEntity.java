@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -176,7 +175,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		}
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
-		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
+		this.traderID = TraderAPI.API.CreateTrader(newTrader, owner);
 		this.checkTaxes(owner,newTrader);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
@@ -195,7 +194,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		}
 	}
 
-	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
+	public TraderData getRawTraderData() { return TraderAPI.API.GetTrader(this.isClient(), this.traderID); }
 
 	public D getTraderData()
 	{
@@ -247,7 +246,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			{
 				//If the dimension and position don't match exactly, assume it's been moved and load the custom trader
 				this.moveCustomTrader(customTrader);
-				this.traderID = TraderSaveData.RegisterTrader(customTrader, null);
+				this.traderID = TraderAPI.API.CreateTrader(customTrader, null);
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
@@ -300,7 +299,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		return true;
 	}
 
-	public void onBreak() { TraderSaveData.DeleteTrader(this.traderID); }
+	public void onBreak() { TraderAPI.API.DeleteTrader(this.traderID); }
 
 	@Nullable
 	public static AABB getRenderBoundingBox(@Nonnull TraderBlockEntity<?> be)

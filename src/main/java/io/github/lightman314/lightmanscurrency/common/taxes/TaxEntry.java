@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -27,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.HolderLookup;
@@ -47,6 +49,8 @@ import java.util.function.Supplier;
 
 public class TaxEntry implements ITaxCollector {
 
+    public static final long SERVER_TAX_ID = -9;
+
     public static int minRadius() { return 5; }
     public static int maxRadius() { return LCConfig.SERVER.taxCollectorMaxRadius.get(); }
     public static int minHeight() { return 2; }
@@ -63,9 +67,10 @@ public class TaxEntry implements ITaxCollector {
 
     private boolean isClient = false;
     public final boolean isClient() { return this.isClient; }
+    @Nonnull
     public final TaxEntry flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this.unlock(); }
 
-    public final boolean isServerEntry() { return this.id == TaxSaveData.SERVER_TAX_ID; }
+    public final boolean isServerEntry() { return this.id == SERVER_TAX_ID; }
 
     private WorldPosition center = WorldPosition.VOID;
     public WorldPosition getCenter() { return this.center; }
@@ -252,7 +257,7 @@ public class TaxEntry implements ITaxCollector {
     public boolean isInfiniteRange() { return this.infiniteRange || this.isServerEntry(); }
     public void setInfiniteRange(boolean infiniteRange) { if(this.isServerEntry()) return; this.infiniteRange = infiniteRange; this.markAdminStateDirty(); }
 
-    protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxSaveData.MarkTaxEntryDirty(this.id, packet); }
+    protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxDataCache.TYPE.get(false).markEntryDirty(this.id,packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
     protected final void markDirty(BiFunction<CompoundTag,HolderLookup.Provider,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag(),LookupHelper.getRegistryAccess()));}
 

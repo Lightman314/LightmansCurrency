@@ -6,8 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectio
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -27,13 +27,13 @@ public class TaxBlockEntity extends EasyBlockEntity {
     private long taxEntryID = -1;
     private boolean validBreak = false;
 
-    public final TaxEntry getTaxEntry() { return TaxSaveData.GetTaxEntry(this.taxEntryID, this.isClient()); }
+    public final TaxEntry getTaxEntry() { return TaxDataCache.TYPE.get(this).getEntry(this.taxEntryID); }
 
     public TaxBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.TAX_BLOCK.get(), pos, state); }
     protected TaxBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
 
     public void initialize(Player owner) {
-        this.taxEntryID = TaxSaveData.CreateAndRegister(this, owner);
+        this.taxEntryID = TaxDataCache.TYPE.get(this).createEntry(this, owner);
         this.setChanged();
         BlockEntityUtil.sendUpdatePacket(this);
     }
@@ -73,7 +73,7 @@ public class TaxBlockEntity extends EasyBlockEntity {
                 SafeEjectionAPI.getApi().handleEjection(this.level,this.worldPosition,data);
                 this.validBreak = true;
             }
-            TaxSaveData.RemoveEntry(this.taxEntryID);
+            TaxDataCache.TYPE.get(this).removeEntry(this.taxEntryID);
         }
     }
 

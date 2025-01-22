@@ -307,6 +307,11 @@ public final class LCConfig {
         public final DoubleOption chocolateCoinDropRate = DoubleOption.create(0.1d,0d,1d);
         public final BooleanOption eventAdvancementRewards = BooleanOption.createTrue();
 
+        //Structure Options
+        public final BooleanOption structureVillageHouses = BooleanOption.createTrue();
+        public final BooleanOption structureAncientCity = BooleanOption.createTrue();
+        //public final BooleanOption structureIDAS = BooleanOption.createTrue();
+
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -506,6 +511,21 @@ public final class LCConfig {
 
             //Pop lists -> chests -> loot
             builder.pop().pop().pop();
+
+            builder.comment("Structure Settings","Requires a /reload command to be applied correctly").push("structures");
+
+            builder.comment("Whether new village structures will have a chance to spawn in vanilla villages")
+                    .add("villageHouses",this.structureVillageHouses);
+
+            builder.comment("Whether new structures will have a chance to spawn in ancient cities")
+                    .add("ancientCity",this.structureAncientCity);
+
+            /*builder.comment("Whether new special structures designed for Integrated Dungeons and Structures compatibility can spawn",
+                            "Does nothing if IDAS is not installed")
+                    .add("idasStructures",this.structureIDAS);
+            //*/
+
+            builder.pop();
 
         }
 

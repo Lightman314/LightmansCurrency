@@ -5,12 +5,12 @@ import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
+import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
-import io.github.lightman314.lightmanscurrency.common.core.custom.ModEjectionDataTypes;
+import io.github.lightman314.lightmanscurrency.common.core.custom.*;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
+import io.github.lightman314.lightmanscurrency.common.villager_merchant.*;
 import io.github.lightman314.lightmanscurrency.common.loot.LootModifiers;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -111,6 +111,9 @@ public class ModRegistries {
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
+
+		CUSTOM_DATA.register(bus);
+		ModCustomDataTypes.init();
 		
 	}
 	
@@ -149,6 +152,8 @@ public class ModRegistries {
 
 	public static final DeferredRegister<CriterionTrigger<?>> CRITERION_TRIGGERS = DeferredRegister.create(BuiltInRegistries.TRIGGER_TYPES,LightmansCurrency.MODID);
 
+	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);
+	public static final DeferredRegister<CustomDataType<?>> CUSTOM_DATA = DeferredRegister.create(LCRegistries.CUSTOM_DATA_KEY,LightmansCurrency.MODID);
 
 }

@@ -1,0 +1,56 @@
+package io.github.lightman314.lightmanscurrency.api.misc.data;
+
+import io.github.lightman314.lightmanscurrency.common.data.ClientCustomDataCache;
+import io.github.lightman314.lightmanscurrency.common.data.CustomSaveData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Supplier;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+@FieldsAreNonnullByDefault
+public final class CustomDataType<T extends CustomData> {
+
+    public final String fileName;
+    private final Supplier<T> constructor;
+    public CustomDataType(String fileName,Supplier<T> constructor) { this.fileName = fileName; this.constructor = constructor; }
+
+    /**
+     * Used to create a new instance of the data<br>
+     * Called on both the logical server & the logical client<br>
+     * On the logical server {@link CustomData#load(CompoundTag, HolderLookup.Provider)} will be called to load the data if the data file already exists<br>
+     */
+    public T create() { return this.constructor.get(); }
+
+    /**
+     * Easy access to the data from the given logical side
+     */
+    @Nullable
+    public T get(boolean isClient) { return isClient ? ClientCustomDataCache.getData(this) : CustomSaveData.getData(this); }
+    /**
+     * Easy access to the data from the logical side of the given side-tracker
+     */
+    @Nullable
+    public T get(IClientTracker tracker) { return get(tracker.isClient()); }
+
+    /**
+     * Easy unsided access to the data cache.<br>
+     * Use with caution only in instances where you have no way of knowing which side your own, but always assume the possiblity of only getting the client-side data.<br>
+     * No alterations to the data should be done with this get, and you should treat it as read-only
+     */
+    @Nonnull
+    public T getUnknown() {
+        T temp = this.get(false);
+        if(temp != null)
+            return temp;
+        return this.get(true);
+    }
+
+}

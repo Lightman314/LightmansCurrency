@@ -19,25 +19,10 @@ public abstract class TaxAPI {
     public abstract void RegisterReferenceType(@Nonnull TaxReferenceType type);
 
     /**
-     * @deprecated Use {@link #RegisterReferenceType(TaxReferenceType)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.1")
-    public static void registerReferenceType(@Nonnull TaxReferenceType type) { API.RegisterReferenceType(type); }
-
-    /**
      * Gets the registered {@link TaxReferenceType} for the given id
      */
     @Nullable
     public abstract TaxReferenceType GetReferenceType(@Nonnull ResourceLocation type);
-
-    /**
-     * @deprecated Use {@link #GetReferenceType(ResourceLocation)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.1")
-    @Nullable
-    public static TaxReferenceType getReferenceType(@Nonnull ResourceLocation type) { return API.GetReferenceType(type); }
 
     /**
      * Gets a list of all tax collectors that are currently active and flagged as taxing the given taxable object<br>
@@ -58,21 +43,5 @@ public abstract class TaxAPI {
      */
     @Nonnull
     public abstract List<ITaxCollector> AcknowledgeTaxCollectors(@Nonnull ITaxable taxable);
-
-    /**
-     * @deprecated Use {@link #GetTaxCollectorsFor(ITaxable)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.1")
-    @Nonnull
-    public static List<ITaxCollector> GetActiveTaxCollectorsFor(@Nonnull ITaxable taxable) { return API.GetTaxCollectorsFor(taxable); }
-    /**
-     * @deprecated Use {@link #GetPotentialTaxCollectorsFor(ITaxable)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.1")
-    @Nonnull
-    public static List<ITaxCollector> GetPossibleTaxCollectorsFor(@Nonnull ITaxable taxable) { return API.GetPotentialTaxCollectorsFor(taxable); }
-
 
 }

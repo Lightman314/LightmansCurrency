@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -101,6 +102,9 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.COIN_CHOCOLATE_NETHERITE);
                     ezPop(p, ModBlocks.COINPILE_CHOCOLATE_NETHERITE);
                     ezPop(p, ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
+                    //Ancient Coins
+                    for(AncientCoinType type : AncientCoinType.values())
+                        p.accept(type.asItem());
                 }).build()
         );
 

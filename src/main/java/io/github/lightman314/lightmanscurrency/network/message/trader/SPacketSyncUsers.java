@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +37,7 @@ public class SPacketSyncUsers extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketSyncUsers::encode,SPacketSyncUsers::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncUsers message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			TraderData trader = TraderSaveData.GetTrader(true, message.traderID);
+			TraderData trader = TraderAPI.API.GetTrader(true, message.traderID);
 			if(trader != null)
 				trader.updateUserCount(message.userCount);
 		}

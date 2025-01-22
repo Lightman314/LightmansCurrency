@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.EjectionDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.OwnableBlockEjectedNotification;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -25,7 +25,6 @@ import java.util.List;
 public abstract class EjectionData implements ISidedObject {
 
     private boolean isClient = false;
-
     @Override
     public boolean isClient() { return this.isClient; }
     @Nonnull
@@ -39,6 +38,15 @@ public abstract class EjectionData implements ISidedObject {
     public Object flagAsClient(@Nonnull IClientTracker tracker) { return this.flagAsClient(tracker.isClient()); }
 
     public EjectionData() { }
+
+    private long id = -1;
+    public long id() { return this.id; }
+    public void setID(long newID)
+    {
+        if(this.id >= 0)
+            return;
+        this.id = newID;
+    }
 
     @Nonnull
     public abstract OwnerData getOwner();
@@ -58,7 +66,7 @@ public abstract class EjectionData implements ISidedObject {
 
     public void setChanged() {
         if(this.isServer())
-            EjectionSaveData.MarkEjectionDataDirty();
+            EjectionDataCache.TYPE.get(this).markEjectionDataDirty(this.id);
         this.onChanged();
     }
 
@@ -69,6 +77,7 @@ public abstract class EjectionData implements ISidedObject {
     {
         CompoundTag tag = new CompoundTag();
         this.saveAdditional(tag,lookup);
+        tag.putLong("ID",this.id);
         tag.putString("type",LCRegistries.EJECTION_DATA.getKey(this.getType()).toString());
         LightmansCurrency.LogDebug("Saved Ejection Data:\n" + tag.getAsString());
         return tag;

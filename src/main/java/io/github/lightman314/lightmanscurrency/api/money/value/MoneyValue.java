@@ -23,7 +23,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -71,8 +70,8 @@ public abstract class MoneyValue {
     protected String generateUniqueName() { return this.getType().toString(); }
 
     /**
-     * Returns a unique name for this storage type.
-     * Used by {@link MoneyStorage} and {@link MoneyView} to seperate {@link MoneyValue}'s into their different value entries.
+     * Returns a unique name for this storage type.<br>
+     * Used by {@link MoneyStorage} and {@link MoneyView} to seperate {@link MoneyValue}'s into their different value entries.<br>
      * For {@link CoinValue} data, this returns a combination of it's <code>chain</code> and {@link #getType()},
      * but values without varying types may simply return a String version of {@link #getType()}
      */
@@ -235,6 +234,9 @@ public abstract class MoneyValue {
      */
     @Nonnull
     public abstract MoneyValue multiplyValue(double multiplier);
+
+
+    public boolean allowInterest() { return !(this instanceof NullValue); }
 
     /**
      * Function called when a block that contains money is broken through either legitimate means, or by illegal means.
@@ -440,7 +442,7 @@ public abstract class MoneyValue {
     }
 
     @Override
-    public final boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if(obj instanceof MoneyValue otherVal)
             return this.getUniqueName().equals(otherVal.getUniqueName()) && this.getCoreValue() == otherVal.getCoreValue() && this.isFree() == otherVal.isFree();
         return super.equals(obj);

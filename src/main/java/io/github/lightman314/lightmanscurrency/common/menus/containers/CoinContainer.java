@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.containers;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +20,6 @@ public class CoinContainer extends SimpleContainer
             this.setItem(i, other.getItem(i));
     }
     @Override
-    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsCoin(stack, this.allowSideChain); }
+    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return stack.getItem() == ModItems.COIN_ANCIENT.get() || CoinAPI.API.IsCoin(stack, this.allowSideChain); }
 
 }

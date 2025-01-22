@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.command;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ public class SPacketDebugTrader extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketDebugTrader::encode,SPacketDebugTrader::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketDebugTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			TraderData trader = TraderSaveData.GetTrader(true, message.traderID);
+			TraderData trader = TraderAPI.API.GetTrader(true, message.traderID);
 			if(trader == null)
 				LightmansCurrency.LogInfo("Client is missing trader with id " + message.traderID + "!");
 			else

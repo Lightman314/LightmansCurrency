@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -54,7 +53,7 @@ public class TeamBankReference extends BankReference {
 
     @Override
     public boolean allowedAccess(@Nonnull Player player) {
-        ITeam team = TeamSaveData.GetTeam(this.isClient(), this.teamID);
+        ITeam team = TeamAPI.API.GetTeam(this.isClient(), this.teamID);
         if(team != null && team.hasBankAccount())
             return team.canAccessBankAccount(player);
         return false;

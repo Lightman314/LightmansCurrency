@@ -1,11 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
@@ -20,12 +23,11 @@ public class NotificationTabButton extends TabButton {
 		this.category = builder.category;
 		this.dataSource = builder.data;
 	}
-
 	
 	protected boolean unseenNotifications() { return this.dataSource.get().unseenNotification(this.category); }
-	
+
 	@Override
-	protected int getColor() { return this.unseenNotifications() ? 0xFFFF00 : this.tab.getColor(); }
+	protected Pair<ResourceLocation, ScreenPosition> getSprite() { return this.unseenNotifications() ? YELLOW : NORMAL; }
 
 	@Nonnull
 	public static Builder nBuilder() { return new Builder(); }

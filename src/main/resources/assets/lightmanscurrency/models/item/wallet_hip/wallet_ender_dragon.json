@@ -1,20 +1,20 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"layer0": "lightmanscurrency:item/wallet_hip/wallet_ender_dragon",
-		"particle": "#layer0"
+		"main": "lightmanscurrency:item/wallet_hip/wallet_ender_dragon",
+		"particle": "#main"
 	},
 	"elements": [
 		{
 			"from": [0, 0, 0],
 			"to": [2, 4, 4],
 			"faces": {
-				"north": {"uv": [4, 4, 6, 8], "texture": "#layer0"},
-				"east": {"uv": [0, 4, 4, 8], "texture": "#layer0"},
-				"south": {"uv": [10, 4, 12, 8], "texture": "#layer0"},
-				"west": {"uv": [6, 4, 10, 8], "texture": "#layer0"},
-				"up": {"uv": [4, 0, 6, 4], "texture": "#layer0"},
-				"down": {"uv": [6, 0, 8, 4], "texture": "#layer0"}
+				"north": {"uv": [4, 4, 6, 8], "texture": "#main"},
+				"east": {"uv": [0, 4, 4, 8], "texture": "#main"},
+				"south": {"uv": [10, 4, 12, 8], "texture": "#main"},
+				"west": {"uv": [6, 4, 10, 8], "texture": "#main"},
+				"up": {"uv": [4, 0, 6, 4], "texture": "#main"},
+				"down": {"uv": [6, 0, 8, 4], "texture": "#main"}
 			}
 		},
 		{
@@ -22,11 +22,11 @@
 			"to": [0, 2, 3],
 			"rotation": {"angle": 0, "axis": "y", "origin": [-2, 0, 1]},
 			"faces": {
-				"north": {"uv": [5, 11, 6, 13], "texture": "#layer0"},
-				"south": {"uv": [4, 11, 5, 13], "texture": "#layer0"},
-				"west": {"uv": [4, 9, 6, 11], "texture": "#layer0"},
-				"up": {"uv": [3, 9, 4, 11], "texture": "#layer0"},
-				"down": {"uv": [6, 9, 7, 11], "texture": "#layer0"}
+				"north": {"uv": [5, 11, 6, 13], "texture": "#main"},
+				"south": {"uv": [4, 11, 5, 13], "texture": "#main"},
+				"west": {"uv": [4, 9, 6, 11], "texture": "#main"},
+				"up": {"uv": [3, 9, 4, 11], "texture": "#main"},
+				"down": {"uv": [6, 9, 7, 11], "texture": "#main"}
 			}
 		}
 	]

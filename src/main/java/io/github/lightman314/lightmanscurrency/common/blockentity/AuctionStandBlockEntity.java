@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -67,7 +67,13 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     private static void RandomizeDisplayItems()
     {
         randomizeNextOpportunity = false;
-        TraderData trader = TraderSaveData.GetAuctionHouse(false);
+        TraderDataCache data = TraderDataCache.TYPE.get(false);
+        if(data == null)
+        {
+            setDefaultDisplayItem();
+            return;
+        }
+        TraderData trader = data.getAuctionHouse();
         if(trader instanceof AuctionHouseTrader ah && ah.getTradeCount() > 0)
         {
             AuctionTradeData trade = ah.getTrade(new Random().nextInt(ah.getTradeCount()));

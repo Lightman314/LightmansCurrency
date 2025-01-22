@@ -32,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
@@ -46,7 +47,6 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
@@ -717,7 +717,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		updateData.putLong("ID", this.id);
-		TraderSaveData.MarkTraderDirty(updateData);
+		TraderDataCache.TYPE.get(false).markTraderDirty(updateData);
 	}
 
 	protected final void markDirty(Consumer<CompoundTag> updateWriter) {
@@ -732,7 +732,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		CompoundTag updateData = new CompoundTag();
-		updateWriter.accept(updateData, LookupHelper.getRegistryAccess());
+		updateWriter.accept(updateData,LookupHelper.getRegistryAccess());
 		this.markDirty(updateData);
 	}
 	

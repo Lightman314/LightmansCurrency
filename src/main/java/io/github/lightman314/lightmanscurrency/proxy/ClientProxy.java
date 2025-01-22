@@ -9,21 +9,20 @@ import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.client.data.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
+import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
@@ -33,10 +32,10 @@ import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCurio
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
@@ -79,7 +78,6 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
-		//BlockEntityRenderers.register(ModBlockEntities.TAX_BLOCK.get(), TaxBlockRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
@@ -93,6 +91,13 @@ public class ClientProxy extends CommonProxy{
 
 		//Setup custom item renderers
 		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
+
+		//Setup custom item property
+		ItemProperties.register(ModItems.COIN_ANCIENT.get(), AncientCoinItem.PROPERTY,
+				(stack,level,player,seed) -> {
+					AncientCoinType type = stack.get(ModDataComponents.ANCIENT_COIN_TYPE.get());
+					return type == null ? 0f : type.ordinal() + 1f;
+				});
 
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())
@@ -108,64 +113,18 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public void clearClientTraders() { ClientTraderData.ClearTraders(); }
-	
-	@Override
-	public void updateTrader(CompoundTag compound) { ClientTraderData.UpdateTrader(compound); }
-	
-	@Override
-	public void removeTrader(long traderID) { ClientTraderData.RemoveTrader(traderID); }
-	
-	public void clearTeams() { ClientTeamData.ClearTeams(); }
-	
-	public void updateTeam(CompoundTag compound) { ClientTeamData.UpdateTeam(compound); }
-	
-	@Override
-	public void removeTeam(long teamID) { ClientTeamData.RemoveTeam(teamID); }
-	
-	@Override
-	public void clearBankAccounts() { ClientBankData.ClearBankAccounts(); }
-	
-	@Override
-	public void updateBankAccount(UUID player, CompoundTag compound) { ClientBankData.UpdateBankAccount(player, compound); }
-
-	@Override
-	public void removeBankAccount(UUID player) { ClientBankData.DeleteBankAccount(player); }
-
-	@Override
-	public void receiveEmergencyEjectionData(CompoundTag compound)
-	{
-		ClientEjectionData.UpdateEjectionData(compound);
-	}
-	
-	@Override
-	public void updateNotifications(NotificationData data)
-	{
-		ClientNotificationData.UpdateNotifications(data);
-	}
-	
-	@Override
 	public void receiveNotification(Notification notification)
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
 		assert mc.player != null;
-		if(NeoForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)).isCanceled())
+		if(NeoForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), NotificationDataCache.TYPE.get(true).getNotifications(mc.player), notification)).isCanceled())
 			return;
 		
 		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
 			mc.gui.getChat().addMessage(notification.getChatMessage());
 		
 	}
-	
-	@Override
-	public void receiveSelectedBankAccount(BankReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
-
-	@Override
-	public void updateTaxEntries(CompoundTag compound) { ClientTaxData.UpdateEntry(compound); }
-
-	@Override
-	public void removeTaxEntry(long id) { ClientTaxData.RemoveEntry(id); }
 	
 	@Override
 	public long getTimeDesync()
@@ -248,6 +207,9 @@ public class ClientProxy extends CommonProxy{
 			return super.getPlayerList(logicalClient);
 		return Minecraft.getInstance().getConnection().getOnlinePlayers().stream().map(PlayerInfo::getProfile).toList();
 	}
+
+	@Override
+	public boolean isSelf(@Nonnull Player player) { return player == Minecraft.getInstance().player; }
 
 	@Override
 	public RegistryAccess getClientRegistryHolder() {

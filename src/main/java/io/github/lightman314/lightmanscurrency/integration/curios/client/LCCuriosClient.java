@@ -18,6 +18,7 @@ public class LCCuriosClient {
         registerWallet(ModItems.WALLET_DIAMOND);
         registerWallet(ModItems.WALLET_NETHERITE);
         registerWallet(ModItems.WALLET_NETHER_STAR);
+        registerWallet(ModItems.WALLET_ENDER_DRAGON);
     }
 
     private static void registerWallet(Supplier<? extends WalletItem> wallet) { registerWallet(wallet.get()); }

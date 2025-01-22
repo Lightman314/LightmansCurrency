@@ -1,6 +1,22 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+
+import javax.annotation.Nonnull;
+
 public class EnumUtil {
+
+	@Nonnull
+	public static <T extends Enum<?>> Codec<T> buildCodec(@Nonnull Class<T> clazz, @Nonnull String name)
+	{
+		return Codec.STRING.comapFlatMap(string -> {
+			T result = enumFromString(string,clazz.getEnumConstants(),null);
+			if(result == null)
+				return DataResult.error(() -> string + " is not a valid " + name);
+			return DataResult.success(result);
+		},Enum::toString);
+	}
 
 	public static <T extends Enum<?>> T enumFromString(String string, T[] allValues, T defaultValue)
 	{

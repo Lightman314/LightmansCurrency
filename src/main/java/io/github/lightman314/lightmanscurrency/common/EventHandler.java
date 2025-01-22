@@ -72,7 +72,7 @@ public class EventHandler {
 	{
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsCoin(pickupItem, false))
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false))
 			return;
 		
 		Player player = event.getPlayer();
@@ -332,7 +332,9 @@ public class EventHandler {
 		}
 	}
 
-	@SubscribeEvent
+	//Load at highest priority so that the config is loaded before other miscellaneous data is, as it *may* check config values during loading
+	//such as notification data which checks the notification count limits when loaded
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void serverStart(ServerStartedEvent event) { ConfigFile.loadServerFiles(ConfigFile.LoadPhase.GAME_START); }
 
 	@SubscribeEvent

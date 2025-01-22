@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client.PaygateTradeButtonRenderer;
@@ -24,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +31,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -180,15 +179,9 @@ public class PaygateTradeData extends TradeData {
 		{
 			this.ticketID = compound.getLong("TicketID");
 			if(compound.contains("TicketItem"))
-				this.ticketItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("TicketItem")));
+				this.ticketItem = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("TicketItem")));
 			else
 				this.ticketItem = ModItems.TICKET.get();
-		}
-		else if(compound.contains("Ticket"))
-		{
-			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
-			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
-			this.ticketItem = ModItems.TICKET.get();
 		}
 		else
 		{

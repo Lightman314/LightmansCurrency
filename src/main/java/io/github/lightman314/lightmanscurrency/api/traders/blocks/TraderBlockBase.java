@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
@@ -23,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlo
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -101,6 +103,18 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				}
 				if(trader != null) //Open the trader menu
 				{
+					if(trader.getState() == TraderState.EJECTED)
+					{
+						LightmansCurrency.LogWarning("Trader was somehow flagged as ejected, yet it is still present in the world!\nFlagging trader as 'normal'");
+						trader.move(level,blockEntity.getBlockPos());
+						trader.setState(TraderState.NORMAL);
+						//Remove any ejection data for this trader, as it's clearly still here
+						for(EjectionData data : SafeEjectionAPI.getApi().getAllData(false))
+						{
+							if(data instanceof TraderEjectionData d && d.getTraderID() == trader.getID())
+								d.delete();
+						}
+					}
 					if(trader.shouldAlwaysShowOnTerminal() && trader.hasPermission(player,Permissions.OPEN_STORAGE))
 						trader.openStorageMenu(player, BlockEntityValidator.of(traderSource));
 					else
@@ -191,7 +205,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 					//as the other block would then be considered a legit break and delete the trader
 					traderSource.flagAsPickup();
 					TraderData trader = traderSource.getTraderData();
-					if(trader != null)
+					if(trader != null && trader.getState().shouldEject())
 					{
 						if(!LCConfig.SERVER.anarchyMode.get())
 						{
