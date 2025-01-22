@@ -78,8 +78,9 @@ public class CoinJarItem extends BlockItem {
 	public static int getJarColor(@Nonnull ItemStack stack)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem jar) || !jar.canDye(stack))
-			return 0xFFFFFFFF;
-		return DyedItemColor.getOrDefault(stack, 0xFFFFFFFF);
+			return 0xFFFFFF;
+		DyedItemColor c = stack.get(DataComponents.DYED_COLOR);
+		return c == null ? 0xFFFFFF : c.rgb();
 	}
 
 	public static void setJarColor(@Nonnull ItemStack stack, int color)
