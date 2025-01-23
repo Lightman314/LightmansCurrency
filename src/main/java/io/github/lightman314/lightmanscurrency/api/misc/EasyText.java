@@ -9,7 +9,7 @@ public class EasyText {
 
     public static MutableComponent empty() { return Component.empty(); }
     public static MutableComponent literal(String text) { return Component.literal(text); }
-    public static MutableComponent translatable(String translation, Object... children) { return Component.translatable(translation, children); }
+    public static MutableComponent translatable(String translation, Object... children) { return Component.translatableEscape(translation, children); }
 
     public static MutableComponent makeMutable(Component text)
     {

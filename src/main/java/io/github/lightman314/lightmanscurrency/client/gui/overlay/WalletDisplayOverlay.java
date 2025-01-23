@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
@@ -69,6 +70,9 @@ public class WalletDisplayOverlay implements LayeredDraw.Layer {
             //Draw the stored money
             IMoneyHolder money = MoneyAPI.API.GetPlayersMoneyHandler(Minecraft.getInstance().player);
             MoneyView contents = money.getStoredMoney();
+            //Don't draw anything if no money is present
+            if(contents.isEmpty())
+                return;
 
             DisplayType type = LCConfig.CLIENT.walletOverlayType.get();
             if(type == DisplayType.ITEMS_NARROW || type == DisplayType.ITEMS_WIDE)
@@ -91,7 +95,7 @@ public class WalletDisplayOverlay implements LayeredDraw.Layer {
             }
             if(type == DisplayType.TEXT)
             {
-                Component walletText = contents.getRandomValueText();
+                Component walletText = contents.getRandomValueText(EasyText.empty());
                 if(corner.isRightSide)
                     gui.drawString(walletText, currentPosition.offset(-1 * gui.font.width(walletText), 3), 0xFFFFFF);
                 else
