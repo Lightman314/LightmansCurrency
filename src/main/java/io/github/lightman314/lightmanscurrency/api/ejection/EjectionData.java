@@ -35,7 +35,7 @@ public abstract class EjectionData implements ISidedObject {
     public EjectionData flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
     @Nonnull
     @Override
-    public Object flagAsClient(@Nonnull IClientTracker tracker) { return this.flagAsClient(tracker.isClient()); }
+    public EjectionData flagAsClient(@Nonnull IClientTracker tracker) { return this.flagAsClient(tracker.isClient()); }
 
     public EjectionData() { }
 

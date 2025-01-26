@@ -8,9 +8,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
@@ -29,7 +31,13 @@ public class LookupHelper {
         backupCache = event.getRegistryAccess();
     }
 
-    @Nonnull
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    private static void villagerTradesEvent(VillagerTradesEvent event)
+    {
+        backupCache = event.getRegistryAccess();
+    }
+
+    @Nullable
     public static RegistryAccess getRegistryAccess()
     {
         //Check server first
@@ -38,7 +46,7 @@ public class LookupHelper {
             return server.registryAccess();
         //Check client next
         RegistryAccess registryAccess = LightmansCurrency.getProxy().getClientRegistryHolder();
-        return registryAccess == null ? registryAccess : backupCache;
+        return registryAccess == null ? backupCache : registryAccess;
     }
 
     @Nullable

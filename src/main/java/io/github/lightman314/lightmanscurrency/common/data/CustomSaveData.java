@@ -21,6 +21,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,7 +48,7 @@ public class CustomSaveData extends SavedData {
             return null;
         }
         if(!serverDataCache.containsKey(dataID))
-            LightmansCurrency.LogWarning("Attempted to get custom data '" + dataID + "' before the server started!");
+            LightmansCurrency.LogWarning("Attempted to get custom data '" + dataID + "' before the server started!",new Throwable());
 
         return (T)serverDataCache.get(dataID);
     }
@@ -57,6 +58,7 @@ public class CustomSaveData extends SavedData {
         ServerLevel overworld = server.overworld();
         if(overworld == null)
             return;
+        serverDataCache.clear();
         LCRegistries.CUSTOM_DATA.forEach(type -> {
             ResourceLocation id = LCRegistries.CUSTOM_DATA.getKey(type);
             CustomSaveData data = overworld.getDataStorage().computeIfAbsent(factory(type), type.fileName);

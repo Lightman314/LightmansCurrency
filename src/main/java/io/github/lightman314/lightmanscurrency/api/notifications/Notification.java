@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
@@ -13,13 +14,13 @@ import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 
-public abstract class Notification implements IClientTracker {
+public abstract class Notification implements ISidedObject {
 
 	private boolean isClient = false;
 	@Override
 	public final boolean isClient() { return this.isClient; }
 	@Override
-	public final boolean isServer() { return IClientTracker.super.isServer(); }
+	public final boolean isServer() { return ISidedObject.super.isServer(); }
 
 	private long timeStamp;
 	public long getTimeStamp() { return this.timeStamp; }
@@ -108,6 +109,14 @@ public abstract class Notification implements IClientTracker {
 	 */
 	protected abstract boolean canMerge(@Nonnull Notification other);
 
-	public void flagAsClient() { this.isClient = true; }
+	@Override
+	@Nonnull
+	public Notification flagAsClient() { return this.flagAsClient(true); }
+	@Override
+	@Nonnull
+	public Notification flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
+	@Override
+	@Nonnull
+	public Notification flagAsClient(@Nonnull IClientTracker context) { return this.flagAsClient(context.isClient()); }
 
 }

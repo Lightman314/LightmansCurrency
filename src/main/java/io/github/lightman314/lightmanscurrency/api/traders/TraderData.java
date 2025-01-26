@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -123,7 +124,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
+public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
 	
 	public static final int GLOBAL_TRADE_LIMIT = 100;
 	
@@ -252,7 +253,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean canStoreMoney() { return !this.creative || this.storeCreativeMoney; }
 
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; this.logger.flagAsClient(); }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient() { return this.flagAsClient(true); }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient(boolean isClient) { this.isClient = isClient; this.logger.flagAsClient(this); return this; }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 	public boolean isClient() { return this.isClient; }
 
 	private final OwnerData owner = new OwnerData(this, () -> this.markDirty(this::saveOwner));

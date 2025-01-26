@@ -449,7 +449,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
     }
 
     @Override
-    public void parseSyncPacket(LazyPacketData data, HolderLookup.Provider lookup) {
+    protected void parseSyncPacket(LazyPacketData data, HolderLookup.Provider lookup) {
         if(data.contains("ClearTraders"))
             this.traderData.clear();
         if(data.contains("DeleteTrader"))
@@ -465,7 +465,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
                 TraderData trader = TraderData.Deserialize(true, updateTag, LookupHelper.getRegistryAccess());
                 if(trader != null)
                 {
-                    this.traderData.put(id, trader);
+                    this.traderData.put(id, trader.flagAsClient(this));
                     trader.OnRegisteredToOffice();
                 }
             }

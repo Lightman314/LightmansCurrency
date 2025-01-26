@@ -134,7 +134,7 @@ public class EjectionDataCache extends CustomData {
             this.data.remove(message.getLong("RemoveData"));
         if(message.contains("UpdateData"))
         {
-            EjectionData d = SafeEjectionAPI.getApi().parseData(message.getNBT("UpdateData"),lookup);
+            EjectionData d = SafeEjectionAPI.getApi().parseData(message.getNBT("UpdateData"),lookup).flagAsClient(this);
             if(d != null)
                 this.data.put(d.id(),d);
         }

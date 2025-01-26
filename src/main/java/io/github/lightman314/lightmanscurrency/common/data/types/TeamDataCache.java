@@ -86,6 +86,7 @@ public class TeamDataCache extends CustomData implements IServerTicker {
             this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save(LookupHelper.getRegistryAccess())));
     }
 
+    @Nullable
     public ITeam registerTeam(Player owner, String teamName)
     {
         long teamID = this.getNextID();
@@ -109,10 +110,10 @@ public class TeamDataCache extends CustomData implements IServerTicker {
     }
 
     @Override
-    public void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
+    protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
         if(message.contains("UpdateTeam"))
         {
-            Team team = Team.load(message.getNBT("UpdateTeam"),message.lookup);
+            Team team = Team.load(message.getNBT("UpdateTeam"),message.lookup).flagAsClient(this);
             if(team != null)
                 this.teams.put(team.getID(),team);
         }

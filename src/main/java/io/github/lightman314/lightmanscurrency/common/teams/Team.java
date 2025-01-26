@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
@@ -25,13 +26,14 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 
-public class Team implements ITeam {
+public class Team implements ITeam, ISidedObject {
 
 	public static final int MAX_NAME_LENGTH = 32;
 	
@@ -51,8 +53,16 @@ public class Team implements ITeam {
 	@Override
 	public boolean isClient() { return this.isClient; }
 
+	@Override
+	@Nonnull
 	public Team flagAsClient() { this.isClient = true; return this; }
-	
+	@Override
+	@Nonnull
+	public Team flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
+	@Override
+	@Nonnull
+	public Team flagAsClient(IClientTracker context) { this.isClient = context.isClient(); return this; }
+
 	List<PlayerReference> admins = new ArrayList<>();
 	@Override
 	@Nonnull

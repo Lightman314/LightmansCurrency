@@ -91,7 +91,7 @@ public class BankDataCache extends CustomData {
     public List<BankReference> getPlayerBankAccounts() {
         List<BankReference> results = new ArrayList<>();
         for(UUID player : this.playerBankData.keySet())
-            results.add(PlayerBankReference.of(player));
+            results.add(PlayerBankReference.of(player).flagAsClient(this));
         return results;
     }
 
@@ -102,7 +102,7 @@ public class BankDataCache extends CustomData {
             return this.playerBankData.get(player).account;
         //Create a new bank account for the player
         BankAccount newAccount = this.generateBankAccount(player);
-        this.playerBankData.put(player, new BankDataEntry(newAccount, PlayerBankReference.of(player)));
+        this.playerBankData.put(player, new BankDataEntry(newAccount, PlayerBankReference.of(player).flagAsClient(this)));
         this.markAccountDirty(player);
         return newAccount;
     }
@@ -168,13 +168,13 @@ public class BankDataCache extends CustomData {
             if(!account.allowedAccess(player))
             {
                 LightmansCurrency.LogInfo(player.getName().getString() + " is no longer allowed to access their selected bank account. Switching back to their personal account.");
-                account = PlayerBankReference.of(player);
+                account = PlayerBankReference.of(player).flagAsClient(this);
                 this.setSelectedAccount(player,account);
             }
             return account;
         }
         //Generate default bank account for the player
-        BankReference account = PlayerBankReference.of(player);
+        BankReference account = PlayerBankReference.of(player).flagAsClient(this);
         this.setSelectedAccount(player,account);
         return account;
     }
@@ -213,7 +213,7 @@ public class BankDataCache extends CustomData {
     }
 
     @Override
-    public void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
+    protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
         if(message.contains("ClearAccounts"))
             this.playerBankData.clear();
         if(message.contains("DeleteAccount"))
@@ -221,15 +221,15 @@ public class BankDataCache extends CustomData {
         if(message.contains("UpdateAccount"))
         {
             UUID account = message.getUUID("UpdateAccount");
-            BankAccount ba = this.loadBankAccount(account,message.getNBT("Account"), LookupHelper.getRegistryAccess());
-            BankDataEntry data = this.playerBankData.containsKey(account) ? this.playerBankData.get(account) : new BankDataEntry(null,PlayerBankReference.of(account));
+            BankAccount ba = this.loadBankAccount(account,message.getNBT("Account"), LookupHelper.getRegistryAccess()).flagAsClient(this);
+            BankDataEntry data = this.playerBankData.containsKey(account) ? this.playerBankData.get(account) : new BankDataEntry(null,PlayerBankReference.of(account).flagAsClient(this));
             data.account = ba;
             this.playerBankData.put(account,data);
         }
         if(message.contains("UpdateSelected"))
         {
             UUID account = message.getUUID("UpdateSelected");
-            BankReference selected = BankReference.load(message.getNBT("Selected"));
+            BankReference selected = BankReference.load(message.getNBT("Selected")).flagAsClient(this);
             BankDataEntry data = this.playerBankData.containsKey(account) ? this.playerBankData.get(account) : new BankDataEntry(this.generateBankAccount(account),null);
             data.selected = selected;
             this.playerBankData.put(account,data);
