@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.impl;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
+import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -21,11 +20,21 @@ public final class TeamAPIImpl extends TeamAPI {
 
     @Nullable
     @Override
-    public ITeam GetTeam(boolean isClient, long teamID) { return TeamSaveData.GetTeam(isClient,teamID); }
+    public ITeam GetTeam(boolean isClient, long teamID) {
+        TeamDataCache data = TeamDataCache.TYPE.get(isClient);
+        if(data == null)
+            return null;
+        return data.getTeam(teamID);
+    }
 
     @Nonnull
     @Override
-    public List<ITeam> GetAllTeams(boolean isClient) { return ImmutableList.copyOf(TeamSaveData.GetAllTeams(isClient).stream().map(v -> (ITeam)v).toList()); }
+    public List<ITeam> GetAllTeams(boolean isClient) {
+        TeamDataCache data = TeamDataCache.TYPE.get(isClient);
+        if(data == null)
+            return new ArrayList<>();
+        return data.getAllTeams();
+    }
 
     @Nonnull
     @Override
@@ -45,7 +54,10 @@ public final class TeamAPIImpl extends TeamAPI {
     public ITeam CreateTeam(@Nonnull Player owner, @Nonnull String name) {
         if(owner.level().isClientSide)
             return null;
-        return TeamSaveData.RegisterTeam(owner,name);
+        TeamDataCache data = TeamDataCache.TYPE.get(false);
+        if(data == null)
+            return null;
+        return data.registerTeam(owner,name);
     }
 
     @Nonnull

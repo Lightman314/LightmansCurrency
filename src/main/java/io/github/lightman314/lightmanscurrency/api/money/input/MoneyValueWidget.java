@@ -43,11 +43,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     private static String lastSelectedHandler = MoneyAPI.MODID + ":coins!main";
 
-    /**
-     * When constructed by the builder, default value is <code>false</code><br>
-     * Leaving default value as true to ensure it still follows legacy behaviour for the old constructor
-     */
-    public boolean drawBG = true;
+    private final boolean drawBG;
     public boolean allowFreeInput = true;
     private boolean locked = false;
     public boolean isLocked() { return this.locked; }
@@ -135,6 +131,14 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
             String id = value.getUniqueName();
             if(this.availableHandlers.containsKey(id))
                 return this.availableHandlers.get(id);
+            else
+            {
+                for(MoneyInputHandler handler : this.availableHandlers.values())
+                {
+                    if(handler.isForValue(value))
+                        return handler;
+                }
+            }
         }
         //Could not find a valid handler. Just return the first one.
         return this.availableHandlers.values().stream().toList().get(0);
@@ -153,7 +157,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
         this.dropdown = this.addChild(DropdownWidget.builder()
                 .position(area.pos.offset(10,4))
-                .width(64)
+                .width(100)
                 .selected(this.handlerKeys.indexOf(this.currentHandler.getUniqueName()))
                 .selectAction(this::selectHandler)
                 .options(this.handlerNames())
@@ -163,10 +167,21 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     private void checkHandler()
     {
-        if(this.currentValue.isFree() || this.currentValue.isEmpty() || this.currentValue.getUniqueName().equals(this.currentHandler.getUniqueName()))
+        if(this.currentValue.isFree() || this.currentValue.isEmpty() || (this.currentHandler != null && this.currentHandler.isForValue(this.currentValue)))
             return;
         if(this.availableHandlers.containsKey(this.currentValue.getUniqueName()))
             this.setHandler(this.availableHandlers.get(this.currentValue.getUniqueName()));
+        else
+        {
+            for(MoneyInputHandler handler : this.availableHandlers.values())
+            {
+                if(handler.isForValue(this.currentValue))
+                {
+                    this.setHandler(handler);
+                    return;
+                }
+            }
+        }
     }
 
     private void setHandler(@Nonnull MoneyInputHandler handler)
@@ -229,12 +244,12 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     }
 
-    private void toggleFree(EasyButton button)
+    private void toggleFree()
     {
-        if(this.allowFreeInput && this.currentValue.isFree())
-            this.onHandlerChangeValue(MoneyValue.empty());
+        if(this.currentValue.isFree())
+            this.changeValue(MoneyValue.empty());
         else if(this.allowFreeInput)
-            this.onHandlerChangeValue(MoneyValue.free());
+            this.changeValue(MoneyValue.free());
     }
 
     private void onHandlerChangeValue(MoneyValue newValue)

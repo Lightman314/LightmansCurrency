@@ -6,9 +6,6 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
-import io.github.lightman314.lightmanscurrency.network.message.data.bank.*;
-import io.github.lightman314.lightmanscurrency.network.message.data.team.*;
-import io.github.lightman314.lightmanscurrency.network.message.data.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.event.*;
@@ -19,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
-import io.github.lightman314.lightmanscurrency.network.message.tax.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
@@ -60,15 +56,11 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketOpenATM.class, CPacketOpenATM.HANDLER);
 		register(CPacketSelectBankAccount.class, CPacketSelectBankAccount.HANDLER);
 		register(CPacketBankInteraction.class, CPacketBankInteraction.HANDLER);
-		register(SPacketClearClientBank.class, SPacketClearClientBank.HANDLER);
-		register(SPacketUpdateClientBank.class, SPacketUpdateClientBank.HANDLER);
-		register(SPacketDeleteClientBank.class, SPacketDeleteClientBank.HANDLER);
 		register(CPacketBankTransferAccount.class, CPacketBankTransferAccount.HANDLER);
 		register(CPacketBankTransferPlayer.class, CPacketBankTransferPlayer.HANDLER);
 		register(SPacketBankTransferResponse.class, SPacketBankTransferResponse.HANDLER);
 		register(CPacketATMSetPlayerAccount.class, CPacketATMSetPlayerAccount.HANDLER);
 		register(SPacketATMPlayerAccountResponse.class, SPacketATMPlayerAccountResponse.HANDLER);
-		register(SPacketSyncSelectedBankAccount.class, SPacketSyncSelectedBankAccount.HANDLER);
 		
 		//Trader
 		register(CPacketExecuteTrade.class, CPacketExecuteTrade.HANDLER);
@@ -96,11 +88,6 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketSyncWallet.class, SPacketSyncWallet.HANDLER);
 		register(CPacketSetVisible.class, CPacketSetVisible.HANDLER);
 		register(CPacketCreativeWalletEdit.class, CPacketCreativeWalletEdit.HANDLER);
-
-		//Trader Data Sync
-		register(SPacketClearClientTraders.class, SPacketClearClientTraders.HANDLER);
-		register(SPacketUpdateClientTrader.class, SPacketUpdateClientTrader.HANDLER);
-		register(SPacketMessageRemoveClientTrader.class, SPacketMessageRemoveClientTrader.HANDLER);
 		
 		//Auction House
 		register(SPacketStartBid.class, SPacketStartBid.HANDLER);
@@ -111,9 +98,6 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketInterfaceHandlerMessage.class, CPacketInterfaceHandlerMessage.HANDLER);
 		
 		//Teams
-		register(SPacketClearClientTeams.class, SPacketClearClientTeams.HANDLER);
-		register(SPacketRemoveClientTeam.class, SPacketRemoveClientTeam.HANDLER);
-		register(SPacketUpdateClientTeam.class, SPacketUpdateClientTeam.HANDLER);
 		register(CPacketOpenTeamManager.class, CPacketOpenTeamManager.HANDLER);
 
 		//Lazy Menu Interaction
@@ -121,13 +105,8 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketLazyMenu.class, CPacketLazyMenu.HANDLER);
 
 		//Notifications
-		register(SPacketSyncNotifications.class, SPacketSyncNotifications.HANDLER);
 		register(SPacketChatNotification.class, SPacketChatNotification.HANDLER);
 		register(CPacketOpenNotifications.class, CPacketOpenNotifications.HANDLER);
-
-		//Taxes
-		register(SPacketSyncClientTax.class, SPacketSyncClientTax.HANDLER);
-		register(SPacketRemoveTax.class, SPacketRemoveTax.HANDLER);
 
 		//Core
 		register(CPacketRequestNBT.class, CPacketRequestNBT.HANDLER);
@@ -148,7 +127,6 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketCreatePersistentAuction.class, CPacketCreatePersistentAuction.HANDLER);
 		
 		//Ejection data
-		register(SPacketSyncEjectionData.class, SPacketSyncEjectionData.HANDLER);
 		register(CPacketOpenEjectionMenu.class, CPacketOpenEjectionMenu.HANDLER);
 
 		//Player Trading
@@ -170,6 +148,9 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketRequestName.class, CPacketRequestName.HANDLER);
 		register(CPacketRequestID.class,CPacketRequestID.HANDLER);
 		register(SPacketUpdatePlayerCache.class,SPacketUpdatePlayerCache.HANDLER);
+
+		//Custom Data Syncing
+		register(SPacketSyncCustomData.class,SPacketSyncCustomData.HANDLER);
 
 	}
 

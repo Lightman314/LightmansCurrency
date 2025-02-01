@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.*;
@@ -22,7 +23,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 
 public class LCText {
 
@@ -302,6 +302,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_COIN_ADVANCED_VALUE = TextEntry.tooltip(MODID,"coin.advanced.value");
     public static final TextEntry TOOLTIP_COIN_ADVANCED_CORE_CHAIN = TextEntry.tooltip(MODID,"coin.advanced.core_chain");
     public static final TextEntry TOOLTIP_COIN_ADVANCED_SIDE_CHAIN = TextEntry.tooltip(MODID,"coin.advanced.side_chain");
+    public static final TextEntry TOOLTIP_ANCIENT_COIN_ADVANCED_TYPE = TextEntry.tooltip(MODID,"ancient_coin.advanced.type");
 
     //Wallet
     public static final TextEntry MESSAGE_WALLET_NONE_EQUIPPED = TextEntry.message(MODID,"wallet.none_equipped");
@@ -836,7 +837,10 @@ public class LCText {
     public static final TextEntry COIN_CHAIN_EMERALDS = TextEntry.chain("emeralds");
     public static final TextEntry COIN_CHAIN_EMERALDS_DISPLAY = TextEntry.chainDisplay("emeralds");
     public static final TextEntry COIN_CHAIN_EMERALDS_DISPLAY_WORDY = TextEntry.chainDisplayWordy("emeralds");
+    public static final TextEntry ANCIENT_COIN_VALUE_NAME = new TextEntry("lightmanscurrency.money.ancient_coins.name");
+    public static final TextEntry ANCIENT_COIN_VALUE_DISPLAY = new TextEntry("lightmanscurrency.money.ancient_coins.display");
 
+    public static final TextEntryBundle<AncientCoinType> ANCIENT_COIN_TYPE_LABEL = TextEntryBundle.of(AncientCoinType.values(),"lightmanscurrency.money.ancient_coins.type");
 
     //Generic Text
     public static final TextEntry BUTTON_CHANGE_NAME_ICON = TextEntry.button(MODID,"change_name");
@@ -921,6 +925,7 @@ public class LCText {
 
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_AN_ANCIENT_COIN = TextEntry.argument("money_value.not_an_ancient_coin");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NO_VALUE = TextEntry.argument("money_value.no_value");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE = TextEntry.argument("money_value.not_free_or_empty");
     public static final TextEntry ARGUMENT_COLOR_INVALID = TextEntry.argument("color.invalid");
@@ -1054,6 +1059,7 @@ public class LCText {
     public static final AdvancementTextEntry ADVANCEMENT_CASH_REGISTER = AdvancementTextEntry.of("lightmanscurrency.cash_register");
     public static final AdvancementTextEntry ADVANCEMENT_CASHIER_TRADE = AdvancementTextEntry.of("lightmanscurrency.cashier_trade");
     public static final AdvancementTextEntry ADVANCEMENT_JAR_OF_SUS = AdvancementTextEntry.of("lightmanscurrency.jar_of_sus");
+    public static final AdvancementTextEntry ADVANCEMENT_ANCIENT_COIN = AdvancementTextEntry.of("lightmanscurrency.ancient_coin");
 
     public static final AdvancementTextEntry ADVANCEMENT_EVENT_CHOCOLATE = AdvancementTextEntry.of("lightmanscurrency.event.chocolate");
     public static final AdvancementTextEntry ADVANCEMENT_EVENT_CHRISTMAS = AdvancementTextEntry.of("lightmanscurrency.event.christmas");
@@ -1082,5 +1088,6 @@ public class LCText {
     public static final TextEntry REI_GROUP_AUCTION_STAND = TextEntry.reiGroup(MODID,"auction_stand");
     public static final TextEntry REI_GROUP_JAR_OF_SUS = TextEntry.reiGroup(MODID,"jar_of_sus");
     public static final TextEntry REI_GROUP_ATM_CARD = TextEntry.reiGroup(MODID,"atm_card");
+    public static final TextEntry REI_GROUP_ANCIENT_COINS = TextEntry.reiGroup(MODID,"ancient_coin");
 
 }

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,7 +25,7 @@ public class CPacketCollectTicketStubs extends ClientToServerPacket {
         public CPacketCollectTicketStubs decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCollectTicketStubs(buffer.readLong()); }
         @Override
         protected void handle(@Nonnull CPacketCollectTicketStubs message, @Nullable ServerPlayer sender) {
-            if(TraderSaveData.GetTrader(false, message.traderID) instanceof PaygateTraderData paygate && sender != null)
+            if(TraderAPI.API.GetTrader(false, message.traderID) instanceof PaygateTraderData paygate && sender != null)
                 paygate.collectTicketStubs(sender);
         }
     }

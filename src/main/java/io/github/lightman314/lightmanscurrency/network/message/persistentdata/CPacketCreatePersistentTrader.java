@@ -8,9 +8,9 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,7 +49,11 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 		protected void handle(@Nonnull CPacketCreatePersistentTrader message, @Nullable ServerPlayer sender) {
 			if(LCAdminMode.isAdminPlayer(sender))
 			{
-				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+				TraderDataCache data = TraderDataCache.TYPE.get(false);
+				if(data == null)
+					return;
+
+				TraderData trader = data.getTrader(message.traderID);
 				if(trader != null && trader.canMakePersistent())
 				{
 
@@ -60,7 +64,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 						try {
 							JsonObject traderJson = trader.saveToJson(message.id, message.owner);
 
-							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
+							JsonArray persistentTraders = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_TRADER_SECTION);
 							//Check for traders with the same id, and replace any entries that match
 							for(int i = 0; i < persistentTraders.size(); ++i)
 							{
@@ -69,7 +73,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								{
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
-									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
 									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
 									return;
 								}
@@ -77,7 +81,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
-							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
 							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
 						} catch (Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
@@ -86,7 +90,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 						try {
 							//Get a list of all known trader IDs
 							List<String> knownIDs = new ArrayList<>();
-							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
+							JsonArray persistentTraders = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_TRADER_SECTION);
 							for(int i = 0; i < persistentTraders.size(); ++i)
 							{
 								JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
@@ -103,7 +107,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 								{
 									persistentTraders.add(trader.saveToJson(genID, message.owner));
-									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
 									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
 									return;
 								}

@@ -74,7 +74,7 @@ public class PermissionsTab extends SettingsSubTab {
             int textWidth = 90 - option.widgetWidth();
             int textHeight = gui.font.wordWrapHeight(option.widgetName().getString(), textWidth);
             int yStart = ((20 - textHeight) / 2) + yPos;
-            gui.drawWordWrap(option.widgetName(), xPos, yStart, textWidth, 0xFFFFFF);
+            gui.drawWordWrap(option.widgetName(), xPos, yStart, textWidth, 0x404040);
         }
 
     }

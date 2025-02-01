@@ -2,23 +2,24 @@ package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class WalletDisplayOverlay implements IGuiOverlay {
 
@@ -52,46 +53,48 @@ public class WalletDisplayOverlay implements IGuiOverlay {
             if(walletHandler == null)
                 return;
             ItemStack wallet = walletHandler.getWallet();
-            if(WalletItem.isWallet(wallet))
-            {
+            if(WalletItem.isWallet(wallet)) {
                 //Draw the wallet
                 gui.renderItem(wallet, currentPosition.x, currentPosition.y);
-                if(corner.isRightSide)
-                    currentPosition = currentPosition.offset(ScreenPosition.of(-17,0));
+                if (corner.isRightSide)
+                    currentPosition = currentPosition.offset(ScreenPosition.of(-17, 0));
                 else
-                    currentPosition = currentPosition.offset(ScreenPosition.of(17,0));
+                    currentPosition = currentPosition.offset(ScreenPosition.of(17, 0));
+            }
 
-                MoneyView contents = walletHandler.getStoredMoney();
+            //Draw the stored money
+            IMoneyHolder money = MoneyAPI.API.GetPlayersMoneyHandler(Minecraft.getInstance().player);
+            MoneyView contents = money.getStoredMoney();
+            //Don't draw anything if no money is present
+            if(contents.isEmpty())
+                return;
 
-                //Draw the stored money
-                switch(LCConfig.CLIENT.walletOverlayType.get())
+            DisplayType type = LCConfig.CLIENT.walletOverlayType.get();
+            if(type == DisplayType.ITEMS_NARROW || type == DisplayType.ITEMS_WIDE)
+            {
+                int offsetAmount = LCConfig.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
+                MoneyValue randomValue = contents.getRandomValue();
+                if(randomValue instanceof IItemBasedValue itemValue)
                 {
-                    case ITEMS_NARROW,ITEMS_WIDE -> {
-                        int offsetAmount = LCConfig.CLIENT.walletOverlayType.get() == DisplayType.ITEMS_WIDE ? 17 : 9;
-                        List<ItemStack> walletContents;
-                        MoneyValue randomValue = contents.getRandomValue();
-                        if(randomValue instanceof IItemBasedValue itemValue)
-                            walletContents = itemValue.getAsItemList();
-                        else
-                            walletContents = new ArrayList<>();
-                        for(ItemStack coin : walletContents)
-                        {
-                            gui.renderItem(coin, currentPosition.x, currentPosition.y);
-                            if(corner.isRightSide)
-                                currentPosition = currentPosition.offset(ScreenPosition.of(-offsetAmount,0));
-                            else
-                                currentPosition = currentPosition.offset(ScreenPosition.of(offsetAmount,0));
-                        }
-                    }
-                    case TEXT -> {
-                        Component walletText = contents.getRandomValueText();
+                    for(ItemStack coin : itemValue.getAsItemList())
+                    {
+                        gui.renderItem(coin, currentPosition.x, currentPosition.y);
                         if(corner.isRightSide)
-                            gui.drawString(walletText, currentPosition.offset(-1 * gui.font.width(walletText), 3), 0xFFFFFF);
+                            currentPosition = currentPosition.offset(ScreenPosition.of(-offsetAmount,0));
                         else
-                            gui.drawString(walletText, currentPosition.offset(0,3), 0xFFFFFF);
+                            currentPosition = currentPosition.offset(ScreenPosition.of(offsetAmount,0));
                     }
                 }
-
+                else
+                    type = DisplayType.TEXT;
+            }
+            if(type == DisplayType.TEXT)
+            {
+                Component walletText = contents.getRandomValueText(EasyText.empty());
+                if(corner.isRightSide)
+                    gui.drawString(walletText, currentPosition.offset(-1 * gui.font.width(walletText), 3), 0xFFFFFF);
+                else
+                    gui.drawString(walletText, currentPosition.offset(0,3), 0xFFFFFF);
             }
         } catch (Throwable t) {
             if(this.sendError)

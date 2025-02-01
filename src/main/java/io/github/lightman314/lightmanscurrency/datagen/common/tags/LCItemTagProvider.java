@@ -46,7 +46,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.COIN_GOLD)
                 .add(ModItems.COIN_EMERALD)
                 .add(ModItems.COIN_DIAMOND)
-                .add(ModItems.COIN_NETHERITE);
+                .add(ModItems.COIN_NETHERITE)
+                .add(ModItems.COIN_ANCIENT);
         //Event Coins
         this.cTag(LCTags.Items.EVENT_COINS)
                 .addTag(LCTags.Items.EVENT_COIN_CHOCOLATE);

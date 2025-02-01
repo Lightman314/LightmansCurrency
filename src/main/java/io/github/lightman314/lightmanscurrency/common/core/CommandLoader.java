@@ -18,6 +18,8 @@ public class CommandLoader {
 		CommandBank.register(event.getDispatcher(), event.getBuildContext());
 		CommandConfig.register(event.getDispatcher());
 		CommandTerminal.register(event.getDispatcher());
+		//Debugging is complete
+		//DebugCommands.register(event.getDispatcher(),event.getBuildContext());
 	}
 	
 }

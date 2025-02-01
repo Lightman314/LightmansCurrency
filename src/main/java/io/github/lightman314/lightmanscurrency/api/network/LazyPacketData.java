@@ -14,10 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
@@ -31,6 +28,9 @@ public final class LazyPacketData {
     public static final byte TYPE_FLOAT = 4;
     public static final byte TYPE_DOUBLE = 5;
     public static final byte TYPE_STRING = 6;
+
+    //Fancy Types
+    public static final byte TYPE_UUID = 32;
 
     //Minecraft Types
     public static final byte TYPE_TEXT = 64;
@@ -99,6 +99,14 @@ public final class LazyPacketData {
         Data d = this.getData(key);
         if(d.type == TYPE_STRING)
             return (String)d.value;
+        return defaultValue;
+    }
+
+    public UUID getUUID(String key) { return this.getUUID(key,null); }
+    public UUID getUUID(String key, UUID defaultValue) {
+        Data d = this.getData(key);
+        if(d.type == TYPE_UUID)
+            return (UUID)d.value;
         return defaultValue;
     }
 
@@ -239,6 +247,8 @@ public final class LazyPacketData {
         public Builder setDouble(@Nonnull String key, double value) { this.data.put(key, Data.ofDouble(value)); return this; }
         public Builder setString(@Nonnull String key, String value) { this.data.put(key, Data.ofString(value)); return this; }
 
+        public Builder setUUID(@Nonnull String key, UUID uuid) { this.data.put(key,Data.ofUUID(uuid)); return this; }
+
         public Builder setResourceLocation(String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
         public Builder setText(String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
         public Builder setCompound(String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
@@ -310,6 +320,7 @@ public final class LazyPacketData {
         static Data ofFloat(float value) { return new Data(TYPE_FLOAT, value); }
         static Data ofDouble(double value) { return new Data(TYPE_DOUBLE, value); }
         static Data ofString(@Nullable String value) { return value == null ? NULL : new Data(TYPE_STRING, value); }
+        static Data ofUUID(@Nullable UUID value) { return value == null ? NULL : new Data(TYPE_UUID,value); }
         static Data ofResourceLocation(@Nullable ResourceLocation value) { return value == null ? NULL : new Data(TYPE_STRING, value.toString()); }
         static Data ofText(@Nullable Component value) { return value == null ? NULL : new Data(TYPE_TEXT, value); }
         static Data ofNBT(@Nullable CompoundTag value) { return value == null ? NULL : new Data(TYPE_NBT, value); }
@@ -350,6 +361,8 @@ public final class LazyPacketData {
                 buffer.writeInt(length);
                 buffer.writeUtf((String)this.value,length);
             }
+            if(this.type == TYPE_UUID)
+                buffer.writeUUID((UUID)this.value);
 
             //MC values
             if(this.type == TYPE_TEXT)
@@ -379,6 +392,8 @@ public final class LazyPacketData {
                 int length = buffer.readInt();
                 return ofString(buffer.readUtf(length));
             }
+            if(type == TYPE_UUID)
+                return ofUUID(buffer.readUUID());
 
             //Minecraft Values
             if(type == TYPE_TEXT)

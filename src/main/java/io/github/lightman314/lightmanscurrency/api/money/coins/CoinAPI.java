@@ -135,6 +135,15 @@ public abstract class CoinAPI {
     public abstract boolean IsCoin(@Nonnull Item coin, boolean allowSideChains);
 
     /**
+     * Whether the given item should be treated like a coin even though it's not registered as such in the MasterCoinList
+     */
+    public abstract boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains);
+    /**
+     * Whether the given item should be treated like a coin even though it's not registered as such in the MasterCoinList
+     */
+    public abstract boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains);
+
+    /**
      * @deprecated Use {@link #CoinExchangeAllUp(Container)} instead
      * @see #API
      */
@@ -217,5 +226,7 @@ public abstract class CoinAPI {
      * Handles the coin data sync packet from the logical client.
      */
     public abstract void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet);
+
+    public abstract void RegisterCustomSorter(@Nonnull Comparator<ItemStack> sorter);
 
 }

@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.Tea
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -216,10 +216,11 @@ public class BankAPIImpl extends BankAPI {
         double interestRate = LCConfig.SERVER.bankAccountInterestRate.get();
         if(interestRate > 0)
         {
-            int interest = BankSaveData.InterestTick();
+            BankDataCache data = BankDataCache.TYPE.get(false);
+            int interest = data.interestTick();
             if(interest >= LCConfig.SERVER.bankAccountInterestTime.get())
             {
-                BankSaveData.ResetInterestTick();
+                data.resetInterestTick();
                 LightmansCurrency.LogDebug("Applying interest to all bank accounts!");
                 List<MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();
                 boolean forceInterest = LCConfig.SERVER.bankAccountForceInterest.get();

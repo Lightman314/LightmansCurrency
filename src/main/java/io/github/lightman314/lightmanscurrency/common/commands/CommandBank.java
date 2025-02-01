@@ -18,11 +18,11 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.Tea
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
+import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -139,7 +139,7 @@ public class CommandBank {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
-        Team team = TeamSaveData.GetTeam(false, teamID);
+        ITeam team = TeamAPI.API.GetTeam(false, teamID);
         if(team == null)
         {
             EasyText.sendCommandFail(source, LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
@@ -208,7 +208,7 @@ public class CommandBank {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
-        Team team = TeamSaveData.GetTeam(false, teamID);
+        ITeam team = TeamAPI.API.GetTeam(false, teamID);
         if(team == null)
         {
             EasyText.sendCommandFail(source, LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
@@ -255,7 +255,7 @@ public class CommandBank {
     {
         Player player = EntityArgument.getPlayer(context,"player");
 
-        BankSaveData.DeleteBankAccount(player.getUUID());
+        BankDataCache.TYPE.get(false).deleteAccount(player.getUUID());
         EasyText.sendCommandSucess(context.getSource(),LCText.COMMAND_BANK_DELETE_PLAYER_RESET.get(player.getDisplayName()), true);
         return 1;
     }
@@ -280,7 +280,7 @@ public class CommandBank {
 
     private static int handleDeletion(@Nonnull PlayerReference player, @Nonnull CommandSourceStack source)
     {
-        if(BankSaveData.DeleteBankAccount(player.id))
+        if(BankDataCache.TYPE.get(false).deleteAccount(player.id))
         {
             EasyText.sendCommandSucess(source,LCText.COMMAND_BANK_DELETE_PLAYER_SUCCESS.get(player.getName(false)),true);
             return 1;

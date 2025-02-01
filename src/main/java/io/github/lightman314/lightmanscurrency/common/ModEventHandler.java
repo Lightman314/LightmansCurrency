@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common;
 import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
+import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +19,7 @@ public class ModEventHandler {
     public static void registerRegistries(@Nonnull NewRegistryEvent event)
     {
         event.create(new RegistryBuilder<EjectionDataType>().setName(VersionUtil.lcResource("ejection_data")),r -> LCRegistries.EJECTION_DATA = r);
+        event.create(new RegistryBuilder<CustomDataType<?>>().setName(VersionUtil.lcResource("custom_data")), r -> LCRegistries.CUSTOM_DATA = r);
     }
 
 }

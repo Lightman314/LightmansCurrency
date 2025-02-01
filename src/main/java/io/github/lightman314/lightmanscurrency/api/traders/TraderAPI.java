@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearch
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.impl.TraderAPIImpl;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -199,7 +198,7 @@ public abstract class TraderAPI {
      */
     @Deprecated
     @Nonnull
-    public static List<TraderData> getAllTraders(boolean isClient) { return TraderSaveData.GetAllTraders(isClient); }
+    public static List<TraderData> getAllTraders(boolean isClient) { return API.GetAllTraders(isClient); }
 
     /**
      * Gets a list of all {@link TraderData} that exist
@@ -290,7 +289,7 @@ public abstract class TraderAPI {
      * @see #API
      */
     @Deprecated
-    public static void deleteTrader(long traderID) { TraderSaveData.DeleteTrader(traderID); }
+    public static void deleteTrader(long traderID) { API.DeleteTrader(traderID); }
 
     /**
      * Deletes the given trader from the system, making it inaccessible and removed from the save data

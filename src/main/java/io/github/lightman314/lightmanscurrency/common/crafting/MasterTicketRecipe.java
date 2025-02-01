@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.data.types.TicketDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +56,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Nonnull
     @Override
     public ItemStack assemble(@Nonnull Container container, @Nonnull RegistryAccess registryAccess) {
-        long nextTicketID = TicketSaveData.createNextID();
+        long nextTicketID = TicketDataCache.TYPE.get(false).createNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         int color = dyeColor == null ? TicketItem.GetDefaultTicketColor(nextTicketID) : dyeColor.hexColor;
@@ -69,7 +69,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Nonnull
     @Override
     public ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) {
-        long nextTicketID = TicketSaveData.peekNextID();
+        long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         int color = TicketItem.GetDefaultTicketColor(nextTicketID);
         return TicketItem.CreateTicket(this.result, nextTicketID, color, 1);
     }
@@ -77,7 +77,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Nonnull
     @Override
     public ItemStack peekAtResult(@Nonnull Container container) {
-        long nextTicketID = TicketSaveData.peekNextID();
+        long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         if(dyeColor != null)

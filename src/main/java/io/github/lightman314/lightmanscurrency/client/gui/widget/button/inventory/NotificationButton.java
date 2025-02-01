@@ -2,12 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.CPacketOpenNotifications;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 public class NotificationButton extends InventoryButton {
@@ -31,7 +32,7 @@ public class NotificationButton extends InventoryButton {
 	@Override
 	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
-	private static Sprite getSprite() { return ClientNotificationData.GetNotifications().unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
+	private static Sprite getSprite() { return NotificationDataCache.TYPE.get(true).getNotifications(Minecraft.getInstance().player).unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
 
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos))

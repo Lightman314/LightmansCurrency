@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ public class CPacketAddOrRemoveTrade extends ClientToServerPacket {
 		protected void handle(@Nonnull CPacketAddOrRemoveTrade message, @Nullable ServerPlayer sender) {
 			if(sender != null)
 			{
-				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+				TraderData trader = TraderAPI.API.GetTrader(false, message.traderID);
 				if(trader != null)
 				{
 					if(message.isTradeAdd)

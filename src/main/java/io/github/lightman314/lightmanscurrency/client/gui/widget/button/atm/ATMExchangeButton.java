@@ -18,8 +18,6 @@ import javax.annotation.Nonnull;
 
 public class ATMExchangeButton extends EasyButton {
 
-	public static final int HEIGHT = 18;
-
 	public final ATMExchangeButtonData data;
 
 	public boolean selected = false;
@@ -34,23 +32,13 @@ public class ATMExchangeButton extends EasyButton {
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
 		//Render background to width
-		int yOffset = this.isHovered != this.selected ? HEIGHT : 0;
+		int yOffset = this.isHovered != this.selected ? 18 : 0;
 		if(this.active)
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		//Draw the left edge
-		gui.blit(ATMScreen.BUTTON_TEXTURE, 0, 0, 0, yOffset, 2, HEIGHT);
-		//Draw the middle portions
-		int xPos = 2;
-		while(xPos < this.getWidth() - 2)
-		{
-			int xSize = Math.min(this.getWidth() - 2 - xPos, 252);
-			gui.blit(ATMScreen.BUTTON_TEXTURE, xPos, 0, 2, yOffset, xSize, HEIGHT);
-			xPos += xSize;
-		}
-		//Draw the right edge
-		gui.blit(ATMScreen.BUTTON_TEXTURE, this.getWidth() - 2, 0, 254, yOffset, 2, HEIGHT);
+		//Draw background of size
+		gui.blitBackgroundOfSize(ATMScreen.BUTTON_TEXTURE,0,0,this.width,this.height,0,yOffset,256,18,2);
 
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())
@@ -71,7 +59,7 @@ public class ATMExchangeButton extends EasyButton {
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{
 		private final ATMExchangeButtonData data;
-		private Builder(ATMExchangeButtonData data) { super(data.width,HEIGHT); this.data = data; }
+		private Builder(ATMExchangeButtonData data) { super(data.width,data.height); this.data = data; }
 
 		@Override
 		protected Builder getSelf() { return this; }

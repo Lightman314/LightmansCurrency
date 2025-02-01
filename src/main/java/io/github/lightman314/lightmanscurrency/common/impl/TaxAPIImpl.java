@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -40,11 +40,11 @@ public class TaxAPIImpl extends TaxAPI {
 
     @Nonnull
     @Override
-    public List<ITaxCollector> GetTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxSaveData.GetAllTaxEntries(taxable.isClient()).stream().filter(e -> e.ShouldTax(taxable)).map(e -> (ITaxCollector)e).toList(); }
+    public List<ITaxCollector> GetTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.ShouldTax(taxable)).map(e -> (ITaxCollector)e).toList(); }
 
     @Nonnull
     @Override
-    public List<ITaxCollector> GetPotentialTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxSaveData.GetAllTaxEntries(taxable.isClient()).stream().filter(e -> e.IsInArea(taxable)).map(e -> (ITaxCollector)e).toList(); }
+    public List<ITaxCollector> GetPotentialTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.IsInArea(taxable)).map(e -> (ITaxCollector)e).toList(); }
 
     @Nonnull
     @Override

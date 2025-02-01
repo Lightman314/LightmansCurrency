@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.BankAccountSource;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -15,6 +15,6 @@ public class PlayerBankAccountSource extends BankAccountSource {
 
     @Nonnull
     @Override
-    public List<BankReference> CollectAllReferences(boolean isClient) { return BankSaveData.GetPlayerBankAccounts(isClient); }
+    public List<BankReference> CollectAllReferences(boolean isClient) { return BankDataCache.TYPE.get(isClient).getPlayerBankAccounts(); }
 
 }

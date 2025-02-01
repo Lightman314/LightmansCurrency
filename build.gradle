@@ -179,7 +179,7 @@ dependencies {
     implementation fg.deobf("curse.maven:zeta-968868:5078215")
     //BYG
     implementation fg.deobf("curse.maven:oh-the-biomes-weve-gone-1070751:5607559")
-    implementation fg.deobf("corgitaco.corgilib:corgilib-forge:1.20.1-4.0.2.0")
+    implementation fg.deobf("corgitaco.corgilib:Corgilib-Forge:1.20.1-4.0.3.3")
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:4.4.7")
     implementation("com.eliotlash.mclib:mclib:20")
     implementation fg.deobf("curse.maven:oh-the-trees-youll-grow-962544:5540975")

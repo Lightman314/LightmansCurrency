@@ -20,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
@@ -55,7 +54,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private List<TraderData> filteredTraderList = new ArrayList<>();
 
 	private List<TraderData> traderList() {
-		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
+		List<TraderData> traderList = this.filterTraders(TraderAPI.API.GetAllNetworkTraders(true));
 		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}

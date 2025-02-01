@@ -125,7 +125,7 @@ public class CoinValueParser extends MoneyValueParser {
             {
                 String coinString = coin.toString();
                 if(matchesSubStr(idPart, coinString) || idPart.isEmpty())
-                    builder.suggest(previous + coinString);
+                    this.suggest(builder,previous + coinString);
             }
         }
         else //Otherwise, don't suggest anything

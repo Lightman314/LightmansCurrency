@@ -72,12 +72,12 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
                     .listener(this)
                     .build());
             this.buttonScrollLeft = this.addChild(PlainButton.builder()
-                    .position(widgetArea.pos.offset(4,29))
+                    .position(widgetArea.pos.offset(4,33))
                     .pressAction(this::scrollLeft)
                     .sprite(MoneyValueWidget.SPRITE_LEFT_ARROW)
                     .build());
             this.buttonScrollRight = this.addChild(PlainButton.builder()
-                    .position(widgetArea.pos.offset(widgetArea.width - 14, 29))
+                    .position(widgetArea.pos.offset(widgetArea.width - 14, 33))
                     .pressAction(this::scrollRight)
                     .sprite(MoneyValueWidget.SPRITE_RIGHT_ARROW)
                     .build());
@@ -196,21 +196,18 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
         if(coinIndex >= 0 && coinIndex < this.coinData.size())
         {
-            //Run on a thread to prevent lag and strange interactions when doing large value calculations.
-            new Thread(() -> {
-                CoinEntry coin = this.coinData.get(coinIndex);
-                int addAmount = 1;
-                if(shiftHeld)
-                    addAmount = getLargeIncreaseAmount(coin);
-                if(ctrlHeld)
-                    addAmount *= 10;
-                MoneyValue currentValue = this.currentValue();
-                long value = 0;
-                if(currentValue instanceof CoinValue cv && cv.getChain().equals(this.chain.chain))
-                    value = currentValue.getCoreValue();
-                MoneyValue newValue = CoinValue.fromNumber(this.chain.chain, value + (coin.getCoreValue() * addAmount));
-                this.changeValue(newValue);
-            }).start();
+            CoinEntry coin = this.coinData.get(coinIndex);
+            int addAmount = 1;
+            if(shiftHeld)
+                addAmount = getLargeIncreaseAmount(coin);
+            if(ctrlHeld)
+                addAmount *= 10;
+            MoneyValue currentValue = this.currentValue();
+            long value = 0;
+            if(currentValue instanceof CoinValue cv && cv.getChain().equals(this.chain.chain))
+                value = currentValue.getCoreValue();
+            MoneyValue newValue = CoinValue.fromNumber(this.chain.chain, value + (coin.getCoreValue() * addAmount));
+            this.changeValue(newValue);
         }
         else
             LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the increasing button.");
@@ -230,20 +227,18 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
         if(coinIndex >= 0 && coinIndex < this.coinData.size())
         {
-            new Thread(() -> {
-                CoinEntry coin = this.coinData.get(coinIndex);
-                int removeAmount = 1;
-                if(Screen.hasShiftDown())
-                    removeAmount = getLargeIncreaseAmount(coin);
-                if(Screen.hasControlDown())
-                    removeAmount *= 10;
-                long value = 0;
-                MoneyValue currentValue = this.currentValue();
-                if(currentValue instanceof CoinValue cv && cv.getChain().equals(this.chain.chain))
-                    value = currentValue.getCoreValue();
-                MoneyValue newValue = CoinValue.fromNumber(this.chain.chain, value - (coin.getCoreValue() * removeAmount));
-                this.changeValue(newValue);
-            }).start();
+            CoinEntry coin = this.coinData.get(coinIndex);
+            int removeAmount = 1;
+            if(Screen.hasShiftDown())
+                removeAmount = getLargeIncreaseAmount(coin);
+            if(Screen.hasControlDown())
+                removeAmount *= 10;
+            long value = 0;
+            MoneyValue currentValue = this.currentValue();
+            if(currentValue instanceof CoinValue cv && cv.getChain().equals(this.chain.chain))
+                value = currentValue.getCoreValue();
+            MoneyValue newValue = CoinValue.fromNumber(this.chain.chain, value - (coin.getCoreValue() * removeAmount));
+            this.changeValue(newValue);
         }
         else
             LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the decreasing button.");

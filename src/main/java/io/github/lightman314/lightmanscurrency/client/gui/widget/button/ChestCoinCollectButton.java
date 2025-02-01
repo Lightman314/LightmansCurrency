@@ -50,7 +50,7 @@ public class ChestCoinCollectButton extends IconButton {
                 Container container = this.screen.getMenu().getContainer();
                 for(int i = 0; i < container.getContainerSize(); ++i)
                 {
-                    if(CoinAPI.API.IsCoin(container.getItem(i), allowSideChains))
+                    if(CoinAPI.API.IsAllowedInCoinContainer(container.getItem(i), allowSideChains))
                         return true;
                 }
             }

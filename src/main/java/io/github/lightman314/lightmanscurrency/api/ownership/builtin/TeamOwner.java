@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
@@ -120,7 +120,7 @@ public class TeamOwner extends Owner {
         for(PlayerReference player: sendTo)
         {
             if(player != null && player.id != null)
-                NotificationSaveData.PushNotification(player.id, notificationSource.get(), sendToChat);
+                NotificationAPI.API.PushPlayerNotification(player.id, notificationSource.get(), sendToChat);
         }
     }
 

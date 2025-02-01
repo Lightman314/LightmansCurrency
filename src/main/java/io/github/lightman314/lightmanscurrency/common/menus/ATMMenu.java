@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
@@ -92,7 +92,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			if(!account.canPersist(player))
 			{
 				//Switch back to their personal bank account when closing the ATM if they're accessing another players bank account.
-				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(this.player));
+				BankDataCache data = BankDataCache.TYPE.get(this);
+				if(data != null)
+					data.setSelectedAccount(this.player,PlayerBankReference.of(this.player));
 			}
 		}
 	}
@@ -155,7 +157,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
-				BankSaveData.SetSelectedBankAccount(this.player, PlayerBankReference.of(accountPlayer));
+				BankDataCache data = BankDataCache.TYPE.get(this);
+				if(data != null)
+					data.setSelectedAccount(this.player,PlayerBankReference.of(accountPlayer));
 				return LCText.GUI_BANK_SELECT_PLAYER_SUCCESS.get(accountPlayer.getName(false));
 			}
 			else

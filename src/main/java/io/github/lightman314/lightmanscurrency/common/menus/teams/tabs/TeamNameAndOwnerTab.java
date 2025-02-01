@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.menus.teams.tabs;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamNameAndOwnerClientTab;
+import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementTab;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 
 import javax.annotation.Nonnull;
 
@@ -48,7 +48,12 @@ public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
         {
             ITeam team = this.menu.selectedTeam();
             if(team != null && team.isOwner(this.menu.player))
-                TeamSaveData.RemoveTeam(team.getID());
+            {
+                TeamDataCache data = TeamDataCache.TYPE.get(false);
+                if(data == null)
+                    return;
+                data.removeTeam(team.getID());
+            }
         }
     }
 

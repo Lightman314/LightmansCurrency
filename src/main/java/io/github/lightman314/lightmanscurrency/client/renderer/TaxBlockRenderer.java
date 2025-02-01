@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.data.ClientTaxData;
 import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,7 +34,7 @@ public class TaxBlockRenderer {
             double cameraX = event.getCamera().getPosition().x();
             double cameraY = event.getCamera().getPosition().y();
             double cameraZ = event.getCamera().getPosition().z();
-            for(TaxEntry entry : ClientTaxData.GetAllTaxEntries())
+            for(TaxEntry entry : TaxDataCache.TYPE.get(true).getAllEntries())
             {
                 if(shouldRenderEntry(entry, level, player, event.getCamera().getPosition()))
                 {

@@ -23,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
@@ -169,6 +171,9 @@ public class LightmansCurrency {
 		//Register built-in Currency Types
 		MoneyAPI.API.RegisterCurrencyType(CoinCurrencyType.INSTANCE);
 		MoneyAPI.API.RegisterCurrencyType(NullCurrencyType.INSTANCE);
+		//Ancient Money
+		MoneyAPI.API.RegisterCurrencyType(AncientMoneyType.INSTANCE);
+		CoinAPI.API.RegisterCustomSorter(AncientCoinSorter.INSTANCE);
 
 		LightmansCurrencyPacketHandler.init();
 

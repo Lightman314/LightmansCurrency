@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
@@ -174,12 +175,13 @@ public class NumberDisplay extends ValueDisplayData {
         private Pair<String,Boolean> format = null;
         private Pair<String,Boolean> wordyFormat = null;
         private Item baseUnit = null;
+        private Item firstCoin = null;
 
         @Nonnull
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public void resetBuilder() { this.format = null; this.wordyFormat = null; this.baseUnit = null; }
+        public void resetBuilder() { this.format = null; this.wordyFormat = null; this.baseUnit = this.firstCoin = null; }
         @Override
         public void parseAdditional(@Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException {
             this.format = parseFormat(chainJson,"displayFormat");
@@ -192,9 +194,11 @@ public class NumberDisplay extends ValueDisplayData {
             if(GsonHelper.getAsBoolean(coinEntry, "baseUnit", false))
             {
                 if(this.baseUnit != null)
-                    throw new JsonSyntaxException("Cannot have two baseUnit entries!");
+                    LightmansCurrency.LogWarning("Multiple coins in this chain have a 'baseUnit' flag! Ignoring duplicate entries.");
                 this.baseUnit = coin.getCoin();
             }
+            else if(this.firstCoin == null)
+                this.firstCoin = coin.getCoin();
         }
 
         @Override
@@ -218,9 +222,9 @@ public class NumberDisplay extends ValueDisplayData {
         public NumberDisplay build() throws JsonSyntaxException {
             if(this.format == null)
                 throw new JsonSyntaxException("displayFormat entry is missing or cannot be parsed!");
-            if(this.baseUnit == null)
-                throw new JsonSyntaxException("No coin entry has the 'baseUnit: true' flag!");
-            return new NumberDisplay(this.format, this.wordyFormat, this.baseUnit);
+            if(this.baseUnit == null && this.firstCoin == null)
+                throw new JsonSyntaxException("No coins could be found to be designated as the base unit!");
+            return new NumberDisplay(this.format, this.wordyFormat, this.baseUnit == null ? this.firstCoin : this.baseUnit);
         }
 
         @Nonnull

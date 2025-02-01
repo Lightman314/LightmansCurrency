@@ -9,16 +9,21 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -97,6 +102,9 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_EMERALD);
         this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_DIAMOND);
         this.registerCoinBlock(ModBlocks.COINBLOCK_CHOCOLATE_NETHERITE);
+
+        //Ancient Coins
+        this.registerAncientCoin(ModItems.COIN_ANCIENT);
 
         //Trading Core
         this.registerBasicItem(ModItems.TRADING_CORE);
@@ -424,7 +432,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private void registerBlockItemModel(RegistryObject<? extends Block> block, ModelFile itemModel) { this.itemModels().getBuilder(ForgeRegistries.ITEMS.getKey(block.get().asItem()).toString()).parent(itemModel); }
 
     //BLOCK STATE REGISTRATION
-    private void registerSimpleState(RegistryObject<? extends Block> block) { this.registerSimpleState(block, this.lazyModelID(block)); }
+    private void registerSimpleState(RegistryObject<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
     private void registerSimpleState(RegistryObject<? extends Block> block, String modelID) { this.registerSimpleState(block,modelID,true); }
     private void registerSimpleState(RegistryObject<? extends Block> block, String modelID, boolean check) {
         ModelFile model = this.lazyBlockModel(modelID, check);
@@ -434,7 +442,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     private void registerCoinPile(RegistryObject<? extends Block> block)
     {
-        String modelID = this.lazyModelID(block);
+        String modelID = this.lazyBlockID(block);
         ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_pile", true)).texture("main", texture);
         ModelFile model = this.lazyBlockModel(modelID, false);
@@ -444,10 +452,25 @@ public class LCBlockStateProvider extends BlockStateProvider {
     }
     private void registerCoinBlock(RegistryObject<? extends Block> block)
     {
-        String modelID = this.lazyModelID(block);
+        String modelID = this.lazyBlockID(block);
         ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_block", true)).texture("main", texture);
         this.registerSimpleState(block, modelID);
+    }
+    private void registerAncientCoin(RegistryObject<? extends Item> item)
+    {
+        ResourceLocation itemModel = lazyItemModelID(lazyItemID(item));
+        ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
+        for(AncientCoinType type : AncientCoinType.values())
+        {
+            ResourceLocation location = type.texture();
+            this.itemModels().getBuilder(location.toString())
+                    .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                    .texture("layer0",location);
+            builder.override()
+                    .predicate(AncientCoinItem.PROPERTY,type.ordinal() + 1f)
+                    .model(new ModelFile.UncheckedModelFile(location));
+        }
     }
     private void registerPaygate(RegistryObject<? extends Block> block, String poweredModelID, String unpoweredModelID)
     {
@@ -457,7 +480,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 .forAllStates(state -> ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWERED) ? powered : unpowered).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, powered);
     }
-    private void registerRotatable(RegistryObject<? extends Block> block) { this.registerRotatable(block, this.lazyModelID(block), true); }
+    private void registerRotatable(RegistryObject<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
     private void registerRotatable(RegistryObject<? extends Block> block, String modelID, boolean check)
     {
         ModelFile model = this.lazyBlockModel(modelID, check);
@@ -503,9 +526,11 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private String lazyWoodenID(String prefix, WoodType type) { return type.generateResourceLocation(prefix); }
     private String lazyWoodenID(String prefix, WoodType type, String postFix) { return type.generateResourceLocation(prefix, postFix); }
 
-    private String lazyModelID(RegistryObject<? extends Block> block) { return ForgeRegistries.BLOCKS.getKey(block.get()).getPath(); }
+    private String lazyItemID(RegistryObject<? extends Item> item) { return ForgeRegistries.ITEMS.getKey(item.get()).getPath(); }
+    private String lazyBlockID(RegistryObject<? extends Block> block) { return ForgeRegistries.BLOCKS.getKey(block.get()).getPath(); }
 
-    private ResourceLocation lazyBlockModelID(String modelID) { return new ResourceLocation(LightmansCurrency.MODID, modelID.startsWith("block/") ? modelID : "block/" + modelID); }
+    private ResourceLocation lazyItemModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("item/") ? modelID : "item/" + modelID); }
+    private ResourceLocation lazyBlockModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("block/") ? modelID : "block/" + modelID); }
 
     private ModelFile lazyBlockModel(String modelID, boolean check) { return check ? new ModelFile.ExistingModelFile(this.lazyBlockModelID(modelID), this.models().existingFileHelper) : new ModelFile.UncheckedModelFile(this.lazyBlockModelID(modelID)); }
 

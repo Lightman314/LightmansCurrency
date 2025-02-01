@@ -2,13 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 public class TaxCollectorMenu extends EasyTabbedMenu<TaxCollectorMenu,TaxCollectorTab> {
 
     public final long entryID;
-    public final TaxEntry getEntry() { return TaxSaveData.GetTaxEntry(this.entryID, this.isClient()); }
+    public final TaxEntry getEntry() { return TaxDataCache.TYPE.get(this).getEntry(this.entryID); }
 
     public TaxCollectorMenu(int id, Inventory inventory, long entryID, MenuValidator validator) {
         super(ModMenus.TAX_COLLECTOR.get(), id, inventory, validator);

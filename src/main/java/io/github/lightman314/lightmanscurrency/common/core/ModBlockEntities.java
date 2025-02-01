@@ -43,7 +43,7 @@ public class ModBlockEntities {
 
 		TAX_BLOCK = ModRegistries.BLOCK_ENTITIES.register("tax_block", () -> BlockEntityType.Builder.of(TaxBlockEntity::new, ModBlocks.TAX_COLLECTOR.get()).build(null));
 
-		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
+		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get(), ModBlocks.SUS_JAR.get()).build(null));
 
 		AUCTION_STAND = ModRegistries.BLOCK_ENTITIES.register("auction_stand", () -> BlockEntityType.Builder.of(AuctionStandBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.AUCTION_STAND_TYPE)).build(null));
 

@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
-import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -40,7 +40,10 @@ public class PlayerBankReference extends BankReference {
 
     @Nullable
     @Override
-    public IBankAccount get() { return BankSaveData.GetBankAccount(this.isClient(), this.player.id); }
+    public IBankAccount get() {
+        BankDataCache data = BankDataCache.TYPE.get(this);
+        return data == null ? null : data.getAccount(this.player.id);
+    }
 
     @Override
     public boolean allowedAccess(@Nonnull PlayerReference player) { return this.player.is(player); }

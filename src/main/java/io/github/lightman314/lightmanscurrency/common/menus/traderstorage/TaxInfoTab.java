@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.TaxInfoClientTab;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -28,7 +28,7 @@ public class TaxInfoTab extends TraderStorageTab {
         TraderData trader = this.menu.getTrader();
         if(trader != null && trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_SETTINGS))
         {
-            TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
+            TaxEntry entry = TaxDataCache.TYPE.get(this).getEntry(taxCollector);
             if(entry != null && entry.IsInArea(trader))
                 entry.AcceptTaxable(trader);
             if(this.menu.isClient())
@@ -41,7 +41,7 @@ public class TaxInfoTab extends TraderStorageTab {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
         {
-            TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
+            TaxEntry entry = TaxDataCache.TYPE.get(this).getEntry(taxCollector);
             if(entry != null && entry.IsInArea(trader))
                 trader.FlagTaxEntryToIgnore(entry, this.menu.getPlayer());
             if(this.menu.isClient())
@@ -54,7 +54,7 @@ public class TaxInfoTab extends TraderStorageTab {
         TraderData trader = this.menu.getTrader();
         if(trader != null && trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_SETTINGS))
         {
-            TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollector, this.menu.isClient());
+            TaxEntry entry = TaxDataCache.TYPE.get(this).getEntry(taxCollector);
             if(entry != null && entry.IsInArea(trader))
                 trader.PardonTaxEntry(entry);
             if(this.menu.isClient())

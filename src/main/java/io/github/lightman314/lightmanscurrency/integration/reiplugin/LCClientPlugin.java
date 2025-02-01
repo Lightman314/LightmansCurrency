@@ -165,6 +165,9 @@ public class LCClientPlugin implements REIClientPlugin {
         //ATM Card
         registry.group(VersionUtil.lcResource("rei_groups/atm_card"), LCText.REI_GROUP_ATM_CARD.get(), isItem(ModItems.ATM_CARD));
 
+        //Ancient Coins
+        registry.group(VersionUtil.lcResource("rei_groups/ancient_cions"), LCText.REI_GROUP_ANCIENT_COINS.get(), isItem(ModItems.COIN_ANCIENT));
+
     }
 
     private <T extends EasyMenuScreen<?>> void registerExclusionZones(@Nonnull ExclusionZones zones, @Nonnull Class<T> clazz)

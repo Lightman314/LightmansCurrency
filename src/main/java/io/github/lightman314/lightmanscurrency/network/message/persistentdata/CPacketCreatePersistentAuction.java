@@ -8,9 +8,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.nbt.CompoundTag;
@@ -56,12 +55,17 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		protected void handle(@Nonnull CPacketCreatePersistentAuction message, @Nullable ServerPlayer sender) {
 			if(LCAdminMode.isAdminPlayer(sender))
 			{
+				TraderDataCache data = TraderDataCache.TYPE.get(false);
+				if(data == null)
+					return;
+
 				boolean generateID = message.id.isBlank();
+
 				if(!generateID) {
 
 					JsonObject auctionJson = message.getAuctionJson(message.id);
 
-					JsonArray persistentAuctions = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_AUCTION_SECTION);
+					JsonArray persistentAuctions = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_AUCTION_SECTION);
 					//Check for auctions with the same id, and replace any entries that match
 					for(int i = 0; i < persistentAuctions.size(); ++i)
 					{
@@ -70,7 +74,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						{
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
-							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_OVERWRITE.get(message.id));
 							return;
 						}
@@ -78,14 +82,14 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
-					TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+					data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 					sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(message.id));
 				}
 				else
 				{
 					//Get a list of all known trader IDs
 					List<String> knownIDs = new ArrayList<>();
-					JsonArray persistentAuctions = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_AUCTION_SECTION);
+					JsonArray persistentAuctions = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_AUCTION_SECTION);
 					for(int i = 0; i < persistentAuctions.size(); ++i)
 					{
 						JsonObject auctionData = persistentAuctions.get(i).getAsJsonObject();
@@ -100,7 +104,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 						{
 							persistentAuctions.add(message.getAuctionJson(genID));
-							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
 							return;
 						}

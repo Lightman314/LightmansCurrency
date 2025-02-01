@@ -55,6 +55,8 @@ public class ModItems {
 				new MobEffectInstance(MobEffects.ABSORPTION, 2400, 4),
 				new MobEffectInstance(MobEffects.REGENERATION, 100, 1)
 		));
+
+		COIN_ANCIENT = ModRegistries.ITEMS.register("coin_ancient", () -> new AncientCoinItem(new Item.Properties().rarity(Rarity.RARE)));
 		
 		//Misc
 		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties()));
@@ -164,6 +166,8 @@ public class ModItems {
 	public static final RegistryObject<Item> COIN_CHOCOLATE_EMERALD;
 	public static final RegistryObject<Item> COIN_CHOCOLATE_DIAMOND;
 	public static final RegistryObject<Item> COIN_CHOCOLATE_NETHERITE;
+
+	public static final RegistryObject<Item> COIN_ANCIENT;
 	
 	public static final RegistryObject<Item> TRADING_CORE;
 	public static final RegistryObject<Item> TICKET;

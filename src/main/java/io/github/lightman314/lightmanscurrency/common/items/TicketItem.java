@@ -1,14 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -70,14 +68,6 @@ public class TicketItem extends Item{
 		CompoundTag ticketTag = ticket.getTag();
 		if(ticketTag.contains("TicketID", Tag.TAG_LONG))
 			return ticketTag.getLong("TicketID");
-		else if(ticketTag.contains("TicketID"))
-		{
-			UUID oldID = ticketTag.getUUID("TicketID");
-			long newID = TicketSaveData.getConvertedID(oldID);
-			ticketTag.putLong("TicketID", newID);
-			ticketTag.putInt("TicketColor", Color.getFromIndex(newID).hexColor);
-			return newID;
-		}
 		return Long.MIN_VALUE;
 	}
 

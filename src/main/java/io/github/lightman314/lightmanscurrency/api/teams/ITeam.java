@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
@@ -93,6 +94,12 @@ public interface ITeam extends IClientTracker {
      */
     @Range(from = 0, to = 2)
     int getBankLimit();
+
+    /**
+     * A {@link BankReference} that can be used to access this teams bank account.
+     */
+    @Nullable
+    BankReference getBankReference();
 
     /**
      * The bank account stored in this teams data.<br>

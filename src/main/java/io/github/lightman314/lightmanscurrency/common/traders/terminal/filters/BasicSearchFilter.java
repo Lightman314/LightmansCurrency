@@ -13,6 +13,8 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 			return true;
 		if(data.getName().getString().toLowerCase().contains(searchText.toLowerCase()))
 			return true;
+		if(String.valueOf(data.getID()).contains(searchText))
+			return true;
 		return false;
 	}
 

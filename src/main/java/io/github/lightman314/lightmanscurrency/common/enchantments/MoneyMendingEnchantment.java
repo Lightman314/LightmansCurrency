@@ -10,10 +10,13 @@ import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandle
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.common.enchantments.data.BonusForEnchantment;
+import io.github.lightman314.lightmanscurrency.common.enchantments.data.ItemOverride;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,6 +25,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -49,12 +53,30 @@ public class MoneyMendingEnchantment extends Enchantment {
 
 	public static MoneyValue getRepairCost(@Nonnull ItemStack item)
 	{
-		MoneyValue baseCost = LCConfig.SERVER.moneyMendingRepairCost.get();
-		MoneyValue cost = baseCost;
+		MoneyValue base = LCConfig.SERVER.moneyMendingRepairCost.get();
+		for(ItemOverride io : LCConfig.SERVER.moneyMendingItemOverrides.get())
+		{
+			if(io.matches(item))
+				base = io.baseCost;
+		}
+		MoneyValue total = base;
 		Map<Enchantment,Integer> enchantments = item.getAllEnchantments();
-		if(enchantments.getOrDefault(Enchantments.INFINITY_ARROWS,0) > 0)
-			cost = baseCost.addValue(LCConfig.SERVER.moneyMendingInfinityCost.get());
-		return cost == null ? baseCost : cost;
+		for(Enchantment e : enchantments.keySet())
+		{
+			ResourceLocation enchantment = ForgeRegistries.ENCHANTMENTS.getKey(e);
+			for(BonusForEnchantment b : LCConfig.SERVER.moneyMendingBonusForEnchantments.get())
+			{
+				if(enchantment.equals(b.enchantment))
+				{
+					int level = Math.min(enchantments.get(e),Math.max(1,b.maxLevelCalculation <= 0 ? Integer.MAX_VALUE : b.maxLevelCalculation));
+					MoneyValue toAdd = b.bonusCost.percentageOfValue(level * 100);
+					MoneyValue newTotal = total.addValue(toAdd);
+					if(newTotal != null)
+						total = newTotal;
+				}
+			}
+		}
+		return total == null ? base : total;
 	}
 	
 	public static void runEntityTick(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler handler)

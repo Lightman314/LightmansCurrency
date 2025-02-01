@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -102,8 +101,6 @@ public class PaygateNotification extends TaxableNotification {
 		this.duration = compound.getInt("Duration");
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");
-		else if(compound.contains("Ticket"))
-			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else if(compound.contains("Price"))
 			this.cost = MoneyValue.safeLoad(compound, "Price");
 		if(compound.contains("UsedPass"))

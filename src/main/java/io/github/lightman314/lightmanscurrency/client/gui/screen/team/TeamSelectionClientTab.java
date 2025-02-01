@@ -3,15 +3,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
+import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamSelectionTab;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -49,7 +48,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
 
         this.teamSelection = this.addChild(TeamSelectWidget.builder()
                 .position(screenArea.pos.offset(10,20))
-                .size(TeamButton.Size.WIDE)
+                .width(180)
                 .rows(5)
                 .teams(() -> this.teamList)
                 .selected(this.menu::selectedTeam)
@@ -79,7 +78,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
     private void refreshTeamList()
     {
         this.teamList = new ArrayList<>();
-        List<Team> allTeams = TeamSaveData.GetAllTeams(true);
+        List<ITeam> allTeams = TeamAPI.API.GetAllTeams(true);
         allTeams.forEach(team ->{
             if(team.isMember(this.menu.player))
                 this.teamList.add(team);

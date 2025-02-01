@@ -17,6 +17,9 @@ public class LCLootTableProvider {
             List.of(new SubProviderEntry(EntityAddonLoot::new, LootManager.ENTITY_PARAMS),
                     new SubProviderEntry(ChestAddonLoot::new, LootContextParamSets.EMPTY),
                     new SubProviderEntry(BlockDropLoot::new, LootContextParamSets.BLOCK),
-                    new SubProviderEntry(FallingBlockLoot::new, LootContextParamSets.EMPTY)));
+                    new SubProviderEntry(ArcheologyLoot::new, LootContextParamSets.ARCHAEOLOGY),
+                    new SubProviderEntry(ChestLoot::new, LootContextParamSets.CHEST),
+                    new SubProviderEntry(MiscellaneousLoot::new, LootContextParamSets.EMPTY)
+            ));
     }
 }

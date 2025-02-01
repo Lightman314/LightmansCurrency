@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -16,9 +17,11 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TraderEjectionData extends EjectionData {
@@ -57,6 +60,19 @@ public class TraderEjectionData extends EjectionData {
 
     @Override
     public boolean canSplit() { return this.data.isPreSplit(); }
+
+    public long getTraderID()
+    {
+        if(this.data instanceof PreSplitData d)
+            return d.traderID;
+        return -1;
+    }
+
+    public void delete() {
+        this.data = EmptyData.INSTANCE;
+        this.setChanged();
+    }
+
     @Nonnull
     @Override
     public List<Component> getSplitButtonTooltip() {
@@ -102,6 +118,8 @@ public class TraderEjectionData extends EjectionData {
         @Nonnull
         @Override
         public EjectionData load(@Nonnull CompoundTag tag) {
+            if(tag.getBoolean("Empty"))
+                return new TraderEjectionData(EmptyData.INSTANCE);
             boolean split = tag.getBoolean("Split");
             IData data;
             if(split)
@@ -217,6 +235,26 @@ public class TraderEjectionData extends EjectionData {
             NonEmptyContainer contents = NonEmptyContainer.load(tag,"Contents");
             Component name = Component.Serializer.fromJson(tag.getString("Name"));
             return new SplitData(owner,contents,name);
+        }
+    }
+
+    private static class EmptyData implements IData
+    {
+        private static final EmptyData INSTANCE = new EmptyData();
+        @Nonnull
+        @Override
+        public OwnerData getOwner(@Nonnull IClientTracker context) { return new OwnerData(context); }
+        @Nonnull
+        @Override
+        public Component getName(@Nonnull IClientTracker context) { return EasyText.literal("NULL"); }
+        @Nonnull
+        @Override
+        public Container getContents() { return new NonEmptyContainer(new ArrayList<>()); }
+        @Override
+        public boolean isEmpty(@Nonnull IClientTracker context) { return true; }
+        @Override
+        public void saveAdditional(@Nonnull CompoundTag tag) {
+            tag.putBoolean("Empty",true);
         }
     }
 

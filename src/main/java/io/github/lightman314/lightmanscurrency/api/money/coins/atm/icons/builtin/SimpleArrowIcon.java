@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -20,7 +21,7 @@ import javax.annotation.Nonnull;
 
 public class SimpleArrowIcon extends ATMIconData {
 
-	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "small_arrow");
+	public static final ResourceLocation TYPE_NAME = VersionUtil.lcResource("small_arrow");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, SimpleArrowIcon::new);
 
 	public enum ArrowType{
@@ -74,7 +75,7 @@ public class SimpleArrowIcon extends ATMIconData {
 	@OnlyIn(Dist.CLIENT)
 	public void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered)
 	{
-		gui.blitSprite(Sprite.SimpleSprite(ATMScreen.BUTTON_TEXTURE, this.direction.uOffset, ATMExchangeButton.HEIGHT * 2, 6, 6), this.xPos, this.yPos, isHovered);
+		gui.blitSprite(Sprite.SimpleSprite(ATMScreen.BUTTON_TEXTURE, this.direction.uOffset, 36, 6, 6), this.xPos, this.yPos, isHovered);
 	}
 	
 }

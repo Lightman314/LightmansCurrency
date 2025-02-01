@@ -17,21 +17,11 @@ import java.util.function.Supplier;
 
 public class TeamButton extends EasyButton {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/teambutton.png");
-
-	public enum Size { WIDE(180, 0), NORMAL(156, 1), NARROW(90, 2);
-		public final int width;
-		public final int guiPos;
-		Size(int width, int guiPos) {
-			this.width = width;
-			this.guiPos = guiPos * HEIGHT * 2;
-		}
-	}
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/buttons.png");
 
 	public static final int HEIGHT = 20;
 	public static final int TEXT_COLOR = 0xFFFFFF;
 
-	private final Size size;
 	private final Supplier<ITeam> teamSource;
 	public ITeam getTeam() { return this.teamSource.get(); }
 	private final Supplier<Boolean> selectedSource;
@@ -39,7 +29,6 @@ public class TeamButton extends EasyButton {
 	private TeamButton(@Nonnull Builder builder)
 	{
 		super(builder);
-		this.size = builder.size;
 		this.teamSource = builder.team;
 		this.selectedSource = builder.selected;
 	}
@@ -52,7 +41,7 @@ public class TeamButton extends EasyButton {
 
 		//Render Background
 		gui.resetColor();
-		gui.blit(GUI_TEXTURE, 0, 0, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
+		gui.blitBackgroundOfSize(GUI_TEXTURE,0,0,this.width,this.height,0,0,256,20,4);
 
 		//Render Team Name
 		gui.drawString(TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), 2, 2, TEXT_COLOR);
@@ -75,15 +64,14 @@ public class TeamButton extends EasyButton {
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{
-		private Builder() { super(Size.NORMAL.width,HEIGHT); }
+		private Builder() { super(256,HEIGHT); }
 		@Override
 		protected Builder getSelf() { return this; }
 
-		private Size size = Size.NORMAL;
 		private Supplier<ITeam> team = () -> null;
 		private Supplier<Boolean> selected = () -> false;
 
-		public Builder size(Size size) { this.size = size; this.changeWidth(this.size.width); return this; }
+		public Builder width(int width) { this.changeWidth(width); return this; }
 		public Builder team(Supplier<ITeam> team) { this.team = team; return this; }
 		public Builder selected(Supplier<Boolean> selected) { this.selected = selected; return this; }
 

@@ -30,13 +30,12 @@ import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyVa
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxSaveData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
@@ -185,7 +184,7 @@ public class CommandLCAdmin {
 	static int listTraderData(CommandContext<CommandSourceStack> commandContext) {
 
 		CommandSourceStack source = commandContext.getSource();
-		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
+		List<TraderData> allTraders = TraderAPI.API.GetAllTraders(false);
 
 		if(!allTraders.isEmpty())
 		{
@@ -216,7 +215,7 @@ public class CommandLCAdmin {
 
 		String searchText = StringArgumentType.getString(commandContext,"searchText");
 
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, searchText)).toList();
+		List<TraderData> results = TraderAPI.API.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, searchText)).toList();
 		if(!results.isEmpty())
 		{
 
@@ -286,7 +285,7 @@ public class CommandLCAdmin {
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 
 		//Remove the trader
-		TraderSaveData.DeleteTrader(trader.getID());
+		TraderAPI.API.DeleteTrader(trader.getID());
 		//Send success message
 		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_DELETE_SUCCESS.get(trader.getName()), true);
 		return 1;
@@ -398,14 +397,8 @@ public class CommandLCAdmin {
 
 	static int openServerTax(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
 	{
-		TaxEntry entry = TaxSaveData.GetServerTaxEntry(false);
-		if(entry != null)
-		{
-			entry.openMenu(commandContext.getSource().getPlayerOrException(), SimpleValidator.NULL);
-			return 1;
-		}
-		else
-			EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_ADMIN_TAXES_OPEN_SERVER_TAX_ERROR.get());
+		TaxEntry entry = TaxDataCache.TYPE.get(false).getServerEntry();
+		entry.openMenu(commandContext.getSource().getPlayerOrException(),SimpleValidator.NULL);
 		return 0;
 	}
 
@@ -413,7 +406,7 @@ public class CommandLCAdmin {
 	{
 		CommandSourceStack source = commandContext.getSource();
 		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TAXES_LIST_TITLE.get(), false);
-		for(TaxEntry entry : TaxSaveData.GetAllTaxEntries(false))
+		for(TaxEntry entry : TaxDataCache.TYPE.get(false).getAllEntries())
 			sendTaxDataFeedback(entry, source);
 		return 1;
 	}
@@ -462,13 +455,14 @@ public class CommandLCAdmin {
 	{
 		long taxCollectorID = LongArgumentType.getLong(commandContext, "taxCollectorID");
 
-		TaxEntry entry = TaxSaveData.GetTaxEntry(taxCollectorID, false);
+		TaxDataCache data = TaxDataCache.TYPE.get(false);
+		TaxEntry entry = data.getEntry(taxCollectorID);
 		if(entry == null || entry.isServerEntry())
 		{
 			EasyText.sendCommandFail(commandContext.getSource(), LCText.COMMAND_ADMIN_TAXES_DELETE_FAIL.get());
 			return 0;
 		}
-		TaxSaveData.RemoveEntry(taxCollectorID);
+		data.removeEntry(taxCollectorID);
 		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_TAXES_DELETE_SUCCESS.get(entry.getName()), true);
 		return 1;
 	}
@@ -476,7 +470,7 @@ public class CommandLCAdmin {
 	static int forceDisableTaxCollectors(CommandContext<CommandSourceStack> commandContext)
 	{
 		int count = 0;
-		for(TaxEntry entry : TaxSaveData.GetAllTaxEntries(false))
+		for(TaxEntry entry : TaxDataCache.TYPE.get(false).getAllEntries())
 		{
 			if(entry.isActive())
 			{

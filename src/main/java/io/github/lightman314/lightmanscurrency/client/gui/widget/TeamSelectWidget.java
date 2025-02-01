@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -22,7 +21,6 @@ import javax.annotation.Nonnull;
 public class TeamSelectWidget extends EasyWidgetWithChildren {
 
 	private final int rows;
-	private final Size size;
 	private final Supplier<List<ITeam>> teamSource;
 	private final Supplier<ITeam> selectedTeam;
 	private final Consumer<Integer> onPress;
@@ -32,7 +30,6 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	{
 		super(builder);
 		this.rows = builder.rows;
-		this.size = builder.size;
 		this.teamSource = builder.teams;
 		this.selectedTeam = builder.selected;
 		this.onPress = builder.handler;
@@ -46,7 +43,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			final int index = i;
 			TeamButton button = this.addChild(TeamButton.builder()
 					.position(area.pos.offset(0,i * TeamButton.HEIGHT))
-					.size(this.size)
+					.width(this.width)
 					.pressAction(this::onTeamSelect)
 					.team(() -> this.getTeam(index))
 					.selected(() -> this.isSelected(index))
@@ -146,17 +143,16 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
-		private Builder() { super(Size.NORMAL.width,TeamButton.HEIGHT); }
+		private Builder() { super(156,TeamButton.HEIGHT); }
 		@Override
 		protected Builder getSelf() { return this; }
 
-		private Size size = Size.NORMAL;
 		private int rows = 1;
 		private Supplier<List<ITeam>> teams = ArrayList::new;
 		private Supplier<ITeam> selected = () -> null;
 		private Consumer<Integer> handler = i -> {};
 
-		public Builder size(Size size) { this.size = size; this.changeWidth(this.size.width); return this; }
+		public Builder width(int width) { this.changeWidth(width); return this; }
 		public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * TeamButton.HEIGHT); return this; }
 		public Builder teams(Supplier<List<ITeam>> teams) { this.teams = teams; return this; }
 		public Builder selected(Supplier<ITeam> selected) { this.selected = selected; return this; }

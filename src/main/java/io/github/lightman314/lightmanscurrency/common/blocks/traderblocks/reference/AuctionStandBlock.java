@@ -8,9 +8,9 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBl
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -55,9 +55,13 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
                 EasyText.sendMessage(player, LCText.MESSAGE_DIMENSION_QUARANTINED_TERMINAL.getWithStyle(ChatFormatting.GOLD));
             else
             {
-                TraderData ah = TraderSaveData.GetAuctionHouse(false);
-                if(ah != null)
-                    ah.openTraderMenu(player, BlockValidator.of(pos, this));
+               TraderDataCache data = TraderDataCache.TYPE.get(level.isClientSide);
+               if(data != null)
+               {
+                   TraderData ah = data.getAuctionHouse();
+                   if(ah != null)
+                       ah.openTraderMenu(player, BlockValidator.of(pos, this));
+               }
             }
         }
         return InteractionResult.SUCCESS;

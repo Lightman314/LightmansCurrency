@@ -9,19 +9,15 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
+import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -73,7 +69,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	public MenuValidator getValidator() { return this.validator; }
 
 	public TraderMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
-		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID), validator);
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderAPI.API.GetTrader(IClientTracker.entityWrapper(inventory.player), traderID), validator);
 	}
 	
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource, MenuValidator validator) {

@@ -13,6 +13,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -34,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -47,7 +49,6 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
@@ -124,7 +125,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
+public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
 	
 	public static final int GLOBAL_TRADE_LIMIT = 100;
 	
@@ -251,7 +252,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean canStoreMoney() { return !this.creative || this.storeCreativeMoney; }
 
 	private boolean isClient = false;
-	public void flagAsClient() { this.isClient = true; this.logger.flagAsClient(); }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient() { return this.flagAsClient(true); }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient(boolean isClient) { this.isClient = isClient; this.logger.flagAsClient(this); return this; }
+	@Override
+	@Nonnull
+	public final TraderData flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 	public boolean isClient() { return this.isClient; }
 
 	private final OwnerData owner = new OwnerData(this, () -> this.markDirty(this::saveOwner));
@@ -716,7 +725,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		updateData.putLong("ID", this.id);
-		TraderSaveData.MarkTraderDirty(updateData);
+		TraderDataCache.TYPE.get(false).markTraderDirty(updateData);
 	}
 	
 	@SafeVarargs

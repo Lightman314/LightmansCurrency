@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -11,7 +12,7 @@ import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nonnull;
 
-public class NotificationData implements IClientTracker {
+public class NotificationData implements ISidedObject {
 
 	private boolean isClient = false;
 	@Override
@@ -139,11 +140,19 @@ public class NotificationData implements IClientTracker {
 		}
 	}
 
-	public final void flagAsClient()
-	{
-		this.isClient = true;
+	@Override
+	@Nonnull
+	public final NotificationData flagAsClient() { return this.flagAsClient(true); }
+	@Override
+	@Nonnull
+	public final NotificationData flagAsClient(boolean isClient) {
+		this.isClient = isClient;
 		for(Notification n : this.notifications)
-			n.flagAsClient();
+			n.flagAsClient(this);
+		return this;
 	}
+	@Override
+	@Nonnull
+	public final NotificationData flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 	
 }

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
@@ -7,9 +8,12 @@ import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerato
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
+import io.github.lightman314.lightmanscurrency.common.config.BonusForEnchantmentListOption;
+import io.github.lightman314.lightmanscurrency.common.config.ItemOverrideListOption;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.common.enchantments.data.BonusForEnchantment;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
@@ -22,6 +26,8 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -294,6 +300,11 @@ public final class LCConfig {
         public final DoubleOption chocolateCoinDropRate = DoubleOption.create(0.1d,0d,1d);
         public final BooleanOption eventAdvancementRewards = BooleanOption.createTrue();
 
+        //Structure Options
+        public final BooleanOption structureVillageHouses = BooleanOption.createTrue();
+        public final BooleanOption structureAncientCity = BooleanOption.createTrue();
+        public final BooleanOption structureIDAS = BooleanOption.createTrue();
+
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -493,6 +504,20 @@ public final class LCConfig {
             //Pop lists -> chests -> loot
             builder.pop().pop().pop();
 
+            builder.comment("Structure Settings","Requires a /reload command to be applied correctly").push("structures");
+
+            builder.comment("Whether new village structures will have a chance to spawn in vanilla villages")
+                    .add("villageHouses",this.structureVillageHouses);
+
+            builder.comment("Whether new structures will have a chance to spawn in ancient cities")
+                    .add("ancientCity",this.structureAncientCity);
+
+            builder.comment("Whether new special structures designed for Integrated Dungeons and Structures compatibility can spawn",
+                    "Does nothing if IDAS is not installed")
+                    .add("idasStructures",this.structureIDAS);
+
+            builder.pop();
+
         }
 
         @Nonnull
@@ -560,7 +585,8 @@ public final class LCConfig {
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
-        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.sameType(this.moneyMendingRepairCost.get()));
+        public final ItemOverrideListOption moneyMendingItemOverrides = ItemOverrideListOption.of();
+        public final BonusForEnchantmentListOption moneyMendingBonusForEnchantments = BonusForEnchantmentListOption.of(() -> ImmutableList.of(new BonusForEnchantment(CoinValue.fromNumber("main",4), ForgeRegistries.ENCHANTMENTS.getKey(Enchantments.INFINITY_ARROWS),1)));
         public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
         public final IntOption coinMagnetLeveledRange = IntOption.create(2,1,50);
         public final IntOption coinMagnetCalculationCap = IntOption.create(10,3, Integer.MAX_VALUE);
@@ -766,8 +792,17 @@ public final class LCConfig {
             builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
                     .add("moneyMendingRepairCost", this.moneyMendingRepairCost);
 
-            builder.comment("The additional cost to repair an item with Infinity applied to it.")
-                    .add("moneyMendingInfinityCost", this.moneyMendingInfinityCost);
+            builder.comment("A list of base cost overrides to be applied to specific items!",
+                            "Each entry should be formatted as \"baseCost|namespace:some_item,namespace:some_item_2,#namespace:some_tag...\"",
+                            "where 'baseCost' is a Money Value input")
+                    .add("moneyMendingItemOverrides",this.moneyMendingItemOverrides);
+
+            builder.comment("A list of bonus costs to be applied to items with the given enchantments",
+                            "Each entry should be formatted as either of the following:",
+                            "\"bonusCost|namespace:some_enchantment|maxLevelCalculation\" OR",
+                            "\"bonusCost|namespace:some_enchantment\"",
+                            "where 'bonusCost' is a Money Value input")
+                    .add("moneyMendingBonusForEnchantments",this.moneyMendingBonusForEnchantments);
 
             builder.comment("The coin collection radius of the Coin Magnet I enchantment.")
                     .add("coinMagnetBaseRange", this.coinMagnetBaseRange);

@@ -16,9 +16,9 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
@@ -209,7 +209,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				final String searchText = text;
 
 				List<String> output = new ArrayList<>();
-				List<TraderData> traderList = LCConfig.SERVER.ldiLimitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
+				List<TraderData> traderList = LCConfig.SERVER.ldiLimitSearchToNetworkTraders.get() ? TraderAPI.API.GetAllNetworkTraders(false) : TraderAPI.API.GetAllTraders(false);
 				traderList.forEach(trader -> {
 					try {
 						if(searchType.acceptTrader(trader, searchText))

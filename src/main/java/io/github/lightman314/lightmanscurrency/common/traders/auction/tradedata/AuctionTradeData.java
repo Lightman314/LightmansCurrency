@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
@@ -209,7 +209,7 @@ public class AuctionTradeData extends TradeData {
 
 		//Send notification to the previous bidder letting them know they've been out-bid.
 		if(oldBidder != null)
-			NotificationSaveData.PushNotification(oldBidder.id, new AuctionHouseBidNotification(this));
+			NotificationAPI.API.PushPlayerNotification(oldBidder.id, new AuctionHouseBidNotification(this));
 
 		long currentTime = TimeUtil.getCurrentTime();
 		if(this.overtimeAllowed && this.getRemainingTime(currentTime) < OVERTIME_DURATION)
@@ -257,11 +257,11 @@ public class AuctionTradeData extends TradeData {
 			}
 
 			//Post notification to the auction winner
-			NotificationSaveData.PushNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
+			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
 
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
-				NotificationSaveData.PushNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
+				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
 		}
 		else
 		{
@@ -273,7 +273,7 @@ public class AuctionTradeData extends TradeData {
 				for (ItemStack item : items) sellerStorage.giveItem(item);
 
 				//Post notification to the auction owner
-				NotificationSaveData.PushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
+				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
 
 			}
 		}
@@ -292,7 +292,7 @@ public class AuctionTradeData extends TradeData {
 			buyerStorage.giveMoney(this.lastBidAmount);
 
 			//Send cancel notification
-			NotificationSaveData.PushNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
+			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
 
 		}
 		//Return the items being sold to their owner

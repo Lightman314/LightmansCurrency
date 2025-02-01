@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -142,19 +142,44 @@ public class TraderAPIImpl extends TraderAPI {
 
     @Nullable
     @Override
-    public TraderData GetTrader(boolean isClient, long traderID) { return TraderSaveData.GetTrader(isClient,traderID); }
+    public TraderData GetTrader(boolean isClient, long traderID) {
+        TraderDataCache data = TraderDataCache.TYPE.get(isClient);
+        if(data == null)
+            return null;
+        return data.getTrader(traderID);
+    }
 
     @Nonnull
     @Override
-    public List<TraderData> GetAllTraders(boolean isClient) { return TraderSaveData.GetAllTraders(isClient); }
+    public List<TraderData> GetAllTraders(boolean isClient) {
+        TraderDataCache data = TraderDataCache.TYPE.get(isClient);
+        if(data == null)
+            return new ArrayList<>();
+        return data.getAllTraders();
+    }
 
     @Override
-    public List<TraderData> GetAllNetworkTraders(boolean isClient) { return TraderSaveData.GetAllTerminalTraders(isClient); }
+    public List<TraderData> GetAllNetworkTraders(boolean isClient) {
+        TraderDataCache data = TraderDataCache.TYPE.get(isClient);
+        if(data == null)
+            return new ArrayList<>();
+        return data.getAllTerminalTraders();
+    }
 
     @Override
-    public long CreateTrader(@Nonnull TraderData newTrader, @Nullable Player player) { return TraderSaveData.RegisterTrader(newTrader,player); }
+    public long CreateTrader(@Nonnull TraderData newTrader, @Nullable Player player) {
+        TraderDataCache data = TraderDataCache.TYPE.get(false);
+        if(data == null)
+            return -1;
+        return data.registerTrader(newTrader,player);
+    }
 
     @Override
-    public void DeleteTrader(long traderID) { TraderSaveData.DeleteTrader(traderID); }
+    public void DeleteTrader(long traderID) {
+        TraderDataCache data = TraderDataCache.TYPE.get(false);
+        if(data == null)
+            return;
+        data.deleteTrader(traderID);
+    }
 
 }

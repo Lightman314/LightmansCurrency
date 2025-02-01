@@ -15,7 +15,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -42,13 +42,14 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	@Override
 	public TraderData parse(StringReader reader) throws CommandSyntaxException {
 		String traderID = reader.readUnquotedString();
+		TraderDataCache data = TraderDataCache.TYPE.get(false);
 		if(isNumerical(traderID))
 		{
 			try {
 				long id = Long.parseLong(traderID);
 				if(id >= 0)
 				{
-					TraderData t = TraderSaveData.GetTrader(false, id);
+					TraderData t = data.getTrader(id);
 					if(t != null)
 					{
 						if(this.onlyRecoverableTraders && !t.isRecoverable())
@@ -60,12 +61,9 @@ public class TraderArgument implements ArgumentType<TraderData>{
 		}
 		if(this.acceptPersistentIDs)
 		{
-			List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
-			for(TraderData t : allTraders)
-			{
-				if(t.isPersistent() && t.getPersistentID().equals(traderID))
-					return t;
-			}
+			TraderData t = data.getTrader(traderID);
+			if(t != null)
+				return t;
 		}
 		throw ERROR_NOT_FOUND.createWithContext(reader);
 	}
