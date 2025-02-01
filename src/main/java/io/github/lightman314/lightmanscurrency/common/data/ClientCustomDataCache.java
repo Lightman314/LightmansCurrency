@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber
+@EventBusSubscriber(Dist.CLIENT)
 public class ClientCustomDataCache {
 
     private static final Map<ResourceLocation,CustomData> clientDataCache = new HashMap<>();

@@ -28,6 +28,7 @@ public class RepairWithMoneyData
 
 
     private boolean forceCache = true;
+    private boolean updatingCache = false;
     private long lastCacheTime = 0;
     private final ValueInput baseCost;
     public MoneyValue getBaseCost() { this.checkCache(); return this.baseCost.getCost(); }
@@ -69,14 +70,18 @@ public class RepairWithMoneyData
 
     private void checkCache()
     {
+        if(this.updatingCache)
+            return;
         //Re-parse values every 2 minutes
         if(this.forceCache || System.currentTimeMillis() - this.lastCacheTime >= 1000 * 120)
         {
+            this.updatingCache = true;
             this.forceCache = false;
+            this.lastCacheTime = System.currentTimeMillis();
             this.baseCost.updateCache();
             this.itemOverrides.forEach(ValueInput::updateCache);
             this.enchantmentExtras.forEach(ValueInput::updateCache);
-            this.lastCacheTime = System.currentTimeMillis();
+            this.updatingCache = false;
         }
     }
 
