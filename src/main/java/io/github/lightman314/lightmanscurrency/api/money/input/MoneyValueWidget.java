@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -49,9 +48,6 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public boolean isLocked() { return this.locked; }
     public void lock() { this.locked = true; }
     public void unlock() { this.locked = false; }
-
-    private final Font font = Minecraft.getInstance().font;
-    public final Font getFont() { return this.font; }
 
     private final Map<String,MoneyInputHandler> availableHandlers;
     private final List<String> handlerKeys = new ArrayList<>();
@@ -268,6 +264,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
             newValue = MoneyValue.empty();
         this.currentValue = newValue;
         this.checkHandler();
+        this.changeHandler.accept(this.currentValue);
         if(this.currentHandler != null)
             this.currentHandler.onValueChanged(newValue);
     }

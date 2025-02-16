@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -36,6 +35,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     private final List<ITooltipSource> tooltipSources = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
+    private final List<IKeyboardListener> keyboardListeners = new ArrayList<>();
 
 
     @Nonnull
@@ -80,6 +80,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         this.tooltipSources.clear();
         this.scrollListeners.clear();
         this.mouseListeners.clear();
+        this.keyboardListeners.clear();
         this.recalculateCorner();
         this.initialize(this.screenArea);
     }
@@ -171,6 +172,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.lateRenders.add(r);
         if(child instanceof EasyWidget w)
             w.addAddons(this::addChild);
+        if(child instanceof IKeyboardListener l)
+            this.keyboardListeners.add(l);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
             w.addChildren();
         return child;
@@ -196,6 +199,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.preRenders.remove(r);
         if(child instanceof ILateRender r)
             this.lateRenders.remove(r);
+        if(child instanceof IKeyboardListener l)
+            this.keyboardListeners.remove(l);
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
     }
@@ -259,13 +264,18 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     }
 
     @Override
-    public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-        InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        for(IKeyboardListener listener : new ArrayList<>(this.keyboardListeners))
+        {
+            if(listener.keyPressed(keyCode,scanCode,modifiers))
+                return true;
+        }
+        InputConstants.Key mouseKey = InputConstants.getKey(keyCode, scanCode);
         //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
         if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.blockInventoryClosing()) {
             return true;
         }
-        return super.keyPressed(p_97765_, p_97766_, p_97767_);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
 }

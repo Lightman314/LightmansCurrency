@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.event.ConfigEvent;
+import io.github.lightman314.lightmanscurrency.api.config.event.ConfigReloadAllEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nonnull;
@@ -65,6 +68,7 @@ public abstract class ConfigFile {
 
     private static void reloadFiles(boolean logicalClient)
     {
+        VersionUtil.postEvent(new ConfigReloadAllEvent.Pre(logicalClient));
         for(ConfigFile file : loadableFiles.values())
         {
             try {
@@ -72,6 +76,7 @@ public abstract class ConfigFile {
                     file.reload();
             } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
         }
+        VersionUtil.postEvent(new ConfigReloadAllEvent.Post(logicalClient));
     }
 
     @Nonnull
@@ -88,9 +93,13 @@ public abstract class ConfigFile {
     }
 
     @Nonnull
-    protected String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".lcconfig"; }
+    protected String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".txt"; }
+    @Nonnull
+    private String getOldFilePath() { return this.getFilePath().replace(".txt",".lcconfig"); }
     @Nonnull
     protected final File getFile() { return new File(this.getFilePath()); }
+    @Nonnull
+    private File getOldFile() { return new File(this.getOldFilePath()); }
 
     private ConfigSection root = null;
     public final LoadPhase loadPhase;
@@ -170,6 +179,9 @@ public abstract class ConfigFile {
             return;
 
         this.reloading = true;
+        final boolean isFirstLoad = !this.isLoaded();
+        //Pre reload event
+        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Pre(this,isFirstLoad));
 
         try {
             LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
@@ -244,6 +256,8 @@ public abstract class ConfigFile {
         }
 
         this.reloading = false;
+        //Post reload event
+        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Post(this,isFirstLoad));
 
     }
 
@@ -262,7 +276,12 @@ public abstract class ConfigFile {
     private List<String> readLines() {
         File file = this.getFile();
         if(!file.exists())
-            return new ArrayList<>();
+        {
+            //Check old file extension for backwards compatibility
+            file = this.getOldFile();
+            if(!file.exists())
+                return new ArrayList<>();
+        }
         try {
             BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
             List<String> lines = new ArrayList<>();
@@ -308,6 +327,14 @@ public abstract class ConfigFile {
             }
 
         } catch (IOException | SecurityException e) { LightmansCurrency.LogError("Error modifying " + this.fileName + "!", e); }
+        //Delete old file after writing the new config to file just to be safe
+        File oldFile = this.getOldFile();
+        if(oldFile.exists())
+        {
+            try {
+                oldFile.delete();
+            } catch (SecurityException e) { LightmansCurrency.LogError("Error deleting expired config file",e); }
+        }
     }
 
     private void writeSection(@Nonnull PrintWriter writer, @Nonnull ConfigSection section) {

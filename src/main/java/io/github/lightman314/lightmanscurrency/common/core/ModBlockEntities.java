@@ -41,6 +41,8 @@ public class ModBlockEntities {
 		
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 
+		COMMAND_TRADER = ModRegistries.BLOCK_ENTITIES.register("command_trader", () -> BlockEntityType.Builder.of(CommandTraderBlockEntity::new,ModBlocks.COMMAND_TRADER.get()).build(null));
+
 		TAX_BLOCK = ModRegistries.BLOCK_ENTITIES.register("tax_block", () -> BlockEntityType.Builder.of(TaxBlockEntity::new, ModBlocks.TAX_COLLECTOR.get()).build(null));
 
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get(), ModBlocks.SUS_JAR.get()).build(null));
@@ -80,6 +82,9 @@ public class ModBlockEntities {
 	
 	//Paygate
 	public static final RegistryObject<BlockEntityType<PaygateBlockEntity>> PAYGATE;
+
+	//Command Trader
+	public static final RegistryObject<BlockEntityType<CommandTraderBlockEntity>> COMMAND_TRADER;
 
 	//Tax Block
 	public static final RegistryObject<BlockEntityType<TaxBlockEntity>> TAX_BLOCK;

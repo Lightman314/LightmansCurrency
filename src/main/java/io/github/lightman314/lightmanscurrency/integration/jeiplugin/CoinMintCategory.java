@@ -6,10 +6,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.MintScreen;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import mezz.jei.api.constants.VanillaTypes;
@@ -24,7 +21,6 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -73,13 +69,6 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 		IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
 		IDrawableAnimated arrow = this.getArrow(recipe);
 		arrow.draw(guiGraphics, 33, 13);
-		if(!recipe.isValid())
-		{
-			//Render "disabled in config" text
-			EasyGuiGraphics gui = EasyGuiGraphics.create(guiGraphics,(int)mouseX,(int)mouseY,0f);
-			TextRenderUtil.drawCenteredText(gui, LCText.TOOLTIP_COIN_MINT_DISABLED_TOP.get().withStyle(ChatFormatting.BOLD), 52, 0, 0xFF0000);
-			TextRenderUtil.drawCenteredText(gui, LCText.TOOLTIP_COIN_MINT_DISABLED_BOTTOM.get().withStyle(ChatFormatting.BOLD), 52, 35, 0xFF0000);
-		}
 	}
 
 	@Nonnull

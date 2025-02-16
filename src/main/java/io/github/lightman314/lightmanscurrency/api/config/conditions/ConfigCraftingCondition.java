@@ -5,13 +5,16 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ConfigCraftingCondition implements ICondition {
 
     public static final ResourceLocation ID = VersionUtil.lcResource("configured");
@@ -20,14 +23,14 @@ public class ConfigCraftingCondition implements ICondition {
     private final String fileName;
     private final String optionPath;
 
-    private ConfigCraftingCondition(@Nonnull String fileName, @Nonnull String optionPath)
+    private ConfigCraftingCondition(String fileName, String optionPath)
     {
         this.fileName = fileName;
         this.optionPath = optionPath;
     }
 
-    public static ConfigCraftingCondition of(@Nonnull String fileName,@Nonnull String optionPath) { return new ConfigCraftingCondition(fileName,optionPath); }
-    public static ConfigCraftingCondition of(@Nonnull BooleanOption option) {
+    public static ConfigCraftingCondition of(String fileName,String optionPath) { return new ConfigCraftingCondition(fileName,optionPath); }
+    public static ConfigCraftingCondition of(BooleanOption option) {
         String path = null;
         ConfigFile file = option.getFile();
         if(file == null)
@@ -41,7 +44,7 @@ public class ConfigCraftingCondition implements ICondition {
     }
 
     @Override
-    public boolean test(@Nonnull IContext context) {
+    public boolean test(IContext context) {
         ConfigFile file = ConfigFile.lookupFile(this.fileName);
         if(file != null)
         {

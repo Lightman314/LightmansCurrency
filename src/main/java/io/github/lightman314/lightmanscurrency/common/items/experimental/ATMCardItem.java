@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMCardMenu;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -59,7 +60,11 @@ public class ATMCardItem extends Item implements ColoredItem {
                 if(!account.isCardValid(validation))
                     tooltip.add(LCText.TOOLTIP_ATM_CARD_LINK_INVALID.getWithStyle(ChatFormatting.RED));
                 else
+                {
                     tooltip.add(account.getBalanceText().withStyle(ChatFormatting.GRAY));
+                    //Usage tooltip
+                    tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_PAYMENT_CARD_USAGE.get(),ChatFormatting.GRAY));
+                }
             }
             if(tag.getBoolean("CardLocked"))
                 tooltip.add(LCText.TOOLTIP_ATM_CARD_ACCOUNT_LOCKED.getWithStyle(ChatFormatting.GRAY));

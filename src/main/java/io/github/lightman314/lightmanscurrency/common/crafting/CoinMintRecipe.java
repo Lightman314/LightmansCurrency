@@ -18,30 +18,16 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 
 public class CoinMintRecipe implements Recipe<Container>{
-
-	public enum MintType { MINT, MELT, OTHER }
-	
-	public static MintType readType(String typeName)
-	{
-		for(MintType type : MintType.values())
-		{
-			if(type.name().equals(typeName))
-				return type;
-		}
-		return MintType.OTHER;
-	}
 	
 	private final ResourceLocation id;
-	private final MintType type;
 	private final int duration;
 	private final Ingredient ingredient;
 	public final int ingredientCount;
 	private final ItemStack result;
 	
-	public CoinMintRecipe(ResourceLocation id, MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
+	public CoinMintRecipe(ResourceLocation id, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
 		this.id = id;
-		this.type = type;
 		this.duration = duration;
 		this.ingredient = ingredient;
 		this.ingredientCount = Math.max(ingredientCount,1); //Force count to be > 0
@@ -49,14 +35,8 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	public Ingredient getIngredient() { return this.ingredient; }
-	public MintType getMintType() { return this.type; }
 	
-	public boolean allowed()
-	{
-		return LCConfig.SERVER.allowCoinMintRecipe(this);
-	}
-	
-	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
+	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR; }
 	
 	@Override
 	public boolean matches(@Nonnull Container inventory, @Nonnull Level level) {
@@ -103,28 +83,23 @@ public class CoinMintRecipe implements Recipe<Container>{
 			ItemStack result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
 			if(result.isEmpty())
 				throw new JsonSyntaxException("Result is empty.");
-			MintType type = MintType.OTHER;
-			if(json.has("mintType"))
-				type = CoinMintRecipe.readType(GsonHelper.getAsString(json, "mintType", "OTHER"));
 
 			int duration = GsonHelper.getAsInt(json, "duration", 0);
 
-			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+			return new CoinMintRecipe(recipeId, duration, ingredient, ingredientCount, result);
 		}
 
 		@Override
-		public CoinMintRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
-			CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
+		public CoinMintRecipe fromNetwork(@Nonnull ResourceLocation recipeId, @Nonnull FriendlyByteBuf buffer) {
 			Ingredient ingredient = Ingredient.fromNetwork(buffer);
 			int ingredientCount = buffer.readInt();
 			ItemStack result = buffer.readItem();
 			int duration = buffer.readInt();
-			return new CoinMintRecipe(recipeId, type, duration, ingredient, ingredientCount, result);
+			return new CoinMintRecipe(recipeId, duration, ingredient, ingredientCount, result);
 		}
 
 		@Override
-		public void toNetwork(FriendlyByteBuf buffer, CoinMintRecipe recipe) {
-			buffer.writeUtf(recipe.getMintType().name());
+		public void toNetwork(@Nonnull FriendlyByteBuf buffer, CoinMintRecipe recipe) {
 			recipe.getIngredient().toNetwork(buffer);
 			buffer.writeInt(recipe.ingredientCount);
 			buffer.writeItemStack(recipe.getOutputItem(), false);

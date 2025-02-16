@@ -212,6 +212,9 @@ public class ItemTradeData extends TradeData {
 		if(!this.sellItemsDefined())
 			return 0;
 
+		if(trader.isCreative())
+			return 1;
+
 		if(this.tradeType == TradeDirection.PURCHASE)
 		{
 			return this.stockCountOfCost(trader);
@@ -374,7 +377,7 @@ public class ItemTradeData extends TradeData {
 
 	public static List<ItemTradeData> listOfSize(int tradeCount, boolean validateRules)
 	{
-		List<ItemTradeData> data = Lists.newArrayList();
+		List<ItemTradeData> data = new ArrayList<>();
 		while(data.size() < tradeCount)
 			data.add(new ItemTradeData(validateRules));
 		return data;

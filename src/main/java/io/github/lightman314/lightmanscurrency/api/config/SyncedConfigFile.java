@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.api.config;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.event.SyncedConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.PacketDistributor;
@@ -72,6 +74,8 @@ public abstract class SyncedConfigFile extends ConfigFile {
 
     private void loadSyncData(@Nonnull Map<String,String> syncData)
     {
+        //Pre sync event
+        VersionUtil.postEvent(new SyncedConfigEvent.ConfigReceivedSyncDataEvent.Pre(this));
         LightmansCurrency.LogInfo("Received config data for '" + this.id + "' from the server!");
         this.getAllOptions().forEach((id, option) -> {
             if(syncData.containsKey(id))
@@ -80,6 +84,8 @@ public abstract class SyncedConfigFile extends ConfigFile {
                 LightmansCurrency.LogWarning("Received data for config option '" + id + "' but it is not present on the client!");
             this.loadedSyncData = true;
         });
+        //Post sync event
+        VersionUtil.postEvent(new SyncedConfigEvent.ConfigReceivedSyncDataEvent.Post(this));
     }
 
 }

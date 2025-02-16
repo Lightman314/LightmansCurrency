@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.mixin;
+package io.github.lightman314.lightmanscurrency.mixin.client;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;

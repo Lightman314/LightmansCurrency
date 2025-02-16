@@ -7,13 +7,18 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
+@ParametersAreNonnullByDefault
 public interface ITradeSearchFilter {
 
-    boolean filterTrade(@Nonnull TradeData data, @Nonnull String searchText);
+    @Deprecated(since = "2.2.4.3")
+    default boolean filterTrade(TradeData data, String searchText) { return false; }
 
-    static boolean filterItem(@Nonnull ItemStack stack, @Nonnull String searchText)
+    default void filterTrade(TradeData data, PendingSearch search) { }
+
+    static boolean filterItem(ItemStack stack, String searchText)
     {
         if(!stack.isEmpty())
         {

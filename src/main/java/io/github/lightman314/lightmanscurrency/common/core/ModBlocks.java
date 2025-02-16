@@ -129,7 +129,11 @@ public class ModBlocks {
 	//Bookshelf Traders
 	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
 
+	//Slot Machine
 	public static final RegistryObject<Block> SLOT_MACHINE;
+
+	//Command Trader
+	public static final RegistryObject<Block> COMMAND_TRADER;
 
 	//Ticket Machine
 	public static final RegistryObject<Block> TICKET_STATION;
@@ -521,6 +525,14 @@ public class ModBlocks {
 				Block.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.METAL)
+				)
+		);
+
+		//Command Trader
+		COMMAND_TRADER = register("command_trader", () -> new CommandTraderBlock(BlockBehaviour.Properties.of()
+					.mapColor(MapColor.METAL)
+					.strength(3.0f,Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
 		);

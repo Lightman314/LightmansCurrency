@@ -451,7 +451,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         if(data.contains("ClearTraders"))
             this.traderData.clear();
         if(data.contains("DeleteTrader"))
-            this.deleteTrader(data.getLong("DeleteTrader"));
+            this.traderData.remove(data.getLong("DeleteTrader"));
         if(data.contains("UpdateTrader"))
         {
             CompoundTag updateTag = data.getNBT("UpdateTrader");
@@ -463,7 +463,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
                 TraderData trader = TraderData.Deserialize(true, updateTag);
                 if(trader != null)
                 {
-                    this.traderData.put(id, trader.flagAsClient(this));
+                    this.traderData.put(id,trader.flagAsClient(this));
                     trader.OnRegisteredToOffice();
                 }
             }

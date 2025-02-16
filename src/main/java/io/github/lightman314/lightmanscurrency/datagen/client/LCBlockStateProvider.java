@@ -296,6 +296,9 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerRotatable(ModBlocks.ITEM_NETWORK_TRADER_3, "item_network_trader_3", true);
         this.registerRotatable(ModBlocks.ITEM_NETWORK_TRADER_4, "item_network_trader_4", true);
 
+        //Command Trader
+        this.registerRotatable(ModBlocks.COMMAND_TRADER);
+
         //Item Trader Interface
         this.registerRotatable(ModBlocks.ITEM_TRADER_INTERFACE);
 

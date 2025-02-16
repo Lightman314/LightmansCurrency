@@ -25,14 +25,10 @@ public class TicketDataCache extends CustomData {
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag) {
-        tag.putLong("NextID", this.nextID);
-    }
+    public void save(CompoundTag tag) { tag.putLong("NextID", this.nextID); }
 
     @Override
-    public void load(CompoundTag tag) {
-        this.nextID = tag.getLong("NextID");
-    }
+    public void load(CompoundTag tag) { this.nextID = tag.getLong("NextID"); }
 
     public long peekNextID() { return this.nextID; }
 

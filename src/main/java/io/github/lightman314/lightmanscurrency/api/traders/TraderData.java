@@ -170,6 +170,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	protected boolean allowVoidUpgrade() { return false; }
 	protected final boolean shouldStoreGoods() { return !this.creative && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
 
+	public boolean readyForCustomers() { return this.hasValidTrade(); }
+
 	@Nonnull
 	private TraderState state = TraderState.NORMAL;
 	@Nonnull
@@ -609,7 +611,12 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public boolean canEditTradeCount() { return false; }
 	public int getMaxTradeCount() { return 1; }
 	public abstract int getTradeStock(int tradeIndex);
+	public int validTradeCount() { return (int)this.getTradeData().stream().filter(TradeData::isValid).count(); }
 	public boolean hasValidTrade() { return this.getTradeData().stream().anyMatch(TradeData::isValid); }
+	public int tradesWithStock() {
+		TradeContext context = TradeContext.createStorageMode(this);
+		return (int)this.getTradeData().stream().filter(t -> t.isValid() && t.hasStock(context)).count();
+	}
 	public boolean anyTradeHasStock()
 	{
 		TradeContext context = TradeContext.createStorageMode(this);

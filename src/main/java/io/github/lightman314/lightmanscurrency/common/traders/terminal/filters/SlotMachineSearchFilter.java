@@ -1,35 +1,30 @@
 package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.IBasicTraderFilter;
-import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SlotMachineSearchFilter implements IBasicTraderFilter {
 
     @Override
-    public boolean filterTrade(@Nonnull TradeData data, @Nonnull String searchText) {
+    public void filterTrade(@Nonnull TradeData data, @Nonnull PendingSearch search) {
         if(data instanceof SlotMachineTrade trade)
         {
+            List<ItemStack> items = new ArrayList<>();
             for(SlotMachineEntry entry : trade.trader.getValidEntries())
             {
-                for(ItemStack stack : entry.items)
-                {
-                    if(ITradeSearchFilter.filterItem(stack, searchText))
-                        return true;
-                }
-                if(entry.isMoney())
-                {
-                    if(entry.getMoneyValue().getString().toLowerCase().contains(searchText))
-                        return true;
-                }
+                if(entry.isValid())
+                    items.addAll(entry.items);
             }
+            search.processFilter(ItemTraderSearchFilter.ITEM,ItemTraderSearchFilter.filterItems(items));
         }
-        return false;
     }
 
 }

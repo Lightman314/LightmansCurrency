@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -53,6 +54,8 @@ public abstract class EasyWidget extends AbstractWidget {
 
     public final boolean isVisible() { this.visibleTickInternal(); return this.visible; }
     public final void setVisible(boolean visible) { this.visible = visible; }
+
+    public final Font getFont() { return Minecraft.getInstance().font; }
 
     public boolean hideFromMouse() { return false; }
 

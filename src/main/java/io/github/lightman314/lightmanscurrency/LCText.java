@@ -199,6 +199,7 @@ public class LCText {
     public static final TextEntry BLOCK_SLOT_MACHINE = TextEntry.block(ModBlocks.SLOT_MACHINE);
     public static final TextEntry BLOCK_ARMOR_DISPLAY = TextEntry.block(ModBlocks.ARMOR_DISPLAY);
     public static final TextEntryBundle<WoodType> BLOCK_BOOKSHELF_TRADER = TextEntryBundle.of(ModBlocks.BOOKSHELF_TRADER);
+    public static final TextEntry BLOCK_COMMAND_TRADER = TextEntry.block(ModBlocks.COMMAND_TRADER);
 
     public static final TextEntry BLOCK_ITEM_NETWORK_TRADER_1 = TextEntry.block(ModBlocks.ITEM_NETWORK_TRADER_1);
     public static final TextEntry BLOCK_ITEM_NETWORK_TRADER_2 = TextEntry.block(ModBlocks.ITEM_NETWORK_TRADER_2);
@@ -254,6 +255,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_DISABLED = TextEntry.tooltip(MODID,"disabled");
     public static final TextEntry TOOLTIP_INFO_BLURB = TextEntry.tooltip(MODID,"info_blurb");
 
+    public static final TextEntry TOOLTIP_PAYMENT_CARD_USAGE = TextEntry.tooltip(MODID,"payment_card.usage");
     public static final TextEntry TOOLTIP_ATM_CARD_NOT_LINKED = TextEntry.tooltip(MODID,"atm_card.not_linked");
     public static final TextEntry TOOLTIP_ATM_CARD_ACCOUNT = TextEntry.tooltip(MODID,"atm_card.account");
     public static final TextEntry TOOLTIP_ATM_CARD_LINK_INVALID = TextEntry.tooltip(MODID,"atm_card.link_invalid");
@@ -269,6 +271,7 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_ITEM_TRADER_NETWORK = MultiLineTextEntry.tooltip(MODID,"trader.network.item");
     public static final MultiLineTextEntry TOOLTIP_SLOT_MACHINE = MultiLineTextEntry.tooltip(MODID,"trader.slot_machine");
     public static final MultiLineTextEntry TOOLTIP_PAYGATE = MultiLineTextEntry.tooltip(MODID,"paygate");
+    public static final MultiLineTextEntry TOOLTIP_COMMAND_TRADER = MultiLineTextEntry.tooltip(MODID,"trader.commands");
     public static final MultiLineTextEntry TOOLTIP_TERMINAL = MultiLineTextEntry.tooltip(MODID,"terminal");
     public static final TextEntry TOOLTIP_TERMINAL_KEY_BIND = TextEntry.tooltip(MODID,"terminal.key_bind");
     public static final MultiLineTextEntry TOOLTIP_INTERFACE_ITEM = MultiLineTextEntry.tooltip(MODID,"interface.item");
@@ -276,10 +279,6 @@ public class LCText {
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY = TextEntry.tooltip(MODID,"tax_collector.admin_only");
     public static final MultiLineTextEntry TOOLTIP_ATM = MultiLineTextEntry.tooltip(MODID,"atm");
     public static final TextEntry TOOLTIP_ATM_KEY_BIND = TextEntry.tooltip(MODID,"atm.key_bind");
-    public static final TextEntry TOOLTIP_COIN_MINT_MINTABLE = TextEntry.tooltip(MODID,"coinmint.mintable");
-    public static final TextEntry TOOLTIP_COIN_MINT_MELTABLE = TextEntry.tooltip(MODID,"coinmint.meltable");
-    public static final TextEntry TOOLTIP_COIN_MINT_DISABLED_TOP = TextEntry.tooltip(MODID,"coinmint.disabled.1");
-    public static final TextEntry TOOLTIP_COIN_MINT_DISABLED_BOTTOM = TextEntry.tooltip(MODID,"coinmint.disabled.2");
     public static final MultiLineTextEntry TOOLTIP_TICKET_STATION = MultiLineTextEntry.tooltip(MODID,"ticketmachine");
     public static final MultiLineTextEntry TOOLTIP_CASH_REGISTER = MultiLineTextEntry.tooltip(MODID,"cash_register");
     public static final MultiLineTextEntry TOOLTIP_COIN_JAR = MultiLineTextEntry.tooltip(MODID,"coin_jar");
@@ -585,6 +584,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_DESELECT_ALL_TRADES = TextEntry.tooltip(MODID,"trader.all_trades.deselect");
     public static final TextEntry TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED = TextEntry.tooltip(MODID,"trader.open_multi_edit.selected");
     public static final TextEntry BUTTON_TRADER_SET_ALL_PRICES = TextEntry.button(MODID,"trader.set_all_prices");
+    public static final TextEntry TOOLTIP_TRADER_UPGRADES = TextEntry.tooltip(MODID,"trader.upgrade");
     public static final TextEntry TOOLTIP_TRADER_LOGS = TextEntry.tooltip(MODID,"trader.log");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS = TextEntry.tooltip(MODID,"trader.settings");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_NAME = TextEntry.tooltip(MODID,"trader.settings.name");
@@ -680,6 +680,11 @@ public class LCText {
     public static final TextEntry GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL = TextEntry.gui(MODID,"trader.slot_machine.entry_label");
     public static final TextEntry GUI_TRADER_SLOT_MACHINE_ODDS_LABEL = TextEntry.gui(MODID,"trader.slot_machine.odds_label");
     public static final TextEntry TOOLTIP_TRADER_SLOT_MACHINE_EDIT_PRICE = TextEntry.gui(MODID,"trader.slot_machine.edit_price");
+
+    //Command Trader Specific
+    public static final TextEntry GUI_TRADER_COMMAND_LABEL = TextEntry.gui(MODID,"trader.command.label");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_COMMAND = TextEntry.tooltip(MODID,"trader.settings.command");
+    public static final TextEntry GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL = TextEntry.gui(MODID,"trader.settings.command.permission_level");
 
     //Trade Data
     public static final TextEntryBundle<TradeDirection> GUI_TRADE_DIRECTION = TextEntryBundle.of(TradeDirection.values(),"gui.lightmanscurrency.trade_direction");
@@ -920,6 +925,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_PASS = TextEntry.notification(PaygateNotification.TYPE,"pass");
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_MONEY = TextEntry.notification(PaygateNotification.TYPE,"money");
     public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE = TextEntry.notification(SlotMachineTradeNotification.TYPE);
+    public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.modResource(MODID,"items"),"format");
 

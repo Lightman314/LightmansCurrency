@@ -1,9 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -72,8 +69,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.addChild(this);
-
 		ItemTradeData trade = this.getTrade();
 
 		this.tradeDisplay = this.addChild(TradeButton.builder()
@@ -133,8 +128,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.validateRenderables();
 
 		//Render a down arrow over the selected position
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		gui.resetColor();
 
 		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);

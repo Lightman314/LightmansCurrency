@@ -1,0 +1,25 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block",
+	"textures": {
+		"front": "lightmanscurrency:block/command_trader/front",
+		"side": "lightmanscurrency:block/command_trader/side",
+		"back": "lightmanscurrency:block/command_trader/back",
+		"particle": "#front"
+	},
+	"elements": [
+		{
+			"name": "block",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "cullface": "north", "texture": "#back"},
+				"east": {"uv": [0, 0, 16, 16], "cullface": "east", "rotation": 270, "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "cullface": "south", "texture": "#front"},
+				"west": {"uv": [0, 0, 16, 16], "cullface": "west", "rotation": 90, "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 16], "cullface": "up", "rotation": 180, "texture": "#side"},
+				"down": {"uv": [0, 0, 16, 16], "cullface": "down", "texture": "#side"}
+			}
+		}
+	]
+}

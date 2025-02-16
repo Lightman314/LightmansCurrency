@@ -12,7 +12,6 @@ import me.shedaniel.rei.api.client.gui.widgets.Widgets;
 import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -59,15 +58,6 @@ public final class CoinMintCategory implements DisplayCategory<CoinMintDisplay> 
         //Animated Arrow
         widgets.add(new CoinMintArrow(new Point(startPoint.x + 25,startPoint.y + 5))
                 .animationDurationTicks(display.recipe.getDuration()));
-
-        if(!display.recipe.allowed())
-        {
-            //Disabled alert
-            widgets.add(Widgets.createLabel(new Point(bounds.getCenterX(), bounds.getMinY() + 4), LCText.TOOLTIP_COIN_MINT_DISABLED_TOP.getWithStyle(ChatFormatting.BOLD, ChatFormatting.RED))
-                    .centered().noShadow());
-            widgets.add(Widgets.createLabel(new Point(bounds.getCenterX(), bounds.getMaxY() - 12), LCText.TOOLTIP_COIN_MINT_DISABLED_BOTTOM.getWithStyle(ChatFormatting.BOLD, ChatFormatting.RED))
-                    .centered().noShadow());
-        }
 
         return widgets;
     }

@@ -83,7 +83,9 @@ public final class OwnerData implements IClientTracker {
 
 	public void copyFrom(@Nonnull OwnerData owner) {
 		this.backupOwner = owner.backupOwner.copy();
+		this.backupOwner.setParent(this);
 		this.currentOwner = owner.currentOwner.copy();
+		this.currentOwner.setParent(this);
 	}
 
 	@Nonnull

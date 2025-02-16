@@ -221,6 +221,19 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.GOLDEN_TICKET_PASS)
                 .add(ModItems.GOLDEN_TICKET_MASTER);
 
+        //Settings Tags
+        this.cTag(LCTags.Items.SETTINGS_WRITABLE)
+                .add(Items.PAPER)
+                .add(Items.BOOK)
+                .add(Items.WRITABLE_BOOK)
+                .add(Items.WRITTEN_BOOK);
+        this.cTag(LCTags.Items.SETTINGS_READABLE)
+                .add(Items.PAPER)
+                .add(Items.WRITTEN_BOOK);
+        this.cTag(LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK)
+                .add(Items.WRITABLE_BOOK)
+                .add(Items.BOOK);
+
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items
         this.cTag(ItemTags.BEACON_PAYMENT_ITEMS)

@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -85,17 +84,8 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			Player player = context.getPlayer();
 			if(upgradeable == null || !block.canUseUpgradeItem(upgradeable,stack,player))
 				return InteractionResult.PASS;
-			Container upgradeContainer = upgradeable.getUpgrades();
-			if(stack.getItem() instanceof UpgradeItem upgradeItem && upgradeable.allowUpgrade(upgradeItem) && UpgradeItem.noUniqueConflicts(upgradeItem,upgradeContainer))
-			{
-				ItemStack insertItem = stack.copyWithCount(1);
-				if(InventoryUtil.CanPutItemStack(upgradeContainer,insertItem))
-				{
-					InventoryUtil.PutItemStack(upgradeContainer,insertItem);
-					stack.shrink(1);
-					return InteractionResult.SUCCESS;
-				}
-			}
+			if(upgradeable.quickInsertUpgrade(stack))
+				return InteractionResult.SUCCESS;
 		}
 		return super.onItemUseFirst(stack,context);
 	}

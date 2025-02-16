@@ -39,6 +39,13 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	public void SetData(TraderData data) { this.data = data; }
 
 	@Override
+	protected void renderTick() {
+		//Set as not visible if no data is present
+		if((this.data == null) == this.visible)
+			this.setVisible(this.data != null);
+	}
+
+	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		//Set active status

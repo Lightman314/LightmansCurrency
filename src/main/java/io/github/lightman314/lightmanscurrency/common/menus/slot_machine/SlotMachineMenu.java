@@ -1,21 +1,17 @@
-package io.github.lightman314.lightmanscurrency.common.menus;
+package io.github.lightman314.lightmanscurrency.common.menus.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
-import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -26,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,11 +39,11 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     List<Slot> coinSlots = new ArrayList<>();
 
-    private final List<RewardCache> rewards = new ArrayList<>();
+    private final List<ResultHolder> rewards = new ArrayList<>();
     public final boolean hasPendingReward() { return !this.rewards.isEmpty(); }
-    public final RewardCache getNextReward() { if(this.rewards.isEmpty()) return null; return this.rewards.get(0); }
+    public final ResultHolder getNextReward() { if(this.rewards.isEmpty()) return null; return this.rewards.get(0); }
 
-    public final RewardCache getAndRemoveNextReward()
+    public final ResultHolder getAndRemoveNextReward()
     {
         if(this.rewards.isEmpty())
             return null;
@@ -145,8 +140,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         super.removed(player);
         MinecraftForge.EVENT_BUS.unregister(this);
         //Force-give rewards if closed before reward is handled
-        for(RewardCache reward : this.rewards)
-            reward.giveToPlayer();
+        for(ResultHolder reward : this.rewards)
+            reward.giveToPlayer(this.player);
         this.rewards.clear();
         //Clear the coin slots
         this.clearContainer(player, this.coins);
@@ -160,12 +155,11 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     public final TradeContext getContext() { return this.getContext(null); }
 
-    public final TradeContext getContext(@Nullable RewardCache rewardHolder)
+    public final TradeContext getContext(@Nullable ResultHolder rewardHolder)
     {
         TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coins);
         if(rewardHolder != null)
-            builder.withItemHandler(new InvWrapper(rewardHolder.itemHolder)).withMoneyHolder(rewardHolder.moneyHolder);
-
+            builder.withItemHandler(rewardHolder.itemHandler()).withMoneyHolder(rewardHolder.moneyHolder());
         return builder.build();
     }
 
@@ -188,13 +182,13 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
             boolean flag = true;
             for(int i = 0; flag && i < count; ++i)
             {
-                RewardCache holder = new RewardCache();
-                if(trader.TryExecuteTrade(this.getContext(holder), 0).isSuccess())
+                ResultHolder result = new ResultHolder();
+                if(trader.TryExecuteTrade(this.getContext(result), 0).isSuccess())
                 {
-                    if(holder.itemHolder.isEmpty() && holder.moneyHolder.isEmpty())
+                    if(result.isEmpty())
                         LightmansCurrency.LogError("Successful Slot Machine Trade executed, but no items or money were received!");
                     else
-                        this.rewards.add(holder);
+                        this.rewards.add(result);
                 }
                 else
                     flag = false;
@@ -203,10 +197,10 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
             {
                 CompoundTag rewardData = new CompoundTag();
                 ListTag resultList = new ListTag();
-                for(RewardCache result : this.rewards)
+                for(ResultHolder result : this.rewards)
                     resultList.add(result.save());
                 rewardData.put("Rewards", resultList);
-                this.SendMessageToClient(LazyPacketData.builder().setCompound("SyncRewards", rewardData));
+                this.SendMessageToClient(this.builder().setCompound("SyncRewards", rewardData));
             }
         }
 
@@ -214,10 +208,10 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     public boolean GiveNextReward()
     {
-        RewardCache nextReward = this.getAndRemoveNextReward();
+        ResultHolder nextReward = this.getAndRemoveNextReward();
         if(nextReward != null)
         {
-            nextReward.giveToPlayer();
+            nextReward.giveToPlayer(this.player);
             return true;
         }
         return false;
@@ -246,63 +240,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
             CompoundTag rewardData = message.getNBT("SyncRewards");
             ListTag rewardList = rewardData.getList("Rewards", Tag.TAG_COMPOUND);
             for(int i = 0; i < rewardList.size(); ++i)
-                this.rewards.add(this.loadReward(rewardList.getCompound(i)));
+                this.rewards.add(ResultHolder.load(rewardList.getCompound(i)));
         }
-    }
-
-    public final RewardCache loadReward(CompoundTag tag) {
-        MoneyStorage storage = new MoneyStorage(() -> {}, Integer.MIN_VALUE / 2);
-        storage.load(tag.getList("Money", Tag.TAG_COMPOUND));
-        return new RewardCache(InventoryUtil.loadAllItems("Items", tag, SlotMachineEntry.ITEM_LIMIT), storage);
-    }
-
-    public final class RewardCache
-    {
-        public final Container itemHolder;
-        //Make money storage high-priority so that it gets the money not the players wallet
-        public final MoneyStorage moneyHolder = new MoneyStorage(() -> {}, -1000000);
-        public RewardCache() { this.itemHolder = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT); }
-        public RewardCache(Container itemHolder, MoneyStorage money) { this.itemHolder = itemHolder; this.moneyHolder.addValues(money.allValues()); }
-        public void giveToPlayer()
-        {
-            SlotMachineMenu.this.clearContainer(this.itemHolder);
-            this.itemHolder.clearContent();
-            this.moneyHolder.GiveToPlayer(SlotMachineMenu.this.player);
-        }
-
-        public List<ItemStack> getDisplayItems()
-        {
-            if(!this.moneyHolder.isEmpty())
-            {
-                List<ItemStack> items = new ArrayList<>();
-                for(MoneyValue value : this.moneyHolder.allValues())
-                {
-                    if(value instanceof IItemBasedValue itemValue)
-                        items.addAll(itemValue.getAsSeperatedItemList());
-                }
-                return items;
-            }
-            else
-            {
-                List<ItemStack> items = new ArrayList<>();
-                for(int i = 0; i < this.itemHolder.getContainerSize(); ++i)
-                {
-                    ItemStack item = this.itemHolder.getItem(i);
-                    if(!item.isEmpty())
-                        items.add(item.copy());
-                }
-                return items;
-            }
-        }
-
-        public CompoundTag save()
-        {
-            CompoundTag tag = new CompoundTag();
-            InventoryUtil.saveAllItems("Items", tag, this.itemHolder);
-            tag.put("Money", this.moneyHolder.save());
-            return tag;
-        }
-
     }
 
 }

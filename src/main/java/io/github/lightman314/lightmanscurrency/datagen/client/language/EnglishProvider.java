@@ -204,6 +204,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BLOCK_SLOT_MACHINE, "Slot Machine");
         this.translate(LCText.BLOCK_ARMOR_DISPLAY, "Armor Display");
         this.translateWooden(LCText.BLOCK_BOOKSHELF_TRADER, "%s Bookshelf Trader");
+        this.translate(LCText.BLOCK_COMMAND_TRADER, "Command Trader");
 
         this.translate(LCText.BLOCK_ITEM_NETWORK_TRADER_1, "Item Network Trader T1");
         this.translate(LCText.BLOCK_ITEM_NETWORK_TRADER_2, "Item Network Trader T2");
@@ -257,6 +258,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_DISABLED, "DISABLED");
         this.translate(LCText.TOOLTIP_INFO_BLURB, "Hold SHIFT for more information.");
 
+        this.translate(LCText.TOOLTIP_PAYMENT_CARD_USAGE,"Can be placed in a trader money slots to be used as payment");
         this.translate(LCText.TOOLTIP_ATM_CARD_NOT_LINKED,"Not yet linked to a bank account");
         this.translate(LCText.TOOLTIP_ATM_CARD_ACCOUNT,"Linked: %s");
         this.translate(LCText.TOOLTIP_ATM_CARD_LINK_INVALID,"Link has been invalidated!");
@@ -272,6 +274,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ITEM_TRADER_NETWORK, "Item Network Trader:","Trades: %s", "Can be used to Sell, Purchase, or Barter items with other players", "Accessible from any location via the Trading Terminal");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE, "Slot Machine:","Can be used to Sell owner-defined random Items or Money to other players with owner-defined odds of receiving each loot pool");
         this.translate(LCText.TOOLTIP_PAYGATE, "Paygate:","Can be used to trigger a redstone signal for a price","Can be linked to a ticket for easier customer interactions");
+        this.translate(LCText.TOOLTIP_COMMAND_TRADER, "Command Trader:","Can be used to execute commands for a price","Permission level can be customized in trader settings within the upper limit defined in the server config");
         this.translate(LCText.TOOLTIP_TERMINAL,"Can access Network Traders remotely from any location");
         this.translate(LCText.TOOLTIP_TERMINAL_KEY_BIND,"Press [%s] while equipped to access the terminal");
         this.translate(LCText.TOOLTIP_INTERFACE_ITEM,"Item Trader Interface Terminal:","Can be used to automatically purchase or sell items from any network item trader", "Can be used to automatically drain or restock items remotely to/from any item trader you have access to");
@@ -279,10 +282,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY, "Can only be activated by an admin!");
         this.translate(LCText.TOOLTIP_ATM,"Can exchange coins for other coins of higher or lower values","Can deposit or withdraw coins from any bank account you have access to", "Can transfer money from your account to another player or teams account");
         this.translate(LCText.TOOLTIP_ATM_KEY_BIND,"Press [%s] while equipped to access the ATM");
-        this.translate(LCText.TOOLTIP_COIN_MINT_MINTABLE,"Can mint coins from their base materials");
-        this.translate(LCText.TOOLTIP_COIN_MINT_MELTABLE,"Can melt coins back into their base materials");
-        this.translate(LCText.TOOLTIP_COIN_MINT_DISABLED_TOP,"Recipe Disabled");
-        this.translate(LCText.TOOLTIP_COIN_MINT_DISABLED_BOTTOM,"in Config");
         this.translate(LCText.TOOLTIP_TICKET_STATION, "Can be used to print unique Master and Slave tickets","Tickets can be used with the Paygate, or used was coupons for barter trades");
         this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
         this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
@@ -604,6 +603,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_DESELECT_ALL_TRADES,"Deselect All Trades");
         this.translate(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED,"Edit Price for All %s Selected Trade(s)");
         this.translate(LCText.BUTTON_TRADER_SET_ALL_PRICES,"Set Price for %s Trade(s)");
+        this.translate(LCText.TOOLTIP_TRADER_UPGRADES,"Upgrades");
         this.translate(LCText.TOOLTIP_TRADER_LOGS,"Trader Logs");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS,"Trader Settings");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_NAME,"Trader Name");
@@ -699,6 +699,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL,"Entry #%s");
         this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ODDS_LABEL,"Chance: %s%%");
         this.translate(LCText.TOOLTIP_TRADER_SLOT_MACHINE_EDIT_PRICE,"Edit Price");
+        
+        //Command Trader Specific
+        this.translate(LCText.GUI_TRADER_COMMAND_LABEL,"Command:");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_COMMAND,"Command Settings");
+        this.translate(LCText.GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL,"Permission Level: %s");
 
         //Trade Data
         this.translate(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.SALE), "Sale");
@@ -970,6 +975,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_PAYGATE_PASS,"%1$s activated the paygate for %3$s using Pass ID: %2$s");
         this.translate(LCText.NOTIFICATION_TRADE_PAYGATE_MONEY,"%1$s activated the paygate for %3$s for %2$s");
         this.translate(LCText.NOTIFICATION_TRADE_SLOT_MACHINE,"%1$s paid %2$s and won %3$s");
+        this.translate(LCText.NOTIFICATION_TRADE_COMMAND,"%1$s paid %2$s to run %3$s");
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
 
