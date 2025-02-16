@@ -907,6 +907,8 @@ public final class LCConfig {
             builder.comment("The maximum permission level that can be set and used by a command trader")
                     .add("maxPermissionLevel",this.commandTraderMaxPermissionLevel);
 
+            builder.pop();
+
             builder.comment("Player <-> Player Trading Options").push("player_trading");
 
             builder.comment("The maximum distance allowed between players in order for a player trade to persist.",
