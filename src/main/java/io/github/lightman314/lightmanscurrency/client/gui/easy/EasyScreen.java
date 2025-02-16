@@ -254,7 +254,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         for(IKeyboardListener listener : new ArrayList<>(this.keyboardListeners))
         {
-            if(listener.keyPressed(keyCode,scanCode,modifiers))
+            if(listener.onKeyPress(keyCode,scanCode,modifiers))
                 return true;
         }
         InputConstants.Key mouseKey = InputConstants.getKey(keyCode, scanCode);

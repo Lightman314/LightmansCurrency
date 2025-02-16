@@ -19,7 +19,7 @@ public class CommandTerminal {
     {
         LiteralArgumentBuilder<CommandSourceStack> command =
                 Commands.literal("lcterminal")
-                        .requires(s -> s.isPlayer() && LCConfig.SERVER.openTerminalCommand.get())
+                        .requires(s -> s.isPlayer() && (LCConfig.SERVER.openTerminalCommand.get() || s.hasPermission(2)))
                         .executes(CommandTerminal::openTerminal);
 
         dispatcher.register(command);
