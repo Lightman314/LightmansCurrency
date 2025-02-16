@@ -109,7 +109,7 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean onKeyPress(int keyCode, int scanCode, int modifiers) {
         return this.commandSuggestions.keyPressed(keyCode, scanCode, modifiers);
     }
 
