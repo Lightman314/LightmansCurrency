@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -58,6 +59,10 @@ public abstract class DisplayEntry {
     public static DisplayEntry of(Component text, TextRenderUtil.TextFormatting format, boolean fullHitbox) { return new TextEntry(text, format, null, fullHitbox); }
     public static DisplayEntry of(Component text, TextRenderUtil.TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip, false); }
     public static DisplayEntry of(Component text, TextRenderUtil.TextFormatting format, List<Component> tooltip, boolean fullHitbox) { return new TextEntry(text, format, tooltip, fullHitbox); }
+    public static DisplayEntry of(Component text, int color) { return new ScrollingTextEntry(text, color, 0,null); }
+    public static DisplayEntry of(Component text, int color, int width) { return new ScrollingTextEntry(text, color, width,null); }
+    public static DisplayEntry of(Component text, int color, List<Component> tooltip) { return new ScrollingTextEntry(text, color, 0, tooltip); }
+    public static DisplayEntry of(Component text, int color, int width, List<Component> tooltip) { return new ScrollingTextEntry(text, color, width, tooltip); }
     public static DisplayEntry of(MoneyValue price) { return of(price, null, false); }
     public static DisplayEntry of(MoneyValue price, List<Component> additionalTooltips) { return of(price, additionalTooltips, false); }
     public static DisplayEntry of(MoneyValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return price.getDisplayEntry(additionalTooltips, tooltipOverride); }
@@ -229,6 +234,48 @@ public abstract class DisplayEntry {
             return mouseX >= left && mouseX < left + width && mouseY >= top && mouseY < top + height;
         }
 
+    }
+
+    private static class ScrollingTextEntry extends DisplayEntry
+    {
+
+        private final Component text;
+        private final int color;
+        private final int width;
+        private ScrollingTextEntry(Component text, int color, int width, List<Component> tooltip)
+        {
+            super(tooltip);
+            this.text = text;
+            this.color = color;
+            this.width = width;
+        }
+
+        @Override
+        public void render(EasyGuiGraphics gui, int x, int y, DisplayData area) {
+            int left = x + area.xOffset();
+            int top = y + area.yOffset();
+            gui.drawScrollingString(this.text,left,top,area.width(),area.height(),this.color);
+        }
+
+        @Override
+        public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+            int left = x + area.xOffset();
+            int top = y + area.yOffset();
+            return mouseX >= left && mouseX < left + area.width() && mouseY >= top && mouseY < top + area.height();
+        }
+
+        @Nonnull
+        @Override
+        public List<Component> getTooltip() {
+            if(this.width > 0 && this.getFont().width(this.text) > this.width)
+            {
+                List<Component> tooltips = new ArrayList<>();
+                tooltips.addAll(TooltipHelper.splitTooltips(this.text,TooltipHelper.DEFAULT_TOOLTIP_WIDTH));
+                tooltips.addAll(super.getTooltip());
+                return tooltips;
+            }
+            return super.getTooltip();
+        }
     }
 
 }

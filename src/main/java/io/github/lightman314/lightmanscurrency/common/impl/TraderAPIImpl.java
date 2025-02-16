@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import net.minecraft.core.RegistryAccess;
@@ -77,26 +78,43 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public boolean FilterTrader(@Nonnull TraderData data, @Nonnull String searchText) {
-        if(searchText.isBlank())
+    public boolean FilterTrader(@Nonnull TraderData data, @Nonnull String search) {
+        if(search.isBlank())
             return true;
+        PendingSearch results = PendingSearch.of(search);
+        return this.FilterTrader(data,results);
+    }
+
+    //Local private copy so that we don't have to re-process the string during the for loop of FilterTraders
+    @SuppressWarnings("deprecation")
+    private boolean FilterTrader(@Nonnull TraderData data, @Nonnull PendingSearch search)
+    {
+        PendingSearch results = search.copy();
+        //Check for failed filters
+        for(ITraderSearchFilter filter : this.traderSearchFilters)
+            filter.filter(data,results,data.registryAccess());
+        //Check old/normal search methods
         for(ITraderSearchFilter filter : this.traderSearchFilters)
         {
-            if(filter.filter(data,searchText,data.registryAccess()))
+            if(filter.filter(data,search.fullSearch,data.registryAccess()))
                 return true;
         }
-        return false;
+        return results.hasPassed();
     }
 
     @Nonnull
     @Override
-    public List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String searchText) {
-        if(searchText.isBlank())
+    public List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String search) {
+
+        if(search.isBlank())
             return data;
+
+        PendingSearch temp = PendingSearch.of(search);
+
         List<TraderData> results = new ArrayList<>();
         for(TraderData trader : data)
         {
-            if(this.FilterTrader(trader, searchText))
+            if(this.FilterTrader(trader,temp))
                 results.add(trader);
         }
         return results;
@@ -110,26 +128,38 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public boolean FilterTrade(@Nonnull TradeData trade, @Nonnull String searchText, @Nonnull RegistryAccess registryAccess) {
-        if(searchText.isBlank())
+    public boolean FilterTrade(@Nonnull TradeData trade, @Nonnull String search, @Nonnull RegistryAccess registryAccess) {
+        if(search.isBlank())
             return true;
+        return this.FilterTrade(trade,PendingSearch.of(search),registryAccess);
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean FilterTrade(TradeData trade, PendingSearch search, RegistryAccess registryAccess)
+    {
+        PendingSearch results = search.copy();
+        //Check for failed filters
+        for(ITradeSearchFilter filter : this.tradeSearchFilters)
+            filter.filterTrade(trade,results,registryAccess);
+        //Check old/normal search methods
         for(ITradeSearchFilter filter : this.tradeSearchFilters)
         {
-            if(filter.filterTrade(trade,searchText,registryAccess))
+            if(filter.filterTrade(trade,search.fullSearch,registryAccess))
                 return true;
         }
-        return false;
+        return results.hasPassed();
     }
 
     @Nonnull
     @Override
-    public List<TradeData> FilterTrades(@Nonnull List<TradeData> trades, @Nonnull String searchText, @Nonnull RegistryAccess registryAccess) {
-        if(searchText.isBlank())
+    public List<TradeData> FilterTrades(@Nonnull List<TradeData> trades, @Nonnull String search, @Nonnull RegistryAccess registryAccess) {
+        if(search.isBlank())
             return trades;
+        PendingSearch temp = PendingSearch.of(search);
         List<TradeData> result = new ArrayList<>();
         for(TradeData trade : trades)
         {
-            if(this.FilterTrade(trade,searchText,registryAccess))
+            if(this.FilterTrade(trade,temp,registryAccess))
                 result.add(trade);
         }
         return result;

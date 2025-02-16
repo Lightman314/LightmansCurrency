@@ -76,7 +76,7 @@ public class CustomSaveData extends SavedData {
                 new CustomSaveData(type.create()),
             (t,l) -> {
                 CustomData data = type.create();
-                LightmansCurrency.LogDebug("Loading '" + type.fileName + "' from file!\n" + t.getAsString());
+                //LightmansCurrency.LogDebug("Loading '" + type.fileName + "' from file!\n" + t.getAsString());
                 data.loadData(t,l);
                 return new CustomSaveData(data);
             });
@@ -85,7 +85,7 @@ public class CustomSaveData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider lookup) {
         this.data.save(tag,lookup);
-        LightmansCurrency.LogDebug("Saving '" + this.data.getType().fileName + "' to file!\n" + tag.getAsString());
+        //LightmansCurrency.LogDebug("Saving '" + this.data.getType().fileName + "' to file!\n" + tag.getAsString());
         return tag;
     }
 

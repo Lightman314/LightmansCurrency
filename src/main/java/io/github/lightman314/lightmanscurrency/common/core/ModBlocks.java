@@ -103,7 +103,6 @@ public class ModBlocks {
 	//Freezer
 	public static final RegistryObjectBundle<FreezerBlock,Color> FREEZER;
 
-
 	//Network Traders
 	public static final Supplier<Block> ITEM_NETWORK_TRADER_1;
 	public static final Supplier<Block> ITEM_NETWORK_TRADER_2;
@@ -129,7 +128,11 @@ public class ModBlocks {
 	//Bookshelf Traders
 	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
 
+	//Slot Machine
 	public static final Supplier<Block> SLOT_MACHINE;
+
+	//Command Trader
+	public static final Supplier<Block> COMMAND_TRADER;
 
 	//Ticket Machine
 	public static final Supplier<Block> TICKET_STATION;
@@ -521,6 +524,14 @@ public class ModBlocks {
 				Block.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.METAL)
+				)
+		);
+
+		//Command Trader
+		COMMAND_TRADER = register("command_trader", () -> new CommandTraderBlock(Block.Properties.of()
+					.mapColor(MapColor.METAL)
+					.strength(3.0f,Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
 		);

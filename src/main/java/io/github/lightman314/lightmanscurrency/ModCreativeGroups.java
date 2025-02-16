@@ -179,6 +179,8 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_4);
                     //Paygate
                     ezPop(p, ModBlocks.PAYGATE);
+                    //Command Trader
+                    ezPop(p, ModBlocks.COMMAND_TRADER);
                 }).build()
         );
 
@@ -266,6 +268,10 @@ public class ModCreativeGroups {
                     stack.set(DataComponents.DYED_COLOR,new DyedItemColor(c.hexColor,true));
                 event.accept(stack);
             }
+        }
+        if(event.getTabKey() == CreativeModeTabs.OP_BLOCKS && event.hasPermissions())
+        {
+            event.accept(ModBlocks.COMMAND_TRADER.get());
         }
     }
 

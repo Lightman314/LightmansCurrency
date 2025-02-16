@@ -20,6 +20,6 @@ public class CoinContainer extends SimpleContainer
             this.setItem(i, other.getItem(i));
     }
     @Override
-    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return stack.getItem() == ModItems.COIN_ANCIENT.get() || CoinAPI.API.IsCoin(stack, this.allowSideChain); }
+    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsAllowedInCoinContainer(stack, this.allowSideChain); }
 
 }

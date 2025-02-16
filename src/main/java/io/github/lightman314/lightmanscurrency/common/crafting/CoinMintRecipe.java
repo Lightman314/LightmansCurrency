@@ -18,28 +18,14 @@ import javax.annotation.Nonnull;
 
 public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 
-	public enum MintType { MINT, MELT, OTHER }
-	
-	public static MintType readType(String typeName)
-	{
-		for(MintType type : MintType.values())
-		{
-			if(type.name().equals(typeName))
-				return type;
-		}
-		return MintType.OTHER;
-	}
 
-	private final MintType type;
 	private final int duration;
 	private final Ingredient ingredient;
 	public final int ingredientCount;
 	private final ItemStack result;
-	
-	private CoinMintRecipe(String type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result) { this(readType(type),duration,ingredient,ingredientCount,result); }
-	public CoinMintRecipe(MintType type, int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
+
+	public CoinMintRecipe(int duration, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
-		this.type = type;
 		this.duration = duration;
 		this.ingredient = ingredient;
 		this.ingredientCount = Math.max(ingredientCount,1); //Force count to be > 0
@@ -47,14 +33,8 @@ public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 	}
 	
 	public Ingredient getIngredient() { return this.ingredient; }
-	public MintType getMintType() { return this.type; }
 	
-	public boolean allowed()
-	{
-		return LCConfig.SERVER.allowCoinMintRecipe(this);
-	}
-	
-	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed(); }
+	public boolean isValid() { return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR; }
 	
 	@Override
 	public boolean matches(@Nonnull SingleRecipeInput inventory, @Nonnull Level level) {
@@ -95,16 +75,14 @@ public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 
 		@Nonnull
 		private static CoinMintRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
-			CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
 			Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
 			int ingredientCount = buffer.readInt();
 			ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
 			int duration = buffer.readInt();
-			return new CoinMintRecipe(type, duration, ingredient, ingredientCount, result);
+			return new CoinMintRecipe(duration, ingredient, ingredientCount, result);
 		}
 
 		private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CoinMintRecipe recipe) {
-			buffer.writeUtf(recipe.getMintType().name());
 			Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getIngredient());
 			buffer.writeInt(recipe.ingredientCount);
 			ItemStack.STREAM_CODEC.encode(buffer, recipe.getOutputItem());
@@ -115,7 +93,6 @@ public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 		@Override
 		public MapCodec<CoinMintRecipe> codec() {
 			return RecordCodecBuilder.mapCodec(builder -> builder.group(
-					Codec.STRING.optionalFieldOf("mintType","OTHER").forGetter(r -> r.type.name()),
 					Codec.INT.optionalFieldOf("duration",0).forGetter(r -> r.duration),
 					Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CoinMintRecipe::getIngredient),
 					Codec.INT.optionalFieldOf("count",1).forGetter(r -> r.ingredientCount),

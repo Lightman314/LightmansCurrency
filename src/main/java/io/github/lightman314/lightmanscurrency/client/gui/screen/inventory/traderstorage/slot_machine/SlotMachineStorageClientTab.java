@@ -54,8 +54,6 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.addChild(this);
-
         this.columns = COLUMNS_NORMAL;
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader && trader.isPersistent())
             this.columns = COLUMNS_PERSISTENT;

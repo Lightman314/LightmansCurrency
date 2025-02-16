@@ -72,7 +72,9 @@ public class ItemStorageTab extends TraderStorageTab{
 				storage.tryAddItem(stack);
 				trader.markStorageDirty();
 				return true;
-			}	
+			}
+			else
+				return trader.quickInsertUpgrade(stack);
 		}
 		return super.quickMoveStack(stack);
 	}

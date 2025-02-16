@@ -10,13 +10,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public interface ITradeSearchFilter {
 
-    boolean filterTrade(@Nonnull TradeData data, @Nonnull String searchText, @Nonnull HolderLookup.Provider lookup);
+    @Deprecated(since = "2.2.4.3")
+    default boolean filterTrade(TradeData data, String searchText, HolderLookup.Provider lookup) { return false; }
 
-    static boolean filterItem(@Nonnull ItemStack stack, @Nonnull String searchText, @Nonnull HolderLookup.Provider lookup)
+    default void filterTrade(TradeData data, PendingSearch search, HolderLookup.Provider lookup) { }
+
+    static boolean filterItem(ItemStack stack, String searchText, HolderLookup.Provider lookup)
     {
         if(!stack.isEmpty())
         {

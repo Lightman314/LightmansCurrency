@@ -9,10 +9,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayO
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMod;
@@ -20,8 +20,6 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -73,12 +71,12 @@ public final class LCConfig {
 
         public final IntOption terminalColumnLimit = IntOption.create(4,2,100);
         public final IntOption terminalRowLimit = IntOption.create(16,4,100);
+        public final StringOption terminalBonusFilters = StringOption.create("ready:true");
 
         public final BooleanOption debugScreens = BooleanOption.createFalse();
 
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
-
 
             builder.comment("Quality Settings").push("quality");
 
@@ -127,9 +125,12 @@ public final class LCConfig {
             builder.comment("Network Terminal Settings").push("network_terminal");
 
             builder.comment("The maximum number of columns the Network Terminal is allowed to display")
-                            .add("columnLimit", this.terminalColumnLimit);
+                    .add("columnLimit", this.terminalColumnLimit);
             builder.comment("The maximum number of rows the Network Terminal is allowed to display")
                     .add("rowLimit", this.terminalRowLimit);
+
+            builder.comment("A default search filter that will be automatically added to the search parameters")
+                    .add("searchFilter",this.terminalBonusFilters);
 
             builder.pop();
 
@@ -221,6 +222,24 @@ public final class LCConfig {
         public final BooleanOption canCraftCoinChestUpgradeSecurity = BooleanOption.createTrue();
         public final BooleanOption canCraftTaxBlock = BooleanOption.createTrue();
         public final BooleanOption canCraftATMCard = BooleanOption.createFalse();
+        //Coin Mint Crafting Options
+        public final BooleanOption canCraftCoinMint = BooleanOption.createTrue();
+        public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
+        public final BooleanOption coinMintCanMelt = BooleanOption.createFalse();
+        //Mint Specific Options
+        public final BooleanOption coinMintMintableCopper = BooleanOption.createTrue();
+        public final BooleanOption coinMintMintableIron = BooleanOption.createTrue();
+        public final BooleanOption coinMintMintableGold = BooleanOption.createTrue();
+        public final BooleanOption coinMintMintableEmerald = BooleanOption.createTrue();
+        public final BooleanOption coinMintMintableDiamond = BooleanOption.createTrue();
+        public final BooleanOption coinMintMintableNetherite = BooleanOption.createTrue();
+        //Melt Specific Options
+        public final BooleanOption coinMintMeltableCopper = BooleanOption.createTrue();
+        public final BooleanOption coinMintMeltableIron = BooleanOption.createTrue();
+        public final BooleanOption coinMintMeltableGold = BooleanOption.createTrue();
+        public final BooleanOption coinMintMeltableEmerald = BooleanOption.createTrue();
+        public final BooleanOption coinMintMeltableDiamond = BooleanOption.createTrue();
+        public final BooleanOption coinMintMeltableNetherite = BooleanOption.createTrue();
 
         //Custom Trades
         public final BooleanOption addCustomWanderingTrades = BooleanOption.createTrue();
@@ -340,6 +359,55 @@ public final class LCConfig {
             builder.comment("Whether ATM Cards can be crafted.",
                             "Disabling will not remove any existing ATM Cards from the world, nor prevent their use.")
                     .add("canCraftATMCard", this.canCraftATMCard);
+
+            builder.comment("Coin Mint Crafting").push("coin_mint");
+
+            builder.comment("Whether the Coin Mint machine can be crafted.",
+                            "Disabling will not remove and exist Coin Mints from the world, nor prevent their use.")
+                    .add("canCraftCoinMint",this.canCraftCoinMint);
+
+            builder.comment("Whether or not built-in coin mint recipes that turn resources into coins will be loaded.")
+                    .add("canMint", this.coinMintCanMint);
+
+            builder.comment("Whether or not built-in coin mint recipes that turn coins back into resources will be loaded.")
+                    .add("canMelt", this.coinMintCanMelt);
+
+            builder.comment("Specific Minting Options",
+                            "Does nothing if 'canMint' is already false/disabled.")
+                    .push("mint");
+
+            builder.comment("Whether the default mint recipe to mint copper coins from copper ingots will be loaded.")
+                    .add("copper", this.coinMintMintableCopper);
+            builder.comment("Whether the default mint recipe to mint iron coins from iron ingots will be loaded.")
+                    .add("iron", this.coinMintMintableIron);
+            builder.comment("Whether the default mint recipe to mint gold coins from gold ingots will be loaded.")
+                    .add("gold", this.coinMintMintableGold);
+            builder.comment("Whether the default mint recipe to mint emerald coins from emeralds will be loaded.")
+                    .add("emerald", this.coinMintMintableEmerald);
+            builder.comment("Whether the default mint recipe to mint diamond coins from diamonds will be loaded.")
+                    .add("diamond", this.coinMintMintableDiamond);
+            builder.comment("Whether the default mint recipe to mint netherite coins from netherite ingots will be loaded.")
+                    .add("netherite", this.coinMintMintableNetherite);
+
+            builder.pop().comment("Specific Melting Options",
+                            "Does nothing if 'canMelt' is already false/disabled.")
+                    .push("melt");
+
+            builder.comment("Whether the default mint recipe to melt copper coins back into copper ingots will be loaded.")
+                    .add("copper", this.coinMintMeltableCopper);
+            builder.comment("Whether the default mint recipe to melt iron coins back into iron ingots will be loaded.")
+                    .add("iron", this.coinMintMeltableIron);
+            builder.comment("Whether the default mint recipe to melt gold coins back into gold ingots will be loaded.")
+                    .add("gold", this.coinMintMeltableGold);
+            builder.comment("Whether the default mint recipe to melt emerald coins back into emeralds will be loaded.")
+                    .add("emerald", this.coinMintMeltableEmerald);
+            builder.comment("Whether the default mint recipe to melt diamond coins back into diamonds will be loaded.")
+                    .add("diamond", this.coinMintMeltableDiamond);
+            builder.comment("Whether the default mint recipe to melt netherite coins back into netherite ingots will be loaded.")
+                    .add("netherite", this.coinMintMeltableNetherite);
+
+            //Pop melt -> coin_mint
+            builder.pop().pop();
 
             builder.comment("Money Chest Crafting").push("money_chest");
 
@@ -534,9 +602,10 @@ public final class LCConfig {
 
     }
 
-    public static final class Server extends SyncedConfigFile
-    {
-        private Server() { super("lightmanscurrency-server", ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"server")); }
+    public static final class Server extends SyncedConfigFile {
+        private Server() {
+            super("lightmanscurrency-server", ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "server"));
+        }
 
         //Notification Limit
         public final IntOption notificationLimit = IntOption.create(500, 0);
@@ -545,68 +614,50 @@ public final class LCConfig {
         public final BooleanOption anarchyMode = BooleanOption.createFalse();
         public final ResourceListOption quarantinedDimensions = ResourceListOption.create(new ArrayList<>());
 
-        //Coin Minting/Melting
-        public final BooleanOption coinMintCanMint = BooleanOption.createTrue();
-        public final BooleanOption coinMintCanMelt = BooleanOption.createFalse();
-        public final IntOption coinMintDefaultDuration = IntOption.create(100,1,72000);
-        public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f,0f,1f);
-
-        //Mint Specific Options
-        public final BooleanOption coinMintMintableCopper = BooleanOption.createTrue();
-        public final BooleanOption coinMintMintableIron = BooleanOption.createTrue();
-        public final BooleanOption coinMintMintableGold = BooleanOption.createTrue();
-        public final BooleanOption coinMintMintableEmerald = BooleanOption.createTrue();
-        public final BooleanOption coinMintMintableDiamond = BooleanOption.createTrue();
-        public final BooleanOption coinMintMintableNetherite = BooleanOption.createTrue();
-
-        //Melt Specific Options
-        public final BooleanOption coinMintMeltableCopper = BooleanOption.createTrue();
-        public final BooleanOption coinMintMeltableIron = BooleanOption.createTrue();
-        public final BooleanOption coinMintMeltableGold = BooleanOption.createTrue();
-        public final BooleanOption coinMintMeltableEmerald = BooleanOption.createTrue();
-        public final BooleanOption coinMintMeltableDiamond = BooleanOption.createTrue();
-        public final BooleanOption coinMintMeltableNetherite = BooleanOption.createTrue();
+        //Coin Mint
+        public final IntOption coinMintDefaultDuration = IntOption.create(100, 1, 72000);
+        public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f, 0f, 1f);
 
         //Wallet Settings
-        public final IntOption walletExchangeLevel = IntOption.create(1,0, WalletItem.CONFIG_LIMIT);
-        public final IntOption walletPickupLevel = IntOption.create(2,0,WalletItem.CONFIG_LIMIT);
-        public final IntOption walletBankLevel = IntOption.create(5,0,WalletItem.CONFIG_LIMIT);
+        public final IntOption walletExchangeLevel = IntOption.create(1, 0, WalletItem.CONFIG_LIMIT);
+        public final IntOption walletPickupLevel = IntOption.create(2, 0, WalletItem.CONFIG_LIMIT);
+        public final IntOption walletBankLevel = IntOption.create(5, 0, WalletItem.CONFIG_LIMIT);
         public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
         //Item Capacity Upgrade Settings
-        public final IntOption itemCapacityUpgrade1 = IntOption.create(3*64, 1, 100*64);
-        public final IntOption itemCapacityUpgrade2 = IntOption.create(6*64, 2, 100*64);
-        public final IntOption itemCapacityUpgrade3 = IntOption.create(9*64, 3, 100*64);
-        public final IntOption itemCapacityUpgrade4 = IntOption.create(18*64, 4, 100*64);
+        public final IntOption itemCapacityUpgrade1 = IntOption.create(3 * 64, 1, 100 * 64);
+        public final IntOption itemCapacityUpgrade2 = IntOption.create(6 * 64, 2, 100 * 64);
+        public final IntOption itemCapacityUpgrade3 = IntOption.create(9 * 64, 3, 100 * 64);
+        public final IntOption itemCapacityUpgrade4 = IntOption.create(18 * 64, 4, 100 * 64);
 
         //Interaction Upgrade Settings
-        public final IntOption interactionUpgrade1 = IntOption.create(5,1,100);
-        public final IntOption interactionUpgrade2 = IntOption.create(10,1,100);
-        public final IntOption interactionUpgrade3 = IntOption.create(15,1,100);
+        public final IntOption interactionUpgrade1 = IntOption.create(5, 1, 100);
+        public final IntOption interactionUpgrade2 = IntOption.create(10, 1, 100);
+        public final IntOption interactionUpgrade3 = IntOption.create(15, 1, 100);
 
         //Money Chest Upgrades
-        public final IntOption coinChestMagnetRange1 = IntOption.create(4,1,50);
-        public final IntOption coinChestMagnetRange2 = IntOption.create(6,2,50);
-        public final IntOption coinChestMagnetRange3 = IntOption.create(8,3,50);
-        public final IntOption coinChestMagnetRange4 = IntOption.create(10,4,50);
+        public final IntOption coinChestMagnetRange1 = IntOption.create(4, 1, 50);
+        public final IntOption coinChestMagnetRange2 = IntOption.create(6, 2, 50);
+        public final IntOption coinChestMagnetRange3 = IntOption.create(8, 3, 50);
+        public final IntOption coinChestMagnetRange4 = IntOption.create(10, 4, 50);
 
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
         public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.sameType(this.moneyMendingRepairCost.get()));
-        public final IntOption coinMagnetBaseRange = IntOption.create(5,1,50);
-        public final IntOption coinMagnetLeveledRange = IntOption.create(2,1,50);
-        public final IntOption coinMagnetCalculationCap = IntOption.create(10,3, Integer.MAX_VALUE);
+        public final IntOption coinMagnetBaseRange = IntOption.create(5, 1, 50);
+        public final IntOption coinMagnetLeveledRange = IntOption.create(2, 1, 50);
+        public final IntOption coinMagnetCalculationCap = IntOption.create(10, 3, Integer.MAX_VALUE);
 
         //Auction House Settings
         public final BooleanOption auctionHouseEnabled = BooleanOption.createTrue();
         public final BooleanOption auctionHouseOnTerminal = BooleanOption.createTrue();
-        public final IntOption auctionHouseDurationMin = IntOption.create(0,0);
-        public final IntOption auctionHouseDurationMax = IntOption.create(30,1);
+        public final IntOption auctionHouseDurationMin = IntOption.create(0, 0);
+        public final IntOption auctionHouseDurationMax = IntOption.create(30, 1);
 
         //Bank Account Settings
-        public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d,0d,1d);
+        public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d, 0d, 1d);
         public final BooleanOption bankAccountForceInterest = BooleanOption.createTrue();
         public final BooleanOption bankAccountInterestNotification = BooleanOption.createTrue();
         public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
@@ -618,16 +669,18 @@ public final class LCConfig {
 
         //Paygate Options
         public final IntOption paygateMaxDuration = IntOption.create(1200, 0);
+        //Command Trader Settings
+        public final IntOption commandTraderMaxPermissionLevel = IntOption.create(4, 0, 4);
 
         //Player Trading Options
-        public final DoubleOption playerTradingRange = DoubleOption.create(-1d,-1d);
+        public final DoubleOption playerTradingRange = DoubleOption.create(-1d, -1d);
 
         //Tax Collector Options
         public final BooleanOption taxCollectorAdminOnly = BooleanOption.createFalse();
-        public final IntOption taxCollectorMaxRate = IntOption.create(25,1,99);
-        public final IntOption taxCollectorMaxRadius = IntOption.create(256,16);
-        public final IntOption taxCollectorMaxHeight = IntOption.create(64,8);
-        public final IntOption taxCollectorMaxVertOffset = IntOption.create(32,4);
+        public final IntOption taxCollectorMaxRate = IntOption.create(25, 1, 99);
+        public final IntOption taxCollectorMaxRadius = IntOption.create(256, 16);
+        public final IntOption taxCollectorMaxHeight = IntOption.create(64, 8);
+        public final IntOption taxCollectorMaxVertOffset = IntOption.create(32, 4);
 
         //Chocolate Coin Options
         public final BooleanOption chocolateCoinEffects = BooleanOption.createTrue();
@@ -635,11 +688,11 @@ public final class LCConfig {
         //Claim Purchasing
         public final BooleanOption claimingAllowClaimPurchase = BooleanOption.createFalse();
         public final MoneyValueOption claimingClaimPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100));
-        public final IntOption claimingMaxClaimCount = IntOption.create(1000000,1);
+        public final IntOption claimingMaxClaimCount = IntOption.create(1000000, 1);
 
         public final BooleanOption claimingAllowForceloadPurchase = BooleanOption.createFalse();
         public final MoneyValueOption claimingForceloadPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 1000000));
-        public final IntOption claimingMaxForceloadCount = IntOption.create(100,1);
+        public final IntOption claimingMaxForceloadCount = IntOption.create(100, 1);
         public final IntOption flanClaimingBlocksPerChunk = IntOption.create(256, 1, 256);
 
         @Override
@@ -659,8 +712,8 @@ public final class LCConfig {
 
 
             builder.comment("Whether block break protection will be disabled completely.",
-                    "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.")
-                            .add("anarchyMode", this.anarchyMode);
+                            "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.")
+                    .add("anarchyMode", this.anarchyMode);
 
             builder.comment("A list of dimension ids that are quarantined from all cross-dimensional interactions.",
                             "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
@@ -671,14 +724,6 @@ public final class LCConfig {
 
             builder.comment("Coin Mint Settings").push("coin_mint");
 
-            builder.comment("Whether or not Coin Mint recipes of mintType \"MINT\" will function.",
-                            "Defaults to the built-in recipes that turn resources into coins.")
-                    .add("canMint", this.coinMintCanMint);
-
-            builder.comment("Whether or not Coin Mint recipes of mintType \"MELT\" will function.",
-                            "Defaults to the built-in recipes that turn coins back into resources.")
-                    .add("canMelt", this.coinMintCanMelt);
-
             builder.comment("Default number of ticks it takes to process a Coin Mint recipe.",
                             "Does not apply to Coin Mint recipes with a defined \"duration\" input.")
                     .add("defaultMintDuration", this.coinMintDefaultDuration);
@@ -686,38 +731,7 @@ public final class LCConfig {
             builder.comment("The volume of the noise played whenever the Coin Mint finishes the crafting process.")
                     .add("soundVolume", this.coinMintSoundVolume);
 
-            builder.comment("Default Recipes").push("recipes").comment("Minting").push("mint");
-
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of copper coins will function.")
-                    .add("copper", this.coinMintMintableCopper);
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of iron coins will function.")
-                    .add("iron", this.coinMintMintableIron);
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of gold coins will function.")
-                    .add("gold", this.coinMintMintableGold);
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of emerald coins will function.")
-                    .add("emerald", this.coinMintMintableEmerald);
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of diamond coins will function.")
-                    .add("diamond", this.coinMintMintableDiamond);
-            builder.comment("Whether recipes of mintType \"MINT\" with an output of netherite coins will function.")
-                    .add("netherite", this.coinMintMintableNetherite);
-
-            builder.pop().comment("Melting").push("melt");
-
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of copper ingots will function.")
-                    .add("copper", this.coinMintMeltableCopper);
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of iron ingots will function.")
-                    .add("iron", this.coinMintMeltableIron);
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of gold ingots will function.")
-                    .add("gold", this.coinMintMeltableGold);
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of emeralds will function.")
-                    .add("emerald", this.coinMintMeltableEmerald);
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of diamonds will function.")
-                    .add("diamond", this.coinMintMeltableDiamond);
-            builder.comment("Whether recipes of mintType \"MELT\" with an output of netherite ingots will function.")
-                    .add("netherite", this.coinMintMeltableNetherite);
-
-            //Pop melt -> recipes -> coin_mint
-            builder.pop().pop().pop();
+            builder.pop();
 
             builder.comment("Wallet Settings").push("wallet");
 
@@ -741,7 +755,7 @@ public final class LCConfig {
 
             builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
                             "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")
-                    .add("manualDropOverride",this.walletDropsManualSpawn);
+                    .add("manualDropOverride", this.walletDropsManualSpawn);
 
             builder.pop();
 
@@ -826,9 +840,9 @@ public final class LCConfig {
             builder.comment("Bank Account Settings").push("bank_accounts");
 
             builder.comment("The interest rate that bank accounts will earn just by existing.",
-                        "Setting to 0 will disable interesting and all interest-related ticks from happening.",
-                        "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
-                        "Rate of 0.01 is equal to a 1% interest rate.")
+                            "Setting to 0 will disable interesting and all interest-related ticks from happening.",
+                            "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
+                            "Rate of 0.01 is equal to a 1% interest rate.")
                     .add("interest", this.bankAccountInterestRate);
 
             builder.comment("Whether interest applied to small amounts of money are guaranteed to give at least *some* money as long as there's money in the account.",
@@ -860,7 +874,7 @@ public final class LCConfig {
             builder.comment("Network Terminal Settings").push("terminal");
 
             builder.comment("Whether the /lcterminal command will exist allowing players to access the Trading Terminal without the physical item/block")
-                    .add("lcterminalCommand",this.openTerminalCommand);
+                    .add("lcterminalCommand", this.openTerminalCommand);
 
             builder.comment("Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.")
                     .add("sortUnnamedTradersToBottom", this.moveUnnamedTradersToBottom);
@@ -872,6 +886,13 @@ public final class LCConfig {
             builder.comment("The maximum number of ticks that a paygate can be set to output a redstone signal for.",
                             "Note: 20t = 1s")
                     .add("maxRedstoneDuration", this.paygateMaxDuration);
+
+            builder.pop();
+
+            builder.comment("Command Trader Settings").push("command_trader");
+
+            builder.comment("The maximum permission level that can set and used by a command trader")
+                    .add("maxPermissionLevel", this.commandTraderMaxPermissionLevel);
 
             builder.pop();
 
@@ -948,50 +969,6 @@ public final class LCConfig {
             builder.pop();
 
         }
-
-        public boolean allowCoinMintRecipe(@Nonnull CoinMintRecipe recipe)
-        {
-            switch (recipe.getMintType())
-            {
-                case OTHER: return true;
-                case MINT: {
-                    if(!this.coinMintCanMint.get())
-                        return false;
-                    Item resultItem = recipe.getOutputItem().getItem();
-                    if(resultItem == ModItems.COIN_COPPER.get())
-                        return this.coinMintMintableCopper.get();
-                    if(resultItem == ModItems.COIN_IRON.get())
-                        return this.coinMintMintableIron.get();
-                    if(resultItem == ModItems.COIN_GOLD.get())
-                        return this.coinMintMintableGold.get();
-                    if(resultItem == ModItems.COIN_EMERALD.get())
-                        return this.coinMintMintableEmerald.get();
-                    if(resultItem == ModItems.COIN_DIAMOND.get())
-                        return this.coinMintMintableDiamond.get();
-                    if(resultItem == ModItems.COIN_NETHERITE.get())
-                        return this.coinMintMintableNetherite.get();
-                }
-                case MELT: {
-                    if(!this.coinMintCanMelt.get())
-                        return false;
-                    Item resultItem = recipe.getOutputItem().getItem();
-                    if(resultItem == Items.COPPER_INGOT)
-                        return this.coinMintMeltableCopper.get();
-                    if(resultItem == Items.IRON_INGOT)
-                        return this.coinMintMeltableIron.get();
-                    if(resultItem == Items.GOLD_INGOT)
-                        return this.coinMintMeltableGold.get();
-                    if(resultItem == Items.EMERALD)
-                        return this.coinMintMeltableEmerald.get();
-                    if(resultItem == Items.DIAMOND)
-                        return this.coinMintMeltableDiamond.get();
-                    if(resultItem == Items.NETHERITE_INGOT)
-                        return this.coinMintMeltableNetherite.get();
-                }
-            }
-            return true;
-        }
-
     }
 
 }

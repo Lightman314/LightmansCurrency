@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMCardMenu;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -46,7 +47,11 @@ public class ATMCardItem extends Item {
                 if(!account.isCardValid(data.validation()))
                     tooltip.add(LCText.TOOLTIP_ATM_CARD_LINK_INVALID.getWithStyle(ChatFormatting.RED));
                 else
+                {
                     tooltip.add(account.getBalanceText().withStyle(ChatFormatting.GRAY));
+                    //Usage tooltip
+                    tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_PAYMENT_CARD_USAGE.get(),ChatFormatting.GRAY));
+                }
             }
 
         }

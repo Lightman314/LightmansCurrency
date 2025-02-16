@@ -105,7 +105,7 @@ public abstract class TradeRule {
 		this.loadAdditional(compound, lookup);
 	}
 	protected abstract void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
-	
+
 	public abstract JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup);
 	public abstract void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException;
 	

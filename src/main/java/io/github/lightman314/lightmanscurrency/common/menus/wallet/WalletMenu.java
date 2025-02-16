@@ -87,7 +87,7 @@ public class WalletMenu extends WalletMenuBase {
 		for(int i = 0; i < inv.getContainerSize(); ++i)
 		{
 			ItemStack item = inv.getItem(i);
-			if(item.getItem() == ModItems.COIN_ANCIENT.get() || CoinAPI.API.IsCoin(item, false))
+			if(CoinAPI.API.IsAllowedInCoinContainer(item, false))
 			{
 				ItemStack result = this.PickupCoins(item);
 				inv.setItem(i, result);

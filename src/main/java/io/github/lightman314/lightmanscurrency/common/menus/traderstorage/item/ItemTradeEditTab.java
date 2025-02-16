@@ -40,7 +40,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
-			return ((ItemTraderData)this.menu.getTrader()).getTrade(this.tradeIndex);
+			return trader.getTrade(this.tradeIndex);
 		}
 		return null;
 	}

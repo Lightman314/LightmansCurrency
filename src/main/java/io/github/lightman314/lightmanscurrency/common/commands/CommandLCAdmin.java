@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -187,6 +189,8 @@ public class CommandLCAdmin {
 
 		CommandSourceStack source = commandContext.getSource();
 		List<TraderData> allTraders = TraderAPI.API.GetAllTraders(false);
+		//Sort results by trader id
+		allTraders.sort(Comparator.comparingLong(TraderData::getID));
 
 		if(!allTraders.isEmpty())
 		{
@@ -215,12 +219,13 @@ public class CommandLCAdmin {
 
 		CommandSourceStack source = commandContext.getSource();
 
-		String searchText = StringArgumentType.getString(commandContext,"searchText");
+		String search = StringArgumentType.getString(commandContext,"searchText");
 
-		List<TraderData> results = TraderAPI.API.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, searchText)).toList();
+		List<TraderData> results = new ArrayList<>(TraderAPI.API.GetAllTraders(false).stream().filter(trader -> TraderAPI.API.FilterTrader(trader, search)).toList());
 		if(!results.isEmpty())
 		{
-
+			//Always sort results by trader id
+			results.sort(Comparator.comparingLong(TraderData::getID));
 			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_TITLE.get(), true);
 			for(int i = 0; i < results.size(); i++)
 			{

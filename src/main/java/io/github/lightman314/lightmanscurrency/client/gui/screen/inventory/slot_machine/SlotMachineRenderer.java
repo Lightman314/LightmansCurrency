@@ -7,7 +7,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
+import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import net.minecraft.client.gui.Font;
@@ -149,7 +150,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
 
     private void startAnimation()
     {
-        SlotMachineMenu.RewardCache pendingReward = this.menu.getNextReward();
+        ResultHolder pendingReward = this.menu.getNextReward();
         List<SlotMachineRenderBlock> resultBlocks = new ArrayList<>(SlotMachineEntry.ITEM_LIMIT);
         List<ItemStack> displayItems = SlotMachineEntry.splitDisplayItems(pendingReward.getDisplayItems());
         for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)

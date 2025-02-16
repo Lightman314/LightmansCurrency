@@ -33,7 +33,7 @@ public class CoinMintTransferHandler implements TransferHandler {
     public ApplicabilityResult checkApplicable(Context context) {
         ApplicabilityResult result = this.parent.checkApplicable(context);
         //Disable for recipes that are visible but disabled in the config
-        if(result.isApplicable() && context.getDisplay() instanceof CoinMintDisplay display && display.recipe.allowed())
+        if(result.isApplicable() && context.getDisplay() instanceof CoinMintDisplay display)
             return result;
         else
             return ApplicabilityResult.createNotApplicable();

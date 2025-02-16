@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.conditions.ConfigCraftingCondition;
+import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
@@ -163,7 +164,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('p', Items.PISTON)
                 .define('s', Items.SMOOTH_STONE)
-                .save(consumer, ItemID(ModBlocks.COIN_MINT));
+                .save(consumer.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinMint)), ItemID(ModBlocks.COIN_MINT));
 
         //Ticket Station
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.TICKET_STATION.get())
@@ -554,12 +555,12 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID("coin_jar/blue"));
 
         //Coin Mint Recipes
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_COPPER, Tags.Items.INGOTS_COPPER, Items.COPPER_INGOT);
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_IRON, Tags.Items.INGOTS_IRON, Items.IRON_INGOT);
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_GOLD, Tags.Items.INGOTS_GOLD, Items.GOLD_INGOT);
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_EMERALD, Tags.Items.GEMS_EMERALD, Items.EMERALD);
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_DIAMOND, Tags.Items.GEMS_DIAMOND, Items.DIAMOND);
-        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_NETHERITE, Tags.Items.INGOTS_NETHERITE, Items.NETHERITE_INGOT);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_COPPER, Tags.Items.INGOTS_COPPER, Items.COPPER_INGOT,LCConfig.COMMON.coinMintMintableCopper,LCConfig.COMMON.coinMintMeltableCopper);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_IRON, Tags.Items.INGOTS_IRON, Items.IRON_INGOT,LCConfig.COMMON.coinMintMintableIron,LCConfig.COMMON.coinMintMeltableIron);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_GOLD, Tags.Items.INGOTS_GOLD, Items.GOLD_INGOT,LCConfig.COMMON.coinMintMintableGold,LCConfig.COMMON.coinMintMeltableGold);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_EMERALD, Tags.Items.GEMS_EMERALD, Items.EMERALD,LCConfig.COMMON.coinMintMintableEmerald,LCConfig.COMMON.coinMintMeltableEmerald);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_DIAMOND, Tags.Items.GEMS_DIAMOND, Items.DIAMOND,LCConfig.COMMON.coinMintMintableDiamond,LCConfig.COMMON.coinMintMeltableDiamond);
+        GenerateMintAndMeltRecipes(consumer, ModItems.COIN_NETHERITE, Tags.Items.INGOTS_NETHERITE, Items.NETHERITE_INGOT,LCConfig.COMMON.coinMintMintableNetherite,LCConfig.COMMON.coinMintMeltableNetherite);
 
         //Upgrade Recipes
         //Template
@@ -1110,18 +1111,30 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID(prefix + "washing"));
     }
 
-    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem)
+    @Deprecated
+    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem) { GenerateMintAndMeltRecipes(consumer,coin,materialTag,materialItem,null,null); }
+    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem, @Nullable BooleanOption mintConfig, @Nullable BooleanOption meltConfig)
     {
+        //Mint Recipe
         MintRecipeBuilder.create(materialTag,coin.get())
-                .mintType()
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
-                .save(consumer, ItemID("coin_mint/mint_", coin));
+                .save(consumer.withConditions(lazyArray(ConfigCraftingCondition.of(LCConfig.COMMON.coinMintCanMint),mintConfig != null ? ConfigCraftingCondition.of(mintConfig) : null)), ItemID("coin_mint/mint_", coin));
         MintRecipeBuilder.create(coin.get(),materialItem)
-                .meltType()
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("coin_mint", LazyTrigger(ModBlocks.COIN_MINT))
-                .save(consumer, ItemID("coin_mint/melt_", coin));
+                .save(consumer.withConditions(lazyArray(ConfigCraftingCondition.of(LCConfig.COMMON.coinMintCanMelt),meltConfig != null ? ConfigCraftingCondition.of(meltConfig) : null)), ItemID("coin_mint/melt_", coin));
+    }
+
+    private static ICondition[] lazyArray(ICondition... nullableInputs)
+    {
+        List<ICondition> list = new ArrayList<>();
+        for(ICondition value : nullableInputs)
+        {
+            if(value != null)
+                list.add(value);
+        }
+        return list.toArray(ICondition[]::new);
     }
 
     private static Criterion<?> MoneyKnowledge() { return LazyTrigger(LCTags.Items.COINS); }

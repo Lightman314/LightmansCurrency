@@ -54,8 +54,6 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.addChild(this);
-
 		this.columns = COLUMNS_NORMAL;
 		if(this.menu.getTrader() instanceof ItemTraderData trader && trader.isPersistent())
 			this.columns = COLUMNS_PERSISTENT;

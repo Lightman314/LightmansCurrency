@@ -90,6 +90,11 @@ public class LCTags {
         //Tradable tags
         public static final TagKey<Item> TRADABLE_BOOK = tag("tradable/book");
 
+        //Settings tags
+        public static final TagKey<Item> SETTINGS_WRITABLE = tag("settings/writable");
+        public static final TagKey<Item> SETTINGS_READABLE = tag("settings/readable");
+        public static final TagKey<Item> SETTINGS_REPLACE_WITH_WRITTEN_BOOK = tag("settings/replace_with_written_book");
+
         private static TagKey<Item> tag(String id) { return ItemTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
 
     }

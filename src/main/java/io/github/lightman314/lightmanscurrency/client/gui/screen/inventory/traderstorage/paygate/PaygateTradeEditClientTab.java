@@ -61,8 +61,6 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.addChild(this);
-
 		PaygateTradeData trade = this.commonTab.getTrade();
 		
 		this.tradeDisplay = this.addChild(TradeButton.builder()

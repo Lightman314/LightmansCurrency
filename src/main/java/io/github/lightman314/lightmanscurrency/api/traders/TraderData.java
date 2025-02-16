@@ -172,6 +172,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	protected boolean allowVoidUpgrade() { return false; }
 	protected final boolean shouldStoreGoods() { return !this.creative && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
 
+	public boolean readyForCustomers() { return this.hasValidTrade(); }
+
 	@Nonnull
 	private TraderState state = TraderState.NORMAL;
 	@Nonnull
@@ -271,8 +273,21 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	private final List<PlayerReference> allies = new ArrayList<>();
 	public final List<PlayerReference> getAllies() { return new ArrayList<>(this.allies); }
+	public final void overwriteAllies(List<PlayerReference> allies)
+	{
+		this.allies.clear();
+		this.allies.addAll(allies);
+		this.markDirty(this::saveAllies);
+	}
 	
 	private final Map<String,Integer> allyPermissions = this.getDefaultAllyPermissions();
+	public final Set<String> getAllyPermissionKeys() { return this.allyPermissions.keySet(); }
+	public final Map<String,Integer> getAllyPermissionMap() { return new HashMap<>(this.allyPermissions); }
+	public void overwriteAllyPermissions(Map<String,Integer> allyPermissions) {
+		this.allyPermissions.clear();
+        this.allyPermissions.putAll(allyPermissions);
+		this.markDirty(this::saveAllyPermissions);
+	}
 	
 	private Map<String,Integer> getDefaultAllyPermissions() {
 		Map<String,Integer> defaultValues = new HashMap<>();
@@ -289,7 +304,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) {}
 
-	protected List<String> getBlockedPermissions() { return ImmutableList.of(); }
+	public List<String> getBlockedPermissions() { return ImmutableList.of(); }
 	
 	public boolean hasPermission(Player player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
 	public boolean hasPermission(PlayerReference player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
@@ -322,7 +337,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		
 	}
 
-	private ImmutableList<String> persistentTraderBlockedPermissions() {
+	public final ImmutableList<String> persistentTraderBlockedPermissions() {
 		List<String> blockedPermissions = Lists.newArrayList(Permissions.EDIT_TRADES, Permissions.EDIT_SETTINGS, Permissions.INTERACTION_LINK, Permissions.TRANSFER_OWNERSHIP, Permissions.COLLECT_COINS, Permissions.STORE_COINS);
 		this.blockPermissionsForPersistentTrader(blockedPermissions);
 		return ImmutableList.copyOf(blockedPermissions);
@@ -407,7 +422,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	private IconData customIcon = IconData.Null();
 	@Nullable
 	public IconData getCustomIcon() { return this.customIcon; }
-	public void setCustomIcon(@Nonnull Player player, @Nonnull IconData icon)
+	public void setCustomIcon(@Nullable Player player, @Nonnull IconData icon)
 	{
 		if(this.hasPermission(player,Permissions.CHANGE_NAME))
 		{
@@ -594,6 +609,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	private boolean alwaysShowSearchBox = false;
 	public final boolean alwaysShowSearchBox() { return this.alwaysShowSearchBox; }
+	public final void setAlwaysShowSearchBox(Player player, boolean newVal)
+	{
+		if(this.hasPermission(player,Permissions.EDIT_SETTINGS) && this.alwaysShowSearchBox != newVal)
+		{
+			this.alwaysShowSearchBox = newVal;
+			this.markDirty(this::saveMiscSettings);
+		}
+	}
 	@Override
 	public boolean showSearchBox() { return this.alwaysShowSearchBox; }
 
@@ -610,7 +633,12 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public boolean canEditTradeCount() { return false; }
 	public int getMaxTradeCount() { return 1; }
 	public abstract int getTradeStock(int tradeIndex);
+	public int validTradeCount() { return (int)this.getTradeData().stream().filter(TradeData::isValid).count(); }
 	public boolean hasValidTrade() { return this.getTradeData().stream().anyMatch(TradeData::isValid); }
+	public int tradesWithStock() {
+		TradeContext context = TradeContext.createStorageMode(this);
+		return (int)this.getTradeData().stream().filter(t -> t.isValid() && t.hasStock(context)).count();
+	}
 	public boolean anyTradeHasStock()
 	{
 		TradeContext context = TradeContext.createStorageMode(this);

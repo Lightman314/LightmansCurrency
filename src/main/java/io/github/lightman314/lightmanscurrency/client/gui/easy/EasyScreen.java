@@ -34,6 +34,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     private final List<ITooltipSource> tooltipSources = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
+    private final List<IKeyboardListener> keyboardListeners = new ArrayList<>();
 
 
     @Nonnull
@@ -75,6 +76,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         this.tooltipSources.clear();
         this.scrollListeners.clear();
         this.mouseListeners.clear();
+        this.keyboardListeners.clear();
         super.init();
         this.recalculateCorner();
         this.initialize(this.screenArea);
@@ -165,6 +167,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.lateRenders.add(r);
         if(child instanceof EasyWidget w)
             w.addAddons(this::addChild);
+        if(child instanceof IKeyboardListener l)
+            this.keyboardListeners.add(l);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
             w.addChildren();
         return child;
@@ -190,6 +194,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.preRenders.remove(r);
         if(child instanceof ILateRender r)
             this.lateRenders.remove(r);
+        if(child instanceof IKeyboardListener l)
+            this.keyboardListeners.remove(l);
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
     }
@@ -254,8 +260,13 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     }
 
     @Override
-    public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-        InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        for(IKeyboardListener listener : new ArrayList<>(this.keyboardListeners))
+        {
+            if(listener.keyPressed(keyCode,scanCode,modifiers))
+                return true;
+        }
+        InputConstants.Key mouseKey = InputConstants.getKey(keyCode, scanCode);
         //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
         if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.blockInventoryClosing()) {
             return true;
@@ -266,7 +277,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.onClose();
             return true;
         }
-        return super.keyPressed(p_97765_, p_97766_, p_97767_);
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
 }

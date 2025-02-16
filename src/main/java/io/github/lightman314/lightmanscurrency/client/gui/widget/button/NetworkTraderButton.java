@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -38,7 +38,14 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	 * Updates the trader data for this buttons trade.
 	 */
 	public void SetData(TraderData data) { this.data = data; }
-	
+
+	@Override
+	protected void renderTick() {
+		//Set as not visible if no data is present
+		if((this.data == null) == this.visible)
+			this.setVisible(this.data != null);
+	}
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{

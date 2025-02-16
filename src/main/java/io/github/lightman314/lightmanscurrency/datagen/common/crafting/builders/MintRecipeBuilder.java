@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders;
 
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
-import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe.MintType;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
@@ -20,7 +19,6 @@ import java.util.Map;
 
 public class MintRecipeBuilder implements RecipeBuilder {
 
-    private MintType type = MintType.OTHER;
     private final Ingredient ingredient;
     private final int ingredientCount;
     private final Item result;
@@ -53,14 +51,6 @@ public class MintRecipeBuilder implements RecipeBuilder {
     public static MintRecipeBuilder create(@Nonnull Ingredient input, int inputCount, @Nonnull ItemLike result, int resultCount){ return new MintRecipeBuilder(input,inputCount,result,resultCount); }
 
     @Nonnull
-    public MintRecipeBuilder mintType() { return this.ofType(MintType.MINT); }
-    @Nonnull
-    public MintRecipeBuilder meltType() { return this.ofType(MintType.MELT); }
-    @Nonnull
-    public MintRecipeBuilder otherType() { return this.ofType(MintType.OTHER); }
-    @Nonnull
-    public MintRecipeBuilder ofType(@Nonnull MintType type) { this.type = type; return this; }
-    @Nonnull
     public MintRecipeBuilder ofDuration(int duration) { this.duration = duration; return this; }
     @Nonnull
     @Override
@@ -82,7 +72,7 @@ public class MintRecipeBuilder implements RecipeBuilder {
                 .rewards(AdvancementRewards.Builder.recipe(id))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement$builder::addCriterion);
-        consumer.accept(id, new CoinMintRecipe(this.type, this.duration, this.ingredient, this.ingredientCount, new ItemStack(this.result,this.count)), advancement$builder.build(id.withPrefix("recipes/coin_mint/")));
+        consumer.accept(id, new CoinMintRecipe(this.duration, this.ingredient, this.ingredientCount, new ItemStack(this.result,this.count)), advancement$builder.build(id.withPrefix("recipes/coin_mint/")));
     }
 
     private void ensureValid(ResourceLocation id) {
@@ -91,7 +81,5 @@ public class MintRecipeBuilder implements RecipeBuilder {
         if(this.ingredient == null)
             throw new IllegalStateException("No ingredient defined for " + id);
     }
-
-
 
 }

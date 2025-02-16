@@ -74,7 +74,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	@Nonnull
     @Override
 	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
-	
+
+	@Override
+	public boolean readyForCustomers() { return true; }
+
 	@Override
 	public int getTradeCount() { return (int)this.trades.stream().filter(AuctionTradeData::isValid).count(); }
 	
@@ -377,4 +380,5 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		//Green if there's an auction available, normal color if not.
 		return auctionCount > 0 ? 0x00FF00 : 0x404040;
 	}
+
 }

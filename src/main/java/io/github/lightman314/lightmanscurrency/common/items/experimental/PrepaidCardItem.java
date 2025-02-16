@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items.experimental;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +27,8 @@ public class PrepaidCardItem extends Item {
         //Tooltip with balance
         MoneyValue value = stack.getOrDefault(ModDataComponents.MONEY_VALUE,MoneyValue.empty());
         tooltip.add(LCText.GUI_BANK_BALANCE.get(value.getText(LCText.GUI_MONEY_STORAGE_EMPTY.get())).withStyle(ChatFormatting.GRAY));
+        //Usage tooltip
+        tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_PAYMENT_CARD_USAGE.get(),ChatFormatting.GRAY));
         //Deletion Warning
         tooltip.add(LCText.TOOLTIP_PREPAID_CARD_DELETE_WARNING.getWithStyle(ChatFormatting.GRAY));
 

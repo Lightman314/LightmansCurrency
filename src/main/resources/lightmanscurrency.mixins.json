@@ -14,8 +14,10 @@
     "compat.supplementaries.RedMerchantMenuMixin"
   ],
   "client": [
-    "AbstractWidgetMixin",
-    "SlotWrapperMixin"
+    "client.AbstractWidgetMixin",
+    "client.CommandSuggestionsAccessor",
+    "client.SlotWrapperMixin",
+    "client.SuggestionsListAccessor"
   ],
   "minVersion": "0.8"
 }

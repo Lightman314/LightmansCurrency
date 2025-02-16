@@ -68,6 +68,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 				be.setItemBufferDirty();
 				return true;
 			}
+			else
+				return be.quickInsertUpgrade(stack);
 		}
 		return super.quickMoveStack(stack);
 	}
