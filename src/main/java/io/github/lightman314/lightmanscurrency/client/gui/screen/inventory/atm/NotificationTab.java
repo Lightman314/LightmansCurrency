@@ -93,6 +93,8 @@ public class NotificationTab extends ATMTab {
 	protected void closeAction() { this.screen.setCoinSlotsActive(true); }
 
 	public void onValueChanged(MoneyValue value) {
+		if(this.notificationSelection == null)
+			return;
 		if(value.isEmpty() || value.isFree())
 		{
 			String type = this.notificationSelection.getCurrentHandlerType();
