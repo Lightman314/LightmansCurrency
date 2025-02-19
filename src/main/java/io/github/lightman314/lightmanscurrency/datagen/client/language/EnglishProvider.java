@@ -740,8 +740,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TRADE_RULE_PLAYER_DISCOUNTS_INFO_PURCHASE,"You will be paid %s%% more");
         this.translate(LCText.GUI_PLAYER_DISCOUNTS_INFO,"% Discount");
         this.translate(LCText.TRADE_RULE_TIMED_SALE,"Sale");
-        this.translate(LCText.TRADE_RULE_TIMED_SALE_INFO_SALE,"This trade is on sale for %1$s%% for $2$s");
-        this.translate(LCText.TRADE_RULE_TIMED_SALE_INFO_PURCHASE,"This trade is on sale and will pay %1$s%% more for $2$s");
+        this.translate(LCText.TRADE_RULE_TIMED_SALE_INFO_SALE,"This trade is on sale for %1$s%% for %2$s");
+        this.translate(LCText.TRADE_RULE_TIMED_SALE_INFO_PURCHASE,"This trade is on sale and will pay %1$s%% more for %2$s");
         this.translate(LCText.GUI_TIMED_SALE_INFO_ACTIVE,"%s until the sale ends");
         this.translate(LCText.GUI_TIMED_SALE_INFO_INACTIVE,"Pending Duration: %s");
         this.translate(LCText.BUTTON_TIMED_SALE_START,"Start");

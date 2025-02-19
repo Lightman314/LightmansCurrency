@@ -29,8 +29,9 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        int count = this.getFilteredRules().size();
-        for(int i = 0; i < count; ++i)
+        //Always make all 9 checkmarks and let the visibility check hide the unecessary ones
+        //Done like this because sometimes the
+        for(int i = 0; i < 9; ++i)
         {
             final int index = i;
             this.addChild(PlainButton.builder()
@@ -41,7 +42,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
                     .build());
         }
 
-        if(this.commonTab.getHost().isTrade())
+        if(this.commonTab.hasBackButton())
         {
             this.addChild(IconButton.builder()
                     .position(screenArea.pos.offset(screenArea.width - 25, 5))
@@ -94,9 +95,6 @@ public class RuleToggleTab extends TradeRulesClientSubTab {
         }
     }
 
-    private void ClickBackButton(@Nonnull EasyButton button)
-    {
-        this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_ADVANCED);
-    }
+    private void ClickBackButton(@Nonnull EasyButton button) { this.commonTab.goBack(); }
 
 }

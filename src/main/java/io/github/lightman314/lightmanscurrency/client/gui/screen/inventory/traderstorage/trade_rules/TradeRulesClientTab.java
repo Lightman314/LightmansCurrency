@@ -25,6 +25,8 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     private int selectedTab = 0;
     private final List<TradeRulesClientSubTab> tabs = new ArrayList<>();
+    private final List<TabButton> tabButtons = new ArrayList<>();
+    private LazyWidgetPositioner widgetPositioner = null;
 
     private TradeRulesClientSubTab getCurrentTab() {
         if(this.selectedTab < 0 || this.selectedTab >= this.tabs.size())
@@ -46,41 +48,14 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        //Collect tabs
         this.tabs.clear();
-        this.tabs.add(new RuleToggleTab(this));
-        //Reset Selected Tabs
+        this.tabButtons.clear();
+        this.widgetPositioner = null;
         if(firstOpen)
             this.selectedTab = 0;
-        ITradeRuleHost host = this.commonTab.getHost();
-        if(host != null)
-        {
-            for(TradeRule rule : host.getRules())
-            {
-                try{
-                    this.tabs.add(rule.createTab(this));
-                } catch(Throwable t) {
-                    LightmansCurrency.LogError("Trade Rule of type '" + rule.type + "' encountered an error creating its tab. Trade Rule will not be editable!", t);
-                }
-            }
-        }
 
-        LazyWidgetPositioner tabPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(screenArea.width,0),25));
-
-        //Create Tab buttons
-        for(int i = 0; i < this.tabs.size(); ++i)
-        {
-            final int tabIndex = i;
-
-            TradeRulesClientSubTab tab = this.tabs.get(tabIndex);
-            TabButton button = this.addChild(TabButton.builder()
-                    .pressAction(() -> this.openTab(tabIndex))
-                    .tab(tab)
-                    .addon(EasyAddonHelper.visibleCheck(tab::isVisible))
-                    .addon(EasyAddonHelper.activeCheck(() -> tabIndex != this.selectedTab))
-                    .build());
-            tabPositioner.addWidget(button);
-        }
+        //Collect tabs
+        this.refreshTabs(firstOpen);
 
         //Set up the "Current Tab"
         this.getCurrentTab().onOpen();
@@ -98,13 +73,20 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         this.menu.SetCoinSlotsActive(true);
     }
 
-    public void refreshTabs()
+    public void refreshTabs(boolean fullReset)
     {
+
+        TradeRulesClientSubTab oldTab = null;
+        if(!this.tabs.isEmpty())
+        {
+            oldTab = this.getCurrentTab();
+            if(oldTab != null)
+                oldTab.onClose();
+        }
+
         //Collect tabs
         this.tabs.clear();
         this.tabs.add(new RuleToggleTab(this));
-        //Reset Selected Tabs
-        this.selectedTab = 0;
         ITradeRuleHost host = this.commonTab.getHost();
         if(host != null)
         {
@@ -117,6 +99,33 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
                 }
             }
         }
+
+        if(this.widgetPositioner == null)
+            this.widgetPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(this.screen.getArea().width,0),25));
+        else
+            this.widgetPositioner.clear();
+
+        //Create Tab buttons
+        for(TabButton button : this.tabButtons)
+            this.removeChild(button);
+        for(int i = 0; i < this.tabs.size(); ++i)
+        {
+            final int tabIndex = i;
+
+            TradeRulesClientSubTab tab = this.tabs.get(tabIndex);
+            TabButton button = this.addChild(TabButton.builder()
+                    .pressAction(() -> this.openTab(tabIndex))
+                    .tab(tab)
+                    .addon(EasyAddonHelper.visibleCheck(tab::isVisible))
+                    .addon(EasyAddonHelper.activeCheck(() -> tabIndex != this.selectedTab))
+                    .build());
+            this.widgetPositioner.addWidget(button);
+        }
+
+        if(oldTab == null || this.selectedTab >= this.tabs.size() || oldTab.getClass() != this.getCurrentTab().getClass())
+            this.selectedTab = 0;
+
+        this.getCurrentTab().onOpen();
 
     }
 
@@ -132,11 +141,14 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
     @Override
     public void tick() {
 
+        //Check if tab count is correct, and if not refresh the tabs
+        ITradeRuleHost host = this.commonTab.getHost();
+        if(host != null && this.tabs.size() != host.getRules().size() + 1)
+            this.refreshTabs(false);
+
         this.getCurrentTab().tick();
 
     }
-
-    protected boolean hasBackButton() { return false; }
 
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) { this.getCurrentTab().renderBG(gui); }

@@ -1196,8 +1196,8 @@
   "traderule.lightmanscurrency.player_trade_limit.info.timed": "You have done this trade %1$s of %2$s times within the last %3$s",
   "traderule.lightmanscurrency.price_fluctuation": "Price Fluctuation",
   "traderule.lightmanscurrency.timed_sale": "Sale",
-  "traderule.lightmanscurrency.timed_sale.info.purchase": "This trade is on sale and will pay %1$s%% more for $2$s",
-  "traderule.lightmanscurrency.timed_sale.info.sale": "This trade is on sale for %1$s%% for $2$s",
+  "traderule.lightmanscurrency.timed_sale.info.purchase": "This trade is on sale and will pay %1$s%% more for %2$s",
+  "traderule.lightmanscurrency.timed_sale.info.sale": "This trade is on sale for %1$s%% for %2$s",
   "traderule.lightmanscurrency.trade_limit": "Trade Limit",
   "traderule.lightmanscurrency.trade_limit.denial": "This trade has been done %s times already",
   "traderule.lightmanscurrency.trade_limit.info": "This trade has been done %1$s of %2$s times"
