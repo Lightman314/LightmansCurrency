@@ -27,6 +27,11 @@ public abstract class TradeRulesTab extends TraderStorageTab {
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADE_RULES); }
 
+    @Override
+    public void onTabOpen() { this.menu.SetCoinSlotsActive(false); }
+    @Override
+    public void onTabClose() { this.menu.SetCoinSlotsActive(true); }
+
     public void EditTradeRule(@Nonnull TradeRuleType<?> type, @Nonnull LazyPacketData.Builder updateMessage) { EditTradeRule(type.type, updateMessage); }
     public void EditTradeRule(@Nonnull ResourceLocation type, @Nonnull LazyPacketData.Builder updateMessage)
     {
@@ -48,7 +53,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         }
     }
 
-    protected boolean hasBackButton() { return false; }
+    public boolean hasBackButton() { return false; }
 
     public void goBack() {}
 
@@ -82,7 +87,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         public boolean canOpen(Player player) { return super.canOpen(player) && this.menu.hasPermission(Permissions.EDIT_TRADES); }
 
         @Override
-        protected boolean hasBackButton() { return true; }
+        public boolean hasBackButton() { return true; }
 
         @Override
         public void goBack() {
@@ -99,8 +104,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         }
 
         @Override
-        public void receiveMessage(LazyPacketData message) {
-            super.receiveMessage(message);
+        public void OpenMessage(LazyPacketData message) {
             if(message.contains("TradeIndex"))
                 this.tradeIndex = message.getInt("TradeIndex");
         }
