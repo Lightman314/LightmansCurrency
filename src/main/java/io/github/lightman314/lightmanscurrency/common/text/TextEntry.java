@@ -85,4 +85,7 @@ public final class TextEntry {
 
     public static TextEntry extend(@Nonnull TextEntry parent, @Nonnull String extra) { return new TextEntry(() -> parent.getKey() + "." + extra); }
 
+    @Override
+    public String toString() { return this.get().getString(); }
+
 }

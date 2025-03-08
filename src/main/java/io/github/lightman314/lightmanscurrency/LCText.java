@@ -83,6 +83,8 @@ public class LCText {
     public static final TextEntry ITEM_WALLET_NETHER_STAR = TextEntry.item(ModItems.WALLET_NETHER_STAR);
     public static final TextEntry ITEM_WALLET_ENDER_DRAGON = TextEntry.item(ModItems.WALLET_ENDER_DRAGON);
 
+    public static final TextEntry ITEM_GACHA_BALL = TextEntry.item(ModItems.GACHA_BALL);
+
     public static final TextEntry ITEM_TRADING_CORE = TextEntry.item(ModItems.TRADING_CORE);
 
     public static final TextEntry ITEM_ATM_CARD = TextEntry.item(ModItems.ATM_CARD);
@@ -200,6 +202,7 @@ public class LCText {
     public static final TextEntry BLOCK_ARMOR_DISPLAY = TextEntry.block(ModBlocks.ARMOR_DISPLAY);
     public static final TextEntryBundle<WoodType> BLOCK_BOOKSHELF_TRADER = TextEntryBundle.of(ModBlocks.BOOKSHELF_TRADER);
     public static final TextEntry BLOCK_COMMAND_TRADER = TextEntry.block(ModBlocks.COMMAND_TRADER);
+    public static final TextEntryBundle<Color> BLOCK_GACHA_MACHINE = TextEntryBundle.of(ModBlocks.GACHA_MACHINE);
 
     public static final TextEntry BLOCK_ITEM_NETWORK_TRADER_1 = TextEntry.block(ModBlocks.ITEM_NETWORK_TRADER_1);
     public static final TextEntry BLOCK_ITEM_NETWORK_TRADER_2 = TextEntry.block(ModBlocks.ITEM_NETWORK_TRADER_2);
@@ -270,6 +273,7 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_ITEM_TRADER_BOOK = MultiLineTextEntry.tooltip(MODID,"trader.item.book");
     public static final MultiLineTextEntry TOOLTIP_ITEM_TRADER_NETWORK = MultiLineTextEntry.tooltip(MODID,"trader.network.item");
     public static final MultiLineTextEntry TOOLTIP_SLOT_MACHINE = MultiLineTextEntry.tooltip(MODID,"trader.slot_machine");
+    public static final MultiLineTextEntry TOOLTIP_GACHA_MACHINE = MultiLineTextEntry.tooltip(MODID,"trader.gacha_machine");
     public static final MultiLineTextEntry TOOLTIP_PAYGATE = MultiLineTextEntry.tooltip(MODID,"paygate");
     public static final MultiLineTextEntry TOOLTIP_COMMAND_TRADER = MultiLineTextEntry.tooltip(MODID,"trader.commands");
     public static final MultiLineTextEntry TOOLTIP_TERMINAL = MultiLineTextEntry.tooltip(MODID,"terminal");
@@ -348,6 +352,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER = TextEntry.tooltip(MODID,"upgrade.target.traders");
     public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER_NOT_NETWORK = TextEntry.tooltip(MODID,"upgrade.target.traders.not_network");
     public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER_ITEM = TextEntry.tooltip(MODID,"upgrade.target.traders.item");
+    public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER_GACHA_MACHINE = TextEntry.tooltip(MODID,"upgrade.target.traders.gacha");
     public static final TextEntry TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE = TextEntry.tooltip(MODID,"upgrade.target.trader_interface");
 
     //Money Source Tooltips
@@ -575,7 +580,6 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_COLLECT_COINS = TextEntry.tooltip(MODID,"trader.collect_coins");
     public static final TextEntry TOOLTIP_TRADER_NETWORK_BACK = TextEntry.tooltip(MODID,"trader.network.back");
     public static final TextEntry TOOLTIP_TRADER_OPEN_TRADES = TextEntry.tooltip(MODID,"trader.open_trades");
-    public static final TextEntry TOOLTIP_TRADER_STORE_COINS = TextEntry.tooltip(MODID,"trader.store_coins");
     public static final TextEntry TOOLTIP_TRADER_TRADE_RULES_TRADER = TextEntry.tooltip(MODID,"trader.trade_rules.trader");
     public static final TextEntry TOOLTIP_TRADER_TRADE_RULES_TRADE = TextEntry.tooltip(MODID,"trader.trade_rules.trade");
     public static final TextEntry GUI_TRADER_NO_TRADES = TextEntry.gui(MODID,"notrades");
@@ -619,6 +623,10 @@ public class LCText {
     public static final TextEntry GUI_TRADER_TAXES_TOTAL_RATE = TextEntry.tooltip(MODID,"trader.tax_info.total_rate");
     public static final TextEntry GUI_TRADER_TAXES_NO_TAX_COLLECTORS = TextEntry.gui(MODID,"trade.tax_info.no_tax_collectors");
     public static final TextEntry TOOLTIP_TRADER_STORAGE = TextEntry.tooltip(MODID,"trader.storage");
+    public static final TextEntry TOOLTIP_TRADER_MONEY_STORAGE = TextEntry.tooltip(MODID,"trader.money_storage");
+    public static final TextEntry GUI_TRADER_MONEY_STORAGE_CONTENTS = TextEntry.gui(MODID,"trader.money_storage.contents");
+    public static final TextEntry BUTTON_TRADER_STORE_MONEY = TextEntry.button(MODID,"trader.money_storage.store");
+    public static final TextEntry BUTTON_TRADER_COLLECT_MONEY = TextEntry.button(MODID,"trader.money_storage.collect");
     public static final TextEntry MESSAGE_TRADER_WARNING_MISSING_DATA = TextEntry.message(MODID,"trader.warning.missing_data");
 
     //General Trade Tooltips
@@ -640,6 +648,7 @@ public class LCText {
 
     //Paygate Specific
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS = TextEntry.tooltip(MODID,"trader.paygate.collect_ticket_stubs");
+    public static final TextEntry TOOLTIP_TRADE_PAYGATE_SET_TICKET_PRICE = TextEntry.tooltip(MODID,"trade.paygate.set_ticket_price");
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION = TextEntry.gui(MODID,"trader.paygate.duration");
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION_UNIT = TextEntry.gui(MODID,"trader.paygate.duration.unit");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
@@ -685,6 +694,19 @@ public class LCText {
     public static final TextEntry GUI_TRADER_COMMAND_LABEL = TextEntry.gui(MODID,"trader.command.label");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_COMMAND = TextEntry.tooltip(MODID,"trader.settings.command");
     public static final TextEntry GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL = TextEntry.gui(MODID,"trader.settings.command.permission_level");
+
+    //Gacha Machine Specific
+    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS_LABEL = TextEntry.tooltip(MODID,"trader.gacha.contents.label");
+    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS = TextEntry.tooltip(MODID,"trader.gacha.contents");
+    public static final TextEntry TOOLTIP_TRADER_GACHA_EDIT_PRICE = TextEntry.tooltip(MODID,"trader.gacha.edit_price");
+    public static final TextEntry GUI_TRADER_GACHA_STORAGE_CAPACITY = TextEntry.tooltip(MODID,"trader.gacha.storage.capacity");
+    public static final MultiLineTextEntry TOOLTIP_GACHA_MACHINE_ROLL_ONCE = MultiLineTextEntry.tooltip(MODID,"gacha_machine.roll.once");
+    public static final MultiLineTextEntry TOOLTIP_GACHA_MACHINE_ROLL_MULTI = MultiLineTextEntry.tooltip(MODID,"gacha_machine.roll.multi");
+    public static final TextEntry TOOLTIP_GACHA_MACHINE_NORMAL_COST = TextEntry.tooltip(MODID,"gacha_machine.roll.normal_price");
+    public static final TextEntry TOOLTIP_GACHA_MACHINE_COST_FREE = TextEntry.tooltip(MODID,"gacha_machine.roll.free");
+    public static final TextEntry TOOLTIP_GACHA_MACHINE_UNDEFINED = TextEntry.tooltip(MODID,"gacha_machine.undefined");
+    public static final TextEntry TOOLTIP_GACHA_MACHINE_EMPTY = TextEntry.tooltip(MODID,"gacha_machine.empty");
+    public static final TextEntry GUI_GACHA_MACHINE_TRADE_MULTIPLIER = TextEntry.gui(MODID,"gacha_machine.trade_mult");
 
     //Trade Data
     public static final TextEntryBundle<TradeDirection> GUI_TRADE_DIRECTION = TextEntryBundle.of(TradeDirection.values(),"gui.lightmanscurrency.trade_direction");
@@ -926,6 +948,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_MONEY = TextEntry.notification(PaygateNotification.TYPE,"money");
     public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE = TextEntry.notification(SlotMachineTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
+    public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"items"),"format");
 
@@ -1013,6 +1036,8 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_EVENT_LOCK_FAIL = TextEntry.command(MODID,"lcadmin.event.lock.fail");
     public static final TextEntry COMMAND_ADMIN_PREPAID_CARD_SUCCESS = TextEntry.command(MODID,"lcadmin.makePrepaidCard.success");
     public static final TextEntry COMMAND_ADMIN_PREPAID_CARD_FAIL = TextEntry.command(MODID,"lcadmin.makePrepaidCard.fail");
+    public static final TextEntry COMMAND_ADMIN_GACHA_BALL_SUCCESS = TextEntry.command(MODID,"lcadmin.makeGachaBall.success");
+    public static final TextEntry COMMAND_ADMIN_GACHA_BALL_FAIL = TextEntry.command(MODID,"lcadmin.makeGachaBall.fail");
 
     public static final TextEntry COMMAND_LCADMIN_DATA_OWNER_PLAYER = TextEntry.command(MODID,"lcadmin.data.list.owner.player");
     public static final TextEntry COMMAND_LCADMIN_DATA_OWNER_TEAM = TextEntry.command(MODID,"lcadmin.data.list.owner.team");
@@ -1095,5 +1120,6 @@ public class LCText {
     public static final TextEntry REI_GROUP_JAR_OF_SUS = TextEntry.reiGroup(MODID,"jar_of_sus");
     public static final TextEntry REI_GROUP_ATM_CARD = TextEntry.reiGroup(MODID,"atm_card");
     public static final TextEntry REI_GROUP_ANCIENT_COINS = TextEntry.reiGroup(MODID,"ancient_coin");
+    public static final TextEntry REI_GROUP_GACHA_MACHINE = TextEntry.reiGroup(MODID,"gacha_machine");
 
 }

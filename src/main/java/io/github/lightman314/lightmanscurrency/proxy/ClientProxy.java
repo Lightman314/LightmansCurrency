@@ -9,6 +9,7 @@ import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -44,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
@@ -60,7 +62,7 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void init(@Nonnull ModContainer modContainer) {
-		//NeoForge.EVENT_BUS.register(this);
+		modContainer.registerExtensionPoint(IConfigScreenFactory.class,ConfigSelectionScreen.createFactory(LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER));
 	}
 
 	@Override
@@ -78,6 +80,7 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.GACHA_MACHINE.get(), GachaMachineBlockEntityRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);

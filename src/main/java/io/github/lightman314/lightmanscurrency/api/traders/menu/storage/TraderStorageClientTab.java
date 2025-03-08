@@ -26,4 +26,6 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> extends
 
 	public boolean shouldRenderInventoryText() { return true; }
 
+	public boolean showRightEdgeButtons() { return true; }
+
 }

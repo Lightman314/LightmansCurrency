@@ -4,8 +4,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
@@ -21,11 +19,12 @@ public class LCCuriosProvider extends CuriosDataProvider {
     public void generate(HolderLookup.Provider registries, ExistingFileHelper fileHelper) {
 
         this.createSlot("wallet")
+                .order(0) //Give the wallet a priority of 0 so that it appears above most default slots
                 .addCosmetic(true)
                 .icon(VersionUtil.lcResource("item/empty_wallet_slot"));
 
         this.createSlot("charm")
-                .operation(AttributeModifier.Operation.ADD_VALUE)
+                .operation("ADD")
                 .size(1);
 
         this.createEntities("lightmanscurrency_default_slots")

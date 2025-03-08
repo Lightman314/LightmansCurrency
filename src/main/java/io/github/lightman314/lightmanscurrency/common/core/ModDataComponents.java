@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
-import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardData;
+import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -38,6 +38,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<Boolean>> UPGRADE_ACTIVE;
     public static final Supplier<DataComponentType<ATMCardData>> ATM_CARD_DATA;
     public static final Supplier<DataComponentType<MoneyValue>> MONEY_VALUE;
+    public static final Supplier<DataComponentType<ItemStackData>> GACHA_ITEM;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -66,6 +67,7 @@ public class ModDataComponents {
         UPGRADE_ACTIVE = registerBool("upgrade_active");
         ATM_CARD_DATA = register("atm_card_data", builder -> builder.persistent(ATMCardData.CODEC).networkSynchronized(ATMCardData.STREAM_CODEC));
         MONEY_VALUE = register("money_value", builder -> builder.persistent(LCCodecs.MONEY_VALUE).networkSynchronized(LCCodecs.MONEY_VALUE_STREAM));
+        GACHA_ITEM = register("gacha_item", builder -> builder.persistent(ItemStackData.CODEC).networkSynchronized(ItemStackData.STREAM_CODEC));
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");

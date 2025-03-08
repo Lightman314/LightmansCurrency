@@ -5,8 +5,8 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
-import io.github.lightman314.lightmanscurrency.common.items.experimental.ATMCardItem;
-import io.github.lightman314.lightmanscurrency.common.items.experimental.PrepaidCardItem;
+import io.github.lightman314.lightmanscurrency.common.items.cards.ATMCardItem;
+import io.github.lightman314.lightmanscurrency.common.items.cards.PrepaidCardItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -59,6 +59,7 @@ public class ModItems {
 		COIN_ANCIENT = ModRegistries.ITEMS.register("coin_ancient", () -> new AncientCoinItem(new Item.Properties().rarity(Rarity.RARE)));
 
 		//Misc
+		GACHA_BALL = ModRegistries.ITEMS.register("gacha_ball",() -> new GachaBallItem(new Item.Properties()));
 		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties()));
 		
 		//Ticket
@@ -164,8 +165,10 @@ public class ModItems {
 	public static final Supplier<Item> COIN_CHOCOLATE_NETHERITE;
 
 	public static final Supplier<Item> COIN_ANCIENT;
-	
+
+	public static final Supplier<Item> GACHA_BALL;
 	public static final Supplier<Item> TRADING_CORE;
+
 	public static final Supplier<Item> TICKET;
 	public static final Supplier<Item> TICKET_PASS;
 	public static final Supplier<Item> TICKET_MASTER;

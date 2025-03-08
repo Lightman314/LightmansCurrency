@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -23,14 +24,12 @@ public class TeamManagerScreen extends EasyTabbedMenuScreen<TeamManagementMenu,T
 
     @Nonnull
     @Override
-    protected IWidgetPositioner getTabButtonPositioner() { return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createClockwiseWraparound(this.getArea(), WidgetRotation.TOP),25); }
+    protected IWidgetPositioner getTabButtonPositioner() { return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createClockwiseWraparound(this.getArea(), WidgetRotation.TOP), TabButton.SIZE); }
 
     @Override
     protected void init(ScreenArea screenArea) { }
 
     @Override
-    protected void renderBackground(@Nonnull EasyGuiGraphics gui) {
-        gui.renderNormalBackground(GUI_TEXTURE, this);
-    }
+    protected void renderBackground(@Nonnull EasyGuiGraphics gui) { gui.renderNormalBackground(GUI_TEXTURE, this); }
 
 }

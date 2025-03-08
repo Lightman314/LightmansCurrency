@@ -90,6 +90,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_WALLET_NETHER_STAR, "Wallet (Nether Star)");
         this.translate(LCText.ITEM_WALLET_ENDER_DRAGON, "Wallet (Ender Dragon)");
 
+        this.translate(LCText.ITEM_GACHA_BALL,"Gacha Ball");
+
         this.translate(LCText.ITEM_TRADING_CORE,"Trading Core");
 
         this.translate(LCText.ITEM_ATM_CARD,"ATM Card");
@@ -205,6 +207,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BLOCK_ARMOR_DISPLAY, "Armor Display");
         this.translateWooden(LCText.BLOCK_BOOKSHELF_TRADER, "%s Bookshelf Trader");
         this.translate(LCText.BLOCK_COMMAND_TRADER, "Command Trader");
+        this.translateColored(LCText.BLOCK_GACHA_MACHINE, "%s Gacha Machine");
 
         this.translate(LCText.BLOCK_ITEM_NETWORK_TRADER_1, "Item Network Trader T1");
         this.translate(LCText.BLOCK_ITEM_NETWORK_TRADER_2, "Item Network Trader T2");
@@ -273,6 +276,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ITEM_TRADER_BOOK, "Book Trader:", "Trades: %s", "Can be used to Sell, Purchase, or Barter books with other players");
         this.translate(LCText.TOOLTIP_ITEM_TRADER_NETWORK, "Item Network Trader:","Trades: %s", "Can be used to Sell, Purchase, or Barter items with other players", "Accessible from any location via the Trading Terminal");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE, "Slot Machine:","Can be used to Sell owner-defined random Items or Money to other players with owner-defined odds of receiving each loot pool");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE, "Gacha Machine:","Can be used to sell a single random item from its storage at a predefined price","Unlike the slot machine it will not consider itself out of stock until all items in storage have been sold");
         this.translate(LCText.TOOLTIP_PAYGATE, "Paygate:","Can be used to trigger a redstone signal for a price","Can be linked to a ticket for easier customer interactions");
         this.translate(LCText.TOOLTIP_COMMAND_TRADER, "Command Trader:","Can be used to execute commands for a price","Permission level can be customized in trader settings within the upper limit defined in the server config");
         this.translate(LCText.TOOLTIP_TERMINAL,"Can access Network Traders remotely from any location");
@@ -351,6 +355,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER,"All Traders");
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_NOT_NETWORK,"All Non-Network Traders");
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_ITEM,"All Item Traders");
+        this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_GACHA_MACHINE,"Gacha Machines");
         this.translate(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE,"All Trader Interfaces");
 
         //Misc Money Tooltips
@@ -594,7 +599,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_COLLECT_COINS,"Collect Stored Money:");
         this.translate(LCText.TOOLTIP_TRADER_NETWORK_BACK,"Back to Network Terminal");
         this.translate(LCText.TOOLTIP_TRADER_OPEN_TRADES,"Return to Trades");
-        this.translate(LCText.TOOLTIP_TRADER_STORE_COINS,"Store Coins");
         this.translate(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADER,"Trader Rules");
         this.translate(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE,"Edit Trade-Specific Rules");
         this.translate(LCText.GUI_TRADER_NO_TRADES, "No Available Trades");
@@ -638,6 +642,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE,"Total Tax Rate: %s%%");
         this.translate(LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS,"No active Tax Collectors in range");
         this.translate(LCText.TOOLTIP_TRADER_STORAGE,"Trader Storage");
+        this.translate(LCText.TOOLTIP_TRADER_MONEY_STORAGE,"Money Storage");
+        this.translate(LCText.GUI_TRADER_MONEY_STORAGE_CONTENTS,"Current Contents: %s");
+        this.translate(LCText.BUTTON_TRADER_STORE_MONEY,"Store Money");
+        this.translate(LCText.BUTTON_TRADER_COLLECT_MONEY,"Collect Money");
         this.translate(LCText.MESSAGE_TRADER_WARNING_MISSING_DATA, "Trader Data was missing for this block. Re-initializing the trader with you as the owner!");
 
         //General Trade Tooltips
@@ -659,6 +667,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Paygate Specific
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS,"Collect Ticket Stubs (%s)");
+        this.translate(LCText.TOOLTIP_TRADE_PAYGATE_SET_TICKET_PRICE,"Click with a Master Ticket to accept Tickets as payment");
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION,"Duration:");
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT,"ticks");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP,"Store Ticket Stubs");
@@ -704,6 +713,19 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_COMMAND_LABEL,"Command:");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_COMMAND,"Command Settings");
         this.translate(LCText.GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL,"Permission Level: %s");
+
+        //Gacha Machine Specific
+        this.translate(LCText.TOOLTIP_TRADER_GACHA_CONTENTS_LABEL,"Gacha Machine Contains:");
+        this.translate(LCText.TOOLTIP_TRADER_GACHA_CONTENTS,"%1$sx %2$s");
+        this.translate(LCText.TOOLTIP_TRADER_GACHA_EDIT_PRICE,"Edit Price");
+        this.translate(LCText.GUI_TRADER_GACHA_STORAGE_CAPACITY,"Storage: %1$s/%2$s");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_ROLL_ONCE, "Try your luck!","Costs %2$s");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_ROLL_MULTI, "Try your luck %1$s times!","Costs %2$s per roll");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_NORMAL_COST,"Normally costs %s");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_COST_FREE,"nothing");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_UNDEFINED,"Gacha Machine is not set up yet");
+        this.translate(LCText.TOOLTIP_GACHA_MACHINE_EMPTY,"Gacha Machine is empty");
+        this.translate(LCText.GUI_GACHA_MACHINE_TRADE_MULTIPLIER,"%sx");
 
         //Trade Data
         this.translate(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.SALE), "Sale");
@@ -976,6 +998,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_PAYGATE_MONEY,"%1$s activated the paygate for %3$s for %2$s");
         this.translate(LCText.NOTIFICATION_TRADE_SLOT_MACHINE,"%1$s paid %2$s and won %3$s");
         this.translate(LCText.NOTIFICATION_TRADE_COMMAND,"%1$s paid %2$s to run %3$s");
+        this.translate(LCText.NOTIFICATION_TRADE_GACHA,"%1$s paid %2$s and won %3$s");
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
 
@@ -1075,6 +1098,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_EVENT_LOCK_FAIL,"%s was not unlocked for this player");
         this.translate(LCText.COMMAND_ADMIN_PREPAID_CARD_SUCCESS,"Created a prepaid card containing %1$s for %2$s player(s)");
         this.translate(LCText.COMMAND_ADMIN_PREPAID_CARD_FAIL,"Non valid targets found");
+        this.translate(LCText.COMMAND_ADMIN_GACHA_BALL_SUCCESS,"Created a gacha ball containing %1$s for %2$s player(s)");
+        this.translate(LCText.COMMAND_ADMIN_GACHA_BALL_FAIL,"Non valid targets found");
 
         this.translate(LCText.COMMAND_LCADMIN_DATA_OWNER_PLAYER,"Owner: %1$s (%2$s)");
         this.translate(LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM,"Team Owner: %1$s (%2$s)");
@@ -1157,6 +1182,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.REI_GROUP_JAR_OF_SUS,"Jars of Sus");
         this.translate(LCText.REI_GROUP_ATM_CARD,"ATM Cards");
         this.translate(LCText.REI_GROUP_ANCIENT_COINS,"Ancient Coins");
+        this.translate(LCText.REI_GROUP_GACHA_MACHINE,"Gacha Machines");
 
     }
 

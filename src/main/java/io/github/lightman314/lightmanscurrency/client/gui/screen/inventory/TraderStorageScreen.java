@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.AdvancedTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -25,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketStoreCoins;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -34,13 +32,14 @@ import javax.annotation.Nonnull;
 public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorageMenu,TraderStorageMenu,TraderStorageTab,ITraderStorageScreen> implements ITraderStorageScreen {
 	
 	EasyButton buttonShowTrades;
-	EasyButton buttonCollectMoney;
-
-	EasyButton buttonStoreMoney;
 
 	EasyButton buttonTradeRules;
 
-	public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createBottomup(), -20, TraderScreen.HEIGHT - 20, 20);
+	private final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), TraderScreen.WIDTH, 0, 20);
+
+	@Override
+	@Nonnull
+	public IWidgetPositioner getRightEdgePositioner() { return this.rightEdgePositioner; }
 
 	public TraderStorageScreen(TraderStorageMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -51,7 +50,7 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 	@Nonnull
 	@Override
 	protected IWidgetPositioner getTabButtonPositioner() {
-		return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(-25,0),25);
+		return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(TabButton.NEGATIVE_SIZE,0), TabButton.SIZE);
 	}
 
 	protected TraderStorageClientTab<?> getCurrentTab() {
@@ -63,23 +62,18 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 	@Override
 	public void init(ScreenArea screenArea) {
 
-		this.leftEdgePositioner.clear();
-		this.addChild(this.leftEdgePositioner);
+		this.rightEdgePositioner.clear();
+		this.addChild(this.rightEdgePositioner);
 
 		//Other buttons
 		this.buttonShowTrades = this.addChild(IconButton.builder()
 						.pressAction(this::PressTradesButton)
 						.icon(IconUtil.ICON_TRADER)
+						.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_TRADES))
+						.addon(EasyAddonHelper.visibleCheck(this::showRightEdgeWidgets))
 						.build());
 
-		this.buttonCollectMoney = this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::PressCollectionButton), this.menu.player, this.menu::getTrader));
-
-		this.buttonStoreMoney = this.addChild(IconButton.builder()
-						.position(screenArea.pos.offset(71,120))
-						.pressAction(this::PressStoreCoinsButton)
-						.icon(IconUtil.ICON_STORE_COINS)
-						.addon(EasyAddonHelper.visibleCheck(() -> this.menu.HasCoinsToAdd() && this.menu.hasPermission(Permissions.STORE_COINS) && this.menu.areCoinSlotsVisible()))
-						.build());
+		this.rightEdgePositioner.addWidget(this.buttonShowTrades);
 
 		this.buttonTradeRules = this.addChild(IconButton.builder()
 						.position(screenArea.pos.offset(screenArea.width,0))
@@ -88,9 +82,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 						.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasPermission(Permissions.EDIT_TRADE_RULES) && this.getCurrentTab().getTradeRuleTradeIndex() >= 0))
 						.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE))
 						.build());
-
-		//Left side auto-position
-		this.leftEdgePositioner.addWidgets(this.buttonShowTrades, this.buttonCollectMoney);
 
 		TraderData trader = this.menu.getTrader();
 		if(trader != null)
@@ -114,13 +105,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 
 		//Main BG
 		gui.renderNormalBackground(TraderScreen.GUI_TEXTURE, this);
-		
-		//Coin Slots
-		for(MoneySlot slot : this.menu.getCoinSlots())
-		{
-			if(slot.isActive())
-				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, this.imageWidth, 0, 18, 18);
-		}
 
 		//Labels
 		if(this.getCurrentTab().shouldRenderInventoryText())
@@ -138,8 +122,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 			return;
 		}
 		
-		this.menu.validateCoinSlots();
-		
 		if(!this.menu.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			this.onClose();
@@ -148,12 +130,12 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 		
 	}
 
+	@Override
+	public boolean showRightEdgeWidgets() { return this.getCurrentTab().showRightEdgeButtons(); }
+
 	public void serverMessage(LazyPacketData message) { this.getCurrentTab().receiveServerMessage(message); }
 	
-	private void PressTradesButton(EasyButton button)
-	{
-		new CPacketOpenTrades(this.menu.getTrader().getID()).send();
-	}
+	private void PressTradesButton(EasyButton button) { new CPacketOpenTrades(this.menu.getTrader().getID()).send(); }
 	
 	private void PressCollectionButton(EasyButton button)
 	{
@@ -165,14 +147,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 		}
 		else
 			Permissions.PermissionWarning(this.menu.player, "collect stored coins", Permissions.COLLECT_COINS);
-	}
-	
-	private void PressStoreCoinsButton(EasyButton button)
-	{
-		if(this.menu.hasPermission(Permissions.STORE_COINS))
-			CPacketStoreCoins.sendToServer();
-		else
-			Permissions.PermissionWarning(this.menu.player, "store coins", Permissions.STORE_COINS);
 	}
 	
 	private void PressTradeRulesButton(EasyButton button)

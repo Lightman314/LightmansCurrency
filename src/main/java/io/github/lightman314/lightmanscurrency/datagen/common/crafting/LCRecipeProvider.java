@@ -959,6 +959,21 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlocks("previous",LazyTrigger(ModItems.NETWORK_UPGRADE))
                 .save(consumer,ItemID("upgrades/",ModItems.INTERACTION_UPGRADE_3));
 
+
+        //2.2.4.4
+        //Gacha Machine
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModBlocks.GACHA_MACHINE.get(Color.WHITE))
+                .unlockedBy("money", MoneyKnowledge())
+                .unlockedBy("trader", TraderKnowledge())
+                .pattern("ggg")
+                .pattern("gxg")
+                .pattern("iii")
+                .define('x', ModItems.TRADING_CORE.get())
+                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .save(consumer,ItemID("traders/",ModBlocks.GACHA_MACHINE.get(Color.WHITE)));
+        GenerateColoredDyeAndWashRecipes(consumer,ModBlocks.GACHA_MACHINE,ModBlocks.GACHA_MACHINE.get(Color.WHITE),"gacha_dyes","traders/gacha_machine/",Lists.newArrayList(Pair.of("money", MoneyKnowledge()), Pair.of("trader", TraderKnowledge())));
+
     }
 
     private static void GenerateWalletRecipes(@Nonnull RecipeOutput consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)

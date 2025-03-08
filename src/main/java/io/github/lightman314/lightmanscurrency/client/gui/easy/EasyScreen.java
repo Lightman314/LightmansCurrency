@@ -88,7 +88,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     @Override
     public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
-        //super.renderBackground(mcgui, mouseX, mouseY, partialTicks);
+        super.renderBackground(mcgui, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -110,6 +110,8 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             catch (Throwable t) { LightmansCurrency.LogError("Error occurred while early rendering " + r.getClass().getName(), t); }
         }
         //Render background tint
+        if(this.minecraft.level == null)
+            this.renderPanorama(mcgui,partialTicks);
         this.renderBlurredBackground(partialTicks);
         this.renderMenuBackground(mcgui);
         //Render background

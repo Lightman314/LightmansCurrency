@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -34,7 +36,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	private static final int Y_OFFSET = 17;
 	private static final int COLUMNS_NORMAL = 8;
 	private static final int COLUMNS_PERSISTENT = 10;
-	private static final int ROWS = 5;
+	private static final int ROWS = 6;
 	
 	public ItemStorageClientTab(Object screen, ItemStorageTab commonTab) { super(screen, commonTab); }
 
@@ -70,19 +72,18 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 				.listener(this)
 				.build());
 
-		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
-		{
-			this.addChild(PlainButton.builder()
-							.position(screenArea.pos.offset(22, Y_OFFSET + 18 * ROWS + 8))
-							.pressAction(() -> this.commonTab.quickTransfer(0))
-							.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
-							.build());
-			this.addChild(PlainButton.builder()
-							.position(screenArea.pos.offset(34, Y_OFFSET + 18 * ROWS + 8))
-							.pressAction(() -> this.commonTab.quickTransfer(1))
-							.sprite(IconAndButtonUtil.SPRITE_QUICK_EXTRACT)
-							.build());
-		}
+		this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(22, Y_OFFSET + 18 * ROWS + 4))
+				.pressAction(() -> this.commonTab.quickTransfer(0))
+				.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
+				.addon(EasyAddonHelper.visibleCheck(this::quickButtonsVisible))
+				.build());
+		this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(34, Y_OFFSET + 18 * ROWS + 4))
+				.pressAction(() -> this.commonTab.quickTransfer(1))
+				.sprite(IconAndButtonUtil.SPRITE_QUICK_EXTRACT)
+				.addon(EasyAddonHelper.visibleCheck(this::quickButtonsVisible))
+				.build());
 		
 	}
 
@@ -218,6 +219,12 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Override
 	public int getMaxScroll() { return Math.max(((this.totalStorageSlots() - 1) / this.columns) - ROWS + 1, 0); }
+
+	private boolean quickButtonsVisible()
+	{
+		TraderData trader = this.menu.getTrader();
+		return trader instanceof ItemTraderData && !trader.isPersistent();
+	}
 
 	@Nullable
 	@Override

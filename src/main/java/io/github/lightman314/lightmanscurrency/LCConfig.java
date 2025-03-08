@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMod;

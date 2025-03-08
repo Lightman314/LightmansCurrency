@@ -57,7 +57,6 @@ public class LightmansCurrencyPacketHandler {
 		//Trader
 		registerC2S(CPacketExecuteTrade.HANDLER);
 		registerC2S(CPacketCollectCoins.HANDLER);
-		registerC2S(CPacketStoreCoins.HANDLER);
 		registerC2S(CPacketOpenStorage.HANDLER);
 		registerC2S(CPacketOpenTrades.HANDLER);
 		registerC2S(CPacketOpenNetworkTerminal.HANDLER);

@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TraderLogTab;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
@@ -44,15 +44,10 @@ public class TraderLogClientTab extends TraderStorageClientTab<TraderLogTab> {
                 .onRight(notificationWidget)
                 .build());
 
-        this.menu.SetCoinSlotsActive(false);
-
     }
 
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) { }
-
-    @Override
-    public void closeAction() { this.menu.SetCoinSlotsActive(true); }
 
     private List<Notification> getNotifications()
     {

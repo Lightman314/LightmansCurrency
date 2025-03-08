@@ -26,6 +26,13 @@ import java.util.List;
 
 public class MasterTicketRecipe implements TicketStationRecipe {
 
+    public static final MapCodec<MasterTicketRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                            Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(r -> r.ingredient),
+                            ResourceLocation.CODEC.fieldOf("result").forGetter(MasterTicketRecipe::resultID))
+                    .apply(builder, MasterTicketRecipe::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf,MasterTicketRecipe> STREAM_CODEC = StreamCodec.of(MasterTicketRecipe::toNetwork,MasterTicketRecipe::fromNetwork);
+
     private final Ingredient ingredient;
     private final Item result;
     private ResourceLocation resultID() { return BuiltInRegistries.ITEM.getKey(this.result); }
@@ -92,31 +99,24 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Override
     public RecipeSerializer<?> getSerializer() { return ModRecipes.TICKET_MASTER.get(); }
 
+    @Nonnull
+    private static MasterTicketRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
+        return new MasterTicketRecipe(Ingredient.CONTENTS_STREAM_CODEC.decode(buffer), ResourceLocation.STREAM_CODEC.decode(buffer));
+    }
+    private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull MasterTicketRecipe recipe) {
+        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
+        ResourceLocation.STREAM_CODEC.encode(buffer,recipe.resultID());
+    }
+
     public static class Serializer implements RecipeSerializer<MasterTicketRecipe>
     {
-        @Nonnull
-        private static MasterTicketRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
-            return new MasterTicketRecipe(Ingredient.CONTENTS_STREAM_CODEC.decode(buffer), ResourceLocation.STREAM_CODEC.decode(buffer));
-        }
-        private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull MasterTicketRecipe recipe) {
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
-            ResourceLocation.STREAM_CODEC.encode(buffer,recipe.resultID());
-        }
 
         @Nonnull
         @Override
-        public MapCodec<MasterTicketRecipe> codec() {
-            return RecordCodecBuilder.mapCodec(builder ->
-                builder.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(r -> r.ingredient),
-                        ResourceLocation.CODEC.fieldOf("result").forGetter(MasterTicketRecipe::resultID))
-                        .apply(builder, MasterTicketRecipe::new)
-            );
-        }
-
+        public MapCodec<MasterTicketRecipe> codec() { return CODEC; }
         @Nonnull
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MasterTicketRecipe> streamCodec() { return StreamCodec.of(Serializer::toNetwork,Serializer::fromNetwork); }
+        public StreamCodec<RegistryFriendlyByteBuf, MasterTicketRecipe> streamCodec() { return STREAM_CODEC; }
 
     }
 

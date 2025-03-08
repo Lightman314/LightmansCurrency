@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.menus.*;
+import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
@@ -41,6 +42,8 @@ public class ModMenus {
 		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> CreateType((IContainerFactory<TraderMenuAllNetwork>)(id, inventory,data) -> new TraderMenuAllNetwork(id, inventory, MenuValidator.decode(data))));
 
 		SLOT_MACHINE = ModRegistries.MENUS.register("slot_machine", () -> CreateType((IContainerFactory<SlotMachineMenu>)(id, inventory, data) -> new SlotMachineMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
+
+		GACHA_MACHINE = ModRegistries.MENUS.register("gacha_machine", () -> CreateType((IContainerFactory<GachaMachineMenu>)(id,inventory,data) -> new GachaMachineMenu(id,inventory,data.readLong(), MenuValidator.decode(data))));
 
 		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> CreateType((IContainerFactory<TraderStorageMenu>)(id, inventory,data) -> new TraderStorageMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
 		
@@ -92,7 +95,9 @@ public class ModMenus {
 
 	//Slot Machine
 	public static final Supplier<MenuType<SlotMachineMenu>> SLOT_MACHINE;
-	
+	//Gacha Machine
+	public static final Supplier<MenuType<GachaMachineMenu>> GACHA_MACHINE;
+
 	//Any Trader Storage
 	public static final Supplier<MenuType<TraderStorageMenu>> TRADER_STORAGE;
 	

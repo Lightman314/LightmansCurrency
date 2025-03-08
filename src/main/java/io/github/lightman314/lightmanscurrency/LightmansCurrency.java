@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -170,6 +171,7 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterTrader(PaygateTraderData.TYPE);
 		TraderAPI.API.RegisterTrader(AuctionHouseTrader.TYPE);
 		TraderAPI.API.RegisterTrader(CommandTrader.TYPE);
+		TraderAPI.API.RegisterTrader(GachaTrader.TYPE);
 
 		//Register the custom game rules
 		ModGameRules.registerRules();
@@ -218,6 +220,7 @@ public class LightmansCurrency {
 		NotificationAPI.API.RegisterNotification(TaxesPaidNotification.TYPE);
 		NotificationAPI.API.RegisterNotification(OwnableBlockEjectedNotification.TYPE);
 		NotificationAPI.API.RegisterNotification(CommandTradeNotification.TYPE);
+		NotificationAPI.API.RegisterNotification(GachaTradeNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
 		NotificationAPI.API.RegisterCategory(NotificationCategory.GENERAL_TYPE);

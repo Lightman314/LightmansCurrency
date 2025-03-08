@@ -85,6 +85,7 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
+		//Need wallet handler access in 1.21 as we have to manually flag it as changed to send the sync packet
 		WalletHandler walletHandler = WalletHandler.get(player);
 		ItemStack wallet = walletHandler.getWallet();
 		if(!wallet.isEmpty() && wallet.getItem() instanceof WalletItem walletItem && WalletItem.CanPickup(walletItem))

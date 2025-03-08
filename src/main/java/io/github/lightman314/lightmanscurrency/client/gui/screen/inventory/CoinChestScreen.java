@@ -58,7 +58,7 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.tabPositioner = this.addChild(LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT), ScreenPosition.of(-25,0),25));
+        this.tabPositioner = this.addChild(LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT), ScreenPosition.of(TabButton.NEGATIVE_SIZE,0),TabButton.SIZE));
 
         this.refreshTabs(false);
 

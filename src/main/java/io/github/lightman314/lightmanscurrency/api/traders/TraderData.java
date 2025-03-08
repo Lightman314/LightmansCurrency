@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
@@ -25,9 +26,9 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
@@ -124,7 +125,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable {
+public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable, IOwnable {
 	
 	public static final int GLOBAL_TRADE_LIMIT = 100;
 	
@@ -267,6 +268,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public boolean isClient() { return this.isClient; }
 
 	private final OwnerData owner = new OwnerData(this, () -> this.markDirty(this::saveOwner));
+	@Nonnull
+	@Override
 	public final OwnerData getOwner() { return this.owner; }
 
 	public final StatTracker statTracker = new StatTracker(() -> {},this);
@@ -1635,10 +1638,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public void onScreenInit(TraderScreen screen, Consumer<Object> addWidget) { }
+	public void onScreenInit(ITraderScreen screen, Consumer<Object> addWidget) { }
 
 	@OnlyIn(Dist.CLIENT)
-	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<Object> addWidget) { }
+	public void onStorageScreenInit(ITraderStorageScreen screen, Consumer<Object> addWidget) { }
 
 	public final void pushLocalNotification(Notification notification)
 	{

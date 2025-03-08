@@ -66,12 +66,23 @@ public abstract class TradeRenderManager<T extends TradeData> {
     public abstract List<DisplayEntry> getOutputDisplays(TradeContext context);
 
     protected final List<DisplayEntry> lazyPriceDisplayList(TradeContext context) { return Lists.newArrayList(this.lazyPriceDisplay(context)); }
+    protected final List<DisplayEntry> lazyPriceDisplayList(TradeContext context,Component extraTooltip) { return Lists.newArrayList(this.lazyPriceDisplay(context,extraTooltip)); }
+    protected final List<DisplayEntry> lazyPriceDisplayList(TradeContext context,List<Component> extraTooltips) { return Lists.newArrayList(this.lazyPriceDisplay(context,extraTooltips)); }
 
-    protected final DisplayEntry lazyPriceDisplay(TradeContext context)
+    protected final DisplayEntry lazyPriceDisplay(TradeContext context) { return this.lazyPriceDisplay(context,(List<Component>)null); }
+    protected final DisplayEntry lazyPriceDisplay(TradeContext context,Component extraTooltip) {
+        if(extraTooltip == null)
+            return this.lazyPriceDisplay(context,(List<Component>)null);
+        return this.lazyPriceDisplay(context,Lists.newArrayList(extraTooltip));
+    }
+    protected final DisplayEntry lazyPriceDisplay(TradeContext context,List<Component> extraTooltips)
     {
-        List<Component> extraTooltips = null;
         if(context.isStorageMode && this.hasPermission(context,Permissions.EDIT_TRADES))
-            extraTooltips = LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsListWithStyle(ChatFormatting.YELLOW);
+        {
+            if(extraTooltips == null)
+                extraTooltips = new ArrayList<>();
+            extraTooltips.addFirst(LCText.TOOLTIP_TRADE_EDIT_PRICE.getWithStyle(ChatFormatting.YELLOW));
+        }
         return DisplayEntry.of(this.trade.getCost(context),extraTooltips);
     }
 

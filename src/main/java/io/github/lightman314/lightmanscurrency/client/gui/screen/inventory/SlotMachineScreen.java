@@ -71,7 +71,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(160, HEIGHT - 96);
 
-    public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createBottomup(), -20, HEIGHT - 20, 20);
+    public final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), WIDTH, 0, 20);
 
     public SlotMachineScreen(SlotMachineMenu menu, Inventory inventory, Component title)
     {
@@ -99,11 +99,10 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
                         .addon(EasyAddonHelper.visibleCheck(this::showTerminalButton))
                         .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
                         .build());
-        this.buttonOpenTerminal.visible = this.showTerminalButton();
 
-        this.leftEdgePositioner.clear();
-        this.leftEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
-        this.addChild(this.leftEdgePositioner);
+        this.rightEdgePositioner.clear();
+        this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
+        this.addChild(this.rightEdgePositioner);
 
         this.buttonInteract = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(52,107))

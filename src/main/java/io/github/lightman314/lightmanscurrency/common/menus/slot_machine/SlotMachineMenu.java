@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -138,7 +137,6 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     @Override
     public void removed(@Nonnull Player player) {
         super.removed(player);
-        NeoForge.EVENT_BUS.unregister(this);
         //Force-give rewards if closed before reward is handled
         for(ResultHolder reward : this.rewards)
             reward.giveToPlayer(this.player);
@@ -223,7 +221,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         {
             if(!this.rewards.isEmpty())
                 return;
-            ExecuteTrades(message.getInt("ExecuteTrade"));
+            this.ExecuteTrades(message.getInt("ExecuteTrade"));
         }
         if(message.contains("GiveNextReward"))
         {

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 

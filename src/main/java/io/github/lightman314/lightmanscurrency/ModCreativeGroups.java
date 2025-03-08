@@ -172,6 +172,8 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.BOOKSHELF_TRADER, BundleRequestFilter.VANILLA);
                     //Slot Machine Trader
                     ezPop(p, ModBlocks.SLOT_MACHINE);
+                    //Gatcha Machine
+                    ezPop(p, ModBlocks.GACHA_MACHINE);
                     //Item Traders (network)
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_1);
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_2);
@@ -261,6 +263,7 @@ public class ModCreativeGroups {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.CARD_DISPLAY.getAllSorted()));
+            event.acceptAll(convertToStack(ModBlocks.GACHA_MACHINE.getAllSorted()));
             for(Color c : Color.values())
             {
                 ItemStack stack = new ItemStack(ModBlocks.SUS_JAR.get());

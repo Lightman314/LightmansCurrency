@@ -288,6 +288,16 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Slot Machine
         this.registerTallRotatableInv(ModBlocks.SLOT_MACHINE, "slot_machine/top", "slot_machine/bottom", "slot_machine/item", true);
 
+        //Gatcha Machine
+        ModBlocks.GACHA_MACHINE.forEach((color,block) -> {
+            String modelID = this.lazyColoredID("block/gacha_machine/",color);
+            //Build the model
+            this.models().getBuilder(modelID).parent(this.lazyBlockModel("gacha_machine/base",true))
+                    .texture("main",VersionUtil.lcResource("block/gacha_machine/" + color.getResourceSafeName()));
+            //Generate the block state
+            this.registerRotatable(block,modelID,false);
+        });
+
         //Paygate
         this.registerPaygate(ModBlocks.PAYGATE, "paygate_powered", "paygate_unpowered");
 
@@ -342,6 +352,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Coin Chest
         this.getVariantBuilder(ModBlocks.COIN_CHEST.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("block/chest"), this.models().existingFileHelper)).build());
         this.registerBlockItemModel(ModBlocks.COIN_CHEST, new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("item/chest"), this.models().existingFileHelper));
+        //Gatcha Ball
+        this.itemModels().getBuilder("item/gacha_ball").parent(new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("item/chest"), this.models().existingFileHelper));
         //Coin Jars
         this.registerRotatable(ModBlocks.PIGGY_BANK, "jars/piggy_bank", true);
         this.registerRotatable(ModBlocks.COINJAR_BLUE, "jars/coinjar_blue", true);

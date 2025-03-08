@@ -218,6 +218,8 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
     @Nonnull
     public ItemStack PickupCoins(@Nonnull ItemStack stack)
     {
+        if(LCCurios.isLoaded()) //Don't need to check for data change if the wallet is in a curios slot
+            return WalletItem.PickupCoin(this.getWallet(),stack);
         ItemStack result = WalletItem.PickupCoin(this.walletItem,stack);
         if(!InventoryUtil.ItemsFullyMatch(stack,result))
             this.setChanged();

@@ -32,7 +32,7 @@ public class TraderInteractionTab extends TraderClientTab {
 		//Trade Button Display
 		this.tradeDisplay = this.addChild(TradeButtonArea.builder()
 				.position(screenArea.pos.offset(3,17))
-				.size(screenArea.width - 6, 100)
+				.size(screenArea.width - 6, 89)
 				.traderSource(this.menu::getTraderSource)
 				.context(this.menu::getContext)
 				.pressAction(this::OnButtonPress)

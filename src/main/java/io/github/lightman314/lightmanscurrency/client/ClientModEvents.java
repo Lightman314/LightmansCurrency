@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.colors.ATMCardColor;
-import io.github.lightman314.lightmanscurrency.client.colors.GoldenTicketColor;
-import io.github.lightman314.lightmanscurrency.client.colors.SusBlockColor;
+import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -11,8 +9,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
-import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -39,10 +37,11 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
 	{
-		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
-		event.register(new GoldenTicketColor(), ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
+		event.register(new TicketColor(),ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new GoldenTicketColor(),ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new ATMCardColor(),ModItems.ATM_CARD.get(),ModItems.PREPAID_CARD.get());
-		event.register(SusBlockColor.INSTANCE, ModBlocks.SUS_JAR.get());
+		event.register(SusBlockColor.INSTANCE,ModBlocks.SUS_JAR.get());
+		event.register(new GachaBallColor(),ModItems.GACHA_BALL.get());
 		//Default Leather Colors for the leather wallet
 		event.register((stack, layer) -> DyedItemColor.getOrDefault(stack, -6265536),
 				ModItems.WALLET_LEATHER.get());
@@ -73,6 +72,8 @@ public class ClientModEvents {
 					event.register(ModelResourceLocation.standalone(model));
 			}
 		});
+		//Gacha Ball
+		event.register(GachaBallRenderer.MODEL);
 	}
 
 	@SubscribeEvent
@@ -119,6 +120,7 @@ public class ClientModEvents {
 		event.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
 
 		event.register(ModMenus.SLOT_MACHINE.get(), SlotMachineScreen::new);
+		event.register(ModMenus.GACHA_MACHINE.get(), GachaMachineScreen::new);
 
 		event.register(ModMenus.WALLET.get(), WalletScreen::new);
 		event.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
@@ -146,7 +148,7 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerClientExtensions(RegisterClientExtensionsEvent event)
 	{
-		event.registerItem(LCItemRenderer.USE_LC_RENDERER,ModBlocks.COIN_CHEST.get().asItem());
+		event.registerItem(LCItemRenderer.USE_LC_RENDERER,ModBlocks.COIN_CHEST.get().asItem(),ModItems.GACHA_BALL.get());
 	}
 	
 }

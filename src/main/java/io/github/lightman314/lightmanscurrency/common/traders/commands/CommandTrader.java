@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.command.CommandSettingsTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.UpgradesTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.misc.UpgradesTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.command.CommandTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.CommandTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
@@ -272,7 +272,7 @@ public class CommandTrader extends TraderData {
                 taxesPaid = this.addStoredMoney(price, true);
 
             //Run Command
-            player.server.getCommands().performPrefixedCommand(this.sourceForPlayer(player),trade.getCommand());
+            player.server.getCommands().performPrefixedCommand(this.sourceForPlayer(player),trade.formatCommand(player));
 
             //Handle Stats
             this.incrementStat(StatKeys.Traders.MONEY_EARNED, price);

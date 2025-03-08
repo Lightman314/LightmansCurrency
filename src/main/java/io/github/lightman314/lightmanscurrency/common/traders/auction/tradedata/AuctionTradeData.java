@@ -28,7 +28,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Trad
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;

@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.HolderLookup;
@@ -188,7 +187,7 @@ public class TaxEntry implements ITaxCollector {
     @Nullable
     public final IBankAccount getBankAccount()
     {
-        if(!this.linkToBank)
+        if(!this.isLinkedToBank())
             return null;
         BankReference reference = this.owner.getValidOwner().asBankReference();
         if(reference != null)
@@ -440,6 +439,8 @@ public class TaxEntry implements ITaxCollector {
             this.logger.load(tag.getCompound("Notifications"), lookup);
         if(tag.contains("Statistics"))
             this.stats.load(tag.getCompound("Statistics"), lookup);
+        if(tag.contains("LinkedToBank"))
+            this.linkToBank = tag.getBoolean("LinkedToBank");
     }
 
 }

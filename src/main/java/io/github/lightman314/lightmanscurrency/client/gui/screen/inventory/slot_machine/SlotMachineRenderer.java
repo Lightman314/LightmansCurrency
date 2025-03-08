@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -102,6 +101,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
         }
     }
 
+    @Override
     public void tick()
     {
         SlotMachineTraderData trader = this.getTrader();
@@ -203,10 +203,6 @@ public final class SlotMachineRenderer implements IEasyTickable {
             this.lines.get(i).render(gui, startX, y);
             startX += SlotMachineLine.BLOCK_SIZE;
         }
-
-        //Render overlay on top of the rendered lines to overlap with items only just entering the viewport
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-        RenderSystem.setShaderColor(1f,1f,1f,1f);
 
         //Move in from of the previously rendered lines
         gui.pushPose().TranslateToForeground();

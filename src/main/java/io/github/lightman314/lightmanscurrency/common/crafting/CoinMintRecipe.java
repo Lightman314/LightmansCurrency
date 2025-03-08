@@ -18,6 +18,14 @@ import javax.annotation.Nonnull;
 
 public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 
+	public static final MapCodec<CoinMintRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+					Codec.INT.optionalFieldOf("duration",0).forGetter(r -> r.duration),
+					Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CoinMintRecipe::getIngredient),
+					Codec.INT.optionalFieldOf("count",1).forGetter(r -> r.ingredientCount),
+					ItemStack.STRICT_CODEC.fieldOf("result").forGetter(r -> r.result)
+			).apply(builder,CoinMintRecipe::new)
+	);
+	public static final StreamCodec<RegistryFriendlyByteBuf,CoinMintRecipe> STREAM_CODEC = StreamCodec.of(CoinMintRecipe::toNetwork,CoinMintRecipe::fromNetwork);
 
 	private final int duration;
 	private final Ingredient ingredient;
@@ -71,39 +79,31 @@ public class CoinMintRecipe implements Recipe<SingleRecipeInput>{
 	@Override
 	public ItemStack getToastSymbol() { return new ItemStack(ModBlocks.COIN_MINT.get()); }
 
+	@Nonnull
+	private static CoinMintRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
+		Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
+		int ingredientCount = buffer.readInt();
+		ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
+		int duration = buffer.readInt();
+		return new CoinMintRecipe(duration, ingredient, ingredientCount, result);
+	}
+
+	private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CoinMintRecipe recipe) {
+		Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getIngredient());
+		buffer.writeInt(recipe.ingredientCount);
+		ItemStack.STREAM_CODEC.encode(buffer, recipe.getOutputItem());
+		buffer.writeInt(recipe.getInternalDuration());
+	}
+
 	public static class Serializer implements RecipeSerializer<CoinMintRecipe>{
 
 		@Nonnull
-		private static CoinMintRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
-			Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
-			int ingredientCount = buffer.readInt();
-			ItemStack result = ItemStack.STREAM_CODEC.decode(buffer);
-			int duration = buffer.readInt();
-			return new CoinMintRecipe(duration, ingredient, ingredientCount, result);
-		}
-
-		private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull CoinMintRecipe recipe) {
-			Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.getIngredient());
-			buffer.writeInt(recipe.ingredientCount);
-			ItemStack.STREAM_CODEC.encode(buffer, recipe.getOutputItem());
-			buffer.writeInt(recipe.getInternalDuration());
-		}
+		@Override
+		public MapCodec<CoinMintRecipe> codec() { return CODEC; }
 
 		@Nonnull
 		@Override
-		public MapCodec<CoinMintRecipe> codec() {
-			return RecordCodecBuilder.mapCodec(builder -> builder.group(
-					Codec.INT.optionalFieldOf("duration",0).forGetter(r -> r.duration),
-					Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CoinMintRecipe::getIngredient),
-					Codec.INT.optionalFieldOf("count",1).forGetter(r -> r.ingredientCount),
-					ItemStack.STRICT_CODEC.fieldOf("result").forGetter(r -> r.result)
-					).apply(builder,CoinMintRecipe::new)
-		 	);
-		}
-
-		@Nonnull
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, CoinMintRecipe> streamCodec() { return StreamCodec.of(Serializer::toNetwork,Serializer::fromNetwork); }
+		public StreamCodec<RegistryFriendlyByteBuf, CoinMintRecipe> streamCodec() { return STREAM_CODEC; }
 
 	}
 	

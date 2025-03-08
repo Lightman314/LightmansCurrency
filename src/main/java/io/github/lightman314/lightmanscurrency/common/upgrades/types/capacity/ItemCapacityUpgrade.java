@@ -24,6 +24,6 @@ public class ItemCapacityUpgrade extends CapacityUpgrade {
 
 	@Nonnull
 	@Override
-	protected List<Component> getBuiltInTargets() { return ImmutableList.of(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_ITEM.get(), formatTarget(ModBlocks.SLOT_MACHINE), formatTarget(ModBlocks.ITEM_TRADER_INTERFACE)); }
+	protected List<Component> getBuiltInTargets() { return ImmutableList.of(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_ITEM.get(), formatTarget(ModBlocks.SLOT_MACHINE), LCText.TOOLTIP_UPGRADE_TARGET_TRADER_GACHA_MACHINE.get(), formatTarget(ModBlocks.ITEM_TRADER_INTERFACE)); }
 
 }

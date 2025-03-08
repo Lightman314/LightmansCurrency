@@ -36,7 +36,7 @@ public class TaxCollectorScreen extends EasyTabbedMenuScreen<TaxCollectorMenu,Ta
 
     @Nonnull
     @Override
-    protected IWidgetPositioner getTabButtonPositioner() { return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(-25,0),TabButton.SIZE); }
+    protected IWidgetPositioner getTabButtonPositioner() { return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(TabButton.NEGATIVE_SIZE,0),TabButton.SIZE); }
 
     @Override
     protected void init(ScreenArea screenArea) {

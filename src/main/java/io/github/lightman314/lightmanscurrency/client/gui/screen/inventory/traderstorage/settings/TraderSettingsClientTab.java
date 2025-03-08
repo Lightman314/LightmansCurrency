@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.MutableComponent;
@@ -76,15 +76,6 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
 
         this.tick();
 
-        //Hide Coin Slots
-        this.menu.SetCoinSlotsActive(false);
-
-    }
-
-    @Override
-    public void closeAction() {
-        //Reveal Coin Slots
-        this.menu.SetCoinSlotsActive(true);
     }
 
     public void openTab(int index)
@@ -118,5 +109,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     }
     @Override
     public boolean shouldRenderInventoryText() { return this.getCurrentTab().shouldRenderInventoryText(); }
+    @Override
+    public boolean showRightEdgeButtons() { return false; }
 
 }

@@ -73,10 +73,21 @@ public class TabButton extends EasyButton implements ITooltipSource, IRotatableW
 
 		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
-        this.tab.getIcon().render(gui, 4, 4);
+        this.tab.getIcon().render(gui, getIconOffset(this.rotation));
 
 		gui.resetColor();
 
+	}
+
+	public static ScreenPosition getIconOffset(WidgetRotation rotation)
+	{
+		return switch (rotation) {
+			case TOP -> ScreenPosition.of(4,5);
+			case BOTTOM -> ScreenPosition.of(4,3);
+			case LEFT -> ScreenPosition.of(5,4);
+			case RIGHT -> ScreenPosition.of(3,4);
+			default -> ScreenPosition.of(4,4);
+		};
 	}
 
 	protected Pair<ResourceLocation,ScreenPosition> getSprite() {

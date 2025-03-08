@@ -68,19 +68,20 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration zones)
 	{
-		this.registerExclusionZones(zones, TraderScreen.class);
-		this.registerExclusionZones(zones, SlotMachineScreen.class);
-		this.registerExclusionZones(zones, TraderStorageScreen.class);
-		this.registerExclusionZones(zones, ATMScreen.class);
-		this.registerExclusionZones(zones, TaxCollectorScreen.class);
+		this.registerExclusionZones(zones,TraderScreen.class);
+		this.registerExclusionZones(zones,SlotMachineScreen.class);
+		this.registerExclusionZones(zones,GachaMachineScreen.class);
+		this.registerExclusionZones(zones,TraderStorageScreen.class);
+		this.registerExclusionZones(zones,ATMScreen.class);
+		this.registerExclusionZones(zones,TaxCollectorScreen.class);
 		this.registerExclusionZones(zones,CoinChestScreen.class);
 		this.registerExclusionZones(zones,EjectionRecoveryScreen.class);
 		this.registerExclusionZones(zones,PlayerTradeScreen.class);
 		this.registerExclusionZones(zones,TraderInterfaceScreen.class);
 		this.registerExclusionZones(zones,WalletScreen.class);
 		this.registerExclusionZones(zones,WalletBankScreen.class);
-		this.registerExclusionZones(zones, TeamManagerScreen.class);
-		this.registerExclusionZones(zones, NotificationScreen.class);
+		this.registerExclusionZones(zones,TeamManagerScreen.class);
+		this.registerExclusionZones(zones,NotificationScreen.class);
 	}
 	
 	@Override

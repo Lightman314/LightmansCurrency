@@ -17,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Trad
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

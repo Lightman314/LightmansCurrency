@@ -3,8 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -26,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
@@ -261,8 +258,6 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 			if(!this.getWarningMessages().isEmpty())
 			{
 				//Render warning widget
-				RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 				gui.resetColor();
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
 			}

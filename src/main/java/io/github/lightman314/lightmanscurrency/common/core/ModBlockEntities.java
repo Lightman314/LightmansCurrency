@@ -29,6 +29,8 @@ public class ModBlockEntities {
 
 		SLOT_MACHINE_TRADER = ModRegistries.BLOCK_ENTITIES.register("slot_machine_trader", () -> BlockEntityType.Builder.of(SlotMachineTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.SLOT_MACHINE_TRADER_TYPE)).build(null));
 
+		GACHA_MACHINE = ModRegistries.BLOCK_ENTITIES.register("gacha_machine", () -> BlockEntityType.Builder.of(GachaMachineBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.GACHA_MACHINE_TYPE)).build(null));
+
 		CAPABILITY_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("capability_interface", () -> BlockEntityType.Builder.of(CapabilityInterfaceBlockEntity::new,
 				BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.CAPABILITY_INTERFACE_TYPE)).build(null));
 		
@@ -66,6 +68,7 @@ public class ModBlockEntities {
 	public static final Supplier<BlockEntityType<BookTraderBlockEntity>> BOOK_TRADER;
 	//Slot Machine variant of the trader
 	public static final Supplier<BlockEntityType<SlotMachineTraderBlockEntity>> SLOT_MACHINE_TRADER;
+	public static final Supplier<BlockEntityType<GachaMachineBlockEntity>> GACHA_MACHINE;
 
 	//Item Interface for multi-block traders
 	public static final Supplier<BlockEntityType<CapabilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
