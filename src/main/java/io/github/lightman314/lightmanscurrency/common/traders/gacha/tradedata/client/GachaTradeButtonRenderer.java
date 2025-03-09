@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.gatcha.tradedata.client;
+package io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.client;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Al
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.tradedata.GachaTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;

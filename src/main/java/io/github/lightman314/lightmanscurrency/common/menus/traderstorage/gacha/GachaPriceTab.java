@@ -1,11 +1,11 @@
-package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha;
+package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gatcha.GachaPriceClientTab;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gacha.GachaPriceClientTab;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Player;

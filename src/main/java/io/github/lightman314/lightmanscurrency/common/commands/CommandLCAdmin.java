@@ -144,7 +144,7 @@ public class CommandLCAdmin {
 
 				.then(Commands.literal("debug")
 						.then(Commands.literal("makeGachaBall")
-								.then(Commands.argument("player",EntityArgument.player())
+								.then(Commands.argument("player",EntityArgument.players())
 									.then(Commands.argument("contents",ItemArgument.item(context))
 											.executes(c -> createGachaBall(c, -1))
 											.then(Commands.argument("color",ColorArgument.argument())

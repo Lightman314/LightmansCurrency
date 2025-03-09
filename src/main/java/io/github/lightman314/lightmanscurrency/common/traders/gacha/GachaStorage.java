@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.gatcha;
+package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonSyntaxException;

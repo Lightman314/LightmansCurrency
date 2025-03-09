@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gatcha;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gacha;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -9,15 +9,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha.GachaStorageTab;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaStorageTab;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;

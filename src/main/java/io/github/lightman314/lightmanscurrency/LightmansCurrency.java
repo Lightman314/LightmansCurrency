@@ -24,7 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;

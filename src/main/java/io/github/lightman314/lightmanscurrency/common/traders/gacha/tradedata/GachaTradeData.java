@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.gatcha.tradedata;
+package io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -8,8 +8,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.tradedata.client.GachaTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.client.GachaTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;

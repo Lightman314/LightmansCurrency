@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

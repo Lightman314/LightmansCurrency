@@ -1,11 +1,11 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gatcha;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gacha;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha.GachaPriceTab;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaPriceTab;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;

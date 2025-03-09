@@ -73,15 +73,15 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 						.addon(EasyAddonHelper.visibleCheck(this::showRightEdgeWidgets))
 						.build());
 
-		this.rightEdgePositioner.addWidget(this.buttonShowTrades);
-
 		this.buttonTradeRules = this.addChild(IconButton.builder()
 						.position(screenArea.pos.offset(screenArea.width,0))
 						.pressAction(this::PressTradeRulesButton)
 						.icon(IconUtil.ICON_TRADE_RULES)
-						.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasPermission(Permissions.EDIT_TRADE_RULES) && this.getCurrentTab().getTradeRuleTradeIndex() >= 0))
+						.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasPermission(Permissions.EDIT_TRADE_RULES) && this.getCurrentTab().getTradeRuleTradeIndex() >= 0 && this.showRightEdgeWidgets()))
 						.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE))
 						.build());
+
+		this.rightEdgePositioner.addWidgets(this.buttonTradeRules,this.buttonShowTrades);
 
 		TraderData trader = this.menu.getTrader();
 		if(trader != null)

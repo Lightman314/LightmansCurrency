@@ -971,7 +971,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('x', ModItems.TRADING_CORE.get())
                 .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i', Tags.Items.INGOTS_IRON)
-                .save(consumer,ItemID("traders/",ModBlocks.GACHA_MACHINE.get(Color.WHITE)));
+                .save(consumer,ID("traders/gacha_machine"));
         GenerateColoredDyeAndWashRecipes(consumer,ModBlocks.GACHA_MACHINE,ModBlocks.GACHA_MACHINE.get(Color.WHITE),"gacha_dyes","traders/gacha_machine/",Lists.newArrayList(Pair.of("money", MoneyKnowledge()), Pair.of("trader", TraderKnowledge())));
 
     }

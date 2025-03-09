@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.gatcha;
+package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
@@ -20,11 +20,11 @@ import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha.GachaPriceTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha.GachaStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaPriceTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.GachaTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.tradedata.GachaTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;

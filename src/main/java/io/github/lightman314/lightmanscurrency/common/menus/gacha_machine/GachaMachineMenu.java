@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
@@ -138,7 +137,6 @@ public class GachaMachineMenu extends LazyMessageMenu implements IValidatedMenu,
     @Override
     public void removed(@Nonnull Player player) {
         super.removed(player);
-        NeoForge.EVENT_BUS.unregister(this);
         //Force-give rewards if closed before reward is handled
         for(ItemStack reward : this.rewards)
             ItemHandlerHelper.giveItemToPlayer(player,reward);

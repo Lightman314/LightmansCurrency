@@ -2,11 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

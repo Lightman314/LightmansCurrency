@@ -1,17 +1,17 @@
-package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gatcha;
+package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gatcha.GachaStorageClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.gacha.GachaStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.gatcha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -224,7 +223,7 @@ public class SlotMachineStorageClientTab extends TraderStorageClientTab<SlotMach
     private boolean quickButtonsVisible()
     {
         TraderData trader = this.menu.getTrader();
-        return trader instanceof ItemTraderData && !trader.isPersistent();
+        return trader instanceof SlotMachineTraderData && !trader.isPersistent();
     }
 
     @Nullable
