@@ -26,12 +26,6 @@ public class CommandTradeEditTab extends TraderStorageTab {
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
 
-    @Override
-    public void onTabOpen() { this.menu.SetCoinSlotsActive(false); }
-
-    @Override
-    public void onTabClose() { this.menu.SetCoinSlotsActive(true); }
-
     private int tradeIndex = -1;
     public int getTradeIndex() { return this.tradeIndex; }
     public CommandTrade getTrade() {

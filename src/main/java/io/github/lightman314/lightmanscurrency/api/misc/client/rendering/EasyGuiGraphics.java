@@ -75,7 +75,19 @@ public final class EasyGuiGraphics {
 
 
     //Texture Rendering
-    public void renderNormalBackground(ResourceLocation image, IEasyScreen screen) { this.resetColor(); this.pushOffset(screen.getCorner()).blit(image, 0,0,0,0, screen.getXSize(), screen.getYSize()); this.popOffset(); }
+    public void renderNormalBackground(ResourceLocation image, IEasyScreen screen)
+    {
+        this.resetColor();
+        this.pushOffset(screen.getCorner()).blit(image, 0,0,0,0, screen.getXSize(), screen.getYSize());
+        this.popOffset();
+    }
+    public void renderNormalBackground(ResourceLocation image, IEasyScreen screen, int color)
+    {
+        this.setColor(color,1f);
+        this.pushOffset(screen.getCorner()).blit(image, 0,0,0,0, screen.getXSize(), screen.getYSize());
+        this.resetColor();
+        this.popOffset();
+    }
     public void renderNormalBackground(IEasyScreen screen)
     {
         this.resetColor();

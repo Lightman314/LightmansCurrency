@@ -3,8 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -123,8 +121,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		gui.resetColor();
 		gui.blit(TraderInterfaceScreen.GUI_TEXTURE,  28, 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
 
 	}

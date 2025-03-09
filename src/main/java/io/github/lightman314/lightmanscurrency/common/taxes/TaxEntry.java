@@ -186,7 +186,7 @@ public class TaxEntry implements ITaxCollector {
     @Nullable
     public final IBankAccount getBankAccount()
     {
-        if(!this.linkToBank)
+        if(!this.isLinkedToBank())
             return null;
         BankReference reference = this.owner.getValidOwner().asBankReference();
         if(reference != null)
@@ -437,6 +437,8 @@ public class TaxEntry implements ITaxCollector {
             this.logger.load(tag.getCompound("Notifications"));
         if(tag.contains("Statistics"))
             this.stats.load(tag.getCompound("Statistics"));
+        if(tag.contains("LinkedToBank"))
+            this.linkToBank = tag.getBoolean("LinkedToBank");
     }
 
 }

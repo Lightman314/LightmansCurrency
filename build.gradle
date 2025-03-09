@@ -149,7 +149,7 @@ dependencies {
     runtimeOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:$rei_version")
 
     //Curios API
-    implementation fg.deobf("curse.maven:curios-309927:5843594")
+    implementation fg.deobf("curse.maven:curios-309927:6238756")
 
     //Immersive Engineering API
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:4782978")

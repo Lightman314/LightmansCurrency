@@ -105,6 +105,7 @@ public class LCClientPlugin implements REIClientPlugin {
             allCards.add(EntryStack.of(VanillaEntryTypes.ITEM,atmCard));
         }
         registry.addEntries(allCards);
+        registry.removeEntry(EntryStack.of(VanillaEntryTypes.ITEM,new ItemStack(ModItems.GACHA_BALL.get())));
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -124,6 +125,7 @@ public class LCClientPlugin implements REIClientPlugin {
     public void registerExclusionZones(ExclusionZones zones) {
         this.registerExclusionZones(zones, TraderScreen.class);
         this.registerExclusionZones(zones, SlotMachineScreen.class);
+        this.registerExclusionZones(zones, GachaMachineScreen.class);
         this.registerExclusionZones(zones, TraderStorageScreen.class);
         this.registerExclusionZones(zones, ATMScreen.class);
         this.registerExclusionZones(zones, TaxCollectorScreen.class);
@@ -167,6 +169,9 @@ public class LCClientPlugin implements REIClientPlugin {
 
         //Ancient Coins
         registry.group(VersionUtil.lcResource("rei_groups/ancient_cions"), LCText.REI_GROUP_ANCIENT_COINS.get(), isItem(ModItems.COIN_ANCIENT));
+
+        //Gacha Machines
+        registry.group(VersionUtil.lcResource("rei_groups/gacha_machines"), LCText.REI_GROUP_GACHA_MACHINE.get(),isInBundle(ModBlocks.GACHA_MACHINE));
 
     }
 

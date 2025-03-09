@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class WorldPosition {
 
@@ -60,6 +61,9 @@ public class WorldPosition {
         }
         return WorldPosition.VOID;
     }
+
+    @Override
+    public int hashCode() { return Objects.hash(this.dimension == null ? 0 : this.dimension.location(),this.pos); }
 
     @Override
     public boolean equals(Object obj) {

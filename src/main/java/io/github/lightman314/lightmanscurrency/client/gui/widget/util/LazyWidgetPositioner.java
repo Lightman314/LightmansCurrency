@@ -72,6 +72,12 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 	}
 
 	@Override
+	public void removeWidget(@Nonnull EasyWidget widget) {
+		if(widget != null)
+			this.widgetList.remove(widget);
+	}
+
+	@Override
 	public void preRender(@Nonnull EasyGuiGraphics gui) {
 		this.posIndex = 0;
 		for (EasyWidget w : this.widgetList) {

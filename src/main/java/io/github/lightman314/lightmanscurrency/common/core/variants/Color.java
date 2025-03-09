@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.TagKey;
@@ -10,6 +11,7 @@ import net.minecraftforge.common.Tags;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
+@MethodsReturnNonnullByDefault
 public enum Color {
 
     WHITE(0, 0xFFFFFF, MapColor.SNOW, Tags.Items.DYES_WHITE),

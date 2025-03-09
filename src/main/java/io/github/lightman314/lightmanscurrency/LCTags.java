@@ -57,6 +57,7 @@ public class LCTags {
         public static final TagKey<Item> TRADER_SPECIALTY_TICKET_KIOSK = tag("traders/special/ticket_kiosk");
         public static final TagKey<Item> TRADER_SPECIALTY_BOOKSHELF = tag("traders/special/bookshelf");
         public static final TagKey<Item> TRADER_SPECIALTY_SLOT_MACHINE = tag("traders/special/slot_machine");
+        public static final TagKey<Item> TRADER_SPECIALTY_GACHA_MACHINE = tag("traders/special/gacha_machine");
         public static final TagKey<Item> TRADER_SPECIALTY_PAYGATE = tag("traders/special/paygate");
 
         public static final TagKey<Item> TRADER_INTERFACE = tag("trader_interface");

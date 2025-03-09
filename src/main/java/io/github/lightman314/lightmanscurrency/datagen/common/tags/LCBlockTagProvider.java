@@ -61,8 +61,10 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.TICKET_KIOSK)
                 .add(ModBlocks.BOOKSHELF_TRADER)
                 .add(ModBlocks.SLOT_MACHINE)
+                .add(ModBlocks.GACHA_MACHINE)
                 .add(ModBlocks.COIN_CHEST)
-                .add(ModBlocks.TAX_COLLECTOR);
+                .add(ModBlocks.TAX_COLLECTOR)
+                .add(ModBlocks.COMMAND_TRADER);
 
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
@@ -129,11 +131,13 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.PAYGATE)
                 .add(ModBlocks.TICKET_KIOSK)
                 .add(ModBlocks.SLOT_MACHINE)
+                .add(ModBlocks.GACHA_MACHINE)
                 .add(ModBlocks.TICKET_STATION)
                 .add(ModBlocks.PIGGY_BANK)
                 .add(ModBlocks.COINJAR_BLUE)
                 .add(ModBlocks.SUS_JAR)
-                .add(ModBlocks.TAX_COLLECTOR);
+                .add(ModBlocks.TAX_COLLECTOR)
+                .add(ModBlocks.COMMAND_TRADER);
 
         this.cTag(BlockTags.MINEABLE_WITH_AXE)
                 .add(ModBlocks.SHELF)
@@ -158,11 +162,13 @@ public class LCBlockTagProvider extends BlockTagsProvider {
 
         ///OTHER MODS TAGS
         //Add Multi-block to other mods immovable tags
-        this.cTag(new ResourceLocation("forge","immovable")).addTag(LCTags.Blocks.MULTI_BLOCK);
-        this.cTag(new ResourceLocation("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
+        this.cTag(VersionUtil.modResource("forge","immovable")).addTag(LCTags.Blocks.MULTI_BLOCK);
+        this.cTag(VersionUtil.modResource("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
+        //Add protected blocks to Create's non-breakable tag
+        this.cTag(VersionUtil.modResource("create","non_breakable")).addTag(LCTags.Blocks.OWNER_PROTECTED);
 
         //Add Safe-Interactable to ftb chunks interact whitelist
-        this.cTag(new ResourceLocation("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+        this.cTag(VersionUtil.modResource("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
 
         //Blacklist ownable blocks from Carry-On mod, as it started ignoring common/forge non-moveable tag
         this.cTag(VersionUtil.modResource("carryon","block_blacklist"))

@@ -104,8 +104,15 @@ public class BankAPIImpl extends BankAPI {
         if(account == null)
             return;
 
+        //Just to be 100% certain, if the requested amount is negative, make it empty
+        if(requestedAmount.getCoreValue() < 0)
+            requestedAmount = MoneyValue.empty();
+
         IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,container);
         MoneyView availableFunds = handler.getStoredMoney();
+        LightmansCurrency.LogDebug("Deposit Attempt:\n" +
+                "Deposit Amount: " + requestedAmount.getString() + "\n" +
+                "Available Funds:\n" + availableFunds.getString());
         for(MoneyValue value : availableFunds.allValues())
         {
             if(value.sameType(requestedAmount))
@@ -113,6 +120,7 @@ public class BankAPIImpl extends BankAPI {
                 MoneyValue depositAmount = requestedAmount;
                 if(depositAmount.isEmpty() || !value.containsValue(depositAmount))
                     depositAmount = value;
+                LightmansCurrency.LogDebug("Attempting deposit of " + depositAmount.getString() + "!");
                 //Take the money from the container
                 handler.extractMoney(depositAmount,false);
                 //Add the money to the bank account

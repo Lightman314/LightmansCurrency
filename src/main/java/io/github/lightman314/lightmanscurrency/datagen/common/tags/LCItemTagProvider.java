@@ -111,7 +111,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(LCTags.Items.TRADER)
                 .addTag(LCTags.Items.TRADER_NORMAL)
                 .addTag(LCTags.Items.TRADER_SPECIALTY)
-                .addTag(LCTags.Items.TRADER_NETWORK);
+                .addTag(LCTags.Items.TRADER_NETWORK)
+                .add(ModBlocks.COMMAND_TRADER);
 
         //Normal
         this.cTag(LCTags.Items.TRADER_NORMAL)
@@ -138,7 +139,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .addTag(LCTags.Items.TRADER_SPECIALTY_PAYGATE)
                 .addTag(LCTags.Items.TRADER_SPECIALTY_TICKET_KIOSK)
                 .addTag(LCTags.Items.TRADER_SPECIALTY_BOOKSHELF)
-                .addTag(LCTags.Items.TRADER_SPECIALTY_SLOT_MACHINE);
+                .addTag(LCTags.Items.TRADER_SPECIALTY_SLOT_MACHINE)
+                .addTag(LCTags.Items.TRADER_SPECIALTY_GACHA_MACHINE);
 
         //Specialty Traders
         this.cTag(LCTags.Items.TRADER_SPECIALTY_ARMOR_DISPLAY).add(ModBlocks.ARMOR_DISPLAY);
@@ -146,7 +148,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(LCTags.Items.TRADER_SPECIALTY_TICKET_KIOSK).add(ModBlocks.TICKET_KIOSK);
         this.cTag(LCTags.Items.TRADER_SPECIALTY_BOOKSHELF).add(ModBlocks.BOOKSHELF_TRADER);
         this.cTag(LCTags.Items.TRADER_SPECIALTY_SLOT_MACHINE).add(ModBlocks.SLOT_MACHINE);
-
+        this.cTag(LCTags.Items.TRADER_SPECIALTY_GACHA_MACHINE).add(ModBlocks.GACHA_MACHINE);
 
         //Network
         this.cTag(LCTags.Items.TRADER_NETWORK).addTag(LCTags.Items.TRADER_NETWORK_ITEM);

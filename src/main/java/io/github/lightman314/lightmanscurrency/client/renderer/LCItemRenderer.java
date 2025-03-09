@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.renderer;
 import com.google.common.base.Suppliers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
+import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -70,8 +72,9 @@ public class LCItemRenderer extends BlockEntityWithoutLevelRenderer {
                 }
                 this.blockEntityRenderDispatcher.renderItem(be, pose, buffer, lightLevel, id);
             }
-
         }
+        else if(item instanceof GachaBallItem)
+            GachaBallRenderer.renderGachaBall(stack,pose,buffer,lightLevel,id);
     }
 
 }

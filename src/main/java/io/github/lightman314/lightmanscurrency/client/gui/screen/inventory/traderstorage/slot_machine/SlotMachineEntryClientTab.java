@@ -79,12 +79,7 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
 
         this.tick();
 
-        this.menu.SetCoinSlotsActive(false);
-
     }
-
-    @Override
-    public void closeAction() { this.menu.SetCoinSlotsActive(true); }
 
     @Nullable
     public SlotMachineEntry getEntry(int entryIndex)

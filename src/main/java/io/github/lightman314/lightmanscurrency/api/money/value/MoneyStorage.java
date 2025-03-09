@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -194,8 +194,7 @@ public final class MoneyStorage extends MoneyHolder {
         if(this.values.isEmpty())
             return emptyText;
         List<MoneyValue> values = this.values.values().stream().toList();
-        int displayIndex = (int)(TimeUtil.getCurrentTime() / 2000 % values.size());
-        return values.get(displayIndex).getText();
+        return ListUtil.randomItemFromList(values,MoneyValue.empty()).getText();
     }
 
     public Component getAllValueText() {
@@ -233,6 +232,7 @@ public final class MoneyStorage extends MoneyHolder {
         this.clear();
         for(MoneyValue e : extra)
             this.addValue(e);
+        this.markDirty();
     }
 
 }

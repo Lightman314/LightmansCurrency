@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
@@ -62,15 +62,6 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
         this.tick();
 
-        //Hide Coin Slots
-        this.menu.SetCoinSlotsActive(false);
-
-    }
-
-    @Override
-    public void closeAction() {
-        //Show Coin Slots
-        this.menu.SetCoinSlotsActive(true);
     }
 
     public void refreshTabs(boolean fullReset)
@@ -101,7 +92,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         }
 
         if(this.widgetPositioner == null)
-            this.widgetPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(this.screen.getArea().width,0),25));
+            this.widgetPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(this.screen.getArea().width,0),TabButton.SIZE));
         else
             this.widgetPositioner.clear();
 
@@ -155,6 +146,9 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     @Override
     public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) { this.getCurrentTab().renderAfterWidgets(gui); }
+
+    @Override
+    public boolean showRightEdgeButtons() { return false; }
 
     public static class Trader extends TradeRulesClientTab<TradeRulesTab.Trader>
     {

@@ -13,9 +13,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -400,33 +400,33 @@ public class PaygateTraderData extends TraderData {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void onScreenInit(TraderScreen screen, Consumer<Object> addWidget) {
+	public void onScreenInit(ITraderScreen screen, Consumer<Object> addWidget) {
 		super.onScreenInit(screen, addWidget);
 		//Add Collect Ticket Stub button
-		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().player);
+		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().getPlayer(),() -> true);
 		addWidget.accept(button);
-		screen.leftEdgePositioner.addWidget(button);
+		screen.getRightEdgePositioner().addWidget(button);
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<Object> addWidget) {
+	public void onStorageScreenInit(ITraderStorageScreen screen, Consumer<Object> addWidget) {
 		super.onStorageScreenInit(screen, addWidget);
 		//Add Collect Ticket Stub button
-		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().player);
+		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().getPlayer(),screen::showRightEdgeWidgets);
 		addWidget.accept(button);
-		screen.leftEdgePositioner.addWidget(button);
+		screen.getRightEdgePositioner().addWidget(button);
 	}
 
 
 	@OnlyIn(Dist.CLIENT)
-	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource)
+	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource,Supplier<Boolean> visible)
 	{
 		return IconButton.builder()
 				.pressAction(() -> new CPacketCollectTicketStubs(this.getID()).send())
 				.icon(IconData.of(ModItems.TICKET_STUB))
 				.addon(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()),EasyText::empty))
-				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(),Permissions.OPEN_STORAGE)))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(),Permissions.OPEN_STORAGE) && visible.get()))
 				.addon(EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0))
 				.build();
 	}

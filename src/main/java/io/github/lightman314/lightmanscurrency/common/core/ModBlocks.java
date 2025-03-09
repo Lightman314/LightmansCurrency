@@ -131,6 +131,7 @@ public class ModBlocks {
 
 	//Slot Machine
 	public static final RegistryObject<Block> SLOT_MACHINE;
+	public static final RegistryObjectBundle<Block,Color> GACHA_MACHINE;
 
 	//Command Trader
 	public static final RegistryObject<Block> COMMAND_TRADER;
@@ -455,6 +456,16 @@ public class ModBlocks {
 						.sound(SoundType.METAL)
 				)
 		);
+
+		//Gacha Machine
+		GACHA_MACHINE = registerColored("gacha_machine",c -> new GachaMachineBlock(
+					BlockBehaviour.Properties.of()
+							.mapColor(c.mapColor)
+							.strength(3.0f,Float.POSITIVE_INFINITY)
+							.sound(SoundType.METAL)
+							,c
+				)
+		);
 		
 		
 		//Network Traders
@@ -615,6 +626,7 @@ public class ModBlocks {
 	}
 
 	// Colored block registration code
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Function<Color,T> block) { return registerColored(name,block,null); }
 	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Function<Color,T> block, @Nullable Color dontNameThisColor) {
 		return registerColored(name, getDefaultGenerator(), block, dontNameThisColor);
 	}

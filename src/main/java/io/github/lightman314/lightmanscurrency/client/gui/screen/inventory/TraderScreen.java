@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -57,7 +58,11 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	}
 	public void closeTab() { this.setTab(DEFAULT_TAB); }
 
-	public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createBottomup(), -20, TraderScreen.HEIGHT - 20, 20);
+	private final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), TraderScreen.WIDTH,0, 20);
+
+	@Override
+	@Nonnull
+	public IWidgetPositioner getRightEdgePositioner() { return this.rightEdgePositioner; }
 
 	protected boolean forceShowTerminalButton() { return false; }
 
@@ -69,8 +74,8 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	@Override
 	public void initialize(ScreenArea screenArea) {
 
-		this.leftEdgePositioner.clear();
-		this.addChild(this.leftEdgePositioner);
+		this.rightEdgePositioner.clear();
+		this.addChild(this.rightEdgePositioner);
 
 		this.buttonOpenStorage = this.addChild(IconButton.builder()
 				.pressAction(this::OpenStorage)
@@ -87,7 +92,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 				.build());
 		this.buttonOpenTerminal.visible = this.showTerminalButton();
 
-		this.leftEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
+		this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
 
 		//Allow traders to add custom buttons if this is a single trader
 		if(this.menu.isSingleTrader())

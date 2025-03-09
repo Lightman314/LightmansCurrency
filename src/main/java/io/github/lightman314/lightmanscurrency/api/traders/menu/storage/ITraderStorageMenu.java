@@ -29,6 +29,7 @@ public interface ITraderStorageMenu extends IEasyTabbedMenu<TraderStorageTab> {
     void setHeldItem(@Nonnull ItemStack stack);
     void clearContainer(@Nonnull Container container);
 
+    @Deprecated(since = "2.2.4.4")
     void SetCoinSlotsActive(boolean active);
 
     void SendMessage(@Nonnull LazyPacketData.Builder message);

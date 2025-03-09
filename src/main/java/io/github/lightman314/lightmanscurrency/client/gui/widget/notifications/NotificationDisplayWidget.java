@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
@@ -110,7 +109,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 			Notification n = notifications.get(index++);
 
 			//Draw the background
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 			gui.resetColor();
 			int vPos = !n.wasSeen() && this.colorIfUnseen ? 222 : 200;
 			gui.blit(GUI_TEXTURE, 0, yPos, 0, vPos, 2, HEIGHT_PER_ROW);

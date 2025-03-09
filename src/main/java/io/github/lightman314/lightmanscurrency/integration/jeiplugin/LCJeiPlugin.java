@@ -70,6 +70,7 @@ public class LCJeiPlugin implements IModPlugin{
 	{
 		this.registerExclusionZones(zones, TraderScreen.class);
 		this.registerExclusionZones(zones, SlotMachineScreen.class);
+		this.registerExclusionZones(zones, GachaMachineScreen.class);
 		this.registerExclusionZones(zones, TraderStorageScreen.class);
 		this.registerExclusionZones(zones, ATMScreen.class);
 		this.registerExclusionZones(zones, TaxCollectorScreen.class);

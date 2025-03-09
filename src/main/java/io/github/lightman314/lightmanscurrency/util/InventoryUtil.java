@@ -489,6 +489,14 @@ public class InventoryUtil {
     	return buildInventory(tempInventory);
     }
 
+	public static CompoundTag saveItemNoLimits(@Nonnull ItemStack item)
+	{
+		CompoundTag tag = new CompoundTag();
+		item.save(tag);
+		tag.putInt("Count",item.getCount());
+		return tag;
+	}
+
 	public static void saveItemList(@Nonnull String key, @Nonnull CompoundTag compound, @Nonnull List<ItemStack> itemList)
 	{
 		ListTag list = new ListTag();
@@ -502,6 +510,13 @@ public class InventoryUtil {
 			}
 		}
 		compound.put(key,list);
+	}
+
+	public static ItemStack loadItemNoLimits(@Nonnull CompoundTag tag)
+	{
+		ItemStack item = ItemStack.of(tag);
+		item.setCount(tag.getInt("Count"));
+		return item;
 	}
 
 	@Nonnull

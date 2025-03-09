@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import com.mojang.blaze3d.FieldsAreNonnullByDefault;
 import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -47,7 +46,7 @@ public class ATMExchangeButton extends EasyButton {
 			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
 		}
 
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		gui.resetColor();
 
 	}
 

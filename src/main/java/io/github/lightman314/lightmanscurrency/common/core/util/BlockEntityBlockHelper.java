@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.RegistryObject;
@@ -24,6 +25,7 @@ public class BlockEntityBlockHelper {
 	public static final ResourceLocation SLOT_MACHINE_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader");
 	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = new ResourceLocation(LightmansCurrency.MODID, "capability_interface");
 	public static final ResourceLocation AUCTION_STAND_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand");
+	public static final ResourceLocation GACHA_MACHINE_TYPE = VersionUtil.lcResource("gacha_machine");
 
 	private static final Map<ResourceLocation,List<Supplier<Block>>> blockList = new HashMap<>();
 	
@@ -79,6 +81,9 @@ public class BlockEntityBlockHelper {
 
 		//Slot Machine Blocks
 		addBlocksToBlockEntity(SLOT_MACHINE_TRADER_TYPE, ModBlocks.SLOT_MACHINE);
+
+		//Gacha Machine Blocks
+		addBlocksToBlockEntity(GACHA_MACHINE_TYPE,ModBlocks.GACHA_MACHINE);
 
 		//Multi-block Capability Interface Blocks
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE);

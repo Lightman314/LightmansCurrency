@@ -213,9 +213,15 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 				pendingValue = (pendingValue % entryValue);
 				if(thisCount > 0)
 				{
+					int intCount;
 					if(thisCount >= Integer.MAX_VALUE)
+					{
 						LightmansCurrency.LogWarning("Value count of " + new ItemStack(entry.getCoin()).getHoverName().getString() + " is greater than the maximum integer value!");
-					pairList.add(new CoinValuePair(entry.getCoin(), (int)thisCount));
+						intCount = Integer.MAX_VALUE;
+					}
+					else
+						intCount = (int)thisCount;
+					pairList.add(new CoinValuePair(entry.getCoin(), intCount));
 				}
 				if(pendingValue <= 0)
 					break;
@@ -445,7 +451,8 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		for(CoinValuePair pricePair : this.coinValues)
 			value += chainData.getCoreValue(pricePair.coin) * pricePair.amount;
 		//LightmansCurrency.LOGGER.info("Accumulated Value: " + value + " PricePair count: " + this.priceValues.size());
-		return value;
+		//Quick test to make 100% certain that no negative numbers are passed
+		return Math.max(0,value);
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.common.commands.arguments.TraderA
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
+import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -137,7 +138,14 @@ public class CommandLCAdmin {
 								.then(Commands.argument("amount", MoneyValueArgument.argument(context))
 										.executes(c -> createPrepaidCard(c,0xFFFFFF))
 										.then(Commands.argument("color", ColorArgument.argument())
-												.executes(c -> createPrepaidCard(c,ColorArgument.getColor(c,"color")))))));
+												.executes(c -> createPrepaidCard(c,ColorArgument.getColor(c,"color")))))))
+				.then(Commands.literal("debug")
+						.then(Commands.literal("makeGachaBall")
+								.then(Commands.argument("player",EntityArgument.players())
+									.then(Commands.argument("contents",ItemArgument.item(context))
+											.executes(c -> createGachaBall(c,-1))
+											.then(Commands.argument("color",ColorArgument.argument())
+													.executes(c -> createGachaBall(c,ColorArgument.getColor(c,"color"))))))));
 
 		dispatcher.register(lcAdminCommand);
 
@@ -547,7 +555,7 @@ public class CommandLCAdmin {
 		}
 
 		CapabilityEventUnlocks.unlock(player, event);
-		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_UNLOCK_SUCCESS.get(event), false);
+		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_UNLOCK_SUCCESS.get(event), true);
 
 		return 1;
 	}
@@ -565,7 +573,7 @@ public class CommandLCAdmin {
 		}
 
 		CapabilityEventUnlocks.lock(player, event);
-		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LOCK_SUCCESS.get(event), false);
+		EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_EVENT_LOCK_SUCCESS.get(event), true);
 
 		return 1;
 	}
@@ -586,9 +594,30 @@ public class CommandLCAdmin {
 			count++;
 		}
 		if(count > 0)
-			EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_PREPAID_CARD_SUCCESS.get(amount.getText(),count), false);
+			EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_ADMIN_PREPAID_CARD_SUCCESS.get(amount.getText(),count), true);
 		else
 			EasyText.sendCommandFail(commandContext.getSource(),LCText.COMMAND_ADMIN_PREPAID_CARD_FAIL.get());
+		return count;
+	}
+
+	static int createGachaBall(CommandContext<CommandSourceStack> commandContext,int color) throws CommandSyntaxException
+	{
+		ItemStack item = ItemArgument.getItem(commandContext,"contents").createItemStack(1,false);
+		int count = 0;
+		for(ServerPlayer player :EntityArgument.getPlayers(commandContext,"player"))
+		{
+			ItemStack gachaBall;
+			if(color < 0)
+				gachaBall = GachaBallItem.createWithItem(item);
+			else
+				gachaBall = GachaBallItem.createWithItemAndColor(item,color);
+			ItemHandlerHelper.giveItemToPlayer(player,gachaBall.copy());
+			count++;
+		}
+		if(count > 0)
+			EasyText.sendCommandSucess(commandContext.getSource(),LCText.COMMAND_ADMIN_GACHA_BALL_SUCCESS.get(item.getHoverName(),count), true);
+		else
+			EasyText.sendCommandFail(commandContext.getSource(),LCText.COMMAND_ADMIN_GACHA_BALL_FAIL.get());
 		return count;
 	}
 

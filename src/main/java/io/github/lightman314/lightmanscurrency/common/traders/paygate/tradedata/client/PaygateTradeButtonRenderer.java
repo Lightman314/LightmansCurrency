@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -37,7 +39,12 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
         if(this.trade.isTicketTrade())
             return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.trade.getTicketItem(), this.trade.getTicketID(), this.trade.getTicketColor()), 1, LCText.TOOLTIP_TICKET_ID.getAsList(this.trade.getTicketID())));
         else
-            return this.lazyPriceDisplayList(context);
+            return this.lazyPriceDisplayList(context,this.getTicketPriceTooltip(context));
+    }
+
+    private Component getTicketPriceTooltip(TradeContext context)
+    {
+        return context.isStorageMode ? LCText.TOOLTIP_TRADE_PAYGATE_SET_TICKET_PRICE.getWithStyle(ChatFormatting.YELLOW) : null;
     }
 
     @Override
