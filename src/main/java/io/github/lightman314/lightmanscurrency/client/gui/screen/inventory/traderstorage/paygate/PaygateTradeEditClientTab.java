@@ -68,6 +68,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		return trade != null && trade.isTicketTrade();
 	}
 	private boolean priceEditMode() { return this.priceEdit && !this.isTicketTrade(); }
+	private boolean detailEditMode() { return !this.priceEditMode(); }
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -85,15 +86,15 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 				.oldIfNotFirst(firstOpen,this.priceSelection)
 				.startingValue(trade)
 				.valueHandler(this::onValueChanged)
-				.addon(EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return this.priceEdit && t != null && !t.isTicketTrade(); }))
+				.addon(EasyAddonHelper.visibleCheck(this::priceEditMode))
 				.build());
 
 		this.ticketStubButton = this.addChild(IconButton.builder()
-				.position(screenArea.pos.offset(screenArea.width - 30,10))
+				.position(screenArea.pos.offset(screenArea.width - 35,74))
 				.pressAction(this::ToggleTicketStubHandling)
 				.icon(this::GetTicketStubIcon)
 				.addon(EasyAddonHelper.tooltip(this::getTicketStubButtonTooltip))
-				.addon(EasyAddonHelper.visibleCheck(() -> { PaygateTradeData t = this.commonTab.getTrade(); return t != null && t.isTicketTrade(); }))
+				.addon(EasyAddonHelper.visibleCheck(this::isTicketTrade))
 				.build());
 
 		int unitWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get());
@@ -105,14 +106,14 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 				.pressAction(this::increaseLevel)
 				.sprite(IconAndButtonUtil.SPRITE_PLUS)
 				.addon(EasyAddonHelper.activeCheck(this::canIncreaseLevel))
-				.addon(EasyAddonHelper.visibleCheck(() -> !this.priceEditMode()))
+				.addon(EasyAddonHelper.visibleCheck(this::detailEditMode))
 				.build());
 		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(15,85))
 				.pressAction(this::decreaseLevel)
 				.sprite(IconAndButtonUtil.SPRITE_MINUS)
 				.addon(EasyAddonHelper.activeCheck(this::canDecreaseLevel))
-				.addon(EasyAddonHelper.visibleCheck(() -> !this.priceEditMode()))
+				.addon(EasyAddonHelper.visibleCheck(this::detailEditMode))
 				.build());
 
 		this.descriptionInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15, screenArea.y + 110, screenArea.width - 30, 18, EasyText.empty()));
@@ -129,9 +130,9 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		if(trade == null)
 			return;
 
-		this.durationInput.visible = this.descriptionInput.visible = !this.priceEditMode();
+		this.durationInput.visible = this.descriptionInput.visible = this.detailEditMode();
 
-		if(!this.priceEditMode())
+		if(this.detailEditMode())
 		{
 			//Whitelist and update the input duration value
 			TextInputUtil.whitelistInteger(this.durationInput, PaygateTraderData.DURATION_MIN, PaygateTraderData.getMaxDuration());
