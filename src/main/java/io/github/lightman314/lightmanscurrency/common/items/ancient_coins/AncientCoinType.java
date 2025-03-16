@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items.ancient_coins;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
@@ -92,7 +93,7 @@ public enum AncientCoinType {
     @Nonnull
     public Component initial() { return EasyText.translatable(this.initialKey()); }
     @Nonnull
-    public Component icon() { return EasyText.translatable(this.iconKey()).withStyle(ChatFormatting.WHITE); }
+    public Component icon() { return EasyText.translatableWithFallback(this.iconKey(),ValueDisplayData.ICON_FALLBACK_KEY).withStyle(ChatFormatting.WHITE); }
 
     @Nonnull
     public String resourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }

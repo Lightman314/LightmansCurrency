@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -16,11 +15,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
