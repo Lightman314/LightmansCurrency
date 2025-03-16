@@ -205,7 +205,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
 
         //Coin Value Text
-        Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueText();
+        Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueLine();
         gui.drawString(valueText, 170 - gui.font.width(valueText) - 10, this.getYSize() - 94, 0x404040);
 
     }

@@ -6,7 +6,6 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
@@ -90,13 +89,20 @@ public class NumberDisplay extends ValueDisplayData {
         return getDisplayValue(parent.getCoreValue(item));
     }
 
-    private MutableComponent formatDisplay(double value) { return this.format(this.format,this.formatDisplayNumber(value)); }
-    private MutableComponent formatWordyDisplay(double value) { return this.format(this.getWordyFormat(),this.formatDisplayNumber(value)); }
+    private MutableComponent formatDisplay(double value) { return this.format(this.format,LCText.TOOLTIP_COIN_DISPLAY_NUMBER,this.formatDisplayNumber(value)); }
+    private MutableComponent formatWordyDisplay(double value) {
+        TextEntry format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER;
+        if(this.wordyFormat != null)
+            format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
+        return this.format(this.getWordyFormat(),format,this.formatDisplayNumber(value));
+    }
 
-    private MutableComponent format(@Nonnull Pair<String,Boolean> format, @Nonnull String value)
+    protected Component getIcon() { return getIcon(this.getChain()); }
+
+    private MutableComponent format(@Nonnull Pair<String,Boolean> format, @Nonnull TextEntry iconFormat, @Nonnull String value)
     {
         if(format.getSecond())
-            return EasyText.translatable(format.getFirst(),value);
+            return EasyText.translatable(format.getFirst(),iconFormat.get(value,this.getIcon()));
         else
             return EasyText.literal(String.format(format.getFirst().replace("{value}",value)));
     }
@@ -150,14 +156,19 @@ public class NumberDisplay extends ValueDisplayData {
     }
 
     @Nonnull
-    public Pair<String,String> getSplitFormat() { return this.splitFormat(this.format); }
+    public Pair<String,String> getSplitFormat() { return this.splitFormat(this.format,LCText.TOOLTIP_COIN_DISPLAY_NUMBER); }
     @Nonnull
-    public Pair<String,String> getSplitWordyFormat() { return this.splitFormat(this.getWordyFormat()); }
+    public Pair<String,String> getSplitWordyFormat() {
+        TextEntry format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER;
+        if(this.wordyFormat != null)
+            format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
+        return this.splitFormat(this.getWordyFormat(),format);
+    }
     @Nonnull
-    private Pair<String,String> splitFormat(@Nonnull Pair<String,Boolean> format)
+    private Pair<String,String> splitFormat(@Nonnull Pair<String,Boolean> format, @Nonnull TextEntry iconFormat)
     {
         //Have to replace the {value} with a non-illegal character in order to split the string
-        String formatString = this.format(format,"`").getString();
+        String formatString = this.format(format,iconFormat,"`").getString();
         String[] splitFormat = formatString.split("`",2);
         if(splitFormat.length < 2)
         {

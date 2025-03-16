@@ -101,7 +101,7 @@ public class CoinDisplay extends ValueDisplayData {
         Pair<CoinEntry,Integer> upperExchange = parent.getUpperExchange(data.coin);
         if(upperExchange != null)
         {
-            tooltip.add(LCText.TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(), upperExchange.getFirst().getName()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(LCText.TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(), LCText.TOOLTIP_COIN_DISPLAY_WORTH.get(upperExchange.getFirst().getName(),getIcon(upperExchange.getFirst().getCoin()))).withStyle(ChatFormatting.YELLOW));
         }
 
     }
@@ -152,20 +152,23 @@ public class CoinDisplay extends ValueDisplayData {
     {
         private final Item coin;
 
+        @Nullable
         protected Component initial = null;
+        @Nullable
         protected Component plural = null;
         @Nonnull
         public Component getInitial()
         {
-            return Objects.requireNonNullElseGet(this.initial, () -> {
+            return LCText.TOOLTIP_COIN_DISPLAY.get(Objects.requireNonNullElseGet(this.initial, () -> {
                 String name = new ItemStack(this.coin).getHoverName().getString();
                 if(!name.isEmpty())
                     return EasyText.literal(name.substring(0,1).toLowerCase());
                 return EasyText.literal("X");
-            });
+            }),this.getIcon());
         }
         @Nonnull
-        public Component getPlural() { return Objects.requireNonNullElseGet(this.plural, () -> LCText.MISC_GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())); }
+        public Component getPlural() { return LCText.TOOLTIP_COIN_DISPLAY_WORTH.get(Objects.requireNonNullElseGet(this.plural, () -> LCText.MISC_GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())),this.getIcon()); }
+        private Component getIcon() { return ValueDisplayData.getIcon(this.coin); }
         ItemData(@Nonnull Item coin) { this.coin = coin; }
     }
 

@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValueParser;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -26,9 +27,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CoinCurrencyType extends CurrencyType {
 
     public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID, "coins");
@@ -36,11 +40,10 @@ public class CoinCurrencyType extends CurrencyType {
 
     protected CoinCurrencyType() { super(TYPE); }
 
-    @Nonnull
-    public static String getUniqueName(@Nonnull String chain) { return TYPE.toString() + "_" + chain; }
-    @Nonnull
+    public static String getUniqueName(String chain) { return TYPE.toString() + "_" + chain; }
+    
     @Override
-    protected MoneyValue sumValuesInternal(@Nonnull List<MoneyValue> values) {
+    protected MoneyValue sumValuesInternal(List<MoneyValue> values) {
         long totalValue = 0;
         ChainData chain = null;
         for(MoneyValue val : values)
@@ -61,19 +64,19 @@ public class CoinCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IPlayerMoneyHandler createMoneyHandlerForPlayer(@Nonnull Player player) { return new CoinPlayerMoneyHandler(player); }
+    public IPlayerMoneyHandler createMoneyHandlerForPlayer(Player player) { return new CoinPlayerMoneyHandler(player); }
 
     @Nullable
     @Override
-    public IMoneyHandler createMoneyHandlerForContainer(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) { return new CoinContainerMoneyHandler(container, overflowHandler); }
+    public IMoneyHandler createMoneyHandlerForContainer(Container container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) { return new CoinContainerMoneyHandler(container, overflowHandler); }
 
     @Override
-    public MoneyValue loadMoneyValue(@Nonnull CompoundTag valueTag) { return CoinValue.loadCoinValue(valueTag); }
+    public MoneyValue loadMoneyValue(CompoundTag valueTag) { return CoinValue.loadCoinValue(valueTag); }
 
     @Override
-    public MoneyValue loadMoneyValueJson(@Nonnull JsonObject json) { return CoinValue.loadCoinValue(json); }
+    public MoneyValue loadMoneyValueJson(JsonObject json) { return CoinValue.loadCoinValue(json); }
 
-    @Nonnull
+    
     @Override
     public MoneyValueParser getValueParser() { return CoinValueParser.INSTANCE; }
 
@@ -95,9 +98,9 @@ public class CoinCurrencyType extends CurrencyType {
     }
 
     @Override
-    public boolean allowItemInMoneySlot(@Nonnull Player player, @Nonnull ItemStack item) { return CoinAPI.API.IsCoin(item,true); }
+    public boolean allowItemInMoneySlot(Player player, ItemStack item) { return CoinAPI.API.IsCoin(item,true); }
 
     @Override
-    public void addMoneySlotBackground(@Nonnull Consumer<Pair<ResourceLocation, ResourceLocation>> consumer, @Nonnull Consumer<ResourceLocation> lazyConsumer) { lazyConsumer.accept(CoinSlot.EMPTY_COIN_SLOT); }
+    public void addMoneySlotBackground(Consumer<Pair<ResourceLocation, ResourceLocation>> consumer, Consumer<ResourceLocation> lazyConsumer) { lazyConsumer.accept(CoinSlot.EMPTY_COIN_SLOT); }
 
 }

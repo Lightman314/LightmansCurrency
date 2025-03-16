@@ -47,10 +47,21 @@ public final class CustomDataType<T extends CustomData> {
      */
     @Nonnull
     public T getUnknown() {
-        T temp = this.get(false);
-        if(temp != null)
-            return temp;
+        if(this.isLoaded(false))
+            return this.get(false);
         return this.get(true);
     }
+
+    /**
+     * Whether the data is loaded<br>
+     * Should always be true once the server is loaded, and will always return true on the logical client
+     */
+    public boolean isLoaded(boolean isClient) { return isClient || CustomSaveData.isLoaded(this); }
+
+    /**
+     * Whether the data is loaded<br>
+     * Should always be true once the server is loaded, and will always return true on the logical client
+     */
+    public boolean isLoaded(IClientTracker tracker) { return this.isLoaded(tracker.isClient()); }
 
 }

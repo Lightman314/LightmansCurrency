@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlock
 import io.github.lightman314.lightmanscurrency.common.items.cards.ATMCardMoneyHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.cards.PrepaidCardMoneyHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import net.minecraft.world.entity.EntityType;
@@ -52,6 +53,12 @@ public class ModEventHandler {
                 return slotMachine.getItemHandler(s);
             return null;
         }, ModBlocks.SLOT_MACHINE.get());
+        //Register Item Handler for Gacha Machine
+        TraderBlockEntity.easyRegisterCapProvider(event, Capabilities.ItemHandler.BLOCK, (t,s) -> {
+            if(t instanceof GachaTrader gachaMachine)
+                return gachaMachine.getItemHandler(s);
+            return null;
+        }, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.GACHA_MACHINE_TYPE));
         //Register Item Handlers for capability interface blocks
         CapabilityInterfaceBlockEntity.easyRegisterCapProvider(event,Capabilities.ItemHandler.BLOCK);
         //Register Item Handlers for the Item Trader Interface

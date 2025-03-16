@@ -297,6 +297,10 @@ public class LCText {
     public static final TextEntry TOOLTIP_DIMENSION_QUARANTINED_NETWORK_TRADER = TextEntry.message(MODID,"dimension_quarantined.network_traders");
 
     //Coin Tooltips
+    public static final TextEntry TOOLTIP_COIN_DISPLAY = TextEntry.tooltip(MODID,"coin.display");
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_WORTH = TextEntry.tooltip(MODID,"coin.display.worth");
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_NUMBER = TextEntry.tooltip(MODID,"coin.display.number");
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_NUMBER_WORDY = TextEntry.tooltip(MODID,"coin.display.number.wordy");
     public static final TextEntry TOOLTIP_COIN_WORTH_DOWN = TextEntry.tooltip(MODID,"coinworth.down");
     public static final TextEntry TOOLTIP_COIN_WORTH_UP = TextEntry.tooltip(MODID,"coinworth.up");
     public static final TextEntry TOOLTIP_COIN_WORTH_VALUE = TextEntry.tooltip(MODID,"coinworth.value");
@@ -651,6 +655,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADE_PAYGATE_SET_TICKET_PRICE = TextEntry.tooltip(MODID,"trade.paygate.set_ticket_price");
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION = TextEntry.gui(MODID,"trader.paygate.duration");
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION_UNIT = TextEntry.gui(MODID,"trader.paygate.duration.unit");
+    public static final TextEntry GUI_TRADER_PAYGATE_DESCRIPTION = TextEntry.gui(MODID,"trader.paygate.description");
+    public static final TextEntry GUI_TRADER_PAYGATE_LEVEL = TextEntry.gui(MODID,"trader.paygate.level");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.give");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE = TextEntry.tooltip(MODID,"trader.paygate.active");
@@ -692,6 +698,9 @@ public class LCText {
 
     //Command Trader Specific
     public static final TextEntry GUI_TRADER_COMMAND_LABEL = TextEntry.gui(MODID,"trader.command.label");
+    public static final TextEntry GUI_TRADER_COMMAND_LABEL_DETAILS = TextEntry.gui(MODID,"trader.command.label.details");
+    public static final TextEntry GUI_TRADER_COMMAND_LABEL_DESCRIPTION = TextEntry.gui(MODID,"trader.command.label.description");
+    public static final TextEntry GUI_TRADER_COMMAND_LABEL_TOOLTIP = TextEntry.gui(MODID,"trader.command.label.tooltip");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_COMMAND = TextEntry.tooltip(MODID,"trader.settings.command");
     public static final TextEntry GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL = TextEntry.gui(MODID,"trader.settings.command.permission_level");
 
@@ -1097,9 +1106,10 @@ public class LCText {
     public static final AdvancementTextEntry ADVANCEMENT_EVENT_VALENTINES = AdvancementTextEntry.of("lightmanscurrency.event.valentines");
 
     //Resource Pack Names
-    public static final TextEntry RESOURCE_PACK_RUPEES = TextEntry.resourcePack(MODID,"rupees");
-    public static final TextEntry RESOURCE_PACK_CLOSER_ITEMS = TextEntry.resourcePack(MODID,"closer_items");
-    public static final TextEntry RESOURCE_PACK_LEGACY_COINS = TextEntry.resourcePack(MODID,"legacy_coins");
+    public static final ResourcePackTextEntry RESOURCE_PACK_RUPEES = ResourcePackTextEntry.of(MODID,"rupees");
+    public static final ResourcePackTextEntry RESOURCE_PACK_CLOSER_ITEMS = ResourcePackTextEntry.of(MODID,"closer_items");
+    public static final ResourcePackTextEntry RESOURCE_PACK_LEGACY_COINS = ResourcePackTextEntry.of(MODID,"legacy_coins");
+    public static final ResourcePackTextEntry RESOURCE_PACK_FANCY_ICONS = ResourcePackTextEntry.of(MODID,"fancy_icons");
 
     ///OTHER MODS
 

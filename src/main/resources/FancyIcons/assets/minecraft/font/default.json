@@ -1,0 +1,214 @@
+{
+    "providers": [
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_copper.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE700"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_iron.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE701"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_gold.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE702"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_emerald.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE703"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_diamond.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE704"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_netherite.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE705"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/emerald.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE706"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/chocolate_chunks.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE707"]
+        },
+		        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_copper.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE708"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_iron.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE709"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_gold.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE710"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_emerald.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE711"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_diamond.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE712"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/coin_chocolate_netherite.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE713"]
+        },
+		       {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/copper.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE714"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/iron.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE715"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/gold.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE716"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/emerald.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE717"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/diamond.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE718"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/ender_pearl.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE719"]
+        },
+        {
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/lapis.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE720"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_b.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE721"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_e1.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE722"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_e2.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE723"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_h.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE724"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_i.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE725"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_n.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE726"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_o.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE727"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_r1.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE728"]
+        },
+		{
+            "type": "bitmap",
+            "file": "lightmanscurrency:initial/ancient_coin/netherite_r2.png",
+            "ascent": 11,
+            "height": 16,
+            "chars": ["\uE729"]
+        }
+    ]
+}

@@ -79,6 +79,28 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		}
 	}
 
+	public void setLevel(int level) {
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.setRedstoneLevel(level);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+				this.menu.SendMessage(this.builder().setInt("NewLevel",level));
+		}
+	}
+
+	public void setDescription(String description) {
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.setDescription(description);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+				this.menu.SendMessage(this.builder().setString("NewDescription",description));
+		}
+	}
+
 	public void setTicketStubHandling(boolean storeTicketStubs)
 	{
 		PaygateTradeData trade = this.getTrade();
@@ -113,6 +135,14 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		else if(message.contains("NewDuration"))
 		{
 			this.setDuration(message.getInt("NewDuration"));
+		}
+		else if(message.contains("NewLevel"))
+		{
+			this.setLevel(message.getInt("NewLevel"));
+		}
+		else if(message.contains("NewDescription"))
+		{
+			this.setDescription(message.getString("NewDescription"));
 		}
 		else if(message.contains("StoreTicketStubs"))
 		{

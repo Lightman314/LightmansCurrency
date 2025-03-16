@@ -21,7 +21,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,9 +47,18 @@ public class CustomSaveData extends SavedData {
             return null;
         }
         if(!serverDataCache.containsKey(dataID))
+        {
             LightmansCurrency.LogWarning("Attempted to get custom data '" + dataID + "' before the server started!",new Throwable());
-
+            return null;
+        }
         return (T)serverDataCache.get(dataID);
+    }
+
+    public static boolean isLoaded(CustomDataType<?> type) {
+        ResourceLocation dataID = LCRegistries.CUSTOM_DATA.getKey(type);
+        if(dataID == null)
+            return false;
+        return serverDataCache.containsKey(dataID);
     }
 
     private static void initServerData(MinecraftServer server)

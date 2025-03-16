@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -49,16 +50,16 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     protected String generateUniqueName() { return this.generateCustomUniqueName(this.type.resourceSafeName()); }
 
     @Override
-    public boolean isEmpty() { return false; }
+    public boolean isEmpty() { return this.count <= 0; }
 
     @Override
-    public long getCoreValue() { return this.count; }
+    public long getCoreValue() { return Math.max(0,this.count); }
 
     @Override
     public MutableComponent getText(@Nonnull MutableComponent emptyText) {
         if(this.isEmpty())
             return emptyText;
-        return LCText.ANCIENT_COIN_VALUE_DISPLAY.get(this.getCoreValue(),this.type.initial());
+        return LCText.ANCIENT_COIN_VALUE_DISPLAY.get(this.getCoreValue(),this.type.initial(),this.type.icon());
     }
 
     @Override

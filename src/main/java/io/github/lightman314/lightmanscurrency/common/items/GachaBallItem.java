@@ -27,6 +27,8 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class GachaBallItem extends Item {
 
+    public static final int MAX_INCEPTION_LEVEL = 16;
+
     public GachaBallItem(Properties properties) { super(properties.stacksTo(1)); }
 
     @Override
@@ -51,11 +53,33 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItem(ItemStack contents,RandomSource random) { return createWithItemAndColor(contents,Color.getFromIndex(random.nextInt(Color.values().length))); }
     public static ItemStack createWithItemAndColor(ItemStack contents,Color color) { return createWithItemAndColor(contents,color.hexColor); }
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
+        //Don't create a new gacha ball if we are already several gacha balls deep
+        if(inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
+            return contents;
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
         stack.set(ModDataComponents.GACHA_ITEM,new ItemStackData(contents.copy()));
         stack.set(DataComponents.DYED_COLOR,new DyedItemColor(color,true));
         return stack;
     }
+
+    public static int inceptionLevel(ItemStack stack)
+    {
+        int count = 0;
+        ItemStack queryStack = stack;
+        while(queryStack.getItem() == ModItems.GACHA_BALL.get())
+        {
+            queryStack = getContents(queryStack);
+            count++;
+        }
+        return count;
+    }
+
+    public static ItemStack getContents(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.GACHA_ITEM,ItemStackData.EMPTY).stack();
+    }
+
+    @Override
+    public boolean canFitInsideContainerItems() { return false; }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {

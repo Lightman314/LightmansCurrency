@@ -53,6 +53,30 @@ public class CommandTradeEditTab extends TraderStorageTab {
         }
     }
 
+    public void setDescription(String newDescription)
+    {
+        CommandTrade trade = this.getTrade();
+        if(trade != null)
+        {
+            trade.setDescription(newDescription);
+            this.menu.getTrader().markTradesDirty();
+            if(this.isClient())
+                this.menu.SendMessage(this.builder().setString("NewDescription",newDescription));
+        }
+    }
+
+    public void setTooltip(String newTooltip)
+    {
+        CommandTrade trade = this.getTrade();
+        if(trade != null)
+        {
+            trade.setTooltip(newTooltip);
+            this.menu.getTrader().markTradesDirty();
+            if(this.isClient())
+                this.menu.SendMessage(this.builder().setString("NewTooltip",newTooltip));
+        }
+    }
+
     public void setPrice(MoneyValue price)
     {
         CommandTrade trade = this.getTrade();
@@ -75,7 +99,11 @@ public class CommandTradeEditTab extends TraderStorageTab {
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("NewCommand"))
             this.setCommand(message.getString("NewCommand"));
-        else if(message.contains("NewPrice"))
+        if(message.contains("NewDescription"))
+            this.setDescription(message.getString("NewDescription"));
+        if(message.contains("NewTooltip"))
+            this.setTooltip(message.getString("NewTooltip"));
+        if(message.contains("NewPrice"))
             this.setPrice(message.getMoneyValue("NewPrice"));
     }
 

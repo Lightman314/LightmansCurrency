@@ -4,13 +4,21 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class MoneyView {
 
     private static final MoneyView EMPTY = new MoneyView();
@@ -18,7 +26,7 @@ public final class MoneyView {
     private final Map<String,MoneyValue> values;
 
     private MoneyView() { this.values = ImmutableMap.of(); }
-    private MoneyView(@Nonnull Builder builder) {
+    private MoneyView(Builder builder) {
         Map<String,MoneyValue> results = new HashMap<>();
         builder.values.forEach((name,list) -> {
             if(!list.isEmpty())
@@ -32,69 +40,79 @@ public final class MoneyView {
         this.values = ImmutableMap.copyOf(results);
     }
 
-    @Nonnull
+    
     public static MoneyView.Builder builder() { return new MoneyView.Builder(); }
-    @Nonnull
-    public static MoneyView singleton(@Nonnull MoneyValue value) { return builder().add(value).build(); }
-    @Nonnull
+    
+    public static MoneyView singleton(MoneyValue value) { return builder().add(value).build(); }
+    
     public static MoneyView empty() { return EMPTY; }
 
-    @Nonnull
+    
     public List<MoneyValue> allValues() { return ImmutableList.copyOf(this.values.values()); }
 
     /**
      * Returns the stored value with the name requested.
      */
-    @Nonnull
-    public MoneyValue valueOf(@Nonnull String uniqueName) { return this.values.getOrDefault(uniqueName, MoneyValue.empty()); }
+    
+    public MoneyValue valueOf(String uniqueName) { return this.values.getOrDefault(uniqueName, MoneyValue.empty()); }
 
     /**
      * Whether the given amount of money (or more) is currently stored in the value holder.
      */
-    public boolean containsValue(@Nonnull MoneyValue value) { return this.valueOf(value.getUniqueName()).containsValue(value); }
+    public boolean containsValue(MoneyValue value) { return this.valueOf(value.getUniqueName()).containsValue(value); }
 
     /**
      * Returns the maximum amount of money that can be taken
      */
-    @Nonnull
-    public MoneyValue capValue(@Nonnull MoneyValue value) { return this.containsValue(value) ? value : this.valueOf(value.getUniqueName()); }
+    
+    public MoneyValue capValue(MoneyValue value) { return this.containsValue(value) ? value : this.valueOf(value.getUniqueName()); }
 
     public boolean isEmpty() { return this.values.isEmpty() || this.values.values().stream().allMatch(MoneyValue::isEmpty); }
 
     public String getString()
     {
         StringBuilder builder = new StringBuilder();
-        for(MoneyValue value : this.allValues())
+        for(Component line : this.getAllText())
         {
-            if(!value.isEmpty())
-            {
-                if(!builder.isEmpty())
-                    builder.append('\n');
-                builder.append(value.getString());
-            }
+            if(!builder.isEmpty())
+                builder.append("\n");
+            builder.append(line.getString());
         }
         return builder.toString();
     }
 
-    @Nonnull
+    public List<Component> getAllText(ChatFormatting... style)
+    {
+        List<Component> text = new ArrayList<>();
+        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+            type.getGroupTooltip(this,line -> text.add(EasyText.makeMutable(line).withStyle(style)));
+        return text;
+    }
+
     public MoneyValue getRandomValue() {
         if(this.values.isEmpty())
             return MoneyValue.empty();
-        List<MoneyValue> values = this.values.values().stream().toList();
-        int displayIndex = (int)(TimeUtil.getCurrentTime() / 2000 % values.size());
-        return values.get(displayIndex);
+        return ListUtil.randomItemFromList(this.values.values().stream().toList(),MoneyValue.empty());
     }
 
-    @Nonnull
+    
     public MutableComponent getRandomValueText() { return this.getRandomValueText(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
-    @Nonnull
-    public MutableComponent getRandomValueText(@Nonnull String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
-    @Nonnull
-    public MutableComponent getRandomValueText(@Nonnull MutableComponent emptyText)
+    
+    public MutableComponent getRandomValueText(String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
+    
+    public MutableComponent getRandomValueText(MutableComponent emptyText)
     {
         if(this.values.isEmpty())
             return emptyText;
         return this.getRandomValue().getText();
+    }
+
+    public Component getRandomValueLine() { return this.getRandomValueLine(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
+    public Component getRandomValueLine(String emptyText) { return this.getRandomValueLine(EasyText.literal(emptyText)); }
+    public Component getRandomValueLine(MutableComponent emptyText) {
+        if(this.values.isEmpty())
+            return emptyText;
+        return ListUtil.randomItemFromList(this.getAllText(),EasyText.empty());
     }
 
     public static final class Builder
@@ -104,18 +122,14 @@ public final class MoneyView {
 
         private Builder() {}
 
-        @Nonnull
-        public Builder merge(@Nonnull IMoneyViewer storage) { this.add(storage.getStoredMoney().allValues()); return this; }
-        @Nonnull
-        public Builder merge(@Nonnull Builder values) { values.values.forEach((name,list) -> this.add(list)); return this; }
-        @Nonnull
-        public Builder merge(@Nonnull MoneyView values) { this.add(values.allValues()); return this; }
+        public Builder merge(IMoneyViewer storage) { this.add(storage.getStoredMoney().allValues()); return this; }
+        public Builder merge(Builder values) { values.values.forEach((name,list) -> this.add(list)); return this; }
+        public Builder merge(MoneyView values) { this.add(values.allValues()); return this; }
 
         /**
          * Adds the given {@link MoneyValue}.
          */
-        @Nonnull
-        public Builder add(@Nonnull MoneyValue value)
+        public Builder add(MoneyValue value)
         {
             if(value.isEmpty() || value.isFree() || value.isInvalid())
                 return this;
@@ -130,8 +144,7 @@ public final class MoneyView {
         /**
          * Adds all the given {@link MoneyValue MoneyValues}.
          */
-        @Nonnull
-        public Builder add(@Nonnull Collection<MoneyValue> values)
+        public Builder add(Collection<MoneyValue> values)
         {
             for(MoneyValue val : values)
             {
@@ -141,7 +154,6 @@ public final class MoneyView {
             return this;
         }
 
-        @Nonnull
         public MoneyView build() { return new MoneyView(this); }
 
     }

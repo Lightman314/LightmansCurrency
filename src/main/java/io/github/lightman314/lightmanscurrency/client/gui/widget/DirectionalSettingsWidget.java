@@ -37,7 +37,6 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 	
 	private final Predicate<Direction> currentValueSource;
 	private final Consumer<Direction> onPress;
-	List<Object> deprecatedWidgets = null;
 	final List<Direction> ignoreSides;
 	
 	public boolean visible = true;
@@ -55,12 +54,6 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 
 	@Override
 	public void addChildren(@Nonnull ScreenArea area) {
-		//Delete widgets created by deprecated methods
-		if(this.deprecatedWidgets != null)
-		{
-			for(Object w : this.deprecatedWidgets)
-				this.removeChild(w);
-		}
 		for (Direction side : DIRECTIONS) {
 			if(!this.ignoreSides.contains(side))
 			{
@@ -69,6 +62,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 						.pressAction(() -> this.onButtonPress(side))
 						.sprite(spriteForSide(side,() -> this.currentValueSource.test(side)))
 						.addon(EasyAddonHelper.tooltip(InputTraderData.getFacingName(side)))
+						.addon(EasyAddonHelper.visibleCheck(this::isVisible))
 						.build());
 			}
 		}

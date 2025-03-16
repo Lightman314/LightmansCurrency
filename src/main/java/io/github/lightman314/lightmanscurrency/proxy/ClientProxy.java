@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -50,7 +51,10 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ClientProxy extends CommonProxy{
 
 	private long timeOffset = 0;
@@ -61,7 +65,7 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	@Override
-	public void init(@Nonnull ModContainer modContainer) {
+	public void init(ModContainer modContainer) {
 		modContainer.registerExtensionPoint(IConfigScreenFactory.class,ConfigSelectionScreen.createFactory(LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER));
 	}
 
@@ -159,7 +163,7 @@ public class ClientProxy extends CommonProxy{
 
 	@Nullable
 	@Override
-	public Level getDimension(boolean isClient, @Nonnull ResourceKey<Level> type) {
+	public Level getDimension(boolean isClient, ResourceKey<Level> type) {
 		if(isClient)
 		{
 			Minecraft mc = Minecraft.getInstance();
@@ -171,7 +175,6 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	@Nonnull
 	public Level safeGetDummyLevel() throws Exception {
 		Level level = this.getDummyLevelFromServer();
 		if(level == null)
@@ -189,7 +192,7 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public void syncEventUnlocks(@Nonnull List<String> unlocksList) {
+	public void syncEventUnlocks(List<String> unlocksList) {
 		Minecraft mc = Minecraft.getInstance();
 		EventUnlocks unlocks = mc.player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
 		if(unlocks != null)
@@ -197,7 +200,7 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public void sendClientMessage(@Nonnull Component message)
+	public void sendClientMessage(Component message)
 	{
 		Player player = Minecraft.getInstance().player;
 		if(player != null)
@@ -212,7 +215,11 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public boolean isSelf(@Nonnull Player player) { return player == Minecraft.getInstance().player; }
+	public boolean isSelf(Player player) { return player == Minecraft.getInstance().player; }
+
+	@Nullable
+	@Override
+	public Player getLocalPlayer() { return Minecraft.getInstance().player; }
 
 	@Override
 	public RegistryAccess getClientRegistryHolder() {

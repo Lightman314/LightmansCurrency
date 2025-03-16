@@ -12,13 +12,16 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.command.CommandEditField;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.command.CommandTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -37,6 +40,9 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     public Component getTooltip() { return EasyText.empty(); }
 
     @Override
+    public boolean shouldRenderInventoryText() { return false; }
+
+    @Override
     public boolean tabVisible() { return false; }
 
     @Override
@@ -48,8 +54,12 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     TradeButton tradeDisplay;
     MoneyValueWidget priceSelection;
     CommandEditField commandInput;
+    PlainButton buttonToggleDetails;
+    EditBox descriptionInput;
+    EditBox tooltipInput;
 
     boolean commandEdit = true;
+    static boolean displayDetails = false;
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -70,34 +80,62 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
                 .addon(EasyAddonHelper.visibleCheck(() -> !this.commandEdit))
                 .build());
 
+        this.buttonToggleDetails = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(109,45))
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(() -> displayDetails))
+                .pressAction(this::toggleDetailMode)
+                .addon(EasyAddonHelper.visibleCheck(() -> this.commandEdit))
+                .build());
+
         this.commandInput = this.addChild(CommandEditField.builder()
-                .position(screenArea.pos.offset(13,58))
+                .position(screenArea.pos.offset(13,55))
                 .width(screenArea.width - 26)
                 .oldIfNotFirst(firstOpen,this.commandInput)
                 .handler(this::onCommandChanged)
-                .suggestions(5)
+                .suggestions(6)
+                .showSuggestions(() -> !displayDetails)
+                .startingValue(trade != null ? trade.getCommand() : "")
                 .build());
 
+        this.descriptionInput = this.addChild(new EditBox(this.getFont(),screenArea.x + 13,screenArea.y + 98,screenArea.width - 26,20,this.descriptionInput,EasyText.empty()));
         if(trade != null)
-            this.commandInput.setCommand(trade.getCommand());
+            this.descriptionInput.setValue(trade.getDescription());
+        this.descriptionInput.setResponder(this::onDescriptionChanged);
+
+        this.tooltipInput = this.addChild(new EditBox(this.getFont(),screenArea.x + 13,screenArea.y + 130,screenArea.width - 26,20,this.tooltipInput,EasyText.empty()));
+        this.tooltipInput.setMaxLength(256);
+        if(trade != null)
+            this.tooltipInput.setValue(trade.getTooltip());
+        this.tooltipInput.setResponder(this::onTooltipChanged);
 
     }
 
     private void onValueChanged(MoneyValue value) { this.commonTab.setPrice(value); }
 
-    private void onCommandChanged(String newCommand) {
-        this.commonTab.setCommand(newCommand);
-    }
+    private void onCommandChanged(String newCommand) { this.commonTab.setCommand(newCommand); }
+
+    private void onDescriptionChanged(String newDescription) { this.commonTab.setDescription(newDescription); }
+
+    private void onTooltipChanged(String newTooltip) { this.commonTab.setTooltip(newTooltip); }
 
     @Override
     public void tick() {
         this.commandInput.visible = this.commandEdit;
+        this.descriptionInput.visible = this.tooltipInput.visible = this.commandEdit && displayDetails;
     }
 
     @Override
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
         if(this.commandEdit)
-            gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL.get(),15,45,0x404040);
+        {
+            gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL.get(),15,46,0x404040);
+            gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL_DETAILS.get(),120, 46, 0x404040);
+            if(displayDetails)
+            {
+                gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL_DESCRIPTION.get(),15, 89, 0x404040);
+                gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL_TOOLTIP.get(),15, 121, 0x404040);
+            }
+        }
     }
 
     @Override
@@ -105,6 +143,8 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
         if(clientData.contains("CommandEdit"))
             this.commandEdit = clientData.getBoolean("CommandEdit");
     }
+
+    private void toggleDetailMode() { displayDetails = !displayDetails; }
 
     @Override
     public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int inputIndex) {

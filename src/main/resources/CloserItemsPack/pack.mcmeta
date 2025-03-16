@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Draws Item Trader stock items closer together in-world.",
-        "pack_format": 48
+        "description": { "translate": "resourcepack.lightmanscurrency.closer_items.description" },
+        "pack_format": 34
     }
 }

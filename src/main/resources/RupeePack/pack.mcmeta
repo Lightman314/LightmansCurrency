@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Replaces the LC coins with rupees",
-        "pack_format": 48
+        "description": { "translate": "resourcepack.lightmanscurrency.rupees.description" },
+        "pack_format": 34
     }
 }

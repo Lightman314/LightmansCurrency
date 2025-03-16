@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 
@@ -74,7 +76,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translateAncientCoin(AncientCoinType.DIAMOND,"Ancient Diamond Coin");
         this.translateAncientCoinInitial(AncientCoinType.DIAMOND,"AD");
         this.translateAncientCoin(AncientCoinType.NETHERITE_H,"Ancient Netherite Coin");
-        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_H,"AN");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_H,"AN1");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_E1,"AN2");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_R1,"AN3");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_O,"AN4");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_B,"AN5");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_R2,"AN6");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_I,"AN7");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_N,"AN8");
+        this.translateAncientCoinInitial(AncientCoinType.NETHERITE_E2,"AN9");
         this.translateAncientCoin(AncientCoinType.LAPIS,"Ancient Lapis Coin");
         this.translateAncientCoinInitial(AncientCoinType.LAPIS,"AL");
         this.translateAncientCoin(AncientCoinType.ENDER_PEARL,"Ancient Ender Pearl Coin");
@@ -326,6 +336,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE, "Contains %1$sx %2$s");
 
         //Coin Tooltips
+        this.translate(new TextEntry(ValueDisplayData.ICON_FALLBACK_KEY),"");
+        this.translate(LCText.TOOLTIP_COIN_DISPLAY,"%1$s");
+        this.translate(LCText.TOOLTIP_COIN_DISPLAY_WORTH,"%1$s");
+        this.translate(LCText.TOOLTIP_COIN_DISPLAY_NUMBER,"%1$s");
+        this.translate(LCText.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY,"%1$s");
         this.translate(LCText.TOOLTIP_COIN_WORTH_DOWN,"Worth %1$s %2$s");
         this.translate(LCText.TOOLTIP_COIN_WORTH_UP,"%1$s of these are worth 1 %2$s");
         this.translate(LCText.TOOLTIP_COIN_WORTH_VALUE,"Worth %s");
@@ -670,6 +685,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADE_PAYGATE_SET_TICKET_PRICE,"Click with a Master Ticket to accept Tickets as payment");
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION,"Duration:");
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT,"ticks");
+        this.translate(LCText.GUI_TRADER_PAYGATE_DESCRIPTION,"Description:");
+        this.translate(LCText.GUI_TRADER_PAYGATE_LEVEL,"Redstone Level: %s");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP,"Store Ticket Stubs");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE,"Give Ticket Stubs to the Customer");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE,"Already Active");
@@ -711,6 +728,9 @@ public class EnglishProvider extends TranslationProvider {
 
         //Command Trader Specific
         this.translate(LCText.GUI_TRADER_COMMAND_LABEL,"Command:");
+        this.translate(LCText.GUI_TRADER_COMMAND_LABEL_DETAILS,"Display Details");
+        this.translate(LCText.GUI_TRADER_COMMAND_LABEL_DESCRIPTION,"Display:");
+        this.translate(LCText.GUI_TRADER_COMMAND_LABEL_TOOLTIP,"Tooltip:");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_COMMAND,"Command Settings");
         this.translate(LCText.GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL,"Permission Level: %s");
 
@@ -1159,9 +1179,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ADVANCEMENT_EVENT_VALENTINES,"Love is in your wallet!","Played during the celebration of love");
 
         //Resource Pack Names
-        this.translate(LCText.RESOURCE_PACK_RUPEES,"LC Rupees (WIP)");
-        this.translate(LCText.RESOURCE_PACK_CLOSER_ITEMS,"LC Fancy Item Placement");
-        this.translate(LCText.RESOURCE_PACK_LEGACY_COINS,"LC Legacy Coins");
+        this.translate(LCText.RESOURCE_PACK_RUPEES,"LC Rupees (WIP)","Replaces the LC coins with rupees");
+        this.translate(LCText.RESOURCE_PACK_CLOSER_ITEMS,"LC Fancy Item Placement","Draws Item Trader stock items closer together in-world.");
+        this.translate(LCText.RESOURCE_PACK_LEGACY_COINS,"LC Legacy Coins","Replaces coins with the original textures");
+        this.translate(LCText.RESOURCE_PACK_FANCY_ICONS,"LC Fancy Icons","Replaces coins initials with fancy icons in menus/tooltips");
 
         ///OTHER MODS
 

@@ -16,8 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -205,10 +203,10 @@ public class PaygateTraderData extends TraderData {
 		return false;
 	}
 	
-	private void activate(int duration) {
+	private void activate(int duration,int level) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			be.activate(duration);
+			be.activate(duration,level);
 	}
 
 	@Override
@@ -287,7 +285,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//Activate the paygate
-			this.activate(trade.getDuration());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel());
 			
 			//Push Notification
 			this.pushNotification(PaygateNotification.createTicket(trade, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
@@ -307,7 +305,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//We have collected the payment, activate the paygate
-			this.activate(trade.getDuration());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel());
 
 			//Don't store money if the trader is creative
 			if(!this.isCreative())

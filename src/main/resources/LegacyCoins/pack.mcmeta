@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Replaces coins with the original textures",
-        "pack_format": 48
+        "description": { "translate": "resourcepack.lightmanscurrency.legacy_coins.description" },
+        "pack_format": 34
     }
 }

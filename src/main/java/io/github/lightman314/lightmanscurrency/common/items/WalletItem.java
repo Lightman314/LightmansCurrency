@@ -6,8 +6,9 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.*;
@@ -322,12 +324,12 @@ public class WalletItem extends Item{
 		if(CoinAPI.API.NoDataAvailable())
 			return;
 
-		MoneyView contents = data.getStoredMoney();
+		IMoneyHandler contentHandler = MoneyAPI.API.GetContainersMoneyHandler(data.getContents(),s -> {}, IClientTracker.forClient());
+		MoneyView contents = contentHandler.getStoredMoney();
 		if(!contents.isEmpty())
 		{
 			tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
-			for(MoneyValue val : contents.allValues())
-				tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+			tooltip.addAll(contents.getAllText(ChatFormatting.DARK_GREEN));
 		}
 	}
 	

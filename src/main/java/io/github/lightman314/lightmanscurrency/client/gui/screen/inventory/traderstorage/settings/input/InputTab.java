@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
@@ -88,12 +89,15 @@ public class InputTab extends SettingsSubTab {
                 .currentValue(this::getInputSideValue)
                 .ignore(this.getIgnoreList())
                 .handler(this::ToggleInputSide)
+                .addon(EasyAddonHelper.visibleCheck(this::allowInputs))
                 .build());
+
         this.outputWidget = this.addChild(DirectionalSettingsWidget.builder()
                 .position(screenArea.pos.offset(110,25))
                 .currentValue(this::getOutputSideValue)
                 .ignore(this.getIgnoreList())
                 .handler(this::ToggleOutputSide)
+                .addon(EasyAddonHelper.visibleCheck(this::allowOutputs))
                 .build());
 
         this.getAddons().forEach(a -> a.onOpen(this, screenArea, firstOpen));
@@ -107,8 +111,10 @@ public class InputTab extends SettingsSubTab {
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         //Side Widget Labels
-        gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 20, 7, 0x404040);
-        gui.drawString(LCText.GUI_SETTINGS_OUTPUT_SIDE.get(), 110, 7, 0x404040);
+        if(this.allowInputs())
+            gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 20, 7, 0x404040);
+        if(this.allowOutputs())
+            gui.drawString(LCText.GUI_SETTINGS_OUTPUT_SIDE.get(), 110, 7, 0x404040);
 
         this.getAddons().forEach(a -> a.renderBG(this, gui));
 
@@ -123,6 +129,18 @@ public class InputTab extends SettingsSubTab {
 
     @Override
     public void tick() { this.getAddons().forEach(a -> a.tick(this)); }
+
+    private boolean allowInputs()
+    {
+        InputTraderData trader = this.getInputTrader();
+        return trader != null && trader.allowInputs();
+    }
+
+    private boolean allowOutputs()
+    {
+        InputTraderData trader = this.getInputTrader();
+        return trader != null && trader.allowOutputs();
+    }
 
     private void ToggleInputSide(Direction side)
     {

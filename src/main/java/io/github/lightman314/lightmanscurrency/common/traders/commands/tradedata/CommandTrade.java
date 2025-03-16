@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata;
 
+import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -34,12 +36,35 @@ public class CommandTrade extends TradeData {
             .replaceAll("%PLAYER%",player.getGameProfile().getName())
             .replaceAll("%PLAYER_NAME%",player.getName().getString());
     }
+    public void setCommand(@Nullable String command) { this.command = command == null ? "" : command; }
+
+    private String description = "";
+    public String getDescription() { return this.description; }
+    public void setDescription(String description) { this.description = description; }
+
+    private String tooltip = "";
+    public String getTooltip() { return this.tooltip; }
+    public void setTooltip(String tooltip) { this.tooltip = tooltip; }
+
     public String getCommandDisplay() {
+        if(!this.description.isBlank())
+            return this.description;
         if(this.command.isBlank() || this.command.startsWith("/"))
             return this.command;
         return "/" + this.command;
     }
-    public void setCommand(@Nullable String command) { this.command = command == null ? "" : command; }
+    public List<Component> getCommandTooltip() {
+        if(!this.tooltip.isBlank())
+        {
+            List<Component> lines = new ArrayList<>();
+            for(String line : this.tooltip.split("\\\\n"))
+                lines.add(EasyText.literal(line));
+            return lines;
+        }
+        if(this.command.isBlank() || this.command.startsWith("/"))
+            return Lists.newArrayList(EasyText.literal(this.command));
+        return Lists.newArrayList(EasyText.literal("/" + this.command));
+    }
 
     public CommandTrade(boolean validateRules) { super(validateRules); }
 
@@ -109,6 +134,8 @@ public class CommandTrade extends TradeData {
     public CompoundTag getAsNBT(HolderLookup.Provider lookup) {
         CompoundTag tag = super.getAsNBT(lookup);
         tag.putString("Command",this.command);
+        tag.putString("Description",this.description);
+        tag.putString("Tooltip",this.tooltip);
         return tag;
     }
 
@@ -124,5 +151,9 @@ public class CommandTrade extends TradeData {
     protected void loadFromNBT(CompoundTag tag, HolderLookup.Provider lookup) {
         super.loadFromNBT(tag, lookup);
         this.command = tag.getString("Command");
+        if(tag.contains("Description"))
+            this.description = tag.getString("Description");
+        if(tag.contains("Tooltip"))
+            this.tooltip = tag.getString("Tooltip");
     }
 }

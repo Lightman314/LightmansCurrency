@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -84,10 +85,14 @@ public enum AncientCoinType {
     }
 
     @Nonnull
-    public String initialKey() { return "lightmanscurrency.money.ancient_coins.initial." + this.translationTag(); }
+    public String initialKey() { return "lightmanscurrency.money.ancient_coins.initial." + this.resourceSafeName(); }
+    @Nonnull
+    public String iconKey() { return "lightmanscurrency.money.ancient_coins.icon." + this.resourceSafeName(); }
 
     @Nonnull
     public Component initial() { return EasyText.translatable(this.initialKey()); }
+    @Nonnull
+    public Component icon() { return EasyText.translatable(this.iconKey()).withStyle(ChatFormatting.WHITE); }
 
     @Nonnull
     public String resourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }

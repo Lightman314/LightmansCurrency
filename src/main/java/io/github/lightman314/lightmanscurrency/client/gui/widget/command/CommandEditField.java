@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouse
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.mixin.client.CommandSuggestionsAccessor;
 import io.github.lightman314.lightmanscurrency.mixin.client.SuggestionsListAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -21,6 +22,7 @@ import net.minecraft.util.FormattedCharSequence;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -30,12 +32,16 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
     private final CommandEditField oldWidget;
     private final Consumer<String> handler;
     private final int suggestionCount;
+    private final Supplier<Boolean> showSuggestions;
+    private final String startingValue;
 
     protected CommandEditField(Builder builder) {
         super(builder);
         this.oldWidget = builder.oldWidget;
         this.handler = builder.handler;
         this.suggestionCount = builder.suggestionCount;
+        this.showSuggestions = builder.showSuggestions;
+        this.startingValue = builder.startingValue;
     }
 
     private EditBox textbox;
@@ -52,6 +58,7 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
 
         this.textbox = this.addChild(new EditBox(this.getFont(), this.getX(), this.getY(), this.width, this.height, EasyText.empty()));
         this.textbox.setMaxLength(32500);
+        this.textbox.setValue(this.startingValue);
         this.textbox.setResponder(this::onCommandChanged);
         this.textbox.visible = this.visible;
 
@@ -66,6 +73,8 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
 
     @Override
     protected void renderWidget(EasyGuiGraphics gui) {
+        if(!this.showSuggestions.get())
+            return;
         this.repositionSuggestions();
         if(!this.commandSuggestions.renderSuggestions(gui.getGui(),gui.mousePos.x,gui.mousePos.y))
         {
@@ -110,11 +119,15 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
 
     @Override
     public boolean onKeyPress(int keyCode, int scanCode, int modifiers) {
+        if(!this.showSuggestions.get())
+            return false;
         return this.commandSuggestions.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+        if(!this.showSuggestions.get())
+            return false;
         this.repositionSuggestions();
         if(!this.commandSuggestions.mouseClicked(mouseX,mouseY,button))
         {
@@ -139,7 +152,11 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) { return this.commandSuggestions.mouseScrolled(delta); }
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if(!this.showSuggestions.get())
+            return false;
+        return this.commandSuggestions.mouseScrolled(delta);
+    }
 
     public static Builder builder() { return new Builder(); }
 
@@ -150,6 +167,8 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
         private CommandEditField oldWidget = null;
         private Consumer<String> handler = s -> {};
         private int suggestionCount = 5;
+        private Supplier<Boolean> showSuggestions = () -> true;
+        private String startingValue = "";
 
         private Builder() { super(100,18); }
 
@@ -161,6 +180,10 @@ public class CommandEditField extends EasyWidgetWithChildren implements IKeyboar
         public Builder handler(Consumer<String> handler) { this.handler = handler; return this; }
 
         public Builder suggestions(int suggestionCount) { this.suggestionCount = suggestionCount; return this; }
+
+        public Builder showSuggestions(Supplier<Boolean> showSuggestions) { this.showSuggestions = showSuggestions; return this; }
+
+        public Builder startingValue(String startingValue) { this.startingValue = startingValue; return this; }
 
         public CommandEditField build() { return new CommandEditField(this); }
 
