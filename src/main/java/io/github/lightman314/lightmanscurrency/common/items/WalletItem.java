@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
@@ -336,8 +335,7 @@ public class WalletItem extends Item{
 			if(!contents.isEmpty())
 			{
 				tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
-				for(MoneyValue val : contents.allValues())
-					tooltip.add(val.getText().withStyle(ChatFormatting.DARK_GREEN));
+				tooltip.addAll(contents.getAllText(ChatFormatting.DARK_GREEN));
 			}
 		}
 	}

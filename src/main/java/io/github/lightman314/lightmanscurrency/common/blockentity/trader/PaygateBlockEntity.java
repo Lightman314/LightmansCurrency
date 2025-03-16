@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -64,9 +65,9 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	public boolean isActive() { return this.timer > 0; }
 	
-	public void activate(int duration) {
+	public void activate(int duration, int level) {
 		this.timer = duration;
-		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, true));
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, MathUtil.clamp(level,0,15)));
 		this.markTimerDirty();
 	}
 	
@@ -79,9 +80,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 			this.timer--;
 			this.markTimerDirty();
 			if(this.timer <= 0)
-			{
-				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, false));
-			}
+				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, 0));
 		}
 	}
 	

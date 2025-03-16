@@ -3,16 +3,16 @@ package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.GachaItemHandler;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.GachaTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -34,8 +35,10 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,7 +46,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,7 +57,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class GachaTrader extends TraderData {
+public class GachaTrader extends InputTraderData {
 
     public static final TraderType<GachaTrader> TYPE = new TraderType<>(VersionUtil.lcResource("gacha"), GachaTrader::new);
 
@@ -84,8 +89,11 @@ public class GachaTrader extends TraderData {
         }
     }
 
+    private final GachaItemHandler handler = new GachaItemHandler(this);
     private final GachaStorage storage = new GachaStorage(this::getMaxItems);
     public GachaStorage getStorage() { return this.storage; }
+
+    public IItemHandler getItemHandler(Direction side) { return this.handler.getHandler(side); }
 
     private final List<GachaTradeData> trades = ImmutableList.of(new GachaTradeData(this));
 
@@ -131,6 +139,7 @@ public class GachaTrader extends TraderData {
 
     @Override
     protected void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
         this.saveStorage(compound);
         this.savePrice(compound);
         this.saveColor(compound);
@@ -155,6 +164,7 @@ public class GachaTrader extends TraderData {
 
     @Override
     protected void loadAdditional(CompoundTag compound) {
+        super.loadAdditional(compound);
         if(compound.contains("Storage"))
             this.storage.load(compound.getList("Storage",Tag.TAG_COMPOUND));
         if(compound.contains("Price"))
@@ -162,6 +172,12 @@ public class GachaTrader extends TraderData {
         if(compound.contains("Color"))
             this.color = compound.getInt("Color");
     }
+
+    @Override
+    public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
+
+    @Override
+    public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
     @Override
     protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
@@ -203,7 +219,13 @@ public class GachaTrader extends TraderData {
         if(this.storage.isEmpty())
             return TradeResult.FAIL_OUT_OF_STOCK;
 
-        MoneyValue cost = this.trades.get(0).getCost(context);
+        GachaTradeData trade = this.trades.get(0);
+
+        //Check if the player is allowed to do the trade
+        if(this.runPreTradeEvent(trade,context).isCanceled())
+            return TradeResult.FAIL_TRADE_RULE_DENIAL;
+
+        MoneyValue cost = trade.getCost(context);
         if(!context.hasFunds(cost))
             return TradeResult.FAIL_CANNOT_AFFORD;
 
@@ -233,12 +255,15 @@ public class GachaTrader extends TraderData {
             taxesPaid = this.addStoredMoney(cost,true);
         //Put the item back in storage if we're a creative trader
         if(this.isCreative())
-            this.storage.insertItem(result);
+            this.storage.forceInsertItem(result);
         else
             this.markStorageDirty();
 
         //Push Notification
         this.pushNotification(GachaTradeNotification.create(result,cost,context.getPlayerReference(),this.getNotificationCategory(),taxesPaid));
+
+        //Run the post-trade event
+        this.runPostTradeEvent(trade,context,price,taxesPaid);
 
         return TradeResult.SUCCESS;
     }
@@ -253,6 +278,6 @@ public class GachaTrader extends TraderData {
     }
 
     @Override
-    protected void addPermissionOptions(List<PermissionOption> options) { }
+    public boolean allowOutputs() { return false; }
 
 }

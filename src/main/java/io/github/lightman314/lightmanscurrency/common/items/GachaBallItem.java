@@ -30,6 +30,8 @@ import java.util.function.Consumer;
 @ParametersAreNonnullByDefault
 public class GachaBallItem extends Item {
 
+    public static final int MAX_INCEPTION_LEVEL = 16;
+
     public GachaBallItem(Properties properties) { super(properties.stacksTo(1)); }
 
     @Override
@@ -44,10 +46,7 @@ public class GachaBallItem extends Item {
         ItemStack ball = player.getItemInHand(hand);
         if(ball.getItem() instanceof GachaBallItem)
         {
-            ItemStack contents = ItemStack.EMPTY;
-            CompoundTag tag = ball.getTag();
-            if(tag != null && tag.contains("GachaItem"))
-                contents = ItemStack.of(tag.getCompound("GachaItem"));
+            ItemStack contents = getContents(ball);
             ball.shrink(1);
             if(ball.isEmpty())
                 return InteractionResultHolder.success(contents);
@@ -64,6 +63,9 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItem(ItemStack contents,RandomSource random) { return createWithItemAndColor(contents,Color.getFromIndex(random.nextInt(Color.values().length))); }
     public static ItemStack createWithItemAndColor(ItemStack contents,Color color) { return createWithItemAndColor(contents,color.hexColor); }
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
+        //Don't create a new gacha ball if we are already several gacha balls deep
+        if(inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
+            return contents;
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
         CompoundTag tag = stack.getOrCreateTag();
         tag.put("GachaItem",contents.save(new CompoundTag()));
@@ -71,6 +73,28 @@ public class GachaBallItem extends Item {
         display.putInt("color",color);
         return stack;
     }
+
+    public static int inceptionLevel(ItemStack stack)
+    {
+        int count = 0;
+        ItemStack queryStack = stack;
+        while(queryStack.getItem() == ModItems.GACHA_BALL.get())
+        {
+            queryStack = getContents(queryStack);
+            count++;
+        }
+        return count;
+    }
+
+    public static ItemStack getContents(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if(tag != null && tag.contains("GachaItem"))
+            return ItemStack.of(tag.getCompound("GachaItem"));
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean canFitInsideContainerItems() { return false; }
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level context, List<Component> tooltip, TooltipFlag flag) {

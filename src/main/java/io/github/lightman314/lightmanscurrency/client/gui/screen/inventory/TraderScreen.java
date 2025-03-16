@@ -136,8 +136,8 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		gui.drawString(this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 
 		//Moved to underneath the coin slots
-		Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueText();
-		gui.drawString(valueText, TraderMenu.SLOT_OFFSET + 170 - gui.font.width(valueText) - 10, this.imageHeight - 94, 0x404040);
+		Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueLine();
+		gui.drawString(valueText, TraderMenu.SLOT_OFFSET + 160 - gui.font.width(valueText), this.imageHeight - 94, 0x404040);
 
 	}
 

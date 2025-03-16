@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -15,9 +16,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CommonProxy {
 
 	public boolean isClient() { return false; }
@@ -40,7 +43,7 @@ public class CommonProxy {
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
 
 	@Nullable
-	public Level getDimension(boolean isClient, @Nonnull ResourceKey<Level> type)
+	public Level getDimension(boolean isClient, ResourceKey<Level> type)
 	{
 		if(!isClient)
 		{
@@ -51,7 +54,6 @@ public class CommonProxy {
 		return null;
 	}
 
-	@Nonnull
 	public Level safeGetDummyLevel() throws Exception{
 		Level level = this.getDummyLevelFromServer();
 		if(level != null)
@@ -69,9 +71,9 @@ public class CommonProxy {
 
 	public void loadPlayerTrade(ClientPlayerTrade trade) { }
 
-	public void syncEventUnlocks(@Nonnull List<String> unlocks) {}
+	public void syncEventUnlocks(List<String> unlocks) {}
 
-	public void sendClientMessage(@Nonnull Component message) {}
+	public void sendClientMessage(Component message) {}
 
 	public List<GameProfile> getPlayerList(boolean logicalClient)
 	{
@@ -83,6 +85,9 @@ public class CommonProxy {
 		return new ArrayList<>();
 	}
 
-	public boolean isSelf(@Nonnull Player player) { return false; }
+	public boolean isSelf(Player player) { return false; }
+
+	@Nullable
+	public Player getLocalPlayer() { return null; }
 	
 }

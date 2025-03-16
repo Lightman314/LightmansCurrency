@@ -201,10 +201,10 @@ public class PaygateTraderData extends TraderData {
 		return false;
 	}
 	
-	private void activate(int duration) {
+	private void activate(int duration,int level) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			be.activate(duration);
+			be.activate(duration,level);
 	}
 
 	@Override
@@ -283,7 +283,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//Activate the paygate
-			this.activate(trade.getDuration());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel());
 			
 			//Push Notification
 			this.pushNotification(PaygateNotification.createTicket(trade, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
@@ -303,7 +303,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//We have collected the payment, activate the paygate
-			this.activate(trade.getDuration());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel());
 
 			//Don't store money if the trader is creative
 			if(!this.isCreative())

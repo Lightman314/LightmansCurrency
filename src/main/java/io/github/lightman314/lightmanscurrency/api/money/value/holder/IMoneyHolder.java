@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.value.holder;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import net.minecraft.network.chat.Component;
 
@@ -36,8 +35,7 @@ public interface IMoneyHolder extends IMoneyHandler {
         if(contents.isEmpty())
             return;
         tooltip.add(title);
-        for(MoneyValue val : contents.allValues())
-            tooltip.add(val.getText());
+        tooltip.addAll(contents.getAllText());
     }
     Component getTooltipTitle();
     static void sortPayFirst(@Nonnull List<IMoneyHolder> list) { list.sort(Comparator.comparingInt(IMoneyHolder::priority)); }

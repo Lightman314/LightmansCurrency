@@ -1,0 +1,58 @@
+{
+	"item.lightmanscurrency.coin_copper.icon": "\uE700",
+	"item.lightmanscurrency.coin_iron.icon": "\uE701",
+	"item.lightmanscurrency.coin_gold.icon": "\uE702",
+	"item.lightmanscurrency.coin_emerald.icon": "\uE703",
+	"item.lightmanscurrency.coin_diamond.icon": "\uE704",
+	"item.lightmanscurrency.coin_netherite.icon": "\uE705",
+	
+	"block.lightmanscurrency.coinpile_copper.icon": "\uE700",
+	"block.lightmanscurrency.coinpile_iron.icon": "\uE701",
+	"block.lightmanscurrency.coinpile_gold.icon": "\uE702",
+	"block.lightmanscurrency.coinpile_emerald.icon": "\uE703",
+	"block.lightmanscurrency.coinpile_diamond.icon": "\uE704",
+	"block.lightmanscurrency.coinpile_netherite.icon": "\uE705",
+	
+	"block.lightmanscurrency.coinblock_copper.icon": "\uE700",
+	"block.lightmanscurrency.coinblock_iron.icon": "\uE701",
+	"block.lightmanscurrency.coinblock_gold.icon": "\uE702",
+	"block.lightmanscurrency.coinblock_emerald.icon": "\uE703",
+	"block.lightmanscurrency.coinblock_diamond.icon": "\uE704",
+	"block.lightmanscurrency.coinblock_netherite.icon": "\uE705",
+	
+	"lightmanscurrency.money.chain.emeralds.icon": "\uE706",
+	"lightmanscurrency.money.chain.chocolate_coins.icon": "\uE707",
+	
+	"item.lightmanscurrency.coin_chocolate_copper.icon": "\uE708",
+	"item.lightmanscurrency.coin_chocolate_iron.icon": "\uE709",
+	"item.lightmanscurrency.coin_chocolate_gold.icon": "\uE710",
+	"item.lightmanscurrency.coin_chocolate_emerald.icon": "\uE711",
+	"item.lightmanscurrency.coin_chocolate_diamond.icon": "\uE712",
+	"item.lightmanscurrency.coin_chocolate_netherite.icon": "\uE713",
+	
+	"lightmanscurrency.money.ancient_coins.icon.copper": "\uE714",
+	"lightmanscurrency.money.ancient_coins.icon.iron": "\uE715",
+	"lightmanscurrency.money.ancient_coins.icon.gold": "\uE716",
+	"lightmanscurrency.money.ancient_coins.icon.emerald": "\uE717",
+	"lightmanscurrency.money.ancient_coins.icon.diamond": "\uE718",
+	"lightmanscurrency.money.ancient_coins.icon.ender_pearl": "\uE719",
+	"lightmanscurrency.money.ancient_coins.icon.lapis": "\uE720",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_b": "\uE721",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_e1": "\uE722",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_e2": "\uE723",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_h": "\uE724",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_i": "\uE725",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_n": "\uE726",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_o": "\uE727",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_r1": "\uE728",
+	"lightmanscurrency.money.ancient_coins.icon.netherite_r2": "\uE729",
+	
+	"tooltip.lightmanscurrency.coin.display": "%2$s",
+	"tooltip.lightmanscurrency.coin.display.worth": "%2$s %1$s",
+	"tooltip.lightmanscurrency.coin.display.number": "%1$s%2$s",
+	"tooltip.lightmanscurrency.coin.display.number.wordy": "%1$s %2$s",
+	
+	"lightmanscurrency.money.ancient_coins.display": "%1$s%3$s",
+	"lightmanscurrency.money.chain.chocolate_coins.display": "%s",
+	"lightmanscurrency.money.chain.emeralds.display": "%s"
+}

@@ -32,8 +32,6 @@ public class PrepaidCardItem extends Item implements ColoredItem {
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
 
-        tooltip.add(LCText.TOOLTIP_BETA.getWithStyle(ChatFormatting.RED));
-
         //Tooltip with balance
         CompoundTag tag = stack.getOrCreateTag();
         MoneyValue value = tag.contains("StoredMoney") ? MoneyValue.load(tag.getCompound("StoredMoney")) : MoneyValue.empty();

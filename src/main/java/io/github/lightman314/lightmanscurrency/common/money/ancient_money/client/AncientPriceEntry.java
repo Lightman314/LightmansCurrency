@@ -34,7 +34,7 @@ public class AncientPriceEntry extends DisplayEntry {
         if(tooltipOverride && additionalTooltips != null)
             return additionalTooltips;
         if(!price.isFree() && !price.isEmpty())
-            tooltips.add(LCText.ANCIENT_COIN_VALUE_DISPLAY.get(price.count,price.type.asItem().getHoverName()));
+            tooltips.add(LCText.ANCIENT_COIN_VALUE_DISPLAY.get(price.count,price.type.asItem().getHoverName(),price.type.icon()));
         return tooltips;
     }
 

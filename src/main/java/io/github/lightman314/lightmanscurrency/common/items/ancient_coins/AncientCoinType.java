@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.items.ancient_coins;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -81,10 +83,14 @@ public enum AncientCoinType {
     }
 
     @Nonnull
-    public String initialKey() { return "lightmanscurrency.money.ancient_coins.initial." + this.translationTag(); }
+    public String initialKey() { return "lightmanscurrency.money.ancient_coins.initial." + this.resourceSafeName(); }
+    @Nonnull
+    public String iconKey() { return "lightmanscurrency.money.ancient_coins.icon." + this.resourceSafeName(); }
 
     @Nonnull
     public Component initial() { return EasyText.translatable(this.initialKey()); }
+    @Nonnull
+    public Component icon() { return EasyText.translatableWithFallback(this.iconKey(),ValueDisplayData.ICON_FALLBACK_KEY).withStyle(ChatFormatting.WHITE); }
 
     @Nonnull
     public String resourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }

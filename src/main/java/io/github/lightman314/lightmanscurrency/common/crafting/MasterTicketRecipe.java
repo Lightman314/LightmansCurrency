@@ -56,7 +56,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Nonnull
     @Override
     public ItemStack assemble(@Nonnull Container container, @Nonnull RegistryAccess registryAccess) {
-        long nextTicketID = TicketDataCache.TYPE.get(false).createNextID();
+        long nextTicketID = TicketDataCache.TYPE.isLoaded(false) ? TicketDataCache.TYPE.get(false).createNextID() : -100L;
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         int color = dyeColor == null ? TicketItem.GetDefaultTicketColor(nextTicketID) : dyeColor.hexColor;

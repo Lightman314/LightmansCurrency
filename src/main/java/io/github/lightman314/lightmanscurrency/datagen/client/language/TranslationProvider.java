@@ -65,6 +65,12 @@ public abstract class TranslationProvider extends LanguageProvider {
         this.translate(entry.descriptionText,description);
     }
 
+    protected final void translate(@Nonnull ResourcePackTextEntry entry, @Nonnull String name, @Nonnull String description)
+    {
+        this.translate(entry.nameText,name);
+        this.translate(entry.descriptionText,description);
+    }
+
     protected final void translate(@Nonnull StatKey<?,?> statistic, @Nonnull String text)
     {
         this.add(StatType.getTranslationKey(statistic.key), text);

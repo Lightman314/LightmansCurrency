@@ -42,8 +42,6 @@ public class ATMCardItem extends Item implements ColoredItem {
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
 
-        tooltip.add(LCText.TOOLTIP_BETA.getWithStyle(ChatFormatting.RED));
-
         CompoundTag tag = stack.getTag();
         if(tag == null || !tag.contains("BankAccount"))
             tooltip.add(LCText.TOOLTIP_ATM_CARD_NOT_LINKED.getWithStyle(ChatFormatting.GRAY));

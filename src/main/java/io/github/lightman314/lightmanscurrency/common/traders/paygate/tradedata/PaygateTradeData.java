@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -45,6 +46,15 @@ public class PaygateTradeData extends TradeData {
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
 	public void setDuration(int duration) { this.duration = Math.max(duration, PaygateTraderData.DURATION_MIN); }
+
+	int level = 15;
+	public int getRedstoneLevel() { return this.level; }
+	public void setRedstoneLevel(int level) { this.level = MathUtil.clamp(level,1,15); }
+
+	private String description = "";
+	public String getDescription() { return this.description; }
+	public void setDescription(String description) { this.description = description; }
+
 	Item ticketItem = Items.AIR;
 	long ticketID = Long.MIN_VALUE;
 	int ticketColor = 0xFFFFFF;
@@ -157,6 +167,9 @@ public class PaygateTradeData extends TradeData {
 		CompoundTag compound = super.getAsNBT();
 
 		compound.putInt("Duration", this.getDuration());
+		compound.putInt("Level",this.level);
+		compound.putString("Description",this.description);
+
 		if(this.ticketID >= -1)
 		{
 			compound.putString("TicketItem", ForgeRegistries.ITEMS.getKey(this.ticketItem).toString());
@@ -173,6 +186,12 @@ public class PaygateTradeData extends TradeData {
 		super.loadFromNBT(compound);
 
 		this.duration = compound.getInt("Duration");
+
+		if(compound.contains("Level"))
+			this.level = compound.getInt("Level");
+
+		if(compound.contains("Description"))
+			this.description = compound.getString("Description");
 
 		if(compound.contains("TicketID"))
 		{
@@ -318,7 +337,7 @@ public class PaygateTradeData extends TradeData {
 			}
 			else
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setBoolean("PriceEdit",true));
 			}
 		}
 	}
@@ -330,7 +349,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setBoolean("PriceEdit",false));
 		}
 	}
 

@@ -213,7 +213,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             this.persistentTraderJson.add(section,newSection);
         }
         if(this.persistentTraderJson.get(section).isJsonArray())
-            return this.persistentTraderJson.get("section").getAsJsonArray();
+            return this.persistentTraderJson.get(section).getAsJsonArray();
         LightmansCurrency.LogError("Cannot get Persistent Data section '" + section + "' as it is not a JsonArray.");
         return null;
     }

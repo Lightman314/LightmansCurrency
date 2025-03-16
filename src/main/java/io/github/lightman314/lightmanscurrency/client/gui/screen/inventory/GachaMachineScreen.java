@@ -151,6 +151,13 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         //Gacha info widget
         gui.blit(GUI_TEXTURE,GACHA_INFO_AREA.pos,WIDTH + 2 * KNOB_SIZE,36,11,11);
 
+        //Labels
+        gui.drawString(this.playerInventoryTitle,8,this.getYSize() - 94, 0x404040);
+
+        //Coin Value Text
+        Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueLine();
+        gui.drawString(valueText,160 - gui.font.width(valueText), this.getYSize() - 94, 0x404040);
+
         //Render Gacha Balls in the machine itself
         GachaTrader trader = this.menu.getTrader();
         if(trader != null)

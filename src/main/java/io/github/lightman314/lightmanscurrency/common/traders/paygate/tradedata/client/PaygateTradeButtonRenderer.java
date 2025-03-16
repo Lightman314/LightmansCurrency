@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -26,7 +27,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     public PaygateTradeButtonRenderer(PaygateTradeData trade) { super(trade); }
 
     @Override
-    public int tradeButtonWidth(TradeContext context) { return 94; }
+    public int tradeButtonWidth(TradeContext context) { return this.trade.getDescription().isBlank() ? 94 : 189; }
 
     @Override
     public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
@@ -48,10 +49,10 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     }
 
     @Override
-    public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(58, 1, 34, 16); }
+    public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(58, 1, this.trade.getDescription().isBlank() ? 34 : 127, 16); }
 
     @Override
-    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.of(PaygateTradeData.formatDurationDisplay(this.trade.getDuration()), TextRenderUtil.TextFormatting.create(), Lists.newArrayList(PaygateTradeData.formatDuration(this.trade.getDuration())))); }
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return Lists.newArrayList(this.trade.getDescription().isBlank() ? DisplayEntry.of(PaygateTradeData.formatDurationDisplay(this.trade.getDuration()), TextRenderUtil.TextFormatting.create(), Lists.newArrayList(PaygateTradeData.formatDuration(this.trade.getDuration()),LCText.GUI_TRADER_PAYGATE_LEVEL.get(this.trade.getRedstoneLevel()))) : DisplayEntry.of(EasyText.literal(this.trade.getDescription()),0xFFFFFF,127)); }
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {

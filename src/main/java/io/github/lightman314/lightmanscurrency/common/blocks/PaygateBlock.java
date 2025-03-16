@@ -28,20 +28,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
 public class PaygateBlock extends TraderBlockRotatable {
 	
-	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+	public static final IntegerProperty POWER_LEVEL = BlockStateProperties.LEVEL;
 	
 	public PaygateBlock(Properties properties)
 	{
 		super(properties);
 		this.registerDefaultState(
 			this.defaultBlockState()
-				.setValue(POWERED, false)
+				.setValue(POWER_LEVEL, 0)
 		);
 	}
 	
@@ -73,7 +73,7 @@ public class PaygateBlock extends TraderBlockRotatable {
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        builder.add(POWERED);
+        builder.add(POWER_LEVEL);
     }
 	
 	@Override
@@ -83,9 +83,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 	@Override
 	@SuppressWarnings("deprecation")
 	public int getSignal(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
-		if(state.getValue(POWERED))
-			return 15;
-		return 0;
+		return state.getValue(POWER_LEVEL);
 	}
 	
 	@Override

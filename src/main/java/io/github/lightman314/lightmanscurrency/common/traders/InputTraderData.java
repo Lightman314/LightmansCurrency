@@ -51,8 +51,12 @@ public abstract class InputTraderData extends TraderData {
 		super(type, level, pos);
 		this.ignoreSides = ignoreSides;
 	}
+
+	public boolean allowInputs() { return true; }
 	
 	public boolean allowInputSide(Direction side) {
+		if(!this.allowInputs())
+			return false;
 		if(this.ignoreSides.contains(side))
 			return false;
 		return this.inputSides.getOrDefault(side, false);
@@ -66,8 +70,12 @@ public abstract class InputTraderData extends TraderData {
 		}
 		return false;
 	}
+
+	public boolean allowOutputs() { return true; }
 	
 	public boolean allowOutputSide(Direction side) {
+		if(!this.allowOutputs())
+			return false;
 		if(this.ignoreSides.contains(side))
 			return false;
 		return this.outputSides.getOrDefault(side, false);
@@ -83,6 +91,8 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	public void setInputSide(Player player, Direction side, boolean value) {
+		if(!this.allowInputs())
+			return;
 		if(this.hasPermission(player, Permissions.InputTrader.EXTERNAL_INPUTS) && value != this.allowInputSide(side))
 		{
 			if(this.ignoreSides.contains(side))
@@ -96,6 +106,8 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	public void setOutputSide(Player player, Direction side, boolean value) {
+		if(!this.allowOutputs())
+			return;
 		if(this.hasPermission(player, Permissions.InputTrader.EXTERNAL_INPUTS) && value != this.allowOutputSide(side))
 		{
 			if(this.ignoreSides.contains(side))
@@ -115,6 +127,8 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	protected final void saveInputSides(CompoundTag compound) {
+		if(!this.allowInputs())
+			return;
 		CompoundTag tag = new CompoundTag();
 		for(Direction side : Direction.values())
 		{
@@ -126,6 +140,8 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	protected final void saveOutputSides(CompoundTag compound) {
+		if(!this.allowOutputs())
+			return;
 		CompoundTag tag = new CompoundTag();
 		for(Direction side : Direction.values())
 		{
@@ -138,7 +154,7 @@ public abstract class InputTraderData extends TraderData {
 	
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-		if(compound.contains("InputSides"))
+		if(compound.contains("InputSides") && this.allowInputs())
 		{
 			this.inputSides.clear();
 			CompoundTag tag = compound.getCompound("InputSides");
@@ -151,7 +167,7 @@ public abstract class InputTraderData extends TraderData {
 			}
 		}
 		
-		if(compound.contains("OutputSides"))
+		if(compound.contains("OutputSides") && this.allowOutputs())
 		{
 			this.outputSides.clear();
 			CompoundTag tag = compound.getCompound("OutputSides");
