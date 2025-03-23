@@ -18,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -39,7 +41,11 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 0, 100); }
 	
 	private PlayerDiscounts() { super(TYPE); }
-	
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconUtil.ICON_DISCOUNT_LIST; }
+
 	@Override
 	public void beforeTrade(@Nonnull PreTradeEvent event)
 	{

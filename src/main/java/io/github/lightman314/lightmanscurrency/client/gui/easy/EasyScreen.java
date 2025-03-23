@@ -36,7 +36,6 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
     private final List<IKeyboardListener> keyboardListeners = new ArrayList<>();
 
-
     @Nonnull
     @Override
     public final Font getFont() { return this.font; }
@@ -87,9 +86,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected abstract void initialize(ScreenArea screenArea);
 
     @Override
-    public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
-        super.renderBackground(mcgui, mouseX, mouseY, partialTicks);
-    }
+    public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) { }
 
     @Override
     public final void renderTransparentBackground(@Nonnull GuiGraphics gui) {
@@ -116,8 +113,9 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         this.renderMenuBackground(mcgui);
         //Render background
         this.renderBG(gui);
-        //Render Widgets
-        super.render(mcgui, mouseX, mouseY, partialTicks);
+        //Render Renderables
+        for(Renderable renderable : ImmutableList.copyOf(this.renderables))
+            renderable.render(mcgui,mouseX,mouseY,partialTicks);
         //Render Late Renders
         for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
         {

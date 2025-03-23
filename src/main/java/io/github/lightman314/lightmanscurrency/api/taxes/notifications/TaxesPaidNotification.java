@@ -1,12 +1,9 @@
-package io.github.lightman314.lightmanscurrency.common.notifications.types.taxes;
+package io.github.lightman314.lightmanscurrency.api.taxes.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -15,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class TaxesPaidNotification extends Notification {
+public class TaxesPaidNotification extends SingleLineNotification {
 
     public static final NotificationType<TaxesPaidNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "taxes_paid"),TaxesPaidNotification::new);
 

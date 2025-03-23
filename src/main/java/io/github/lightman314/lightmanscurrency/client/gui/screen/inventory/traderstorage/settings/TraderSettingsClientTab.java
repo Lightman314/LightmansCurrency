@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.SmallTabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -47,7 +47,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        LazyWidgetPositioner tabPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createClockwiseWraparound(screenArea,WidgetRotation.RIGHT),TabButton.SIZE));
+        LazyWidgetPositioner tabPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createClockwiseWraparound(screenArea,WidgetRotation.RIGHT),SmallTabButton.SIZE));
 
         if(firstOpen)
             this.selectedTab = 0;
@@ -62,7 +62,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
         {
             final int tabIndex = i;
             SettingsSubTab tab = this.tabs.get(i);
-            TabButton newButton = this.addChild(TabButton.builder()
+            SmallTabButton newButton = this.addChild(SmallTabButton.builder()
                     .pressAction(() -> this.openTab(tabIndex))
                     .tab(tab)
                     .addon(EasyAddonHelper.visibleCheck(tab::canOpen))

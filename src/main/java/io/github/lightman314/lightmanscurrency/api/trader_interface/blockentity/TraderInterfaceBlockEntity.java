@@ -347,7 +347,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public void setHandlerDirty(SidedHandler<?> handler) {
 		this.setChanged();
-		if(!this.isClient())
+		if(this.isServer())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveHandler(new CompoundTag(), handler, this.level.registryAccess()));
 	}
 	

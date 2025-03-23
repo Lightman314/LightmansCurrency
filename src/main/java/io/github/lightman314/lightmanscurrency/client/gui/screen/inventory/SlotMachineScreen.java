@@ -212,10 +212,9 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     @Override
     protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
-        gui.pushPose().TranslateToForeground();
+        //gui.pushPose().TranslateToForeground();
         if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(gui.mousePos, 10, 10))
             gui.renderComponentTooltip(this.menu.getContext().getAvailableFundsDescription());
-
     }
 
     @Nullable
@@ -233,9 +232,6 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         }
         return null;
     }
-
-    @Override
-    protected void renderAfterTooltips(@Nonnull EasyGuiGraphics gui) { gui.popPose(); }
 
     private List<Component> getInteractionTooltip(int count) {
         SlotMachineTraderData trader = this.menu.getTrader();

@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.event_coins;
+package io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -9,22 +9,20 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifier;
-import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
+import io.github.lightman314.lightmanscurrency.common.seasonal_events.data.EventData;
+import io.github.lightman314.lightmanscurrency.common.seasonal_events.data.EventRange;
+import io.github.lightman314.lightmanscurrency.common.loot.ConfigItemTier;
+import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber
 public final class ChocolateEventCoins {
 
     public static final String CHAIN = "chocolate_coins";
-
-    public static final ILootModifier LOOT_MODIFIER = new ChocolateLootModifier();
 
     private static ChainData CHAIN_DATA = null;
 
@@ -34,11 +32,6 @@ public final class ChocolateEventCoins {
     public static final EventRange CHRISTMAS = EventRange.create(12,1,12,31);
     //Valentine's event for the day before to the day after
     public static final EventRange VALENTINES = EventRange.create(2,13,2,15);
-
-    public static boolean shouldModifyLoot() {
-        return LCConfig.COMMON.chocolateEventCoinLootDrops.get() &&
-            (CHRISTMAS.isActive() || VALENTINES.isActive());
-    }
 
     public static ChainData getChainData()
     {
@@ -80,23 +73,20 @@ public final class ChocolateEventCoins {
             event.addEntry(getChainData());
     }
 
-    private static class ChocolateLootModifier extends SimpleLootModifier
-    {
-
-        @Override
-        protected boolean isEnabled() { return shouldModifyLoot(); }
-        @Override
-        protected double getSuccessChance() { return LCConfig.COMMON.chocolateCoinDropRate.get(); }
-        @Override
-        public void replaceLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot) {
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem1.get(), ModItems.COIN_CHOCOLATE_COPPER.get());
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem2.get(), ModItems.COIN_CHOCOLATE_IRON.get());
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem3.get(), ModItems.COIN_CHOCOLATE_GOLD.get());
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem4.get(), ModItems.COIN_CHOCOLATE_EMERALD.get());
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem5.get(), ModItems.COIN_CHOCOLATE_DIAMOND.get());
-            this.replaceRandomItems(random, loot, LCConfig.COMMON.lootItem6.get(), ModItems.COIN_CHOCOLATE_NETHERITE.get());
-        }
-
+    public static EventData lazyEvent(EventRange range, String eventID) { return lazyEvent(range,eventID,null); }
+    public static EventData lazyEvent(EventRange range, String eventID, @Nullable Component rewardMessage) {
+        return EventData.builder(eventID)
+                .dateRange(range)
+                .replacementRate(0.1d)
+                .replacementItem(ConfigItemTier.T1,ModItems.COIN_CHOCOLATE_COPPER.get())
+                .replacementItem(ConfigItemTier.T2,ModItems.COIN_CHOCOLATE_IRON.get())
+                .replacementItem(ConfigItemTier.T3,ModItems.COIN_CHOCOLATE_GOLD.get())
+                .replacementItem(ConfigItemTier.T4,ModItems.COIN_CHOCOLATE_EMERALD.get())
+                .replacementItem(ConfigItemTier.T5,ModItems.COIN_CHOCOLATE_DIAMOND.get())
+                .replacementItem(ConfigItemTier.T6,ModItems.COIN_CHOCOLATE_NETHERITE.get())
+                .startingReward(ModItems.COIN_CHOCOLATE_GOLD,32)
+                .startingRewardMessage(rewardMessage)
+                .build();
     }
 
 }

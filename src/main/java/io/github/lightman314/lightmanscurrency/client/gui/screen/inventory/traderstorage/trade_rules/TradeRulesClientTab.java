@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.SmallTabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
@@ -25,7 +25,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
 
     private int selectedTab = 0;
     private final List<TradeRulesClientSubTab> tabs = new ArrayList<>();
-    private final List<TabButton> tabButtons = new ArrayList<>();
+    private final List<SmallTabButton> tabButtons = new ArrayList<>();
     private LazyWidgetPositioner widgetPositioner = null;
 
     private TradeRulesClientSubTab getCurrentTab() {
@@ -92,24 +92,25 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         }
 
         if(this.widgetPositioner == null)
-            this.widgetPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(this.screen.getArea().width,0),TabButton.SIZE));
+            this.widgetPositioner = this.addChild(LazyWidgetPositioner.create(this.screen,LazyWidgetPositioner.createTopdown(WidgetRotation.RIGHT),ScreenPosition.of(this.screen.getArea().width,0), SmallTabButton.SIZE));
         else
             this.widgetPositioner.clear();
 
         //Create Tab buttons
-        for(TabButton button : this.tabButtons)
+        for(SmallTabButton button : this.tabButtons)
             this.removeChild(button);
         for(int i = 0; i < this.tabs.size(); ++i)
         {
             final int tabIndex = i;
 
             TradeRulesClientSubTab tab = this.tabs.get(tabIndex);
-            TabButton button = this.addChild(TabButton.builder()
+            SmallTabButton button = this.addChild(SmallTabButton.builder()
                     .pressAction(() -> this.openTab(tabIndex))
                     .tab(tab)
                     .addon(EasyAddonHelper.visibleCheck(tab::isVisible))
                     .addon(EasyAddonHelper.activeCheck(() -> tabIndex != this.selectedTab))
                     .build());
+            this.tabButtons.add(button);
             this.widgetPositioner.addWidget(button);
         }
 

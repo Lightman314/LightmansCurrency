@@ -6,9 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -16,12 +16,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class GachaTradeNotification extends TaxableNotification {
+public class GachaTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<GachaTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("gacha_trade"), GachaTradeNotification::new);
 
@@ -54,6 +55,7 @@ public class GachaTradeNotification extends TaxableNotification {
     public NotificationCategory getCategory() { return this.traderData; }
 
     
+    @Nonnull
     @Override
     protected MutableComponent getNormalMessage() { return LCText.NOTIFICATION_TRADE_GACHA.get(this.customer,this.cost.getText("NULL"),this.item.format()); }
 

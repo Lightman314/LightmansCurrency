@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

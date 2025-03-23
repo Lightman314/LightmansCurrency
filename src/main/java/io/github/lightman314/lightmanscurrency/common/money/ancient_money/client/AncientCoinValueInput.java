@@ -28,9 +28,10 @@ public class AncientCoinValueInput extends MoneyInputHandler {
     @Override
     public Component inputName() { return LCText.ANCIENT_COIN_VALUE_NAME.get(); }
 
+    //Generate matching unique name for the money value with this ancient money type
     @Nonnull
     @Override
-    public String getUniqueName() { return AncientMoneyType.TYPE.toString(); }
+    public String getUniqueName() { return MoneyValue.generateCustomUniqueName(AncientMoneyType.TYPE,selectedType.resourceSafeName()); }
 
     @Override
     public boolean isForValue(@Nonnull MoneyValue value) { return value instanceof AncientMoneyValue; }
@@ -48,7 +49,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
                 .position(widgetArea.pos.offset(buttonX - 30, 33))
                 .pressAction(this::PreviousType)
                 .sprite(MoneyValueWidget.SPRITE_LEFT_ARROW)
-                .addon(EasyAddonHelper.visibleCheck(this::isVisible))
+                .addon(EasyAddonHelper.visibleCheck(() -> this.isVisible() && this.canChangeHandler()))
                 .build());
 
         //Next Type Button
@@ -56,7 +57,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
                 .position(widgetArea.pos.offset(buttonX + 40, 33))
                 .pressAction(this::NextType)
                 .sprite(MoneyValueWidget.SPRITE_RIGHT_ARROW)
-                .addon(EasyAddonHelper.visibleCheck(this::isVisible))
+                .addon(EasyAddonHelper.visibleCheck(() -> this.isVisible() && this.canChangeHandler()))
                 .build());
 
         //Increase Button
@@ -110,12 +111,14 @@ public class AncientCoinValueInput extends MoneyInputHandler {
     private void NextType()
     {
         this.selectedType = this.selectedType.next();
+        this.onInternalHandlerChange();
         this.changeValue();
     }
 
     private void PreviousType()
     {
         this.selectedType = this.selectedType.previous();
+        this.onInternalHandlerChange();
         this.changeValue();
     }
 

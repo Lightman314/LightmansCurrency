@@ -6,8 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
@@ -17,7 +17,7 @@ import net.minecraft.network.chat.MutableComponent;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class CommandTradeNotification extends TaxableNotification {
+public class CommandTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<CommandTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("command_trade"),CommandTradeNotification::new);
 

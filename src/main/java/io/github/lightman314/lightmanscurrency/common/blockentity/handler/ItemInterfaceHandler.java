@@ -37,13 +37,9 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 	
 	@Override
 	public IItemHandler getHandler(Direction side) {
-		if(this.inputSides.get(side) || this.outputSides.get(side))
-		{
-			if(!this.handlers.containsKey(side))
-				this.handlers.put(side, new Handler(this, side));
-			return this.handlers.get(side);
-		}
-		return null;
+		if(!this.handlers.containsKey(side))
+			this.handlers.put(side, new Handler(this, side));
+		return this.handlers.get(side);
 	}
 	
 	private static class Handler implements IItemHandler {
@@ -53,13 +49,11 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 		
 		Handler(ItemInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 		
-		protected final boolean allowInputs() { return this.handler.inputSides.get(this.side); }
-		protected final boolean allowOutputs() { return this.handler.outputSides.get(this.side); }
+		protected final boolean allowInputs() { return this.handler.allowInputSide(this.side); }
+		protected final boolean allowOutputs() { return this.handler.allowOutputSide(this.side); }
 		
 		@Override
-		public int getSlots() {
-			return this.handler.getItemBuffer().getSlots();
-		}
+		public int getSlots() { return this.handler.getItemBuffer().getSlots(); }
 
 		@Nonnull
 		@Override

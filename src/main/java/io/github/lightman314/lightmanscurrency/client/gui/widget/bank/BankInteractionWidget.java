@@ -48,12 +48,11 @@ public class BankInteractionWidget extends EasyWidgetWithChildren {
 	@Override
 	public void addChildren(@Nonnull ScreenArea area) {
 
-		MoneyValueWidget.Builder builder = MoneyValueWidget.builder()
+		this.amountSelection = this.addChild(MoneyValueWidget.builder()
 				.position(area.pos)
-				.blockFreeInputs();
-		if(this.drawMoneyBG)
-			builder.drawBG();
-		this.amountSelection = this.addChild(builder.build());
+				.blockFreeInputs()
+				.drawBG(this.drawMoneyBG)
+				.build());
 
 		this.addChild(EasyTextButton.builder()
 				.position(area.pos.offset(13,MoneyValueWidget.HEIGHT + this.spacing))

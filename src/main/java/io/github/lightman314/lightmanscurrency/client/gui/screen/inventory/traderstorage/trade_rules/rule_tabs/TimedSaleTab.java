@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -13,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -23,10 +21,6 @@ import javax.annotation.Nonnull;
 public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
 
     public TimedSaleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, TimedSale.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_TIMED_SALE; }
 
     EditBox discountInput;
 
@@ -74,14 +68,14 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
             return;
 
         gui.pushOffset(this.discountInput);
-        gui.drawString(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 6, 0x404040);
         gui.popOffset();
 
         Component infoText = LCText.GUI_TIMED_SALE_INFO_INACTIVE.get(new TimeUtil.TimeData(this.getRule().getDuration()).getShortString());
         if(this.getRule().timerActive())
             infoText = LCText.GUI_TIMED_SALE_INFO_ACTIVE.get(this.getRule().getTimeRemaining().getShortString(3));
 
-        gui.drawString(infoText, 25, 35, 0xFFFFFF);
+        gui.drawString(infoText, 25, 35, 0x404040);
 
     }
 
@@ -91,6 +85,11 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         TimedSale rule = this.getRule();
         this.buttonStartSale.active = rule != null && (rule.timerActive() || (rule.getDuration() > 0 && rule.isActive()));
         TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
+        if(rule.getStartTime() != 0 && !rule.timerActive())
+        {
+            rule.setStartTime(0);
+            this.sendUpdateMessage(this.builder().setFlag("StopSale"));
+        }
     }
 
     private Component getButtonText()
@@ -105,7 +104,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         return rule != null && rule.timerActive() ? LCText.TOOLTIP_TIMED_SALE_STOP.get() : LCText.TOOLTIP_TIMED_SALE_START.get();
     }
 
-    void PressSetDiscountButton(EasyButton button)
+    void PressSetDiscountButton()
     {
         int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
         TimedSale rule = this.getRule();
@@ -114,13 +113,20 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         this.sendUpdateMessage(this.builder().setInt("Discount", discount));
     }
 
-    void PressStartButton(EasyButton button)
+    void PressStartButton()
     {
         TimedSale rule = this.getRule();
         boolean setActive = rule != null && !rule.timerActive();
-        if(rule != null)
-            rule.setStartTime(rule.timerActive() ? 0 : TimeUtil.getCurrentTime());
-        this.sendUpdateMessage(this.builder().setBoolean("StartSale", setActive));
+        if(rule.timerActive())
+        {
+            rule.setStartTime(0);
+            this.sendUpdateMessage(this.builder().setFlag("StopSale"));
+        }
+        else
+        {
+            rule.setStartTime(TimeUtil.getCurrentTime());
+            this.sendUpdateMessage(this.builder().setFlag("StartSale"));
+        }
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)

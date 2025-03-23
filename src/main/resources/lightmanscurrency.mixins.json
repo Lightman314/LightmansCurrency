@@ -8,12 +8,17 @@
     "AbstractContainerMenuAccessor",
     "InventoryMenuMixin",
     "MerchantMenuMixin",
+    "ShapedAndShapelessRecipeMixin",
     "TemplatePoolAccess",
+    "compat.create.StockTickerBlockEntityAccessor",
+    "compat.create.StockTickerBlockMixin",
+    "compat.create.StockTickerInteractionHandlerMixin",
     "compat.farmingforblockheads.MarketMenuMixin",
     "compat.supplementaries.ModVillagerTradesMixin",
     "compat.supplementaries.RedMerchantMenuMixin"
   ],
   "client": [
+    "client.AbstractContainerScreenAccessor",
     "client.AbstractWidgetMixin",
     "client.CommandSuggestionsAccessor",
     "client.SlotWrapperMixin",

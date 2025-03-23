@@ -196,18 +196,16 @@ public final class SlotMachineRenderer implements IEasyTickable {
     public void render(@Nonnull EasyGuiGraphics gui)
     {
 
-        int startX = (this.screen.getXSize()/2) - ((SlotMachineEntry.ITEM_LIMIT * SlotMachineLine.BLOCK_SIZE)/2);
-        int y = 10;
+        //Draw overlay
+        gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.screen.getXSize(), this.screen.getYSize());
+
+        int startX = 53;
+        int y = 11;
         for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
         {
             this.lines.get(i).render(gui, startX, y);
             startX += SlotMachineLine.BLOCK_SIZE;
         }
-
-        //Move in from of the previously rendered lines
-        gui.pushPose().TranslateToForeground();
-        gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.screen.getXSize(), this.screen.getYSize());
-        gui.popPose();
 
     }
 

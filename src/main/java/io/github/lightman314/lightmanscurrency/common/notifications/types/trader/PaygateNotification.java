@@ -6,8 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import net.minecraft.core.HolderLookup;
@@ -18,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class PaygateNotification extends TaxableNotification {
+public class PaygateNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<PaygateNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "paygate_trade"),PaygateNotification::new);
 	
@@ -75,12 +75,12 @@ public class PaygateNotification extends TaxableNotification {
 				return LCText.NOTIFICATION_TRADE_PAYGATE_TICKET.get(this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 		}
 		else
-			return LCText.NOTIFICATION_TRADE_PAYGATE_MONEY.get(this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
+			return LCText.NOTIFICATION_TRADE_PAYGATE_MONEY.get(this.customer, this.cost.getText(), PaygateTradeData.formatDurationShort(this.duration));
 		
 	}
 
 	@Override
-	protected void saveNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 
 		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("Duration", this.duration);
@@ -96,7 +96,7 @@ public class PaygateNotification extends TaxableNotification {
 	}
 
 	@Override
-	protected void loadNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.duration = compound.getInt("Duration");

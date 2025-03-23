@@ -6,14 +6,20 @@ import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.UnaryOperator;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class Notification implements ISidedObject {
 
 	private boolean isClient = false;
@@ -35,30 +41,30 @@ public abstract class Notification implements ISidedObject {
 
 	protected Notification() { this.timeStamp = TimeUtil.getCurrentTime(); }
 
-	@Nonnull
 	protected abstract NotificationType<?> getType();
 
-	@Nonnull
 	public abstract NotificationCategory getCategory();
 
-	@Nonnull
-	public abstract MutableComponent getMessage();
-
-	@Nonnull
-	public MutableComponent getGeneralMessage() { return LCText.NOTIFICATION_FORMAT_GENERAL.get(this.getCategory().getName(), this.getMessage()); }
-
-	@Nonnull
-	public MutableComponent getChatMessage() {
-		return LCText.NOTIFICATION_FORMAT_CHAT.get(
+	public abstract List<MutableComponent> getMessageLines();
+	public List<MutableComponent> getGeneralMessage() { return this.getModifiedMessage(line -> LCText.NOTIFICATION_FORMAT_GENERAL.get(this.getCategory().getName(),line)); }
+	public List<MutableComponent> getChatMessage() {
+		return this.getModifiedMessage(line -> LCText.NOTIFICATION_FORMAT_CHAT.get(
 				LCText.NOTIFICATION_FORMAT_CHAT_TITLE.get(this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
-				this.getMessage());
+				line
+		));
 	}
 
-	@Nonnull
+	protected final List<MutableComponent> getModifiedMessage(UnaryOperator<MutableComponent> edit) {
+		List<MutableComponent> message = new ArrayList<>(this.getMessageLines());
+		if(message.isEmpty())
+			return message;
+		message.set(0,edit.apply(message.getFirst()));
+		return message;
+	}
+	
 	public Component getTimeStampMessage() { return LCText.NOTIFICATION_TIMESTAMP.get(TimeUtil.formatTime(this.timeStamp)); }
 
-	@Nonnull
-	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
+	public final CompoundTag save(HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		if(this.seen)
 			compound.putBoolean("Seen", true);
@@ -72,9 +78,9 @@ public abstract class Notification implements ISidedObject {
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
+	protected abstract void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup);
 	
-	public final void load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public final void load(CompoundTag compound, HolderLookup.Provider lookup) {
 		if(compound.contains("Seen"))
 			this.seen = true;
 		if(compound.contains("Count", Tag.TAG_INT))
@@ -86,14 +92,14 @@ public abstract class Notification implements ISidedObject {
 		this.loadAdditional(compound, lookup);
 	}
 	
-	protected abstract void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup);
+	protected abstract void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup);
 	
 	/**
 	 * Determines whether the new notification should stack or not.
 	 * @param other The other notification. Use this to determine if the other notification is a duplicate or not.
 	 * @return True if the notification was stacked.
 	 */
-	public boolean onNewNotification(@Nonnull Notification other) {
+	public boolean onNewNotification(Notification other) {
 		if(this.canMerge(other))
 		{
 			this.count++;
@@ -107,16 +113,16 @@ public abstract class Notification implements ISidedObject {
 	/**
 	 * Whether the other notification should be merged with this one.
 	 */
-	protected abstract boolean canMerge(@Nonnull Notification other);
+	protected abstract boolean canMerge(Notification other);
 
 	@Override
-	@Nonnull
+	
 	public Notification flagAsClient() { return this.flagAsClient(true); }
 	@Override
-	@Nonnull
+	
 	public Notification flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
 	@Override
-	@Nonnull
-	public Notification flagAsClient(@Nonnull IClientTracker context) { return this.flagAsClient(context.isClient()); }
+	
+	public Notification flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 
 }

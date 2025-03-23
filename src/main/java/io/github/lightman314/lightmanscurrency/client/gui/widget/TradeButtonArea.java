@@ -317,7 +317,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 	
 	private void resetButtons() {
-		
+
 		this.allButtons.forEach(this::removeChild);
 		this.allButtons.clear();
 		

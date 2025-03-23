@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.client;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;

@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.items.data;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.coins.CoinContainerMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
@@ -107,7 +109,8 @@ public final class WalletDataWrapper extends MoneyViewer {
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         this.contentCache = this.getContents();
-        CoinContainerMoneyHandler.queryContainerContents(this.contentCache, builder);
+        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(this.contentCache,s -> {}, IClientTracker.forClient());
+        builder.merge(handler.getStoredMoney());
     }
 
 }

@@ -59,16 +59,10 @@ public abstract class TranslationProvider extends LanguageProvider {
         this.translate(entry.shortText, shortText);
     }
 
-    protected final void translate(@Nonnull AdvancementTextEntry entry, @Nonnull String title, @Nonnull String description)
+    protected final void translate(@Nonnull DualTextEntry entry, @Nonnull String first, @Nonnull String second)
     {
-        this.translate(entry.titleText,title);
-        this.translate(entry.descriptionText,description);
-    }
-
-    protected final void translate(@Nonnull ResourcePackTextEntry entry, @Nonnull String name, @Nonnull String description)
-    {
-        this.translate(entry.nameText,name);
-        this.translate(entry.descriptionText,description);
+        this.translate(entry.first,first);
+        this.translate(entry.second,second);
     }
 
     protected final void translate(@Nonnull StatKey<?,?> statistic, @Nonnull String text)

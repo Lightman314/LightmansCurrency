@@ -18,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +48,11 @@ public class PlayerTradeLimit extends TradeRule{
 	public void resetMemory() { this.memory.clear(); }
 	
 	private PlayerTradeLimit() { super(TYPE); }
-	
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconUtil.ICON_COUNT_PLAYER; }
+
 	@Override
 	public void beforeTrade(@Nonnull PreTradeEvent event) {
 		

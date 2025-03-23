@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.playertrading.IPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -128,7 +128,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 
-    public MoneyView getAvailableFunds() { return WalletHelpers.getWalletMoney(this.player); }
+    public MoneyView getAvailableFunds() { return MoneyAPI.API.GetPlayersMoneyHandler(this.player).getStoredMoney(); }
 
     public void onTradeChange() { }
 

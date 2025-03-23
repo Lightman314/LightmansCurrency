@@ -43,7 +43,7 @@ public class BasicTradeEditTab extends TraderStorageTab implements IClientTracke
 		TraderData trader = this.menu.getTrader();
 		if(trader == null)
 			return false;
-		return trader.getTradeCount() > 1 && trader.hasPermission(this.menu.getPlayer(),Permissions.EDIT_TRADES);
+		return trader.getTradeCount() > 1 && trader.hasPermission(this.menu.getPlayer(),Permissions.EDIT_TRADES) && trader.supportsMultiPriceEditing();
 	}
 
 	@Nonnull

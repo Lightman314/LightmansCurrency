@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.*;
@@ -12,6 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.mixin.client.AbstractContainerScreenAccessor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -20,16 +24,23 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements IEasyScreen {
 
+    @Nullable
+    private List<Renderable> renderableCache = null;
+    private List<Renderable> getActiveRenderableList() { return this.renderableCache == null ? this.renderables : this.renderableCache; }
     private final List<IPreRender> preRenders = new ArrayList<>();
     private final List<ILateRender> lateRenders = new ArrayList<>();
     private final List<IEasyTickable> guiTickers = new ArrayList<>();
@@ -114,7 +125,15 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         //Render Background
         this.renderBG(gui);
         //Render Widgets, Slots, etc.
-        super.render(mcgui, mouseX, mouseY, partialTicks);
+        for(Renderable renderable : new ArrayList<>(this.renderables))
+            renderable.render(mcgui,mouseX,mouseY,partialTicks);
+        //Render vanilla menu
+        //Temporarily store the renderables in a local list before running vanilla rendering code
+        this.renderableCache = new ArrayList<>(this.renderables);
+        this.renderables.clear();
+        super.render(mcgui,mouseX,mouseY,partialTicks);
+        this.renderables.addAll(this.renderableCache);
+        this.renderableCache = null;
         //Render Late Renders
         for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
         {
@@ -128,6 +147,73 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         EasyScreenHelper.RenderTooltips(gui, ImmutableList.copyOf(this.tooltipSources));
         //Render After Tooltips
         this.renderAfterTooltips(gui);
+    }
+
+    //Copied from AbstractContainerScreen#render but removed the vanilla renderable & label rendering
+    private void renderVanillaMenu(GuiGraphics gui, int mouseX, int mouseY, float partialTick)
+    {
+        int i = this.getGuiLeft();
+        int j = this.getGuiTop();
+
+        RenderSystem.disableDepthTest();
+        gui.pose().pushPose();
+        gui.pose().translate((float)i, (float)j, 0.0F);
+        this.hoveredSlot = null;
+
+        for (int k = 0; k < this.menu.slots.size(); k++) {
+            Slot slot = this.menu.slots.get(k);
+            if (slot.isActive()) {
+                this.renderSlot(gui, slot);
+            }
+
+            if (this.isHovering(slot.x,slot.y,16,16, mouseX, mouseY) && slot.isActive()) {
+                this.hoveredSlot = slot;
+                this.renderSlotHighlight(gui, slot, mouseX, mouseY, partialTick);
+            }
+        }
+
+        //Vanillla: Render Labels
+
+        if(this instanceof AbstractContainerScreenAccessor accessor)
+        {
+            ItemStack draggingItem = accessor.getDraggingItem();
+            ItemStack itemstack = draggingItem.isEmpty() ? this.menu.getCarried() : draggingItem;
+            if (!itemstack.isEmpty()) {
+                int l1 = 8;
+                int i2 = draggingItem.isEmpty() ? 8 : 16;
+                String s = null;
+                if (!draggingItem.isEmpty() && accessor.getIsSplittingStack()) {
+                    itemstack = itemstack.copyWithCount(Mth.ceil((float)itemstack.getCount() / 2.0F));
+                } else if (this.isQuickCrafting && this.quickCraftSlots.size() > 1) {
+                    itemstack = itemstack.copyWithCount(accessor.getQuickCraftingRemainder());
+                    if (itemstack.isEmpty()) {
+                        s = ChatFormatting.YELLOW + "0";
+                    }
+                }
+
+                accessor.invokeRenderFloatingItem(gui, itemstack, mouseX - i - 8, mouseY - j - i2, s);
+            }
+
+            ItemStack snapbackItem = accessor.getSnapbackItem();
+            if (!snapbackItem.isEmpty()) {
+                float f = (float)(Util.getMillis() - accessor.getSnapbackTime()) / 100.0F;
+                if (f >= 1.0F) {
+                    f = 1.0F;
+                    accessor.setSnapbackItem(ItemStack.EMPTY);
+                }
+
+                Slot snapbackEnd = accessor.getSnapbackEnd();
+                int j2 = snapbackEnd.x - accessor.getSnapbackStartX();
+                int k2 = snapbackEnd.y - accessor.getSnapbackStartY();
+                int j1 = accessor.getSnapbackStartX() + (int)((float)j2 * f);
+                int k1 = accessor.getSnapbackStartY() + (int)((float)k2 * f);
+                accessor.invokeRenderFloatingItem(gui, snapbackItem, j1, k1, null);
+            }
+        }
+
+        gui.pose().popPose();
+        RenderSystem.enableDepthTest();
+
     }
 
     protected void renderTick() {}
@@ -158,8 +244,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             if(w.addChildrenBeforeThis())
                 w.addChildren();
         }
-        if(child instanceof Renderable r && !this.renderables.contains(child))
-            this.renderables.add(r);
+        if(child instanceof Renderable r && !this.getActiveRenderableList().contains(child))
+            this.getActiveRenderableList().add(r);
         if(child instanceof GuiEventListener && child instanceof NarratableEntry)
             super.addWidget((GuiEventListener & NarratableEntry)child);
         if(child instanceof IEasyTickable ticker && !this.guiTickers.contains(ticker))
@@ -186,7 +272,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     @Override
     public final void removeChild(Object child) {
         if(child instanceof Renderable r)
-            this.renderables.remove(r);
+            this.getActiveRenderableList().remove(r);
         if(child instanceof GuiEventListener l)
             super.removeWidget(l);
         if(child instanceof IEasyTickable ticker)

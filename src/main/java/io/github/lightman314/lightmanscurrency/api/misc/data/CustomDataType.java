@@ -20,7 +20,9 @@ public final class CustomDataType<T extends CustomData> {
 
     public final String fileName;
     private final Supplier<T> constructor;
-    public CustomDataType(String fileName,Supplier<T> constructor) { this.fileName = fileName; this.constructor = constructor; }
+    public final boolean serverOnly;
+    public CustomDataType(String fileName,Supplier<T> constructor) { this(fileName,constructor,false); }
+    public CustomDataType(String fileName,Supplier<T> constructor,boolean serverOnly) { this.fileName = fileName; this.constructor = constructor; this.serverOnly = serverOnly; }
 
     /**
      * Used to create a new instance of the data<br>

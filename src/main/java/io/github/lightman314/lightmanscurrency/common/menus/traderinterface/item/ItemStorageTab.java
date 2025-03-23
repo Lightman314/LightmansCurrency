@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
@@ -23,7 +24,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class ItemStorageTab extends TraderInterfaceTab{
+public class ItemStorageTab extends TraderInterfaceTab {
 
 	public ItemStorageTab(TraderInterfaceMenu menu) { super(menu); }
 
@@ -217,16 +218,9 @@ public class ItemStorageTab extends TraderInterfaceTab{
 		}
 	}
 	
-	public void toggleInputSlot(Direction side) {
+	public void toggleSide(Direction side,DirectionalSettingsState state) {
 		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
-			be.getItemHandler().toggleInputSide(side);
-			be.setHandlerDirty(be.getItemHandler());
-		}
-	}
-	
-	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
-			be.getItemHandler().toggleOutputSide(side);
+			be.getItemHandler().toggleSide(side,state);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}

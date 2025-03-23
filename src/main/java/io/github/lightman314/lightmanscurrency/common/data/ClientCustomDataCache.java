@@ -25,6 +25,8 @@ public class ClientCustomDataCache {
     @Nullable
     public static <T extends CustomData> T getData(CustomDataType<T> type)
     {
+        if(type.serverOnly)
+            return null;
         ResourceLocation dataID = LCRegistries.CUSTOM_DATA.getKey(type);
         if(dataID == null)
         {

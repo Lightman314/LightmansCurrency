@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class LowBalanceNotification extends Notification{
+public class LowBalanceNotification extends SingleLineNotification {
 
 	public static final NotificationType<LowBalanceNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_low_balance"),LowBalanceNotification::new);
 	
@@ -42,7 +43,7 @@ public class LowBalanceNotification extends Notification{
 
 	@Nonnull
 	@Override
-	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_LOW_BALANCE.get(this.value.getString()); }
+	public MutableComponent getMessage() { return LCText.NOTIFICATION_BANK_LOW_BALANCE.get(this.value.getText()); }
 
 	@Override
 	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {

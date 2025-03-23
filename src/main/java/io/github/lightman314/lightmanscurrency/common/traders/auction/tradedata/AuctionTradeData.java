@@ -193,6 +193,8 @@ public class AuctionTradeData extends TradeData {
 	}
 	
 	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, MoneyValue amount) {
+		if(this.cancelled)
+			return false;
 		if(!validateBidAmount(amount))
 			return false;
 		

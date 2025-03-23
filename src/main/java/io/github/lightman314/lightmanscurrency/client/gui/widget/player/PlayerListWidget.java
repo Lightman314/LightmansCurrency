@@ -168,7 +168,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
             PlayerReference pendingPlayer = this.playerInTextBox();
             if(pendingPlayer != null)
             {
-                gui.blitBackgroundOfSize(GUI_TEXTURE,0,20,this.width - 20,20,0,20,180,20,5);
+                gui.blitHorizSplit(GUI_TEXTURE,0,20,this.width - 20,20,0,20,180,5);
                 gui.renderItem(pendingPlayer.getSkull(true),2,22);
                 gui.drawShadowed(pendingPlayer.getName(true),24,26,0xFFFFFF);
             }
@@ -182,7 +182,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
             boolean missingEntry = index < 0 || index >= entries.size();
             int drawWidth = missingEntry ? this.width : this.width - this.actions.size() * 20;
             //Fit background width to not overlap with the action buttons
-            gui.blitBackgroundOfSize(GUI_TEXTURE,0,startY + (20 * r),drawWidth,20,0,0,180,20,5);
+            gui.blitHorizSplit(GUI_TEXTURE,0,startY + (20 * r),drawWidth,20,0,0,180,5);
             if(missingEntry)
                 continue;
             PlayerEntry entry = entries.get(index);

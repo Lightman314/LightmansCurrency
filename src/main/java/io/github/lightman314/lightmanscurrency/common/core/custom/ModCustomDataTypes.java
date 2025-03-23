@@ -15,6 +15,7 @@ public class ModCustomDataTypes {
         ModRegistries.CUSTOM_DATA.register("ejection_data",() -> EjectionDataCache.TYPE);
         ModRegistries.CUSTOM_DATA.register("tax_entries",() -> TaxDataCache.TYPE);
         ModRegistries.CUSTOM_DATA.register("tickets",() -> TicketDataCache.TYPE);
+        ModRegistries.CUSTOM_DATA.register("event_rewards",() -> EventRewardDataCache.TYPE);
     }
 
 }

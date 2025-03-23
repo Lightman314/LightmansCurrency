@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -13,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PriceFluctuation;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
 
@@ -22,10 +20,6 @@ import javax.annotation.Nonnull;
 public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
 
     public PriceFluctuationTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PriceFluctuation.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
 
     EditBox fluctuationInput;
     EasyButton buttonSetFluctuation;
@@ -65,10 +59,10 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
             return;
 
         gui.pushOffset(this.fluctuationInput);
-        gui.drawString(LCText.GUI_PRICE_FLUCTUATION_LABEL.get(), this.fluctuationInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PRICE_FLUCTUATION_LABEL.get(), this.fluctuationInput.getWidth() + 4, 6, 0x404040);
         gui.popOffset();
 
-        TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_PRICE_FLUCTUATION_INFO.get(rule.getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), 10, this.screen.getXSize() - 20, 35, 0xFFFFFF);
+        TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_PRICE_FLUCTUATION_INFO.get(rule.getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), 10, this.screen.getXSize() - 20, 35, 0x404040);
 
     }
 

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
@@ -434,13 +435,16 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_MEMBERS,"Members will be paid %s");
         this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_ADMINS,"Admins will be paid %s");
         this.translate(LCText.GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS,"Required Salary Funds:");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS,"Not enough funds are currently available to pay next salary!");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_CURRENT_REQUIRED_FUNDS,"Currently Required Salary Funds:");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS,"Not enough funds are currently available to pay the next salary!");
+        this.translate(LCText.GUI_TEAM_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS,"If all members login, we will not have enough funds to pay the next salary!");
         this.translate(LCText.GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED,"Last attempt to pay the salary failed!");
         this.translate(LCText.TOOLTIP_TEAM_SALARY_SETTINGS,"Salary Settings");
         this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_ENABLE,"Enable Auto-Salary");
         this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_DISABLE,"Disable Auto-Salary");
         this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_NOTIFICATION,"Push Notification");
         this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_DELAY,"Auto-Salary Delay");
+        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_REQUIRE_LOGIN,"Require Login");
         this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY,"Trigger Salary Payment");
         this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS,"Salary Payment Settings");
         this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE,"Enable Creative Salary");
@@ -823,21 +827,21 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_DAILY_TRADES_INFO,"Players can interact with a trade %s after interacting with the previous one");
 
         //Permissions
-        this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage");
-        this.translate(LCText.PERMISSION_CHANGE_NAME,"Change Name");
-        this.translate(LCText.PERMISSION_EDIT_TRADES,"Modify Trades");
-        this.translate(LCText.PERMISSION_COLLECT_MONEY,"Collect Money");
-        this.translate(LCText.PERMISSION_STORE_MONEY, "Store Money");
-        this.translate(LCText.PERMISSION_EDIT_TRADE_RULES, "Edit Trade Rules");
-        this.translate(LCText.PERMISSION_EDIT_SETTINGS, "Access Settings");
-        this.translate(LCText.PERMISSION_EDIT_ALLIES, "Add/Remove Allies");
-        this.translate(LCText.PERMISSION_EDIT_PERMISSIONS, "Edit Permissions");
-        this.translate(LCText.PERMISSION_VIEW_LOGS, "View Logs");
-        this.translate(LCText.PERMISSION_BANK_LINK, "Link Bank Account");
-        this.translate(LCText.PERMISSION_BREAK_MACHINE, "Break Machine");
-        this.translate(LCText.PERMISSION_TRANSFER_OWNERSHIP, "Transfer Ownership");
-        this.translate(LCText.PERMISSION_INTERACTION_LINK, "Setup Interface");
-        this.translate(LCText.PERMISSION_EDIT_INPUTS,"Change Input & Output Settings");
+        this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage","Allows player to access the Storage Menu and add or remove items from the traders storage.");
+        this.translate(LCText.PERMISSION_CHANGE_NAME,"Display Settings","Allows player to change the traders display name & custom icon");
+        this.translate(LCText.PERMISSION_EDIT_TRADES,"Modify Trades","Allows player to create remove and modify the trades");
+        this.translate(LCText.PERMISSION_COLLECT_MONEY,"Collect Money","Allows the player to collect money from this traders internal money storage");
+        this.translate(LCText.PERMISSION_STORE_MONEY, "Store Money","Allows the player to store money to this traders internal money storage");
+        this.translate(LCText.PERMISSION_EDIT_TRADE_RULES, "Edit Trade Rules","Allows the player to activate, deactivate, and otherwise edit the Trade Rules attached to this trader or its trades (Edit Trades permissions required to edit Trade-Specific rules)");
+        this.translate(LCText.PERMISSION_EDIT_SETTINGS, "Access Settings","Allows the player to access most settings in the main Settings tab. Required for players to utilize other settings-related permissions (like the Display Settings permission)");
+        this.translate(LCText.PERMISSION_EDIT_ALLIES, "Add/Remove Allies","Allows the player to add or remove other players (or themselves) from the list of Allies");
+        this.translate(LCText.PERMISSION_EDIT_PERMISSIONS, "Edit Permissions","Allows the player to edit the permissions exactly as you are");
+        this.translate(LCText.PERMISSION_VIEW_LOGS, "View Logs","Allows the player to view this machines interaction logs");
+        this.translate(LCText.PERMISSION_BANK_LINK, "Link Bank Account","Allows the player to enable or disable the 'Link to Bank Account' setting");
+        this.translate(LCText.PERMISSION_BREAK_MACHINE, "Break or Move Machine","Allows the player to break the machine in the world. Also required to pick up the trader as an item to be moved elsewhere");
+        this.translate(LCText.PERMISSION_TRANSFER_OWNERSHIP, "Transfer Ownership","Allows the player to change the owner of this machine to any valid player or team");
+        this.translate(LCText.PERMISSION_INTERACTION_LINK, "Setup Interface","Allows the player to set up a Trader Interface that can automatically restock and/or drain product from this machines storage");
+        this.translate(LCText.PERMISSION_EDIT_INPUTS,"Change Input & Output Settings","Allows the player to change which sides of the machine can have product inserted or extracted from them");
 
         //Inventory Buttons
         this.translate(LCText.TOOLTIP_NOTIFICATION_BUTTON,"Open Notification Manager");
@@ -858,6 +862,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_INPUT_SIDES.get(Direction.SOUTH),"Front");
         this.translate(LCText.GUI_INPUT_SIDES.get(Direction.WEST),"Left");
         this.translate(LCText.GUI_INPUT_SIDES.get(Direction.EAST),"Right");
+        this.translate(LCText.GUI_DIRECTIONAL_STATE.get(DirectionalSettingsState.NONE),"Nothing");
+        this.translate(LCText.GUI_DIRECTIONAL_STATE.get(DirectionalSettingsState.INPUT),"Input Only");
+        this.translate(LCText.GUI_DIRECTIONAL_STATE.get(DirectionalSettingsState.INPUT_AND_OUTPUT),"Input & Output");
+        this.translate(LCText.GUI_DIRECTIONAL_STATE.get(DirectionalSettingsState.OUTPUT),"Output Only");
+        this.translate(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(true),"true");
+        this.translate(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(false),"false");
 
         //Persistent Data
         this.translate(LCText.GUI_PERSISTENT_ID, "ID: ");
@@ -1111,6 +1121,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_TAXES_DELETE_FAIL, "No Tax Collector with that ID exists");
         this.translate(LCText.COMMAND_ADMIN_TAXES_FORCE_DISABLE_SUCCESS,"Disabled %s active Tax Collectors");
         this.translate(LCText.COMMAND_ADMIN_TAXES_FORCE_DISABLE_FAIL,"No Tax Collectors are currently active");
+        this.translate(LCText.COMMAND_ADMIN_EVENT_CLEAR_SUCCESS,"Successfully cleared reward cache for %s");
+        this.translate(LCText.COMMAND_ADMIN_EVENT_CLEAR_FAIL,"No player rewards existed for %s");
         this.translate(LCText.COMMAND_ADMIN_EVENT_LIST_NONE,"No event flags are unlocked for this player");
         this.translate(LCText.COMMAND_ADMIN_EVENT_UNLOCK_SUCCESS,"Unlocked %s for this player");
         this.translate(LCText.COMMAND_ADMIN_EVENT_UNLOCK_FAIL,"%s is already unlocked for this player");
@@ -1177,6 +1189,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ADVANCEMENT_EVENT_CHOCOLATE,"Chocolate Wonders","Play during a special holiday! Unlocks the ability to use chocolate coins as money");
         this.translate(LCText.ADVANCEMENT_EVENT_CHRISTMAS,"A Christmas Shopping Spree!","Played during a very jolly time!");
         this.translate(LCText.ADVANCEMENT_EVENT_VALENTINES,"Love is in your wallet!","Played during the celebration of love");
+
+        //Seasonal Events
+        this.translate(LCText.SEASONAL_EVENT_CHRISTMAS,"It's Christmas Time! Here, have some chocolate!");
+        this.translate(LCText.SEASONAL_EVENT_VALENTINES,"It's nearing Valentines! Here, have some chocolate!");
+        this.translate(LCText.SEASONAL_EVENT_BIRTHDAY,"It's Lightman's Birthday! Here's a gift from me to you!");
 
         //Resource Pack Names
         this.translate(LCText.RESOURCE_PACK_RUPEES,"LC Rupees (WIP)","Replaces the LC coins with rupees");

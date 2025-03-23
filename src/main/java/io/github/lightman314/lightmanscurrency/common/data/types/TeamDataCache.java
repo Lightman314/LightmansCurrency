@@ -132,8 +132,11 @@ public class TeamDataCache extends CustomData implements IServerTicker {
 
         HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
         for(Team team : this.teams.values())
+        {
             this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save(lookup)),player);
-
+            //Flag the player as having joined *after* sending the initial packet so that any changes to the online list are sent afterwords
+            team.onPlayerJoin(player);
+        }
     }
 
 }

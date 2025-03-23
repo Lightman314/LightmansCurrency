@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -9,14 +10,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
@@ -24,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -41,9 +42,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	private static final int WIDGET_OFFSET = Y_OFFSET + 18 * ROWS + 4;
 	
-	DirectionalSettingsWidget inputSettings;
-	DirectionalSettingsWidget outputSettings;
-	
 	public ItemStorageClientTab(Object screen, ItemStorageTab commonTab) { super(screen, commonTab); }
 
 	int scroll = 0;
@@ -56,17 +54,11 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
-	
-	private DirectionalSettings getInputSettings() {
-		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
-			return ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemHandler().getInputSides();
-		return new DirectionalSettings();
-	}
-	
-	private DirectionalSettings getOutputSettings() { 
+
+	private ItemInterfaceHandler getItemData() {
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
-			return be.getItemHandler().getOutputSides();
-		return new DirectionalSettings();
+			return be.getItemHandler();
+		return null;
 	}
 	
 	@Override
@@ -84,17 +76,10 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 				.listener(this)
 				.build());
 		
-		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
-				.currentValue(this.getInputSettings()::get)
-				.ignore(this.getInputSettings().ignoreSides)
-				.handler(this::ToggleInputSide)
-				.build());
-		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
-				.currentValue(this.getOutputSettings()::get)
-				.ignore(this.getOutputSettings().ignoreSides)
-				.handler(this::ToggleOutputSide)
+		this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2,WIDGET_OFFSET + 9))
+				.object(this::getItemData)
+				.handlers(this::ToggleSide)
 				.build());
 		
 		this.addChild(PlainButton.builder()
@@ -146,9 +131,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 			
 			//Render the input/output labels
-			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
-			Component outputText = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
-			gui.drawString(outputText, 173 - gui.font.width(outputText), WIDGET_OFFSET, 0x404040);
+			TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_INPUT_SIDE.get(),this.screen.getXSize() / 2, WIDGET_OFFSET, 0x404040);
 		}
 		
 	}
@@ -252,12 +235,17 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		return Math.max(((this.totalStorageSlots() - 1) / COLUMNS) - ROWS + 1, 0);
 	}
 	
-	private void ToggleInputSide(Direction side) {
-		this.commonTab.toggleInputSlot(side);
-	}
-	
-	private void ToggleOutputSide(Direction side) {
-		this.commonTab.toggleOutputSlot(side);
+	private void ToggleSide(Direction side,boolean inverse) {
+		ItemInterfaceHandler data = this.getItemData();
+		if(data != null)
+		{
+			DirectionalSettingsState state = this.getItemData().getSidedState(side);
+			if(inverse)
+				state = state.getPrevious(data);
+			else
+				state = state.getNext(data);
+			this.commonTab.toggleSide(side,state);
+		}
 	}
 
 	@Nullable

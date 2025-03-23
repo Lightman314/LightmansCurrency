@@ -13,8 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -29,10 +27,6 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
 
     private EditBox smallStockEdit;
     private EditBox largeStockEdit;
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_DEMAND_PRICING; }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {

@@ -68,6 +68,7 @@ public class AuctionBidTab extends TraderClientTab {
 				.position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2,10 + this.tradeDisplay.getHeight()))
 				.oldIfNotFirst(firstOpen,this.bidAmount)
 				.startingValue(this.getTrade().getMinNextBid())
+				.allowHandlerChange(false)
 				.blockFreeInputs()
 				.build());
 		
@@ -93,7 +94,8 @@ public class AuctionBidTab extends TraderClientTab {
 	
 	@Override
 	public void tick() {
-		if(this.getTrade() == null)
+		AuctionTradeData trade = this.getTrade();
+		if(trade == null || !trade.isValid())
 		{
 			this.screen.closeTab();
 			return;

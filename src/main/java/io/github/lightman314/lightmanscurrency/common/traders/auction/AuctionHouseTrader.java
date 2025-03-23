@@ -353,6 +353,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public int getTradeStock(int tradeIndex) { return 0; }
 
 	@Override
+	public boolean supportsMultiPriceEditing() { return false; }
+
+	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }
 	
 	@Override

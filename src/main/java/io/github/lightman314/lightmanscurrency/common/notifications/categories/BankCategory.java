@@ -41,7 +41,7 @@ public class BankCategory extends NotificationCategory {
 	public boolean matches(NotificationCategory other) {
 		if(other instanceof BankCategory bc)
 		{
-			return bc.name.getString().equals(this.name.getString());
+			return bc.name.equals(this.name);
 		}
 		return false;
 	}

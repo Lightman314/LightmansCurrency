@@ -33,7 +33,7 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	public void lateRender(@Nonnull EasyGuiGraphics gui) {
 		if(this.isVisible())
 		{
-			gui.pushOffset(this.getPosition());
+			gui.pushOffset(this);
 			gui.pushPose().TranslateToForeground();
 			//Draw the background
 			int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
@@ -41,22 +41,13 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 				gui.setColor(0.5f,0.5f,0.5f);
 			else
 				gui.resetColor();
-			gui.blit(DropdownWidget.GUI_TEXTURE, 0, 0, 0, offset, 2, DropdownWidget.HEIGHT);
-			int xOffset = 0;
-			while(xOffset < this.width - 4)
-			{
-				int xPart = Math.min(this.width - 4 - xOffset, 252);
-				gui.blit(DropdownWidget.GUI_TEXTURE, 2 + xOffset, 0, 2, offset, xPart, DropdownWidget.HEIGHT);
-				xOffset += xPart;
-			}
-			gui.blit(DropdownWidget.GUI_TEXTURE, this.width - 2, 0, 254, offset, 2, DropdownWidget.HEIGHT);
+			gui.blitHorizSplit(DropdownWidget.GUI_TEXTURE, 0,0,this.width,this.height,0,offset,156,12);
 			//Draw the option text
 			gui.drawString(TextRenderUtil.fitString(this.optionText, this.width - 4), 2, 2, 0x404040);
 
 			gui.resetColor();
 
-			gui.popOffset();
-			gui.popPose();
+			gui.popOffset().popPose();
 		}
 	}
 

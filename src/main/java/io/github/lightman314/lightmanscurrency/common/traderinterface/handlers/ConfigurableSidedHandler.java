@@ -1,43 +1,62 @@
 package io.github.lightman314.lightmanscurrency.common.traderinterface.handlers;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.Block;
 
-public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> implements IDirectionalSettingsObject {
+
+	protected final DirectionalSettings directionalSettings = new DirectionalSettings(this);
 	
-	protected final DirectionalSettings inputSides;
-	public DirectionalSettings getInputSides() { return this.inputSides; }
-	protected final DirectionalSettings outputSides;
-	public DirectionalSettings getOutputSides() { return this.outputSides; }
-	
-	protected static final String UPDATE_INPUT_SIDE = "inputSide";
-	protected static final String UPDATE_OUTPUT_SIDE = "outputSide";
-	
+	protected static final String UPDATE_SIDE = "updateSide";
+
+	private final ImmutableList<Direction> ignoreSides;
+
 	protected ConfigurableSidedHandler() { this(ImmutableList.of()); }
-	
+
 	protected ConfigurableSidedHandler(ImmutableList<Direction> ignoreSides) {
-		this.inputSides = new DirectionalSettings(ignoreSides);
-		this.outputSides = new DirectionalSettings(ignoreSides);
+		this.ignoreSides = ignoreSides;
 	}
-	
-	public void toggleInputSide(@Nonnull Direction side) {
-		
-		this.inputSides.set(side, !this.inputSides.get(side));
+
+	@Override
+	public List<Direction> getIgnoredSides() { return this.ignoreSides; }
+
+	@Override
+	public DirectionalSettingsState getSidedState(Direction side) { return this.directionalSettings.getState(side); }
+
+	@Nullable
+	@Override
+	public Block getDisplayBlock() {
+		TraderInterfaceBlockEntity be = this.getParent();
+		return be == null ? null : be.getBlockState().getBlock();
+	}
+
+	public void toggleSide(Direction side,DirectionalSettingsState newState) {
+		if(this.getSidedState(side) == newState)
+			return;
+		this.directionalSettings.setState(side,newState);
 		this.markDirty();
 		if(this.isClient())
 		{
-			CompoundTag message = initUpdateInfo(UPDATE_INPUT_SIDE);
+			CompoundTag message = initUpdateInfo(UPDATE_SIDE);
 			message.putInt("side", side.get3DDataValue());
-			message.putBoolean("newValue", this.inputSides.get(side));
+			message.putString("newValue", newState.toString());
 			this.sendMessage(message);
 		}
 		
@@ -57,105 +76,62 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 		return false;
 	}
 	
-	public void toggleOutputSide(Direction side) {
-		
-		this.outputSides.set(side, !this.outputSides.get(side));
-		this.markDirty();
-		if(this.isClient())
-		{
-			CompoundTag message = initUpdateInfo(UPDATE_OUTPUT_SIDE);
-			message.putInt("side", side.get3DDataValue());
-			message.putBoolean("newValue", this.outputSides.get(side));
-			this.sendMessage(message);
-		}
-		
-	}
-	
 	@Override
 	public void receiveMessage(CompoundTag compound) {
-		if(isUpdateType(compound, UPDATE_INPUT_SIDE))
+		if(isUpdateType(compound, UPDATE_SIDE))
 		{
 			Direction side = Direction.from3DDataValue(compound.getInt("side"));
-			if(compound.getBoolean("newValue") != this.inputSides.get(side))
-				this.toggleInputSide(side);
+			DirectionalSettingsState state = DirectionalSettingsState.parse(compound.getString("newValue"));
+			if(state != this.getSidedState(side))
+				this.toggleSide(side,state);
 		}
-		else if(isUpdateType(compound, UPDATE_OUTPUT_SIDE))
-		{
-			Direction side = Direction.from3DDataValue(compound.getInt("side"));
-			if(compound.getBoolean("newValue") != this.outputSides.get(side))
-				this.toggleOutputSide(side);
-		}
-		
 	}
 	
 	@Override
-	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
+	public final CompoundTag save(HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
-		compound.put("InputSides", this.inputSides.save(new CompoundTag()));
-		compound.put("OutputSides", this.outputSides.save(new CompoundTag()));
+		this.directionalSettings.save(compound,"InputOutputSides");
 		this.saveAdditional(compound, lookup);
 		return compound;
 	}
 	
-	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) { }
 
 	@Override
-	public void load(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public void load(CompoundTag compound, HolderLookup.Provider lookup) {
+		this.directionalSettings.load(compound,"InputOutputSides");
 		if(compound.contains("InputSides", Tag.TAG_COMPOUND))
-			this.inputSides.load(compound.getCompound("InputSides"));
+		{
+			//Load old input states
+			CompoundTag entry = compound.getCompound("InputSides");
+			for(Direction side : Direction.values())
+			{
+				if(this.ignoreSides.contains(side))
+					continue;
+				if(compound.contains(side.toString()) && compound.getBoolean(side.toString()))
+					this.directionalSettings.setState(side,DirectionalSettingsState.INPUT);
+			}
+		}
 		if(compound.contains("OutputSides", Tag.TAG_COMPOUND))
-			this.outputSides.load(compound.getCompound("OutputSides"));
+		{
+			//Load old output states
+			CompoundTag entry = compound.getCompound("OutputSides");
+			for(Direction side : Direction.values())
+			{
+				if(this.ignoreSides.contains(side))
+					continue;
+				if(compound.contains(side.toString()) && compound.getBoolean(side.toString()))
+				{
+					DirectionalSettingsState state = this.directionalSettings.getState(side);
+					if(state.allowsInputs())
+						this.directionalSettings.setState(side,DirectionalSettingsState.INPUT_AND_OUTPUT);
+					else
+						this.directionalSettings.setState(side,DirectionalSettingsState.OUTPUT);
+				}
+			}
+		}
 	}
-	
-	public static class DirectionalSettings {
 
-		public final ImmutableList<Direction> ignoreSides;
-		private final Map<Direction,Boolean> sideValues = new HashMap<>();
-		
-		public DirectionalSettings() { this(ImmutableList.of()); }
-		
-		public DirectionalSettings(ImmutableList<Direction> ignoreSides)
-		{
-			this.ignoreSides = ignoreSides;
-		}
-		
-		public boolean allows(Direction side) { return !this.ignoreSides.contains(side); }
-		
-		public boolean get(Direction side) {
-			if(this.ignoreSides.contains(side))
-				return false;
-			return this.sideValues.getOrDefault(side, false);
-		}
-		
-		public void set(Direction side, boolean value) {
-			if(this.ignoreSides.contains(side))
-				return;
-			this.sideValues.put(side, value);
-		}
-		
-		public CompoundTag save(CompoundTag compound)
-		{
-			for(Direction side : Direction.values())
-			{
-				if(this.ignoreSides.contains(side))
-					continue;
-				compound.putBoolean(side.toString(), this.get(side));
-			}
-			return compound;
-		}
-		
-		public void load(CompoundTag compound)
-		{
-			this.sideValues.clear();
-			for(Direction side : Direction.values())
-			{
-				if(this.ignoreSides.contains(side))
-					continue;
-				if(compound.contains(side.toString()))
-					this.set(side, compound.getBoolean(side.toString()));
-			}
-		}
-		
-	}
+
 
 }

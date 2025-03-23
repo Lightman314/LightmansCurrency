@@ -55,7 +55,7 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
         //Don't create a new gacha ball if we are already several gacha balls deep
         if(inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
-            return contents;
+            return contents.copy();
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
         stack.set(ModDataComponents.GACHA_ITEM,new ItemStackData(contents.copy()));
         stack.set(DataComponents.DYED_COLOR,new DyedItemColor(color,true));

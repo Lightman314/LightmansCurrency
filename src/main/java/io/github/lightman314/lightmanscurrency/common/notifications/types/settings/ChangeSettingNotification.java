@@ -2,19 +2,22 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.setti
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public abstract class ChangeSettingNotification extends Notification {
+public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 	public static final NotificationType<Advanced> ADVANCED_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "change_settings_advanced"),ChangeSettingNotification::createAdvanced);
 	public static final NotificationType<Simple> SIMPLE_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "change_settings_simple"),ChangeSettingNotification::createSimple);
@@ -52,8 +55,9 @@ public abstract class ChangeSettingNotification extends Notification {
 
 
 		private Advanced() { }
+		public Advanced(PlayerReference player, String setting, int newValue, int oldValue) { this(player,setting,String.valueOf(newValue),String.valueOf(oldValue)); }
 		public Advanced(PlayerReference player, String setting, String newValue, String oldValue) { super(player, setting); this.newValue = newValue; this.oldValue = oldValue; }
-		
+
 		@Nonnull
         @Override
 		protected NotificationType<Advanced> getType() { return ADVANCED_TYPE; }
@@ -90,11 +94,14 @@ public abstract class ChangeSettingNotification extends Notification {
 	public static class Simple extends ChangeSettingNotification
 	{
 
-		String newValue;
+		Component newValue;
 
 		private Simple() {}
-		public Simple(PlayerReference player, String setting, String newValue) { super(player, setting); this.newValue = newValue; }
-		
+		public Simple(PlayerReference player, String setting, int newValue) { this(player,setting,String.valueOf(newValue)); }
+		public Simple(PlayerReference player, String setting, boolean newValue) { this(player,setting, LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(newValue).get()); }
+		public Simple(PlayerReference player, String setting, String newValue) { this(player,setting, EasyText.literal(newValue)); }
+		public Simple(PlayerReference player, String setting, Component newValue) { super(player, setting); this.newValue = newValue; }
+
 		@Nonnull
         @Override
 		protected NotificationType<Simple> getType() { return SIMPLE_TYPE; }
@@ -108,13 +115,13 @@ public abstract class ChangeSettingNotification extends Notification {
 		@Override
 		protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 			super.saveAdditional(compound,lookup);
-			compound.putString("NewValue", this.newValue);
+			compound.putString("NewValue",Component.Serializer.toJson(this.newValue,lookup));
 		}
 		
 		@Override
 		protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 			super.loadAdditional(compound,lookup);
-			this.newValue = compound.getString("NewValue");
+			this.newValue = Component.Serializer.fromJson(compound.getString("NewValue"),lookup);
 		}
 
 		@Override

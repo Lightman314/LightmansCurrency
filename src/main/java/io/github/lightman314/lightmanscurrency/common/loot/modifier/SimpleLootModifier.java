@@ -12,7 +12,7 @@ import java.util.List;
 public abstract class SimpleLootModifier implements ILootModifier {
 
     @Override
-    public boolean tryModifyLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot) {
+    public final boolean tryModifyLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot) {
         if(this.isEnabled())
             this.replaceLoot(random, loot);
         return false;
@@ -64,7 +64,7 @@ public abstract class SimpleLootModifier implements ILootModifier {
 
     protected abstract void replaceLoot(@Nonnull RandomSource random, @Nonnull List<ItemStack> loot);
 
-    protected abstract boolean isEnabled();
+    public abstract boolean isEnabled();
     protected abstract double getSuccessChance();
 
 }

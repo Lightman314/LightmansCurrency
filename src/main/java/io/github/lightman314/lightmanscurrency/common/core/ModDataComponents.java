@@ -13,6 +13,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
 
@@ -51,6 +52,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<List<MobEffectInstance>>> CHOCOLATE_EFFECTS;
     public static final Supplier<DataComponentType<Float>> CHOCOLATE_HEALING;
     public static final Supplier<DataComponentType<AncientCoinType>> ANCIENT_COIN_TYPE;
+    public static final Supplier<DataComponentType<Unit>> ANCIENT_COIN_RANDOM;
 
     static {
 
@@ -80,6 +82,7 @@ public class ModDataComponents {
         CHOCOLATE_EFFECTS = register("chocolate_effects", builder -> builder.persistent(MobEffectInstance.CODEC.listOf()));
         CHOCOLATE_HEALING = registerFloat("chocolate_healing");
         ANCIENT_COIN_TYPE = register("ancient_coin_type", builder -> builder.persistent(AncientCoinType.CODEC));
+        ANCIENT_COIN_RANDOM = register("ancient_coin_random", builder -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
 
     }
 

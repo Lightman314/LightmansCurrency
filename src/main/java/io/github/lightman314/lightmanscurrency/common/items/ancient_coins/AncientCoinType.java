@@ -9,16 +9,23 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public enum AncientCoinType {
 
     COPPER("copper"), IRON("iron"), GOLD("gold"), EMERALD("emerald"), DIAMOND("diamond"),
@@ -36,7 +43,7 @@ public enum AncientCoinType {
 
     private static List<String> tags = null;
 
-    public static Collection<String> tags() {
+    public static List<String> tags() {
         if(tags == null)
         {
             List<String> t = new ArrayList<>();
@@ -53,57 +60,47 @@ public enum AncientCoinType {
     public final boolean fireResistant;
     private final int ignoreChars;
     public final String tag;
-    AncientCoinType(@Nonnull String tag) { this(tag,false,0); }
-    AncientCoinType(@Nonnull String tag, boolean fireResistant, int ignoreChars) { this.tag = tag; this.fireResistant = fireResistant; this.ignoreChars = ignoreChars; }
+    AncientCoinType(String tag) { this(tag,false,0); }
+    AncientCoinType(String tag, boolean fireResistant, int ignoreChars) { this.tag = tag; this.fireResistant = fireResistant; this.ignoreChars = ignoreChars; }
 
     public static final Codec<AncientCoinType> CODEC = EnumUtil.buildCodec(AncientCoinType.class,"CoinType");
 
-    @Nonnull
     public ItemStack asItem() {
         ItemStack stack = new ItemStack(ModItems.COIN_ANCIENT.get());
         stack.set(ModDataComponents.ANCIENT_COIN_TYPE,this);
         return stack;
     }
-    @Nonnull
-    public ItemStack asItem(long count) { return this.asItem((int)count); }
-    @Nonnull
+    
+    public ItemStack asItem(long count) { return this.asItem((int)Math.min(count,Integer.MAX_VALUE)); }
     public ItemStack asItem(int count)
     {
         ItemStack item = this.asItem();
         item.setCount(count);
         return item;
     }
-
-    @Nonnull
+    
     public ResourceLocation texture() { return VersionUtil.lcResource("item/ancient_coin/" + this.resourceSafeName()); }
 
-    @Nonnull
     public String translationTag() {
         if(this.ignoreChars <= 0)
             return this.resourceSafeName();
         String safeName = this.resourceSafeName();
         return safeName.substring(0,safeName.length() - this.ignoreChars);
     }
-
-    @Nonnull
+    
     public String initialKey() { return "lightmanscurrency.money.ancient_coins.initial." + this.resourceSafeName(); }
-    @Nonnull
     public String iconKey() { return "lightmanscurrency.money.ancient_coins.icon." + this.resourceSafeName(); }
 
-    @Nonnull
     public Component initial() { return EasyText.translatable(this.initialKey()); }
-    @Nonnull
     public Component icon() { return EasyText.translatableWithFallback(this.iconKey(),ValueDisplayData.ICON_FALLBACK_KEY).withStyle(ChatFormatting.WHITE); }
 
-    @Nonnull
     public String resourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }
 
-    @Nonnull
     public AncientCoinType previous() { return fromOrdinal(this.ordinal() - 1, AncientCoinType.ENDER_PEARL); }
-    @Nonnull
+    
     public AncientCoinType next() { return fromOrdinal(this.ordinal() + 1, AncientCoinType.COPPER); }
-    @Nonnull
-    public static AncientCoinType fromOrdinal(int ordinal, @Nonnull AncientCoinType defaultValue)
+    
+    public static AncientCoinType fromOrdinal(int ordinal, AncientCoinType defaultValue)
     {
         for(AncientCoinType type : values())
         {
@@ -111,6 +108,31 @@ public enum AncientCoinType {
                 return type;
         }
         return defaultValue;
+    }
+
+    public static ItemStack randomizingItem() { return randomizingItem(1); }
+    public static ItemStack randomizingItem(int count) {
+        DataComponentPatch patch = DataComponentPatch.builder().set(ModDataComponents.ANCIENT_COIN_RANDOM.get(),Unit.INSTANCE).build();
+        ItemStack item = new ItemStack(Holder.direct(ModItems.COIN_ANCIENT.get()),count,patch);
+        item.set(ModDataComponents.ANCIENT_COIN_RANDOM, Unit.INSTANCE);
+        item.remove(ModDataComponents.ANCIENT_COIN_TYPE);
+        return item;
+    }
+    public static AncientCoinType random(RandomSource random)
+    {
+        return randomWithTag(tags().get(random.nextInt(tags().size())),random);
+    }
+    private static AncientCoinType randomWithTag(String tag, RandomSource random)
+    {
+        List<AncientCoinType> coinsWithTag = new ArrayList<>();
+        for(AncientCoinType type : AncientCoinType.values())
+        {
+            if(type.tag.equals(tag))
+                coinsWithTag.add(type);
+        }
+        if(coinsWithTag.isEmpty())
+            return AncientCoinType.COPPER;
+        return coinsWithTag.get(random.nextInt(coinsWithTag.size()));
     }
 
 }

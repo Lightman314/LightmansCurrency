@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -12,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeLimit;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.EditBox;
 
@@ -21,10 +19,6 @@ import javax.annotation.Nonnull;
 public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
 
     public TradeLimitTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, TradeLimit.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_COUNT; }
 
     EditBox limitInput;
     EasyButton buttonSetLimit;
@@ -46,7 +40,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
                 .pressAction(this::PressSetLimitButton)
                 .build());
         this.buttonClearMemory = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(10,50))
+                .position(screenArea.pos.offset(10,55))
                 .width(screenArea.width - 20)
                 .text(LCText.BUTTON_CLEAR_MEMORY)
                 .pressAction(this::PressClearMemoryButton)
@@ -60,7 +54,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
 
         TradeLimit rule = this.getRule();
         if(rule != null)
-            gui.drawString(LCText.GUI_TRADE_LIMIT_INFO.get(rule.getLimit()).getString(), 10, 9, 0xFFFFFF);
+            gui.drawString(LCText.GUI_TRADE_LIMIT_INFO.get(rule.getLimit()).getString(), 10, 9, 0x404040);
 
 
     }

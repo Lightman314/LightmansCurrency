@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValid
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TaxEntryCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.data.TaxStats;

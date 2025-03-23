@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -16,7 +15,6 @@ import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
@@ -32,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.data.types.EventRewardDataCache;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -122,11 +121,10 @@ public class CommandLCAdmin {
 						.then(Commands.literal("forceDisableTaxCollectors")
 								.executes(CommandLCAdmin::forceDisableTaxCollectors)))
 				.then(Commands.literal("events")
+						.then(Commands.literal("clearRewardCache")
+								.then(Commands.argument("eventID",StringArgumentType.greedyString())
+										.executes(CommandLCAdmin::clearRewardCache)))
 						.then(Commands.argument("player", EntityArgument.player())
-								.then(Commands.literal("reward")
-										.then(Commands.argument("item",ItemArgument.item(context))
-												.then(Commands.argument("count",IntegerArgumentType.integer(1))
-														.executes(CommandLCAdmin::giveEventReward))))
 								.then(Commands.literal("list")
 										.executes(CommandLCAdmin::listUnlockedEvents))
 								.then(Commands.literal("unlock")
@@ -500,20 +498,18 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-
-	static int giveEventReward(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int clearRewardCache(CommandContext<CommandSourceStack> commandContext)
 	{
-		if(!LCConfig.COMMON.eventAdvancementRewards.get())
-			return 0;
-		int success = 0;
-		int count = IntegerArgumentType.getInteger(commandContext,"count");
-		ItemStack reward = ItemArgument.getItem(commandContext, "item").createItemStack(count,false);
-		for(ServerPlayer player : EntityArgument.getPlayers(commandContext,"player"))
+		String eventID = StringArgumentType.getString(commandContext,"eventID");
+
+		EventRewardDataCache data = EventRewardDataCache.TYPE.get(false);
+		if(data != null && data.clearEventCache(eventID))
 		{
-			ItemHandlerHelper.giveItemToPlayer(player,reward.copy());
-			success++;
+			EasyText.sendCommandSucess(commandContext.getSource(),LCText.COMMAND_ADMIN_EVENT_CLEAR_SUCCESS.get(eventID),true);
+			return 1;
 		}
-		return success;
+		EasyText.sendCommandFail(commandContext.getSource(),LCText.COMMAND_ADMIN_EVENT_CLEAR_FAIL.get(eventID));
+		return 0;
 	}
 
 	static int listUnlockedEvents(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException

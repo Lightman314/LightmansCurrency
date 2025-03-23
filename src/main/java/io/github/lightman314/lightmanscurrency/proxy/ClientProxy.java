@@ -128,8 +128,13 @@ public class ClientProxy extends CommonProxy{
 		if(NeoForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), NotificationDataCache.TYPE.get(true).getNotifications(mc.player), notification)).isCanceled())
 			return;
 		
-		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
-			mc.gui.getChat().addMessage(notification.getChatMessage());
+		if(LCConfig.CLIENT.pushNotificationsToChat.get())
+		{
+			//Post the notification to chat
+			for(Component line : notification.getChatMessage())
+				mc.gui.getChat().addMessage(line);
+		}
+
 		
 	}
 	

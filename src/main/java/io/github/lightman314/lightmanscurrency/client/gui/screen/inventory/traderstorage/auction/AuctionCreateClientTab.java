@@ -99,6 +99,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.oldIfNotFirst(firstOpen,this.priceSelect)
 				.valueHandler(this::onPriceChanged)
 				.blockFreeInputs()
+				.allowHandlerChange(() -> this.startingBidMode)
 				.build());
 		
 		this.buttonTogglePriceMode = this.addChild(EasyTextButton.builder()
@@ -124,7 +125,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.handler(this::updateDuration)
 				.minDuration(minDuration)
 				.maxDuration(Math.max(LCConfig.SERVER.auctionHouseDurationMax.get(), LCConfig.SERVER.auctionHouseDurationMin.get()) * TimeUtil.DURATION_DAY)
-				.startTime(minDuration)
+				.startTime(AuctionTradeData.GetDefaultDuration())
 				.build());
 		
 		//Submit Button
