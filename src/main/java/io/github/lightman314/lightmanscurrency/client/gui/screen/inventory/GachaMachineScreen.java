@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
@@ -303,7 +305,12 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
     private boolean allowInteraction() {
         GachaTrader trader = this.menu.getTrader();
-        return trader != null && !this.menu.hasPendingReward() && !trader.getStorage().isEmpty() && trader.getPrice().isValidPrice();
+        if(trader != null)
+        {
+            TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
+            return !this.menu.hasPendingReward() && !trader.getStorage().isEmpty() && trader.getPrice().isValidPrice() && !event.isCanceled();
+        }
+        return false;
     }
 
     private boolean showTerminalButton() {
@@ -346,6 +353,10 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
             //If the price is modified by a trade rule, display the "normal cost" as well just in case it changes in-between rolls
             if(!currentCost.equals(normalCost) && this.tradeMultiplier > 1)
                 result.add(LCText.TOOLTIP_GACHA_MACHINE_NORMAL_COST.get(normalCost.isFree() ? LCText.TOOLTIP_GACHA_MACHINE_COST_FREE.get() : normalCost.getText()));
+            //Run pre-trade event to get alert tooltips
+            TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
+            for(AlertData alert : event.getAlertInfo())
+                result.add(alert.getFormattedMessage());
             return result;
         }
         return ImmutableList.of();

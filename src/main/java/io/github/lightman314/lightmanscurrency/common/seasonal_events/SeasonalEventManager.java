@@ -104,7 +104,7 @@ public class SeasonalEventManager {
         //Special birthday event for playing on my birthday
         list.add(EventData.builder("builtin/birthday")
                 .dateRange(EventRange.create(3,29,3,29))
-                .startingReward(AncientCoinType.randomizingItem(10))
+                .startingReward(AncientCoinType.randomizingItem(5))
                 .startingRewardMessage(LCText.SEASONAL_EVENT_BIRTHDAY.get())
                 .build());
         return list;

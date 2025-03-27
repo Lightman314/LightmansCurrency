@@ -92,8 +92,7 @@ public class LightmansCurrency {
 	
 	public static final String MODID = "lightmanscurrency";
 
-	public static CommonProxy PROXY;
-
+	private static CommonProxy PROXY;
 	@Nonnull
 	public static CommonProxy getProxy() { return Objects.requireNonNull(PROXY,"Attempted to get the proxy before the mod was initialized!"); }
 

@@ -18,7 +18,6 @@
     "compat.supplementaries.RedMerchantMenuMixin"
   ],
   "client": [
-    "client.AbstractContainerScreenAccessor",
     "client.AbstractWidgetMixin",
     "client.CommandSuggestionsAccessor",
     "client.SlotWrapperMixin",

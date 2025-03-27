@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -20,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -112,8 +110,7 @@ public enum AncientCoinType {
 
     public static ItemStack randomizingItem() { return randomizingItem(1); }
     public static ItemStack randomizingItem(int count) {
-        DataComponentPatch patch = DataComponentPatch.builder().set(ModDataComponents.ANCIENT_COIN_RANDOM.get(),Unit.INSTANCE).build();
-        ItemStack item = new ItemStack(Holder.direct(ModItems.COIN_ANCIENT.get()),count,patch);
+        ItemStack item = new ItemStack(Holder.direct(ModItems.COIN_ANCIENT.get()),count);
         item.set(ModDataComponents.ANCIENT_COIN_RANDOM, Unit.INSTANCE);
         item.remove(ModDataComponents.ANCIENT_COIN_TYPE);
         return item;

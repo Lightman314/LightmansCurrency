@@ -917,6 +917,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_FORMAT_CHAT_TITLE = new TextEntry("notifications.format.chat.title");
     public static final TextEntry NOTIFICATION_TIMESTAMP = new TextEntry("notifications.timestamp");
     public static final TextEntry NOTIFICATION_SOURCE_GENERAL = new TextEntry("notifications.source.general");
+    public static final TextEntry NOTIFICATION_SOURCE_NULL = new TextEntry("notifications.source.null");
     public static final TextEntry TOOLTIP_NOTIFICATION_DELETE = TextEntry.tooltip(MODID,"notifications.delete");
     //Auction Notifications
     public static final TextEntry NOTIFICATION_AUCTION_BID = TextEntry.notification(AuctionHouseBidNotification.TYPE);

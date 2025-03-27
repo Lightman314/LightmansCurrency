@@ -404,7 +404,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_UNDEFINED,"Slot Machine is not yet set up!");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_MONEY,"Pays %s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT,"Weight: %s");
-        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ODDS,"%s%% change of receiving");
+        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ODDS,"%s%% chance of receiving");
 
         //Network Terminal Menu
         this.translate(LCText.GUI_NETWORK_TERMINAL_TITLE,"Trading Terminal");
@@ -980,6 +980,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_FORMAT_CHAT_TITLE,"[%s]");
         this.translate(LCText.NOTIFICATION_TIMESTAMP,"%s");
         this.translate(LCText.NOTIFICATION_SOURCE_GENERAL,"General");
+        this.translate(LCText.NOTIFICATION_SOURCE_NULL,"Null");
         this.translate(LCText.TOOLTIP_NOTIFICATION_DELETE,"Delete");
         //Auction Notifications
         this.translate(LCText.NOTIFICATION_AUCTION_BID,"%1$s out-bid your bid for %2$s with a bid of %3$s");

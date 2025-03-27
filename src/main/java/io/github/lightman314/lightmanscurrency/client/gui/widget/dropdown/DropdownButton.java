@@ -41,7 +41,7 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 				gui.setColor(0.5f,0.5f,0.5f);
 			else
 				gui.resetColor();
-			gui.blitHorizSplit(DropdownWidget.GUI_TEXTURE, 0,0,this.width,this.height,0,offset,156,12);
+			gui.blitHorizSplit(DropdownWidget.GUI_TEXTURE, 0,0,this.width,this.height,0,offset,256,12);
 			//Draw the option text
 			gui.drawString(TextRenderUtil.fitString(this.optionText, this.width - 4), 2, 2, 0x404040);
 

@@ -82,7 +82,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 			this.markDirty(this::saveDirectionalSettings);
 
 			if(player != null)
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "InputOutputState-" + getFacingName(side).getString(), state.toString()));
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "InputOutputState-" + getFacingName(side).getString(), state.getText()));
 		}
 	}
 	
@@ -106,6 +106,8 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 			CompoundTag tag = compound.getCompound("InputSides");
 			for(Direction side : Direction.values())
 			{
+				if(this.ignoreSides.contains(side))
+					continue;
 				if(tag.contains(side.toString()) && tag.getBoolean(side.toString()))
 				{
 					this.directionalSettings.setState(side,DirectionalSettingsState.INPUT);
@@ -118,6 +120,8 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 			CompoundTag tag = compound.getCompound("OutputSides");
 			for(Direction side : Direction.values())
 			{
+				if(this.ignoreSides.contains(side))
+					continue;
 				if(tag.contains(side.toString()) && tag.getBoolean(side.toString()))
 				{
 					DirectionalSettingsState state = this.directionalSettings.getState(side);
@@ -145,12 +149,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 		{
 			DirectionalSettingsState state = DirectionalSettingsState.parse(message.getString("SetDirectionalState"));
 			Direction side = Direction.from3DDataValue(message.getInt("Side"));
-			if(this.hasPermission(player,Permissions.InputTrader.EXTERNAL_INPUTS))
-			{
-				this.directionalSettings.setState(side,state);
-				this.markDirty(this::saveDirectionalSettings);
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player),"InputOutputState-" + side,state.getText()));
-			}
+			this.setDirectionalState(player,side,state);
 		}
 	}
 	

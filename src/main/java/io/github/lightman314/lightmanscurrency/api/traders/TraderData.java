@@ -462,6 +462,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public MoneyStorage getInternalStoredMoney() { return this.storedMoney; }
 
 	public MoneyValue addStoredMoney(MoneyValue amount, boolean shouldTax) {
+		if(amount == null)
+			return MoneyValue.empty();
 		MoneyValue taxesPaid = MoneyValue.empty();
 		if(shouldTax)
 		{
@@ -1540,7 +1542,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.alwaysShowSearchBox = newVal;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "AlwaysShowSearchBox", this.alwaysShowOnTerminal));
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "AlwaysShowSearchBox", this.alwaysShowSearchBox));
 				}
 			}
 		}

@@ -35,11 +35,17 @@ public abstract class EasyButton extends EasyWidget {
     public static void playClick(@Nonnull SoundManager manager) { manager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
-        if(button == 0)
-            this.onPress();
-        else if(button == 1 && this.altPress != null)
-            this.altPress.accept(this);
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if(this.isValidClickButton(button) && this.clicked(mouseX,mouseY))
+        {
+            this.playDownSound(Minecraft.getInstance().getSoundManager());
+            if(button == 0)
+                this.onPress();
+            else if(button == 1 && this.altPress != null)
+                this.altPress.accept(this);
+            return true;
+        }
+        return false;
     }
 
     @Override
