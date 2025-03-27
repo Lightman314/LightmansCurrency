@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
@@ -64,8 +66,8 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItemAndColor(ItemStack contents,Color color) { return createWithItemAndColor(contents,color.hexColor); }
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
         //Don't create a new gacha ball if we are already several gacha balls deep
-        if(inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
-            return contents;
+        if(InventoryUtil.ItemHasTag(contents,LCTags.Items.GACHA_BLACKLIST) || inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
+            return contents.copy();
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
         CompoundTag tag = stack.getOrCreateTag();
         tag.put("GachaItem",contents.save(new CompoundTag()));

@@ -33,10 +33,9 @@ import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
-import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.OwnableBlockEjectedNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesCollectedNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.TaxesPaidNotification;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
@@ -100,12 +99,8 @@ import java.util.function.Consumer;
 public class LightmansCurrency {
 
 	public static final String MODID = "lightmanscurrency";
-
-	/**
-	 * @deprecated Use {@link #getProxy()} instead
-	 */
-	@Deprecated(since = "2.2.3.2")
-	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+	
+	private static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	@Nonnull
 	public static CommonProxy getProxy() { return PROXY; }
 
@@ -287,9 +282,6 @@ public class LightmansCurrency {
 		//Villager Trades
 		ItemListingSerializer.registerDefaultSerializers();
 		VillagerTradeManager.registerDefaultTrades();
-
-		//Register Loot Modifiers
-		LootManager.addLootModifier(ChocolateEventCoins.LOOT_MODIFIER);
 
 		//Register Icon Data
 		IconData.registerDefaultIcons();

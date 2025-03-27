@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.auction;
+ package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -348,6 +348,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	public int getTradeStock(int tradeIndex) { return 0; }
+
+	@Override
+	public boolean supportsMultiPriceEditing() { return false; }
 
 	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }

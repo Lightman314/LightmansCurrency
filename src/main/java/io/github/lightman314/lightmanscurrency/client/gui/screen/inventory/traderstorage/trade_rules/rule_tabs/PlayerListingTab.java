@@ -8,12 +8,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -24,24 +22,20 @@ public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
 
     public PlayerListingTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<PlayerListing> ruleType) { super(parent, ruleType); }
 
-    @Nonnull
-    @Override
-    public IconData getIcon() { return this.isWhitelistMode() ? IconUtil.ICON_WHITELIST : IconUtil.ICON_BLACKLIST; }
-
     EasyButton buttonToggleMode;
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         this.buttonToggleMode = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,7))
+                .position(screenArea.pos.offset(20,10))
                 .width(screenArea.width - 40)
                 .text(this::getModeText)
                 .pressAction(this::PressToggleModeButton)
                 .build());
 
         this.addChild(PlayerListWidget.builder()
-                .position(screenArea.pos.offset(20,29))
+                .position(screenArea.pos.offset(20,34))
                 .width(screenArea.width - 40)
                 .rows(3)
                 .addPlayer(this::AddPlayer)

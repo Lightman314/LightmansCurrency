@@ -1,11 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -16,7 +13,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 
-public class TextNotification extends Notification {
+public class TextNotification extends SingleLineNotification {
 
 	public static final NotificationType<TextNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "text"),TextNotification::new);
 	

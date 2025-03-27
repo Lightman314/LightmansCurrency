@@ -19,10 +19,12 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -126,7 +128,10 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 			int textWidth = this.width - 4;
 			if(deletingEnabled) //Shrink the text width by 20 if the delete button will be visible
 				textWidth -= 20;
-			int textColor = n.wasSeen() ? 0xFFFFFF : 0x000000;
+			//Leaving old code here just in case I want to make the text color change again later
+			//int textColor = n.wasSeen()  && this.colorIfUnseen ? 0xFFFFFF : 0x000000;
+			//Text is now black in all states cause that pops out a bit more
+			int textColor = 0;
 			if(n.getCount() > 1)
 			{
 				//Render quantity text
@@ -140,9 +145,11 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 				textWidth -= quantityWidth + 2;
 			}
 
-			Component message = showGeneral ? n.getGeneralMessage() : n.getMessage();
+			List<MutableComponent> message = showGeneral ? n.getGeneralMessage() : n.getMessageLines();
 			//Draw the lines
-			List<FormattedCharSequence> lines = gui.font.split(message, textWidth);
+			List<FormattedCharSequence> lines = new ArrayList<>();
+			for(Component line : message)
+				lines.addAll(gui.font.split(line, textWidth));
 			if(lines.size() == 1)
 				gui.drawString(lines.get(0), textXPos, yPos + (HEIGHT_PER_ROW / 2) - (gui.font.lineHeight / 2), textColor);
 			else
@@ -160,7 +167,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 				if(n.hasTimeStamp())
 					this.tooltip.add(n.getTimeStampMessage());
 				if(lines.size() > 2)
-					this.tooltip.addAll(TooltipHelper.splitTooltips(message));
+					this.tooltip.addAll(TooltipHelper.splitTooltips(ListUtil.convertList(message)));
 			}
 		}
 

@@ -37,7 +37,7 @@ public class ATMExchangeButton extends EasyButton {
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
 		//Draw background of size
-		gui.blitBackgroundOfSize(ATMScreen.BUTTON_TEXTURE,0,0,this.width,this.height,0,yOffset,256,18,2);
+		gui.blitNineSplit(ATMScreen.BUTTON_TEXTURE,0,0,this.width,this.height,0,yOffset,256,18,2);
 
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())

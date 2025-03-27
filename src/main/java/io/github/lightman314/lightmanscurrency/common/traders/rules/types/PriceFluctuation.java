@@ -14,6 +14,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PriceFluctuationTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +37,11 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, Integer.MAX_VALUE); }
 	
 	public PriceFluctuation() { super(TYPE); }
-	
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
+
 	private static final List<Long> debuggedSeeds = new ArrayList<>();
 	private static final List<Long> debuggedTraderFactors = new ArrayList<>();
 	

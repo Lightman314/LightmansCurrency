@@ -247,7 +247,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			this.markDirty(this::saveCreative);
 
 			if(player != null)
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player),"StoreCreativeMoney",String.valueOf(this.storeCreativeMoney)));
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player),"StoreCreativeMoney",this.storeCreativeMoney));
 		}
 	}
 	public boolean storesCreativeMoney() { return this.storeCreativeMoney; }
@@ -448,6 +448,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public MoneyStorage getInternalStoredMoney() { return this.storedMoney; }
 
 	public MoneyValue addStoredMoney(MoneyValue amount, boolean shouldTax) {
+		if(amount == null)
+			return MoneyValue.empty();
 		MoneyValue taxesPaid = MoneyValue.empty();
 		if(shouldTax)
 		{
@@ -559,7 +561,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			this.markDirty(this::saveLinkedBankAccount);
 			
 			if(player != null)
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "BankLink", String.valueOf(this.linkedToBank)));
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "BankLink", this.linkedToBank));
 		}
 	}
 	
@@ -625,6 +627,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		TradeContext context = TradeContext.createStorageMode(this);
 		return this.getTradeData().stream().anyMatch(t -> t.isValid() && t.hasStock(context));
 	}
+	public boolean supportsMultiPriceEditing() { return true; }
 
 	private int acceptableTaxRate = 99;
 	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
@@ -1475,7 +1478,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.notificationsEnabled = enable;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Notifications", String.valueOf(this.notificationsEnabled)));
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Notifications", this.notificationsEnabled));
 				}
 			}
 		}
@@ -1489,7 +1492,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.notificationsToChat = enable;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "NotificationsToChat", String.valueOf(this.notificationsToChat)));
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "NotificationsToChat", this.notificationsToChat));
 				}
 			}
 		}
@@ -1503,7 +1506,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.teamNotificationLevel = level;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "TeamNotificationLevel", String.valueOf(this.teamNotificationLevel)));
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "TeamNotificationLevel", this.teamNotificationLevel));
 				}
 			}
 		}
@@ -1517,7 +1520,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.alwaysShowSearchBox = newVal;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "AlwaysShowSearchBox", String.valueOf(this.alwaysShowOnTerminal)));
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "AlwaysShowSearchBox", this.alwaysShowSearchBox));
 				}
 			}
 		}
@@ -1529,7 +1532,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				if(newRate == this.acceptableTaxRate)
 					return;
 
-				this.pushLocalNotification(new ChangeSettingNotification.Advanced(PlayerReference.of(player), "AcceptableTaxRate", String.valueOf(newRate), String.valueOf(this.acceptableTaxRate)));
+				this.pushLocalNotification(new ChangeSettingNotification.Advanced(PlayerReference.of(player), "AcceptableTaxRate", newRate, this.acceptableTaxRate));
 				this.acceptableTaxRate = newRate;
 
 				this.markDirty(this::saveTaxSettings);
@@ -1541,7 +1544,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			if((!newState || LCAdminMode.isAdminPlayer(player)) && newState != this.ignoreAllTaxes)
 			{
 				this.ignoreAllTaxes = newState;
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "IgnoreAllTaxes", String.valueOf(this.ignoreAllTaxes)));
+				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "IgnoreAllTaxes", this.ignoreAllTaxes));
 				this.markDirty(this::saveTaxSettings);
 			}
 		}

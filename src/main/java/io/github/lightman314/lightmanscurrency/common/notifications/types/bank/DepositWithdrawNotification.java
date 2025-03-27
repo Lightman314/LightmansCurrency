@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public abstract class DepositWithdrawNotification extends Notification {
+public abstract class DepositWithdrawNotification extends SingleLineNotification {
 
 	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_deposit_player"),DepositWithdrawNotification::createPlayer);
 	public static final NotificationType<Custom> CUSTOM_TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);

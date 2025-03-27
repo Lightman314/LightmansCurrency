@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
@@ -19,6 +22,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameAndOwnerTab> {
 
@@ -34,8 +39,7 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
     EditBox nameInput;
     EasyButton buttonChangeName;
 
-    EditBox newOwnerName;
-    EasyButton buttonChangeOwner;
+    PlayerListWidget ownerEditWidget;
 
     EasyButton buttonDisbandTeam;
 
@@ -54,20 +58,19 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
                 .width(160)
                 .text(LCText.BUTTON_TEAM_RENAME)
                 .pressAction(this::changeName)
+                .addon(EasyAddonHelper.activeCheck(() -> !this.safeGetName().equals(this.nameInput.getValue()) && !this.nameInput.getValue().isBlank()))
                 .build());
-        this.buttonChangeName.active = false;
 
-        this.newOwnerName = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 90, 160, 20, EasyText.empty()));
-        this.newOwnerName.setMaxLength(16);
-
-        this.buttonChangeOwner = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,115))
-                .width(160)
-                .text(LCText.BUTTON_OWNER_SET_PLAYER)
-                .pressAction(this::setNewOwner)
-                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW)))
+        this.ownerEditWidget = this.addChild(PlayerListWidget.builder()
+                .position(screenArea.pos.offset(20,90))
+                .width(screenArea.width - 40)
+                .rows(1)
+                .addPlayer(this.commonTab::SetOwner)
+                .canAddPlayer(this::canSetOwner)
+                .addPlayerTooltip(LCText.BUTTON_OWNER_SET_PLAYER)
+                .playerList(this::getOwner)
+                .addon(EasyAddonHelper.visibleCheck(this::isOwnerAccess))
                 .build());
-        this.buttonChangeOwner.active = false;
 
         this.buttonDisbandTeam = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(20,160))
@@ -75,6 +78,7 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
                 .text(LCText.BUTTON_TEAM_DISBAND)
                 .pressAction(this::disbandTeam)
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW)))
+                .addon(EasyAddonHelper.visibleCheck(this::isOwnerAccess))
                 .build());
 
         this.tick();
@@ -107,34 +111,29 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
 
     }
 
-    @Override
-    public void tick() {
-
-        this.buttonChangeName.active = !this.safeGetName().equals(this.nameInput.getValue()) && !this.nameInput.getValue().isBlank();
-
-        this.newOwnerName.visible = this.buttonChangeOwner.visible = this.buttonDisbandTeam.visible = this.isOwnerAccess();
-        if(this.buttonChangeOwner.visible)
-            this.buttonChangeOwner.active = !this.newOwnerName.getValue().isBlank();
-
-    }
-
     private void changeName(EasyButton button)
     {
         if(this.nameInput.getValue().isBlank())
             return;
 
         this.commonTab.ChangeName(this.nameInput.getValue());
-
     }
 
-    private void setNewOwner(EasyButton button)
+    private List<PlayerReference> getOwner() {
+        ITeam team = this.menu.selectedTeam();
+        if(team != null)
+            return Lists.newArrayList(team.getOwner());
+        return new ArrayList<>();
+    }
+
+    private boolean canSetOwner(PlayerReference player) {
+        ITeam team = this.menu.selectedTeam();
+        return team != null && !team.getOwner().is(player);
+    }
+
+    private void setNewOwner(PlayerReference newOwner)
     {
-        if(this.newOwnerName.getValue().isBlank())
-            return;
-
-        this.commonTab.SetOwner(this.newOwnerName.getValue());
-        this.newOwnerName.setValue("");
-
+        this.commonTab.SetOwner(newOwner);
     }
 
     private void disbandTeam(EasyButton button)

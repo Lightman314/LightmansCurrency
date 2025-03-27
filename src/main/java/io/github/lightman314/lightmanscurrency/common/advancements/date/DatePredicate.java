@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nonnull;
@@ -29,7 +31,7 @@ public final class DatePredicate {
         return json;
     }
 
-    public static DatePredicate fromJson(@Nonnull JsonElement element) {
+    public static DatePredicate fromJson(@Nonnull JsonElement element) throws JsonSyntaxException, ResourceLocationException {
         JsonObject json = GsonHelper.convertToJsonObject(element, "date data");
         return new DatePredicate(GsonHelper.getAsInt(json, "month"), GsonHelper.getAsInt(json, "day"));
     }

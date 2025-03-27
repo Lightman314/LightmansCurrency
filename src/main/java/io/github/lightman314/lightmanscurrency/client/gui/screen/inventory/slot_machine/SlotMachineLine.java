@@ -32,10 +32,19 @@ public final class SlotMachineLine {
         float partialTick = MathUtil.clamp(gui.partialTicks, 0f, 1f);
         if(this.lockDelay != 0)
             y += (int)((float)BLOCK_SIZE * partialTick);
-        this.previousBlock2.render(gui, ++x, ++y);
+        this.renderBlock(gui,x,y,37,8);
+        this.renderBlock(gui,x,y,47,16);
+        this.renderBlock(gui,x,y,65,8);
+    }
+
+    private void renderBlock(EasyGuiGraphics gui, int x, int y, int areaY, int areaYHeight)
+    {
+        gui.enableScissor(x,areaY,16,areaYHeight);
+        this.previousBlock2.render(gui, x, y);
         this.previousBlock1.render(gui, x, y + BLOCK_SIZE);
         this.centerBlock.render(gui, x, y + (2 * BLOCK_SIZE));
         this.nextBlock.render(gui, x, y + (3 * BLOCK_SIZE));
+        gui.disableScissor();
     }
 
     public void initialize() { this.initialize(SlotMachineRenderBlock.empty()); }

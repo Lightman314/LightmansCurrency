@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
@@ -27,11 +27,18 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.D
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class Team implements ITeam, ISidedObject {
 
 	public static final int MAX_NAME_LENGTH = 32;
@@ -41,11 +48,9 @@ public class Team implements ITeam, ISidedObject {
 	public long getID() { return this.id; }
 	PlayerReference owner;
 	@Override
-	@Nonnull
 	public PlayerReference getOwner() { return this.owner; }
 	String teamName;
 	@Override
-	@Nonnull
 	public String getName() { return this.teamName; }
 
 	private boolean isClient = false;
@@ -53,22 +58,22 @@ public class Team implements ITeam, ISidedObject {
 	public boolean isClient() { return this.isClient; }
 
 	@Override
-	@Nonnull
+
 	public Team flagAsClient() { this.isClient = true; return this; }
 	@Override
-	@Nonnull
+
 	public Team flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
 	@Override
-	@Nonnull
+
 	public Team flagAsClient(IClientTracker context) { this.isClient = context.isClient(); return this; }
 
 	List<PlayerReference> admins = new ArrayList<>();
 	@Override
-	@Nonnull
+
 	public List<PlayerReference> getAdmins() { return ImmutableList.copyOf(this.admins); }
 	List<PlayerReference> members = new ArrayList<>();
 	@Override
-	@Nonnull
+
 	public List<PlayerReference> getMembers() { return ImmutableList.copyOf(this.members); }
 
 	//0 for members, 1 for admins, 2 for owners only
@@ -80,7 +85,7 @@ public class Team implements ITeam, ISidedObject {
 	public boolean hasBankAccount() { return this.bankAccount != null; }
 
 	@Override
-	public boolean canAccessBankAccount(@Nonnull PlayerReference player) {
+	public boolean canAccessBankAccount(PlayerReference player) {
 		if(this.bankAccountLimit < 1)
 			return this.isMember(player);
 		else if(this.bankAccountLimit < 2)
@@ -90,7 +95,7 @@ public class Team implements ITeam, ISidedObject {
 	}
 
 	@Override
-	public boolean canAccessBankAccount(@Nonnull Player player) {
+	public boolean canAccessBankAccount(Player player) {
 		if(this.bankAccountLimit < 1)
 			return this.isMember(player);
 		else if(this.bankAccountLimit < 2)
@@ -106,20 +111,36 @@ public class Team implements ITeam, ISidedObject {
 	public BankReference getBankReference() { if(this.hasBankAccount()) return TeamBankReference.of(this.id).flagAsClient(this.isClient); return null; }
 
 	private final StatTracker statTracker = new StatTracker(this::markDirty,this);
-	@Nonnull
+
 	@Override
 	public StatTracker getStats() { return this.statTracker; }
 
 	//Salary Settings
+	private final List<UUID> onlineDuringSalary = new ArrayList<>();
+	private boolean requireLoginForSalary = false;
+	@Override
+	public boolean getLoginRequiredForSalary() { return this.requireLoginForSalary; }
+	public void setLoginRequiredForSalary(Player player, boolean requireLoginForSalary)
+	{
+		if(!this.isAdmin(player))
+			return;
+		this.requireLoginForSalary = requireLoginForSalary;
+		this.checkForOnlinePlayers();
+		this.markDirty();
+	}
 	long lastSalaryTime = 0;
 	@Override
 	public long getLastSalaryTime() { return this.lastSalaryTime; }
-	public void setAutoSalaryEnabled(@Nonnull Player player, boolean enabled)
+	public void setAutoSalaryEnabled(Player player, boolean enabled)
 	{
 		if(!this.isAdmin(player))
 			return;
 		if(enabled)
+		{
 			this.lastSalaryTime = TimeUtil.getCurrentTime();
+			this.onlineDuringSalary.clear();
+			this.checkForOnlinePlayers();
+		}
 		else
 			this.lastSalaryTime = 0;
 		this.markDirty();
@@ -127,41 +148,53 @@ public class Team implements ITeam, ISidedObject {
 	boolean salaryNotification = true;
 	@Override
 	public boolean getSalaryNotification() { return this.salaryNotification; }
-	public void setSalaryNotification(@Nonnull Player player, boolean salaryNotification) { if(!this.isAdmin(player)) return; this.salaryNotification = salaryNotification; this.markDirty(); }
+	public void setSalaryNotification(Player player, boolean salaryNotification) { if(!this.isAdmin(player)) return; this.salaryNotification = salaryNotification; this.markDirty(); }
 	long salaryDelay = 0;
 	@Override
 	public long getSalaryDelay() { return this.salaryDelay; }
-	public void setSalaryDelay(@Nonnull Player player, long salaryDelay) { if(!this.isAdmin(player)) return; this.salaryDelay = salaryDelay; this.markDirty(); }
+	public void setSalaryDelay(Player player, long salaryDelay) { if(!this.isAdmin(player)) return; this.salaryDelay = salaryDelay; this.markDirty(); }
 	boolean creativeSalaryMode = false;
 	@Override
 	public boolean isSalaryCreative() { return this.creativeSalaryMode; }
-	public void setSalaryMoneyCreative(@Nonnull Player player, boolean creative)  { if(creative && !LCAdminMode.isAdminPlayer(player)) return; this.creativeSalaryMode = creative; this.markDirty(); }
+	public void setSalaryMoneyCreative(Player player, boolean creative)  { if(creative && !LCAdminMode.isAdminPlayer(player)) return; this.creativeSalaryMode = creative; this.markDirty(); }
 	boolean seperateAdminSalary = false;
 	@Override
 	public boolean isAdminSalarySeperate() { return this.seperateAdminSalary; }
-	public void setAdminSalarySeperate(@Nonnull Player player, boolean seperateAdminSalary) { if(!this.isOwner(player)) return; this.seperateAdminSalary = seperateAdminSalary; this.markDirty(); }
+	public void setAdminSalarySeperate(Player player, boolean seperateAdminSalary) { if(!this.isOwner(player)) return; this.seperateAdminSalary = seperateAdminSalary; this.markDirty(); }
 	MoneyValue memberSalary = MoneyValue.empty();
-	@Nonnull
+
 	@Override
 	public MoneyValue getMemberSalary() { return this.memberSalary; }
-	public void setMemberSalary(@Nonnull Player player, @Nonnull MoneyValue memberSalary) { if(!this.isAdmin(player)) return; this.memberSalary = memberSalary; this.markDirty(); }
+	public void setMemberSalary(Player player, MoneyValue memberSalary) { if(!this.isAdmin(player)) return; this.memberSalary = memberSalary; this.markDirty(); }
 	MoneyValue adminSalary = MoneyValue.empty();
-	@Nonnull
+
 	@Override
 	public MoneyValue getAdminSalary() { return this.adminSalary; }
-	public void setAdminSalary(@Nonnull Player player, @Nonnull MoneyValue adminSalary) { if(!this.isOwner(player)) return; this.adminSalary = adminSalary; this.markDirty(); }
+	public void setAdminSalary(Player player, MoneyValue adminSalary) { if(!this.isOwner(player)) return; this.adminSalary = adminSalary; this.markDirty(); }
 	boolean failedLastSalary = false;
 	@Override
 	public boolean failedLastSalaryAttempt() { return this.failedLastSalary; }
 
-	@Nonnull
+
 	@Override
-	public List<MoneyValue> getTotalSalaryCost() {
+	public List<MoneyValue> getTotalSalaryCost(boolean validateOnlinePlayers) {
 		if(this.seperateAdminSalary)
 		{
 			List<MoneyValue> result = new ArrayList<>();
-			MoneyValue memberCost = this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * this.members.size());
-			MoneyValue adminCost = this.adminSalary.fromCoreValue(this.adminSalary.getCoreValue() * this.getAdminsAndOwner().size());
+			int validMemberCount;
+			int validAdminCount;
+			if(validateOnlinePlayers && this.requireLoginForSalary)
+			{
+				validMemberCount = (int)this.members.stream().filter(m -> this.onlineDuringSalary.contains(m.id)).count();
+				validAdminCount = (int)this.getAdminsAndOwner().stream().filter(m -> this.onlineDuringSalary.contains(m.id)).count();
+			}
+			else
+			{
+				validMemberCount = this.members.size();
+				validAdminCount = this.getAdminsAndOwner().size();
+			}
+			MoneyValue memberCost = this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * validMemberCount);
+			MoneyValue adminCost = this.adminSalary.fromCoreValue(this.adminSalary.getCoreValue() * validAdminCount);
 			if(memberCost.isEmpty())
 			{
 				if(adminCost.isEmpty())
@@ -176,17 +209,24 @@ public class Team implements ITeam, ISidedObject {
 			return ImmutableList.of(memberCost,adminCost);
 		}
 		else
-			return ImmutableList.of(this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * this.getMemberCount()));
+		{
+			int validMemberCount;
+			if(validateOnlinePlayers && this.requireLoginForSalary)
+				validMemberCount = (int)this.getAllMembers().stream().filter(m -> this.onlineDuringSalary.contains(m.id)).count();
+			else
+				validMemberCount = this.getMemberCount();
+			return ImmutableList.of(this.memberSalary.fromCoreValue(this.memberSalary.getCoreValue() * validMemberCount));
+		}
 	}
 
 	@Override
-	public boolean canAffordNextSalary() {
+	public boolean canAffordNextSalary(boolean validateOnlinePlayers) {
 		if(this.creativeSalaryMode)
 			return true;
 		IBankAccount account = this.getBankAccount();
 		if(account == null)
 			return false;
-		for(MoneyValue cost : this.getTotalSalaryCost())
+		for(MoneyValue cost : this.getTotalSalaryCost(validateOnlinePlayers))
 		{
 			if(!account.getMoneyStorage().containsValue(cost))
 				return false;
@@ -195,20 +235,20 @@ public class Team implements ITeam, ISidedObject {
 	}
 
 	@Override
-	public boolean isOwner(@Nonnull Player player) { return (this.owner != null && this.owner.is(player)) || LCAdminMode.isAdminPlayer(player); }
+	public boolean isOwner(Player player) { return this.isOwner(player.getUUID()) || LCAdminMode.isAdminPlayer(player); }
 	@Override
-	public boolean isOwner(@Nonnull UUID playerID) { return this.owner != null && this.owner.is(playerID); }
+	public boolean isOwner(UUID playerID) { return this.owner != null && this.owner.is(playerID); }
 	@Override
-	public boolean isAdmin(@Nonnull Player player) { return PlayerReference.isInList(this.admins, player) || this.isOwner(player); }
+	public boolean isAdmin(Player player) { return PlayerReference.isInList(this.admins, player) || this.isOwner(player); }
 	@Override
-	public boolean isAdmin(@Nonnull UUID playerID) { return PlayerReference.isInList(this.admins, playerID) || this.isOwner(playerID); }
+	public boolean isAdmin(UUID playerID) { return PlayerReference.isInList(this.admins, playerID) || this.isOwner(playerID); }
 
 	@Override
-	public boolean isMember(@Nonnull Player player) { return PlayerReference.isInList(this.members, player) || this.isAdmin(player); }
+	public boolean isMember(Player player) { return PlayerReference.isInList(this.members, player) || this.isAdmin(player); }
 	@Override
-	public boolean isMember(@Nonnull UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
+	public boolean isMember(UUID playerID) { return PlayerReference.isInList(this.members, playerID) || this.isAdmin(playerID); }
 
-	public void changePromoteMember(@Nonnull Player requestor, @Nonnull PlayerReference player)
+	public void changePromoteMember(Player requestor, PlayerReference player)
 	{
 		if(!this.isAdmin(requestor))
 			return;
@@ -224,11 +264,16 @@ public class Team implements ITeam, ISidedObject {
 			this.admins.add(player);
 		}
 		else
+		{
 			this.members.add(player);
+			//Check for online players only when adding the member for the first time
+			//Promoting them is redundant as they're already being checked for
+			this.checkForOnlinePlayers();
+		}
 		this.markDirty();
 	}
 
-	public void changeDemoteMember(@Nonnull Player requestor, @Nonnull PlayerReference player)
+	public void changeDemoteMember(Player requestor, PlayerReference player)
 	{
 		boolean isSelf = player.is(requestor);
 		//Only admins can demote unless you're demoting yourself
@@ -255,10 +300,9 @@ public class Team implements ITeam, ISidedObject {
 		}
 	}
 
-	public void changeOwner(Player requestor, String name) {
+	public void changeOwner(Player requestor, PlayerReference player) {
 		if(!this.isOwner(requestor))
 			return;
-		PlayerReference player = PlayerReference.of(false, name);
 		if(player == null)
 			return;
 		//Cannot set the owner to the already present owner
@@ -333,7 +377,7 @@ public class Team implements ITeam, ISidedObject {
 			this.statTracker.clear(fullClear);
 	}
 
-	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
+	private Team(long teamID, PlayerReference owner, String name)
 	{
 		this.id = teamID;
 		this.owner = owner;
@@ -346,7 +390,7 @@ public class Team implements ITeam, ISidedObject {
 			TeamDataCache.TYPE.get(this).markTeamDirty(this.id);
 	}
 
-	@Nonnull
+
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
@@ -368,6 +412,7 @@ public class Team implements ITeam, ISidedObject {
 
 		compound.put("Stats", this.statTracker.save());
 
+		compound.putBoolean("SalaryLoginCheck",this.requireLoginForSalary);
 		compound.putLong("LastSalaryTime", this.lastSalaryTime);
 		compound.putBoolean("SalaryNotification", this.salaryNotification);
 		compound.putLong("SalaryDelay",this.salaryDelay);
@@ -377,10 +422,12 @@ public class Team implements ITeam, ISidedObject {
 		compound.put("AdminSalary",this.adminSalary.save());
 		compound.putBoolean("FailedLastSalary",this.failedLastSalary);
 
+		compound.put("SalaryLogins", TagUtil.writeUUIDList(this.onlineDuringSalary));
+
 		return compound;
 	}
 
-	public static Team load(@Nonnull CompoundTag compound)
+	public static Team load(CompoundTag compound)
 	{
 		PlayerReference owner = null;
 		long id = -1;
@@ -426,6 +473,10 @@ public class Team implements ITeam, ISidedObject {
 				team.adminSalary = MoneyValue.load(compound.getCompound("AdminSalary"));
 			if(compound.contains("FailedLastSalary"))
 				team.failedLastSalary = compound.getBoolean("FailedLastSalary");
+			if(compound.contains("SalaryLoginCheck"))
+				team.requireLoginForSalary = compound.getBoolean("SalaryLoginCheck");
+			if(compound.contains("SalaryLogins"))
+				team.onlineDuringSalary.addAll(TagUtil.readUUIDList(compound.getList("SalaryLogins",Tag.TAG_INT_ARRAY)));
 
 			return team;
 
@@ -433,7 +484,7 @@ public class Team implements ITeam, ISidedObject {
 		return null;
 	}
 
-	public static Team of(long id, @Nonnull PlayerReference owner, @Nonnull String name) { return new Team(id, owner, name); }
+	public static Team of(long id, PlayerReference owner, String name) { return new Team(id, owner, name); }
 
 	public static Comparator<ITeam> sorterFor(Player player) { return new TeamSorter(player); }
 
@@ -467,17 +518,23 @@ public class Team implements ITeam, ISidedObject {
 			if(!TimeUtil.compareTime(this.salaryDelay,this.lastSalaryTime))
 			{
 				this.lastSalaryTime = TimeUtil.getCurrentTime();
-				this.forcePaySalaries();
+				this.forcePaySalaries(true);
 			}
 		}
 	}
 
+	public void onPlayerJoin(ServerPlayer player)
+	{
+		if(this.isMember(PlayerReference.of(player)))
+			this.flagPlayerAsOnline(player);
+	}
+
 	@Override
-	public void forcePaySalaries() {
+	public void forcePaySalaries(boolean validateOnlinePlayers) {
 		if(!this.hasBankAccount())
 			return;
 		//Comfirm that we can afford to pay everyone
-		if(!this.canAffordNextSalary())
+		if(!this.canAffordNextSalary(validateOnlinePlayers))
 		{
 			this.failedLastSalary = true;
 			this.markDirty();
@@ -485,7 +542,7 @@ public class Team implements ITeam, ISidedObject {
 		}
 		this.failedLastSalary = false;
 		this.statTracker.incrementStat(StatKeys.Generic.SALARY_TRIGGERS,1);
-		for(MoneyValue payment : this.getTotalSalaryCost())
+		for(MoneyValue payment : this.getTotalSalaryCost(validateOnlinePlayers))
 		{
 			if(!this.creativeSalaryMode)
 			{
@@ -498,18 +555,56 @@ public class Team implements ITeam, ISidedObject {
 		if(!this.memberSalary.isEmpty())
 		{
 			List<PlayerReference> membersToPay = this.seperateAdminSalary ? this.members : this.getAllMembers();
+			if(this.requireLoginForSalary)
+				membersToPay = membersToPay.stream().filter(m -> this.onlineDuringSalary.contains(m.id)).toList();
 			for(PlayerReference member : membersToPay)
 				this.payMember(member,this.memberSalary);
 		}
 		if(this.seperateAdminSalary && !this.adminSalary.isEmpty())
 		{
-			for(PlayerReference admin : this.getAdminsAndOwner())
+			List<PlayerReference> adminsToPay = this.getAdminsAndOwner();
+			if(this.requireLoginForSalary)
+				adminsToPay = adminsToPay.stream().filter(m -> this.onlineDuringSalary.contains(m.id)).toList();
+			for(PlayerReference admin : adminsToPay)
 				this.payMember(admin,this.adminSalary);
+		}
+		if(validateOnlinePlayers)
+		{
+			this.onlineDuringSalary.clear();
+			this.checkForOnlinePlayers();
 		}
 		this.markDirty();
 	}
 
-	private void payMember(@Nonnull PlayerReference member, @Nonnull final MoneyValue value)
+	private void checkForOnlinePlayers()
+	{
+		if(!this.requireLoginForSalary || !this.isAutoSalaryEnabled())
+			return;
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server == null)
+			return;
+		List<PlayerReference> members = this.getAllMembers();
+		for(ServerPlayer player : server.getPlayerList().getPlayers())
+		{
+			if(this.isMember(PlayerReference.of(player)))
+				this.flagPlayerAsOnline(player);
+		}
+	}
+
+	private void flagPlayerAsOnline(ServerPlayer player)
+	{
+		//Online state is not relevant if no auto-salary is enabled, or if the login requirement is not required
+		if(!this.requireLoginForSalary || !this.isAutoSalaryEnabled())
+			return;
+		UUID playerID = player.getUUID();
+		if(!this.onlineDuringSalary.contains(playerID))
+		{
+			this.onlineDuringSalary.add(playerID);
+			this.markDirty();
+		}
+	}
+
+	private void payMember(PlayerReference member, final MoneyValue value)
 	{
 		final IBankAccount memberAccount = PlayerBankReference.of(member).get();
 		if(memberAccount != null)

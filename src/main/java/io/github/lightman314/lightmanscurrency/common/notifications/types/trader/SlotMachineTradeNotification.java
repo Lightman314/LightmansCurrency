@@ -6,9 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SlotMachineTradeNotification extends TaxableNotification {
+public class SlotMachineTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trade"),SlotMachineTradeNotification::new);
 
@@ -76,7 +76,7 @@ public class SlotMachineTradeNotification extends TaxableNotification {
         else
             rewardText = ItemData.getItemNames(this.items);
 
-        return LCText.NOTIFICATION_TRADE_SLOT_MACHINE.get(this.customer, this.cost.getString(), rewardText);
+        return LCText.NOTIFICATION_TRADE_SLOT_MACHINE.get(this.customer, this.cost.getText(), rewardText);
     }
 
     @Override

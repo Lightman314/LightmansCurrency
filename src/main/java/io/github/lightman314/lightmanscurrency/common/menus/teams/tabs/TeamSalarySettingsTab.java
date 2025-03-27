@@ -45,6 +45,14 @@ public class TeamSalarySettingsTab extends TeamManagementTab.BankManagement {
             team.setSalaryDelay(this.menu.player,delay);
     }
 
+    public void SetSalaryLoginRequirement(boolean loginRequired)
+    {
+        if(this.menu.isClient())
+            this.menu.SendMessage(this.builder().setBoolean("LoginRequirement",loginRequired));
+        else if(this.menu.selectedTeam() instanceof Team team)
+            team.setLoginRequiredForSalary(this.menu.player,loginRequired);
+    }
+
     public void ManuallyTriggerSalary()
     {
         if(this.menu.isClient())
@@ -54,7 +62,7 @@ public class TeamSalarySettingsTab extends TeamManagementTab.BankManagement {
             ITeam team = this.menu.selectedTeam();
             if(team == null || !team.isAdmin(this.menu.player))
                 return;
-            team.forcePaySalaries();
+            team.forcePaySalaries(false);
         }
     }
 
@@ -66,6 +74,8 @@ public class TeamSalarySettingsTab extends TeamManagementTab.BankManagement {
             this.SetSalaryNotification(message.getBoolean("SalaryNotification"));
         if(message.contains("SalaryDelay"))
             this.SetSalaryDelay(message.getLong("SalaryDelay"));
+        if(message.contains("LoginRequirement"))
+            this.SetSalaryLoginRequirement(message.getBoolean("LoginRequirement"));
         if(message.contains("TriggerSalary"))
             this.ManuallyTriggerSalary();
     }

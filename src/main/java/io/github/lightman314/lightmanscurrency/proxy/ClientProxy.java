@@ -161,8 +161,11 @@ public class ClientProxy extends CommonProxy{
 			return;
 		
 		if(LCConfig.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
-			mc.gui.getChat().addMessage(notification.getChatMessage());
-		
+		{
+			for(Component line : notification.getChatMessage())
+				mc.gui.getChat().addMessage(line);
+		}
+
 	}
 
 	@Override

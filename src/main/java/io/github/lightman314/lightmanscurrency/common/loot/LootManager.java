@@ -56,6 +56,8 @@ public class LootManager {
 			LOOT_MODIFIERS.add(modifier);
 	}
 
+	public static void removeLootModifier(@Nonnull ILootModifier modifier) { LOOT_MODIFIERS.remove(modifier); }
+
 	public static void registerDroplistListeners()
 	{
 		//Register vanilla entry listeners

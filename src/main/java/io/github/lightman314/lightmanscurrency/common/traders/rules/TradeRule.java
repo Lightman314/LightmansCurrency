@@ -20,6 +20,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -31,20 +33,22 @@ import net.minecraft.util.GsonHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class TradeRule {
 
 	private static final List<IRuleLoadListener> LISTENERS = new ArrayList<>();
 	private static final List<String> IGNORE_MISSING = new ArrayList<>();
-	public static void addLoadListener(@Nonnull IRuleLoadListener listener)
+	public static void addLoadListener(IRuleLoadListener listener)
 	{
 		if(LISTENERS.contains(listener))
 			return;
 		LISTENERS.add(listener);
 	}
-	public static void addIgnoreMissing(@Nonnull String oldType)
+	public static void addIgnoreMissing(String oldType)
 	{
 		if(IGNORE_MISSING.contains(oldType))
 			return;
@@ -52,9 +56,10 @@ public abstract class TradeRule {
 	}
 
 	public final TradeRuleType<?> type;
-	public static String translationKeyOfType(@Nonnull ResourceLocation ruleType) { return "traderule." + ruleType.getNamespace() + "." + ruleType.getPath(); }
-	public static MutableComponent nameOfType(@Nonnull ResourceLocation ruleType) { return Component.translatable(translationKeyOfType(ruleType)); }
+	public static String translationKeyOfType(ResourceLocation ruleType) { return "traderule." + ruleType.getNamespace() + "." + ruleType.getPath(); }
+	public static MutableComponent nameOfType(ResourceLocation ruleType) { return Component.translatable(translationKeyOfType(ruleType)); }
 	public final MutableComponent getName() { return nameOfType(this.type.type); }
+	public abstract IconData getIcon();
 
 	private ITradeRuleHost host = null;
 	@Nullable
@@ -65,7 +70,7 @@ public abstract class TradeRule {
 	public boolean isActive() { return this.canActivate(this.host) && this.isActive; }
 	public void setActive(boolean active) { this.isActive = active; }
 
-	protected boolean allowHost(@Nonnull ITradeRuleHost host)
+	protected boolean allowHost(ITradeRuleHost host)
 	{
 		if(this.onlyAllowOnTraders() && !host.isTrader())
 			return false;
@@ -79,14 +84,13 @@ public abstract class TradeRule {
 	protected boolean onlyAllowOnTraders() { return false; }
 	protected boolean onlyAllowOnTrades() { return false; }
 
-	public void beforeTrade(@Nonnull PreTradeEvent event) {}
-	public void tradeCost(@Nonnull TradeCostEvent event) {}
-	public void afterTrade(@Nonnull PostTradeEvent event) {}
-	protected void tradeBaseCost(@Nonnull InternalPriceEvent query) {}
+	public void beforeTrade(PreTradeEvent event) {}
+	public void tradeCost(TradeCostEvent event) {}
+	public void afterTrade(PostTradeEvent event) {}
+	protected void tradeBaseCost(InternalPriceEvent query) {}
 	
-	protected TradeRule(@Nonnull TradeRuleType<?> type) { this.type = type; }
+	protected TradeRule(TradeRuleType<?> type) { this.type = type; }
 
-	@Nonnull
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
@@ -96,38 +100,38 @@ public abstract class TradeRule {
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(@Nonnull CompoundTag compound);
+	protected abstract void saveAdditional(CompoundTag compound);
 	
-	public final void load(@Nonnull CompoundTag compound)
+	public final void load(CompoundTag compound)
 	{
 		this.isActive = compound.getBoolean("Active");
 		this.loadAdditional(compound);
 	}
-	protected abstract void loadAdditional(@Nonnull CompoundTag compound);
+	protected abstract void loadAdditional(CompoundTag compound);
 	
-	public abstract JsonObject saveToJson(@Nonnull JsonObject json);
-	public abstract void loadFromJson(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException;
+	public abstract JsonObject saveToJson(JsonObject json);
+	public abstract void loadFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException;
 	
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
 	
-	public final void receiveUpdateMessage(@Nonnull LazyPacketData data)
+	public final void receiveUpdateMessage(LazyPacketData data)
 	{
 		if(data.contains("SetActive"))
 			this.isActive = data.getBoolean("SetActive");
 		this.handleUpdateMessage(data);
 	}
 	
-	protected abstract void handleUpdateMessage(@Nonnull LazyPacketData updateInfo);
+	protected abstract void handleUpdateMessage(LazyPacketData updateInfo);
 
-	public static void saveRules(@Nonnull CompoundTag compound, @Nonnull List<TradeRule> rules, @Nonnull String tag)
+	public static void saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
 		ListTag ruleData = new ListTag();
 		for (TradeRule rule : rules) ruleData.add(rule.save());
 		compound.put(tag, ruleData);
 	}
 	
-	public static boolean savePersistentData(@Nonnull CompoundTag compound, @Nonnull List<TradeRule> rules, @Nonnull String tag) {
+	public static boolean savePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
 		ListTag ruleData = new ListTag();
 		for (TradeRule rule : rules) {
 			CompoundTag thisRuleData = rule.savePersistentData();
@@ -142,7 +146,7 @@ public abstract class TradeRule {
 		return true;
 	}
 	
-	public static JsonArray saveRulesToJson(@Nonnull List<TradeRule> rules) {
+	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
 		JsonArray ruleData = new JsonArray();
 		for (TradeRule rule : rules) {
 			if (rule.isActive) {
@@ -156,7 +160,7 @@ public abstract class TradeRule {
 		return ruleData;
 	}
 
-	public static List<TradeRule> loadRules(@Nonnull CompoundTag compound, @Nonnull String tag, @Nullable ITradeRuleHost host)
+	public static List<TradeRule> loadRules(CompoundTag compound, String tag, @Nullable ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		if(compound.contains(tag, Tag.TAG_LIST))
@@ -180,7 +184,7 @@ public abstract class TradeRule {
 		return rules;
 	}
 	
-	public static void loadPersistentData(@Nonnull CompoundTag compound, @Nonnull List<TradeRule> tradeRules, @Nonnull String tag)
+	public static void loadPersistentData(CompoundTag compound, List<TradeRule> tradeRules, String tag)
 	{
 		if(compound.contains(tag, Tag.TAG_LIST))
 		{
@@ -201,7 +205,7 @@ public abstract class TradeRule {
 		}
 	}
 
-	public static List<TradeRule> Parse(@Nonnull JsonArray tradeRuleData, @Nullable ITradeRuleHost host)
+	public static List<TradeRule> Parse(JsonArray tradeRuleData, @Nullable ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		for(int i = 0; i < tradeRuleData.size(); ++i)
@@ -217,7 +221,7 @@ public abstract class TradeRule {
 		return rules;
 	}
 
-	public static boolean ValidateTradeRuleList(@Nonnull List<TradeRule> rules, @Nonnull ITradeRuleHost host)
+	public static boolean ValidateTradeRuleList(List<TradeRule> rules, ITradeRuleHost host)
 	{
 		boolean changed = false;
 		//Add missing rules
@@ -247,7 +251,7 @@ public abstract class TradeRule {
 		return changed;
 	}
 
-	public static boolean ValidateTradeRuleActiveStates(@Nonnull List<TradeRule> rules)
+	public static boolean ValidateTradeRuleActiveStates(List<TradeRule> rules)
 	{
 		boolean changed = false;
 		for(TradeRule rule : rules)
@@ -261,10 +265,10 @@ public abstract class TradeRule {
 		return changed;
 	}
 	
-	public static boolean HasTradeRule(@Nonnull List<TradeRule> rules, @Nonnull ResourceLocation type) { return GetTradeRule(rules, type) != null; }
+	public static boolean HasTradeRule(List<TradeRule> rules, ResourceLocation type) { return GetTradeRule(rules, type) != null; }
 
 	@Nullable
-	public static TradeRule GetTradeRule(@Nonnull List<TradeRule> rules, @Nonnull ResourceLocation type)
+	public static TradeRule GetTradeRule(List<TradeRule> rules, ResourceLocation type)
 	{
 		for(TradeRule rule : rules)
 		{
@@ -275,11 +279,11 @@ public abstract class TradeRule {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	@Nonnull
+	
 	public abstract TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent);
 
-	@Nonnull
-	public static TradeRule CreateRule(@Nonnull ResourceLocation type)
+	
+	public static TradeRule CreateRule(ResourceLocation type)
 	{
 		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(type);
 		if(ruleType != null)
@@ -288,8 +292,8 @@ public abstract class TradeRule {
 		return null;
 	}
 
-	@Nonnull
-	public static TradeRule Deserialize(@Nonnull CompoundTag compound)
+	
+	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
 		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
@@ -301,8 +305,8 @@ public abstract class TradeRule {
 		return null;
 	}
 
-	@Nonnull
-	public static TradeRule Deserialize(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	
+	public static TradeRule Deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String thisType = GsonHelper.getAsString(json, "Type");
 		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
 		if(ruleType != null)
@@ -316,7 +320,7 @@ public abstract class TradeRule {
 	}
 
 	@Nullable
-	public static TradeRule getRule(@Nonnull ResourceLocation type, @Nonnull List<TradeRule> rules) {
+	public static TradeRule getRule(ResourceLocation type, List<TradeRule> rules) {
 		for(TradeRule rule : rules)
 		{
 			if(rule.type.type.equals(type))
@@ -331,8 +335,8 @@ public abstract class TradeRule {
 	public static boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
 	public static boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
 
-	@Nonnull
-	public static MoneyValue getBaseCost(@Nonnull TradeData trade, @Nonnull TradeContext context)
+	
+	public static MoneyValue getBaseCost(TradeData trade, TradeContext context)
 	{
 		//Don't run the query if no trader is given for context
 		if(!context.hasTrader() || !trade.validCost())
@@ -351,12 +355,12 @@ public abstract class TradeRule {
 	{
 		public final TradeData trade;
 		public final TradeContext context;
-		@Nonnull
+		
 		private MoneyValue baseCost;
-		@Nonnull
+		
 		public MoneyValue getBaseCost() { return this.baseCost; }
-		public void setBaseCost(@Nonnull MoneyValue baseCost) { this.baseCost = Objects.requireNonNullElse(baseCost,MoneyValue.empty()); }
-		private InternalPriceEvent(@Nonnull TradeData trade, @Nonnull TradeContext context)
+		public void setBaseCost(MoneyValue baseCost) { this.baseCost = Objects.requireNonNullElse(baseCost,MoneyValue.empty()); }
+		private InternalPriceEvent(TradeData trade, TradeContext context)
 		{
 			this.trade = trade;
 			this.context = context;

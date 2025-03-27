@@ -20,6 +20,11 @@ public class IntegerPermission extends PermissionOption {
 	}
 
 	@Override
+	public void updateWidgetPosition(int x, int y) {
+
+	}
+
+	@Override
 	public int widgetWidth() {
 		return 0;
 	}

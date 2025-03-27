@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -14,6 +15,13 @@ public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesCli
 
     public final TradeRuleType<T> ruleType;
     public TradeRuleSubTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<T> ruleType) { super(parent); this.ruleType = ruleType; }
+
+    @Nonnull
+    @Override
+    public IconData getIcon() {
+        T rule = this.getRule();
+        return rule != null ? rule.getIcon() : IconData.Null();
+    }
 
     @Nullable
     @SuppressWarnings("unchecked")

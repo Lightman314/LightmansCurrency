@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class OwnableBlockEjectedNotification extends Notification {
+public class OwnableBlockEjectedNotification extends SingleLineNotification {
 
     public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"block_ejected"),OwnableBlockEjectedNotification::new);
 

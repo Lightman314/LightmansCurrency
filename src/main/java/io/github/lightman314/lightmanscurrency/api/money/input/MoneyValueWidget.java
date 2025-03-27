@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MoneyValueWidget extends EasyWidgetWithChildren {
 
@@ -44,6 +45,8 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     private final boolean drawBG;
     public boolean allowFreeInput = true;
+    private final Supplier<Boolean> allowHandlerChange;
+    public boolean canChangeHandlers() { return this.allowHandlerChange.get(); }
     private boolean locked = false;
     public boolean isLocked() { return this.locked; }
     public void lock() { this.locked = true; }
@@ -72,9 +75,6 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     private final MoneyValueWidget oldWidget;
 
-    private DropdownWidget dropdown = null;
-    private EasyButton freeToggle = null;
-
     private MoneyValueWidget(@Nonnull Builder builder)
     {
         super(builder);
@@ -85,6 +85,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         this.oldWidget = builder.oldWidget;
         this.drawBG = builder.drawBG;
         this.allowFreeInput = builder.allowFree;
+        this.allowHandlerChange = builder.allowHandlerChange;
     }
 
     private Map<String,MoneyInputHandler> setupHandlers()
@@ -145,18 +146,20 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
         this.setHandler(this.findDefaultHandler());
 
-        this.freeToggle = this.addChild(PlainButton.builder()
+        this.addChild(PlainButton.builder()
                 .position(area.pos.offset(area.width - 14,4))
                 .pressAction(this::toggleFree)
                 .sprite(SPRITE_FREE_TOGGLE)
+                .addon(EasyAddonHelper.visibleCheck(() -> this.visible && this.allowFreeInput))
                 .build());
 
-        this.dropdown = this.addChild(DropdownWidget.builder()
+        this.addChild(DropdownWidget.builder()
                 .position(area.pos.offset(10,4))
                 .width(100)
                 .selected(this.handlerKeys.indexOf(this.currentHandler.getUniqueName()))
                 .selectAction(this::selectHandler)
                 .options(this.handlerNames())
+                .addon(EasyAddonHelper.visibleCheck(() -> this.visible && this.availableHandlers.size() > 1 && this.allowHandlerChange.get()))
                 .build());
 
     }
@@ -194,6 +197,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         this.currentHandler.initialize(this.getArea());
         lastSelectedHandler = this.currentHandler.getUniqueName();
 
+        this.markHandlerChanged();
+    }
+
+    public void markHandlerChanged()
+    {
         this.handlerChangeConsumer.accept(this);
     }
 
@@ -216,8 +224,6 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     @Override
     protected void renderTick() {
-        this.freeToggle.visible = this.allowFreeInput && this.isVisible();
-        this.dropdown.visible = this.isVisible() && this.availableHandlers.size() > 1;
         if(this.currentHandler != null)
             this.currentHandler.renderTick();
     }
@@ -290,6 +296,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         private MoneyValue startingValue = MoneyValue.empty();
         private boolean drawBG = false;
         private boolean allowFree = true;
+        private Supplier<Boolean> allowHandlerChange = () -> true;
 
         public Builder old(@Nullable MoneyValueWidget widget) { this.oldWidget = widget; return this; }
         public Builder oldIfNotFirst(boolean firstOpen, @Nullable MoneyValueWidget widget) { if(firstOpen) return this; return this.old(widget); }
@@ -299,8 +306,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         public Builder typeChangeListener(Runnable handler) { this.typeChangeHandler = w -> handler.run(); return this; }
         public Builder startingValue(MoneyValue value) { this.startingValue = value; return this; }
         public Builder startingValue(@Nullable TradeData trade) { if(trade == null) return this; return this.startingValue(trade.getCost()); }
-        public Builder drawBG() { this.drawBG = true; return this; }
+        public Builder drawBG() { return this.drawBG(true); }
+        public Builder drawBG(boolean drawBG) { this.drawBG = drawBG; return this; }
         public Builder blockFreeInputs() { this.allowFree = false; return this; }
+        public Builder allowHandlerChange(boolean allowHandlerChange) { this.allowHandlerChange = () -> allowHandlerChange; return this; }
+        public Builder allowHandlerChange(Supplier<Boolean> allowHandlerChange) { this.allowHandlerChange = allowHandlerChange; return this; }
 
         public MoneyValueWidget build() { return new MoneyValueWidget(this); }
 

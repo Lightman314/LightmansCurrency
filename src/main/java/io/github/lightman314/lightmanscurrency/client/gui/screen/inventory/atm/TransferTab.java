@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -10,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -26,7 +26,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 import java.util.UUID;
 
 public class TransferTab extends ATMTab {
@@ -114,9 +113,8 @@ public class TransferTab extends ATMTab {
 			if(this.playerMode)
 			{
 				//Check if selected account exists
-				String playerName = this.playerInput.getValue();
-				UUID playerID = ClientPlayerNameCache.lookupID(playerName);
-				if(playerID == null || BankDataCache.TYPE.get(true).getAccount(playerID) == null)
+				UUID playerID = ClientPlayerNameCache.lookupID(this.playerInput.getValue());
+				if(playerID == null)
 					return ChatFormatting.GOLD.getColor();
 			}
 			return 0x00FF00;
@@ -128,13 +126,13 @@ public class TransferTab extends ATMTab {
 	{
 		if(this.playerMode)
 		{
-			if(this.playerInput.getValue().isBlank())
-				return null;
-			String name = this.playerInput.getValue();
 			UUID playerID = ClientPlayerNameCache.lookupID(this.playerInput.getValue());
-			if(playerID != null)
-				name = Objects.requireNonNull(ClientPlayerNameCache.lookupName(playerID),name);
-			return LCText.TOOLTIP_ATM_TRANSFER_TRIGGER.get(this.amountWidget.getCurrentValue().getText(),LCText.GUI_BANK_ACCOUNT_NAME.get(name));
+			if(playerID == null)
+				return null;
+			String playerName = ClientPlayerNameCache.lookupName(playerID);
+			if(playerName == null)
+				playerName = this.playerInput.getValue();
+			return LCText.TOOLTIP_ATM_TRANSFER_TRIGGER.get(this.amountWidget.getCurrentValue().getText(),LCText.GUI_BANK_ACCOUNT_NAME.get(playerName));
 		}
 		else if(this.selectedAccount != null)
 		{
@@ -149,6 +147,7 @@ public class TransferTab extends ATMTab {
 	{
 		if(this.playerMode)
 		{
+			//Check for bank account for the player
 			new CPacketBankTransferPlayer(this.playerInput.getValue(), this.amountWidget.getCurrentValue()).send();
 			this.playerInput.setValue("");
 			this.amountWidget.changeValue(MoneyValue.empty());
@@ -187,7 +186,15 @@ public class TransferTab extends ATMTab {
 		if(this.amountWidget.getCurrentValue().isEmpty())
 			return false;
 		if(this.playerMode)
-			return !this.playerInput.getValue().isBlank();
+		{
+			UUID playerID = ClientPlayerNameCache.lookupID(this.playerInput.getValue());
+			if(playerID == null)
+				return false;
+			if(this.menu.getBankAccountReference() instanceof PlayerBankReference prb)
+				return !prb.getPlayer().is(playerID);
+			else
+				return true;
+		}
 		else
 			return this.selectedAccount != null;
 	}

@@ -33,6 +33,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	boolean open = false;
 
 	int currentlySelected;
+	public void setCurrentlySelected(int currentlySelected) { this.currentlySelected = MathUtil.clamp(currentlySelected,0,this.options.size() - 1); }
 
 	private final List<Component> options;
 	private final Consumer<Integer> onSelect;
@@ -89,15 +90,8 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 			gui.setColor(0.5f, 0.5f, 0.5f);
 		else
 			gui.resetColor();
-		gui.blit(GUI_TEXTURE, 0, 0, 0, offset, 2, DropdownWidget.HEIGHT);
-		int xOffset = 0;
-		while(xOffset < this.width - 14)
-		{
-			int xPart = Math.min(this.width - 14 - xOffset, 244);
-			gui.blit(GUI_TEXTURE, 2 + xOffset, 0, 2, offset, xPart, DropdownWidget.HEIGHT);
-			xOffset += xPart;
-		}
-		gui.blit(GUI_TEXTURE, this.width - 12, 0, 244, offset, 12, DropdownWidget.HEIGHT);
+
+		gui.blitHorizSplit(GUI_TEXTURE,0,0,this.width,this.height,0,offset,256,12);
 
 		//Draw the option text
 		gui.drawString(this.fitString(gui, this.options.get(this.currentlySelected).getString()), 2, 2, 0x404040);

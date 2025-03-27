@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionBlockManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
-import io.github.lightman314.lightmanscurrency.common.text.ResourcePackTextEntry;
+import io.github.lightman314.lightmanscurrency.common.text.DualTextEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
@@ -36,7 +36,7 @@ public class LCResourcePacks {
         registerPack(LightmansCurrency.MODID, "FancyIcons",LCText.RESOURCE_PACK_FANCY_ICONS);
     }
 
-    public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull ResourcePackTextEntry text) { registerPack(new CustomResourcePack(modid,path,text.nameText.get())); }
+    public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull DualTextEntry text) { registerPack(new CustomResourcePack(modid,path,text.first.get())); }
 
     public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name) { registerPack(new CustomResourcePack(modid,path,name)); }
 

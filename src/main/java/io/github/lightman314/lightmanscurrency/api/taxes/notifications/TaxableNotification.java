@@ -1,34 +1,38 @@
-package io.github.lightman314.lightmanscurrency.common.notifications.types;
+package io.github.lightman314.lightmanscurrency.api.taxes.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class TaxableNotification extends Notification {
 
     private MoneyValue taxesPaid = MoneyValue.empty();
 
-    protected TaxableNotification(@Nonnull MoneyValue taxesPaid) { this.taxesPaid = taxesPaid; }
+    protected TaxableNotification(MoneyValue taxesPaid) { this.taxesPaid = taxesPaid; }
 
     protected TaxableNotification() {}
 
-    @Nonnull
     @Override
-    public final MutableComponent getMessage() {
-        if(this.taxesPaid.isEmpty())
-            return this.getNormalMessage();
-        return this.getNormalMessage().append("\n").append(LCText.NOTIFICATION_TAXES_PAID.get(this.taxesPaid.getText("ERROR")));
+    public final List<MutableComponent> getMessageLines() {
+        List<MutableComponent> lines = new ArrayList<>(this.getNormalMessageLines());
+        if(!this.taxesPaid.isEmpty())
+            lines.add(LCText.NOTIFICATION_TAXES_PAID.get(this.taxesPaid.getText("ERROR")));
+        return lines;
     }
 
-    @Nonnull
-    protected abstract MutableComponent getNormalMessage();
+    protected abstract List<MutableComponent> getNormalMessageLines();
 
     @Override
-    protected final void saveAdditional(@Nonnull CompoundTag compound) {
+    protected final void saveAdditional(CompoundTag compound) {
         this.saveNormal(compound);
         compound.put("TaxesPaid", this.taxesPaid.save());
     }
@@ -36,7 +40,7 @@ public abstract class TaxableNotification extends Notification {
     protected abstract void saveNormal(CompoundTag compound);
 
     @Override
-    protected final void loadAdditional(@Nonnull CompoundTag compound) {
+    protected final void loadAdditional(CompoundTag compound) {
         this.taxesPaid = MoneyValue.safeLoad(compound, "TaxesPaid");
         this.loadNormal(compound);
     }
@@ -44,5 +48,6 @@ public abstract class TaxableNotification extends Notification {
     protected abstract void loadNormal(CompoundTag compound);
 
     protected boolean TaxesMatch(TaxableNotification other) { return other.taxesPaid.equals(this.taxesPaid); }
+
 
 }

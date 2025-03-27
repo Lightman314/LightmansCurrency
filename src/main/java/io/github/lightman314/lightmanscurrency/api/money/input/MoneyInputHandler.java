@@ -25,7 +25,9 @@ public abstract class MoneyInputHandler {
 
     private MoneyValueWidget parent;
     protected boolean isVisible() { return this.parent.isVisible(); }
+    protected boolean canChangeHandler() { return this.parent.canChangeHandlers(); }
     protected boolean isLocked() { return this.parent.isLocked(); }
+    protected void onInternalHandlerChange() { this.parent.markHandlerChanged(); }
     protected Font getFont() { return this.parent.getFont(); }
     @Nonnull
     protected MoneyValue currentValue() { return this.parent.getCurrentValue(); }

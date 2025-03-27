@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
@@ -16,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class ChangeOwnerNotification extends Notification {
+public class ChangeOwnerNotification extends SingleLineNotification {
 
 	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "change_ownership"),ChangeOwnerNotification::new);
 	

@@ -33,6 +33,7 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
     @Override
     public Component getTooltip() { return LCText.TOOLTIP_TEAM_SALARY_SETTINGS.get(); }
 
+    EasyButton toggleLoginRequirementButton;
     EasyButton toggleAutoSalaryButton;
     PlainButton toggleSalaryNotificationButton;
     TimeInputWidget salaryDelayInput;
@@ -44,14 +45,20 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
         ITeam team = this.menu.selectedTeam();
 
         this.toggleAutoSalaryButton = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,20))
+                .position(screenArea.pos.offset(20,10))
                 .width(screenArea.width - 40)
                 .text(this::getToggleButtonText)
                 .pressAction(this::ToggleAutoSalary)
                 .build());
 
+        this.toggleLoginRequirementButton = this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(20, 38))
+                .pressAction(this::ToggleLoginRequirement)
+                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isLoginRequired))
+                .build());
+
         this.toggleSalaryNotificationButton = this.addChild(PlainButton.builder()
-                .position(screenArea.pos.offset(20,45))
+                .position(screenArea.pos.offset(20,50))
                 .pressAction(this::ToggleSalaryNotification)
                 .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isSalaryNotificationEnabled))
                 .build());
@@ -79,6 +86,12 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
         return team != null && team.isAutoSalaryEnabled();
     }
 
+    private boolean isLoginRequired()
+    {
+        ITeam team = this.menu.selectedTeam();
+        return team != null && team.getLoginRequiredForSalary();
+    }
+
     private boolean isSalaryNotificationEnabled()
     {
         ITeam team = this.menu.selectedTeam();
@@ -104,27 +117,22 @@ public class TeamSalarySettingsClientTab extends TeamManagementClientTab<TeamSal
         if(team == null)
             return;
 
-        gui.drawString(LCText.GUI_TEAM_SALARY_SETTINGS_NOTIFICATION.get(), 32, 46, 0x404040);
+        gui.drawString(LCText.GUI_TEAM_SALARY_SETTINGS_REQUIRE_LOGIN.get(), 32, 39, 0x404040);
+
+        gui.drawString(LCText.GUI_TEAM_SALARY_SETTINGS_NOTIFICATION.get(), 32, 51, 0x404040);
 
         gui.drawString(LCText.GUI_TEAM_SALARY_SETTINGS_DELAY.get(), 20, 65, 0x404040);
 
-        TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TEAM_SALARY_INFO_DELAY.get(new TimeUtil.TimeData(team.getSalaryDelay()).getString()), 20, this.screen.getXSize() - 40, 120, 0x404040);
+        TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TEAM_SALARY_INFO_DELAY.get(new TimeUtil.TimeData(team.getSalaryDelay()).getString()), 10, this.screen.getXSize() - 20, 120, 0x404040);
 
     }
 
-    private void ToggleAutoSalary()
-    {
-        this.commonTab.SetAutoSalary(!this.isAutoSalaryEnabled());
-    }
+    private void ToggleAutoSalary() { this.commonTab.SetAutoSalary(!this.isAutoSalaryEnabled()); }
 
-    private void ToggleSalaryNotification(@Nonnull EasyButton button)
-    {
-        this.commonTab.SetSalaryNotification(!this.isSalaryNotificationEnabled());
-    }
+    private void ToggleLoginRequirement() { this.commonTab.SetSalaryLoginRequirement(!this.isLoginRequired()); }
 
-    private void SetSalaryDelay(@Nonnull TimeUtil.TimeData data)
-    {
-        this.commonTab.SetSalaryDelay(data.miliseconds);
-    }
+    private void ToggleSalaryNotification(@Nonnull EasyButton button) { this.commonTab.SetSalaryNotification(!this.isSalaryNotificationEnabled()); }
+
+    private void SetSalaryDelay(@Nonnull TimeUtil.TimeData data) { this.commonTab.SetSalaryDelay(data.miliseconds); }
 
 }

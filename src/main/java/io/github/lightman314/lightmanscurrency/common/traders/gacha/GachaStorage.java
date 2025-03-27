@@ -112,13 +112,11 @@ public class GachaStorage {
             if(InventoryUtil.ItemMatches(entry,item))
             {
                 entry.grow(item.getCount());
-                item.setCount(0);
                 return;
             }
         }
         //Not found in existing stack, so we'll add a new entry to the list
         this.contents.add(item.copy());
-        item.setCount(0);
     }
 
     public ItemStack removeItem(int slot, int count) {
@@ -131,7 +129,7 @@ public class GachaStorage {
         return result;
     }
 
-    public ItemStack removeRandomItem()
+    public ItemStack findRandomItem(boolean remove)
     {
         RandomSource random = RandomSource.create();
         if(this.contents.isEmpty())
@@ -143,9 +141,13 @@ public class GachaStorage {
             rand -= item.getCount();
             if(rand < 0)
             {
-                ItemStack result = item.split(1);
-                if(item.isEmpty())
-                    this.contents.remove(i);
+                ItemStack result = item.copyWithCount(1);
+                if(remove)
+                {
+                    item.shrink(1);
+                    if(item.isEmpty())
+                        this.contents.remove(i);
+                }
                 return result;
             }
         }

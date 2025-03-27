@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.misc;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+
+import javax.annotation.Nullable;
 
 public class EasyText {
 
@@ -11,6 +14,13 @@ public class EasyText {
     public static MutableComponent literal(String text) { return Component.literal(text); }
     public static MutableComponent translatable(String translation, Object... children) { return Component.translatable(translation, children); }
     public static MutableComponent translatableWithFallback(String translation, String fallback) { return Component.translatableWithFallback(translation, fallback); }
+    @Nullable
+    public static MutableComponent translatableOrNull(String translationKey) {
+        Language lang = Language.getInstance();
+        if(lang.has(translationKey))
+            return EasyText.translatable(translationKey);
+        return null;
+    }
 
     public static MutableComponent makeMutable(Component text)
     {

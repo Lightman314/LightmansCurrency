@@ -71,13 +71,10 @@ public final class TextEntry {
     public static TextEntry notification(@Nonnull NotificationType<?> type, @Nonnull String extra) { return notification(type.type,extra); }
     public static TextEntry notification(@Nonnull ResourceLocation type, @Nonnull String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
 
-    public static TextEntry permission(@Nonnull String permission) { return new TextEntry("permission.lightmanscurrency." + permission); }
     public static TextEntry chain(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain); }
     public static TextEntry chainDisplay(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
     public static TextEntry chainDisplayWordy(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display.wordy"); }
     public static TextEntry lcStat(@Nonnull StatKey<?,?> statKey) { return new TextEntry(StatType.getTranslationKey(statKey.key)); }
-
-    public static TextEntry resourcePack(@Nonnull String modid, @Nonnull String name) { return new TextEntry("resourcepack." + modid + "." + name); }
 
     public static TextEntry reiGroup(@Nonnull String modid, @Nonnull String type) { return new TextEntry("rei." + modid + ".group." + type); }
     public static TextEntry jeiInfo(@Nonnull String modid, @Nonnull String type) { return new TextEntry("jei." + modid + ".info." + type); }

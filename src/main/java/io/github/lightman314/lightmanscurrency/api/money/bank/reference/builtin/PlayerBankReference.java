@@ -22,6 +22,7 @@ public class PlayerBankReference extends BankReference {
     public static final BankReferenceType TYPE = new Type();
 
     private final PlayerReference player;
+    public PlayerReference getPlayer() { return this.player; }
 
     protected PlayerBankReference(@Nonnull PlayerReference player) { super(TYPE); this.player = player; }
 

@@ -19,6 +19,8 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -57,6 +59,10 @@ public class FreeSample extends PriceTweakingTradeRule {
 			return false;
 		return super.canActivate(host);
 	}
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconUtil.ICON_FREE_SAMPLE; }
 
 	@Override
 	public void beforeTrade(@Nonnull PreTradeEvent event)

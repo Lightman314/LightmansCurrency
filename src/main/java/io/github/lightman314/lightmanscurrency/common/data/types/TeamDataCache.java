@@ -129,8 +129,11 @@ public class TeamDataCache extends CustomData implements IServerTicker {
     public void onPlayerJoin(ServerPlayer player) {
 
         for(Team team : this.teams.values())
+        {
             this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save()),player);
-
+            //Flag the player as having joined *after* sending the initial packet so that any changes to the online list are sent afterwords
+            team.onPlayerJoin(player);
+        }
     }
 
 }

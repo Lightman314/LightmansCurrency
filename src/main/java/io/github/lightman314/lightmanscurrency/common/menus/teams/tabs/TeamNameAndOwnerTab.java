@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.teams.tabs;
 
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.team.TeamNameAndOwnerClientTab;
@@ -32,12 +33,12 @@ public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
 
     }
 
-    public void SetOwner(@Nonnull String ownerName)
+    public void SetOwner(@Nonnull PlayerReference owner)
     {
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setString("SetOwner",ownerName));
+            this.menu.SendMessage(this.builder().setCompound("SetOwner",owner.save()));
         else if(this.menu.selectedTeam() instanceof Team team)
-            team.changeOwner(this.menu.player,ownerName);
+            team.changeOwner(this.menu.player,owner);
     }
 
     public void DisbandTeam()
@@ -62,7 +63,7 @@ public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
         if(message.contains("ChangeName"))
             this.ChangeName(message.getString("ChangeName"));
         if(message.contains("SetOwner"))
-            this.SetOwner(message.getString("SetOwner"));
+            this.SetOwner(PlayerReference.load(message.getNBT("SetOwner")));
         if(message.contains("DisbandTeam"))
             this.DisbandTeam();
     }

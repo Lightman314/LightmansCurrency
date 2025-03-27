@@ -5,16 +5,16 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class ChangeAllyPermissionNotification extends Notification {
+public class ChangeAllyPermissionNotification extends SingleLineNotification {
 
 	public static final NotificationType<ChangeAllyPermissionNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"change_ally_permissions"),ChangeAllyPermissionNotification::new);
 	

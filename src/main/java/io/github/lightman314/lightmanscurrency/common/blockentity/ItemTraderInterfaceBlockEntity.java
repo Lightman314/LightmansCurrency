@@ -327,7 +327,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
 		for(Direction relativeSide : Direction.values())
 		{
-			if(this.itemHandler.getInputSides().get(relativeSide) || this.itemHandler.getOutputSides().get(relativeSide))
+			if(this.itemHandler.allowInputSide(relativeSide) || this.itemHandler.allowOutputSide(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
@@ -341,7 +341,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 				{
 					be.getCapability(ForgeCapabilities.ITEM_HANDLER, actualSide.getOpposite()).ifPresent(itemHandler -> {
 						//Collect items from neighboring blocks
-						if(this.itemHandler.getInputSides().get(relativeSide))
+						if(this.itemHandler.allowInputSide(relativeSide))
 						{
 							boolean query = true;
 							for(int i = 0; query && i < itemHandler.getSlots(); ++i)
@@ -357,7 +357,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								}
 							}
 						}
-						if(this.itemHandler.getOutputSides().get(relativeSide))
+						if(this.itemHandler.allowOutputSide(relativeSide))
 						{
 							List<ItemStack> buffer = this.itemBuffer.getContents();
 							boolean query = true;

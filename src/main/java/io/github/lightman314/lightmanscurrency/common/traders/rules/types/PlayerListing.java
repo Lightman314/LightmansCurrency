@@ -15,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.traders.rules.IRuleLoadListener;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
@@ -43,6 +45,10 @@ public class PlayerListing extends TradeRule {
     public ImmutableList<PlayerReference> getPlayerList() { return ImmutableList.copyOf(this.playerList); }
 
     private PlayerListing() { super(TYPE); }
+
+    @Nonnull
+    @Override
+    public IconData getIcon() { return this.isWhitelistMode() ? IconUtil.ICON_WHITELIST : IconUtil.ICON_BLACKLIST; }
 
     @Override
     public void beforeTrade(@Nonnull TradeEvent.PreTradeEvent event) {

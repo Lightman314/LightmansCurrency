@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.traders.permissions;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class BooleanPermission extends PermissionOption {
@@ -12,13 +14,20 @@ public class BooleanPermission extends PermissionOption {
 	PlainButton checkmark;
 
 	@Override
-	protected void createWidget(int x, int y, Consumer<Object> addWidgets) {
+	protected void createWidget(int x, int y, @Nonnull Consumer<Object> addWidgets) {
 		this.checkmark = PlainButton.builder()
-				.position(x,y + 4)
+				.position(x,y + 2)
 				.pressAction(this::TogglePermission)
 				.sprite(IconAndButtonUtil.SPRITE_CHECK(this::hasPermission))
+				.addon(EasyAddonHelper.visibleCheck(this::isVisible))
 				.build();
 		addWidgets.accept(this.checkmark);
+	}
+
+	@Override
+	public void updateWidgetPosition(int x, int y) {
+		if(this.checkmark != null)
+			this.checkmark.setPosition(x,y + 2);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
-import io.github.lightman314.lightmanscurrency.common.text.AdvancementTextEntry;
+import io.github.lightman314.lightmanscurrency.common.text.DualTextEntry;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
@@ -43,7 +43,7 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
     @Override
     public void generate(@Nonnull HolderLookup.Provider provider, @Nonnull Consumer<Advancement> consumer, @Nonnull ExistingFileHelper existingFileHelper) {
         Advancement root = save(consumer, Builder.advancement()
-                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.titleText.get(), LCText.ADVANCEMENT_ROOT.descriptionText.get(), new ResourceLocation("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), FrameType.TASK,false,false,false)
+                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), new ResourceLocation("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), FrameType.TASK,false,false,false)
                         .addCriterion("coin", ezItemTrigger(LCTags.Items.COINS)),
                 "currency/root");
         Advancement mfp = save(consumer, Builder.advancement()
@@ -139,7 +139,7 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
         //Sus Jar
         Advancement susJar = save(consumer,Builder.advancement()
                         .parent(mfp)
-                        .display(ModBlocks.SUS_JAR.get(), LCText.ADVANCEMENT_JAR_OF_SUS.titleText.get(),LCText.ADVANCEMENT_JAR_OF_SUS.descriptionText.getWithStyle(ChatFormatting.BOLD),null,FrameType.TASK, true, true, true)
+                        .display(ModBlocks.SUS_JAR.get(), LCText.ADVANCEMENT_JAR_OF_SUS.first.get(),LCText.ADVANCEMENT_JAR_OF_SUS.second.getWithStyle(ChatFormatting.BOLD),null,FrameType.TASK, true, true, true)
                         .addCriterion("jar_of_sus", ezItemTrigger(ModBlocks.SUS_JAR.get()))
                 ,"currency/jar_of_sus");
 
@@ -156,39 +156,37 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
                         .parent(mfp)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_COPPER,LCText.ADVANCEMENT_EVENT_CHOCOLATE, FrameType.CHALLENGE,true,false,true))
                         .addCriterion("has_coins",ezItemTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE))
-                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/unlock_chocolate")))
+                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("unlock_chocolate")))
                 ,"currency/events/chocolate_coins");
         Advancement christmas = save(consumer,Builder.advancement()
                         .parent(chocolateCoins)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_GOLD,LCText.ADVANCEMENT_EVENT_CHRISTMAS,FrameType.TASK,true))
                         .addCriterion("event", ezEventTrigger(12,1,12,31))
-                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/gift_chocolate")))
                 ,"currency/events/christmas");
         Advancement valentines = save(consumer,Builder.advancement()
                         .parent(chocolateCoins)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_DIAMOND,LCText.ADVANCEMENT_EVENT_VALENTINES,FrameType.TASK,true))
                         .addCriterion("event", ezEventTrigger(2,13,2,15))
-                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("events/gift_chocolate")))
                 ,"currency/events/valentines");
     }
 
     private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull AdvancementTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
+    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
 
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull String translation){ return ezDisplay(icon, translation, FrameType.TASK, true, true, false); }
-    private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull AdvancementTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, true, true, false); }
+    private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull DualTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, true, true, false); }
 
     private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull AdvancementTextEntry translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
 
     private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull AdvancementTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
 
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(new ItemStack(icon),translation,frame,toast,chat,hidden); }
-    private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull AdvancementTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(new ItemStack(icon),translation,frame,toast,chat,hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(new ItemStack(icon),translation,frame,toast,chat,hidden); }
 
-    private static DisplayInfo ezDisplay(@Nonnull ItemStack icon, @Nonnull AdvancementTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){
-        return new DisplayInfo(icon, translation.titleText.get(),translation.descriptionText.get(), null, frame, toast, chat, hidden);
+    private static DisplayInfo ezDisplay(@Nonnull ItemStack icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){
+        return new DisplayInfo(icon, translation.first.get(),translation.second.get(), null, frame, toast, chat, hidden);
     }
     private static DisplayInfo ezDisplay(@Nonnull ItemStack icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){
         return new DisplayInfo(icon, Component.translatable(translation + ".title"), Component.translatable(translation + ".description"), null, frame, toast, chat, hidden);

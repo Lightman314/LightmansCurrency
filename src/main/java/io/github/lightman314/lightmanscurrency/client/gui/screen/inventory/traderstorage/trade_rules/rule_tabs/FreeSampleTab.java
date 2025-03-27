@@ -7,14 +7,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
@@ -25,10 +23,6 @@ import javax.annotation.Nonnull;
 public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
     public FreeSampleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, FreeSample.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_FREE_SAMPLE; }
 
     EditBox limitInput;
     EasyButton buttonSetLimit;
@@ -74,12 +68,12 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
         FreeSample rule = this.getRule();
         if(rule != null)
         {
-            gui.drawString(LCText.GUI_FREE_SAMPLE_INFO.get(rule.getLimit()), 10, 9, 0xFFFFFF);
-            TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_FREE_SAMPLE_PLAYER_COUNT.get(rule.getSampleCount()), 10, this.screen.getXSize() - 20, 42, 0x404040);
-        }
+            gui.drawString(LCText.GUI_FREE_SAMPLE_INFO.get(rule.getLimit()), 10, 9, 0x404040);
+            TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_FREE_SAMPLE_PLAYER_COUNT.get(rule.getSampleCount()), 10, this.screen.getXSize() - 20, 44, 0x404040);
 
-        Component text = this.getRule().getTimeLimit() > 0 ? LCText.GUI_PLAYER_TRADE_LIMIT_DURATION.get(new TimeUtil.TimeData(this.getRule().getTimeLimit()).getShortString()) : LCText.GUI_PLAYER_TRADE_LIMIT_NO_DURATION.get();
-        TextRenderUtil.drawCenteredText(gui, text, this.screen.getXSize() / 2, 80, 0xFFFFFF);
+            Component text = this.getRule().getTimeLimit() > 0 ? LCText.GUI_PLAYER_TRADE_LIMIT_DURATION.get(new TimeUtil.TimeData(this.getRule().getTimeLimit()).getShortString()) : LCText.GUI_PLAYER_TRADE_LIMIT_NO_DURATION.get();
+            TextRenderUtil.drawCenteredText(gui, text, this.screen.getXSize() / 2, 80, 0x404040);
+        }
 
     }
 

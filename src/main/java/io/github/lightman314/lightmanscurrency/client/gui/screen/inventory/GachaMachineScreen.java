@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
@@ -169,6 +171,8 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
             List<ItemStack> contents = trader.getStorage().peekRandomItems(random,BALL_RENDER_COUNT_X * BALL_RENDER_COUNT_Y);
 
+            gui.enableScissor(50,9,76,63);
+
             for(int y = 0; y < BALL_RENDER_COUNT_Y && !contents.isEmpty(); ++y)
             {
                 int xOffset = 0;
@@ -181,13 +185,17 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
                 }
             }
 
+            gui.disableScissor();
+
             if(this.menu.hasPendingReward() && this.animationTick >= ANIMATION_LENGTH - 8 && this.animationTick < ANIMATION_LENGTH)
             {
                 //Render reward item falling
                 int distance = (ANIMATION_LENGTH - this.animationTick - 1) * 2;
                 if(gui.partialTicks >= 0.5f)
                     distance--;
+                gui.enableScissor(80,87,16,16);
                 gui.renderItem(this.menu.getNextReward(),REWARD_END_POSITION.offset(0,distance * -1));
+                gui.disableScissor();
             }
 
         }
@@ -196,7 +204,6 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         gui.drawString(LCText.GUI_GACHA_MACHINE_TRADE_MULTIPLIER.get(this.tradeMultiplier), 40,113,0x404040);
 
         //Render colored overlays
-        gui.pushPose().TranslateToForeground();
         final int machineColor = this.getMachineColor();
 
         //Render overlay in the same color as the machine itself
@@ -208,23 +215,16 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         gui.blit(OVERLAY_TEXTURE,KNOB_POSITION,knobUV.x,knobUV.y,KNOB_SIZE,KNOB_SIZE);
 
         //Reset
-        gui.popPose();
         gui.resetColor();
 
     }
 
     @Override
     protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
-        gui.pushPose().TranslateToForeground();
         if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(gui.mousePos, 10, 10))
             gui.renderComponentTooltip(this.menu.getContext().getAvailableFundsDescription());
         if(GACHA_INFO_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))
             gui.renderComponentTooltip(this.getGachaInfoTooltip());
-    }
-
-    @Override
-    protected void renderAfterTooltips(@Nonnull EasyGuiGraphics gui) {
-        gui.popPose();
     }
 
     private ScreenPosition getKnobUV(final int animationTick, float partialTick)
@@ -306,7 +306,12 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
     private boolean allowInteraction() {
         GachaTrader trader = this.menu.getTrader();
-        return trader != null && !this.menu.hasPendingReward() && !trader.getStorage().isEmpty() && trader.getPrice().isValidPrice();
+        if(trader != null)
+        {
+            TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
+            return !this.menu.hasPendingReward() && !trader.getStorage().isEmpty() && trader.getPrice().isValidPrice() && !event.isCanceled();
+        }
+        return false;
     }
 
     private boolean showTerminalButton() {
@@ -349,6 +354,10 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
             //If the price is modified by a trade rule, display the "normal cost" as well just in case it changes in-between rolls
             if(!currentCost.equals(normalCost) && this.tradeMultiplier > 1)
                 result.add(LCText.TOOLTIP_GACHA_MACHINE_NORMAL_COST.get(normalCost.isFree() ? LCText.TOOLTIP_GACHA_MACHINE_COST_FREE.get() : normalCost.getText()));
+            //Run pre-trade event to get alert tooltips
+            TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
+            for(AlertData alert : event.getAlertInfo())
+                result.add(alert.getFormattedMessage());
             return result;
         }
         return ImmutableList.of();

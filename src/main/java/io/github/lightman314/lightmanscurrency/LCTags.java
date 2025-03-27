@@ -94,6 +94,8 @@ public class LCTags {
         //Tradable tags
         public static final TagKey<Item> TRADABLE_BOOK = tag("tradable/book");
 
+        public static final TagKey<Item> GACHA_BLACKLIST = tag("gacha_ball_blacklist");
+
         //Settings tags
         public static final TagKey<Item> SETTINGS_WRITABLE = tag("settings/writable");
         public static final TagKey<Item> SETTINGS_READABLE = tag("settings/readable");

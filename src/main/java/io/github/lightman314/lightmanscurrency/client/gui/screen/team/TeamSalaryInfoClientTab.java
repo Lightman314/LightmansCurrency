@@ -68,26 +68,46 @@ public class TeamSalaryInfoClientTab extends TeamManagementClientTab<TeamSalaryI
                 TextRenderUtil.drawCenteredText(gui, LCText.GUI_TEAM_SALARY_INFO_SALARY_ADMINS.get(team.getAdminSalary().getText()), center, 66, 0x404040);
 
             //Required Funds
-            List<MoneyValue> values = team.getTotalSalaryCost();
+            List<MoneyValue> values = team.getTotalSalaryCost(false);
             if(!values.isEmpty())
             {
                 gui.drawString(LCText.GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS.get(), 20, 80, 0x404040);
 
                 int offset = 10;
-                for(MoneyValue value : team.getTotalSalaryCost())
+                for(MoneyValue value : values)
                 {
                     gui.drawString(value.getText(),25, 80 + offset, 0x404040);
                     offset += 10;
                 }
             }
+            //Required Auto-Salary Funds
+            if(team.getLoginRequiredForSalary())
+            {
+                values = team.getTotalSalaryCost(true);
+                if(!values.isEmpty())
+                {
+                    gui.drawString(LCText.GUI_TEAM_SALARY_INFO_CURRENT_REQUIRED_FUNDS.get(), 20, 110, 0x404040);
+                    int offset = 10;
+                    for(MoneyValue value : values)
+                    {
+                        gui.drawString(value.getText(), 25, 110 + offset, 0x404040);
+                        offset += 10;
+                    }
+                }
+            }
 
+            Component fundsWarning = null;
+            if(!team.canAffordNextSalary(true))
+                fundsWarning = LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS.get();
+            else if(!team.canAffordNextSalary(false))
+                fundsWarning = LCText.GUI_TEAM_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS.get();
             //Insufficient Funds warning
-            if(!team.canAffordNextSalary())
-                TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS.get(), 20, this.screen.getXSize() - 40, 120, ChatFormatting.YELLOW.getColor(), true);
+            if(fundsWarning != null)
+                TextRenderUtil.drawCenteredMultilineText(gui, fundsWarning, 10, this.screen.getXSize() - 20, 144, ChatFormatting.YELLOW.getColor(), true);
 
             //Failed Salary Attempt warning
             if(team.failedLastSalaryAttempt())
-                TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED.get(), 20, this.screen.getXSize() - 40, 165, ChatFormatting.YELLOW.getColor(), true);
+                TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED.get(), 10, this.screen.getXSize() - 20, 175, ChatFormatting.YELLOW.getColor(), true);
 
         }
 

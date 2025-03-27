@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.util;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.*;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @NonnullDefault
 public class TagUtil {
@@ -38,6 +37,22 @@ public class TagUtil {
             result.add(list.getString(i));
         return result;
 
+    }
+
+    public static ListTag writeUUIDList(List<UUID> list)
+    {
+        ListTag result = new ListTag();
+        for(UUID value : list)
+            result.add(NbtUtils.createUUID(value));
+        return result;
+    }
+
+    public static List<UUID> readUUIDList(ListTag list)
+    {
+        List<UUID> result = new ArrayList<>();
+        for(Tag tag : list)
+            result.add(NbtUtils.loadUUID(tag));
+        return result;
     }
 
 }

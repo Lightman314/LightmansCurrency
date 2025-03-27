@@ -141,13 +141,13 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	{
 
 		//Render the background
-		gui.blitBackgroundOfSize(GUI_TEXTURE, 0, 0, this.imageWidth, this.imageHeight, 0, 0, 100, 100, 25);
+		gui.blitNineSplit(GUI_TEXTURE, 0, 0, this.imageWidth, this.imageHeight, 0, 0, 100, 100, 25);
 		//Render the search icon
 		gui.blit(GUI_TEXTURE, 14, 7, 100, 0,11, 14);
 		//Render the search input background
-		gui.blitBackgroundOfSize(GUI_TEXTURE,25,7,this.searchWidth,14,111,0, 107,14, 4);
+		gui.blitHorizSplit(GUI_TEXTURE,25,7,this.searchWidth,14,111,0, 107,4);
 		//Render the button background
-		gui.blitBackgroundOfSize(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 42, 0, 100, 100, 100, 25);
+		gui.blitNineSplit(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 42, 0, 100, 100, 100, 25);
 
 	}
 

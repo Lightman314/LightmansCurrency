@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -26,7 +26,7 @@ public class NullCategory extends NotificationCategory {
 
 	@Nonnull
 	@Override
-	public MutableComponent getName() { return Component.literal("NULL"); }
+	public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_NULL.get(); }
 
 	@Nonnull
     @Override

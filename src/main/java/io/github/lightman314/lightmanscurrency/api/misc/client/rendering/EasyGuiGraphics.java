@@ -92,7 +92,7 @@ public final class EasyGuiGraphics {
     {
         this.resetColor();
         this.pushOffset(screen.getCorner());
-        this.blitBackgroundOfSize(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
+        this.blitNineSplit(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
         this.popOffset();
     }
     public void renderSlot(IEasyScreen screen, Slot slot) { if(slot.isActive()) this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
@@ -119,7 +119,26 @@ public final class EasyGuiGraphics {
     }
     public void blitSpriteFadeHoriz(Sprite sprite, ScreenPosition pos, float percent, boolean hovered) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent, hovered); }
 
-    public void blitBackgroundOfSize(ResourceLocation image, int x, int y, int width, int height, int u, int v, int uWidth, int vHeight, int edge)
+    public void blitHorizSplit(ResourceLocation image, int x, int y, int width, int height, int u, int v, int uWidth, int edge)
+    {
+        int uCenter = uWidth - edge - edge;
+        if(uCenter < 0)
+            throw new IllegalArgumentException("Invalid inputs resulted in uCenter of " + uCenter);
+
+        //Left edge
+        this.blit(image,x,y,u,v,edge,height);
+        //Center
+        int tempX = edge;
+        while(tempX < width - edge)
+        {
+            int widthToDraw = Math.min(uCenter,width - edge - tempX);
+            this.blit(image,x + tempX,y,u + edge,v,widthToDraw,height);
+            tempX += widthToDraw;
+        }
+        //Right edge
+        this.blit(image,x + width - edge,y,u + uWidth - edge,v,edge,height);
+    }
+    public void blitNineSplit(ResourceLocation image, int x, int y, int width, int height, int u, int v, int uWidth, int vHeight, int edge)
     {
         int uCenter = uWidth - edge - edge;
         if(uCenter < 1)
@@ -247,9 +266,16 @@ public final class EasyGuiGraphics {
     public void renderSlotHighlight(int x, int y) { this.gui.fillGradient(RenderType.guiOverlay(), this.offset.x + x, this.offset.y + y, this.offset.x + x + 16, this.offset.y + y + 16, -2130706433, -2130706433, 0); }
     public void renderSlotHighlight(ScreenPosition pos) { this.renderSlotHighlight(pos.x, pos.y); }
 
+    public void enableScissor(int x, int y, int width, int height) { this.enableScissor(ScreenArea.of(x,y,width,height)); }
+    public void enableScissor(ScreenArea area) {
+        area = area.offsetPosition(this.offset);
+        this.gui.enableScissor(area.x,area.y,area.x + area.width,area.y + area.height);
+    }
+    public void disableScissor() { this.gui.disableScissor(); }
+
     //PoseStack interactions
     public EasyGuiGraphics pushPose() { this.gui.pose().pushPose(); return this; }
-    public void TranslateToForeground() { this.gui.pose().translate(0d,0d,0250d); }
+    public void TranslateToForeground() { this.gui.pose().translate(0d,0d,250d); }
     public void popPose() { this.gui.pose().popPose(); }
 
 

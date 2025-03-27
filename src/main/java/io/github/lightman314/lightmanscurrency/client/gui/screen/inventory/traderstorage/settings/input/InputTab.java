@@ -3,10 +3,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
@@ -24,7 +26,6 @@ public class InputTab extends SettingsSubTab {
     public InputTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
 
     DirectionalSettingsWidget inputWidget;
-    DirectionalSettingsWidget outputWidget;
 
     protected InputTraderData getInputTrader() {
         TraderData trader = this.menu.getTrader();
@@ -33,25 +34,11 @@ public class InputTab extends SettingsSubTab {
         return null;
     }
 
-    protected boolean getInputSideValue(Direction side) {
-        InputTraderData trader = this.getInputTrader();
-        if(trader != null)
-            return trader.allowInputSide(side);
-        return false;
-    }
-
-    protected boolean getOutputSideValue(Direction side) {
-        InputTraderData trader = this.getInputTrader();
-        if(trader != null)
-            return trader.allowOutputSide(side);
-        return false;
-    }
-
     protected ImmutableList<Direction> getIgnoreList() {
         InputTraderData trader = this.getInputTrader();
         if(trader != null)
             return trader.ignoreSides;
-        return ImmutableList.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN);
+        return ImmutableList.copyOf(Direction.values());
     }
 
     @Nonnull
@@ -85,19 +72,10 @@ public class InputTab extends SettingsSubTab {
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
         this.inputWidget = this.addChild(DirectionalSettingsWidget.builder()
-                .position(screenArea.pos.offset(20,25))
-                .currentValue(this::getInputSideValue)
-                .ignore(this.getIgnoreList())
-                .handler(this::ToggleInputSide)
+                .position(screenArea.pos.offset(screenArea.width / 2,25))
+                .object(this::getInputTrader)
+                .handlers(this::ToggleSide)
                 .addon(EasyAddonHelper.visibleCheck(this::allowInputs))
-                .build());
-
-        this.outputWidget = this.addChild(DirectionalSettingsWidget.builder()
-                .position(screenArea.pos.offset(110,25))
-                .currentValue(this::getOutputSideValue)
-                .ignore(this.getIgnoreList())
-                .handler(this::ToggleOutputSide)
-                .addon(EasyAddonHelper.visibleCheck(this::allowOutputs))
                 .build());
 
         this.getAddons().forEach(a -> a.onOpen(this, screenArea, firstOpen));
@@ -111,10 +89,7 @@ public class InputTab extends SettingsSubTab {
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         //Side Widget Labels
-        if(this.allowInputs())
-            gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 20, 7, 0x404040);
-        if(this.allowOutputs())
-            gui.drawString(LCText.GUI_SETTINGS_OUTPUT_SIDE.get(), 110, 7, 0x404040);
+        TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_INPUT_SIDE.get(), this.screen.getXSize() / 2, 7, 0x404040);
 
         this.getAddons().forEach(a -> a.renderBG(this, gui));
 
@@ -123,7 +98,7 @@ public class InputTab extends SettingsSubTab {
     @Override
     public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 
-        this.getAddons().forEach(a -> a.renderBG(this, gui));
+        this.getAddons().forEach(a -> a.renderAfterWidgets(this, gui));
 
     }
 
@@ -142,18 +117,21 @@ public class InputTab extends SettingsSubTab {
         return trader != null && trader.allowOutputs();
     }
 
-    private void ToggleInputSide(Direction side)
+    private void ToggleSide(Direction side,boolean inverse)
     {
-        this.sendMessage(this.builder()
-                .setBoolean("SetInputSide", !this.getInputSideValue(side))
-                .setInt("Side", side.get3DDataValue()));
-    }
+        InputTraderData trader = this.getInputTrader();
+        if(trader != null)
+        {
+            DirectionalSettingsState state = trader.getSidedState(side);
+            if(inverse)
+                state = state.getPrevious(trader);
+            else
+                state = state.getNext(trader);
 
-    private void ToggleOutputSide(Direction side)
-    {
-        this.sendMessage(this.builder()
-                .setBoolean("SetOutputSide", !this.getOutputSideValue(side))
-                .setInt("Side", side.get3DDataValue()));
+            this.sendMessage(this.builder()
+                    .setString("SetDirectionalState",state.toString())
+                    .setInt("Side",side.get3DDataValue()));
+        }
     }
 
 }

@@ -61,7 +61,7 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
         float color = this.isActive() ? 1f : 0.5f;
         gui.setColor(color,color,color);
         //Render Background
-        gui.blitBackgroundOfSize(GUI_TEXTURE,0,0, this.width, this.height,0,0,256,20,2);
+        gui.blitHorizSplit(GUI_TEXTURE,0,0, this.width, this.height,0,0,256,5);
 
         //Render owner
         IconData icon = owner.getIcon();

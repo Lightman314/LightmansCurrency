@@ -24,11 +24,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements IEasyScreen {
 
+    @Nullable
+    private List<Renderable> renderableCache = null;
+    private List<Renderable> getActiveRenderableList() { return this.renderableCache == null ? this.renderables : this.renderableCache; }
     private final List<IPreRender> preRenders = new ArrayList<>();
     private final List<ILateRender> lateRenders = new ArrayList<>();
     private final List<IEasyTickable> guiTickers = new ArrayList<>();
@@ -112,7 +116,15 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
         //Render Background
         this.renderBG(gui);
         //Render Widgets, Slots, etc.
+        for(Renderable renderable : new ArrayList<>(this.renderables))
+            renderable.render(mcgui,mouseX,mouseY,partialTicks);
+        //Render vanilla menu
+        //Temporarily store the renderables in a local list before running vanilla rendering code
+        this.renderableCache = new ArrayList<>(this.renderables);
+        this.renderables.clear();
         super.render(mcgui, mouseX, mouseY, partialTicks);
+        this.renderables.addAll(this.renderableCache);
+        this.renderableCache = null;
         //Render Late Renders
         for(ILateRender r : ImmutableList.copyOf(this.lateRenders))
         {
@@ -153,8 +165,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             if(w.addChildrenBeforeThis())
                 w.addChildren();
         }
-        if(child instanceof Renderable r && !this.renderables.contains(child))
-            this.renderables.add(r);
+        if(child instanceof Renderable r && !this.getActiveRenderableList().contains(child))
+            this.getActiveRenderableList().add(r);
         if(child instanceof GuiEventListener && child instanceof NarratableEntry)
             super.addWidget((GuiEventListener & NarratableEntry)child);
         IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);
@@ -182,7 +194,7 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
     @Override
     public final void removeChild(Object child) {
         if(child instanceof Renderable r)
-            this.renderables.remove(r);
+            this.getActiveRenderableList().remove(r);
         if(child instanceof GuiEventListener l)
             super.removeWidget(l);
         IEasyTickable ticker = EasyScreenHelper.getWidgetTicker(child);

@@ -15,11 +15,13 @@ import java.util.function.Supplier;
 public class PlainButton extends EasyButton {
 
 	private Supplier<Sprite> sprite;
+	private final boolean drawInForeground;
 
 	protected PlainButton(@Nonnull Builder builder)
 	{
 		super(builder);
 		this.sprite = builder.sprite;
+		this.drawInForeground = builder.drawInForeground;
 	}
 
 	public void setSprite(@Nonnull Sprite sprite) { this.setSprite(() -> sprite); }
@@ -32,8 +34,12 @@ public class PlainButton extends EasyButton {
 		gui.resetColor();
 		if(!this.active)
 			gui.setColor(0.5f,0.5f,0.5f);
+		if(this.drawInForeground)
+			gui.pushPose().TranslateToForeground();
 		gui.blitSprite(this.sprite.get(), 0, 0, this.isHovered);
 		gui.resetColor();
+		if(this.drawInForeground)
+			gui.popPose();
 	}
 
 	@Nonnull
@@ -48,6 +54,7 @@ public class PlainButton extends EasyButton {
 		@Override
 		protected Builder getSelf() { return this; }
 
+		private boolean drawInForeground = false;
 		private Supplier<Sprite> sprite = null;
 		public Builder sprite(Sprite sprite) { this.sprite = () -> sprite; this.changeSize(sprite.width,sprite.height); return this; }
 		public Builder sprite(Supplier<Sprite> sprite) {
@@ -57,6 +64,8 @@ public class PlainButton extends EasyButton {
 				this.changeSize(example.width,example.height);
 			return this;
 		}
+
+		public Builder drawInForeground() { this.drawInForeground = true; return this; }
 
 		public PlainButton build() { return new PlainButton(this); }
 

@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency;
 
+import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -9,20 +12,19 @@ import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.event_coins.ChocolateEventCoins;
+import io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.taxes.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
 import io.github.lightman314.lightmanscurrency.common.text.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 public class LCText {
 
@@ -420,13 +422,16 @@ public class LCText {
     public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_MEMBERS = TextEntry.gui(MODID,"team.salary_info.salary.member");
     public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_ADMINS = TextEntry.gui(MODID,"team.salary_info.salary.admins");
     public static final TextEntry GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS = TextEntry.gui(MODID,"team.salary_info.required_funds");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_CURRENT_REQUIRED_FUNDS = TextEntry.gui(MODID,"team.salary_info.required_funds.current");
     public static final TextEntry GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"team.salary_info.insufficient_funds");
+    public static final TextEntry GUI_TEAM_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"team.salary_info.insufficient_funds.possible");
     public static final TextEntry GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED = TextEntry.gui(MODID,"team.salary_info.last_attempt_failed");
     public static final TextEntry TOOLTIP_TEAM_SALARY_SETTINGS = TextEntry.tooltip(MODID,"team.salary_settings");
     public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_ENABLE = TextEntry.button(MODID,"team.salary_settings.enable");
     public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_DISABLE = TextEntry.button(MODID,"team.salary_settings.disable");
     public static final TextEntry GUI_TEAM_SALARY_SETTINGS_NOTIFICATION = TextEntry.gui(MODID,"team.salary_settings.notification");
     public static final TextEntry GUI_TEAM_SALARY_SETTINGS_DELAY = TextEntry.gui(MODID,"team.salary_settings.delay");
+    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_REQUIRE_LOGIN = TextEntry.gui(MODID,"team.salary_settings.require_login");
     public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY = TextEntry.button(MODID,"team.salary_settings.trigger_salary");
     public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS = TextEntry.tooltip(MODID,"team.salary_payments");
     public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE = TextEntry.tooltip(MODID,"team.salary_payments.creative.enable");
@@ -786,21 +791,21 @@ public class LCText {
     public static final TextEntry GUI_DAILY_TRADES_INFO = TextEntry.gui(MODID,"trade_rule.daily_trades.info");
 
     //Permissions
-    public static final TextEntry PERMISSION_OPEN_STORAGE = TextEntry.permission(Permissions.OPEN_STORAGE);
-    public static final TextEntry PERMISSION_CHANGE_NAME = TextEntry.permission(Permissions.CHANGE_NAME);
-    public static final TextEntry PERMISSION_EDIT_TRADES = TextEntry.permission(Permissions.EDIT_TRADES);
-    public static final TextEntry PERMISSION_COLLECT_MONEY = TextEntry.permission(Permissions.COLLECT_COINS);
-    public static final TextEntry PERMISSION_STORE_MONEY = TextEntry.permission(Permissions.STORE_COINS);
-    public static final TextEntry PERMISSION_EDIT_TRADE_RULES = TextEntry.permission(Permissions.EDIT_TRADE_RULES);
-    public static final TextEntry PERMISSION_EDIT_SETTINGS = TextEntry.permission(Permissions.EDIT_SETTINGS);
-    public static final TextEntry PERMISSION_EDIT_ALLIES = TextEntry.permission(Permissions.ADD_REMOVE_ALLIES);
-    public static final TextEntry PERMISSION_EDIT_PERMISSIONS = TextEntry.permission(Permissions.EDIT_PERMISSIONS);
-    public static final TextEntry PERMISSION_VIEW_LOGS = TextEntry.permission(Permissions.VIEW_LOGS);
-    public static final TextEntry PERMISSION_BREAK_MACHINE = TextEntry.permission(Permissions.BREAK_TRADER);
-    public static final TextEntry PERMISSION_BANK_LINK = TextEntry.permission(Permissions.BANK_LINK);
-    public static final TextEntry PERMISSION_INTERACTION_LINK = TextEntry.permission(Permissions.INTERACTION_LINK);
-    public static final TextEntry PERMISSION_TRANSFER_OWNERSHIP = TextEntry.permission(Permissions.TRANSFER_OWNERSHIP);
-    public static final TextEntry PERMISSION_EDIT_INPUTS = TextEntry.permission(Permissions.InputTrader.EXTERNAL_INPUTS);
+    public static final DualTextEntry PERMISSION_OPEN_STORAGE = DualTextEntry.permission(Permissions.OPEN_STORAGE);
+    public static final DualTextEntry PERMISSION_CHANGE_NAME = DualTextEntry.permission(Permissions.CHANGE_NAME);
+    public static final DualTextEntry PERMISSION_EDIT_TRADES = DualTextEntry.permission(Permissions.EDIT_TRADES);
+    public static final DualTextEntry PERMISSION_COLLECT_MONEY = DualTextEntry.permission(Permissions.COLLECT_COINS);
+    public static final DualTextEntry PERMISSION_STORE_MONEY = DualTextEntry.permission(Permissions.STORE_COINS);
+    public static final DualTextEntry PERMISSION_EDIT_TRADE_RULES = DualTextEntry.permission(Permissions.EDIT_TRADE_RULES);
+    public static final DualTextEntry PERMISSION_EDIT_SETTINGS = DualTextEntry.permission(Permissions.EDIT_SETTINGS);
+    public static final DualTextEntry PERMISSION_EDIT_ALLIES = DualTextEntry.permission(Permissions.ADD_REMOVE_ALLIES);
+    public static final DualTextEntry PERMISSION_EDIT_PERMISSIONS = DualTextEntry.permission(Permissions.EDIT_PERMISSIONS);
+    public static final DualTextEntry PERMISSION_VIEW_LOGS = DualTextEntry.permission(Permissions.VIEW_LOGS);
+    public static final DualTextEntry PERMISSION_BREAK_MACHINE = DualTextEntry.permission(Permissions.BREAK_TRADER);
+    public static final DualTextEntry PERMISSION_BANK_LINK = DualTextEntry.permission(Permissions.BANK_LINK);
+    public static final DualTextEntry PERMISSION_INTERACTION_LINK = DualTextEntry.permission(Permissions.INTERACTION_LINK);
+    public static final DualTextEntry PERMISSION_TRANSFER_OWNERSHIP = DualTextEntry.permission(Permissions.TRANSFER_OWNERSHIP);
+    public static final DualTextEntry PERMISSION_EDIT_INPUTS = DualTextEntry.permission(Permissions.InputTrader.EXTERNAL_INPUTS);
 
     //Inventory Buttons
     public static final TextEntry TOOLTIP_NOTIFICATION_BUTTON = TextEntry.tooltip(MODID,"button.notification");
@@ -816,6 +821,8 @@ public class LCText {
     public static final TextEntry GUI_SETTINGS_INPUT_SIDE = TextEntry.gui(MODID,"settings.input.side");
     public static final TextEntry GUI_SETTINGS_OUTPUT_SIDE = TextEntry.gui(MODID,"settings.output.side");
     public static final TextEntryBundle<Direction> GUI_INPUT_SIDES = TextEntryBundle.of(Direction.values(),"gui.lightmanscurrency.settings.side");
+    public static final TextEntryBundle<DirectionalSettingsState> GUI_DIRECTIONAL_STATE = TextEntryBundle.of(DirectionalSettingsState.values(),"gui.lightmanscurrency.settings.side.state");
+    public static final TextEntryBundle<Boolean> GUI_SETTINGS_VALUE_TRUE_FALSE = TextEntryBundle.of(ImmutableList.of(true,false),"gui.lightmanscurrency.settings.value",String::valueOf);
 
     //Persistent Data
     public static final TextEntry GUI_PERSISTENT_ID = TextEntry.gui(MODID,"settings.persistent.id");
@@ -909,6 +916,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_FORMAT_CHAT_TITLE = new TextEntry("notifications.format.chat.title");
     public static final TextEntry NOTIFICATION_TIMESTAMP = new TextEntry("notifications.timestamp");
     public static final TextEntry NOTIFICATION_SOURCE_GENERAL = new TextEntry("notifications.source.general");
+    public static final TextEntry NOTIFICATION_SOURCE_NULL = new TextEntry("notifications.source.null");
     public static final TextEntry TOOLTIP_NOTIFICATION_DELETE = TextEntry.tooltip(MODID,"notifications.delete");
     //Auction Notifications
     public static final TextEntry NOTIFICATION_AUCTION_BID = TextEntry.notification(AuctionHouseBidNotification.TYPE);
@@ -919,10 +927,10 @@ public class LCText {
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(VersionUtil.lcResource("bank_deposit"));
-    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"),"server");
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit"));
+    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
     //Ejection Notifications
     public static final TextEntry NOTIFICATION_EJECTION_ANARCHY = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"anarchy");
@@ -959,7 +967,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
-    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"items"),"format");
 
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");
@@ -1038,6 +1046,8 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_TAXES_DELETE_FAIL = TextEntry.command(MODID,"lcadmin.taxes.delete.fail");
     public static final TextEntry COMMAND_ADMIN_TAXES_FORCE_DISABLE_SUCCESS = TextEntry.command(MODID,"lcadmin.taxes.forceDisableTaxCollectors.success");
     public static final TextEntry COMMAND_ADMIN_TAXES_FORCE_DISABLE_FAIL = TextEntry.command(MODID,"lcadmin.taxes.forceDisableTaxCollectors.fail");
+    public static final TextEntry COMMAND_ADMIN_EVENT_CLEAR_SUCCESS = TextEntry.command(MODID,"lcadmin.event.clear.success");
+    public static final TextEntry COMMAND_ADMIN_EVENT_CLEAR_FAIL = TextEntry.command(MODID,"lcadmin.event.clear.fail");
     public static final TextEntry COMMAND_ADMIN_EVENT_LIST_NONE = TextEntry.command(MODID,"lcadmin.event.list.none");
     public static final TextEntry COMMAND_ADMIN_EVENT_UNLOCK_SUCCESS = TextEntry.command(MODID,"lcadmin.event.unlock.success");
     public static final TextEntry COMMAND_ADMIN_EVENT_UNLOCK_FAIL = TextEntry.command(MODID,"lcadmin.event.unlock.fail");
@@ -1081,35 +1091,40 @@ public class LCText {
     public static final TextEntry COMMAND_CLAIM_BUY_FORCELOAD_CANNOT_AFFORD = TextEntry.command(MODID,"lcclaims.buy.forceload.cannot_afford");
 
     //Advancements
-    public static final AdvancementTextEntry ADVANCEMENT_ROOT = AdvancementTextEntry.of("lightmanscurrency.root");
-    public static final AdvancementTextEntry ADVANCEMENT_MY_FIRST_PENNY = AdvancementTextEntry.of("lightmanscurrency.myfirstpenny");
-    public static final AdvancementTextEntry ADVANCEMENT_TRADING_CORE = AdvancementTextEntry.of("lightmanscurrency.trading_core");
-    public static final AdvancementTextEntry ADVANCEMENT_TRADER = AdvancementTextEntry.of("lightmanscurrency.trader");
-    public static final AdvancementTextEntry ADVANCEMENT_SPECIALTY_TRADER = AdvancementTextEntry.of("lightmanscurrency.specialty_trader");
-    public static final AdvancementTextEntry ADVANCEMENT_NETWORK_TRADER = AdvancementTextEntry.of("lightmanscurrency.network_trader");
-    public static final AdvancementTextEntry ADVANCEMENT_TRADER_INTERFACE = AdvancementTextEntry.of("lightmanscurrency.trader_interface");
-    public static final AdvancementTextEntry ADVANCEMENT_TERMINAL = AdvancementTextEntry.of("lightmanscurrency.terminal");
-    public static final AdvancementTextEntry ADVANCEMENT_ATM = AdvancementTextEntry.of("lightmanscurrency.atm");
-    public static final AdvancementTextEntry ADVANCEMENT_BANKER_TRADE = AdvancementTextEntry.of("lightmanscurrency.banker_trade");
-    public static final AdvancementTextEntry ADVANCEMENT_COIN_MINT = AdvancementTextEntry.of("lightmanscurrency.coin_mint");
-    public static final AdvancementTextEntry ADVANCEMENT_WALLET_CRAFTING = AdvancementTextEntry.of("lightmanscurrency.wallet_crafting");
-    public static final AdvancementTextEntry ADVANCEMENT_NETHERITE_WALLET = AdvancementTextEntry.of("lightmanscurrency.netherite_wallet");
-    public static final AdvancementTextEntry ADVANCEMENT_NETHER_STAR_WALLET = AdvancementTextEntry.of("lightmanscurrency.nether_star_wallet");
-    public static final AdvancementTextEntry ADVANCEMENT_ENCHANTED_WALLET = AdvancementTextEntry.of("lightmanscurrency.enchanted_wallet");
-    public static final AdvancementTextEntry ADVANCEMENT_CASH_REGISTER = AdvancementTextEntry.of("lightmanscurrency.cash_register");
-    public static final AdvancementTextEntry ADVANCEMENT_CASHIER_TRADE = AdvancementTextEntry.of("lightmanscurrency.cashier_trade");
-    public static final AdvancementTextEntry ADVANCEMENT_JAR_OF_SUS = AdvancementTextEntry.of("lightmanscurrency.jar_of_sus");
-    public static final AdvancementTextEntry ADVANCEMENT_ANCIENT_COIN = AdvancementTextEntry.of("lightmanscurrency.ancient_coin");
+    public static final DualTextEntry ADVANCEMENT_ROOT = DualTextEntry.advancement("lightmanscurrency.root");
+    public static final DualTextEntry ADVANCEMENT_MY_FIRST_PENNY = DualTextEntry.advancement("lightmanscurrency.myfirstpenny");
+    public static final DualTextEntry ADVANCEMENT_TRADING_CORE = DualTextEntry.advancement("lightmanscurrency.trading_core");
+    public static final DualTextEntry ADVANCEMENT_TRADER = DualTextEntry.advancement("lightmanscurrency.trader");
+    public static final DualTextEntry ADVANCEMENT_SPECIALTY_TRADER = DualTextEntry.advancement("lightmanscurrency.specialty_trader");
+    public static final DualTextEntry ADVANCEMENT_NETWORK_TRADER = DualTextEntry.advancement("lightmanscurrency.network_trader");
+    public static final DualTextEntry ADVANCEMENT_TRADER_INTERFACE = DualTextEntry.advancement("lightmanscurrency.trader_interface");
+    public static final DualTextEntry ADVANCEMENT_TERMINAL = DualTextEntry.advancement("lightmanscurrency.terminal");
+    public static final DualTextEntry ADVANCEMENT_ATM = DualTextEntry.advancement("lightmanscurrency.atm");
+    public static final DualTextEntry ADVANCEMENT_BANKER_TRADE = DualTextEntry.advancement("lightmanscurrency.banker_trade");
+    public static final DualTextEntry ADVANCEMENT_COIN_MINT = DualTextEntry.advancement("lightmanscurrency.coin_mint");
+    public static final DualTextEntry ADVANCEMENT_WALLET_CRAFTING = DualTextEntry.advancement("lightmanscurrency.wallet_crafting");
+    public static final DualTextEntry ADVANCEMENT_NETHERITE_WALLET = DualTextEntry.advancement("lightmanscurrency.netherite_wallet");
+    public static final DualTextEntry ADVANCEMENT_NETHER_STAR_WALLET = DualTextEntry.advancement("lightmanscurrency.nether_star_wallet");
+    public static final DualTextEntry ADVANCEMENT_ENCHANTED_WALLET = DualTextEntry.advancement("lightmanscurrency.enchanted_wallet");
+    public static final DualTextEntry ADVANCEMENT_CASH_REGISTER = DualTextEntry.advancement("lightmanscurrency.cash_register");
+    public static final DualTextEntry ADVANCEMENT_CASHIER_TRADE = DualTextEntry.advancement("lightmanscurrency.cashier_trade");
+    public static final DualTextEntry ADVANCEMENT_JAR_OF_SUS = DualTextEntry.advancement("lightmanscurrency.jar_of_sus");
+    public static final DualTextEntry ADVANCEMENT_ANCIENT_COIN = DualTextEntry.advancement("lightmanscurrency.ancient_coin");
 
-    public static final AdvancementTextEntry ADVANCEMENT_EVENT_CHOCOLATE = AdvancementTextEntry.of("lightmanscurrency.event.chocolate");
-    public static final AdvancementTextEntry ADVANCEMENT_EVENT_CHRISTMAS = AdvancementTextEntry.of("lightmanscurrency.event.christmas");
-    public static final AdvancementTextEntry ADVANCEMENT_EVENT_VALENTINES = AdvancementTextEntry.of("lightmanscurrency.event.valentines");
+    public static final DualTextEntry ADVANCEMENT_EVENT_CHOCOLATE = DualTextEntry.advancement("lightmanscurrency.event.chocolate");
+    public static final DualTextEntry ADVANCEMENT_EVENT_CHRISTMAS = DualTextEntry.advancement("lightmanscurrency.event.christmas");
+    public static final DualTextEntry ADVANCEMENT_EVENT_VALENTINES = DualTextEntry.advancement("lightmanscurrency.event.valentines");
+
+    //Seasonal Events
+    public static final TextEntry SEASONAL_EVENT_CHRISTMAS = TextEntry.message(MODID,"seasonal_event.christmas");
+    public static final TextEntry SEASONAL_EVENT_VALENTINES = TextEntry.message(MODID,"seasonal_event.valentines");
+    public static final TextEntry SEASONAL_EVENT_BIRTHDAY = TextEntry.message(MODID,"seasonal_event.birthday");
 
     //Resource Pack Names
-    public static final ResourcePackTextEntry RESOURCE_PACK_RUPEES = ResourcePackTextEntry.of(MODID,"rupees");
-    public static final ResourcePackTextEntry RESOURCE_PACK_CLOSER_ITEMS = ResourcePackTextEntry.of(MODID,"closer_items");
-    public static final ResourcePackTextEntry RESOURCE_PACK_LEGACY_COINS = ResourcePackTextEntry.of(MODID,"legacy_coins");
-    public static final ResourcePackTextEntry RESOURCE_PACK_FANCY_ICONS = ResourcePackTextEntry.of(MODID,"fancy_icons");
+    public static final DualTextEntry RESOURCE_PACK_RUPEES = DualTextEntry.resourcePack(MODID,"rupees");
+    public static final DualTextEntry RESOURCE_PACK_CLOSER_ITEMS = DualTextEntry.resourcePack(MODID,"closer_items");
+    public static final DualTextEntry RESOURCE_PACK_LEGACY_COINS = DualTextEntry.resourcePack(MODID,"legacy_coins");
+    public static final DualTextEntry RESOURCE_PACK_FANCY_ICONS = DualTextEntry.resourcePack(MODID,"fancy_icons");
 
     ///OTHER MODS
 

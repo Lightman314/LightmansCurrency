@@ -10,8 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DailyTrades;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 
@@ -20,10 +18,6 @@ import javax.annotation.Nonnull;
 public class DailyTradesTab extends TradeRuleSubTab<DailyTrades> {
 
     public DailyTradesTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent,DailyTrades.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_DAILY_TRADE; }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {

@@ -230,11 +230,16 @@ public class GachaTrader extends InputTraderData {
             return TradeResult.FAIL_CANNOT_AFFORD;
 
         //Check if they can hold the item
-        ItemStack result = this.storage.removeRandomItem();
-        ItemStack gatchaBall = GachaBallItem.createWithItem(result);
-        if(!context.canFitItem(gatchaBall))
+        ItemStack result = this.storage.findRandomItem(!this.isCreative());
+        ItemStack gachaBall = GachaBallItem.createWithItem(result);
+        if(!context.canFitItem(gachaBall))
         {
-            this.storage.forceInsertItem(result);
+            //Put the item back into storage (unless we're creative as we didn't actually remove it then)
+            if(!this.isCreative())
+            {
+                this.storage.forceInsertItem(result);
+                this.markStorageDirty();
+            }
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
         }
 
@@ -243,20 +248,23 @@ public class GachaTrader extends InputTraderData {
             return TradeResult.FAIL_CANNOT_AFFORD;
 
         //Give the player the item
-        if(!context.putItem(gatchaBall))
+        if(!context.putItem(gachaBall))
         {
+            //Failed to give the customer the item, so give a refund and put the reward back into storage
             context.givePayment(cost);
-            this.storage.forceInsertItem(result);
+            if(!this.isCreative())
+            {
+                this.storage.forceInsertItem(result);
+                this.markStorageDirty();
+            }
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
         }
 
         MoneyValue taxesPaid = MoneyValue.empty();
         if(this.canStoreMoney())
             taxesPaid = this.addStoredMoney(cost,true);
-        //Put the item back in storage if we're a creative trader
-        if(this.isCreative())
-            this.storage.forceInsertItem(result);
-        else
+        //Flag the trader storage as changed
+        if(!this.isCreative())
             this.markStorageDirty();
 
         //Push Notification

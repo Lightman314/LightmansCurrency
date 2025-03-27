@@ -8,10 +8,13 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler> {
 
@@ -21,7 +24,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 	
 	protected final TraderItemStorage getItemBuffer() { return this.blockEntity.getItemBuffer(); }
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction, Handler>();
+	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
 	public ItemInterfaceHandler(ItemTraderInterfaceBlockEntity blockEntity, Supplier<TraderItemStorage> itemBufferSource) {
 		this.blockEntity = blockEntity;
@@ -35,15 +38,13 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 	
 	@Override
 	public IItemHandler getHandler(Direction side) {
-		if(this.inputSides.get(side) || this.outputSides.get(side))
-		{
-			if(!this.handlers.containsKey(side))
-				this.handlers.put(side, new Handler(this, side));
-			return this.handlers.get(side);
-		}
-		return null;
+		if(!this.handlers.containsKey(side))
+			this.handlers.put(side,new Handler(this,side));
+		return this.handlers.get(side);
 	}
-	
+
+	@MethodsReturnNonnullByDefault
+	@ParametersAreNonnullByDefault
 	private static class Handler implements IItemHandler {
 
 		final ItemInterfaceHandler handler;
@@ -51,18 +52,14 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 		
 		Handler(ItemInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 		
-		protected final boolean allowInputs() { return this.handler.inputSides.get(this.side); }
-		protected final boolean allowOutputs() { return this.handler.outputSides.get(this.side); }
+		protected final boolean allowInputs() { return this.handler.allowInputSide(this.side); }
+		protected final boolean allowOutputs() { return this.handler.allowOutputSide(this.side); }
 		
 		@Override
-		public int getSlots() {
-			return this.handler.getItemBuffer().getSlots();
-		}
+		public int getSlots() { return this.handler.getItemBuffer().getSlots(); }
 
 		@Override
-		public ItemStack getStackInSlot(int slot) {
-			return this.handler.getItemBuffer().getStackInSlot(slot);
-		}
+		public ItemStack getStackInSlot(int slot) { return this.handler.getItemBuffer().getStackInSlot(slot); }
 
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {

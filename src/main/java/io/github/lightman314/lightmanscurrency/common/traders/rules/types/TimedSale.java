@@ -13,6 +13,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakin
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
@@ -30,7 +32,8 @@ public class TimedSale extends PriceTweakingTradeRule {
 	
 	long startTime = 0;
 	public void setStartTime(long time) { this.startTime = time; }
-	public boolean timerActive() { return this.startTime != 0; }
+	public long getStartTime() { return this.startTime; }
+	public boolean timerActive() { return this.startTime != 0 && TimeUtil.compareTime(this.duration,this.startTime); }
 	long duration = 0;
 	public long getDuration() { return this.duration; }
 	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, 1000, Long.MAX_VALUE); }
@@ -39,11 +42,15 @@ public class TimedSale extends PriceTweakingTradeRule {
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
 	
 	private TimedSale() { super(TYPE); }
-	
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconUtil.ICON_TIMED_SALE; }
+
 	@Override
 	public void beforeTrade(@Nonnull PreTradeEvent event)
 	{
-		if(this.timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
+		if(this.timerActive())
 		{
 			switch (event.getTrade().getTradeDirection()) {
 				case SALE ->
@@ -142,12 +149,15 @@ public class TimedSale extends PriceTweakingTradeRule {
 		}
 		else if(updateInfo.contains("StartSale"))
 		{
-			if(this.timerActive() == updateInfo.getBoolean("StartSale"))
+			if(this.startTime != 0)
 				return;
-			if(this.timerActive())
-				this.startTime = 0;
-			else
-				this.startTime = TimeUtil.getCurrentTime();
+			this.startTime = TimeUtil.getCurrentTime();
+		}
+		else if(updateInfo.contains("StopSale"))
+		{
+			if(this.startTime == 0)
+				return;
+			this.startTime = 0;
 		}
 		
 	}

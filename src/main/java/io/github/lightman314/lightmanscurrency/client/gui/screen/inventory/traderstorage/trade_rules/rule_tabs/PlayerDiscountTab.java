@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -14,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import net.minecraft.client.gui.components.EditBox;
 
 import javax.annotation.Nonnull;
@@ -25,10 +23,6 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
 
 
     public PlayerDiscountTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PlayerDiscounts.TYPE); }
-
-    @Nonnull
-    @Override
-    public IconData getIcon() { return IconUtil.ICON_DISCOUNT_LIST; }
 
     EditBox discountInput;
 
@@ -75,7 +69,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
             return;
 
         gui.pushOffset(this.discountInput);
-        gui.drawShadowed(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 5, 0xFFFFFF);
+        gui.drawString(LCText.GUI_PLAYER_DISCOUNTS_INFO.get(), this.discountInput.getWidth() + 4, 6, 0x404040);
         gui.popOffset();
 
     }

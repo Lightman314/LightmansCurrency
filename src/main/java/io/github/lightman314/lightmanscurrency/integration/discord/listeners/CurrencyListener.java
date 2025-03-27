@@ -43,6 +43,7 @@ import io.github.lightman314.lightmansdiscord.discord.links.AccountManager;
 import io.github.lightman314.lightmansdiscord.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansdiscord.message.MessageManager;
 import net.dv8tion.jda.api.entities.User;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -299,7 +300,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 			{
 				SafeUserReference user = account.getUser();
 				if(CurrencyBotSaveData.getDataFor(account).sendNotificationsToDiscord())
-					this.addPendingMessage(user.getUser(), event.getNotification().getGeneralMessage().getString());
+					this.addPendingMessage(user.getUser(), event.getNotification().getGeneralMessage().stream().map(Component::getString).toList());
 			}
 		} catch(Exception e) { LightmansCurrency.LogError("Error processing notification to bot:", e); }
 	}
@@ -440,7 +441,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 	public void addPendingMessage(User user, List<String> messages)
 	{
 		String userId = user.getId();
-		List<String> pendingMessages = this.pendingMessages.containsKey(userId) ? this.pendingMessages.get(userId) : Lists.newArrayList();
+		List<String> pendingMessages = this.pendingMessages.containsKey(userId) ? this.pendingMessages.get(userId) : new ArrayList<>();
 		pendingMessages.addAll(messages);
 		this.pendingMessages.put(userId, pendingMessages);
 	}
