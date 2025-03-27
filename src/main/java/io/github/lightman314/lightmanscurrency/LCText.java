@@ -23,8 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.text.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 
 public class LCText {
 
@@ -927,10 +927,10 @@ public class LCText {
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit"));
-    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"bank_deposit_or_withdraw"),"server");
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(VersionUtil.lcResource("bank_deposit"));
+    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
     //Ejection Notifications
     public static final TextEntry NOTIFICATION_EJECTION_ANARCHY = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"anarchy");
@@ -967,7 +967,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
-    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"items"),"format");
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
 
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");

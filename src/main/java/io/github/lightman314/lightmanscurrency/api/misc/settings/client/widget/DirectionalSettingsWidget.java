@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     private static final Map<Direction,Map<DirectionalSettingsState,Sprite>> SIDED_SPRITE_CACHE = new HashMap<>();
     private static final Map<SideSize,Map<DirectionalSettingsState,Sprite>> SIZED_SPRITE_CACHE = new HashMap<>();
 
-    public static final ResourceLocation BLOCK_SIDE_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/blocksides.png");
+    public static final ResourceLocation BLOCK_SIDE_TEXTURE = VersionUtil.lcResource("textures/gui/blocksides.png");
 
     private static final List<Direction> DIRECTIONS = ImmutableList.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST);
     //Seperate list for rendering for easy debugging purposes
