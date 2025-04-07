@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketCollectTicketStubs extends ClientToServerPacket {
 
-    private static final Type<CPacketCollectTicketStubs> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_paygate_collect_tickets"));
+    private static final Type<CPacketCollectTicketStubs> TYPE = new Type<>(VersionUtil.lcResource("c_paygate_collect_tickets"));
     public static final Handler<CPacketCollectTicketStubs> HANDLER = new H();
 
     private final long traderID;

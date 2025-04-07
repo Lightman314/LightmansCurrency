@@ -60,13 +60,15 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	@Override
 	public RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
 
-	@Nonnull
 	@Override
-	public IDrawable getBackground() { return this.background; }
+	public int getWidth() { return 98; }
+
+	@Override
+	public int getHeight() { return 42; }
 
 	@Override
 	public void draw(@Nonnull CoinMintRecipe recipe, @Nonnull IRecipeSlotsView recipeSlotsView, @Nonnull GuiGraphics guiGraphics, double mouseX, double mouseY) {
-		IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
+		this.background.draw(guiGraphics);
 		IDrawableAnimated arrow = this.getArrow(recipe);
 		arrow.draw(guiGraphics, 33, 13);
 	}

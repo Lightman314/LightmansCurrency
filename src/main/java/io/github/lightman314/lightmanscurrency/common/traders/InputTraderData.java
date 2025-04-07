@@ -6,6 +6,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
@@ -22,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -34,9 +36,11 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class InputTraderData extends TraderData implements IDirectionalSettingsObject {
 
 	public static MutableComponent getFacingName(Direction side) { return LCText.GUI_INPUT_SIDES.get(side).get(); }
@@ -49,10 +53,10 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 		defaultValues.put(Permissions.InputTrader.EXTERNAL_INPUTS, 1);
 	}
 	
-	protected InputTraderData(@Nonnull TraderType<?> type) { this(type, ImmutableList.of()); }
-	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull ImmutableList<Direction> ignoreSides) { super(type); this.ignoreSides = ignoreSides; }
-	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
-	protected InputTraderData(@Nonnull TraderType<?> type, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull ImmutableList<Direction> ignoreSides) {
+	protected InputTraderData(TraderType<?> type) { this(type, ImmutableList.of()); }
+	protected InputTraderData(TraderType<?> type, ImmutableList<Direction> ignoreSides) { super(type); this.ignoreSides = ignoreSides; }
+	protected InputTraderData(TraderType<?> type, Level level, BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
+	protected InputTraderData(TraderType<?> type, Level level, BlockPos pos, ImmutableList<Direction> ignoreSides) {
 		super(type, level, pos);
 		this.ignoreSides = ignoreSides;
 	}
@@ -66,12 +70,10 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 	}
 
 	@Override
-	@Nonnull
 	public final List<Direction> getIgnoredSides() { return this.ignoreSides; }
 
 	@Override
-	@Nonnull
-	public final DirectionalSettingsState getSidedState(@Nonnull Direction side) { return this.directionalSettings.getState(side); }
+	public final DirectionalSettingsState getSidedState(Direction side) { return this.directionalSettings.getState(side); }
 
 	public void setDirectionalState(Player player, Direction side, DirectionalSettingsState state) {
 		if(this.hasPermission(player,Permissions.InputTrader.EXTERNAL_INPUTS) && state != this.getSidedState(side))
@@ -82,12 +84,12 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 			this.markDirty(this::saveDirectionalSettings);
 
 			if(player != null)
-				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "InputOutputState-" + getFacingName(side).getString(), state.getText()));
+				this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.empty().append(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES.get()).append(getFacingName(side)), state.getText()));
 		}
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound,HolderLookup.Provider lookup) {
 		this.saveDirectionalSettings(compound);
 	}
 	
@@ -96,7 +98,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound,HolderLookup.Provider lookup) {
 
 		this.directionalSettings.load(compound,"InputOutputState");
 
@@ -142,7 +144,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 	public List<? extends InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 
 	@Override
-	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
+	public void handleSettingsChange(Player player, LazyPacketData message) {
 		super.handleSettingsChange(player, message);
 
 		if(message.contains("SetDirectionalState"))
@@ -155,7 +157,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addSettingsTabs(@Nonnull TraderSettingsClientTab tab, @Nonnull List<SettingsSubTab> tabs) { tabs.add(new InputTab(tab)); }
+	public void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { tabs.add(new InputTab(tab)); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

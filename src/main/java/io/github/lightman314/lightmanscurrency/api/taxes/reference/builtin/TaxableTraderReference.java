@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -31,7 +30,7 @@ public class TaxableTraderReference extends TaxableReference {
 
     private static class TraderType extends TaxReferenceType
     {
-        private TraderType() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "trader")); }
+        private TraderType() { super(VersionUtil.lcResource( "trader")); }
 
         @Override
         public TaxableReference load(CompoundTag tag) { return new TaxableTraderReference(tag.getLong("TraderID")); }

@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ListingUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,7 +32,7 @@ import java.util.List;
 public class EnchantedItemForCoinsTrade implements ItemListing
 {
 
-    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "enchanted_item_for_coins");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("enchanted_item_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final Item baseCoin;

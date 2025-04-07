@@ -71,6 +71,9 @@ public class ModEventHandler {
         //Item Handler for Coin Mint
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.COIN_MINT.get(), (mint,side) -> mint.getItemHandler());
 
+        //Item Viewer for the Money Bag
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.viewer);
+
         //Money-related capabilities
         //Money Viewer for Wallets
         event.registerItem(CapabilityMoneyViewer.MONEY_VIEWER_ITEM,(stack, c) -> WalletItem.getDataWrapper(stack),

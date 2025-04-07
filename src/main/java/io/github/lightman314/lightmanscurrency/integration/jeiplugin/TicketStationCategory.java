@@ -10,11 +10,13 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -41,11 +43,18 @@ public class TicketStationCategory implements IRecipeCategory<TicketStationRecip
 
     @Nonnull
     @Override
-    public IDrawable getBackground() { return this.background; }
-
-    @Nonnull
-    @Override
     public IDrawable getIcon() { return this.icon; }
+
+    @Override
+    public int getWidth() { return 118; }
+
+    @Override
+    public int getHeight() { return 26; }
+
+    @Override
+    public void draw(@Nonnull TicketStationRecipe recipe, @Nonnull IRecipeSlotsView recipeSlotsView, @Nonnull GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        this.background.draw(guiGraphics);
+    }
 
     @Override
     public void setRecipe(@Nonnull IRecipeLayoutBuilder builder, @Nonnull TicketStationRecipe recipe, @Nonnull IFocusGroup focus) {

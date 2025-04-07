@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
@@ -32,6 +33,7 @@ public class GachaItemHandler {
         private GachaHandler(GachaTrader trader, Direction side) { this.trader = trader; this.side = side; }
 
         protected final boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
+        protected final boolean allowsOutputs() { return this.trader.allowOutputSide(this.side); }
 
         @Override
         public int getSlots() { return this.trader.getStorage().getContents().size() + 1; }
@@ -65,7 +67,25 @@ public class GachaItemHandler {
         }
 
         @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) { return ItemStack.EMPTY; }
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if(this.allowsOutputs())
+            {
+                GachaStorage storage = this.trader.getStorage();
+                if(simulate)
+                {
+                    ItemStack stack = storage.getStackInSlot(slot);
+                    return stack.copyWithCount(Math.min(amount,stack.getCount()));
+                }
+                else
+                {
+                    ItemStack result = storage.removeItem(slot,amount);
+                    if(!result.isEmpty())
+                        this.trader.markStorageDirty();
+                    return result;
+                }
+            }
+            return ItemStack.EMPTY;
+        }
 
     }
 

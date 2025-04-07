@@ -4,8 +4,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketDebugTrader extends ServerToClientPacket {
 
-	private static final Type<SPacketDebugTrader> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_debug_trader_data"));
+	private static final Type<SPacketDebugTrader> TYPE = new Type<>(VersionUtil.lcResource("s_debug_trader_data"));
 	public static final Handler<SPacketDebugTrader> HANDLER = new H();
 
 	final long traderID;

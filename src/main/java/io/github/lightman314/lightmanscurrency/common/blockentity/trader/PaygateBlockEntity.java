@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsHolder;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
@@ -10,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -21,9 +24,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
+public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> implements IDirectionalSettingsHolder {
 	
 	private int timer = 0;
+	private final DirectionalSettings outputSides = new DirectionalSettings(this);
+	public boolean allowOutputSide(Direction side) { return this.outputSides.getState(side).allowsOutputs(); }
 	
 	public PaygateBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.PAYGATE.get(), pos, state); }
 	
@@ -43,12 +48,18 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		super.saveAdditional(compound,lookup);
 		
 		this.saveTimer(compound);
+		this.saveOutputSides(compound);
 		
 	}
 	
 	public final CompoundTag saveTimer(CompoundTag compound) {
 		compound.putInt("Timer", Math.max(this.timer, 0));
 		return compound;
+	}
+
+	public final CompoundTag saveOutputSides(CompoundTag compoundTag) {
+		this.outputSides.save(compoundTag,"OutputSides");
+		return compoundTag;
 	}
 	
 	@Override
@@ -57,6 +68,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		//Load the timer
 		if(compound.contains("Timer", Tag.TAG_INT))
 			this.timer = Math.max(compound.getInt("Timer"), 0);
+		this.outputSides.load(compound,"OutputSides");
 		
 		super.loadAdditional(compound,lookup);
 		
@@ -64,9 +76,10 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	public boolean isActive() { return this.timer > 0; }
 	
-	public void activate(int duration, int level) {
+	public void activate(int duration, int level, DirectionalSettings outputSides) {
 		this.timer = duration;
 		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, Math.clamp(level,0,15)));
+		this.outputSides.copy(outputSides);
 		this.markTimerDirty();
 	}
 	
@@ -79,7 +92,10 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 			this.timer--;
 			this.markTimerDirty();
 			if(this.timer <= 0)
+			{
 				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, 0));
+				this.outputSides.clear();
+			}
 		}
 	}
 	

@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 public abstract class NotificationCategory implements ITab
 {
 	
-	public static final NotificationCategoryType<?> GENERAL_TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "general"), NotificationCategory::getGeneral);
+	public static final NotificationCategoryType<?> GENERAL_TYPE = new NotificationCategoryType<>(VersionUtil.lcResource( "general"), NotificationCategory::getGeneral);
 
 	@Nonnull
 	public final MutableComponent getTooltip() { return this.getName(); }

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
@@ -8,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -18,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketBankTransferPlayer extends ClientToServerPacket {
 
-	private static final Type<CPacketBankTransferPlayer> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_bank_transfer_player"));
+	private static final Type<CPacketBankTransferPlayer> TYPE = new Type<>(VersionUtil.lcResource("c_bank_transfer_player"));
 	public static final Handler<CPacketBankTransferPlayer> HANDLER = new H();
 
 	String playerName;

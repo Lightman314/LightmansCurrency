@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketSyncAdminList extends ServerToClientPacket {
 
-	private static final Type<SPacketSyncAdminList> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_sync_admin_list"));
+	private static final Type<SPacketSyncAdminList> TYPE = new Type<>(VersionUtil.lcResource("s_sync_admin_list"));
 	public static final Handler<SPacketSyncAdminList> HANDLER = new H();
 
 	List<UUID> adminList;

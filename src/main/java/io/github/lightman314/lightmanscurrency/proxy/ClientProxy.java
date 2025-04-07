@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
+import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -49,7 +50,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -102,9 +102,11 @@ public class ClientProxy extends CommonProxy{
 		//Setup custom item property
 		ItemProperties.register(ModItems.COIN_ANCIENT.get(), AncientCoinItem.PROPERTY,
 				(stack,level,player,seed) -> {
-					AncientCoinType type = stack.get(ModDataComponents.ANCIENT_COIN_TYPE.get());
+					AncientCoinType type = AncientCoinItem.getAncientCoinType(stack);
 					return type == null ? 0f : type.ordinal() + 1f;
 				});
+		ItemProperties.register(ModBlocks.MONEY_BAG.get().asItem(), MoneyBagItem.PROPERTY,
+				(stack,level,player,seed) -> (float)MoneyBagItem.getSize(stack));
 
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())

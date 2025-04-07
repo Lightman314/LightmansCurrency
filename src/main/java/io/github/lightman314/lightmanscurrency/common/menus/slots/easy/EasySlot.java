@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class EasySlot extends Slot {
 
-    public static final ResourceLocation EMPTY_SLOT_BG = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_item_slot");
+    public static final ResourceLocation EMPTY_SLOT_BG = VersionUtil.lcResource( "item/empty_item_slot");
     public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
 
     public boolean active = true;

@@ -8,9 +8,9 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class SPacketEditListConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketEditListConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_edit_list"));
+    private static final Type<SPacketEditListConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_edit_list"));
     public static final Handler<SPacketEditListConfig> HANDLER = new H();
 
 

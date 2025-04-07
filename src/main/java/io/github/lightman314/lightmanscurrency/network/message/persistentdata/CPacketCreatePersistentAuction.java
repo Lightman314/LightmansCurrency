@@ -12,11 +12,11 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
-	private static final Type<CPacketCreatePersistentAuction> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_persistent_create_auction"));
+	private static final Type<CPacketCreatePersistentAuction> TYPE = new Type<>(VersionUtil.lcResource("c_persistent_create_auction"));
 	public static final Handler<CPacketCreatePersistentAuction> HANDLER = new H();
 
 	private static final String GENERATE_ID_FORMAT = "auction_";

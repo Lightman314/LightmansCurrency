@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.network.message.time;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketSyncTime extends ServerToClientPacket {
 
-	private static final Type<SPacketSyncTime> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_sync_time"));
+	private static final Type<SPacketSyncTime> TYPE = new Type<>(VersionUtil.lcResource("s_sync_time"));
 	public static final Handler<SPacketSyncTime> HANDLER = new H();
 
 	public static void syncWith(@Nonnull Player player) { new SPacketSyncTime(TimeUtil.getCurrentTime()).sendTo(player); }

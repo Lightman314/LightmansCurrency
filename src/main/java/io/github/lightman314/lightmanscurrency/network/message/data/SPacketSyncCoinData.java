@@ -3,11 +3,10 @@ package io.github.lightman314.lightmanscurrency.network.message.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -16,9 +15,9 @@ import javax.annotation.Nonnull;
 
 public final class SPacketSyncCoinData extends ServerToClientPacket {
 
-    public static final ConfigurationTask.Type CONFIG_TYPE = new ConfigurationTask.Type(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"send_coin_data"));
+    public static final ConfigurationTask.Type CONFIG_TYPE = new ConfigurationTask.Type(VersionUtil.lcResource("send_coin_data"));
 
-    private static final Type<SPacketSyncCoinData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_sync_master_coin_list"));
+    private static final Type<SPacketSyncCoinData> TYPE = new Type<>(VersionUtil.lcResource("s_sync_master_coin_list"));
     public static final ConfigHandler<SPacketSyncCoinData> HANDLER = new H();
 
     private static final Gson GSON = new GsonBuilder().create();

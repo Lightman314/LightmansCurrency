@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketChestQuickCollect extends ClientToServerPacket {
 
-	private static final Type<CPacketChestQuickCollect> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_wallet_chest_collection"));
+	private static final Type<CPacketChestQuickCollect> TYPE = new Type<>(VersionUtil.lcResource("c_wallet_chest_collection"));
 	public static final Handler<CPacketChestQuickCollect> HANDLER = new H();
 
 	private final boolean allowSideChains;

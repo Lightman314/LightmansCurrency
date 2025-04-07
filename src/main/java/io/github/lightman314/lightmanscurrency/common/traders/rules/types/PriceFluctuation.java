@@ -18,28 +18,31 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PriceFluctuation extends PriceTweakingTradeRule {
 
-	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "price_fluctuation"),PriceFluctuation::new);
+	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(VersionUtil.lcResource("price_fluctuation"),PriceFluctuation::new);
 	
 	long duration = TimeUtil.DURATION_DAY;
 	public long getDuration() { return this.duration; }
 	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, 1000, Long.MAX_VALUE); }
 	int fluctuation = 10;
 	public int getFluctuation() { return this.fluctuation; }
-	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, Integer.MAX_VALUE); }
+	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, 100); }
 	
 	public PriceFluctuation() { super(TYPE); }
 
-	@Nonnull
+	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
 
@@ -80,12 +83,12 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(@Nonnull TradeCostEvent event) {
+	public void tradeCost(TradeCostEvent event) {
 		event.giveDiscount(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		compound.putLong("Duration", this.duration);
 		compound.putInt("Fluctuation", this.fluctuation);
@@ -93,7 +96,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		this.duration = compound.getLong("Duration");
 		if(this.duration <= 0)
@@ -104,7 +107,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) {
 		
 		json.addProperty("Duration", this.duration);
 		json.addProperty("Fluctuation", this.fluctuation);
@@ -113,7 +116,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) {
 		if(json.has("Duration"))
 			this.duration = json.get("Duration").getAsLong();
 		if(json.has("Fluctuation"))
@@ -121,19 +124,18 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) { return null; }
+	public CompoundTag savePersistentData(HolderLookup.Provider lookup) { return null; }
 	@Override
-	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {}
+	public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) {}
 	
 	@Override
-	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+	protected void handleUpdateMessage(LazyPacketData updateInfo) {
 		if(updateInfo.contains("Duration"))
 			this.setDuration(updateInfo.getLong("Duration"));
 		if(updateInfo.contains("Fluctuation"))
 			this.setFluctuation(updateInfo.getInt("Fluctuation"));
 	}
-
-	@Nonnull
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PriceFluctuationTab(parent); }

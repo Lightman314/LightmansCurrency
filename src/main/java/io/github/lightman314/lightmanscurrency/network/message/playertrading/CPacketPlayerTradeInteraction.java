@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.network.message.playertrading;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTradeManager;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketPlayerTradeInteraction extends ClientToServerPacket {
 
-    private static final Type<CPacketPlayerTradeInteraction> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_player_trade_interaction"));
+    private static final Type<CPacketPlayerTradeInteraction> TYPE = new Type<>(VersionUtil.lcResource("c_player_trade_interaction"));
     public static final Handler<CPacketPlayerTradeInteraction> HANDLER = new H();
 
     private final int tradeID;

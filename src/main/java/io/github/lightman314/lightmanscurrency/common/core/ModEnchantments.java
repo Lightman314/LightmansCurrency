@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -23,7 +22,7 @@ public class ModEnchantments {
 	public static final ResourceKey<Enchantment> MONEY_MENDING_CHOCOLATE = makeKey("money_mending_chocolate");
 	public static final ResourceKey<Enchantment> COIN_MAGNET = makeKey("coin_magnet");
 
-	private static ResourceKey<Enchantment> makeKey(@Nonnull String id) { return ResourceKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id)); }
+	private static ResourceKey<Enchantment> makeKey(@Nonnull String id) { return ResourceKey.create(Registries.ENCHANTMENT, VersionUtil.lcResource(id)); }
 
 	public static final Supplier<DataComponentType<RepairWithMoneyData>> REPAIR_WITH_MONEY;
 	public static final Supplier<DataComponentType<Unit>> COLLECT_COINS;

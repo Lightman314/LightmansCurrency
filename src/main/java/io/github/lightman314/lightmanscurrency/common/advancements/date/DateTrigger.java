@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "date_range");
+    public static final ResourceLocation ID = VersionUtil.lcResource("date_range");
     public static final DateTrigger INSTANCE = new DateTrigger();
     private static final Codec<DateTrigger.Instance> CODEC = RecordCodecBuilder.create(builder ->
             builder.group(

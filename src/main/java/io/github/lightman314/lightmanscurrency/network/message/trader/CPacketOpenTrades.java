@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
@@ -8,8 +7,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValid
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -17,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketOpenTrades extends ClientToServerPacket {
 
-	private static final Type<CPacketOpenTrades> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_trader_menu_trades"));
+	private static final Type<CPacketOpenTrades> TYPE = new Type<>(VersionUtil.lcResource("c_trader_menu_trades"));
 	public static final Handler<CPacketOpenTrades> HANDLER = new H();
 
 	private final long traderID;

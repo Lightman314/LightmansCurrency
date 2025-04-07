@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 public class TraderCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"trader"),TraderCategory::new);
+	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("trader"),TraderCategory::new);
 	
 	private final Item trader;
 	private final long traderID;

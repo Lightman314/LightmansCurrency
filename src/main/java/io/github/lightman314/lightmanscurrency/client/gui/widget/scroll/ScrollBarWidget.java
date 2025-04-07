@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreRender {
 
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/scroll.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource( "textures/gui/scroll.png");
 	
 	public static final int WIDTH = 8;
 	public static final int KNOB_HEIGHT = 29;
@@ -183,8 +184,8 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 		private IScrollable scrollable = null;
 
 		public Builder height(int height) { this.changeHeight(height); return this; }
-		public <T extends EasyWidget & IScrollable> Builder onLeft(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(-1 * WIDTH,0)); this.changeHeight(widget.getHeight()); return this; }
-		public <T extends EasyWidget & IScrollable> Builder onRight(T widget) { this.scrollable(widget); this.position(widget.getPosition().offset(widget.getWidth(),0)); this.changeHeight(widget.getHeight()); return this; }
+		public <T extends EasyWidget & IScrollable> Builder onLeft(T widget) { return this.scrollable(widget).position(widget.getPosition().offset(-1 * WIDTH,0)).height(widget.getHeight()); }
+		public <T extends EasyWidget & IScrollable> Builder onRight(T widget) { return this.scrollable(widget).position(widget.getPosition().offset(widget.getWidth(),0)).height(widget.getHeight()); }
 		public Builder scrollable(IScrollable scrollable) { this.scrollable = scrollable; return this; }
 		public Builder smallKnob() { this.smallKnob = true; return this; }
 

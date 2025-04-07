@@ -9,9 +9,12 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
@@ -31,12 +34,12 @@ import java.util.function.Supplier;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
 public class ModCreativeGroups {
 
-    public static final ResourceLocation COIN_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"coins");
-    public static final ResourceLocation MACHINE_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"machines");
-    public static final ResourceLocation TRADER_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"traders");
-    public static final ResourceLocation UPGRADE_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"upgrades");
+    public static final ResourceLocation COIN_GROUP_ID = VersionUtil.lcResource("coins");
+    public static final ResourceLocation MACHINE_GROUP_ID = VersionUtil.lcResource("machines");
+    public static final ResourceLocation TRADER_GROUP_ID = VersionUtil.lcResource("traders");
+    public static final ResourceLocation UPGRADE_GROUP_ID = VersionUtil.lcResource("upgrades");
 
-    public static final ResourceLocation EXTRA_GROUP_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "extra");
+    public static final ResourceLocation EXTRA_GROUP_ID = VersionUtil.lcResource( "extra");
 
     /**
      * Placeholder function to force the static class loading
@@ -150,13 +153,15 @@ public class ModCreativeGroups {
                     //Coin Jars
                     ezPop(p, ModBlocks.PIGGY_BANK);
                     ezPop(p, ModBlocks.COINJAR_BLUE);
+                    //Money Bag
+                    p.accept(MoneyBagItem.createItem(ModBlocks.MONEY_BAG.get(), MoneyBagData.EMPTY));
                 }).build()
         );
 
         TRADER_GROUP = ModRegistries.CREATIVE_TABS.register("traders", () -> CreativeModeTab.builder()
                 .withTabsBefore(MACHINE_GROUP_ID)
                 .title(LCText.CREATIVE_GROUP_TRADING.get())
-                .icon(ezIcon(ModBlocks.DISPLAY_CASE))
+                .icon(ezIcon(ModBlocks.DISPLAY_CASE.get(Color.WHITE)))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
                     ezPop(p, ModBlocks.DISPLAY_CASE);
@@ -279,6 +284,7 @@ public class ModCreativeGroups {
     }
 
     private static Supplier<ItemStack> ezIcon(Supplier<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
+    private static Supplier<ItemStack> ezIcon(ItemLike item) { return Suppliers.memoize(() -> new ItemStack(item)); }
     private static Supplier<ItemStack> ezRandomIcon(@Nonnull Supplier<CreativeModeTab> tabSource) {
         return () -> {
             CreativeModeTab tab = tabSource.get();

@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,6 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class ATMAPI {
 
@@ -60,6 +62,7 @@ public class ATMAPI {
 
     @Nonnull
     public static ATMPageManager getATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor) { return ATMPageManager.create(player, addChild, removeChild, commandProcessor); }
+    public static ATMPageManager getATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected) { return ATMPageManager.create(player, addChild, removeChild, commandProcessor,selected); }
 
     @Nonnull
     public static String UpdateCommand(@Nonnull String oldCommand)

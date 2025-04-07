@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketBankTransferResponse extends ServerToClientPacket {
 
-	private static final Type<SPacketBankTransferResponse> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_bank_transfer_reply"));
+	private static final Type<SPacketBankTransferResponse> TYPE = new Type<>(VersionUtil.lcResource("s_bank_transfer_reply"));
 	public static final Handler<SPacketBankTransferResponse> HANDLER = new H();
 
 	Component responseMessage;

@@ -36,7 +36,7 @@ public class CoinBlock extends FallingBlock {
 
 	protected boolean isFullBlock() { return true; }
 
-	protected CoinBlock build(@Nonnull BlockBehaviour.Properties p) { return new CoinBlock(p); }
+	protected CoinBlock build(Properties p) { return new CoinBlock(p); }
 
 	@Nonnull
 	@Override

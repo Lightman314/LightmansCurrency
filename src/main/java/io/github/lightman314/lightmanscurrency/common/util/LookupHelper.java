@@ -25,17 +25,11 @@ public class LookupHelper {
     private static RegistryAccess backupCache = null;
 
     //Collect RegistryAccess from the TagsUpdatedEvent so that we have access to it before the level is loaded
-    @SubscribeEvent
-    private static void tagReloadedEvent(TagsUpdatedEvent event)
-    {
-        backupCache = event.getRegistryAccess();
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    private static void tagReloadedEvent(TagsUpdatedEvent event) { backupCache = event.getRegistryAccess(); }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    private static void villagerTradesEvent(VillagerTradesEvent event)
-    {
-        backupCache = event.getRegistryAccess();
-    }
+    private static void villagerTradesEvent(VillagerTradesEvent event) { backupCache = event.getRegistryAccess(); }
 
     @Nullable
     public static RegistryAccess getRegistryAccess()

@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
@@ -20,14 +19,14 @@ import javax.annotation.Nonnull;
 
 public class BlockEntityBlockHelper {
 
-	public static final ResourceLocation ITEM_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trader");
-	public static final ResourceLocation ARMOR_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "armor_trader");
-	public static final ResourceLocation TICKET_KIOSK_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "ticket_trader");
-	public static final ResourceLocation FREEZER_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "freezer_trader");
-	public static final ResourceLocation BOOKSHELF_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bookshelf_trader");
-	public static final ResourceLocation SLOT_MACHINE_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trader");
-	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "capability_interface");
-	public static final ResourceLocation AUCTION_STAND_TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "auction_stand");
+	public static final ResourceLocation ITEM_TRADER_TYPE = VersionUtil.lcResource( "item_trader");
+	public static final ResourceLocation ARMOR_TRADER_TYPE = VersionUtil.lcResource( "armor_trader");
+	public static final ResourceLocation TICKET_KIOSK_TYPE = VersionUtil.lcResource( "ticket_trader");
+	public static final ResourceLocation FREEZER_TRADER_TYPE = VersionUtil.lcResource( "freezer_trader");
+	public static final ResourceLocation BOOKSHELF_TRADER_TYPE = VersionUtil.lcResource( "bookshelf_trader");
+	public static final ResourceLocation SLOT_MACHINE_TRADER_TYPE = VersionUtil.lcResource( "slot_machine_trader");
+	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = VersionUtil.lcResource( "capability_interface");
+	public static final ResourceLocation AUCTION_STAND_TYPE = VersionUtil.lcResource( "auction_stand");
 	public static final ResourceLocation GACHA_MACHINE_TYPE = VersionUtil.lcResource("gacha_machine");
 
 	private static final Map<ResourceLocation,List<Supplier<Block>>> blockList = new HashMap<>();
@@ -86,7 +85,8 @@ public class BlockEntityBlockHelper {
 	static {
 		
 		//Item Trader Blocks
-		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.DISPLAY_CASE, ModBlocks.ITEM_NETWORK_TRADER_1, ModBlocks.ITEM_NETWORK_TRADER_2, ModBlocks.ITEM_NETWORK_TRADER_3, ModBlocks.ITEM_NETWORK_TRADER_4);
+		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.ITEM_NETWORK_TRADER_1, ModBlocks.ITEM_NETWORK_TRADER_2, ModBlocks.ITEM_NETWORK_TRADER_3, ModBlocks.ITEM_NETWORK_TRADER_4);
+		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.DISPLAY_CASE);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.VENDING_MACHINE);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.VENDING_MACHINE_LARGE);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.SHELF);

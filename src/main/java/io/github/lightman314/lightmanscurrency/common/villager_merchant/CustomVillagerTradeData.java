@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 public class CustomVillagerTradeData {
 
-    private static final ResourceLocation WANDERING_TRADER_ID = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "wandering_trader");
+    private static final ResourceLocation WANDERING_TRADER_ID = VersionUtil.lcResource( "wandering_trader");
 
     private static final Map<ResourceLocation,Map<Integer,List<ItemListing>>> defaultValues = new HashMap<>();
 

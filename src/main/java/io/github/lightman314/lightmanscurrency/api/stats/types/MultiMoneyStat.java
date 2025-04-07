@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.stats.types;
 
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class MultiMoneyStat extends StatType<MoneyView,MoneyValue> {
 
-    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(MoneyAPI.MODID,"multi_money");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("multi_money");
     public static final StatType<MoneyView,MoneyValue> INSTANCE = new MultiMoneyStat();
 
     private MultiMoneyStat() {}

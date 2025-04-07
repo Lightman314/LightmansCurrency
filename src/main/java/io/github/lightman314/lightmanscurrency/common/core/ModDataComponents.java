@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
+import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
 import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
@@ -40,6 +41,8 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<ATMCardData>> ATM_CARD_DATA;
     public static final Supplier<DataComponentType<MoneyValue>> MONEY_VALUE;
     public static final Supplier<DataComponentType<ItemStackData>> GACHA_ITEM;
+    public static final Supplier<DataComponentType<MoneyBagData>> MONEY_BAG_CONTENTS;
+    public static final Supplier<DataComponentType<LootTableEntry>> LOOT_TABLE_ENTRY;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -70,6 +73,8 @@ public class ModDataComponents {
         ATM_CARD_DATA = register("atm_card_data", builder -> builder.persistent(ATMCardData.CODEC).networkSynchronized(ATMCardData.STREAM_CODEC));
         MONEY_VALUE = register("money_value", builder -> builder.persistent(LCCodecs.MONEY_VALUE).networkSynchronized(LCCodecs.MONEY_VALUE_STREAM));
         GACHA_ITEM = register("gacha_item", builder -> builder.persistent(ItemStackData.CODEC).networkSynchronized(ItemStackData.STREAM_CODEC));
+        MONEY_BAG_CONTENTS = register("money_bag_data", builder -> builder.persistent(MoneyBagData.CODEC).networkSynchronized(MoneyBagData.STREAM_CODEC));
+        LOOT_TABLE_ENTRY = register("loot_table", builder -> builder.persistent(LootTableEntry.CODEC).networkSynchronized(LootTableEntry.STREAM_CODEC));
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");

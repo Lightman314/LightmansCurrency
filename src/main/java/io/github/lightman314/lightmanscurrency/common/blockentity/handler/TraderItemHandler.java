@@ -56,18 +56,14 @@ public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IIt
 		}
 
 		@Override
-		public int getSlotLimit(int slot) {
-			return this.getStorage().getMaxAmount();
-		}
-		
+		public int getSlotLimit(int slot) { return this.getStorage().getMaxAmount(); }
+
 		@Override
 		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
 			return this.allowsInputs() && this.getStorage().allowItem(stack);
 		}
 		
-		public boolean allowExtraction(@Nonnull ItemStack stack) {
-			return this.trader.allowExtraction(stack);
-		}
+		public boolean allowExtraction(@Nonnull ItemStack stack) { return this.trader.allowExtraction(stack); }
 
 		@Nonnull
 		@Override

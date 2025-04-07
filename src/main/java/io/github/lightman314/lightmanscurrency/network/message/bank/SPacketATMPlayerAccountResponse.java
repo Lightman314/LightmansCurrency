@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -16,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketATMPlayerAccountResponse extends ServerToClientPacket {
 
-	public static final Type<SPacketATMPlayerAccountResponse> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_atm_select_account_player_reply"));
+	public static final Type<SPacketATMPlayerAccountResponse> TYPE = new Type<>(VersionUtil.lcResource("s_atm_select_account_player_reply"));
 	public static final Handler<SPacketATMPlayerAccountResponse> HANDLER = new H();
 
 	final Component message;

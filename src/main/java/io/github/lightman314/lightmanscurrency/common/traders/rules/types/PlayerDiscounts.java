@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
@@ -21,33 +20,36 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEv
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PlayerDiscounts extends PriceTweakingTradeRule {
 
-	public static final TradeRuleType<PlayerDiscounts> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "discount_list"),PlayerDiscounts::new);
+	public static final TradeRuleType<PlayerDiscounts> TYPE = new TradeRuleType<>(VersionUtil.lcResource("discount_list"),PlayerDiscounts::new);
 	
 	List<PlayerReference> playerList = new ArrayList<>();
 	public ImmutableList<PlayerReference> getPlayerList() { return ImmutableList.copyOf(this.playerList); }
 	int discount = 10;
 	public int getDiscount() { return this.discount; }
-	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 0, 100); }
+	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
 	
 	private PlayerDiscounts() { super(TYPE); }
 
-	@Nonnull
+	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_DISCOUNT_LIST; }
 
 	@Override
-	public void beforeTrade(@Nonnull PreTradeEvent event)
+	public void beforeTrade(PreTradeEvent event)
 	{
 		if(this.isOnList(event.getPlayerReference()))
 		{
@@ -63,7 +65,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(@Nonnull TradeCostEvent event)
+	public void tradeCost(TradeCostEvent event)
 	{
 		if(this.isOnList(event.getPlayerReference()))
 		{
@@ -78,7 +80,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	public boolean isOnList(PlayerReference player)  { return PlayerReference.isInList(this.playerList, player); }
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		//Save player names
 		PlayerReference.saveList(compound, this.playerList, "Players");
 		//Save discount
@@ -86,14 +88,14 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) {
 		json.add("Players", PlayerReference.saveJsonList(this.playerList));
 		json.addProperty("discounrd", this.discount);
 		return json;
 	}
 	
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		//Load player names
 		this.playerList = PlayerReference.loadList(compound, "Players");
 		//Load discount
@@ -103,7 +105,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) {
 		if(json.has("Players"))
 		{
 			this.playerList.clear();
@@ -119,7 +121,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo)
+	protected void handleUpdateMessage(LazyPacketData updateInfo)
 	{
 		if(updateInfo.contains("Discount"))
 			this.discount = updateInfo.getInt("Discount");
@@ -140,13 +142,13 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) { return null; }
+	public CompoundTag savePersistentData(HolderLookup.Provider lookup) { return null; }
 	@Override
-	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
+	public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) { }
 
-	@Nonnull
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerDiscountTab(parent); }
-	
+
 }

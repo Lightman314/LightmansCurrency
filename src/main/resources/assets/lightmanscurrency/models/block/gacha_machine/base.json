@@ -4,7 +4,6 @@
 	"parent": "lightmanscurrency:block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"main": "lightmanscurrency:block/gacha_machine",
 		"particle": "#main"
 	},
 	"elements": [
@@ -45,6 +44,19 @@
 				"west": {"uv": [8, 0, 11, 2], "texture": "#main"},
 				"up": {"uv": [11, 0, 14, 3], "texture": "#main"},
 				"down": {"uv": [11, 3, 14, 6], "texture": "#main"}
+			}
+		},
+		{
+			"name": "glass_inside",
+			"from": [2, 7, 14],
+			"to": [14, 15, 2],
+			"faces": {
+				"north": {"uv": [8, 0, 11, 2], "texture": "#main"},
+				"east": {"uv": [5, 2, 8, 4], "texture": "#main"},
+				"south": {"uv": [8, 2, 11, 4], "texture": "#main"},
+				"west": {"uv": [5, 0, 8, 2], "texture": "#main"},
+				"up": {"uv": [11, 0, 14, 3], "rotation": 90, "texture": "#main"},
+				"down": {"uv": [11, 3, 14, 6], "rotation": 270, "texture": "#main"}
 			}
 		},
 		{

@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTal
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +50,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	@Nonnull
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
-		return ResourceLocation.fromNamespaceAndPath(namespace, "block/freezer/doors/" + color.getResourceSafeName());
+		return VersionUtil.modResource(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}
 	
 	@Override

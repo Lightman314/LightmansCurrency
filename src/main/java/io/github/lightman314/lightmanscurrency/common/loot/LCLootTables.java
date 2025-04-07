@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.loot;
 
 import com.google.common.collect.Sets;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -46,7 +46,7 @@ public class LCLootTables {
 
     public static final ResourceLocation ARCHAEOLOGY_ANCIENT_RUINS = register("archaeology/ancient_city/ancient_ruins");
 
-    private static ResourceLocation register(String id) { return register(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
+    private static ResourceLocation register(String id) { return register(VersionUtil.lcResource( id)); }
 
     private static ResourceLocation register(ResourceLocation id) {
         if (LOCATIONS.add(ResourceKey.create(Registries.LOOT_TABLE,id))) {

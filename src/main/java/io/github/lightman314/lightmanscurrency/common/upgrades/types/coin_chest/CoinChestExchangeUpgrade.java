@@ -16,24 +16,25 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
+
+    public static final int MAX_COMMANDS = 10;
 
     @Override
     public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
         if (message.contains("SetExchangeWhileOpen")) {
             this.setExchangeWhileOpen(data, message.getBoolean("SetExchangeWhileOpen"));
         }
-        if (message.contains("SetExchangeCommand")) {
-            String newCommand = message.getString("SetExchangeCommand");
-            String oldCommand = this.getExchangeCommand(data);
+        if (message.contains("ToggleExchangeCommand")) {
+            String toggleCommand = message.getString("ToggleExchangeCommand");
+            List<String> oldCommands = this.getExchangeCommands(data);
 
-            if (Objects.equals(newCommand, oldCommand))
-                this.setExchangeCommand(data, "");
+            if (oldCommands.contains(toggleCommand))
+                this.removeExchangeCommand(data, toggleCommand);
             else
-                this.setExchangeCommand(data, newCommand);
+                this.addExchangeCommand(data, toggleCommand);
         }
     }
 
@@ -55,22 +56,30 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
         data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withExchangeWhileOpen(newValue));
     }
 
-    public String getExchangeCommand(@Nonnull CoinChestUpgradeData data) {
-        return data.getData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT).exchangeCommand();
+    public List<String> getExchangeCommands(@Nonnull CoinChestUpgradeData data) {
+        return data.getData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT).exchangeCommands();
     }
 
-    public void setExchangeCommand(@Nonnull CoinChestUpgradeData data, @Nonnull String newValue) {
-        data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withExchangeCommand(newValue));
+    public void addExchangeCommand(@Nonnull CoinChestUpgradeData data, @Nonnull String addedValue) {
+        data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withAddedExchangeCommand(addedValue));
+    }
+
+    public void removeExchangeCommand(@Nonnull CoinChestUpgradeData data, @Nonnull String removedValue) {
+        data.editData(ModDataComponents.EXCHANGE_UPGRADE_DATA, ExchangeUpgradeData.DEFAULT, d -> d.withRemovedExchangeCommand(removedValue));
     }
 
     public void ExecuteExchangeCommand(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         boolean executeWhileOpen = this.getExchangeWhileOpen(data);
         if (executeWhileOpen || be.getOpenerCount() <= 0) {
-            String command = this.getExchangeCommand(data);
-            if (command != null && !command.isBlank()) {
-                if (ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
-                    CoinAPI.API.SortCoinsByValue(be.getStorage());
+            List<String> commands = this.getExchangeCommands(data);
+            for(String c : commands)
+            {
+                if (c != null && !c.isBlank()) {
+                    if (ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), c))
+                        CoinAPI.API.SortCoinsByValue(be.getStorage());
+                }
             }
+
         }
     }
 

@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.api.upgrades.slot;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class UpgradeInputSlot extends EasySlot {
 
-	public static final ResourceLocation EMPTY_UPGRADE_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_upgrade_slot");
+	public static final ResourceLocation EMPTY_UPGRADE_SLOT = VersionUtil.lcResource("item/empty_upgrade_slot");
 
 	private final Container inventory;
 	private final IUpgradeable machine;

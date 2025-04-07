@@ -4,8 +4,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketChatNotification extends ServerToClientPacket {
 
-	private static final Type<SPacketChatNotification> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_notification_chat"));
+	private static final Type<SPacketChatNotification> TYPE = new Type<>(VersionUtil.lcResource("s_notification_chat"));
 	public static final Handler<SPacketChatNotification> HANDLER = new H();
 
 	private final Notification notification;

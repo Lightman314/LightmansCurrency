@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -10,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public class BankAccountSelectButton extends EasyButton implements ITooltipWidget {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/buttons.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/buttons.png");
 
     public static final int HEIGHT = 20;
 

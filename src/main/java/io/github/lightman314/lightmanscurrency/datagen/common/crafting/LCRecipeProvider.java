@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
@@ -205,18 +206,19 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Trader Recipes
         //Display Case
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.DISPLAY_CASE.get())
-                .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("trader", TraderKnowledge())
-                .pattern("g")
-                .pattern("x")
-                .pattern("w")
-                .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
-                .define('w', Items.WHITE_WOOL)
-                .save(consumer, ItemID("traders/", ModBlocks.DISPLAY_CASE));
-
-
+        //Updated in v2.2.5.1
+        ModBlocks.DISPLAY_CASE.forEach((color,display) -> {
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC,display.get())
+                    .unlockedBy("money",MoneyKnowledge())
+                    .unlockedBy("trader",TraderKnowledge())
+                    .pattern("g")
+                    .pattern("x")
+                    .pattern("w")
+                    .define('x',ModItems.TRADING_CORE.get())
+                    .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
+                    .define('w',ColorHelper.GetWoolOfColor(color))
+                    .save(consumer,ID("traders/display_case/" + color.getResourceSafeName()));
+        });
 
         //Vending Machine
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.VENDING_MACHINE.get(Color.WHITE))
@@ -974,6 +976,19 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer,ID("traders/gacha_machine"));
         GenerateColoredDyeAndWashRecipes(consumer,ModBlocks.GACHA_MACHINE,ModBlocks.GACHA_MACHINE.get(Color.WHITE),"gacha_dyes","traders/gacha_machine/",Lists.newArrayList(Pair.of("money", MoneyKnowledge()), Pair.of("trader", TraderKnowledge())));
 
+        //2.2.5.1
+        //Money Bag
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModBlocks.MONEY_BAG.get())
+                .unlockedBy("money",MoneyKnowledge())
+                .unlockedBy("wallet",LazyTrigger(LCTags.Items.WALLET))
+                .pattern(" s ")
+                .pattern("lgl")
+                .pattern("lll")
+                .define('s',Tags.Items.STRINGS)
+                .define('l',Tags.Items.LEATHERS)
+                .define('g',Tags.Items.NUGGETS_GOLD)
+                .save(consumer);
+
     }
 
     private static void GenerateWalletRecipes(@Nonnull RecipeOutput consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)
@@ -1175,6 +1190,6 @@ public class LCRecipeProvider extends RecipeProvider {
     private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
     private static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
     private static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
-    private static ResourceLocation ID(String path) { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, path); }
+    private static ResourceLocation ID(String path) { return VersionUtil.lcResource(path); }
 
 }

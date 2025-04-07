@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.codecs;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -14,12 +15,16 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableRefere
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -55,6 +60,22 @@ public class LCCodecs {
     public static final StreamCodec<RegistryFriendlyByteBuf,Owner> OWNER_STREAM = ByteBufCodecs.fromCodecWithRegistries(OWNER);
 
     public static final StreamCodec<RegistryFriendlyByteBuf,LazyPacketData> PACKET_DATA_STREAM = StreamCodec.of((b,d) -> d.encode(b),LazyPacketData::decode);
+
+    public static final Codec<ItemStack> UNLIMITED_ITEM = Codec.lazyInitialized(
+            () -> RecordCodecBuilder.create(
+                    builder -> builder.group(
+                                    ItemStack.ITEM_NON_AIR_CODEC.fieldOf("id").forGetter(ItemStack::getItemHolder),
+                                    ExtraCodecs.intRange(1, Integer.MAX_VALUE).fieldOf("count").orElse(1).forGetter(ItemStack::getCount),
+                                    DataComponentPatch.CODEC
+                                            .optionalFieldOf("components", DataComponentPatch.EMPTY)
+                                            .forGetter(ItemStack::getComponentsPatch)
+                            )
+                            .apply(builder, ItemStack::new)
+            )
+    );
+
+    public static final Codec<ItemStack> UNLIMITED_ITEM_OPTIONAL = ExtraCodecs.optionalEmptyMap(UNLIMITED_ITEM)
+            .xmap(p_330099_ -> p_330099_.orElse(ItemStack.EMPTY), p_330101_ -> p_330101_.isEmpty() ? Optional.empty() : Optional.of(p_330101_));
 
     private static <T> Codec<T> easyCodec(@Nonnull final Function<T,CompoundTag> save, @Nonnull final Function<CompoundTag,T> load, @Nonnull final String object)
     {

@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketInterfaceHandlerMessage extends ClientToServerPacket {
 
-	private static final Type<CPacketInterfaceHandlerMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_interface_handler_message"));
+	private static final Type<CPacketInterfaceHandlerMessage> TYPE = new Type<>(VersionUtil.lcResource("c_interface_handler_message"));
 	public static final Handler<CPacketInterfaceHandlerMessage> HANDLER = new H();
 	
 	BlockPos pos;

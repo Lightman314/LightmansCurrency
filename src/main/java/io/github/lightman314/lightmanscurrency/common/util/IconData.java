@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -96,7 +97,7 @@ public abstract class IconData {
 
 	private static class ItemIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"item");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("item");
 
 		private final ItemStack iconStack;
 		private final String countTextOverride;
@@ -126,7 +127,7 @@ public abstract class IconData {
 	
 	private static class ImageIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"sprite");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("sprite");
 
 		private final Sprite sprite;
 		private ImageIcon(Sprite sprite) { super(TYPE); this.sprite = sprite; }
@@ -161,7 +162,7 @@ public abstract class IconData {
 	
 	private static class TextIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"text");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("text");
 
 		private final Component iconText;
 		private final int textColor;
@@ -195,7 +196,7 @@ public abstract class IconData {
 
 	private static class NumberIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"number_icon");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("number_icon");
 		private final int number;
 		private NumberIcon(int number) { super(TYPE); this.number = number; }
 		@Override
@@ -215,7 +216,7 @@ public abstract class IconData {
 	
 	private static class MultiIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"multi_icon");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("multi_icon");
 		private final List<IconData> icons;
 		private MultiIcon(List<IconData> icons) { super(TYPE); this.icons = icons; }
 		@Override
@@ -249,7 +250,7 @@ public abstract class IconData {
 
 	private static class NullIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("null");
 		private NullIcon() { super(TYPE); }
 		@Override
 		@OnlyIn(Dist.CLIENT)

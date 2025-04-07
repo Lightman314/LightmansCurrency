@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public class ItemsForMapTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "items_for_map");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource( "items_for_map");
     public static final Serializer SERIALIZER = new Serializer();
 
 

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.atm.data;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public final class ATMPageManager {
 
@@ -33,11 +35,14 @@ public final class ATMPageManager {
 
     private ScreenPosition corner = ScreenPosition.ZERO;
 
-    private ATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor)
+    private final Predicate<ATMExchangeButton> selected;
+
+    private ATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected)
     {
         this.addChild = addChild;
         this.removeChild = removeChild;
         this.commandProcessor = commandProcessor;
+        this.selected = selected;
         Map<String,ATMData> mapTemp = new HashMap<>();
         for(ChainData chain : CoinAPI.API.AllChainData())
         {
@@ -83,6 +88,7 @@ public final class ATMPageManager {
         ATMExchangeButton button = ATMExchangeButton.builder(data)
                 .screenCorner(this.corner)
                 .commandHandler(this.commandProcessor)
+                .selected(this.selected)
                 .build();
         this.buttons.add(button);
         this.addChild.accept(button);
@@ -115,6 +121,7 @@ public final class ATMPageManager {
     }
 
 
-    public static ATMPageManager create(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor) { return new ATMPageManager(player, addChild, removeChild, commandProcessor); }
+    public static ATMPageManager create(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor) { return new ATMPageManager(player, addChild, removeChild, commandProcessor, Predicates.alwaysFalse()); }
+    public static ATMPageManager create(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected) { return new ATMPageManager(player,addChild,removeChild,commandProcessor,selected); }
 
 }

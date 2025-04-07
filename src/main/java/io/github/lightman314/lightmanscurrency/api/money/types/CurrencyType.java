@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -58,11 +57,10 @@ public abstract class CurrencyType {
     }
 
     /**
-     * Method used by {@link #sumValues(List)} when the list size is greater than 1
+     * Method used by {@link #sumValues(List)} when the list size is greater than 1<br>
      * Override this to optimize your addition calculations should your {@link MoneyValue} init
      * function do complicated math.
      */
-    
     protected abstract MoneyValue sumValuesInternal(List<MoneyValue> values);
 
     /**

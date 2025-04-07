@@ -19,6 +19,7 @@ build
 
 # other
 eclipse
+libs
 run
 runs
 run-data

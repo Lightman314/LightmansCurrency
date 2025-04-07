@@ -44,6 +44,7 @@ public class ModBlocks {
 		};
 	}
 	private static Function<Block,Item> getCoinJarGenerator() { return block ->  new CoinJarItem(block, new Item.Properties()); }
+	private static Function<Block,Item> getMoneyBagGenerator() { return block ->  new MoneyBagItem(block, new Item.Properties()); }
 
 	private static final SoundType CHOCOLATE_SOUND = SoundType.MUD_BRICKS;
 
@@ -82,7 +83,7 @@ public class ModBlocks {
 	public static final Supplier<Block> COIN_MINT;
 
 	//Display Case
-	public static final Supplier<Block> DISPLAY_CASE;
+	public static final RegistryObjectBundle<Block,Color> DISPLAY_CASE;
 
 	//Vending Machines
 	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE;
@@ -144,6 +145,9 @@ public class ModBlocks {
 
 	//Tax Block
 	public static final Supplier<Block> TAX_COLLECTOR;
+
+	//Money Bag
+	public static final Supplier<Block> MONEY_BAG;
 
 	//Coin Jars
 	public static final Supplier<Block> PIGGY_BANK;
@@ -357,11 +361,13 @@ public class ModBlocks {
 
 		//Item Traders
 		//Display Case
-		DISPLAY_CASE = register("display_case", () -> new DisplayCaseBlock(
+		DISPLAY_CASE = registerColored("display_case", c -> new DisplayCaseBlock(
 			Block.Properties.of()
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
-			)
+				,c
+			),
+			Color.WHITE
 		);
 		
 		//Vending Machine
@@ -517,7 +523,7 @@ public class ModBlocks {
 					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL),
-					Block.box(1d,0d,1d,15d,15d,15d)
+					Block.box(1d,0d,1d,15d,16d,15d)
 				)
 		);
 
@@ -572,6 +578,15 @@ public class ModBlocks {
 						.mapColor(MapColor.METAL)
 						.strength(3f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
+				)
+		);
+
+		//Money Bag
+		MONEY_BAG = register("money_bag", getMoneyBagGenerator(), () -> new MoneyBagBlock(
+				BlockBehaviour.Properties.of()
+					.mapColor(MapColor.SAND)
+					.strength(0.1f,2.0f)
+					.sound(SoundType.COBWEB)
 				)
 		);
 

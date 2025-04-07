@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
@@ -10,20 +9,20 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public abstract class DepositWithdrawNotification extends SingleLineNotification {
 
-	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_player"),DepositWithdrawNotification::createPlayer);
-	public static final NotificationType<Custom> CUSTOM_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_trader"),DepositWithdrawNotification::createTrader);
-	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank_deposit_server"),DepositWithdrawNotification::createServer);
+	public static final NotificationType<Player> PLAYER_TYPE = new NotificationType<>(VersionUtil.lcResource("bank_deposit_player"),DepositWithdrawNotification::createPlayer);
+	public static final NotificationType<Custom> CUSTOM_TYPE = new NotificationType<>(VersionUtil.lcResource("bank_deposit_trader"),DepositWithdrawNotification::createTrader);
+	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(VersionUtil.lcResource("bank_deposit_server"),DepositWithdrawNotification::createServer);
 
 	protected MutableComponent accountName;
 	protected boolean isDeposit;

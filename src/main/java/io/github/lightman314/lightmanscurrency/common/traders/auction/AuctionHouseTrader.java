@@ -33,24 +33,27 @@ import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
-	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "auction_house"),AuctionHouseTrader::new);
+	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(VersionUtil.lcResource( "auction_house"),AuctionHouseTrader::new);
 	
 	public static final IconData ICON = IconData.of(IconUtil.ICON_TEXTURE, 96, 16);
 	
@@ -70,8 +73,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		super(TYPE);
 		this.getOwner().SetOwner(FakeOwner.of(LCText.GUI_TRADER_AUCTION_HOUSE_OWNER.get()));
 	}
-	
-	@Nonnull
+
     @Override
 	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
 
@@ -172,14 +174,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		this.saveTrades(compound,lookup);
 		this.saveStorage(compound,lookup);
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected final void saveTrades(CompoundTag compound,HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		for (AuctionTradeData trade : this.trades) {
 			list.add(trade.getAsNBT(lookup));
@@ -187,14 +189,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		compound.put("Trades", list);
 	}
 	
-	protected final void saveStorage(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected final void saveStorage(CompoundTag compound,HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundTag(),lookup)));
 		compound.put("StorageData", list);
 	}
 	
 	@Override
-	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		//Load trades
 		if(compound.contains("Trades"))
@@ -291,7 +293,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	}
 
-	@Nonnull
+	
     @Override
 	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
 
@@ -302,17 +304,17 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public boolean canMakePersistent() { return false; }
 	
 	@Override
-	public void saveAdditionalPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
+	public void saveAdditionalPersistentData(CompoundTag data, HolderLookup.Provider lookup) { }
 
 	@Override
-	public void loadAdditionalPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
+	public void loadAdditionalPersistentData(CompoundTag data, HolderLookup.Provider lookup) { }
 
-	@Nonnull
+	
 	@Override
-	public Predicate<TradeData> getStorageTradeFilter(@Nonnull ITraderStorageMenu menu) { return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid(); }
+	public Predicate<TradeData> getStorageTradeFilter(ITraderStorageMenu menu) { return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid(); }
 
 	@Override
-	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage Tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new AuctionStorageTab(menu));
 		//Cancel Trade tab
@@ -341,10 +343,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public boolean hasValidTrade() { return true; }
 
 	@Override
-	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { }
+	protected void saveAdditionalToJson(JsonObject json, HolderLookup.Provider lookup) { }
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) {}
+	protected void loadAdditionalFromJson(JsonObject json, HolderLookup.Provider lookup) {}
 
 	@Override
 	protected boolean allowAdditionalUpgradeType(UpgradeType type) { return false; }
@@ -362,7 +364,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int auctionCount = 0;
 		for(AuctionTradeData auction : this.trades)
 		{

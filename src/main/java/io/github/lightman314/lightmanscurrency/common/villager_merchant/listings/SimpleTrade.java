@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public class SimpleTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "simple");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("simple");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final ItemStack forSale;

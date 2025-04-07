@@ -95,6 +95,8 @@ public class BankDataCache extends CustomData {
         return results;
     }
 
+    public boolean hasAccount(UUID player) { return this.playerBankData.containsKey(player); }
+
     public BankAccount getAccount(Player player) { return this.getAccount(player.getUUID()); }
     public BankAccount getAccount(UUID player)
     {

@@ -29,6 +29,7 @@ public class LazyShapes {
 	public static final Function<Direction,VoxelShape> SHORT_BOX_SHAPE = lazySingleShape(SHORT_BOX);
 	//Full Box
 	public static final VoxelShape BOX = Block.box(0d,0d,0d,16d,16d,16d);
+	public static final VoxelShape BOX_T = Block.box(0.01d,0d,0.01d,15.99d,16d,15.99d);
 	public static final Function<Direction,VoxelShape> BOX_SHAPE = lazySingleShape(BOX);
 	//Tall Box
 	public static final VoxelShape TALL_BOX = Block.box(0d,0d,0d,16d,32d,16d);

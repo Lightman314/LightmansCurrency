@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.events;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -120,7 +121,7 @@ public abstract class DroplistConfigGenerator {
         protected Chest(ChestPoolLevel level) { this.level = level; }
 
         @Override
-        protected ResourceLocation createEntry(String modid, String entry) { return ResourceLocation.fromNamespaceAndPath(modid, "chests/" + entry); }
+        protected ResourceLocation createEntry(String modid, String entry) { return VersionUtil.modResource(modid, "chests/" + entry); }
 
     }
 
@@ -133,11 +134,11 @@ public abstract class DroplistConfigGenerator {
         protected Entity(EntityPoolLevel level) { this.level = level; }
 
         @Override
-        protected ResourceLocation createEntry(String modid, String entry) { return ResourceLocation.fromNamespaceAndPath(modid, entry); }
+        protected ResourceLocation createEntry(String modid, String entry) { return VersionUtil.modResource(modid, entry); }
 
         public final void forceAddTag(@Nonnull TagKey<EntityType<?>> tag) { this.forceAdd("#" + tag.location()); }
         public final void forceAddTag(@Nonnull ResourceLocation tag) { this.forceAdd("#" + tag); }
-        public final void addTag(@Nonnull String tagID) throws ResourceLocationException { this.forceAddTag(ResourceLocation.fromNamespaceAndPath(this.getDefaultNamespace(), tagID)); }
+        public final void addTag(@Nonnull String tagID) throws ResourceLocationException { this.forceAddTag(VersionUtil.modResource(this.getDefaultNamespace(), tagID)); }
 
     }
 

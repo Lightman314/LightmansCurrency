@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -35,10 +36,14 @@ public class LogTab extends ATMTab{
 		this.screen.setCoinSlotsActive(false);
 
 		this.logWidget = this.addChild(NotificationDisplayWidget.builder()
-				.position(screenArea.pos.offset(7,15))
-				.width(screenArea.width - 14)
+				.position(screenArea.pos.offset(15,15))
+				.width(screenArea.width - 30)
 				.rowCount(6)
 				.notificationSource(this::getNotifications)
+				.build());
+
+		this.addChild(ScrollBarWidget.builder()
+				.onRight(this.logWidget)
 				.build());
 		
 	}

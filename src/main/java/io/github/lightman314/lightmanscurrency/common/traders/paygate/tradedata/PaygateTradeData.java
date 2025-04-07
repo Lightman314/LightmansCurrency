@@ -1,14 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
@@ -24,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.B
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -34,14 +41,20 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class PaygateTradeData extends TradeData {
+public class PaygateTradeData extends TradeData implements IDirectionalSettingsObject {
 
-	public PaygateTradeData() { super(true); }
+	public PaygateTradeData() {
+		super(true);
+		for(Direction side : Direction.values())
+			this.outputSettings.setState(side,DirectionalSettingsState.OUTPUT);
+	}
 	
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
@@ -51,9 +64,35 @@ public class PaygateTradeData extends TradeData {
 	public int getRedstoneLevel() { return this.level; }
 	public void setRedstoneLevel(int level) { this.level = Math.clamp(level,1,15); }
 
-	public String description = "";
+	private String description = "";
 	public String getDescription() { return this.description; }
 	public void setDescription(String description) { this.description = description; }
+
+	private String tooltip = "";
+	public String getTooltip() { return this.tooltip; }
+	public void setTooltip(String tooltip) { this.tooltip = tooltip; }
+	public List<Component> getDescriptionTooltip()
+	{
+		if(!this.tooltip.isBlank())
+		{
+			List<Component> lines = new ArrayList<>();
+			for(String line : this.tooltip.split("\\\\n"))
+				lines.add(EasyText.literal(line));
+			return lines;
+		}
+		return ImmutableList.of(EasyText.literal(this.description));
+	}
+
+	DirectionalSettings outputSettings = new DirectionalSettings(this);
+	public DirectionalSettings getOutputSides() { return this.outputSettings; }
+	@Override
+	public boolean allowInputs() { return false; }
+	@Nullable
+	@Override
+	public Block getDisplayBlock() { return ModBlocks.PAYGATE.get(); }
+	@Nonnull
+	@Override
+	public DirectionalSettingsState getSidedState(@Nonnull Direction side) { return this.outputSettings.getState(side); }
 
 	Item ticketItem = Items.AIR;
 	long ticketID = Long.MIN_VALUE;
@@ -169,6 +208,8 @@ public class PaygateTradeData extends TradeData {
 		compound.putInt("Duration", this.getDuration());
 		compound.putInt("Level",this.level);
 		compound.putString("Description",this.description);
+		compound.putString("Tooltip",this.tooltip);
+		this.outputSettings.save(compound,"OutputSides");
 
 		if(this.ticketID >= -1)
 		{
@@ -187,11 +228,15 @@ public class PaygateTradeData extends TradeData {
 		
 		this.duration = compound.getInt("Duration");
 
+		this.outputSettings.load(compound,"OutputSides");
+
 		if(compound.contains("Level"))
 			this.level = compound.getInt("Level");
 
 		if(compound.contains("Description"))
 			this.description = compound.getString("Description");
+		if(compound.contains("Tooltip"))
+			this.tooltip = compound.getString("Tooltip");
 
 		if(compound.contains("TicketID"))
 		{

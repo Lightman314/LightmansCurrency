@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.sounds.SoundManager;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class TeamButton extends EasyButton {
 
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/teambutton.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource( "textures/gui/teambutton.png");
 
 	public enum Size { WIDE(180, 0), NORMAL(156, 1), NARROW(90, 2);
 		public final int width;

@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRendererGenerator;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.SimpleBookRenderer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class EnchantedBookRenderer extends SimpleBookRenderer {
 
-    public static final ModelResourceLocation MODEL_LOCATION = modelLocation(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block/bookshelf_trader/books/enchanted"));
+    public static final ModelResourceLocation MODEL_LOCATION = modelLocation(VersionUtil.lcResource( "block/bookshelf_trader/books/enchanted"));
 
     public static final BookRendererGenerator GENERATOR = new Generator();
 

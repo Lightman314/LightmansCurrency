@@ -1,21 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class BankCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<BankCategory> TYPE = new NotificationCategoryType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "bank"),BankCategory::new);
+	public static final NotificationCategoryType<BankCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("bank"),BankCategory::new);
 	
 	private final MutableComponent name;
 	

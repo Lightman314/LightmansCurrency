@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -12,13 +11,13 @@ import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemDat
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -28,7 +27,7 @@ import java.util.function.Supplier;
 
 public class SlotMachineTradeNotification extends SingleLineTaxableNotification {
 
-    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "slot_machine_trade"),SlotMachineTradeNotification::new);
+    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("slot_machine_trade"),SlotMachineTradeNotification::new);
 
     TraderCategory traderData;
 

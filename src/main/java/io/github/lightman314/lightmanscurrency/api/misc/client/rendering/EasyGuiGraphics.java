@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.misc.client.rendering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -12,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -44,7 +44,7 @@ public final class EasyGuiGraphics {
             ResourceLocation.withDefaultNamespace("widget/button_highlighted")
     );
 
-    public static final ResourceLocation GENERIC_BACKGROUND = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/generic_background.png");
+    public static final ResourceLocation GENERIC_BACKGROUND = VersionUtil.lcResource("textures/gui/generic_background.png");
 
     private final GuiGraphics gui;
     public GuiGraphics getGui() { return this.gui; }

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
@@ -10,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultH
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public final class SlotMachineRenderer implements IEasyTickable {
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/container/slot_machine_overlay.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine_overlay.png");
 
     public Font getFont() { return this.screen.getFont(); }
     private final SlotMachineScreen screen;

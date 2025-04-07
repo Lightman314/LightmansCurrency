@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.bank;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketSelectBankAccount extends ClientToServerPacket {
 
-	private static final Type<CPacketSelectBankAccount> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_select_bank_account"));
+	private static final Type<CPacketSelectBankAccount> TYPE = new Type<>(VersionUtil.lcResource("c_select_bank_account"));
 	public static final Handler<CPacketSelectBankAccount> HANDLER = new H();
 
 	final BankReference account;

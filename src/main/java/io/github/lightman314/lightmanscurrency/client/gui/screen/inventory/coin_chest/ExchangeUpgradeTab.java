@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
@@ -18,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 {
@@ -27,7 +27,7 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     public ExchangeUpgradeTab(CoinChestUpgradeData data, Object screen) {
         super(data, screen);
-        this.exchangeData = ATMAPI.getATMPageManager(((CoinChestScreen)screen).getPlayer(), this::addExchangeButton, this::removeExchangeButton, this::SelectNewCommand);
+        this.exchangeData = ATMAPI.getATMPageManager(((CoinChestScreen)screen).getPlayer(), this::addExchangeButton, this::removeExchangeButton, this::ToggleCommand, this::isButtonSelected);
     }
 
     List<ATMExchangeButton> buttons = new ArrayList<>();
@@ -55,6 +55,12 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     }
 
+    private boolean isButtonSelected(ATMExchangeButton button) {
+        CoinChestUpgradeData data = this.getUpgradeData();
+        List<String> commands = data == null ? ImmutableList.of() : Upgrades.COIN_CHEST_EXCHANGE.getExchangeCommands(data);
+        return commands.contains(button.data.command);
+    }
+
     private void addExchangeButton(Object child)
     {
         if(child instanceof ATMExchangeButton b)
@@ -69,17 +75,9 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
         this.removeChild(child);
     }
 
-    private void updateSelectedButton()
+    private void ToggleCommand(String command)
     {
-        CoinChestUpgradeData data = this.getUpgradeData();
-        String currentCommand = data == null ? "" : Upgrades.COIN_CHEST_EXCHANGE.getExchangeCommand(data);
-        for(ATMExchangeButton button : this.buttons)
-            button.selected = Objects.equals(button.data.command, currentCommand);
-    }
-
-    private void SelectNewCommand(String command)
-    {
-        this.screen.getMenu().SendMessageToServer(this.builder().setString("SetExchangeCommand", command));
+        this.screen.getMenu().SendMessageToServer(this.builder().setString("ToggleExchangeCommand", command));
     }
 
     private void ToggleExchangeWhileOpen(EasyButton button)
@@ -91,9 +89,6 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     @Override
      public void renderBG(@Nonnull EasyGuiGraphics gui) { }
-
-    @Override
-    public void tick() { this.updateSelectedButton(); }
 
     private Component GetExchangeWhileOpenText()
     {

@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -37,7 +36,7 @@ public final class SimpleValidator extends MenuValidator {
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "null")); }
+        protected Type() { super(VersionUtil.lcResource("null")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return NULL; }

@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -21,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 public class NotificationDisplayWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipWidget {
 
-	public static final ResourceLocation GUI_TEXTURE =  ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/notifications.png");
+	public static final ResourceLocation GUI_TEXTURE =  VersionUtil.lcResource( "textures/gui/notifications.png");
 	
 	public static final int HEIGHT_PER_ROW = 22;
 
@@ -47,7 +47,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 	private List<Notification> getNotifications() { return this.notificationSource.get(); }
 	
 	List<Component> tooltip = null;
-	List<EasyButton> deleteButtons = new ArrayList<>();
 
 	private Consumer<Integer> deletionHandler = null;
 	private Supplier<Boolean> canDelete = () -> false;
@@ -70,7 +69,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 
 	@Override
 	public void addChildren(@Nonnull ScreenArea area) {
-		this.deleteButtons = null;
 		for(int i = 0; i < this.rowCount; ++i)
 		{
 			final int row = i;

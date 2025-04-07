@@ -113,6 +113,12 @@ repositories {
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     maven { url = "https://mvn.devos.one/snapshots" } // Registrate
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
+
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+
 }
 
 dependencies {
@@ -183,6 +189,15 @@ dependencies {
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     implementation("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    //Impactor Economy Compat
+    //Have to get the jar from modrinth as the example maven from their page & github fails to find the net.kyori.* jar-in-jar requirements
+    compileOnly("maven.modrinth:impactor:5.3.0+1.21.1-Neoforge")
+    //Manually extraced the jar-in-jar libraries from impactor so that they can be loaded properly
+    compileOnly(fileTree("libs") { include "*.jar"})
+
+    //Jade cause it's kinda nice to have during runtime
+    runtimeOnly "maven.modrinth:jade:15.10.0+neoforge"
 
 }
 

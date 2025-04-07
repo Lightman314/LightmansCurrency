@@ -5,9 +5,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class SPacketResetConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketResetConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_reset"));
+    private static final Type<SPacketResetConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_reset"));
     public static final Handler<SPacketResetConfig> HANDLER = new H();
 
     private final String fileName;

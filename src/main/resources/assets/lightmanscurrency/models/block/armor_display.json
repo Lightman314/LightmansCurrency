@@ -4,7 +4,7 @@
 	"textures": {
 		"main": "lightmanscurrency:block/armor_display",
 		"wood": "block/oak_planks",
-		"particle": "lightmanscurrency:block/armor_display"
+		"particle": "#main"
 	},
 	"elements": [
 		{

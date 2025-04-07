@@ -12,9 +12,9 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
-	private static final Type<CPacketCreatePersistentTrader> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_persistent_make_trader"));
+	private static final Type<CPacketCreatePersistentTrader> TYPE = new Type<>(VersionUtil.lcResource("c_persistent_make_trader"));
 	public static final Handler<CPacketCreatePersistentTrader> HANDLER = new H();
 
 	private static final String GENERATE_ID_FORMAT = "trader_";

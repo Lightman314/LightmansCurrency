@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMa
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
@@ -103,7 +104,7 @@ public class ClientModEvents {
 
 	@SubscribeEvent
 	public static void registerWalletGuiOverlay(RegisterGuiLayersEvent event) {
-		event.registerAboveAll(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"wallet_hud"), WalletDisplayOverlay.INSTANCE);
+		event.registerAboveAll(VersionUtil.lcResource("wallet_hud"), WalletDisplayOverlay.INSTANCE);
 	}
 
 	@SubscribeEvent

@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -11,7 +10,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketWalletExchangeCoins extends ClientToServerPacket {
 
-	private static final Type<CPacketWalletExchangeCoins> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_wallet_exchange"));
+	private static final Type<CPacketWalletExchangeCoins> TYPE = new Type<>(VersionUtil.lcResource("c_wallet_exchange"));
 	private static final CPacketWalletExchangeCoins INSTANCE = new CPacketWalletExchangeCoins();
 	public static final Handler<CPacketWalletExchangeCoins> HANDLER = new H();
 

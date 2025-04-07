@@ -72,10 +72,10 @@ public class EventHandler {
 	{
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false))
-			return;
-		
 		Player player = event.getPlayer();
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() == null || ie.getTarget().equals(player.getUUID())))
+			return;
+
 		WalletMenuBase activeContainer = null;
 		
 		//Check if the open container is a wallet WalletMenuBase is pickup capable

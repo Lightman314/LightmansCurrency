@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
@@ -23,7 +22,7 @@ public class CoinJarItem extends BlockItem {
 	public CoinJarItem(Block block, Properties properties) { super(block, properties); }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_COIN_JAR);
 
@@ -31,7 +30,7 @@ public class CoinJarItem extends BlockItem {
 
 		if(!jarStorage.isEmpty())
 		{
-			if(Screen.hasShiftDown())
+			if(flag.hasControlDown())
 			{
 				for (ItemStack coin : jarStorage) {
 					if (coin.getCount() > 1)
@@ -41,7 +40,7 @@ public class CoinJarItem extends BlockItem {
 				}
 			}
 			else
-				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.get().withStyle(ChatFormatting.YELLOW));
+				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL.get().withStyle(ChatFormatting.YELLOW));
 		}
 
 		if(InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))

@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketOpenNetworkTerminal extends ClientToServerPacket {
 
-	private static final Type<CPacketOpenNetworkTerminal> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_open_terminal"));
+	private static final Type<CPacketOpenNetworkTerminal> TYPE = new Type<>(VersionUtil.lcResource("c_open_terminal"));
 	public static final Handler<CPacketOpenNetworkTerminal> HANDLER = new H();
 
 	private final boolean ignoreExistingValidation;

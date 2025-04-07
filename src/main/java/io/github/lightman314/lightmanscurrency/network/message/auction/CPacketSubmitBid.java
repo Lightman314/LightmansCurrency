@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -16,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketSubmitBid extends ClientToServerPacket {
 
-	private static final Type<CPacketSubmitBid> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_auction_submit_bid"));
+	private static final Type<CPacketSubmitBid> TYPE = new Type<>(VersionUtil.lcResource("c_auction_submit_bid"));
 	public static final Handler<CPacketSubmitBid> HANDLER = new H();
 
 	final long auctionHouseID;

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.misc.settings.directional;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
@@ -15,10 +16,10 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public class DirectionalSettings {
 
-    private final IDirectionalSettingsObject parent;
+    private final IDirectionalSettingsHolder parent;
     private final Map<Direction,DirectionalSettingsState> data = new HashMap<>();
 
-    public DirectionalSettings(IDirectionalSettingsObject parent) {
+    public DirectionalSettings(IDirectionalSettingsHolder parent) {
         this.parent = parent;
     }
 
@@ -36,7 +37,7 @@ public class DirectionalSettings {
         ListTag list = new ListTag();
         for(Direction side : Direction.values())
         {
-            if(this.parent.getIgnoredSides().contains(side))
+            if(this.parent.getIgnoredSides().contains(side) || this.getState(side) == DirectionalSettingsState.NONE)
                 continue;
             CompoundTag entry = new CompoundTag();
             entry.putString("Side",side.toString());
@@ -56,10 +57,39 @@ public class DirectionalSettings {
             CompoundTag entry = list.getCompound(i);
             Direction side = EnumUtil.enumFromString(entry.getString("Side"),Direction.values(),null);
             DirectionalSettingsState state = DirectionalSettingsState.parse(entry.getString("State"));
-            if(side != null)
+            if(side != null && state != DirectionalSettingsState.NONE)
                 this.data.put(side,state);
+            else if(side == null)
+                LightmansCurrency.LogWarning("Could not properly parse '" + entry.getString("Side") + "' as a valid side!");
         }
     }
 
+    public void copy(DirectionalSettings other) {
+        for(Direction side : Direction.values())
+        {
+            if(this.parent.getIgnoredSides().contains(side))
+                continue;
+            this.setState(side,other.getState(side));
+        }
+    }
 
+    public void clear() { this.data.clear(); }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("DirectionalSettings[");
+        for(Direction side : Direction.values())
+        {
+            if(this.parent.getIgnoredSides().contains(side))
+                continue;
+            DirectionalSettingsState state = this.getState(side);
+            if(state != DirectionalSettingsState.NONE)
+            {
+                if(builder.length() > 1)
+                    builder.append(",");
+                builder.append(side).append(':').append(state);
+            }
+        }
+        return builder.append("]").toString();
+    }
 }

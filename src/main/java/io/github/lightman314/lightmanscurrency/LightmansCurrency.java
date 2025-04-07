@@ -45,6 +45,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LC
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
+import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -129,7 +130,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
-        
+
     }
     
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
@@ -138,6 +139,9 @@ public class LightmansCurrency {
 
 		//Manually load common config for villager edit purposes
 		ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
+
+		//Setup Impactor compatibility
+		IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorCompat::setup,"Error setting up Impactor Economy Compatibility");
 
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
 		//IntegrationUtil.SafeRunIfLoaded("cadmus",LCCadmusIntegration::setup,null);
@@ -223,6 +227,7 @@ public class LightmansCurrency {
 		//Initialize the Notification Category deserializers
 		NotificationAPI.API.RegisterCategory(NotificationCategory.GENERAL_TYPE);
 		NotificationAPI.API.RegisterCategory(NullCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(EventCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(TraderCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(BankCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(AuctionHouseCategory.TYPE);

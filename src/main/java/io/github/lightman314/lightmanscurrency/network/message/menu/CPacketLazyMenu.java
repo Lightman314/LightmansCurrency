@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.menu;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketLazyMenu extends ClientToServerPacket {
 
-    private static final Type<CPacketLazyMenu> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_lazy_menu"));
+    private static final Type<CPacketLazyMenu> TYPE = new Type<>(VersionUtil.lcResource("c_lazy_menu"));
     public static final Handler<CPacketLazyMenu> HANDLER = new H();
 
     private final int menuID;

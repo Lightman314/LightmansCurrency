@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.JEIScreenArea;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -41,7 +42,7 @@ public class LCJeiPlugin implements IModPlugin{
 
 	@Override
 	@Nonnull
-	public ResourceLocation getPluginUid() { return ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, LightmansCurrency.MODID); }
+	public ResourceLocation getPluginUid() { return VersionUtil.lcResource(LightmansCurrency.MODID); }
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry)
@@ -100,7 +101,7 @@ public class LCJeiPlugin implements IModPlugin{
 
 	private <T extends EasyMenuScreen<?>> void registerExclusionZones(@Nonnull IGuiHandlerRegistration registration, @Nonnull Class<T> clazz)
 	{
-		registration.addGuiContainerHandler(clazz,JEIScreenArea.create(clazz));
+		registration.addGuiContainerHandler(clazz,JEIScreenArea.create(clazz,registration.getJeiHelpers().getIngredientManager()));
 	}
 	
 }

@@ -3,6 +3,7 @@
     "parent": "lightmanscurrency:block/block",
 	"textures": {
 		"main": "lightmanscurrency:block/item_trader_interface",
+		"front": "lightmanscurrency:block/item_trader_interface_front",
 		"particle": "#main"
 	},
 	"elements": [
@@ -72,7 +73,7 @@
 			"faces": {
 				"north": {"uv": [8, 0, 10, 8], "texture": "#main"},
 				"east": {"uv": [8, 0, 10, 8], "texture": "#main"},
-				"south": {"uv": [0, 0, 8, 8], "texture": "#main"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#front"},
 				"west": {"uv": [14, 0, 16, 8], "texture": "#main"},
 				"up": {"uv": [0, 14, 8, 16], "texture": "#main"},
 				"down": {"uv": [8, 8, 16, 10], "texture": "#main"}

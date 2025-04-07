@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.util;
 
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +23,7 @@ public class IconUtil {
     /**
      * Texture file used for miscellaneous icons, most of which are refferred to in the IconData constants below.
      */
-    public static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/icons.png");
+    public static final ResourceLocation ICON_TEXTURE = VersionUtil.lcResource( "textures/gui/icons.png");
 
     public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
     public static final IconData ICON_TRADER_ALT = IconData.of(ICON_TEXTURE, 80, 0);

@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.event;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -15,7 +14,7 @@ import java.util.List;
 
 public class SPacketSyncEventUnlocks extends ServerToClientPacket {
 
-    private static final Type<SPacketSyncEventUnlocks> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_sync_event_unlocks"));
+    private static final Type<SPacketSyncEventUnlocks> TYPE = new Type<>(VersionUtil.lcResource("s_sync_event_unlocks"));
     public static final Handler<SPacketSyncEventUnlocks> HANDLER = new H();
 
     final List<String> unlocks;

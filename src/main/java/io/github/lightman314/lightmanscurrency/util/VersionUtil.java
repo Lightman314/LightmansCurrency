@@ -17,15 +17,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class VersionUtil {
 
     
-    public static ResourceLocation parseResource( String resourceString) { return ResourceLocation.parse(resourceString); }
+    public static ResourceLocation parseResource(String resourceString) { return ResourceLocation.parse(resourceString); }
     
-    public static ResourceLocation modResource( String namespace,  String path) { return ResourceLocation.fromNamespaceAndPath(namespace,path); }
+    public static ResourceLocation modResource(String namespace,String path) { return ResourceLocation.fromNamespaceAndPath(namespace,path); }
     
-    public static ResourceLocation lcResource( String path) { return modResource(LightmansCurrency.MODID,path); }
+    public static ResourceLocation lcResource(String path) { return modResource(LightmansCurrency.MODID,path); }
     
-    public static ResourceLocation vanillaResource( String path) { return ResourceLocation.withDefaultNamespace(path); }
+    public static ResourceLocation vanillaResource(String path) { return ResourceLocation.withDefaultNamespace(path); }
 
-    public static Event postEvent( Event event) {
+    public static Event postEvent(Event event) {
         NeoForge.EVENT_BUS.post(event);
         return event;
     }

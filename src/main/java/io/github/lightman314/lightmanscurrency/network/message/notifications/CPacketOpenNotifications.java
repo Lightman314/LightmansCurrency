@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.notifications;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -11,7 +10,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketOpenNotifications extends ClientToServerPacket {
 
-    private static final Type<CPacketOpenNotifications> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_open_notifications"));
+    private static final Type<CPacketOpenNotifications> TYPE = new Type<>(VersionUtil.lcResource("c_open_notifications"));
     private static final CPacketOpenNotifications INSTANCE = new CPacketOpenNotifications();
     public static final Handler<CPacketOpenNotifications> HANDLER = new H();
 

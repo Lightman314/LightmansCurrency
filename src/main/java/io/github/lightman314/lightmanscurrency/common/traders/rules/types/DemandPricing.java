@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -19,28 +18,31 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakin
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class DemandPricing extends PriceTweakingTradeRule {
 
-    public static final TradeRuleType<DemandPricing> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"demand_pricing"),DemandPricing::new);
+    public static final TradeRuleType<DemandPricing> TYPE = new TradeRuleType<>(VersionUtil.lcResource("demand_pricing"),DemandPricing::new);
 
     public static final int UPPER_STOCK_LIMIT = 100000;
 
     private MoneyValue otherPrice = MoneyValue.empty();
-    @Nonnull
+    
     public MoneyValue getOtherPrice() { return this.otherPrice; }
-    public void setOtherPrice(@Nonnull MoneyValue otherPrice) { this.otherPrice = otherPrice; }
+    public void setOtherPrice(MoneyValue otherPrice) { this.otherPrice = otherPrice; }
     private int smallStock = 1;
     public int getSmallStock() { return this.smallStock; }
     public void setSmallStock(int smallStock) { this.smallStock = MathUtil.clamp(smallStock, 1, this.largeStock - 1); }
@@ -51,7 +53,7 @@ public class DemandPricing extends PriceTweakingTradeRule {
     private DemandPricing() { super(TYPE); }
 
     @Override
-    protected boolean allowHost(@Nonnull ITradeRuleHost host) { return super.allowHost(host) && host.isTrade(); }
+    protected boolean allowHost(ITradeRuleHost host) { return super.allowHost(host) && host.isTrade(); }
 
     @Override
     protected boolean canActivate(@Nullable ITradeRuleHost host) {
@@ -60,14 +62,14 @@ public class DemandPricing extends PriceTweakingTradeRule {
         return super.canActivate(host);
     }
 
-    @Nonnull
+    
     @Override
     public IconData getIcon() { return IconUtil.ICON_DEMAND_PRICING; }
 
     @Override
     protected boolean onlyAllowOnTrades() { return true; }
 
-    @Nonnull
+    
     public MutableComponent getInfo()
     {
         if(this.getHost() instanceof TradeData trade)
@@ -96,8 +98,8 @@ public class DemandPricing extends PriceTweakingTradeRule {
             return LCText.GUI_DEMAND_PRICING_INFO_INVALID_HOST.get();
     }
 
-    public boolean isValid(@Nonnull TradeData trade, @Nullable TraderData trader) { return this.isValid(trade, trade.getCost(), trader); }
-    public boolean isValid(@Nonnull TradeData trade, @Nonnull MoneyValue tradeCost, @Nullable TraderData trader)
+    public boolean isValid(TradeData trade, @Nullable TraderData trader) { return this.isValid(trade, trade.getCost(), trader); }
+    public boolean isValid(TradeData trade, MoneyValue tradeCost, @Nullable TraderData trader)
     {
         if(trader == null)
             return false;
@@ -113,7 +115,7 @@ public class DemandPricing extends PriceTweakingTradeRule {
     }
 
     @Override
-    public void beforeTrade(@Nonnull TradeEvent.PreTradeEvent event) {
+    public void beforeTrade(TradeEvent.PreTradeEvent event) {
         if(this.isValid(event.getTrade(), event.getTrader()))
         {
             event.addNeutral(LCText.TRADE_RULE_DEMAND_PRICING.get());
@@ -121,7 +123,7 @@ public class DemandPricing extends PriceTweakingTradeRule {
     }
 
     @Override
-    protected void tradeBaseCost(@Nonnull InternalPriceEvent event) {
+    protected void tradeBaseCost(InternalPriceEvent event) {
         if(this.isValid(event.trade, event.getBaseCost(), event.context.getTrader()))
         {
             int stock = event.trade.getStock(event.context);
@@ -129,8 +131,8 @@ public class DemandPricing extends PriceTweakingTradeRule {
         }
     }
 
-    @Nonnull
-    private MoneyValue calculatePrice(int stock, @Nonnull MoneyValue defaultPrice)
+    
+    private MoneyValue calculatePrice(int stock, MoneyValue defaultPrice)
     {
         //Sort prices
         //One price is sourced by the trade itself, the other is from this rule
@@ -163,33 +165,33 @@ public class DemandPricing extends PriceTweakingTradeRule {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         compound.put("OtherPrice", this.otherPrice.save());
         compound.putInt("SmallStock", this.smallStock);
         compound.putInt("LargeStock", this.largeStock);
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         this.otherPrice = MoneyValue.load(compound.getCompound("OtherPrice"));
         this.smallStock = compound.getInt("SmallStock");
         this.largeStock = compound.getInt("LargeStock");
     }
 
     @Override
-    public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) { return null; }
+    public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) { return null; }
 
     @Override
-    public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { throw new JsonSyntaxException("DemandPricing is not supported for Persistent Traders"); }
+    public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { throw new JsonSyntaxException("DemandPricing is not supported for Persistent Traders"); }
 
     @Override
-    public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider provider) { return null; }
+    public CompoundTag savePersistentData(HolderLookup.Provider provider) { return null; }
 
     @Override
-    public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) { }
+    public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) { }
 
     @Override
-    protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+    protected void handleUpdateMessage(LazyPacketData updateInfo) {
         if(updateInfo.contains("ChangePrice"))
             this.otherPrice = updateInfo.getMoneyValue("ChangePrice");
         if(updateInfo.contains("ChangeSmallStock"))
@@ -198,7 +200,6 @@ public class DemandPricing extends PriceTweakingTradeRule {
             this.largeStock = updateInfo.getInt("ChangeLargeStock");
     }
 
-    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
     public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new DemandPricingTab(parent); }

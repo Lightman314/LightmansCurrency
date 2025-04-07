@@ -5,12 +5,10 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PriceFluctuation;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
@@ -22,31 +20,28 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
     public PriceFluctuationTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PriceFluctuation.TYPE); }
 
     EditBox fluctuationInput;
-    EasyButton buttonSetFluctuation;
 
     TimeInputWidget durationInput;
 
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.fluctuationInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 25, screenArea.y + 9, 20, 20, EasyText.empty()));
-        this.fluctuationInput.setMaxLength(2);
         PriceFluctuation rule = this.getRule();
-        if(rule != null)
-            this.fluctuationInput.setValue(Integer.toString(rule.getFluctuation()));
 
-        this.buttonSetFluctuation = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(125,10))
-                .width(50)
-                .text(LCText.BUTTON_SET)
-                .pressAction(this::PressSetFluctuationButton)
+        this.fluctuationInput = this.addChild(TextInputUtil.intBuilder()
+                .position(screenArea.pos.offset(25,9))
+                .size(30,20)
+                .maxLength(3)
+                .startingValue(rule == null ? 10 : rule.getFluctuation())
+                .parser(IntParser.ONE_TO_ONE_HUNDRED)
+                .handler(this::onFluctuationChanged)
                 .build());
 
         this.durationInput = this.addChild(TimeInputWidget.builder()
                 .position(screenArea.pos.offset(63,75))
                 .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
                 .handler(this::onTimeSet)
-                .startTime(rule.getDuration())
+                .startTime(rule == null ? TimeUtil.DURATION_DAY : rule.getDuration())
                 .build());
 
     }
@@ -66,16 +61,12 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
 
     }
 
-    @Override
-    public void tick() { TextInputUtil.whitelistInteger(this.fluctuationInput, 1, Integer.MAX_VALUE); }
-
-    void PressSetFluctuationButton(EasyButton button)
+    void onFluctuationChanged(int newFluctuation)
     {
-        int fluctuation = TextInputUtil.getIntegerValue(this.fluctuationInput, 1);
         PriceFluctuation rule = this.getRule();
         if(rule != null)
-            rule.setFluctuation(fluctuation);
-        this.sendUpdateMessage(this.builder().setInt("Fluctuation", fluctuation));
+            rule.setFluctuation(newFluctuation);
+        this.sendUpdateMessage(this.builder().setInt("Fluctuation", newFluctuation));
     }
 
     public void onTimeSet(TimeUtil.TimeData newTime)

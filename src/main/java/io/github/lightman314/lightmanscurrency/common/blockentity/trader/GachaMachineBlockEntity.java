@@ -23,6 +23,7 @@ public class GachaMachineBlockEntity extends TraderBlockEntity<GachaTrader> {
     public GachaMachineBlockEntity(BlockPos pos, BlockState state) { this(pos,state,0xFFFFFF); }
     public GachaMachineBlockEntity(BlockPos pos, BlockState state, int color) { super(ModBlockEntities.GACHA_MACHINE.get(), pos, state); }
 
+    @Nonnull
     @Override
     protected GachaTrader buildNewTrader() { return new GachaTrader(this.level,this.worldPosition,this.color); }
 

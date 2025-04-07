@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -24,7 +24,7 @@ public class LCTags {
         public static final TagKey<Block> SHELF = tag("shelf");
         public static final TagKey<Block> SHELF_2x2 = tag("shelf_2x2");
 
-        private static TagKey<Block> tag(String id) { return BlockTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
+        private static TagKey<Block> tag(String id) { return BlockTags.create(VersionUtil.lcResource(id)); }
 
     }
 
@@ -98,7 +98,7 @@ public class LCTags {
         public static final TagKey<Item> SETTINGS_READABLE = tag("settings/readable");
         public static final TagKey<Item> SETTINGS_REPLACE_WITH_WRITTEN_BOOK = tag("settings/replace_with_written_book");
 
-        private static TagKey<Item> tag(String id) { return ItemTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
+        private static TagKey<Item> tag(String id) { return ItemTags.create(VersionUtil.lcResource(id)); }
 
     }
 
@@ -108,8 +108,8 @@ public class LCTags {
         public static final TagKey<Enchantment> WALLET_ENCHANTMENT = tag("wallet_enchantment");
         public static final TagKey<Enchantment> MONEY_MENDING = tag("money_mending");
 
-        private static TagKey<Enchantment> common(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath("c",id)); }
-        private static TagKey<Enchantment> tag(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id)); }
+        private static TagKey<Enchantment> common(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.modResource("c",id)); }
+        private static TagKey<Enchantment> tag(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.lcResource(id)); }
 
     }
 

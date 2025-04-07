@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -24,7 +25,7 @@ public abstract class Owner implements IClientTracker {
         owner.setParent(parent);
         return owner;
     }
-    public static final OwnerType NULL_TYPE = OwnerType.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"null"), (t,l) -> getNull());
+    public static final OwnerType NULL_TYPE = OwnerType.create(VersionUtil.lcResource("null"), (t, l) -> getNull());
 
     private IClientTracker parent = null;
     @Override

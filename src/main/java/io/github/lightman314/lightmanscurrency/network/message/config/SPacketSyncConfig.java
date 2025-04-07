@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.network.message.config;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class SPacketSyncConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketSyncConfig> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_config_sync"));
+    private static final Type<SPacketSyncConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_sync"));
     public static final Handler<SPacketSyncConfig> HANDLER = new H();
 
     private final ResourceLocation configID;

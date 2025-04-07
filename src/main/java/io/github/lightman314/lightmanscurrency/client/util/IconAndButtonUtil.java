@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -21,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -39,7 +39,7 @@ public class IconAndButtonUtil {
 	/**
 	 * Texture file formerly used for the Trader Settings screen, but with the screen portion removed leaving only the widget textures.
 	 */
-	public static final ResourceLocation WIDGET_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/widgets.png");
+	public static final ResourceLocation WIDGET_TEXTURE = VersionUtil.lcResource( "textures/gui/widgets.png");
 
 	public static final Sprite SPRITE_PLUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20, 10, 10);
 	public static final Sprite SPRITE_MINUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20, 10, 10);
@@ -56,6 +56,10 @@ public class IconAndButtonUtil {
 	public static final Sprite SPRITE_TOGGLE_INACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE,8,20,8,18);
 
 	public static Supplier<Sprite> SPRITE_TOGGLE(Supplier<Boolean> isActive) { return () -> isActive.get() ? SPRITE_TOGGLE_ACTIVE : SPRITE_TOGGLE_INACTIVE; }
+
+	public static final Sprite SPRITE_NEUTRAL_TOGGLE_UP = Sprite.LockedSprite(WIDGET_TEXTURE,16,20,8,18);
+	public static final Sprite SPRITE_NEUTRAL_TOGGLE_DOWN = Sprite.LockedSprite(WIDGET_TEXTURE,16,38,8,18);
+	public static Supplier<Sprite> SPRITE_NEUTRAL_TOGGLE(Supplier<Boolean> isUp) { return () -> isUp.get() ? SPRITE_NEUTRAL_TOGGLE_UP : SPRITE_NEUTRAL_TOGGLE_DOWN; }
 
 	@Nonnull
 	public static IconButton finishCollectCoinButton(@Nonnull IconButton.Builder builder, @Nonnull Player player, @Nonnull Supplier<TraderData> traderSource)

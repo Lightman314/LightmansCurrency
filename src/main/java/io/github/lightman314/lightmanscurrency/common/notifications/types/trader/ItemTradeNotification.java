@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -16,19 +15,19 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.T
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class ItemTradeNotification extends SingleLineTaxableNotification {
 
-	public static final NotificationType<ItemTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item_trade"),ItemTradeNotification::new);
+	public static final NotificationType<ItemTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("item_trade"),ItemTradeNotification::new);
 	
 	TraderCategory traderData;
 	

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -8,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -64,7 +63,7 @@ public class PlayerBankReference extends BankReference {
     public boolean canPersist(@Nonnull Player player) { return this.player.is(player); }
 
     private static final class Type extends BankReferenceType {
-        Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "personal")); }
+        Type() { super(VersionUtil.lcResource("personal")); }
         @Override
         public BankReference load(CompoundTag tag) {
             if(tag.contains("PlayerID"))

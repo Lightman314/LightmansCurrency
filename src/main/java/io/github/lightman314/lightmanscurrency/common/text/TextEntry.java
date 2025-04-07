@@ -71,6 +71,9 @@ public final class TextEntry {
     public static TextEntry notification(@Nonnull NotificationType<?> type, @Nonnull String extra) { return notification(type.type,extra); }
     public static TextEntry notification(@Nonnull ResourceLocation type, @Nonnull String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
 
+    public static TextEntry dataName(@Nonnull String modid, @Nonnull String key) { return new TextEntry("data." + modid + ".name." + key); }
+    public static TextEntry dataCategory(@Nonnull String modid, @Nonnull String key) { return new TextEntry("data." + modid + ".category." + key); }
+
     public static TextEntry chain(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain); }
     public static TextEntry chainDisplay(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
     public static TextEntry chainDisplayWordy(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display.wordy"); }

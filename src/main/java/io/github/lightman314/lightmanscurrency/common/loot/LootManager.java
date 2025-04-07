@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifie
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -53,7 +54,7 @@ public class LootManager {
 		//Have the loot manager validate the entity loot contents
 		LCConfig.COMMON.addListener(LootManager::debugLootConfigs);
 		//Register our custom param set to the map, so they can be saved and loaded
-		LootContextParamSets.REGISTRY.put(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"entity_addon"), ENTITY_PARAMS);
+		LootContextParamSets.REGISTRY.put(VersionUtil.lcResource("entity_addon"), ENTITY_PARAMS);
 	}
 
 	public static void addLootModifier(@Nonnull ILootModifier modifier)

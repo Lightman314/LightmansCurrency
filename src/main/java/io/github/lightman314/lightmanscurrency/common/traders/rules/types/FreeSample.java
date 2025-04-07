@@ -5,7 +5,6 @@ import java.util.*;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -21,25 +20,29 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEve
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FreeSample extends PriceTweakingTradeRule {
 	
-	public static final TradeRuleType<FreeSample> TYPE = new TradeRuleType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "free_sample"),FreeSample::new);
+	public static final TradeRuleType<FreeSample> TYPE = new TradeRuleType<>(VersionUtil.lcResource("free_sample"),FreeSample::new);
 
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
-	public void setLimit(int newLimit) { this.limit = newLimit; }
+	public void setLimit(int newLimit) { this.limit = MathUtil.clamp(newLimit,1,100); }
 
 	private long timeLimit = 0;
 	private boolean enforceTimeLimit() { return this.timeLimit > 0; }
@@ -61,12 +64,12 @@ public class FreeSample extends PriceTweakingTradeRule {
 		return super.canActivate(host);
 	}
 
-	@Nonnull
+	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_FREE_SAMPLE; }
 
 	@Override
-	public void beforeTrade(@Nonnull PreTradeEvent event)
+	public void beforeTrade(PreTradeEvent event)
 	{
 		if(this.giveDiscount(event))
 		{
@@ -91,13 +94,13 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(@Nonnull TradeCostEvent event) {
+	public void tradeCost(TradeCostEvent event) {
 		if(this.giveDiscount(event))
 			event.makeFree();
 	}
 
 	@Override
-	public void afterTrade(@Nonnull PostTradeEvent event) {
+	public void afterTrade(PostTradeEvent event) {
 		if(this.giveDiscount(event))
 		{
 			this.addToMemory(event.getPlayerReference().id, TimeUtil.getCurrentTime());
@@ -157,7 +160,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 
 		compound.putInt("Limit", this.limit);
 		compound.putLong("ForgetTime", this.timeLimit);
@@ -165,7 +168,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 
 	}
 
-	private void saveMemory(@Nonnull CompoundTag compound)
+	private void saveMemory(CompoundTag compound)
 	{
 		compound.putInt("Total", this.totalCount);
 		final ListTag memoryList = new ListTag();
@@ -179,7 +182,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) {
 		json.addProperty("Limit", this.limit);
 		if(this.enforceTimeLimit())
 			json.addProperty("ForgetTime", this.timeLimit);
@@ -187,7 +190,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 
 		if(compound.contains("Limit", Tag.TAG_INT))
 			this.limit = compound.getInt("Limit");
@@ -196,7 +199,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 		this.loadMemory(compound);
 	}
 
-	private void loadMemory(@Nonnull CompoundTag compound)
+	private void loadMemory(CompoundTag compound)
 	{
 		if(compound.contains("Total"))
 			this.totalCount = compound.getInt("Total");
@@ -233,19 +236,19 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider lookup) {
+	public CompoundTag savePersistentData(HolderLookup.Provider lookup) {
 		CompoundTag data = new CompoundTag();
 		this.saveMemory(data);
 		return data;
 	}
 	
 	@Override
-	public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
+	public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) {
 		this.loadMemory(data);
 	}
 
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) {
 		if(json.has("Limit"))
 			this.limit = json.get("Limit").getAsInt();
 		if(json.has("ForgetTime"))
@@ -253,7 +256,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+	protected void handleUpdateMessage(LazyPacketData updateInfo) {
 		if(updateInfo.contains("Limit"))
 			this.limit = updateInfo.getInt("Limit");
 		else if(updateInfo.contains("TimeLimit"))
@@ -262,7 +265,6 @@ public class FreeSample extends PriceTweakingTradeRule {
 			this.memory.clear();
 	}
 
-	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new FreeSampleTab(parent); }

@@ -5,9 +5,9 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class CoinSlot extends EasySlot {
 	
-	public static final ResourceLocation EMPTY_COIN_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_coin_slot");
+	public static final ResourceLocation EMPTY_COIN_SLOT = VersionUtil.lcResource("item/empty_coin_slot");
 	
 	private final boolean acceptSideChains;
 	

@@ -9,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -26,7 +26,6 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
     public PlayerTradeLimitTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PlayerTradeLimit.TYPE); }
 
     EditBox limitInput;
-    EasyButton buttonSetLimit;
     EasyButton buttonClearMemory;
 
     TimeInputWidget timeInput;
@@ -34,18 +33,17 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.limitInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 19, 30, 20, EasyText.empty()));
-        this.limitInput.setMaxLength(3);
         PlayerTradeLimit rule = this.getRule();
-        if(rule != null)
-            this.limitInput.setValue(Integer.toString(rule.getLimit()));
 
-        this.buttonSetLimit = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(41,19))
-                .width(40)
-                .text(LCText.BUTTON_SET)
-                .pressAction(this::PressSetLimitButton)
+        this.limitInput = this.addChild(TextInputUtil.intBuilder()
+                .position(screenArea.pos.offset(10,19))
+                .size(30,20)
+                .maxLength(3)
+                .parser(IntParser.ONE_TO_ONE_HUNDRED)
+                .handler(this::onLimitChanged)
+                .startingValue(rule == null ? 1 : rule.getLimit())
                 .build());
+
         this.buttonClearMemory = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(10,55))
                 .width(screenArea.width - 20)
@@ -78,16 +76,12 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
 
     }
 
-    @Override
-    public void tick() { TextInputUtil.whitelistInteger(this.limitInput, 1, 100); }
-
-    void PressSetLimitButton(EasyButton button)
+    void onLimitChanged(int newLimit)
     {
-        int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
         PlayerTradeLimit rule = this.getRule();
         if(rule != null)
-            rule.setLimit(limit);
-        this.sendUpdateMessage(this.builder().setInt("Limit", limit));
+            rule.setLimit(newLimit);
+        this.sendUpdateMessage(this.builder().setInt("Limit", newLimit));
     }
 
     void PressClearMemoryButton(EasyButton button)

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.re
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,7 @@ public class BookRestriction extends ItemTradeRestriction{
 
     public static BookRestriction INSTANCE = new BookRestriction();
 
-    public static final ResourceLocation EMPTY_BOOK_SLOT = ResourceLocation.fromNamespaceAndPath("lightmanscurrency","item/empty_book_slot");
+    public static final ResourceLocation EMPTY_BOOK_SLOT = VersionUtil.lcResource("item/empty_book_slot");
 
     private BookRestriction() {}
 

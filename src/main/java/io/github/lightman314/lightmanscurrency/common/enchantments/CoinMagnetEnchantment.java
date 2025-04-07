@@ -47,7 +47,7 @@ public class CoinMagnetEnchantment {
 
 		AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
 		boolean updateWallet = false;
-		for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
+		for(Entity e : level.getEntities(entity, searchBox, e -> coinMagnetEntityFilter(e,entity)))
 		{
 			ItemEntity ie = (ItemEntity)e;
 			ItemStack coinStack = ie.getItem();
@@ -71,9 +71,14 @@ public class CoinMagnetEnchantment {
 		}
 	}
 
-	public static boolean coinMagnetEntityFilter(Entity entity) {
+	public static boolean coinMagnetEntityFilter(Entity entity, @Nonnull LivingEntity potentialPickup) {
 		if(entity instanceof ItemEntity item)
+		{
+			//Deny if the item is reserved for a given player/entity
+			if(item.getTarget() != null && !item.getTarget().equals(potentialPickup.getUUID()))
+				return false;
 			return CoinAPI.API.IsAllowedInCoinContainer(item.getItem(), false);
+		}
 		return false;
 	}
 	

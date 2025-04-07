@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -25,7 +24,7 @@ public class RecipeTypes {
 
 	private static <T extends Recipe<?>> Supplier<RecipeType<T>> register(@Nonnull String id)
 	{
-		return ModRegistries.RECIPE_TYPES.register(id, () -> RecipeType.simple(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,id)));
+		return ModRegistries.RECIPE_TYPES.register(id, () -> RecipeType.simple(VersionUtil.lcResource(id)));
 	}
 	
 	public static final Supplier<RecipeType<CoinMintRecipe>> COIN_MINT;

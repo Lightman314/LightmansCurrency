@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 
-public class TooltipItem extends Item{
+public class TooltipItem extends Item {
 	
 	private final Supplier<List<Component>> tooltips;
 	

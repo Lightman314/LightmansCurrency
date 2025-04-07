@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class SPacketSyncWallet extends ServerToClientPacket {
 
-	private static final Type<SPacketSyncWallet> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"s_wallet_sync"));
+	private static final Type<SPacketSyncWallet> TYPE = new Type<>(VersionUtil.lcResource("s_wallet_sync"));
 	public static final Handler<SPacketSyncWallet> HANDLER = new H();
 
 	int entityID;

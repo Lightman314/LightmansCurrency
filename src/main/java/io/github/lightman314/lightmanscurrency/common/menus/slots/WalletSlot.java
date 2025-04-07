@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slots;
 
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -10,13 +11,11 @@ import net.minecraft.world.item.ItemStack;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-
 import javax.annotation.Nonnull;
 
 public class WalletSlot extends Slot {
 	
-	public static final ResourceLocation EMPTY_WALLET_SLOT = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "item/empty_wallet_slot");
+	public static final ResourceLocation EMPTY_WALLET_SLOT = VersionUtil.lcResource( "item/empty_wallet_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_WALLET_SLOT);
 
 	public WalletSlot(Player player, Container inventory, int index, int x, int y)

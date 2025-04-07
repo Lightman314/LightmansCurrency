@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.function.BiPredicate;
 
 
 public final class CoinAPIImpl extends CoinAPI {
@@ -61,6 +62,7 @@ public final class CoinAPIImpl extends CoinAPI {
     Map<String, ChainData> loadedChains = null;
     Map<ResourceLocation,ChainData> itemIdToChainMap = null;
     private final List<Comparator<ItemStack>> customSorters = new ArrayList<>();
+    private final List<BiPredicate<ItemStack,Boolean>> customCoinContainerFilters = new ArrayList<>();
 
     private boolean setup = false;
 
@@ -73,6 +75,8 @@ public final class CoinAPIImpl extends CoinAPI {
         if(setup)
             return;
         setup = true;
+        this.customCoinContainerFilters.add(this::IsCoin);
+        this.customCoinContainerFilters.add((stack,side) -> { if(stack.getItem() instanceof ICoinLike coin) return coin.isCoin(stack) && (side || !coin.isFromSideChain(stack)); return false; });
         NeoForge.EVENT_BUS.addListener(this::onServerStart);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onJoinServer);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::generateDefaultCoins);
@@ -403,14 +407,23 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(coin.getItem(),allowSideChains); }
+    public void RegisterCoinContainerFilter(@Nonnull BiPredicate<ItemStack, Boolean> filter) {
+        if(!this.customCoinContainerFilters.contains(filter))
+            this.customCoinContainerFilters.add(filter);
+    }
 
     @Override
-    public boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains) {
-        if(coin instanceof ICoinLike coinLike)
-            return allowSideChains || !coinLike.isFromSideChain();
-        return this.IsCoin(coin,allowSideChains);
+    public boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains) {
+        for(BiPredicate<ItemStack,Boolean> filter : this.customCoinContainerFilters)
+        {
+            if(filter.test(coin,allowSideChains))
+                return true;
+        }
+        return false;
     }
+
+    @Override
+    public boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(new ItemStack(coin),allowSideChains); }
 
     @Override
     public void CoinExchangeAllUp(@Nonnull Container container) {

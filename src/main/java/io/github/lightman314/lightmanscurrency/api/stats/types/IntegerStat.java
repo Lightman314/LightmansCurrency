@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.stats.types;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class IntegerStat extends StatType<Integer,Integer>
 {
 
-    public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"basic_int");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("basic_int");
     public static final StatType<Integer,Integer> INSTANCE = new IntegerStat();
 
     @Nonnull

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.money.input;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -12,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.Dropdo
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -34,7 +34,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public static final int HEIGHT = 69;
     public static final int WIDTH = 176;
 
-    public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
+    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/coinvalueinput.png");
     public static final Sprite SPRITE_FREE_TOGGLE = Sprite.SimpleSprite(GUI_TEXTURE, 40, HEIGHT, 10, 10);
     public static final Sprite SPRITE_UP_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 0, HEIGHT, 20, 10);
     public static final Sprite SPRITE_DOWN_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 20, HEIGHT, 20, 10);
@@ -67,10 +67,17 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     public MoneyInputHandler getCurrentHandler() { return this.currentHandler; }
     public void tryMatchHandler(@Nonnull MoneyValue value)
     {
-        if(this.getCurrentHandlerType().equals(value.getUniqueName()))
+        if(this.getCurrentHandler().isForValue(value))
             return;
         if(this.availableHandlers.containsKey(value.getUniqueName()))
             this.setHandler(this.availableHandlers.get(value.getUniqueName()));
+        else
+        {
+            for(MoneyInputHandler handler : this.availableHandlers.values())
+            {
+                if(handler.isForValue(value));
+            }
+        }
     }
 
     private MoneyValue currentValue;

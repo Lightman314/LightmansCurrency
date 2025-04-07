@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -50,7 +51,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "textures/gui/item_edit.png");
+	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource( "textures/gui/item_edit.png");
 
 	private static ItemEditWidget latestInstance = null;
 	private static boolean rebuilding = false;

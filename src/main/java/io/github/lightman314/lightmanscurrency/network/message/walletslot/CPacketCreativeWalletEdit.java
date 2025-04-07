@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class CPacketCreativeWalletEdit extends ClientToServerPacket {
 
-    private static final Type<CPacketCreativeWalletEdit> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID,"c_wallet_creative_edit"));
+    private static final Type<CPacketCreativeWalletEdit> TYPE = new Type<>(VersionUtil.lcResource("c_wallet_creative_edit"));
     public static final Handler<CPacketCreativeWalletEdit> HANDLER = new H();
 
     private final ItemStack newWallet;

@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -44,7 +44,7 @@ public class BlockValidator extends MenuValidator {
 
     private static final class Type extends MenuValidatorType
     {
-        private Type() { super(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "block")); }
+        private Type() { super(VersionUtil.lcResource("block")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), BuiltInRegistries.BLOCK.get(ResourceLocation.parse(buffer.readUtf()))); }

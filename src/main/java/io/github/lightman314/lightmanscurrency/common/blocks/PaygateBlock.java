@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -74,8 +75,14 @@ public class PaygateBlock extends TraderBlockRotatable {
 	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	
 	@Override
-	public int getSignal(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
-		return state.getValue(POWER_LEVEL);
+	public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
+		if(level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
+		{
+			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir);
+			if(be.allowOutputSide(relativeSide))
+				return state.getValue(POWER_LEVEL);
+		}
+		return 0;
 	}
 	
 	@Override

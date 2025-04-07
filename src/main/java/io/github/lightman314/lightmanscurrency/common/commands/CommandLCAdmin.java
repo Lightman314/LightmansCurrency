@@ -103,6 +103,9 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
+				.then(Commands.literal("viewWallet")
+						.then(Commands.argument("entity",EntityArgument.entity())
+								.executes(CommandLCAdmin::viewWalletSlot)))
 				.then(Commands.literal("replaceWallet")
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
@@ -372,6 +375,23 @@ public class CommandLCAdmin {
 			return 0;
 		}
 
+	}
+
+	static int viewWalletSlot(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		Entity e = EntityArgument.getEntity(commandContext,"entity");
+		if(e instanceof LivingEntity entity && (entity.hasData(ModAttachmentTypes.WALLET_HANDLER) || e instanceof Player))
+		{
+			WalletHandler walletHandler = WalletHandler.get(entity);
+			ItemStack wallet = walletHandler.getWallet();
+			if(wallet.isEmpty())
+				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_EMPTY.get(entity.getDisplayName()),false);
+			else
+				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_SUCCESS.get(entity.getDisplayName(),wallet.getDisplayName()),false);
+		}
+		else
+			EasyText.sendCommandFail(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET.get(e.getDisplayName()));
+		return 0;
 	}
 
 	static int replaceWalletSlotWithDefault(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException

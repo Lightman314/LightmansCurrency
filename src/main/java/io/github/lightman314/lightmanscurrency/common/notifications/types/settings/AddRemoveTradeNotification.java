@@ -1,23 +1,22 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class AddRemoveTradeNotification extends SingleLineNotification {
 
-	public static final NotificationType<AddRemoveTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, "add_remove_trade"),AddRemoveTradeNotification::new);
+	public static final NotificationType<AddRemoveTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("add_remove_trade"),AddRemoveTradeNotification::new);
 	
 	PlayerReference player;
 	boolean isAdd;
@@ -37,7 +36,7 @@ public class AddRemoveTradeNotification extends SingleLineNotification {
 	@Nonnull
 	@Override
 	public MutableComponent getMessage() {
-		return LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_TRADE.get(this.player.getName(true), this.isAdd ? LCText.GUI_ADDED.get() : LCText.GUI_FROM.get(), this.newCount);
+		return LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_TRADE.get(this.player.getName(true), this.isAdd ? LCText.GUI_ADDED.get() : LCText.GUI_REMOVED.get(), this.newCount);
 	}
 
 	@Override
