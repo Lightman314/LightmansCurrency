@@ -34,7 +34,7 @@ public class CPacketInterfaceHandlerMessage extends ClientToServerPacket {
 		buffer.writeUtf(message.type.toString());
 		buffer.writeNbt(message.updateInfo);
 	}
-	private static CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(),ResourceLocation.parse(buffer.readUtf()),readNBT(buffer)); }
+	private static CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(),VersionUtil.parseResource(buffer.readUtf()),readNBT(buffer)); }
 
 	private static class H extends Handler<CPacketInterfaceHandlerMessage>
 	{

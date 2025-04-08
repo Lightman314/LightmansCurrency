@@ -30,7 +30,7 @@ public class SpriteIcon extends ATMIconData {
 		super(data);
 
 		this.sprite = Sprite.SimpleSprite(
-				ResourceLocation.parse(GsonHelper.getAsString(data, "texture")),
+				VersionUtil.parseResource(GsonHelper.getAsString(data, "texture")),
 				GsonHelper.getAsInt(data, "u"),
 				GsonHelper.getAsInt(data, "v"),
 				GsonHelper.getAsInt(data, "width"),

@@ -63,6 +63,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -111,7 +112,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -397,7 +397,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return LCText.GUI_TRADER_TITLE.get(this.getName(), this.owner.getName());
 	}
 
-	public final IconDataData customIcon = IconDataData.of(EasyDataKey.builder("trader_icon").tagKey("CustomIcon").name(LCText.DATA_ENTRY_TRADER_NAME.get()).category(DataCategories.Traders.DISPLAY).build(),this);
+	public final IconDataData customIcon = IconDataData.of(EasyDataKey.builder("trader_icon").tagKey("CustomIcon").name(LCText.DATA_ENTRY_TRADER_ICON.get()).category(DataCategories.Traders.DISPLAY).build(),this);
 
 	/**
 	 * Can be overridden by child traders to make special icons from certain items<br>
@@ -889,7 +889,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			CompoundTag posTag = compound.getCompound("WorldPos");
 			BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
-			ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(compound.getString("Level")));
+			ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, VersionUtil.parseResource(compound.getString("Level")));
 			this.worldPosition = WorldPosition.of(dimension, pos);
 		}
 		else if(compound.contains("Location"))
@@ -898,7 +898,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(compound.contains("TraderBlock"))
 		{
 			try {
-				this.traderBlock = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("TraderBlock")));
+				this.traderBlock = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("TraderBlock")));
 			}catch (Throwable ignored) {}
 		}
 		
@@ -1201,7 +1201,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(compound.contains("Type"))
 		{
 			String type = compound.getString("Type");
-			TraderType<?> traderType = TraderAPI.API.GetTraderType(ResourceLocation.parse(type));
+			TraderType<?> traderType = TraderAPI.API.GetTraderType(VersionUtil.parseResource(type));
 			if(traderType != null)
 				return traderType.load(isClient, compound, lookup);
 			else
@@ -1220,7 +1220,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public static TraderData Deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
 	{
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TraderType<?> traderType = TraderAPI.API.GetTraderType(ResourceLocation.parse(thisType));
+		TraderType<?> traderType = TraderAPI.API.GetTraderType(VersionUtil.parseResource(thisType));
 		if(traderType != null)
 			return traderType.loadFromJson(json,lookup);
 		throw new JsonSyntaxException("Trader type '" + thisType + "' is undefined.");

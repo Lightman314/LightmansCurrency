@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -22,7 +21,6 @@ import javax.annotation.Nonnull;
 public class TeamSelectWidget extends EasyWidgetWithChildren {
 
 	private final int rows;
-	private final Size size;
 	private final Supplier<List<ITeam>> teamSource;
 	private final Supplier<ITeam> selectedTeam;
 	private final Consumer<Integer> onPress;
@@ -32,7 +30,6 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	{
 		super(builder);
 		this.rows = builder.rows;
-		this.size = builder.size;
 		this.teamSource = builder.teams;
 		this.selectedTeam = builder.selected;
 		this.onPress = builder.handler;
@@ -46,7 +43,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			final int index = i;
 			TeamButton button = this.addChild(TeamButton.builder()
 					.position(area.pos.offset(0,i * TeamButton.HEIGHT))
-					.size(this.size)
+					.width(this.width)
 					.pressAction(this::onTeamSelect)
 					.team(() -> this.getTeam(index))
 					.selected(() -> this.isSelected(index))
@@ -60,7 +57,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 		for(TeamButton b : this.teamButtons)
 			b.setVisible(this.visible);
 	}
-	
+
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
@@ -71,7 +68,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	}
 
 	private int scroll = 0;
-	
+
 	private ITeam getTeam(int index)
 	{
 		List<ITeam> teamList = teamSource.get();
@@ -81,7 +78,7 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			return teamList.get(index);
 		return null;
 	}
-	
+
 	private boolean isSelected(int index)
 	{
 		ITeam team = this.getTeam(index);
@@ -89,43 +86,43 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			return false;
 		return team == this.selectedTeam.get();
 	}
-	
+
 	private void validateScroll(int teamListSize)
 	{
 		this.scroll = MathUtil.clamp(scroll, 0, this.maxScroll(teamListSize));
 	}
-	
+
 	private int maxScroll(int teamListSize)
 	{
 		return MathUtil.clamp(teamListSize - this.rows, 0, Integer.MAX_VALUE);
 	}
-	
+
 	private boolean canScrollDown()
 	{
 		return scroll < this.maxScroll(this.teamSource.get().size());
 	}
-	
+
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
+	public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double delta)
 	{
 		if(!this.visible)
 			return false;
-		
-		if(deltaY < 0)
-		{			
+
+		if(delta < 0)
+		{
 			if(this.canScrollDown())
 				scroll++;
 			else
 				return false;
 		}
-		else if(deltaY > 0)
+		else if(delta > 0)
 		{
 			if(scroll > 0)
 				scroll--;
 			else
 				return false;
 		}
-		
+
 		return true;
 	}
 
@@ -146,17 +143,16 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
-		private Builder() { super(Size.NORMAL.width,TeamButton.HEIGHT); }
+		private Builder() { super(156,TeamButton.HEIGHT); }
 		@Override
 		protected Builder getSelf() { return this; }
 
-		private Size size = Size.NORMAL;
 		private int rows = 1;
 		private Supplier<List<ITeam>> teams = ArrayList::new;
 		private Supplier<ITeam> selected = () -> null;
 		private Consumer<Integer> handler = i -> {};
 
-		public Builder size(Size size) { this.size = size; this.changeWidth(this.size.width); return this; }
+		public Builder width(int width) { this.changeWidth(width); return this; }
 		public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * TeamButton.HEIGHT); return this; }
 		public Builder teams(Supplier<List<ITeam>> teams) { this.teams = teams; return this; }
 		public Builder selected(Supplier<ITeam> selected) { this.selected = selected; return this; }

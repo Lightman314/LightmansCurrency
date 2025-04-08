@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class CustomVillagerTradeData {
 
-    private static final ResourceLocation WANDERING_TRADER_ID = VersionUtil.lcResource( "wandering_trader");
+    private static final ResourceLocation WANDERING_TRADER_ID = VersionUtil.vanillaResource( "wandering_trader");
 
     private static final Map<ResourceLocation,Map<Integer,List<ItemListing>>> defaultValues = new HashMap<>();
 

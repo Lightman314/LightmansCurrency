@@ -69,7 +69,7 @@ public abstract class IconData {
 	{
 		if(tag.contains("Type"))
 		{
-			ResourceLocation type = ResourceLocation.parse(tag.getString("Type"));
+			ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
 			if(ICON_TYPES.containsKey(type))
 				return ICON_TYPES.get(type).apply(tag,lookup);
 		}
@@ -148,7 +148,7 @@ public abstract class IconData {
 		}
 
 		private static IconData loadImage(@Nonnull CompoundTag tag) {
-			ResourceLocation image = ResourceLocation.parse(tag.getString("Image"));
+			ResourceLocation image = VersionUtil.parseResource(tag.getString("Image"));
 			int u = tag.getInt("u");
 			int v = tag.getInt("v");
 			int w = tag.getInt("w");

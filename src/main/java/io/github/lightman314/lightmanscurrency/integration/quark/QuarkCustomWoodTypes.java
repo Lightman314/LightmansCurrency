@@ -58,7 +58,7 @@ public class QuarkCustomWoodTypes {
     private static Supplier<ItemLike> slab(@Nonnull WoodType type) {
         return () -> {
             //Manually get slab block cause quark screwed this part up
-            ResourceLocation itemID = ResourceLocation.fromNamespaceAndPath(MODID, type.id + "_planks_slab");
+            ResourceLocation itemID = VersionUtil.modResource(MODID, type.id + "_planks_slab");
             Item result = BuiltInRegistries.ITEM.get(itemID);
             if(result == Items.AIR)
                 return null;
@@ -69,7 +69,7 @@ public class QuarkCustomWoodTypes {
 
     private static Supplier<ItemLike> item(@Nonnull String itemID) {
         return () -> {
-            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(MODID, itemID));
+            Item item = BuiltInRegistries.ITEM.get(VersionUtil.modResource(MODID, itemID));
             if(item == Items.AIR)
                 return null;
             return item;

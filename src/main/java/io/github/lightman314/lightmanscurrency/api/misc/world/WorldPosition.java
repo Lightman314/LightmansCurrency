@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.misc.world;
 
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -55,7 +55,7 @@ public class WorldPosition {
     {
         if(tag.contains("Dimension"))
         {
-            ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("Dimension")));
+            ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, VersionUtil.parseResource(tag.getString("Dimension")));
             BlockPos pos = new BlockPos(tag.getInt("X"),tag.getInt("Y"),tag.getInt("Z"));
             return of(dimension, pos);
         }

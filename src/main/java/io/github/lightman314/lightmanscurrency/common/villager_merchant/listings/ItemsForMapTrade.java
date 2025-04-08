@@ -103,9 +103,9 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
         @Override
         public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
             DeserializedData data = deserializeData(json,lookup);
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, ResourceLocation.parse(GsonHelper.getAsString(json,"Destination")));
+            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, VersionUtil.parseResource(GsonHelper.getAsString(json,"Destination")));
             String displayName = GsonHelper.getAsString(json,"MapName");
-            Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(ResourceLocation.parse(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));
+            Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(VersionUtil.parseResource(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));
             return new ItemsForMapTrade(data, destination, displayName, mapDecorationType);
         }
     }

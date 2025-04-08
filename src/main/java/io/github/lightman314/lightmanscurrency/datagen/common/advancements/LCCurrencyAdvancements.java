@@ -46,7 +46,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
     @Override
     public void generate(@Nonnull HolderLookup.Provider lookup, @Nonnull Consumer<AdvancementHolder> consumer, @Nonnull ExistingFileHelper existingFileHelper) {
         AdvancementHolder root = save(consumer, Builder.advancement()
-                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), ResourceLocation.fromNamespaceAndPath("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), AdvancementType.TASK,false,false,false)
+                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), VersionUtil.modResource("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), AdvancementType.TASK,false,false,false)
                         .addCriterion("coin", ezItemTrigger(LCTags.Items.COINS)),
                 "currency/root");
         AdvancementHolder mfp = save(consumer, Builder.advancement()

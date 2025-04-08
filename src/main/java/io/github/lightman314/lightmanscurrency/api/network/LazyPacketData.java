@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TriConsumer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -119,7 +120,7 @@ public final class LazyPacketData {
     {
         Data d = this.getData(key);
         if(d.type == TYPE_STRING)
-            return ResourceLocation.parse((String)d.value);
+            return VersionUtil.parseResource((String)d.value);
         return defaultValue;
     }
 

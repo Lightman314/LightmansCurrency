@@ -25,6 +25,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -126,20 +127,20 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    protected void handleUpdateMessage(LazyPacketData updateInfo) {
+    protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
         if(updateInfo.contains("AddPlayer"))
         {
-            PlayerReference player = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
-            if(player == null || this.isInList(player))
+            PlayerReference added = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
+            if(added == null || this.isInList(added))
                 return;
-            this.playerList.add(player);
+            this.playerList.add(added);
         }
         if(updateInfo.contains("RemovePlayer"))
         {
-            PlayerReference player = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
-            if(player == null || !this.isInList(player))
+            PlayerReference removed = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
+            if(removed == null || !this.isInList(removed))
                 return;
-            PlayerReference.removeFromList(this.playerList,player);
+            PlayerReference.removeFromList(this.playerList,removed);
         }
         if(updateInfo.contains("ChangeMode"))
         {

@@ -11,9 +11,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHold
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -67,7 +67,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
     {
         if(tag.contains("Type"))
         {
-            BankReferenceType type = BankAPI.API.GetReferenceType(ResourceLocation.parse(tag.getString("Type")));
+            BankReferenceType type = BankAPI.API.GetReferenceType(VersionUtil.parseResource(tag.getString("Type")));
             if(type != null)
                 return type.load(tag);
             else
@@ -86,7 +86,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
 
     public static BankReference decode(@Nonnull FriendlyByteBuf buffer)
     {
-        BankReferenceType type = BankAPI.API.GetReferenceType(ResourceLocation.parse(buffer.readUtf()));
+        BankReferenceType type = BankAPI.API.GetReferenceType(VersionUtil.parseResource(buffer.readUtf()));
         if(type != null)
             return type.decode(buffer);
         else

@@ -34,7 +34,7 @@ public final class MultiLineTextEntry {
         while(i < Integer.MAX_VALUE)
         {
             String key = this.getKey(i++);
-            MutableComponent line = EasyText.translatableOrNull(key);
+            MutableComponent line = EasyText.translatableOrNull(key,objects);
             if(line == null || line.getString().equals(key))
                 break;
             action.accept(line);

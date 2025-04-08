@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -129,7 +130,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) {}
 	
 	@Override
-	protected void handleUpdateMessage(LazyPacketData updateInfo) {
+	protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
 		if(updateInfo.contains("Duration"))
 			this.setDuration(updateInfo.getLong("Duration"));
 		if(updateInfo.contains("Fluctuation"))

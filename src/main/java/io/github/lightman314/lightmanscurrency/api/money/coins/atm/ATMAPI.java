@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -87,7 +88,7 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeUp-".length());
-                coinID = ResourceLocation.parse(id);
+                coinID = VersionUtil.parseResource(id);
                 Item coinItem = BuiltInRegistries.ITEM.get(coinID);
                 ChainData chain = CoinAPI.API.ChainDataOfCoin(coinItem);
                 if(chain == null && !chain.findEntry(coinItem).isSideChain())
@@ -114,7 +115,7 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeDown-".length());
-                ResourceLocation coinID = ResourceLocation.parse(id);
+                ResourceLocation coinID = VersionUtil.parseResource(id);
                 Item coinItem = BuiltInRegistries.ITEM.get(coinID);
                 if(coinItem == null || coinItem == Items.AIR)
                 {

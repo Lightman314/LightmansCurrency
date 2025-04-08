@@ -47,7 +47,7 @@ public abstract class EasyData<T> {
     protected abstract void setInternal(T newValue);
 
     /**
-     * Variant of {@link #setInternal(Object)} (Object)} where you can optionally return a notification to be logged about the setting being changed.
+     * Variant of {@link #setInternal(Object)} where you can optionally return a notification to be logged about the setting being changed.
      */
     @Nullable
     protected abstract Notification change(PlayerReference player, T newValue);

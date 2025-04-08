@@ -49,7 +49,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
 
         this.teamSelection = this.addChild(TeamSelectWidget.builder()
                 .position(screenArea.pos.offset(10,20))
-                .size(TeamButton.Size.WIDE)
+                .width(60)
                 .rows(5)
                 .teams(() -> this.teamList)
                 .selected(this.menu::selectedTeam)

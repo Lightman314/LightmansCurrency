@@ -364,7 +364,7 @@ public class LootManager {
 				//Check entity tags
 				if(option.startsWith("#"))
 				{
-					ResourceLocation tagKey = ResourceLocation.parse(option.substring(1));
+					ResourceLocation tagKey = VersionUtil.parseResource(option.substring(1));
 					if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
 						return true;
 				}
@@ -374,11 +374,11 @@ public class LootManager {
 					if(option.endsWith(":*"))
 					{
 						//Only check the namespace of the id
-						if(ResourceLocation.parse(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
+						if(VersionUtil.parseResource(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
 							return true;
 					}
 					//Check entire entity id
-					else if(ResourceLocation.parse(option).equals(entityID))
+					else if(VersionUtil.parseResource(option).equals(entityID))
 						return true;
 				}
 			} catch (ResourceLocationException ignored) {}

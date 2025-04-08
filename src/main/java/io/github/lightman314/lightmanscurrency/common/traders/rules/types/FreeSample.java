@@ -28,6 +28,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -256,7 +257,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void handleUpdateMessage(LazyPacketData updateInfo) {
+	protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
 		if(updateInfo.contains("Limit"))
 			this.limit = updateInfo.getInt("Limit");
 		else if(updateInfo.contains("TimeLimit"))

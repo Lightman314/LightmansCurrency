@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.misc;
 
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -38,5 +39,11 @@ public class EasyText {
 
     public static void sendCommandFail(CommandContext<CommandSourceStack> stack, Component message) { sendCommandFail(stack.getSource(),message); }
     public static void sendCommandFail(CommandSourceStack stack, Component message) { stack.sendFailure(message); }
+
+    public static Component loadComponentOrString(String componentJson, HolderLookup.Provider lookup)
+    {
+        try { return Component.Serializer.fromJson(componentJson,lookup);
+        } catch (Exception exception) { return EasyText.literal(componentJson); }
+    }
 
 }

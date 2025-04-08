@@ -75,7 +75,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         {
             for(MoneyInputHandler handler : this.availableHandlers.values())
             {
-                if(handler.isForValue(value));
+                if(handler.isForValue(value))
+                {
+                    this.setHandler(handler);
+                    return;
+                }
             }
         }
     }

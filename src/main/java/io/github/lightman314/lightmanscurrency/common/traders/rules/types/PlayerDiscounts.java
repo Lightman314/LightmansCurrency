@@ -25,6 +25,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -121,23 +122,23 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void handleUpdateMessage(LazyPacketData updateInfo)
+	protected void handleUpdateMessage(Player player, LazyPacketData updateInfo)
 	{
 		if(updateInfo.contains("Discount"))
 			this.discount = updateInfo.getInt("Discount");
 		else if(updateInfo.contains("AddPlayer"))
 		{
-			PlayerReference player = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
-			if(player == null || this.isOnList(player))
+			PlayerReference added = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
+			if(added == null || this.isOnList(added))
 				return;
-			this.playerList.add(player);
+			this.playerList.add(added);
 		}
 		else if(updateInfo.contains("RemovePlayer"))
 		{
-			PlayerReference player = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
-			if(player == null || !this.isOnList(player))
+			PlayerReference removed = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
+			if(removed == null || !this.isOnList(removed))
 				return;
-			PlayerReference.removeFromList(this.playerList,player);
+			PlayerReference.removeFromList(this.playerList,removed);
 		}
 	}
 	

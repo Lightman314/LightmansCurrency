@@ -18,21 +18,25 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class DailyTrades extends TradeRule {
 
     public static final TradeRuleType<DailyTrades> TYPE = new TradeRuleType<>(VersionUtil.lcResource("daily_trades"),DailyTrades::new);
@@ -50,13 +54,13 @@ public class DailyTrades extends TradeRule {
     @Override
     protected boolean canActivate(@Nullable ITradeRuleHost host) { return super.canActivate(host) && host instanceof TraderData trader && (trader.getTradeCount() > 1 || trader.getMaxTradeCount() > 1); }
 
-    @Nonnull
+    
     @Override
     public IconData getIcon() { return IconUtil.ICON_DAILY_TRADE; }
 
     //Check if trade index is the one flagged as the next trade index for the given player
     @Override
-    public void beforeTrade(@Nonnull TradeEvent.PreTradeEvent event) {
+    public void beforeTrade(TradeEvent.PreTradeEvent event) {
         if(event.getPlayerReference() == null)
             return;
         Data data = this.data.getOrDefault(event.getPlayerReference().id,new Data());
@@ -89,7 +93,7 @@ public class DailyTrades extends TradeRule {
 
     //Update data
     @Override
-    public void afterTrade(@Nonnull TradeEvent.PostTradeEvent event) {
+    public void afterTrade(TradeEvent.PostTradeEvent event) {
         PlayerReference player = event.getPlayerReference();
         if(player == null)
             return;
@@ -106,12 +110,12 @@ public class DailyTrades extends TradeRule {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         compound.putLong("Delay",this.interactionDelay);
         this.saveData(compound);
     }
 
-    private void saveData(@Nonnull CompoundTag compound)
+    private void saveData(CompoundTag compound)
     {
         ListTag dataList = new ListTag();
         this.data.forEach((id,dat) -> {
@@ -125,12 +129,12 @@ public class DailyTrades extends TradeRule {
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         this.interactionDelay = compound.getLong("Delay");
         this.loadData(compound);
     }
 
-    private void loadData(@Nonnull CompoundTag compound)
+    private void loadData(CompoundTag compound)
     {
         this.data.clear();
         ListTag dataList = compound.getList("Data", Tag.TAG_COMPOUND);
@@ -146,37 +150,36 @@ public class DailyTrades extends TradeRule {
     }
 
     @Override
-    public JsonObject saveToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+    public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) {
         json.addProperty("Delay",this.interactionDelay);
         return json;
     }
 
     @Override
-    public void loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+    public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
         this.interactionDelay = GsonHelper.getAsLong(json,"Delay");
     }
 
     @Override
-    public CompoundTag savePersistentData(@Nonnull HolderLookup.Provider provider) {
+    public CompoundTag savePersistentData(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         this.saveData(tag);
         return tag;
     }
 
     @Override
-    public void loadPersistentData(@Nonnull CompoundTag data, @Nonnull HolderLookup.Provider lookup) {
+    public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) {
         this.loadData(data);
     }
 
     @Override
-    protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+    protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
         if(updateInfo.contains("ClearData"))
             this.data.clear();
         if(updateInfo.contains("SetDelay"))
             this.interactionDelay = updateInfo.getLong("SetDelay");
     }
 
-    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
     public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new DailyTradesTab(parent); }

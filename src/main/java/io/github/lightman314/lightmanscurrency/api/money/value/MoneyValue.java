@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.EmptyPriceEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -325,7 +326,7 @@ public abstract class MoneyValue {
         if(tag.contains("type", Tag.TAG_STRING))
         {
             ResourceLocation valueType;
-            try { valueType = ResourceLocation.parse(tag.getString("type"));
+            try { valueType = VersionUtil.parseResource(tag.getString("type"));
             } catch (ResourceLocationException e) {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
                 return null;
@@ -374,7 +375,7 @@ public abstract class MoneyValue {
     {
         if(json.has("type"))
         {
-            ResourceLocation valueType = ResourceLocation.parse(GsonHelper.getAsString(json, "type"));
+            ResourceLocation valueType = VersionUtil.parseResource(GsonHelper.getAsString(json, "type"));
             CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
                 return currencyType.loadMoneyValueJson(json);

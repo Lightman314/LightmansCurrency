@@ -19,6 +19,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -94,7 +95,7 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public void handleUpdateMessage(LazyPacketData updateInfo)
+	public void handleUpdateMessage(Player player, LazyPacketData updateInfo)
 	{
 		if(updateInfo.contains("Limit"))
 			this.limit = updateInfo.getInt("Limit");

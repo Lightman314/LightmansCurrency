@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
@@ -92,7 +93,7 @@ public class ItemListingSerializer {
     }
 
     public static ItemListing deserializeTrade(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException{
-        ResourceLocation type = ResourceLocation.parse(GsonHelper.getAsString(json,"Type"));
+        ResourceLocation type = VersionUtil.parseResource(GsonHelper.getAsString(json,"Type"));
         IItemListingDeserializer deserializer = deserializers.get(type);
         if(deserializer == null)
             throw new JsonSyntaxException("Could not deserialize entry as no deserializer was found of type '" + type + "'!");

@@ -39,9 +39,9 @@ import java.util.List;
 public final class EasyGuiGraphics {
 
     public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(
-            ResourceLocation.withDefaultNamespace("widget/button"),
-            ResourceLocation.withDefaultNamespace("widget/button_disabled"),
-            ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+            VersionUtil.vanillaResource("widget/button"),
+            VersionUtil.vanillaResource("widget/button_disabled"),
+            VersionUtil.vanillaResource("widget/button_highlighted")
     );
 
     public static final ResourceLocation GENERIC_BACKGROUND = VersionUtil.lcResource("textures/gui/generic_background.png");

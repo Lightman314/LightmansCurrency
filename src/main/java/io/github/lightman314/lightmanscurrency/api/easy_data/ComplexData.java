@@ -29,13 +29,14 @@ public abstract class ComplexData<T> extends EasyData<T> {
     protected final void read(ReadWriteContext context, String tagKey) { this.set(this.reader.apply(context.tag.getCompound(tagKey),context.lookup)); }
 
     @Nullable
-    protected Notification getChangeNotification(T newValue) { return null; }
+    protected Notification getChangeNotification(T oldValue,T newValue) { return null; }
 
     @Nullable
     @Override
     protected Notification change(PlayerReference player, T newValue) {
-        this.set(newValue);
-        return this.getChangeNotification(newValue);
+        T oldValue = this.get();
+        this.setInternal(newValue);
+        return this.getChangeNotification(oldValue,newValue);
     }
 
 }

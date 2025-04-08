@@ -78,6 +78,7 @@ public class DirectionalSettings {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("DirectionalSettings[");
+        boolean notFirst = false;
         for(Direction side : Direction.values())
         {
             if(this.parent.getIgnoredSides().contains(side))
@@ -85,8 +86,10 @@ public class DirectionalSettings {
             DirectionalSettingsState state = this.getState(side);
             if(state != DirectionalSettingsState.NONE)
             {
-                if(builder.length() > 1)
+                if(notFirst)
                     builder.append(",");
+                else
+                    notFirst = true;
                 builder.append(side).append(':').append(state);
             }
         }

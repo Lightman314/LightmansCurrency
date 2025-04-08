@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -75,7 +76,7 @@ public class CoinEntry {
     public boolean matches(@Nonnull CompoundTag tag)
     {
         if(tag.contains("coin"))
-            return this.matches(BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("coin"))));
+            return this.matches(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(tag.getString("coin"))));
         return false;
     }
 
@@ -92,7 +93,7 @@ public class CoinEntry {
 
     protected static Item parseBase(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        ResourceLocation itemID = ResourceLocation.parse(GsonHelper.getAsString(json, "Coin"));
+        ResourceLocation itemID = VersionUtil.parseResource(GsonHelper.getAsString(json, "Coin"));
         Item item = BuiltInRegistries.ITEM.get(itemID);
         if(item == Items.AIR)
             throw new JsonSyntaxException(itemID + " is not a valid item!");

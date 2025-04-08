@@ -108,10 +108,10 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         @Nonnull
         @Override
         public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
-            Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Coin")));
+            Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"BaseCoinCount");
             double basePriceModifier = GsonHelper.getAsDouble(json,"EnchantmentValueModifier");
-            Item sellItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Sell")));
+            Item sellItem = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json,"Sell")));
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
             int xp = GsonHelper.getAsInt(json,"XP");
             float priceMult = GsonHelper.getAsFloat(json, "PriceMult");

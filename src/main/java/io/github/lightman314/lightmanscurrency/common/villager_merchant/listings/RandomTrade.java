@@ -132,7 +132,7 @@ public class RandomTrade extends ItemsForXTradeTemplate
             }
             TagKey<Item> sellTag = null;
             if(json.has("SellTag"))
-                sellTag = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(GsonHelper.getAsString(json, "SellTag")));
+                sellTag = TagKey.create(BuiltInRegistries.ITEM.key(), VersionUtil.parseResource(GsonHelper.getAsString(json, "SellTag")));
             if(sellTag == null && sellItems == null)
                 throw new JsonSyntaxException("Missing 'Sell' or 'SellTag' key");
             return new RandomTrade(data, sellItems, sellTag);

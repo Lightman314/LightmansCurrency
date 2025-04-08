@@ -388,6 +388,7 @@ public class CommandLCAdmin {
 				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_EMPTY.get(entity.getDisplayName()),false);
 			else
 				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_SUCCESS.get(entity.getDisplayName(),wallet.getDisplayName()),false);
+			return 1;
 		}
 		else
 			EasyText.sendCommandFail(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET.get(e.getDisplayName()));

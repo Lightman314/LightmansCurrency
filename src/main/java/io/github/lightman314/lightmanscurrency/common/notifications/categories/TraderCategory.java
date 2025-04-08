@@ -33,7 +33,7 @@ public class TraderCategory extends NotificationCategory {
 	public TraderCategory(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Icon"))
-			this.trader = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("Icon")));
+			this.trader = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("Icon")));
 		else
 			this.trader = ModItems.TRADING_CORE.get();
 		

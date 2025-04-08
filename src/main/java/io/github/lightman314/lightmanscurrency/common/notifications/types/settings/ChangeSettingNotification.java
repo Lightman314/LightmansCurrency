@@ -57,7 +57,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 	@Override
 	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.setting = Component.Serializer.fromJson(compound.getString("Setting"),lookup);
+		this.setting = EasyText.loadComponentOrString(compound.getString("Setting"),lookup);
 	}
 
 	private static Advanced createAdvanced() { return new Advanced(); }
@@ -89,8 +89,8 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 		@Override
 		protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 			super.loadAdditional(compound,lookup);
-			this.newValue = Component.Serializer.fromJson(compound.getString("NewValue"),lookup);
-			this.oldValue = Component.Serializer.fromJson(compound.getString("OldValue"),lookup);
+			this.newValue = EasyText.loadComponentOrString(compound.getString("NewValue"),lookup);
+			this.oldValue = EasyText.loadComponentOrString(compound.getString("OldValue"),lookup);
 		}
 		
 		@Override
@@ -130,7 +130,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 		@Override
 		protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 			super.loadAdditional(compound,lookup);
-			this.newValue = Component.Serializer.fromJson(compound.getString("NewValue"),lookup);
+			this.newValue = EasyText.loadComponentOrString(compound.getString("NewValue"),lookup);
 		}
 
 		@Override

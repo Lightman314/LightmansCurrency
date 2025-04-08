@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -256,9 +257,9 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         ///MODDED TAGS
         //Add Wallets to Wallet Slot
-        this.cTag(ResourceLocation.fromNamespaceAndPath("curios","wallet")).addTag(LCTags.Items.WALLET);
+        this.cTag(VersionUtil.modResource("curios","wallet")).addTag(LCTags.Items.WALLET);
         //Add Portable Terminals to Charm Slot
-        this.cTag(ResourceLocation.fromNamespaceAndPath("curios","charm"))
+        this.cTag(VersionUtil.modResource("curios","charm"))
                 .add(ModItems.PORTABLE_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL)
                 .add(ModItems.PORTABLE_ATM);

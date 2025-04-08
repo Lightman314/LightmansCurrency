@@ -105,7 +105,7 @@ public abstract class Owner implements IClientTracker {
     @Nullable
     public static Owner load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
     {
-        ResourceLocation id = ResourceLocation.parse(tag.getString("Type"));
+        ResourceLocation id = VersionUtil.parseResource(tag.getString("Type"));
         OwnerType type = OwnershipAPI.API.getOwnerType(id);
         if(type != null)
             return type.load(tag,lookup);

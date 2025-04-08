@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.stats;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -65,7 +66,7 @@ public final class StatTracker implements IClientTracker
         {
             try {
                 CompoundTag entry = tag.getCompound(key);
-                ResourceLocation typeID = ResourceLocation.parse(entry.getString("Type"));
+                ResourceLocation typeID = VersionUtil.parseResource(entry.getString("Type"));
                 StatType.Instance<?,?> instance = this.getStat(key);
                 if(instance != null && instance.getType().getID().equals(typeID))
                 {

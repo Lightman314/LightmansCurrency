@@ -37,7 +37,7 @@ public class ItemIcon extends ATMIconData {
 		String itemID = GsonHelper.getAsString(data, "item", "NO_RESULT");
 		if(!itemID.equals("NO_RESULT"))
 		{
-			this.item = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemID)));
+			this.item = new ItemStack(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(itemID)));
 			this.simpleItem = true;
 		}
 		else

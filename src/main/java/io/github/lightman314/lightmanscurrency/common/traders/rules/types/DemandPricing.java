@@ -25,6 +25,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -191,7 +192,7 @@ public class DemandPricing extends PriceTweakingTradeRule {
     public void loadPersistentData(CompoundTag data, HolderLookup.Provider lookup) { }
 
     @Override
-    protected void handleUpdateMessage(LazyPacketData updateInfo) {
+    protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
         if(updateInfo.contains("ChangePrice"))
             this.otherPrice = updateInfo.getMoneyValue("ChangePrice");
         if(updateInfo.contains("ChangeSmallStock"))

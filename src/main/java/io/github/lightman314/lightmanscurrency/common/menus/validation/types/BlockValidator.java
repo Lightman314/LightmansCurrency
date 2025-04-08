@@ -47,10 +47,10 @@ public class BlockValidator extends MenuValidator {
         private Type() { super(VersionUtil.lcResource("block")); }
         @Nonnull
         @Override
-        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), BuiltInRegistries.BLOCK.get(ResourceLocation.parse(buffer.readUtf()))); }
+        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), BuiltInRegistries.BLOCK.get(VersionUtil.parseResource(buffer.readUtf()))); }
         @Nonnull
         @Override
-        public MenuValidator load(@Nonnull CompoundTag tag) { return of(TagUtil.loadBlockPos(tag.getCompound("Position")), BuiltInRegistries.BLOCK.get(ResourceLocation.parse(tag.getString("Block")))); }
+        public MenuValidator load(@Nonnull CompoundTag tag) { return of(TagUtil.loadBlockPos(tag.getCompound("Position")), BuiltInRegistries.BLOCK.get(VersionUtil.parseResource(tag.getString("Block")))); }
     }
 
 }
