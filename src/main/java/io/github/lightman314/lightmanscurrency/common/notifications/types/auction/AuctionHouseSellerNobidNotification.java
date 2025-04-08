@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class AuctionHouseSellerNobidNotification extends AuctionHouseNotification{
 
-	public static final NotificationType<AuctionHouseSellerNobidNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house_seller_nobid"),AuctionHouseSellerNobidNotification::new);
+	public static final NotificationType<AuctionHouseSellerNobidNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("auction_house_seller_nobid"),AuctionHouseSellerNobidNotification::new);
 	
 	List<ItemData> items;
 

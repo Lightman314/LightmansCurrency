@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -14,12 +16,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
@@ -28,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -59,16 +64,21 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	MoneyValueWidget priceSelection;
 	EditBox durationInput;
 	EditBox descriptionInput;
+	EditBox tooltipInput;
 
 	IconButton ticketStubButton;
 
-	boolean priceEdit = true;
+	private boolean descriptionEdit = true;
+	private boolean priceEdit = true;
 	private boolean isTicketTrade() {
 		PaygateTradeData trade = this.commonTab.getTrade();
 		return trade != null && trade.isTicketTrade();
 	}
 	private boolean priceEditMode() { return this.priceEdit && !this.isTicketTrade(); }
 	private boolean detailEditMode() { return !this.priceEditMode(); }
+
+	private boolean isDescriptionEdit() { return this.descriptionEdit; }
+	private boolean isTooltipEdit() { return !this.descriptionEdit; }
 
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -90,16 +100,24 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 				.build());
 
 		this.ticketStubButton = this.addChild(IconButton.builder()
-				.position(screenArea.pos.offset(screenArea.width - 35,74))
+				.position(screenArea.pos.offset(164,130))
 				.pressAction(this::ToggleTicketStubHandling)
 				.icon(this::GetTicketStubIcon)
 				.addon(EasyAddonHelper.tooltip(this::getTicketStubButtonTooltip))
 				.addon(EasyAddonHelper.visibleCheck(this::isTicketTrade))
 				.build());
 
-		int unitWidth = this.getFont().width(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get());
-		this.durationInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15, screenArea.y + 50, screenArea.width - 30 - unitWidth, 18, EasyText.empty()));
-		this.durationInput.setValue(String.valueOf(trade != null ? trade.getDuration() : "1"));
+		this.durationInput = this.addChild(TextInputUtil.intBuilder()
+				.position(screenArea.pos.offset(15,50))
+				.size(80,18)
+				.apply(IntParser.builder()
+						.min(PaygateTraderData.DURATION_MIN)
+						.max(PaygateTraderData::getMaxDuration)
+						.empty(PaygateTraderData.DURATION_MIN)
+						.consumer())
+				.startingValue(trade == null ? 1 : trade.getDuration())
+				.handler(this.commonTab::setDuration)
+				.build());
 
 		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(15,75))
@@ -116,10 +134,32 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 				.addon(EasyAddonHelper.visibleCheck(this::detailEditMode))
 				.build());
 
+		this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width - 44,52))
+				.object(this.commonTab::getTrade)
+				.handlers(this::ToggleOutputSide)
+				.addon(EasyAddonHelper.visibleCheck(this::detailEditMode))
+				.build());
+
 		this.descriptionInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15, screenArea.y + 110, screenArea.width - 30, 18, EasyText.empty()));
 		if(trade != null)
 			this.descriptionInput.setValue(trade.getDescription());
 		this.descriptionInput.setResponder(this.commonTab::setDescription);
+		this.descriptionInput.visible = this.isDescriptionEdit();
+
+		this.tooltipInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15, screenArea.y + 110, screenArea.width - 30, 18, EasyText.empty()));
+		this.tooltipInput.setMaxLength(256);
+		if(trade != null)
+			this.tooltipInput.setValue(trade.getTooltip());
+		this.tooltipInput.setResponder(this.commonTab::setTooltip);
+		this.tooltipInput.visible = this.isTooltipEdit();
+
+		this.addChild(PlainButton.builder()
+				.position(screenArea.pos.offset(7,110))
+				.sprite(IconAndButtonUtil.SPRITE_NEUTRAL_TOGGLE(this::isDescriptionEdit))
+				.pressAction(() -> this.descriptionEdit = !this.descriptionEdit)
+				.addon(EasyAddonHelper.visibleCheck(this::detailEditMode))
+				.build());
 
 	}
 
@@ -130,26 +170,29 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		if(trade == null)
 			return;
 
-		this.durationInput.visible = this.descriptionInput.visible = this.detailEditMode();
+		this.durationInput.visible = this.detailEditMode();
+		this.descriptionInput.visible = this.detailEditMode() && this.isDescriptionEdit();
+		this.tooltipInput.visible = this.detailEditMode() && this.isTooltipEdit();
 
 		if(this.detailEditMode())
 		{
-			//Whitelist and update the input duration value
-			TextInputUtil.whitelistInteger(this.durationInput, PaygateTraderData.DURATION_MIN, PaygateTraderData.getMaxDuration());
-			int inputDuration = Math.max(TextInputUtil.getIntegerValue(this.durationInput, PaygateTraderData.DURATION_MIN), PaygateTraderData.DURATION_MIN);
-			if(inputDuration != this.commonTab.getTrade().getDuration())
-				this.commonTab.setDuration(inputDuration);
 
-			gui.drawString(LCText.GUI_TRADER_PAYGATE_DURATION.get(), 15, 40, 0x404040);
+			//Duration Label
+			gui.drawString(LCText.GUI_TRADER_PAYGATE_DURATION.get(), 17, 40, 0x404040);
+			//Duration Unit
 			MutableComponent unitText = LCText.GUI_TRADER_PAYGATE_DURATION_UNIT.get();
 			int unitWidth = gui.font.width(unitText);
-			gui.drawString(unitText, this.screen.getXSize() - unitWidth - 13, 55, 0x404040);
+			gui.drawString(unitText, 100, 55, 0x404040);
 
 			//Power Level Label
 			gui.drawString(LCText.GUI_TRADER_PAYGATE_LEVEL.get(trade.getRedstoneLevel()),27,81,0x404040);
 
 			//Description Label
-			gui.drawString(LCText.GUI_TRADER_PAYGATE_DESCRIPTION.get(),15, 100, 0x404040);
+			Component label = this.isDescriptionEdit() ? LCText.GUI_TRADER_PAYGATE_DESCRIPTION.get() : LCText.GUI_TRADER_PAYGATE_TOOLTIP.get();
+			gui.drawString(label,17, 100, 0x404040);
+
+			//Output Side Label
+			TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_OUTPUT_SIDE.get(), this.screen.getXSize() - 44, 40,0x404040);
 
 		}
 
@@ -229,6 +272,16 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		PaygateTradeData trade = this.commonTab.getTrade();
 		if(trade != null)
 			this.commonTab.setTicketStubHandling(!trade.shouldStoreTicketStubs());
+	}
+
+	private void ToggleOutputSide(Direction side, boolean inverse)
+	{
+		PaygateTradeData trade = this.commonTab.getTrade();
+		if(trade != null)
+		{
+			DirectionalSettingsState state = trade.getSidedState(side);
+			this.commonTab.setOutputSide(side,state.getNext(trade));
+		}
 	}
 
 }

@@ -1,20 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class TaxEntryCategory extends NotificationCategory {
 
-    public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"tax_entry"),TaxEntryCategory::new);
+    public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("tax_entry"),TaxEntryCategory::new);
 
     private final long entryID;
     private final MutableComponent entryName;

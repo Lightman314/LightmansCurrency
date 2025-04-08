@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
@@ -9,9 +8,9 @@ import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +65,7 @@ public class TeamBankReference extends BankReference {
 
     private static class Type extends BankReferenceType
     {
-        protected Type() { super(new ResourceLocation(LightmansCurrency.MODID, "team_account")); }
+        protected Type() { super(VersionUtil.lcResource("team_account")); }
 
         @Override
         public BankReference load(CompoundTag tag) { return of(tag.getLong("TeamID")); }

@@ -34,7 +34,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
             return;
         ITradeRuleHost host = this.getHost();
         if(host != null)
-            host.HandleRuleUpdate(type, updateMessage.build());
+            host.HandleRuleUpdate(this.menu.getPlayer(),type, updateMessage.build());
         if(this.menu.isClient())
             this.menu.SendMessage(updateMessage.setString("TradeRuleEdit", type.toString()));
     }

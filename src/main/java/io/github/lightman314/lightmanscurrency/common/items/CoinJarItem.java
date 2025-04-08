@@ -31,7 +31,7 @@ public class CoinJarItem extends BlockItem {
 
 		if(!jarStorage.isEmpty())
 		{
-			if(Screen.hasShiftDown())
+			if(Screen.hasControlDown())
 			{
 				for (ItemStack coin : jarStorage) {
 					if (coin.getCount() > 1)
@@ -41,7 +41,7 @@ public class CoinJarItem extends BlockItem {
 				}
 			}
 			else
-				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT.getWithStyle(ChatFormatting.YELLOW));
+				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL.getWithStyle(ChatFormatting.YELLOW));
 		}
 
 	}

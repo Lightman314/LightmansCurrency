@@ -29,10 +29,12 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacke
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
@@ -78,10 +80,11 @@ public class EventHandler {
 
 		ItemEntity ie = event.getItem();
 		ItemStack pickupItem = ie.getItem();
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false))
-			return;
-		
 		Player player = event.getEntity();
+
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || matchesTarget(ie,player))
+			return;
+
 		ItemStack coinStack = event.getItem().getItem();
 		WalletMenuBase activeContainer = null;
 		
@@ -117,6 +120,17 @@ public class EventHandler {
 			event.setCanceled(true);
 		}
 		
+	}
+
+	public static boolean matchesTarget(ItemEntity ie, Entity entity)
+	{
+		CompoundTag data = ie.saveWithoutId(new CompoundTag());
+		if(data.contains("Owner"))
+		{
+			UUID target = data.getUUID("Owner");
+			return target.equals(entity.getUUID());
+		}
+		return true;
 	}
 
 	//Block break event for trader protection functionality.

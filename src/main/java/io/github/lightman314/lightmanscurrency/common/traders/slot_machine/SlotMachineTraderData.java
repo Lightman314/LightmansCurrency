@@ -35,7 +35,9 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,7 +46,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -60,16 +61,18 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SlotMachineTraderData extends InputTraderData implements TraderItemStorage.ITraderItemFilter, TraderItemHandler.IItemStorageProvider {
 
-    public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader"),SlotMachineTraderData::new);
+    public static final TraderType<SlotMachineTraderData> TYPE = new TraderType<>(VersionUtil.lcResource("slot_machine_trader"),SlotMachineTraderData::new);
 
     TraderItemHandler<SlotMachineTraderData> itemHandler = new TraderItemHandler<>(this);
 
@@ -130,8 +133,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         }
         return null;
     }
-
-    @Nonnull
+    
     public final List<Component> getSlotMachineInfo()
     {
         List<Component> tooltips = new ArrayList<>();
@@ -157,11 +159,11 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     private final TraderItemStorage storage = new TraderItemStorage(this);
-    @Nonnull
+    
     public final TraderItemStorage getStorage() { return this.storage; }
 
     private SlotMachineTraderData() { super(TYPE); }
-    public SlotMachineTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
+    public SlotMachineTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
 
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
 
@@ -205,12 +207,12 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     protected void saveTrades(CompoundTag compound) { }
 
     @Override
-    protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
+    protected MenuProvider getTraderMenuProvider(MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
 
-    private record SlotMachineMenuProvider(long traderID, @Nonnull MenuValidator validator) implements EasyMenuProvider {
+    private record SlotMachineMenuProvider(long traderID, MenuValidator validator) implements EasyMenuProvider {
 
         @Override
-        public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID, this.validator); }
+        public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID, this.validator); }
 
     }
 
@@ -337,7 +339,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     @Override
     protected void getAdditionalContents(List<ItemStack> results) { results.addAll(this.storage.getSplitContents()); }
 
-    @Nonnull
+    
     @Override
     public List<SlotMachineTrade> getTradeData() { return this.trade; }
 
@@ -439,7 +441,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public boolean canMakePersistent() { return true; }
 
     @Override
-    public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+    public void initStorageTabs(ITraderStorageMenu menu) {
 
         //Set basic tab to Entry Edit Tab
         menu.setTab(TraderStorageTab.TAB_TRADE_BASIC, new SlotMachineEntryTab(menu));
@@ -464,7 +466,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     @Override
-    public boolean allowExtraction(@Nonnull ItemStack stack) { return !this.isItemRelevant(stack); }
+    public boolean allowExtraction(ItemStack stack) { return !this.isItemRelevant(stack); }
 
     @Override
     public int getStorageStackLimit() {
@@ -482,8 +484,8 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     @Override
-    @Nonnull
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
+    
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide){
         return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
     }
 

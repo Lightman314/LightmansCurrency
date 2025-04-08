@@ -40,6 +40,8 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -48,7 +50,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -59,23 +60,25 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter, IFlexibleOfferTrader, TraderItemHandler.IItemStorageProvider {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(Upgrades.ITEM_CAPACITY);
 	
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
-	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "item_trader"), ItemTraderData::new);
+	public static final TraderType<ItemTraderData> TYPE = new TraderType<>(VersionUtil.lcResource("item_trader"), ItemTraderData::new);
 	
 	TraderItemHandler<ItemTraderData> itemHandler = new TraderItemHandler<>(this);
 	
 	public IItemHandler getItemHandler(Direction relativeSide) { return this.itemHandler.getHandler(relativeSide); }
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
-	@Nonnull
+	
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 
@@ -86,15 +89,15 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public boolean allowAdditionalUpgradeType(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 
 	private ItemTraderData(){ this(TYPE); }
-	protected ItemTraderData(@Nonnull TraderType<?> type) {
+	protected ItemTraderData(TraderType<?> type) {
 		super(type);
 		this.trades = ItemTradeData.listOfSize(1, true);
 		this.validateTradeRestrictions();
 	}
 	
-	public ItemTraderData(int tradeCount, @Nonnull Level level, @Nonnull BlockPos pos) { this(TYPE, tradeCount, level, pos); }
+	public ItemTraderData(int tradeCount, Level level, BlockPos pos) { this(TYPE, tradeCount, level, pos); }
 	
-	protected ItemTraderData(@Nonnull TraderType<?> type, int tradeCount, @Nonnull Level level, @Nonnull BlockPos pos)
+	protected ItemTraderData(TraderType<?> type, int tradeCount, Level level, BlockPos pos)
 	{
 		super(type, level, pos);
 		this.trades = ItemTradeData.listOfSize(tradeCount, true);
@@ -230,7 +233,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		return this.trades.get(tradeSlot);
 	}
 	
-	@Nonnull
+	
     @Override
 	public List<ItemTradeData> getTradeData() { return this.trades; }
 	
@@ -743,7 +746,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public boolean canMakePersistent() { return true; }
 
 	@Override
-	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new ItemStorageTab(menu));
 		//Item Trade interaction tab
@@ -761,7 +764,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	public boolean allowExtraction(@Nonnull ItemStack stack) {
+	public boolean allowExtraction(ItemStack stack) {
 		for(ItemTradeData trade : this.trades)
 		{
 			if(trade.isValid() && (trade.isSale() || trade.isBarter()))
@@ -793,13 +796,13 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	
 	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
+	
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide){
 		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int tradeCount = 0;
 		int outOfStock = 0;
 		for(ItemTradeData trade : this.trades)

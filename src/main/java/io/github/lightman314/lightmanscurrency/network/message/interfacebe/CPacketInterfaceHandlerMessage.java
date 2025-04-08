@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,7 +39,7 @@ public class CPacketInterfaceHandlerMessage extends ClientToServerPacket {
 	{
 		@Nonnull
 		@Override
-		public CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(), new ResourceLocation(buffer.readUtf(MAX_TYPE_LENGTH)), buffer.readAnySizeNbt()); }
+		public CPacketInterfaceHandlerMessage decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketInterfaceHandlerMessage(buffer.readBlockPos(), VersionUtil.parseResource(buffer.readUtf(MAX_TYPE_LENGTH)), buffer.readAnySizeNbt()); }
 		@Override
 		protected void handle(@Nonnull CPacketInterfaceHandlerMessage message, @Nullable ServerPlayer sender) {
 			if(sender != null && sender.level().getBlockEntity(message.pos) instanceof TraderInterfaceBlockEntity interfaceBE)

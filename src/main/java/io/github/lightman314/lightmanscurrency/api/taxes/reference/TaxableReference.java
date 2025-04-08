@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.taxes.reference;
 
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -31,7 +32,7 @@ public abstract class TaxableReference {
     @Nullable
     public static TaxableReference load(@Nonnull CompoundTag tag)
     {
-        ResourceLocation type = new ResourceLocation(tag.getString("Type"));
+        ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
         TaxReferenceType t = TaxAPI.API.GetReferenceType(type);
         if(t != null)
             return t.load(tag);

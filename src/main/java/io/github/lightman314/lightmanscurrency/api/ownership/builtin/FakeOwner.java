@@ -3,15 +3,14 @@ package io.github.lightman314.lightmanscurrency.api.ownership.builtin;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +18,7 @@ import java.util.function.Supplier;
 
 public class FakeOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(MoneyAPI.MODID,"fake"),
+    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("fake"),
             (tag) -> of(Component.Serializer.fromJson(tag.getString("Name"))));
 
     private final MutableComponent name;

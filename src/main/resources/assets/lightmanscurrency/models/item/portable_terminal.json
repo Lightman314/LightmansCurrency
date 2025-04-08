@@ -1,0 +1,14 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "lightmanscurrency:item/portable_terminal"
+	},
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [-6, 0, 0],
+			"translation": [1.75, 4.25, 0],
+			"scale": [0.75, 0.75, 0.75]
+		}
+	}
+}

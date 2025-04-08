@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
+import com.google.common.base.Predicates;
 import com.mojang.blaze3d.FieldsAreNonnullByDefault;
 import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 
@@ -19,19 +21,20 @@ public class ATMExchangeButton extends EasyButton {
 
 	public final ATMExchangeButtonData data;
 
-	public boolean selected = false;
+	private final Predicate<ATMExchangeButton> selected;
 
 	private ATMExchangeButton(@Nonnull Builder builder)
 	{
 		super(builder);
 		this.data = builder.data;
+		this.selected = builder.selected;
 	}
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
 		//Render background to width
-		int yOffset = this.isHovered != this.selected ? 18 : 0;
+		int yOffset = this.isHovered != this.selected.test(this) ? 18 : 0;
 		if(this.active)
 			gui.resetColor();
 		else
@@ -60,11 +63,15 @@ public class ATMExchangeButton extends EasyButton {
 		private final ATMExchangeButtonData data;
 		private Builder(ATMExchangeButtonData data) { super(data.width,data.height); this.data = data; }
 
+		private Predicate<ATMExchangeButton> selected = Predicates.alwaysFalse();
+
 		@Override
 		protected Builder getSelf() { return this; }
 
 		public Builder screenCorner(ScreenPosition corner) { return this.position(corner.offset(data.position)); }
 		public Builder commandHandler(Consumer<String> commandHandler) { return this.pressAction(() -> commandHandler.accept(this.data.command)); }
+
+		public Builder selected(Predicate<ATMExchangeButton> selected) { this.selected = selected; return this; }
 
 		public ATMExchangeButton build() { return new ATMExchangeButton(this); }
 

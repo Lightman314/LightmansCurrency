@@ -52,7 +52,9 @@ public class ModBlockEntities {
 		AUCTION_STAND = ModRegistries.BLOCK_ENTITIES.register("auction_stand", () -> BlockEntityType.Builder.of(AuctionStandBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.AUCTION_STAND_TYPE)).build(null));
 
 		COIN_CHEST = ModRegistries.BLOCK_ENTITIES.register("coin_chest", () -> BlockEntityType.Builder.of(CoinChestBlockEntity::new, ModBlocks.COIN_CHEST.get()).build(null));
-		
+
+		MONEY_BAG = ModRegistries.BLOCK_ENTITIES.register("money_bag", () -> BlockEntityType.Builder.of(MoneyBagBlockEntity::new,ModBlocks.MONEY_BAG.get()).build(null));
+
 	}
 
 	//Item Trader
@@ -94,6 +96,7 @@ public class ModBlockEntities {
 	
 	//Coin Jars
 	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
+	public static final RegistryObject<BlockEntityType<MoneyBagBlockEntity>> MONEY_BAG;
 
 	//Auction Stand
 	public static final RegistryObject<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;

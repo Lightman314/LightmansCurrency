@@ -49,6 +49,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanI
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
+import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -74,11 +75,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -106,19 +105,6 @@ public class LightmansCurrency {
 
 
     private static final Logger LOGGER = LogManager.getLogger();
-
-
-	/**
-	 * @deprecated Use {@link LCCurios#isLoaded()} instead
-	 */
-	@Deprecated(since = "2.2.3.2")
-	public static boolean isCuriosLoaded() { return LCCurios.isLoaded(); }
-
-	/**
-	 * @deprecated Use {@link LCCurios#hasWalletSlot(LivingEntity)} instead
-	 */
-	@Deprecated(since = "2.2.3.2")
-	public static boolean isCuriosValid(LivingEntity player) { return LCCurios.hasWalletSlot(player); }
 
 	public LightmansCurrency() {
 
@@ -159,6 +145,9 @@ public class LightmansCurrency {
 
 		//Manually load common config for villager edit purposes
 		ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
+
+		//Setup Impactor compatibility
+		IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorCompat::setup,"Error setting up Impactor Economy Compatibility");
 
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
 		IntegrationUtil.SafeRunIfLoaded("cadmus", LCCadmusIntegration::setup,null);
@@ -249,6 +238,7 @@ public class LightmansCurrency {
 		//Initialize the Notification Category deserializers
 		NotificationAPI.API.RegisterCategory(NotificationCategory.GENERAL_TYPE);
 		NotificationAPI.API.RegisterCategory(NullCategory.TYPE);
+		NotificationAPI.API.RegisterCategory(EventCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(TraderCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(BankCategory.TYPE);
 		NotificationAPI.API.RegisterCategory(AuctionHouseCategory.TYPE);

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifie
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -299,7 +300,7 @@ public class LootManager {
 		parameterBuilder.withParameter(LootContextParams.DAMAGE_SOURCE, damageSource);
 
 		LootParams params = parameterBuilder.create(ENTITY_PARAMS);
-		return new LootContext.Builder(params).create(new ResourceLocation(LightmansCurrency.MODID, "generated_entity_loot/" + getSafeId(entity)));
+		return new LootContext.Builder(params).create(VersionUtil.lcResource("generated_entity_loot/" + getSafeId(entity)));
 	}
 
 	@Nullable
@@ -360,7 +361,7 @@ public class LootManager {
 				//Check entity tags
 				if(option.startsWith("#"))
 				{
-					ResourceLocation tagKey = new ResourceLocation(option.substring(1));
+					ResourceLocation tagKey = VersionUtil.parseResource(option.substring(1));
 					if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
 						return true;
 				}
@@ -370,11 +371,11 @@ public class LootManager {
 					if(option.endsWith(":*"))
 					{
 						//Only check the namespace of the id
-						if(new ResourceLocation(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
+						if(VersionUtil.parseResource(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
 							return true;
 					}
 					//Check entire entity id
-					else if(new ResourceLocation(option).equals(entityID))
+					else if(VersionUtil.parseResource(option).equals(entityID))
 						return true;
 				}
 			} catch (ResourceLocationException ignored) {}

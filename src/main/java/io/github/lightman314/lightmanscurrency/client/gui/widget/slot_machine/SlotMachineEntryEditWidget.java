@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -52,8 +52,21 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
 
     @Override
     public void addChildren(@Nonnull ScreenArea area) {
-        this.weightEdit = this.addChild(new EditBox(this.tab.getFont(), area.x + this.tab.getFont().width(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get()), area.y + 10, 36, 10, EasyText.empty()));
-        this.weightEdit.setMaxLength(4);
+        SlotMachineEntry entry = this.getEntry();
+
+        this.weightEdit = this.addChild(TextInputUtil.intBuilder()
+                .position(area.pos.offset(this.tab.getFont().width(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL.get()),10))
+                .size(36,10)
+                .maxLength(4)
+                .startingValue(entry == null ? 1 : entry.getWeight())
+                .apply(IntParser.builder()
+                        .min(1)
+                        .max(1000)
+                        .empty(1)
+                        .consumer())
+                .handler(this::onWeightChanged)
+                .build());
+
         this.removeEntryButton = this.addChild(PlainButton.builder()
                 .position(area.pos)
                 .pressAction(this::Remove)
@@ -185,16 +198,17 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
 
             int thisIndex = this.entryIndex.get();
             if(thisIndex != this.previousIndex)
-                this.weightEdit.setValue(Integer.toString(entry.getWeight()));
-            int newWeight = TextInputUtil.getIntegerValue(this.weightEdit, 1);
-            if(newWeight != entry.getWeight())
-                this.tab.commonTab.ChangeEntryWeight(thisIndex, newWeight);
+                this.weightEdit.setValue(String.valueOf(entry.getWeight()));
             this.previousIndex = thisIndex;
         }
         else
             this.weightEdit.visible = this.removeEntryButton.visible = false;
+    }
 
-        TextInputUtil.whitelistInteger(this.weightEdit, 1, 1000);
+    private void onWeightChanged(int newWeight)
+    {
+        int thisIndex = this.entryIndex.get();
+        this.tab.commonTab.ChangeEntryWeight(thisIndex,newWeight);
     }
 
     @Override

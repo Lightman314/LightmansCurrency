@@ -5,6 +5,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.EventHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -53,7 +54,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 		AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
 		boolean updateWallet = false;
-		for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
+		for(Entity e : level.getEntities(entity, searchBox, e -> coinMagnetEntityFilter(e,entity)))
 		{
 			ItemEntity ie = (ItemEntity)e;
 			ItemStack coinStack = ie.getItem();
@@ -75,9 +76,14 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		}
 	}
 
-	public static boolean coinMagnetEntityFilter(Entity entity) {
+	public static boolean coinMagnetEntityFilter(Entity entity, @Nonnull LivingEntity potentialPickup) {
 		if(entity instanceof ItemEntity item)
+		{
+			//Deny if the item is reserved for a given player/entity
+			if(!EventHandler.matchesTarget(item,potentialPickup))
+				return false;
 			return CoinAPI.API.IsAllowedInCoinContainer(item.getItem(), false);
+		}
 		return false;
 	}
 	

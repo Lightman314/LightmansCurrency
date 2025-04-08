@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 public class ItemsForMapTrade implements ItemListing
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "items_for_map");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("items_for_map");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final ItemStack price1;
@@ -108,7 +108,7 @@ public class ItemsForMapTrade implements ItemListing
         public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
             ItemStack price1 = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"));
             ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2")) : ItemStack.EMPTY;
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, new ResourceLocation(GsonHelper.getAsString(json,"Destination")));
+            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, VersionUtil.parseResource(GsonHelper.getAsString(json,"Destination")));
             String displayName = GsonHelper.getAsString(json,"MapName");
             MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(GsonHelper.getAsString(json,"Decoration"), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");

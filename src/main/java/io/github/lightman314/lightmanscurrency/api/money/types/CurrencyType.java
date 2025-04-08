@@ -57,7 +57,7 @@ public abstract class CurrencyType {
     }
 
     /**
-     * Method used by {@link #sumValues(List)} when the list size is greater than 1
+     * Method used by {@link #sumValues(List)} when the list size is greater than 1<br>
      * Override this to optimize your addition calculations should your {@link MoneyValue} init
      * function do complicated math.
      */

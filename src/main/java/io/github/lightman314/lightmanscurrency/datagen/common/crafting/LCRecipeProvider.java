@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.data.PackOutput;
@@ -208,18 +209,20 @@ public class LCRecipeProvider extends RecipeProvider {
 
         //Trader Recipes
         //Display Case
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.DISPLAY_CASE.get())
-                .unlockedBy("money", MoneyKnowledge())
-                .unlockedBy("trader", TraderKnowledge())
-                .pattern("g")
-                .pattern("x")
-                .pattern("w")
-                .define('x', ModItems.TRADING_CORE.get())
-                .define('g', Tags.Items.GLASS_COLORLESS)
-                .define('w', Items.WHITE_WOOL)
-                .save(consumer, ItemID("traders/", ModBlocks.DISPLAY_CASE));
-
-
+        //Updated in v2.2.5.1
+        ModBlocks.DISPLAY_CASE.forEach((color,display) ->
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, display.get())
+                    .unlockedBy("money",MoneyKnowledge())
+                    .unlockedBy("trader",TraderKnowledge())
+                    .group("display_case")
+                    .pattern("g")
+                    .pattern("x")
+                    .pattern("w")
+                    .define('x',ModItems.TRADING_CORE.get())
+                    .define('g',Tags.Items.GLASS_COLORLESS)
+                    .define('w',ColorHelper.GetWoolOfColor(color))
+                    .save(consumer,ID("traders/display_case/" + color.getResourceSafeName()))
+        );
 
         //Vending Machine
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.VENDING_MACHINE.get(Color.WHITE))
@@ -966,6 +969,19 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer,ID("traders/gacha_machine"));
         GenerateColoredDyeAndWashRecipes(consumer,ModBlocks.GACHA_MACHINE,ModBlocks.GACHA_MACHINE.get(Color.WHITE),"gacha_dyes","traders/gacha_machine/",Lists.newArrayList(Pair.of("money",MoneyKnowledge()),Pair.of("trader",TraderKnowledge())));
 
+        //2.2.5.1
+        //Money Bag
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModBlocks.MONEY_BAG.get())
+                .unlockedBy("money",MoneyKnowledge())
+                .unlockedBy("wallet",LazyTrigger(LCTags.Items.WALLET))
+                .pattern(" s ")
+                .pattern("lgl")
+                .pattern("lll")
+                .define('s',Tags.Items.STRING)
+                .define('l',Tags.Items.LEATHER)
+                .define('g',Tags.Items.NUGGETS_GOLD)
+                .save(consumer);
+
     }
 
     private static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, RegistryObject<? extends ItemLike>>> ingredientWalletPairs)
@@ -1120,7 +1136,7 @@ public class LCRecipeProvider extends RecipeProvider {
     private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
     private static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
     private static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
-    private static ResourceLocation ID(String path) { return new ResourceLocation(LightmansCurrency.MODID, path); }
+    private static ResourceLocation ID(String path) { return VersionUtil.lcResource(path); }
 
     private static Consumer<FinishedRecipe> lazyConditional(Consumer<FinishedRecipe> consumer, ResourceLocation recipeID, ICondition... conditions) { return lazyConditional(consumer,recipeID,Lists.newArrayList(conditions)); }
     private static Consumer<FinishedRecipe> lazyConditional(Consumer<FinishedRecipe> consumer, ResourceLocation recipeID, List<ICondition> conditions)

@@ -8,10 +8,10 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.runtime.IClickableIngredient;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import mezz.jei.api.runtime.IIngredientManager;
+import mezz.jei.common.input.ClickableIngredient;
+import mezz.jei.common.util.ImmutableRect2i;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -23,9 +23,10 @@ import java.util.Optional;
 
 public class JEIScreenArea<T extends EasyMenuScreen<?>> implements IGuiContainerHandler<T> {
 
-    public static <T extends EasyMenuScreen<?>> JEIScreenArea<T> create(Class<T> clazz) { return new JEIScreenArea<>(); }
+    public static <T extends EasyMenuScreen<?>> JEIScreenArea<T> create(Class<T> clazz, IIngredientManager manager) { return new JEIScreenArea<>(manager); }
 
-    private JEIScreenArea() { }
+    private final IIngredientManager manager;
+    private JEIScreenArea(IIngredientManager manager) { this.manager = manager; }
 
     @Nonnull
     @Override
@@ -51,31 +52,24 @@ public class JEIScreenArea<T extends EasyMenuScreen<?>> implements IGuiContainer
         //Check for hovered items
         Pair<ItemStack,ScreenArea> item = screen.getHoveredItem(mousePos);
         if(item != null && !item.getFirst().isEmpty())
-            return Optional.of(new ClickableIngredient<>(new Ingredient<>(VanillaTypes.ITEM_STACK,item.getFirst()),item.getSecond()));
+            return this.createClickable(item.getFirst(),item.getSecond());
         //Check for hovered fluids
         Pair<FluidStack,ScreenArea> fluid = screen.getHoveredFluid(mousePos);
         if(fluid != null && !fluid.getFirst().isEmpty())
-            return Optional.of(new ClickableIngredient<>(new Ingredient<>(ForgeTypes.FLUID_STACK,fluid.getFirst()),fluid.getSecond()));
+            return this.createClickable(fluid.getFirst(),fluid.getSecond());
         //I know nothing :(
         return IGuiContainerHandler.super.getClickableIngredientUnderMouse(screen, mouseX, mouseY);
     }
 
-    @MethodsReturnNonnullByDefault
-    private record ClickableIngredient<T>(ITypedIngredient<T> ingredient,ScreenArea area) implements IClickableIngredient<T>
-    {
-        @Override
-        public ITypedIngredient<T> getTypedIngredient() { return this.ingredient; }
-        @Override
-        public Rect2i getArea() { return new Rect2i(area.x,area.y,area.width,area.height); }
+    private Optional<IClickableIngredient<?>> createClickable(ItemStack item,ScreenArea area) {
+        return this.manager.createTypedIngredient(VanillaTypes.ITEM_STACK,item)
+                .map(t -> new ClickableIngredient<>(t,asRect(area)));
+    }
+    private Optional<IClickableIngredient<?>> createClickable(FluidStack fluid,ScreenArea area) {
+        return this.manager.createTypedIngredient(ForgeTypes.FLUID_STACK,fluid)
+                .map(t -> new ClickableIngredient<>(t,asRect(area)));
     }
 
-    @MethodsReturnNonnullByDefault
-    private record Ingredient<T>(IIngredientType<T> type, T ingredient) implements ITypedIngredient<T>
-    {
-        @Override
-        public IIngredientType<T> getType() { return this.type; }
-        @Override
-        public T getIngredient() { return this.ingredient; }
-    }
+    private static ImmutableRect2i asRect(ScreenArea area) { return new ImmutableRect2i(area.x,area.y,area.width,area.height); }
 
 }

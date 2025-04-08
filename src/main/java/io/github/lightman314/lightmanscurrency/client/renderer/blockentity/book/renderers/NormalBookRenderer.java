@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRendererGenerator;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.SimpleBookRenderer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class NormalBookRenderer extends SimpleBookRenderer {
 
-    public static final ResourceLocation MODEL_LOCATION = new ResourceLocation(LightmansCurrency.MODID, "block/bookshelf_trader/books/book");
+    public static final ResourceLocation MODEL_LOCATION = VersionUtil.lcResource("block/bookshelf_trader/books/book");
 
 
     public static final NormalBookRenderer INSTANCE = new NormalBookRenderer(new ItemStack(Items.BOOK));

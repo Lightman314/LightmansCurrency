@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredItemListing;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.StructureTags;
@@ -37,8 +38,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
 
-	public static final ResourceLocation BANKER_ID = new ResourceLocation(LightmansCurrency.MODID, "banker");
-	public static final ResourceLocation CASHIER_ID = new ResourceLocation(LightmansCurrency.MODID, "cashier");
+	public static final ResourceLocation BANKER_ID = VersionUtil.lcResource("banker");
+	public static final ResourceLocation CASHIER_ID = VersionUtil.lcResource("cashier");
 
 	public static final String WANDERING_TRADER_ID = "minecraft:wandering_trader";
 
@@ -65,7 +66,7 @@ public class VillagerTradeManager {
 						//Sell Coin Chest
 						new SimpleTrade(5, ModItems.COIN_IRON.get(), 15, ModBlocks.COIN_CHEST.get()),
 						//Sell display case
-						new SimpleTrade(5, ModItems.COIN_IRON.get(), 10, ModBlocks.DISPLAY_CASE.get())
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(),10),LCTags.Items.TRADER_DISPLAY_CASE, 12, 5, 0.05f)
 				),
 				3,
 				ImmutableList.of(
@@ -291,7 +292,7 @@ public class VillagerTradeManager {
 				//Rare Trades
 				ImmutableList.of(
 						//Traders
-						new SimpleTrade(ModItems.COIN_GOLD.get(), 2, ModItems.COIN_IRON.get(), 4, ModBlocks.DISPLAY_CASE.get()),
+						RandomTrade.build(new ItemStack(ModItems.COIN_GOLD.get(),2),new ItemStack(ModItems.COIN_IRON.get(),4), LCTags.Items.TRADER_DISPLAY_CASE, 12, 1, 0.05f),
 						new SimpleTrade(ModItems.COIN_GOLD.get(), 4, ModBlocks.ARMOR_DISPLAY.get())
 				));
 	}

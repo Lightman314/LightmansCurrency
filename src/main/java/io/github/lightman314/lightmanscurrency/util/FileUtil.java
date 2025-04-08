@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -36,7 +35,7 @@ public class FileUtil {
 	public static ItemStack parseItemStack(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String id = GsonHelper.getAsString(json, "ID");
 		int count = GsonHelper.getAsInt(json, "Count", 1);
-		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);
+		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(id)), count);
 		try {
 			if(json.has("Tag"))
 			{

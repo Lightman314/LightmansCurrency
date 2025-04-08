@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -80,7 +81,7 @@ public class CoinValueParser extends MoneyValueParser {
     {
         if(ResourceLocation.isValidResourceLocation(coinIDString))
         {
-            ResourceLocation coinID = new ResourceLocation(coinIDString);
+            ResourceLocation coinID = VersionUtil.parseResource(coinIDString);
             Item coin = ForgeRegistries.ITEMS.getValue(coinID);
             ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
             if(chainData == null)

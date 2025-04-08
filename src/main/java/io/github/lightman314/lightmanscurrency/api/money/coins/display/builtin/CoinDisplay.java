@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisp
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,7 +30,7 @@ import java.util.*;
 
 public class CoinDisplay extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = new ResourceLocation("lightmanscurrency", "coin");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("coin");
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
     @Nonnull

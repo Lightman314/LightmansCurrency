@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -27,7 +28,7 @@ import java.util.List;
 public class EnchantedItemForCoinsTrade implements ItemListing
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "enchanted_item_for_coins");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("enchanted_item_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final Item baseCoin;
@@ -111,10 +112,10 @@ public class EnchantedItemForCoinsTrade implements ItemListing
 
         @Override
         public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json,"Coin")));
+            Item coin = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"BaseCoinCount");
             double basePriceModifier = GsonHelper.getAsDouble(json,"EnchantmentValueModifier");
-            Item sellItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json,"Sell")));
+            Item sellItem = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(json,"Sell")));
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
             int xp = GsonHelper.getAsInt(json,"XP");
             float priceMult = GsonHelper.getAsFloat(json, "PriceMult");

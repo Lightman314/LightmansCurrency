@@ -315,7 +315,8 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.saveTargets(compound);
 		this.saveUpgradeSlots(compound);
 		this.saveStatTracker(compound);
-		for(SidedHandler<?> handler : this.handlers) this.saveHandler(compound, handler);
+		for(SidedHandler<?> handler : this.handlers)
+			this.saveHandler(compound, handler);
 	}
 	
 	protected final CompoundTag saveOwner(CompoundTag compound) {

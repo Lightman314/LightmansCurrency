@@ -10,16 +10,20 @@ import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
 
+    public static final int MAX_COMMANDS = 10;
 
     @Override
     public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message)
@@ -28,15 +32,15 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
         {
             this.setExchangeWhileOpen(data, message.getBoolean("SetExchangeWhileOpen"));
         }
-        if(message.contains("SetExchangeCommand"))
+        if(message.contains("ToggleExchangeCommand"))
         {
-            String newCommand = message.getString("SetExchangeCommand");
-            String oldCommand = this.getExchangeCommand(data);
+            String toggleCommand = message.getString("ToggleExchangeCommand");
+            List<String> oldCommands = this.getExchangeCommands(data);
 
-            if(Objects.equals(newCommand, oldCommand))
-                this.setExchangeCommand(data, "");
+            if(oldCommands.contains(toggleCommand))
+                this.removeExchangeCommand(data, toggleCommand);
             else
-                this.setExchangeCommand(data, newCommand);
+                this.addExchangeCommand(data,toggleCommand);
         }
     }
 
@@ -64,19 +68,53 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
         data.setItemTag(compound);
     }
 
-    public String getExchangeCommand(CoinChestUpgradeData data)
+    public List<String> getExchangeCommands(CoinChestUpgradeData data)
     {
         CompoundTag compound = data.getItemTag();
+        if(compound.contains("ExchangeCommands"))
+        {
+            ListTag list = compound.getList("ExchangeCommands", Tag.TAG_STRING);
+            List<String> result = new ArrayList<>();
+            for(int i = 0; i < list.size(); ++i)
+                result.add(list.getString(i));
+            return result;
+        }
         if(compound.contains("ExchangeCommand"))
-            return compound.getString("ExchangeCommand");
-        return "";
+            return Lists.newArrayList(compound.getString("ExchangeCommand"));
+        return new ArrayList<>();
     }
 
-    public void setExchangeCommand(CoinChestUpgradeData data, String newValue)
+    public void addExchangeCommand(CoinChestUpgradeData data, String newValue)
     {
         CompoundTag compound = data.getItemTag();
-        compound.putString("ExchangeCommand", newValue);
+        List<String> list = this.getExchangeCommands(data);
+        //Don't add if we're already at capacity or if the command is invalid/duplicate
+        if(list.contains(newValue) || newValue.isBlank() || list.size() >= MAX_COMMANDS)
+            return;
+        this.setExchangeCommands(compound,list);
         data.setItemTag(compound);
+    }
+
+    public void removeExchangeCommand(CoinChestUpgradeData data, String removedValue)
+    {
+        CompoundTag compound = data.getItemTag();
+        List<String> list = this.getExchangeCommands(data);
+        if(list.contains(removedValue))
+        {
+            list.remove(removedValue);
+            this.setExchangeCommands(compound,list);
+            data.setItemTag(compound);
+        }
+    }
+
+    private void setExchangeCommands(CompoundTag tag,List<String> commands)
+    {
+        ListTag list = new ListTag();
+        for(String command : commands)
+            list.add(StringTag.valueOf(command));
+        tag.put("ExchangeCommands",list);
+        if(tag.contains("ExchangeCommand"))
+            tag.remove("ExchangeCommand");
     }
 
     public void ExecuteExchangeCommand(CoinChestBlockEntity be, CoinChestUpgradeData data)
@@ -84,11 +122,14 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
         boolean executeWhileOpen = this.getExchangeWhileOpen(data);
         if(executeWhileOpen || be.getOpenerCount() <= 0)
         {
-            String command = this.getExchangeCommand(data);
-            if(command != null && !command.isBlank())
+            List<String> commands = this.getExchangeCommands(data);
+            for(String c : commands)
             {
-                if(ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), command))
-                    CoinAPI.API.SortCoinsByValue(be.getStorage());
+                if(c != null && !c.isBlank())
+                {
+                    if(ATMAPI.ExecuteATMExchangeCommand(be.getStorage(), c))
+                        CoinAPI.API.SortCoinsByValue(be.getStorage());
+                }
             }
         }
     }

@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.*;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -46,7 +47,7 @@ public class LightmansCurrencyPacketHandler {
 	{
 		
 		instance = NetworkRegistry.ChannelBuilder
-				.named(new ResourceLocation(LightmansCurrency.MODID,"network"))
+				.named(VersionUtil.lcResource("network"))
 				.networkProtocolVersion(() -> PROTOCOL_VERSION)
 				.clientAcceptedVersions(PROTOCOL_VERSION::equals)
 				.serverAcceptedVersions(PROTOCOL_VERSION::equals)

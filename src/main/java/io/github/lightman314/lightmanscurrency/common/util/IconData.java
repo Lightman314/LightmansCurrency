@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -66,7 +67,7 @@ public abstract class IconData {
 	{
 		if(tag.contains("Type"))
 		{
-			ResourceLocation type = new ResourceLocation(tag.getString("Type"));
+			ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
 			if(ICON_TYPES.containsKey(type))
 				return ICON_TYPES.get(type).apply(tag);
 		}
@@ -94,7 +95,7 @@ public abstract class IconData {
 
 	private static class ItemIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"item");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("item");
 
 		private final ItemStack iconStack;
 		private final String countTextOverride;
@@ -124,7 +125,7 @@ public abstract class IconData {
 
 	private static class ImageIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"sprite");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("sprite");
 
 		private final Sprite sprite;
 		private ImageIcon(Sprite sprite) { super(TYPE); this.sprite = sprite; }
@@ -145,7 +146,7 @@ public abstract class IconData {
 		}
 
 		private static IconData loadImage(@Nonnull CompoundTag tag) {
-			ResourceLocation image = new ResourceLocation(tag.getString("Image"));
+			ResourceLocation image = VersionUtil.parseResource(tag.getString("Image"));
 			int u = tag.getInt("u");
 			int v = tag.getInt("v");
 			int w = tag.getInt("w");
@@ -159,7 +160,7 @@ public abstract class IconData {
 
 	private static class TextIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"text");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("text");
 
 		private final Component iconText;
 		private final int textColor;
@@ -192,7 +193,7 @@ public abstract class IconData {
 
 	private static class NumberIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"number_icon");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("number_icon");
 		private final int number;
 		private NumberIcon(int number) { super(TYPE); this.number = number; }
 		@Override
@@ -214,7 +215,7 @@ public abstract class IconData {
 
 	private static class MultiIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"multi_icon");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("multi_icon");
 		private final List<IconData> icons;
 		private MultiIcon(List<IconData> icons) { super(TYPE); this.icons = icons; }
 		@Override
@@ -247,7 +248,7 @@ public abstract class IconData {
 
 	private static class NullIcon extends IconData
 	{
-		private static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"null");
+		private static final ResourceLocation TYPE = VersionUtil.lcResource("null");
 		private NullIcon() { super(TYPE); }
 		@Override
 		public void render(@Nonnull EasyGuiGraphics gui, int x, int y) {}

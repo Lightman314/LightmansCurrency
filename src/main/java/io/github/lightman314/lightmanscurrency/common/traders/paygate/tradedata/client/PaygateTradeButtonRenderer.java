@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,7 +53,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(58, 1, this.trade.getDescription().isBlank() ? 34 : 127, 16); }
 
     @Override
-    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return Lists.newArrayList(this.trade.getDescription().isBlank() ? DisplayEntry.of(PaygateTradeData.formatDurationDisplay(this.trade.getDuration()), TextRenderUtil.TextFormatting.create(), Lists.newArrayList(PaygateTradeData.formatDuration(this.trade.getDuration()),LCText.GUI_TRADER_PAYGATE_LEVEL.get(this.trade.getRedstoneLevel()))) : DisplayEntry.of(EasyText.literal(this.trade.getDescription()),0xFFFFFF,127)); }
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return Lists.newArrayList(this.trade.getDescription().isBlank() ? DisplayEntry.of(PaygateTradeData.formatDurationDisplay(this.trade.getDuration()), TextRenderUtil.TextFormatting.create(), Lists.newArrayList(PaygateTradeData.formatDuration(this.trade.getDuration()),LCText.GUI_TRADER_PAYGATE_LEVEL.get(this.trade.getRedstoneLevel()))) : DisplayEntry.of(EasyText.literal(this.trade.getDescription()),0xFFFFFF, TooltipHelper.splitTooltips(this.trade.getDescriptionTooltip()))); }
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {

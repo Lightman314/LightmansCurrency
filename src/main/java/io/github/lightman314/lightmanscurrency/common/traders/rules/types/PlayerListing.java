@@ -17,23 +17,27 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHo
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PlayerListing extends TradeRule {
 
-    public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "player_list"),PlayerListing::new);
+    public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(VersionUtil.lcResource("player_list"),PlayerListing::new);
 
     public static final IRuleLoadListener LISTENER = new DataListener();
 
@@ -46,12 +50,11 @@ public class PlayerListing extends TradeRule {
 
     private PlayerListing() { super(TYPE); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return this.isWhitelistMode() ? IconUtil.ICON_WHITELIST : IconUtil.ICON_BLACKLIST; }
 
     @Override
-    public void beforeTrade(@Nonnull TradeEvent.PreTradeEvent event) {
+    public void beforeTrade(TradeEvent.PreTradeEvent event) {
         if(this.isBlacklistMode() && this.isInList(event.getPlayerReference()))
             event.addDenial(LCText.TRADE_RULE_PLAYER_LISTING_DENIAL_BLACKLIST.get());
         else if(this.isWhitelistMode())
@@ -63,13 +66,13 @@ public class PlayerListing extends TradeRule {
         }
     }
 
-    public boolean isInList(@Nonnull PlayerReference player) { return PlayerReference.isInList(this.playerList,player); }
+    public boolean isInList(PlayerReference player) { return PlayerReference.isInList(this.playerList,player); }
 
     /**
      * Method used by the <code>/lcadmin traderdata addToWhitelist [trader] [players]</code> command to add players to the whitelist.
      * Will force the listing into whitelist mode, and clear any players already on it if it was in blacklist mode.
      */
-    public boolean addToWhitelist(@Nonnull ServerPlayer player)
+    public boolean addToWhitelist(ServerPlayer player)
     {
         boolean changed = false;
         PlayerReference pr = PlayerReference.of(player);
@@ -91,13 +94,13 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
+    protected void saveAdditional(CompoundTag compound) {
         compound.putBoolean("WhitelistMode", this.whitelistMode);
         PlayerReference.saveList(compound,this.playerList, "Players");
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound) {
+    protected void loadAdditional(CompoundTag compound) {
         if(compound.contains("Players", Tag.TAG_LIST))
             this.playerList = PlayerReference.loadList(compound,"Players");
         if(compound.contains("WhitelistMode"))
@@ -105,10 +108,10 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    public JsonObject saveToJson(@Nonnull JsonObject json) { return json; }
+    public JsonObject saveToJson(JsonObject json) { return json; }
 
     @Override
-    public void loadFromJson(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException { }
+    public void loadFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException { }
 
     @Override
     public CompoundTag savePersistentData() {
@@ -123,20 +126,20 @@ public class PlayerListing extends TradeRule {
     }
 
     @Override
-    protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+    protected void handleUpdateMessage(Player player,LazyPacketData updateInfo) {
         if(updateInfo.contains("AddPlayer"))
         {
-            PlayerReference player = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
-            if(player == null || this.isInList(player))
+            PlayerReference added = PlayerReference.load(updateInfo.getNBT("AddPlayer"));
+            if(added == null || this.isInList(added))
                 return;
-            this.playerList.add(player);
+            this.playerList.add(added);
         }
         if(updateInfo.contains("RemovePlayer"))
         {
-            PlayerReference player = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
-            if(player == null || !this.isInList(player))
+            PlayerReference removed = PlayerReference.load(updateInfo.getNBT("RemovePlayer"));
+            if(removed == null || !this.isInList(removed))
                 return;
-            PlayerReference.removeFromList(this.playerList,player);
+            PlayerReference.removeFromList(this.playerList,removed);
         }
         if(updateInfo.contains("ChangeMode"))
         {
@@ -144,7 +147,7 @@ public class PlayerListing extends TradeRule {
         }
     }
 
-    @Nonnull
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerListingTab(parent,TYPE); }
@@ -152,7 +155,7 @@ public class PlayerListing extends TradeRule {
     private static final class DataListener implements IRuleLoadListener
     {
         @Override
-        public void afterLoading(@Nullable ITradeRuleHost host, @Nonnull List<CompoundTag> allData, @Nonnull List<TradeRule> rules) {
+        public void afterLoading(@Nullable ITradeRuleHost host, List<CompoundTag> allData, List<TradeRule> rules) {
             if(TradeRule.getRule(TYPE.type,rules) == null)
             {
                 PlayerListing rule = new PlayerListing();

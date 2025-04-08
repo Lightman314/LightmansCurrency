@@ -9,8 +9,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
@@ -32,16 +32,15 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 25, screenArea.y + 9, 20, 20, EasyText.empty()));
-        this.discountInput.setMaxLength(2);
         TimedSale rule = this.getRule();
-        if(rule != null)
-            this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(125,10))
-                .width(50)
-                .text(LCText.BUTTON_SET)
-                .pressAction(this::PressSetDiscountButton)
+
+        this.discountInput = this.addChild(TextInputUtil.intBuilder()
+                .position(screenArea.pos.offset(25,9))
+                .size(30,20)
+                .maxLength(3)
+                .parser(IntParser.ONE_TO_ONE_HUNDRED)
+                .startingValue(rule == null ? 1 : rule.getDiscount())
+                .handler(this::onDiscountChanged)
                 .build());
 
         this.buttonStartSale = this.addChild(EasyTextButton.builder()
@@ -84,7 +83,6 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         this.buttonStartSale.setMessage(getButtonText());
         TimedSale rule = this.getRule();
         this.buttonStartSale.active = rule != null && (rule.timerActive() || (rule.getDuration() > 0 && rule.isActive()));
-        TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
         if(rule.getStartTime() != 0 && !rule.timerActive())
         {
             rule.setStartTime(0);
@@ -104,13 +102,12 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         return rule != null && rule.timerActive() ? LCText.TOOLTIP_TIMED_SALE_STOP.get() : LCText.TOOLTIP_TIMED_SALE_START.get();
     }
 
-    void PressSetDiscountButton()
+    void onDiscountChanged(int newDiscount)
     {
-        int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
         TimedSale rule = this.getRule();
         if(rule != null)
-            rule.setDiscount(discount);
-        this.sendUpdateMessage(this.builder().setInt("Discount", discount));
+            rule.setDiscount(newDiscount);
+        this.sendUpdateMessage(this.builder().setInt("Discount", newDiscount));
     }
 
     void PressStartButton()

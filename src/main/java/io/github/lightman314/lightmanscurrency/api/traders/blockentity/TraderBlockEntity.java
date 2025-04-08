@@ -94,7 +94,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildNewTrader();
 		newTrader.getOwner().SetOwner(PlayerOwner.of(owner));
 		if(placementStack.hasCustomHoverName())
-			newTrader.setCustomName(null, placementStack.getHoverName().getString());
+			newTrader.customName.set(placementStack.getHoverName().getString());
 		return newTrader;
 	}
 

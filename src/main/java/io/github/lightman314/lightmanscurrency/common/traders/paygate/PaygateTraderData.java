@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
@@ -35,11 +36,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygat
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -48,11 +50,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PaygateTraderData extends TraderData {
 
-	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "paygate"),PaygateTraderData::new);
+	public static final TraderType<PaygateTraderData> TYPE = new TraderType<>(VersionUtil.lcResource("paygate"),PaygateTraderData::new);
 	
 	public static final int DURATION_MIN = 1;
 	public static int getMaxDuration() {
@@ -101,7 +105,7 @@ public class PaygateTraderData extends TraderData {
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
 	
 	private PaygateTraderData() { super(TYPE); }
-	public PaygateTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
+	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
 
 	public int getTradeCount() { return this.trades.size(); }
 	
@@ -115,7 +119,7 @@ public class PaygateTraderData extends TraderData {
 	public boolean canEditTradeCount() { return true; }
 	
 	@Override
-	public int getMaxTradeCount() { return 8; }
+	public int getMaxTradeCount() { return 16; }
 	
 	@Override
 	public void addTrade(Player requestor)
@@ -181,8 +185,7 @@ public class PaygateTraderData extends TraderData {
 		}
 		return this.trades.get(tradeSlot);
 	}
-	
-	@Nonnull
+
 	@Override
 	public List<PaygateTradeData> getTradeData() { return this.trades; }
 	
@@ -201,10 +204,10 @@ public class PaygateTraderData extends TraderData {
 		return false;
 	}
 	
-	private void activate(int duration,int level) {
+	private void activate(int duration, int level, DirectionalSettings outputSides) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			be.activate(duration,level);
+			be.activate(duration,level,outputSides);
 	}
 
 	@Override
@@ -283,7 +286,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//Activate the paygate
-			this.activate(trade.getDuration(),trade.getRedstoneLevel());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides());
 			
 			//Push Notification
 			this.pushNotification(PaygateNotification.createTicket(trade, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
@@ -303,7 +306,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//We have collected the payment, activate the paygate
-			this.activate(trade.getDuration(),trade.getRedstoneLevel());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides());
 
 			//Don't store money if the trader is creative
 			if(!this.isCreative())
@@ -391,7 +394,7 @@ public class PaygateTraderData extends TraderData {
 	public boolean canMakePersistent() { return false; }
 
 	@Override
-	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new PaygateTradeEditTab(menu));
 	}
 

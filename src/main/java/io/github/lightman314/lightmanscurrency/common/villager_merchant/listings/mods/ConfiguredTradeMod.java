@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -96,7 +97,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         LightmansCurrency.LogDebug("Attempting to parse '" + item + "' as an item!");
         if(item.isBlank() || item.equals("minecraft:air"))
             return null;
-        try { return ForgeRegistries.ITEMS.getValue(new ResourceLocation(item));
+        try { return ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(item));
         } catch (ResourceLocationException e) { throw new ConfigParsingException(item + " is not a valid ResourceLocation!",e); }
     }
 

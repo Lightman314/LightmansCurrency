@@ -285,7 +285,4 @@ public class GachaTrader extends InputTraderData {
         menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE,new GachaPriceTab(menu));
     }
 
-    @Override
-    public boolean allowOutputs() { return false; }
-
 }

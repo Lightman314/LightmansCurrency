@@ -4,12 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.IconType;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 public class ItemIcon extends ATMIconData {
 	
-	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "item");
+	public static final ResourceLocation TYPE_NAME = VersionUtil.lcResource("item");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, ItemIcon::new);
 	
 	private final boolean simpleItem;
@@ -36,7 +36,7 @@ public class ItemIcon extends ATMIconData {
 		String itemID = GsonHelper.getAsString(data, "item", "NO_RESULT");
 		if(!itemID.equals("NO_RESULT"))
 		{
-			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemID)));
+			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(itemID)));
 			this.simpleItem = true;
 		}
 		else

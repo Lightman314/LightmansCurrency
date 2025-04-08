@@ -5,10 +5,10 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +45,7 @@ public final class CoinValuePair
         return tag;
     }
 
-    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, ForgeRegistries.ITEMS.getValue(new ResourceLocation(tag.getString("Coin"))), tag.getInt("Amount")); }
+    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(tag.getString("Coin"))), tag.getInt("Amount")); }
 
     public void encode(FriendlyByteBuf buffer)
     {
@@ -66,7 +66,7 @@ public final class CoinValuePair
     @Nullable
     public static CoinValuePair fromJson(@Nonnull ChainData chainData, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json, "Coin")));
+        Item coin = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(json, "Coin")));
         int quantity = GsonHelper.getAsInt(json, "Amount", 1);
         if(quantity <= 0)
             throw new JsonSyntaxException("Coin Amount (" + quantity + ") is <= 0!");

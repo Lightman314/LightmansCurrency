@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.cards.*;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -141,10 +142,10 @@ public class ModItems {
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(Upgrades.COIN_CHEST_SECURITY, new Item.Properties()));
 
 		//Smithing Templates (1.20 only)
-		ResourceLocation INGOT = new ResourceLocation("item/empty_slot_ingot");
-		ResourceLocation EMERALD = new ResourceLocation("item/empty_slot_emerald");
-		ResourceLocation DIAMOND = new ResourceLocation("item/empty_slot_diamond");
-		ResourceLocation REDSTONE = new ResourceLocation("item/empty_slot_redstone_dust");
+		ResourceLocation INGOT = VersionUtil.vanillaResource("item/empty_slot_ingot");
+		ResourceLocation EMERALD = VersionUtil.vanillaResource("item/empty_slot_emerald");
+		ResourceLocation DIAMOND = VersionUtil.vanillaResource("item/empty_slot_diamond");
+		ResourceLocation REDSTONE = VersionUtil.vanillaResource("item/empty_slot_redstone_dust");
 		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new SmithingTemplateItem(LCText.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE), LCText.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),LCText.TOOLTIP_SMITHING_TEMPLATE_DESCRIPTION.getWithStyle(ChatFormatting.GRAY),LCText.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),LCText.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),new ArrayList<>(), Lists.newArrayList(INGOT,EMERALD,DIAMOND,REDSTONE)));
 
 		//Bank Card

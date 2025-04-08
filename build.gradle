@@ -129,6 +129,12 @@ repositories {
     maven { url "https://maven.architectury.dev/" }
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     maven { url = "https://maven.tterrag.com" } // Registrate
+
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+
 }
 
 dependencies {
@@ -203,6 +209,15 @@ dependencies {
     implementation(fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}"))
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
     implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
+
+    //Impactor Economy Compat
+    //Have to get the jar from modrinth as the example maven from their page & github fails to find the net.kyori.* jar-in-jar requirements
+    compileOnly(fg.deobf("maven.modrinth:impactor:5.2.7+1.20.1-Forge"))
+    //Manually extracted the jar-in-jar libraries from impactor so that they can be loaded properly
+    compileOnly(fg.deobf(fileTree("libs"){ include "*.jar"}))
+
+    //Jade cause it's kinda nice to have during runtime
+    runtimeOnly(fg.deobf("maven.modrinth:jade:11.13.1+forge"))
 
 }
 

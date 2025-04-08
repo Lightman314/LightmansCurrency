@@ -18,27 +18,31 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PriceFluctuation extends PriceTweakingTradeRule {
 
-	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(new ResourceLocation(LightmansCurrency.MODID, "price_fluctuation"),PriceFluctuation::new);
+	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(VersionUtil.lcResource("price_fluctuation"),PriceFluctuation::new);
 	
 	long duration = TimeUtil.DURATION_DAY;
 	public long getDuration() { return this.duration; }
 	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, 1000, Long.MAX_VALUE); }
 	int fluctuation = 10;
 	public int getFluctuation() { return this.fluctuation; }
-	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, Integer.MAX_VALUE); }
+	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, 100); }
 	
 	public PriceFluctuation() { super(TYPE); }
 
-	@Nonnull
+	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
 
@@ -79,12 +83,12 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void tradeCost(@Nonnull TradeCostEvent event) {
+	public void tradeCost(TradeCostEvent event) {
 		event.giveDiscount(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound) {
 		
 		compound.putLong("Duration", this.duration);
 		compound.putInt("Fluctuation", this.fluctuation);
@@ -92,7 +96,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound) {
 		
 		this.duration = compound.getLong("Duration");
 		if(this.duration <= 0)
@@ -103,7 +107,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public JsonObject saveToJson(@Nonnull JsonObject json) {
+	public JsonObject saveToJson(JsonObject json) {
 		
 		json.addProperty("Duration", this.duration);
 		json.addProperty("Fluctuation", this.fluctuation);
@@ -112,7 +116,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	}
 	
 	@Override
-	public void loadFromJson(@Nonnull JsonObject json) {
+	public void loadFromJson(JsonObject json) {
 		if(json.has("Duration"))
 			this.duration = json.get("Duration").getAsLong();
 		if(json.has("Fluctuation"))
@@ -125,14 +129,13 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	public void loadPersistentData(CompoundTag data) {}
 	
 	@Override
-	protected void handleUpdateMessage(@Nonnull LazyPacketData updateInfo) {
+	protected void handleUpdateMessage(Player player, LazyPacketData updateInfo) {
 		if(updateInfo.contains("Duration"))
 			this.setDuration(updateInfo.getLong("Duration"));
 		if(updateInfo.contains("Fluctuation"))
 			this.setFluctuation(updateInfo.getInt("Fluctuation"));
 	}
 
-	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PriceFluctuationTab(parent); }

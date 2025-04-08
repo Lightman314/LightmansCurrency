@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -23,6 +22,7 @@ public class GachaMachineBlockEntity extends TraderBlockEntity<GachaTrader> {
     public GachaMachineBlockEntity(BlockPos pos, BlockState state) { this(pos,state,0xFFFFFF); }
     public GachaMachineBlockEntity(BlockPos pos, BlockState state, int color) { super(ModBlockEntities.GACHA_MACHINE.get(), pos, state); }
 
+    @Nonnull
     @Override
     protected GachaTrader buildNewTrader() { return new GachaTrader(this.level,this.worldPosition,this.color); }
 

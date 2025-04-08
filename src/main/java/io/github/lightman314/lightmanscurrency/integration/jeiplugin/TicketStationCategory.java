@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TicketStationScreen;
-import io.github.lightman314.lightmanscurrency.common.blocks.TicketStationBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import mezz.jei.api.constants.VanillaTypes;

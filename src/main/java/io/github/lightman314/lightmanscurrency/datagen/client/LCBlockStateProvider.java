@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
@@ -10,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
+import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
@@ -30,6 +32,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class LCBlockStateProvider extends BlockStateProvider {
@@ -38,23 +42,23 @@ public class LCBlockStateProvider extends BlockStateProvider {
         super(output, LightmansCurrency.MODID, exFileHelper);
     }
 
-    private static final ResourceLocation UPGRADE_TIER_COPPER = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/copper");
-    private static final ResourceLocation UPGRADE_TIER_IRON = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/iron");
-    private static final ResourceLocation UPGRADE_TIER_GOLD = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/gold");
-    private static final ResourceLocation UPGRADE_TIER_EMERALD = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/emerald");
-    private static final ResourceLocation UPGRADE_TIER_DIAMOND = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/diamond");
-    private static final ResourceLocation UPGRADE_TIER_NETHERITE = new ResourceLocation(LightmansCurrency.MODID,"item/upgrade_tier/netherite");
+    private static final ResourceLocation UPGRADE_TIER_COPPER = VersionUtil.lcResource("item/upgrade_tier/copper");
+    private static final ResourceLocation UPGRADE_TIER_IRON = VersionUtil.lcResource("item/upgrade_tier/iron");
+    private static final ResourceLocation UPGRADE_TIER_GOLD = VersionUtil.lcResource("item/upgrade_tier/gold");
+    private static final ResourceLocation UPGRADE_TIER_EMERALD = VersionUtil.lcResource("item/upgrade_tier/emerald");
+    private static final ResourceLocation UPGRADE_TIER_DIAMOND = VersionUtil.lcResource("item/upgrade_tier/diamond");
+    private static final ResourceLocation UPGRADE_TIER_NETHERITE = VersionUtil.lcResource("item/upgrade_tier/netherite");
 
-    private static final ResourceLocation UPGRADE_ITEM_CAPACITY = new ResourceLocation(LightmansCurrency.MODID,"item/item_capacity_upgrade");
-    private static final ResourceLocation UPGRADE_TRADE_OFFER = new ResourceLocation(LightmansCurrency.MODID,"item/trading_core");
-    private static final ResourceLocation UPGRADE_NETWORK = new ResourceLocation("item/ender_eye");
-    private static final ResourceLocation UPGRADE_VOID = new ResourceLocation("item/barrier");
-    private static final ResourceLocation UPGRADE_SPEED = new ResourceLocation("item/clock_00");
-    private static final ResourceLocation UPGRADE_HOPPER = new ResourceLocation("item/hopper");
-    private static final ResourceLocation UPGRADE_CC_SECURITY = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_security_upgrade");
-    private static final ResourceLocation UPGRADE_CC_BANK = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_bank_upgrade");
-    private static final ResourceLocation UPGRADE_CC_EXCHANGE = new ResourceLocation(LightmansCurrency.MODID,"item/coin_chest_exchange_upgrade");
-    private static final ResourceLocation UPGRADE_CC_MAGNET = new ResourceLocation("item/ender_pearl");
+    private static final ResourceLocation UPGRADE_ITEM_CAPACITY = VersionUtil.lcResource("item/item_capacity_upgrade");
+    private static final ResourceLocation UPGRADE_TRADE_OFFER = VersionUtil.lcResource("item/trading_core");
+    private static final ResourceLocation UPGRADE_NETWORK = VersionUtil.vanillaResource("item/ender_eye");
+    private static final ResourceLocation UPGRADE_VOID = VersionUtil.vanillaResource("item/barrier");
+    private static final ResourceLocation UPGRADE_SPEED = VersionUtil.vanillaResource("item/clock_00");
+    private static final ResourceLocation UPGRADE_HOPPER = VersionUtil.vanillaResource("item/hopper");
+    private static final ResourceLocation UPGRADE_CC_SECURITY = VersionUtil.lcResource("item/coin_chest_security_upgrade");
+    private static final ResourceLocation UPGRADE_CC_BANK = VersionUtil.lcResource("item/coin_chest_bank_upgrade");
+    private static final ResourceLocation UPGRADE_CC_EXCHANGE = VersionUtil.lcResource("item/coin_chest_exchange_upgrade");
+    private static final ResourceLocation UPGRADE_CC_MAGNET = VersionUtil.vanillaResource("item/ender_pearl");
 
     private static final ResourceLocation WALLET_MODEL_BASE = WalletItem.lazyModel("wallet_base");
 
@@ -123,7 +127,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
         //ATM
         this.registerTallRotatable(ModBlocks.ATM, "atm_top", "atm_bottom", "atm", true);
-        this.registerBasicItem(ModItems.PORTABLE_ATM);
+        //this.registerBasicItem(ModItems.PORTABLE_ATM);
 
         //ATM Card
         this.registerLayeredItem(ModItems.ATM_CARD);
@@ -137,13 +141,21 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerRotatable(ModBlocks.CASH_REGISTER, "cash_register_modern", true);
 
         //Display Case
-        this.registerSimpleState(ModBlocks.DISPLAY_CASE);
+        ModBlocks.DISPLAY_CASE.forEach((color,block) -> {
+            ResourceLocation woolTexture = ColorHelper.GetWoolTextureOfColor(color);
+            String modelID = this.lazyColoredID("block/display_case/",color);
+            //Generate the models
+            this.models().getBuilder(modelID).parent(this.lazyBlockModel("display_case/base",true))
+                    .texture("wool",woolTexture);
+            //Generate the block state
+            this.simpleBlockWithItem(block.get(),new ModelFile.UncheckedModelFile(VersionUtil.lcResource(modelID)));
+        });
 
         //Vending Machines
         ModBlocks.VENDING_MACHINE.forEach((color, block) -> {
             //Collect IDs and Textures
-            ResourceLocation interiorTexture = new ResourceLocation(LightmansCurrency.MODID, this.lazyColoredID("block/vending_machine/", color, "_interior"));
-            ResourceLocation exteriorTexture = new ResourceLocation(LightmansCurrency.MODID, this.lazyColoredID("block/vending_machine/", color, "_exterior"));
+            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/", color, "_interior"));
+            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/", color, "_exterior"));
             String topID = this.lazyColoredID("block/vending_machine/", color, "_top");
             String bottomID = this.lazyColoredID("block/vending_machine/", color, "_bottom");
             String itemID = this.lazyColoredID("block/vending_machine/", color, "_item");
@@ -164,8 +176,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Large Vending Machines
         ModBlocks.VENDING_MACHINE_LARGE.forEach((color,block) -> {
             //Collect IDs and Textures
-            ResourceLocation interiorTexture = new ResourceLocation(LightmansCurrency.MODID, this.lazyColoredID("block/large_vending_machine/", color, "_interior"));
-            ResourceLocation exteriorTexture = new ResourceLocation(LightmansCurrency.MODID, this.lazyColoredID("block/large_vending_machine/", color, "_exterior"));
+            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/", color, "_interior"));
+            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/", color, "_exterior"));
             String topLeftID = this.lazyColoredID("block/large_vending_machine/", color, "_top_left");
             String topRightID = this.lazyColoredID("block/large_vending_machine/", color, "_top_right");
             String bottomLeftID = this.lazyColoredID("block/large_vending_machine/", color, "_bottom_left");
@@ -245,7 +257,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Freezer
         ModBlocks.FREEZER.forEach((color,block) -> {
             //Collect IDs and Textures
-            ResourceLocation concreteTexture = new ResourceLocation(this.lazyColoredID("block/", color, "_concrete_powder"));
+            ResourceLocation concreteTexture = ColorHelper.GetConcreteTextureOfColor(color);
             String topModelID = this.lazyColoredID("block/freezer/", color, "_top");
             String bottomModelID = this.lazyColoredID("block/freezer/", color, "_bottom");
             String itemModelID = this.lazyColoredID("block/freezer/", color, "_item");
@@ -314,7 +326,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
         //Terminal
         this.registerRotatable(ModBlocks.TERMINAL);
-        this.registerBasicItem(ModItems.PORTABLE_TERMINAL);
+        //this.registerBasicItem(ModItems.PORTABLE_TERMINAL);
 
         //Gem Terminal
         this.registerRotatable(ModBlocks.GEM_TERMINAL);
@@ -354,13 +366,14 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Coin Chest
-        this.getVariantBuilder(ModBlocks.COIN_CHEST.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(new ModelFile.ExistingModelFile(new ResourceLocation("block/chest"), this.models().existingFileHelper)).build());
-        this.registerBlockItemModel(ModBlocks.COIN_CHEST, new ModelFile.ExistingModelFile(new ResourceLocation("item/chest"), this.models().existingFileHelper));
+        this.getVariantBuilder(ModBlocks.COIN_CHEST.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("block/chest"), this.models().existingFileHelper)).build());
+        this.registerBlockItemModel(ModBlocks.COIN_CHEST, new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("item/chest"), this.models().existingFileHelper));
         //Gacha Ball
         this.itemModels().getBuilder("item/gacha_ball").parent(new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("item/chest"),this.models().existingFileHelper));
         //Coin Jars
         this.registerRotatable(ModBlocks.PIGGY_BANK, "jars/piggy_bank", true);
         this.registerRotatable(ModBlocks.COINJAR_BLUE, "jars/coinjar_blue", true);
+        this.registerMoneyBag(ModBlocks.MONEY_BAG,"money_bag");
 
         //Upgrades
         //Upgrades
@@ -418,7 +431,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private void registerBasicItem(RegistryObject<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
     private void registerLayeredItem(RegistryObject<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.get().asItem()));
-        this.itemModels().basicItem(itemID).texture("layer1", new ResourceLocation(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
+        this.itemModels().basicItem(itemID).texture("layer1", VersionUtil.modResource(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
     }
 
     private void registerUpgradeItem(@Nonnull RegistryObject<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
@@ -495,6 +508,24 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 .forAllStates(state -> ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWER_LEVEL) > 0 ? powered : unpowered).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, powered);
     }
+    private void registerMoneyBag(RegistryObject<? extends Block> block, String folder)
+    {
+        //Block Models
+        List<ModelFile> models = new ArrayList<>();
+        for(int i = 0; i <= 3; ++i)
+            models.add(this.lazyBlockModel(folder + "/" + i,true));
+        this.getVariantBuilder(block.get())
+                .forAllStates(state -> ConfiguredModel.builder().modelFile(models.get(state.getValue(MoneyBagBlock.SIZE))).rotationY(this.getRotationYInv(state)).build());
+        //Item Models
+        ResourceLocation itemModel = this.lazyItemModelID(lazyItemID(block));
+        ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
+        for(int i = 0; i <= 3; ++i)
+        {
+            builder.override()
+                    .predicate(MoneyBagItem.PROPERTY,i)
+                    .model(models.get(i));
+        }
+    }
     private void registerRotatable(RegistryObject<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
     private void registerRotatable(RegistryObject<? extends Block> block, String modelID, boolean check)
     {
@@ -541,7 +572,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private String lazyWoodenID(String prefix, WoodType type) { return type.generateResourceLocation(prefix); }
     private String lazyWoodenID(String prefix, WoodType type, String postFix) { return type.generateResourceLocation(prefix, postFix); }
 
-    private String lazyItemID(RegistryObject<? extends Item> item) { return ForgeRegistries.ITEMS.getKey(item.get()).getPath(); }
+    private String lazyItemID(RegistryObject<? extends ItemLike> item) { return ForgeRegistries.ITEMS.getKey(item.get().asItem()).getPath(); }
     private String lazyBlockID(RegistryObject<? extends Block> block) { return ForgeRegistries.BLOCKS.getKey(block.get()).getPath(); }
 
     private ResourceLocation lazyItemModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("item/") ? modelID : "item/" + modelID); }

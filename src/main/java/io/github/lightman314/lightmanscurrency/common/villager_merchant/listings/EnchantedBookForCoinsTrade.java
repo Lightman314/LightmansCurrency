@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class EnchantedBookForCoinsTrade implements ItemListing {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "enchanted_book_for_coins");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("enchanted_book_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final Item baseCoin;
@@ -116,7 +117,7 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
 
         @Override
         public ItemListing deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-            Item baseCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json,"Coin")));
+            Item baseCoin = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"StartCoinCount");
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
             int xp = GsonHelper.getAsInt(json,"XP");

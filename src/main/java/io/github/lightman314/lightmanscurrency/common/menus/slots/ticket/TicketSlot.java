@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots.ticket;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class TicketSlot extends Slot{
 	
-	public static final ResourceLocation EMPTY_TICKET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_ticket_slot");
+	public static final ResourceLocation EMPTY_TICKET_SLOT = VersionUtil.lcResource("item/empty_ticket_slot");
 	
 	public TicketSlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
 	

@@ -44,7 +44,7 @@ public class CoinBlock extends FallingBlock {
 	protected SoundEvent getBreakingSound() { return ModSounds.COINS_CLINKING.get(); }
 	
 	@Override
-	public void onLand(Level level, @Nonnull BlockPos pos, @Nonnull BlockState fallingState, @Nonnull BlockState hitState, @Nonnull FallingBlockEntity fallingBlock) {
+	public void onLand(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState fallingState, @Nonnull BlockState hitState, @Nonnull FallingBlockEntity fallingBlock) {
 		
 		if(level instanceof ServerLevel sl)
 		{

@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
 	public static final int TRADECOUNT = 6;
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "vending_machine");
+	public static final ResourceLocation TYPE = VersionUtil.lcResource("vending_machine");
 
 	public VendingMachineBlock(Properties properties) { super(properties); }
 

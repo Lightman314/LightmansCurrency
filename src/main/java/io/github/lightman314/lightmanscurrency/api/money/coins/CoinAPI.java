@@ -13,6 +13,7 @@ import net.minecraftforge.network.PacketDistributor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiPredicate;
 
 /**
  * Utility class with Coin-Related data and functions.
@@ -133,6 +134,12 @@ public abstract class CoinAPI {
      * @param allowSideChains Whether coins from a side-chain will return a positive response or if coins from a side-chain will be ignored.
      */
     public abstract boolean IsCoin(@Nonnull Item coin, boolean allowSideChains);
+
+    /**
+     * Allows you to add a filter allowing more items to be placed in Coin Containers such as wallets.<br>
+     * @see #IsAllowedInCoinContainer(ItemStack, boolean)
+     */
+    public abstract void RegisterCoinContainerFilter(@Nonnull BiPredicate<ItemStack,Boolean> filter);
 
     /**
      * Whether the given item should be treated like a coin even though it's not registered as such in the MasterCoinList

@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
@@ -136,7 +135,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
                 .sprite(sprite)
                 .drawInForeground()
                 .addon(EasyAddonHelper.tooltips(tooltipForSide(side)))
-                .addon(EasyAddonHelper.visibleCheck(() -> isSideVisible(side)))
+                .addon(EasyAddonHelper.visibleCheck(() -> this.isSideVisible(side)))
                 .build();
     }
 
@@ -144,7 +143,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     {
         return () -> {
             List<Component> list = new ArrayList<>();
-            list.add(InputTraderData.getFacingName(side));
+            list.add(LCText.GUI_INPUT_SIDES.get(side).get());
             DirectionalSettingsState state = this.stateForSide(side);
             if(state != DirectionalSettingsState.NONE)
                 list.add(state.getText());
@@ -159,7 +158,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 
     private boolean isSideVisible(Direction side) {
         IDirectionalSettingsObject parent = this.objectSource.get();
-        return this.visible && parent != null && !parent.getIgnoredSides().contains(side);
+        return this.isVisible() && parent != null && !parent.getIgnoredSides().contains(side);
     }
 
     @Override
@@ -440,7 +439,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     private void onAltButtonPress(Direction side) { this.onAltPress.accept(side); }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
+    public boolean hideFromMouse() { return true; }
 
     @Nonnull
     public static Builder builder() { return new Builder(); }

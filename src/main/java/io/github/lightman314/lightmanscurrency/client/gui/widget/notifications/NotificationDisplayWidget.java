@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -47,7 +46,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 	private List<Notification> getNotifications() { return this.notificationSource.get(); }
 
 	List<Component> tooltip = null;
-	List<EasyButton> deleteButtons = new ArrayList<>();
 
 	private Consumer<Integer> deletionHandler = null;
 	private Supplier<Boolean> canDelete = () -> false;
@@ -70,7 +68,6 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 
 	@Override
 	public void addChildren(@Nonnull ScreenArea area) {
-		this.deleteButtons = null;
 		for(int i = 0; i < this.rowCount; ++i)
 		{
 			final int row = i;

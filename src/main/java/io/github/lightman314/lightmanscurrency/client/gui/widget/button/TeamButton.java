@@ -41,7 +41,7 @@ public class TeamButton extends EasyButton {
 
 		//Render Background
 		gui.resetColor();
-		gui.blitNineSplit(GUI_TEXTURE,0,0,this.width,this.height,0,0,256,20,4);
+		gui.blitNineSplit(GUI_TEXTURE,0,0,this.width,this.height,0,this.selectedSource.get() ? 20 : 0,256,20,4);
 
 		//Render Team Name
 		gui.drawString(TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), 2, 2, TEXT_COLOR);

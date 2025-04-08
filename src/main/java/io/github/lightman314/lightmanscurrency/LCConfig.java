@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMod;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMods;
-import net.minecraft.resources.ResourceLocation;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -323,6 +323,9 @@ public final class LCConfig {
         public final BooleanOption structureAncientCity = BooleanOption.createTrue();
         public final BooleanOption structureIDAS = BooleanOption.createTrue();
 
+        //Early Load Compat Options
+        public final BooleanOption compatImpactor = BooleanOption.createTrue();
+
         @Override
         protected void setup(@Nonnull ConfigBuilder builder) {
 
@@ -582,6 +585,14 @@ public final class LCConfig {
 
             builder.pop();
 
+            builder.push("compat");
+
+            builder.comment("Whether the Impactor compat will be initialized.",
+                            "Requires a full server reboot for changes to be applied!")
+                    .add("impactorModule",this.compatImpactor);
+
+            builder.pop();
+
         }
 
         @Nonnull
@@ -591,7 +602,7 @@ public final class LCConfig {
 
     public static final class Server extends SyncedConfigFile
     {
-        private Server() { super("lightmanscurrency-server", new ResourceLocation(LightmansCurrency.MODID,"server")); }
+        private Server() { super("lightmanscurrency-server", VersionUtil.lcResource("server")); }
 
         //Notification Limit
         public final IntOption notificationLimit = IntOption.create(500, 0);
@@ -610,6 +621,18 @@ public final class LCConfig {
         public final IntOption walletBankLevel = IntOption.create(5,0,WalletItem.CONFIG_LIMIT);
         public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
+
+        //Money Bag Settings
+        public final FloatOption moneyBagBaseAttack = FloatOption.create(1f,0f,Float.MAX_VALUE);
+        public final FloatOption moneyBagAttackPerSize = FloatOption.create(3f,0f,Float.MAX_VALUE);
+        public final FloatOption moneyBagBaseAtkSpeed = FloatOption.create(-2f,-4f,0f);
+        public final FloatOption moneyBagAtkSpeedPerSize = FloatOption.create(-0.5f,-4f,0f);
+        public final FloatOption moneyBagBaseFallDamage = FloatOption.create(0.5f,0f,Float.MAX_VALUE);
+        public final FloatOption moneyBagFallDamagerPerSize = FloatOption.create(1.0f,0f,Float.MAX_VALUE);
+        public final IntOption moneyBagMaxFallDamageBase = IntOption.create(30,0,Integer.MAX_VALUE);
+        public final IntOption moneyBagMaxFallDamagePerSize = IntOption.create(10,0,Integer.MAX_VALUE);
+        public final DoubleOption moneyBagCoinLossChance = DoubleOption.create(0d,0d,1d);
+        public final IntOption moneyBagCoinLossFallDistance = IntOption.create(2,0,Integer.MAX_VALUE);
 
         //Item Capacity Upgrade Settings
         public final IntOption itemCapacityUpgrade1 = IntOption.create(3*64, 1, 100*64);
@@ -754,6 +777,47 @@ public final class LCConfig {
             builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
                             "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")
                     .add("manualDropOverride",this.walletDropsManualSpawn);
+
+            builder.pop();
+
+            //Money Bag Settings
+            builder.comment("Money Bag Settings",
+                            "Important Note: Money Bag Attributes are only validated when the item is first created or loaded from file, so config changes may not be reflected immediately.")
+                    .push("money_bag");
+
+            builder.comment("The base Attack Damage that an empty Money Bag will have (not counting the base 1 attack damage the player has)")
+                    .add("baseAttack",this.moneyBagBaseAttack);
+
+            builder.comment("The additional Attack Damage added by each additional size (up to a size of 3)")
+                    .add("attackPerBagSize",this.moneyBagAttackPerSize);
+
+            builder.comment("The base Attack Speed that an empty Money Bag will have (not counting the base 4 attack speed the player has)",
+                            "Is negative because you typically want to make weapons such as these attack slower (vanilla sword attack speed is 1.5, which can be obtained with a value of -2.5)")
+                    .add("baseAttackSpeed",this.moneyBagBaseAtkSpeed);
+
+            builder.comment("The additional Attack Speed added by each additional size (up to a size of 3)",
+                            "Is negative because you typically want to make weapons such as these attack slower",
+                            "Note: If the total attack speed additions are more than -4.0, the player will be unable to get a full-strength attack with that size of Money Bag.")
+                    .add("attackSpeedPerBagSize",this.moneyBagAtkSpeedPerSize);
+
+            builder.comment("The base fall damage per distance an empty Money Bag will have")
+                    .add("baseFallDamage",this.moneyBagBaseFallDamage);
+
+            builder.comment("The additional fall damage per distance added by each additional size (up to a size of 3)")
+                    .add("fallDamagePerBagSize",this.moneyBagFallDamagerPerSize);
+
+            builder.comment("The base fall damage limit an empty Money Bag will have")
+                    .add("baseFallDamageLimit",this.moneyBagMaxFallDamageBase);
+
+            builder.comment("The additional fall damage limit added by each additional size (up to a size of 3)")
+                    .add("fallDamageLimitPerBagSize",this.moneyBagMaxFallDamagePerSize);
+
+            builder.comment("The chance of the Money Bag dropping a random coin when it's used to attack another entity or when it falls a significant distance",
+                            "0.0 is a 0% chance, and 1.0 is a 100% chance")
+                    .add("coinLossChance",this.moneyBagCoinLossChance);
+
+            builder.comment("The minimum distance a Money Bag must fall before it has a chance to drop coins when it lands")
+                    .add("coinLossFallDistance",this.moneyBagCoinLossFallDistance);
 
             builder.pop();
 

@@ -23,7 +23,6 @@ import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.Item;
@@ -43,7 +42,7 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
     @Override
     public void generate(@Nonnull HolderLookup.Provider provider, @Nonnull Consumer<Advancement> consumer, @Nonnull ExistingFileHelper existingFileHelper) {
         Advancement root = save(consumer, Builder.advancement()
-                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), new ResourceLocation("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), FrameType.TASK,false,false,false)
+                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), VersionUtil.lcResource("textures/gui/advancements/backgrounds/currency.png"), FrameType.TASK,false,false,false)
                         .addCriterion("coin", ezItemTrigger(LCTags.Items.COINS)),
                 "currency/root");
         Advancement mfp = save(consumer, Builder.advancement()

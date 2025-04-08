@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.core.ModLootPoolEntryTypes;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -65,7 +66,7 @@ public class VanillaLootTableReference extends LootPoolSingletonContainer {
         }
 
         protected VanillaLootTableReference deserialize(JsonObject json, JsonDeserializationContext context, int weight, int quality, LootItemCondition[] conditions, LootItemFunction[] functions) {
-            ResourceLocation name = new ResourceLocation(GsonHelper.getAsString(json, "name"));
+            ResourceLocation name = VersionUtil.parseResource(GsonHelper.getAsString(json, "name"));
             if(!BuiltInLootTables.all().contains(name))
                 throw new JsonSyntaxException(name + " is not a valid vanilla loot table!");
             return new VanillaLootTableReference(name, weight, quality, conditions, functions);

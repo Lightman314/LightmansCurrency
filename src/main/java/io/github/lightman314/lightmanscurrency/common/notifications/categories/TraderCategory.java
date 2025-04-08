@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class TraderCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(new ResourceLocation(LightmansCurrency.MODID,"trader"),TraderCategory::new);
+	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("trader"),TraderCategory::new);
 	
 	private final Item trader;
 	private final long traderID;
@@ -32,7 +31,7 @@ public class TraderCategory extends NotificationCategory {
 	public TraderCategory(CompoundTag compound) {
 		
 		if(compound.contains("Icon"))
-			this.trader = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Icon")));
+			this.trader = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(compound.getString("Icon")));
 		else
 			this.trader = ModItems.TRADING_CORE.get();
 		

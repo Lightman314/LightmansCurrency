@@ -3,7 +3,8 @@ package io.github.lightman314.lightmanscurrency;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.taxes.notifications.*;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -190,7 +191,7 @@ public class LCText {
     public static final TextEntry BLOCK_TICKET_STATION = TextEntry.block(ModBlocks.TICKET_STATION);
     public static final TextEntry BLOCK_MONEY_CHEST = TextEntry.block(ModBlocks.COIN_CHEST);
 
-    public static final TextEntry BLOCK_DISPLAY_CASE = TextEntry.block(ModBlocks.DISPLAY_CASE);
+    public static final TextEntry BLOCK_DISPLAY_CASE = TextEntry.block(() -> ModBlocks.DISPLAY_CASE.get(Color.WHITE));
     public static final TextEntryBundle<WoodType> BLOCK_SHELF = TextEntryBundle.of(ModBlocks.SHELF);
     public static final TextEntryBundle<WoodType> BLOCK_SHELF_2x2 = TextEntryBundle.of(ModBlocks.SHELF_2x2);
     public static final TextEntryBundle<WoodType> BLOCK_CARD_DISPLAY = TextEntryBundle.of(ModBlocks.CARD_DISPLAY);
@@ -220,6 +221,8 @@ public class LCText {
     public static final TextEntry BLOCK_JAR_PIGGY_BANK = TextEntry.block(ModBlocks.PIGGY_BANK);
     public static final TextEntry BLOCK_JAR_BLUE = TextEntry.block(ModBlocks.COINJAR_BLUE);
     public static final TextEntry BLOCK_JAR_SUS = TextEntry.block(ModBlocks.SUS_JAR);
+
+    public static final TextEntry BLOCK_MONEY_BAG = TextEntry.block(ModBlocks.MONEY_BAG);
 
     //Items & Blocks
     public static final CombinedTextEntry ITEM_BLOCK_TERMINAL = CombinedTextEntry.items(ModItems.PORTABLE_TERMINAL,ModItems.PORTABLE_GEM_TERMINAL, ModBlocks.TERMINAL, ModBlocks.GEM_TERMINAL);
@@ -289,6 +292,7 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_CASH_REGISTER = MultiLineTextEntry.tooltip(MODID,"cash_register");
     public static final MultiLineTextEntry TOOLTIP_COIN_JAR = MultiLineTextEntry.tooltip(MODID,"coin_jar");
     public static final TextEntry TOOLTIP_COIN_JAR_COLORED = TextEntry.tooltip(MODID,"coin_jar.colored");
+    public static final MultiLineTextEntry TOOLTIP_MONEY_BAG = MultiLineTextEntry.tooltip(MODID,"money_bag");
     public static final TextEntry TOOLTIP_COLORED_ITEM = TextEntry.tooltip(MODID,"colored_item");
 
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
@@ -335,9 +339,11 @@ public class LCText {
     public static final TextEntry TOOLTIP_CASH_REGISTER_DETAILS = TextEntry.tooltip(MODID,"cash_register.details");
 
     //Coin Jar
-    public static final TextEntry TOOLTIP_COIN_JAR_HOLD_SHIFT = TextEntry.tooltip(MODID,"coinjar.holdshift");
+    public static final TextEntry TOOLTIP_COIN_JAR_HOLD_CTRL = TextEntry.tooltip(MODID,"coinjar.holdctrl");
     public static final TextEntry TOOLTIP_COIN_JAR_CONTENTS_SINGLE = TextEntry.tooltip(MODID,"coinjar.storedcoins.single");
     public static final TextEntry TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE = TextEntry.tooltip(MODID,"coinjar.storedcoins.multiple");
+    public static final TextEntry TOOLTIP_MONEY_BAG_SIZE = TextEntry.tooltip(MODID,"money_bag.size");
+    public static final TextEntry TOOLTIP_CONTAINER_ITEM_LOOT_TABLE = TextEntry.tooltip(MODID,"container_item.loot_table");
 
     //Upgrades
     public static final TextEntry TOOLTIP_UPGRADE_TARGETS = TextEntry.tooltip(MODID,"upgrade.targets");
@@ -661,6 +667,7 @@ public class LCText {
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION = TextEntry.gui(MODID,"trader.paygate.duration");
     public static final TextEntry GUI_TRADER_PAYGATE_DURATION_UNIT = TextEntry.gui(MODID,"trader.paygate.duration.unit");
     public static final TextEntry GUI_TRADER_PAYGATE_DESCRIPTION = TextEntry.gui(MODID,"trader.paygate.description");
+    public static final TextEntry GUI_TRADER_PAYGATE_TOOLTIP = TextEntry.gui(MODID,"trader.paygate.tooltip");
     public static final TextEntry GUI_TRADER_PAYGATE_LEVEL = TextEntry.gui(MODID,"trader.paygate.level");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.give");
@@ -917,6 +924,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TIMESTAMP = new TextEntry("notifications.timestamp");
     public static final TextEntry NOTIFICATION_SOURCE_GENERAL = new TextEntry("notifications.source.general");
     public static final TextEntry NOTIFICATION_SOURCE_NULL = new TextEntry("notifications.source.null");
+    public static final TextEntry NOTIFICATION_SOURCE_EVENT = new TextEntry("notifications.source.event");
     public static final TextEntry TOOLTIP_NOTIFICATION_DELETE = TextEntry.tooltip(MODID,"notifications.delete");
     //Auction Notifications
     public static final TextEntry NOTIFICATION_AUCTION_BID = TextEntry.notification(AuctionHouseBidNotification.TYPE);
@@ -969,11 +977,28 @@ public class LCText {
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
 
+    //Easy Data Names/Keys
+    public static final TextEntry DATA_ENTRY_CREATIVE = TextEntry.dataName(MODID,"creative");
+    public static final TextEntry DATA_ENTRY_STORE_CREATIVE_MONEY = TextEntry.dataName(MODID,"store_money_in_creative");
+    public static final TextEntry DATA_ENTRY_TRADER_NAME = TextEntry.dataName(MODID,"trader_name");
+    public static final TextEntry DATA_ENTRY_TRADER_ICON = TextEntry.dataName(MODID,"trader_icon");
+    public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
+
+    //Easy Data Categories
+    public static final TextEntry DATA_CATEGORY_TRADER_DISPLAY = TextEntry.dataCategory(MODID,"trader_display");
+    public static final TextEntry DATA_CATEGORY_TRADER_BANK = TextEntry.dataCategory(MODID,"trader_bank");
+    public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
+    public static final TextEntry DATA_CATEGORY_CREATIVE = TextEntry.dataCategory(MODID,"creative");
+
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_AN_ANCIENT_COIN = TextEntry.argument("money_value.not_an_ancient_coin");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NO_VALUE = TextEntry.argument("money_value.no_value");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE = TextEntry.argument("money_value.not_free_or_empty");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_KEY = TextEntry.argument("money_value.impactor.invalid_key");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_CURRENCY = TextEntry.argument("money_value.impactor.invalid_currency");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_AMOUNT = TextEntry.argument("money_value.impactor.invalid_amount");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_ERROR = TextEntry.argument("money_value.impactor.error");
     public static final TextEntry ARGUMENT_COLOR_INVALID = TextEntry.argument("color.invalid");
     public static final TextEntry ARGUMENT_TRADEID_INVALID = TextEntry.argument("tradeid.invalid");
     public static final TextEntry ARGUMENT_TRADER_NOT_FOUND = TextEntry.argument("trader.not_found");
@@ -998,6 +1023,11 @@ public class LCText {
     public static final TextEntry COMMAND_BANK_DELETE_PLAYER_SUCCESS = TextEntry.command(MODID,"lcbank.delete.player.success");
     public static final TextEntry COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST = TextEntry.command(MODID,"lcbank.delete.player.doesnt_exist");
     public static final TextEntry COMMAND_BANK_DELETE_PLAYER_INVALID_INPUT = TextEntry.command(MODID,"lcbank.delete.player.invalid_input");
+
+    public static final TextEntry COMMAND_BANK_VIEW_SUCCESS = TextEntry.command(MODID,"lcbank.view.success");
+    public static final TextEntry COMMAND_BANK_VIEW_EMPTY = TextEntry.command(MODID,"lcbank.view.empty");
+    public static final TextEntry COMMAND_BANK_VIEW_PLAYER_NO_ACCOUNT = TextEntry.command(MODID,"lcbank.view.player.no_account");
+    public static final TextEntry COMMAND_BANK_VIEW_DOESNT_EXIST = TextEntry.command(MODID,"lcbank.view.doesnt_exist");
 
     public static final TextEntry COMMAND_CONFIG_RELOAD = TextEntry.command(MODID,"lcconfig.reload");
     public static final TextEntry COMMAND_CONFIG_EDIT_SUCCESS = TextEntry.command(MODID,"lcconfig.edit.success");
@@ -1029,6 +1059,9 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.success");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.missing");
     public static final TextEntry COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET = TextEntry.command(MODID,"lcadmin.replaceWallet.not_a_wallet");
+    public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_EMPTY = TextEntry.command(MODID,"lcadmin.viewWallet.empty");
+    public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_SUCCESS = TextEntry.command(MODID,"lcadmin.viewWallet.success");
+    public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET = TextEntry.command(MODID,"lcadmin.viewWallet.invalid_target");
     public static final TextEntry COMMAND_ADMIN_TAXES_OPEN_SERVER_TAX_ERROR = TextEntry.command(MODID,"lcadmin.taxes.openServerTax.error");
     public static final TextEntry COMMAND_ADMIN_TAXES_LIST_TITLE = TextEntry.command(MODID,"lcadmin.taxes.list.title");
     public static final TextEntry COMMAND_ADMIN_TAXES_LIST_ID = TextEntry.command(MODID,"lcadmin.taxes.list.id");
@@ -1134,6 +1167,7 @@ public class LCText {
     public static final TextEntry CURIOS_SLOT_WALLET = TextEntry.curiosSlot("wallet");
 
     //REI Groups
+    public static final TextEntry REI_GROUP_DISPLAY_CASE = TextEntry.reiGroup(MODID,"display_case");
     public static final TextEntry REI_GROUP_SHELF = TextEntry.reiGroup(MODID,"shelf");
     public static final TextEntry REI_GROUP_SHELF_2x2 = TextEntry.reiGroup(MODID,"shelf_2x2");
     public static final TextEntryBundle<WoodType> REI_GROUP_CARD_DISPLAY = TextEntryBundle.of(WoodType.validValues(),"rei.lightmanscurrency.group.card_display",WoodType::translationSegment);

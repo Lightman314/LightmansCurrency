@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots.ticket;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class TicketModifierSlot extends EasyMultiBGSlot {
 
-    public static final ResourceLocation EMPTY_DYE_SLOT =  new ResourceLocation(LightmansCurrency.MODID, "item/empty_dye_slot");
+    public static final ResourceLocation EMPTY_DYE_SLOT =  VersionUtil.lcResource("item/empty_dye_slot");
 
     private final TicketStationMenu menu;
 

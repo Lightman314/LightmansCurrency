@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -10,11 +9,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
-import io.github.lightman314.lightmanscurrency.util.NumberUtil;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -25,9 +23,6 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
 
     private MoneyValueWidget priceSelection;
 
-    private EditBox smallStockEdit;
-    private EditBox largeStockEdit;
-
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
         DemandPricing rule = this.getRule();
@@ -37,16 +32,33 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
                 .startingValue(rule == null ? MoneyValue.empty() : rule.getOtherPrice())
                 .valueHandler(this::onValueChanged)
                 .typeChangeListener(this::onWidgetHandlerChanged)
+                .allowHandlerChange(this::allowHandlerChange)
                 .build());
         this.onWidgetHandlerChanged(this.priceSelection);
 
-        this.smallStockEdit = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10, screenArea.pos.y + 110, 80, 20, this.smallStockEdit, EasyText.empty()));
-        this.smallStockEdit.setValue(rule == null ? "1" : String.valueOf(rule.getSmallStock()));
-        this.smallStockEdit.setResponder(this::smallStockChanged);
+        this.addChild(TextInputUtil.intBuilder()
+                .position(screenArea.pos.offset(10,110))
+                .size(80,20)
+                .startingValue(rule == null ? 1 : rule.getSmallStock())
+                .apply(IntParser.builder()
+                        .min(1)
+                        .max(this::getSmallStockMax)
+                        .empty(1)
+                        .consumer())
+                .handler(this::smallStockChanged)
+                .build());
 
-        this.largeStockEdit = this.addChild(new EditBox(this.getFont(), screenArea.pos.x + 10 + (screenArea.width / 2), screenArea.pos.y + 110, 80, 20, this.largeStockEdit, EasyText.empty()));
-        this.largeStockEdit.setValue(rule == null ? "100" : String.valueOf(rule.getLargeStock()));
-        this.largeStockEdit.setResponder(this::largeStockChanged);
+        this.addChild(TextInputUtil.intBuilder()
+                .position(screenArea.pos.offset(10 + (screenArea.width / 2),110))
+                .size(80,20)
+                .startingValue(rule == null ? 100 : rule.getLargeStock())
+                .apply(IntParser.builder()
+                        .min(this::getLargeStockMin)
+                        .max(DemandPricing.UPPER_STOCK_LIMIT)
+                        .empty(() -> this.getSmallStockMax() + 1)
+                        .consumer())
+                .handler(this::largeStockChanged)
+                .build());
 
         this.tick();
     }
@@ -74,10 +86,16 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
             return;
         if(this.commonTab.getHost() instanceof TradeData trade && this.priceSelection != null)
             this.priceSelection.allowFreeInput = !trade.getCost().isFree() || rule.getOtherPrice().isFree();
-        if(this.smallStockEdit != null)
-            TextInputUtil.whitelistInteger(this.smallStockEdit);
-        if(this.largeStockEdit != null)
-            TextInputUtil.whitelistInteger(this.largeStockEdit);
+    }
+
+    private boolean allowHandlerChange() {
+        if(this.commonTab.getHost() instanceof TradeData trade)
+        {
+            MoneyValue cost = trade.getCost();
+            //Allow if price is not yet defined, or is free
+            return cost.isEmpty();
+        }
+        return true;
     }
 
     private void onWidgetHandlerChanged(@Nonnull MoneyValueWidget widget)
@@ -100,12 +118,25 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
         this.sendUpdateMessage(this.builder().setMoneyValue("ChangePrice",newValue));
     }
 
-    private void smallStockChanged(@Nonnull String newValue)
+    private int getSmallStockMax() {
+        DemandPricing rule = this.getRule();
+        if(rule == null)
+            return DemandPricing.UPPER_STOCK_LIMIT;
+        return rule.getLargeStock() - 1;
+    }
+
+    private int getLargeStockMin() {
+        DemandPricing rule = this.getRule();
+        if(rule == null)
+            return 2;
+        return rule.getSmallStock() + 1;
+    }
+
+    private void smallStockChanged(int smallStock)
     {
         DemandPricing rule = this.getRule();
         if(rule == null)
             return;
-        int smallStock = NumberUtil.GetIntegerValue(newValue,1);
         if(smallStock != rule.getSmallStock())
         {
             rule.setSmallStock(smallStock);
@@ -113,12 +144,11 @@ public class DemandPricingTab extends TradeRuleSubTab<DemandPricing> {
         }
     }
 
-    private void largeStockChanged(@Nonnull String newValue)
+    private void largeStockChanged(int largeStock)
     {
         DemandPricing rule = this.getRule();
         if(rule == null)
             return;
-        int largeStock = NumberUtil.GetIntegerValue(newValue,1);
         if(largeStock != rule.getLargeStock())
         {
             rule.setLargeStock(largeStock);

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.advancements.date;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 
 public class DateTrigger extends SimpleCriterionTrigger<DateTrigger.Instance> {
 
-    public static final ResourceLocation ID = new ResourceLocation(LightmansCurrency.MODID, "date_range");
+    public static final ResourceLocation ID = VersionUtil.lcResource("date_range");
     public static final DateTrigger INSTANCE = new DateTrigger();
 
     private DateTrigger() {}

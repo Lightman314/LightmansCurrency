@@ -7,9 +7,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DatePredicate;
 import io.github.lightman314.lightmanscurrency.common.loot.ConfigItemTier;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.EventCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -127,7 +131,10 @@ public class EventData extends SimpleLootModifier {
         for(ItemStack item : this.startingRewards)
             ItemHandlerHelper.giveItemToPlayer(player,item.copy());
         if(this.startingRewardMessage != null)
+        {
             player.sendSystemMessage(this.startingRewardMessage);
+            NotificationAPI.API.PushPlayerNotification(player.getUUID(),new TextNotification(EasyText.makeMutable(this.startingRewardMessage), EventCategory.INSTANCE),false);
+        }
     }
 
     @Override
@@ -169,8 +176,8 @@ public class EventData extends SimpleLootModifier {
         public Builder startDate(DatePredicate date) { this.start = date; return this; }
         public Builder endDate(int month, int day) { this.end = new DatePredicate(month,day); return this; }
         public Builder endDate(DatePredicate date) { this.end = date; return this; }
-        public Builder dateRange(int startMonth, int startDay, int endMonth, int endDay) { this.startDate(startMonth,startDay); return this.endDate(endMonth,endDay); }
-        public Builder dateRange(DatePredicate startDate, DatePredicate endDate) { this.startDate(startDate); return this.endDate(endDate); }
+        public Builder dateRange(int startMonth, int startDay, int endMonth, int endDay) { return this.startDate(startMonth,startDay).endDate(endMonth,endDay); }
+        public Builder dateRange(DatePredicate startDate, DatePredicate endDate) { return this.startDate(startDate).endDate(endDate); }
         public Builder dateRange(EventRange range) { this.range = range; return this; }
 
         public Builder replacementRate(double replacementRate) { this.replacementRate = MathUtil.clamp(replacementRate,0d,1d); return this; }

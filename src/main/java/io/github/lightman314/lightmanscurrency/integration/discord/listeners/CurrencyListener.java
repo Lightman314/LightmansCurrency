@@ -502,7 +502,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				if(trader == null) //Abort if the trader was removed.
 					return;
 				if(trader.hasCustomName())
-					cl.sendMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getName(), trader.getCustomName()));
+					cl.sendMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getName(), trader.customName.get()));
 				else
 					cl.sendMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getName()));
 			} catch(Exception e) { LightmansCurrency.LogError("Error sending New Trader Announcement", e); }

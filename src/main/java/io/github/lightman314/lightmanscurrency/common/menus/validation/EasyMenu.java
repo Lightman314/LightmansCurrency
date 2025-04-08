@@ -8,14 +8,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class EasyMenu extends AbstractContainerMenu implements IClientTracker {
 
@@ -35,8 +35,8 @@ public abstract class EasyMenu extends AbstractContainerMenu implements IClientT
             this.addValidator(validator);
     }
 
-    public final void addValidator(@Nonnull NonNullSupplier<Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
-    public final void addValidator(@Nonnull NonNullFunction<Player,Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
+    public final void addValidator(@Nonnull Supplier<Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
+    public final void addValidator(@Nonnull Function<Player,Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
     public final void addValidator(@Nonnull MenuValidator validator) {
         if(!this.validators.contains(validator))
             this.validators.add(validator);

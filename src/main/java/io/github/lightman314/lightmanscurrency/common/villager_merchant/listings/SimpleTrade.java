@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -24,7 +25,7 @@ import javax.annotation.Nullable;
 public class SimpleTrade implements VillagerTrades.ItemListing
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "simple");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("simple");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final ItemStack price;

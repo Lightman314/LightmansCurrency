@@ -1,9 +1,9 @@
 {
 	"credit": "Made with Blockbench",
-    "parent": "lightmanscurrency:block/block",
+	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"main": "lightmanscurrency:block/paygate",
-		"particle": "lightmanscurrency:block/paygate"
+		"particle": "#main"
 	},
 	"elements": [
 		{
@@ -126,5 +126,10 @@
 				"down": {"uv": [8.5, 0.5, 15.5, 7.5], "texture": "#main"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0]
+		}
+	}
 }

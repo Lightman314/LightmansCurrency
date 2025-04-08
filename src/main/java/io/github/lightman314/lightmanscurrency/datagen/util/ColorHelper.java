@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.datagen.util;
 
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ColorHelper {
 
     public static Item GetConcretePowderOfColor(Color color)
@@ -56,6 +57,8 @@ public class ColorHelper {
         };
     }
 
-    public static ResourceLocation GetWoolTextureOfColor(@Nonnull Color color) { return new ResourceLocation("block/" + color.getResourceSafeName() + "_wool"); }
+    public static ResourceLocation GetWoolTextureOfColor(Color color) { return VersionUtil.vanillaResource("block/" + color.getResourceSafeName() + "_wool"); }
+
+    public static ResourceLocation GetConcreteTextureOfColor(Color color) { return VersionUtil.vanillaResource("block/" + color.getResourceSafeName() +  "_concrete_powder"); }
 
 }

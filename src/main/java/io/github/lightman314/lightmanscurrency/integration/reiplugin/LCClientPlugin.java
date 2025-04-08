@@ -142,6 +142,8 @@ public class LCClientPlugin implements REIClientPlugin {
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public void registerCollapsibleEntries(CollapsibleEntryRegistry registry) {
+        //Display Case
+        registry.group(VersionUtil.lcResource("rei_groups/display_case"),LCText.REI_GROUP_DISPLAY_CASE.get(),isInBundle(ModBlocks.DISPLAY_CASE));
         //Shelf
         registry.group(VersionUtil.lcResource("rei_groups/shelves"),LCText.REI_GROUP_SHELF.get(),isInBundle(ModBlocks.SHELF));
         //Double Shelf

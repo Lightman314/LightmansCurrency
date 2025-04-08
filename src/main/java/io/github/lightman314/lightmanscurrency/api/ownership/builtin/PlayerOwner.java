@@ -2,16 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.ownership.builtin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,7 @@ import java.util.function.Supplier;
 
 public class PlayerOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(MoneyAPI.MODID,"player"),
+    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("player"),
             (tag) -> of(PlayerReference.load(tag.getCompound("Player"))));
 
     public final PlayerReference player;

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -9,16 +8,16 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class BankTransferNotification extends SingleLineNotification {
 
-	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID, "bank_transfer"),BankTransferNotification::new);
+	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("bank_transfer"),BankTransferNotification::new);
 	
 	PlayerReference player;
 	MoneyValue amount = MoneyValue.empty();

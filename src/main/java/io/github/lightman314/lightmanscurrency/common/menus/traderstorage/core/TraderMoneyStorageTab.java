@@ -67,12 +67,12 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
     public boolean canStoreMoney()
     {
         TraderData trader = this.menu.getTrader();
-        return trader != null && trader.canStoreMoney() && !trader.getLinkedToBank() && trader.hasPermission(this.menu.getPlayer(),Permissions.STORE_COINS);
+        return trader != null && trader.canStoreMoney() && !trader.linkedToBank.get() && trader.hasPermission(this.menu.getPlayer(),Permissions.STORE_COINS);
     }
     public boolean canCollectMoney()
     {
         TraderData trader = this.menu.getTrader();
-        return trader != null && trader.hasPermission(this.menu.getPlayer(),Permissions.COLLECT_COINS) && ((trader.canStoreMoney() && !trader.getLinkedToBank()) || !trader.getInternalStoredMoney().isEmpty());
+        return trader != null && trader.hasPermission(this.menu.getPlayer(),Permissions.COLLECT_COINS) && ((trader.canStoreMoney() && !trader.linkedToBank.get()) || !trader.getInternalStoredMoney().isEmpty());
     }
 
     public void storeMoney(final MoneyValue amount) {

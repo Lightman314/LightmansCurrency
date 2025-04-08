@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplaySerializer;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Null extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(MoneyAPI.MODID,"null");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("null");
     public static final Null INSTANCE = new Null();
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 

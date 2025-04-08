@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.old_compat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -45,7 +45,7 @@ public class OldCoinData {
     public static OldCoinData parse(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
         //Coin Item
-        Item coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(json, "coinitem")));
+        Item coinItem = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(json, "coinitem")));
         String chain = GsonHelper.getAsString(json, "chain");
         //Relative Worth
         Item otherCoin = null;
@@ -53,7 +53,7 @@ public class OldCoinData {
         if(json.has("worth"))
         {
             JsonObject worthData = json.get("worth").getAsJsonObject();
-            otherCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(GsonHelper.getAsString(worthData, "coin")));
+            otherCoin = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(worthData, "coin")));
             otherCoinCount = GsonHelper.getAsInt(worthData, "count");
         }
         //Initial

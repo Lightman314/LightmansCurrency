@@ -27,7 +27,7 @@ public class PermissionsTab extends SettingsSubTab implements IScrollable {
 
     public static final int PERMISSIONS_PER_PAGE = 8;
     private static final int START_HEIGHT = 20;
-    private static final int ROW_HEIGHT = 14;
+    public static final int ROW_HEIGHT = 14;
 
     List<PermissionOption> options;
 
@@ -77,6 +77,8 @@ public class PermissionsTab extends SettingsSubTab implements IScrollable {
                 .listener(this)
                 .build());
 
+        this.updateWidgetPositions();
+
     }
 
     @Override
@@ -114,7 +116,7 @@ public class PermissionsTab extends SettingsSubTab implements IScrollable {
     @Override
     public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
         int startHeight = START_HEIGHT;
-        for(int i = 0; i < this.options.size(); ++i)
+        for(int i = 0; i < PERMISSIONS_PER_PAGE; ++i)
         {
             int index = i + this.scroll;
             if(index >= this.options.size())

@@ -11,6 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMPageManager;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -24,6 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class ATMAPI {
 
@@ -59,6 +62,7 @@ public class ATMAPI {
 
     @Nonnull
     public static ATMPageManager getATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor) { return ATMPageManager.create(player, addChild, removeChild, commandProcessor); }
+    public static ATMPageManager getATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected) { return ATMPageManager.create(player, addChild, removeChild, commandProcessor,selected); }
 
     @Nonnull
     public static String UpdateCommand(@Nonnull String oldCommand)
@@ -83,7 +87,7 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeUp-".length());
-                coinID = new ResourceLocation(id);
+                coinID = VersionUtil.parseResource(id);
                 Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
                 if(coinItem == null)
                 {
@@ -115,7 +119,7 @@ public class ATMAPI {
             String id = "";
             try {
                 id = command.substring("exchangeDown-".length());
-                ResourceLocation coinID = new ResourceLocation(id);
+                ResourceLocation coinID = VersionUtil.parseResource(id);
                 Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
                 if(coinItem == null || coinItem == Items.AIR)
                 {

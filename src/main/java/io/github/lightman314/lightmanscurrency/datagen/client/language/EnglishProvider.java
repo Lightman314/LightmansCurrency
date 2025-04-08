@@ -235,6 +235,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BLOCK_JAR_BLUE, "Coin Jar");
         this.translate(LCText.BLOCK_JAR_SUS, "Jar of Sus");
 
+        this.translate(LCText.BLOCK_MONEY_BAG, "Money Bag");
+
         //Items & Blocks
         this.translate(LCText.ITEM_BLOCK_TERMINAL, "Trading Terminal");
         this.translate(LCText.ITEM_BLOCK_ATM, "ATM");
@@ -301,6 +303,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
         this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
+        this.translate(LCText.TOOLTIP_MONEY_BAG,"Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
@@ -332,9 +335,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_CASH_REGISTER_DETAILS,"Trader %1$s at %2$s %3$s %4$s");
 
         //Coin Jar
-        this.translate(LCText.TOOLTIP_COIN_JAR_HOLD_SHIFT, "Hold SHIFT to view contents");
+        this.translate(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL, "Hold CTRL to view contents");
         this.translate(LCText.TOOLTIP_COIN_JAR_CONTENTS_SINGLE, "Contains a %s");
         this.translate(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE, "Contains %1$sx %2$s");
+        this.translate(LCText.TOOLTIP_MONEY_BAG_SIZE, "Bag Size: %s");
+        this.translate(LCText.TOOLTIP_CONTAINER_ITEM_LOOT_TABLE, "Has Loot Table '%s'");
 
         //Coin Tooltips
         this.translate(new TextEntry(ValueDisplayData.ICON_FALLBACK_KEY),"");
@@ -397,7 +402,7 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_TO_INFO,"Click to view possible results");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_TO_INTERACT,"Click to return to slots");
-        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_ONCE, "Try your luck!","Costs %2$s");
+        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_ONCE, "Try your luck!","Costs %1$s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_MULTI, "Try your luck %1$s times!","Costs %2$s per roll");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_NORMAL_COST, "Normally costs %s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_COST_FREE, "nothing");
@@ -690,6 +695,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION,"Duration:");
         this.translate(LCText.GUI_TRADER_PAYGATE_DURATION_UNIT,"ticks");
         this.translate(LCText.GUI_TRADER_PAYGATE_DESCRIPTION,"Description:");
+        this.translate(LCText.GUI_TRADER_PAYGATE_TOOLTIP,"Tooltip:");
         this.translate(LCText.GUI_TRADER_PAYGATE_LEVEL,"Redstone Level: %s");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP,"Store Ticket Stubs");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE,"Give Ticket Stubs to the Customer");
@@ -981,6 +987,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TIMESTAMP,"%s");
         this.translate(LCText.NOTIFICATION_SOURCE_GENERAL,"General");
         this.translate(LCText.NOTIFICATION_SOURCE_NULL,"Null");
+        this.translate(LCText.NOTIFICATION_SOURCE_EVENT,"Events");
         this.translate(LCText.TOOLTIP_NOTIFICATION_DELETE,"Delete");
         //Auction Notifications
         this.translate(LCText.NOTIFICATION_AUCTION_BID,"%1$s out-bid your bid for %2$s with a bid of %3$s");
@@ -1033,6 +1040,17 @@ public class EnglishProvider extends TranslationProvider {
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
 
+        //Easy Data Names/Keys
+        this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");
+        this.translate(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY,"Store Money in Creative");
+        this.translate(LCText.DATA_ENTRY_TRADER_NAME,"Trader Name");
+        this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
+
+        //Easy Data Categories
+        this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Trader Display Settings");
+        this.translate(LCText.DATA_CATEGORY_TRADER_BANK,"Trader Bank Settings");
+        this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
+
         //LC Statistics
         //Generic
         this.translate(StatKeys.Generic.MONEY_EARNED,"Money Earned: %s");
@@ -1074,6 +1092,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_SUCCESS,"Deleted %s's bank account!");
         this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST,"%s does not have a bank account to delete!");
         this.translate(LCText.COMMAND_BANK_DELETE_PLAYER_INVALID_INPUT,"'%s' is not a valid player name or UUID string!");
+        this.translate(LCText.COMMAND_BANK_VIEW_SUCCESS,"%1$s Contains:");
+        this.translate(LCText.COMMAND_BANK_VIEW_EMPTY,"%1$s is empty");
+        this.translate(LCText.COMMAND_BANK_VIEW_PLAYER_NO_ACCOUNT,"%1$s does not have a bank account yet!");
+        this.translate(LCText.COMMAND_BANK_VIEW_DOESNT_EXIST,"Error accessing the bank account!");
 
         this.translate(LCText.COMMAND_CONFIG_RELOAD, "Reloading config files");
         this.translate(LCText.COMMAND_CONFIG_EDIT_SUCCESS, "%1$s set to %2$s");
@@ -1105,6 +1127,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS,"Added %1$s player(s) to %2$s's whitelist");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING,"Trader does not have a whitelist trade rule. Cannot add players to the whitelist.");
         this.translate(LCText.COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET, "Item given was not a valid wallet item or air");
+        this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_EMPTY, "%s does not have a wallet equipped");
+        this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_SUCCESS, "%1$s has a %2$s equipped");
+        this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET, "%s is not capable of equipping a wallet");
         this.translate(LCText.COMMAND_ADMIN_TAXES_OPEN_SERVER_TAX_ERROR, "An error occurred accessing the server tax entry");
         this.translate(LCText.COMMAND_ADMIN_TAXES_LIST_TITLE, "-----Tax Collector List-----");
         this.translate(LCText.COMMAND_ADMIN_TAXES_LIST_ID, "Collector ID: %s");
@@ -1210,6 +1235,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.CURIOS_SLOT_WALLET,"Wallet");
 
         //REI Groups
+        this.translate(LCText.REI_GROUP_DISPLAY_CASE,"Display Cases");
         this.translate(LCText.REI_GROUP_SHELF,"Shelves");
         this.translate(LCText.REI_GROUP_SHELF_2x2,"Double Shelves");
         this.translateWooden(LCText.REI_GROUP_CARD_DISPLAY,"%s Card Displays");

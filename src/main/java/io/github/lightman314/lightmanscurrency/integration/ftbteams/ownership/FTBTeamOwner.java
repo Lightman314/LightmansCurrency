@@ -6,7 +6,6 @@ import dev.ftb.mods.ftbteams.api.TeamManager;
 import dev.ftb.mods.ftbteams.api.TeamRank;
 import dev.ftb.mods.ftbteams.api.client.ClientTeamManager;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -14,10 +13,10 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +26,7 @@ import java.util.function.Supplier;
 
 public class FTBTeamOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(new ResourceLocation(LightmansCurrency.MODID,"ftbteams"),(tag) -> new FTBTeamOwner(tag.getUUID("Team")));
+    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("ftbteams"),(tag) -> new FTBTeamOwner(tag.getUUID("Team")));
 
     private final UUID teamID;
     public FTBTeamOwner(@Nonnull UUID teamID) { this.teamID = teamID; }

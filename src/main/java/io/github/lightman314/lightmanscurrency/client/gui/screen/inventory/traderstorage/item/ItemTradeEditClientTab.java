@@ -35,7 +35,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 71;
 	private static final int COLUMNS = 10;
-	private static final int ROWS = 2;
+	private static final int ROWS = 3;
 
 	public ItemTradeEditClientTab(Object screen, ItemTradeEditTab commonTab) { super(screen, commonTab); }
 

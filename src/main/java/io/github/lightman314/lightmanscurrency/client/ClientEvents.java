@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
@@ -21,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.nbt.CompoundTag;
@@ -67,7 +67,7 @@ import javax.annotation.Nonnull;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
-	public static final ResourceLocation WALLET_SLOT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
+	public static final ResourceLocation WALLET_SLOT_TEXTURE = VersionUtil.lcResource("textures/gui/container/wallet_slot.png");
 	
 	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(), GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
 	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
@@ -252,7 +252,7 @@ public class ClientEvents {
 			long traderID = tag.getLong("StoredTrader");
 			//Trader Name
 			TraderData trader = TraderAPI.API.GetTrader(true, traderID);
-			if(trader != null && trader.hasCustomName())
+			if(trader != null)
 				event.getToolTip().add(trader.getName().withStyle(ChatFormatting.GRAY));
 			if(event.getFlags().isAdvanced())
 				event.getToolTip().add(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID.get(tag.getLong("StoredTrader")).withStyle(ChatFormatting.DARK_GRAY));

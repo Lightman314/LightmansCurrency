@@ -65,6 +65,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
                 .position(widgetArea.pos.offset(buttonX,19))
                 .pressAction(this::IncreaseCount)
                 .sprite(MoneyValueWidget.SPRITE_UP_ARROW)
+                .addon(EasyAddonHelper.activeCheck(() -> !this.isFree()))
                 .addon(EasyAddonHelper.visibleCheck(this::isVisible))
                 .build());
 
@@ -73,7 +74,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
                 .position(widgetArea.pos.offset(buttonX, 57))
                 .pressAction(this::DecreaseCount)
                 .sprite(MoneyValueWidget.SPRITE_DOWN_ARROW)
-                .addon(EasyAddonHelper.activeCheck(() -> this.count > 0))
+                .addon(EasyAddonHelper.activeCheck(() -> this.count > 0 && !this.isFree()))
                 .addon(EasyAddonHelper.visibleCheck(this::isVisible))
                 .build());
 
@@ -105,7 +106,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
     {
         if(this.count > 0)
             return AncientMoneyValue.of(this.selectedType,this.count);
-        return MoneyValue.empty();
+        return this.isFree() ? MoneyValue.free() : MoneyValue.empty();
     }
 
     private void NextType()

@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class RandomTrade implements ItemListing
 {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "random_selection");
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("random_selection");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final ItemStack price1;
@@ -147,7 +147,7 @@ public class RandomTrade implements ItemListing
             }
             TagKey<Item> sellTag = null;
             if(json.has("SellTag"))
-                sellTag = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), new ResourceLocation(GsonHelper.getAsString(json, "SellTag")));
+                sellTag = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), VersionUtil.parseResource(GsonHelper.getAsString(json, "SellTag")));
             if(sellTag == null && sellItems == null)
                 throw new JsonSyntaxException("Missing 'Sell' or 'SellTag' key");
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.util.config;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -47,7 +48,7 @@ public class ItemValueConfig implements Supplier<ItemLike> {
             if(itemID.isBlank())
                 this.cachedItem = Items.AIR;
             else
-                this.cachedItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemID));
+                this.cachedItem = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(itemID));
         } catch(Throwable t) { LightmansCurrency.LogDebug("Error loading item from config value."); }
         if(this.cachedItem == null)
         {
@@ -65,13 +66,13 @@ public class ItemValueConfig implements Supplier<ItemLike> {
         if(o instanceof String s)
         {
             try{
-                return ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)) != null;
+                return ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(s)) != null;
             } catch(Throwable ignored) {}
         }
         return false;
     }
 
-    public static ItemValueConfig define(ForgeConfigSpec.Builder builder, String path, String defaultItem, Supplier<ForgeConfigSpec> specSupplier) { return define(builder, path, new ResourceLocation(defaultItem), specSupplier); }
+    public static ItemValueConfig define(ForgeConfigSpec.Builder builder, String path, String defaultItem, Supplier<ForgeConfigSpec> specSupplier) { return define(builder, path, VersionUtil.parseResource(defaultItem), specSupplier); }
     public static ItemValueConfig define(ForgeConfigSpec.Builder builder, String path, ResourceLocation defaultItem, Supplier<ForgeConfigSpec> specSupplier) { return define(builder, path, defaultItem, convertDefault(defaultItem), specSupplier); }
 
     public static ItemValueConfig define(ForgeConfigSpec.Builder builder, String path, ResourceLocation defaultItem, Supplier<Item> defaultItemSupplier, Supplier<ForgeConfigSpec> specSupplier) {

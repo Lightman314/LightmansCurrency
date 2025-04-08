@@ -6,7 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.DoubleParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.client.gui.components.EditBox;
@@ -42,11 +43,17 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
             this.error = EasyText.empty().append(this.prefix).append(EasyText.literal("###")).append(this.postfix);
             return;
         }
-        this.input = this.addChild(new EditBox(this.getFont(), widgetArea.x + 10 + prefixWidth, widgetArea.y + 22, MoneyValueWidget.WIDTH - 20 - prefixWidth - postfixWidth, 20, EasyText.empty()));
-        this.input.setResponder(this::onValueTextChanges);
-        this.input.setMaxLength(this.maxLength());
-        this.input.setFilter(TextInputUtil::isPositiveDouble);
-        this.onValueChanged(this.currentValue());
+
+        this.input = this.addChild(TextInputUtil.doubleBuilder()
+                .position(widgetArea.pos.offset(10 + prefixWidth,22))
+                .width(MoneyValueWidget.WIDTH - 20 - prefixWidth - postfixWidth)
+                .apply(DoubleParser.builder()
+                        .min(0d)
+                        .consumer())
+                .maxLength(this.maxLength())
+                .handler(this::onValueChanges)
+                .build());
+
     }
 
     protected int maxLength() { return 32; }
@@ -84,12 +91,11 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         }
     }
 
-    private void onValueTextChanges(@Nonnull String newText)
+    private void onValueChanges(double newValueNumber)
     {
         if(this.isFree())
             return;
-        final double valueNumber = TextInputUtil.getDoubleValue(this.input);
-        MoneyValue newValue = this.getValueFromInput(valueNumber);
+        MoneyValue newValue = this.getValueFromInput(newValueNumber);
         this.changeValue(newValue);
     }
 

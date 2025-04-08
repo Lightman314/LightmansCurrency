@@ -34,6 +34,9 @@ public class AncientCoinItem extends Item implements ICoinLike {
 
     public AncientCoinItem(Properties properties) { super(properties); }
 
+    @Override
+    public boolean isCoin(ItemStack stack) { return getAncientCoinType(stack) != null; }
+
     @Nullable
     public static AncientCoinType getAncientCoinType(ItemStack item)
     {

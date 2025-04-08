@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEv
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -80,6 +82,7 @@ public abstract class TradeRule {
 	}
 	public boolean canActivate() { return this.canActivate(this.host); }
 	protected boolean canActivate(@Nullable ITradeRuleHost host) { return this.allowHost(host); }
+	public boolean canPlayerActivate(Player player) { return this.canActivate(); }
 
 	protected boolean onlyAllowOnTraders() { return false; }
 	protected boolean onlyAllowOnTrades() { return false; }
@@ -115,14 +118,20 @@ public abstract class TradeRule {
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
 	
-	public final void receiveUpdateMessage(LazyPacketData data)
+	public final void receiveUpdateMessage(Player player, LazyPacketData data)
 	{
 		if(data.contains("SetActive"))
-			this.isActive = data.getBoolean("SetActive");
-		this.handleUpdateMessage(data);
+		{
+			boolean active = data.getBoolean("SetActive");
+			if(active)
+				this.isActive = this.isActive || this.canPlayerActivate(player);
+			else
+				this.isActive = false;
+		}
+		this.handleUpdateMessage(player,data);
 	}
 	
-	protected abstract void handleUpdateMessage(LazyPacketData updateInfo);
+	protected abstract void handleUpdateMessage(Player player,LazyPacketData updateInfo);
 
 	public static void saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
@@ -296,7 +305,7 @@ public abstract class TradeRule {
 	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(VersionUtil.parseResource(thisType));
 		if(ruleType != null)
 			return ruleType.load(compound);
 		if(IGNORE_MISSING.contains(thisType))
@@ -308,7 +317,7 @@ public abstract class TradeRule {
 	
 	public static TradeRule Deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(new ResourceLocation(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(VersionUtil.parseResource(thisType));
 		if(ruleType != null)
 		{
 			TradeRule rule = ruleType.loadFromJson(json);

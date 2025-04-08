@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.cl
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -14,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRen
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 @OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
-    public static final ResourceLocation NBT_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_nbt_highlight");
+    public static final ResourceLocation NBT_SLOT = VersionUtil.lcResource("item/empty_nbt_highlight");
     public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,NBT_SLOT);
 
     public ItemTradeButtonRenderer(ItemTradeData trade) { super(trade); }

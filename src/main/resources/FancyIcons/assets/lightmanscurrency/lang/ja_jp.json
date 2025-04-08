@@ -1,0 +1,10 @@
+{
+	"tooltip.lightmanscurrency.coin.display": "%2$s",
+	"tooltip.lightmanscurrency.coin.display.worth": "%2$s %1$s",
+	"tooltip.lightmanscurrency.coin.display.number": "%1$s%2$s",
+	"tooltip.lightmanscurrency.coin.display.number.wordy": "%1$s %2$s",
+	
+	"lightmanscurrency.money.ancient_coins.display": "%1$s%3$s",
+	"lightmanscurrency.money.chain.chocolate_coins.display": "%s",
+	"lightmanscurrency.money.chain.emeralds.display": "%s"
+}

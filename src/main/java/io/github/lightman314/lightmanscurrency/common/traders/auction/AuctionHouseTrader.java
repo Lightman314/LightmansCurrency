@@ -32,25 +32,28 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+ @MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
-	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(new ResourceLocation(LightmansCurrency.MODID, "auction_house"),AuctionHouseTrader::new);
+	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(VersionUtil.lcResource("auction_house"),AuctionHouseTrader::new);
 	
-	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
+	public static final IconData ICON = IconData.of(VersionUtil.lcResource("textures/gui/icons.png"), 96, 16);
 	
 	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
@@ -68,8 +71,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		super(TYPE);
 		this.getOwner().SetOwner(FakeOwner.of(LCText.GUI_TRADER_AUCTION_HOUSE_OWNER.get()));
 	}
-	
-	@Nonnull
+
     @Override
 	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
 
@@ -289,7 +291,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	}
 
-	@Nonnull
+	
     @Override
 	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
 
@@ -306,10 +308,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public void loadAdditionalPersistentData(CompoundTag data) { }
 
 	@Override
-	public Predicate<TradeData> getStorageDisplayFilter(@Nonnull ITraderStorageMenu menu) { return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid(); }
+	public Predicate<TradeData> getStorageDisplayFilter(ITraderStorageMenu menu) { return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.getPlayer()) && at.isValid(); }
 	
 	@Override
-	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage Tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new AuctionStorageTab(menu));
 		//Cancel Trade tab
@@ -359,7 +361,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int auctionCount = 0;
 		for(AuctionTradeData auction : this.trades)
 		{

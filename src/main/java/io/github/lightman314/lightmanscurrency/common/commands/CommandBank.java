@@ -13,6 +13,8 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.PlayerBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.TeamBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -103,8 +105,19 @@ public class CommandBank {
                                         .then(Commands.argument("player",EntityArgument.player())
                                                 .executes(CommandBank::deletePlayerAccount)))
                                 .then(Commands.literal("offline")
+                                        .then(Commands.argument("nameOrID", StringArgumentType.word())
+                                                .executes(CommandBank::deleteOfflinePlayerAccount)))))
+                .then(Commands.literal("view")
+                        .then(Commands.literal("player")
+                                .then(Commands.literal("online")
+                                        .then(Commands.argument("player",EntityArgument.player())
+                                                .executes(CommandBank::viewPlayerAccount)))
+                                .then(Commands.literal("offline")
                                         .then(Commands.argument("nameOrID",StringArgumentType.word())
-                                                .executes(CommandBank::deleteOfflinePlayerAccount)))));
+                                                .executes(CommandBank::viewOfflinePlayerAccount))))
+                        .then(Commands.literal("team")
+                                .then(Commands.argument("teamID",LongArgumentType.longArg(0))
+                                        .executes(CommandBank::viewTeamAccount))));
 
         dispatcher.register(bankCommand);
 
@@ -290,6 +303,71 @@ public class CommandBank {
             EasyText.sendCommandFail(source,LCText.COMMAND_BANK_DELETE_PLAYER_DOESNT_EXIST.get(player.getName(false)));
             return 0;
         }
+    }
+
+    private static int viewPlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        Player player = EntityArgument.getPlayer(context,"player");
+        return viewAccount(context,PlayerBankReference.of(player));
+    }
+
+    private static int viewOfflinePlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException{
+        String input = StringArgumentType.getString(context,"nameOrID");
+        try {
+            UUID playerID = UUID.fromString(input);
+            PlayerReference pr = PlayerReference.of(playerID,"");
+            BankDataCache data = BankDataCache.TYPE.get(false);
+            if(!data.hasAccount(playerID))
+            {
+                EasyText.sendCommandFail(context,LCText.COMMAND_BANK_VIEW_PLAYER_NO_ACCOUNT.get(pr.getName(false)));
+                return 0;
+            }
+            return viewAccount(context,PlayerBankReference.of(playerID));
+        } catch (IllegalArgumentException e) {
+            PlayerReference pr = PlayerReference.of(false,input);
+            if(pr != null)
+                return viewAccount(context,PlayerBankReference.of(pr));
+            else
+                throw INVALID_PLAYER_INPUT_TYPE.create(input);
+        }
+    }
+
+    private static int viewTeamAccount(CommandContext<CommandSourceStack> context)
+    {
+        long teamID = LongArgumentType.getLong(context,"teamID");
+        ITeam team = TeamAPI.API.GetTeam(false,teamID);
+        if(team == null)
+        {
+            EasyText.sendCommandFail(context,LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
+            return 0;
+        }
+        if(!team.hasBankAccount())
+        {
+            EasyText.sendCommandFail(context,LCText.COMMAND_BANK_TEAM_NO_BANK.get(teamID));
+            return 0;
+        }
+        return viewAccount(context, TeamBankReference.of(team));
+    }
+
+    private static int viewAccount(CommandContext<CommandSourceStack> context, BankReference reference)
+    {
+        IBankAccount account = reference.get();
+        if(account == null)
+        {
+            if(account.getMoneyStorage().isEmpty())
+            {
+                EasyText.sendCommandSucess(context,LCText.COMMAND_BANK_VIEW_EMPTY.get(account.getName()),false);
+            }
+            else
+            {
+                EasyText.sendCommandSucess(context,LCText.COMMAND_BANK_VIEW_SUCCESS.get(account.getName()), false);
+                for(MoneyValue value : account.getStoredMoney().allValues())
+                    EasyText.sendCommandSucess(context,value.getText(),false);
+            }
+            return 1;
+        }
+        EasyText.sendCommandFail(context,LCText.COMMAND_BANK_VIEW_DOESNT_EXIST.get());
+        return 0;
     }
 
 }

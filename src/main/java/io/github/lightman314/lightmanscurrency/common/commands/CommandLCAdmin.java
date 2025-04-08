@@ -59,6 +59,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -101,6 +102,9 @@ public class CommandLCAdmin {
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
 								.executes(CommandLCAdmin::setCustomTrader)))
+				.then(Commands.literal("viewWallet")
+						.then(Commands.argument("entity",EntityArgument.entity())
+								.executes(CommandLCAdmin::viewWalletSlot)))
 				.then(Commands.literal("replaceWallet").requires((c) -> !LCCurios.isLoaded())
 						.then(Commands.argument("entity", EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
@@ -371,6 +375,24 @@ public class CommandLCAdmin {
 			return 0;
 		}
 
+	}
+
+	static int viewWalletSlot(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		Entity e = EntityArgument.getEntity(commandContext,"entity");
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(e);
+		if(walletHandler != null)
+		{
+			ItemStack wallet = walletHandler.getWallet();
+			if(wallet.isEmpty())
+				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_EMPTY.get(e.getDisplayName()),false);
+			else
+				EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_SUCCESS.get(e.getDisplayName(),wallet.getDisplayName()), false);
+			return 1;
+		}
+		else
+			EasyText.sendCommandFail(commandContext,LCText.COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET.get(e.getDisplayName()));
+		return 0;
 	}
 
 	static int replaceWalletSlotWithDefault(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException

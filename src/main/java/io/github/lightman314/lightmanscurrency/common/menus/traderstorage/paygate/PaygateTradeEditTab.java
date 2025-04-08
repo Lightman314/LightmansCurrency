@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate;
 
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
@@ -8,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTra
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -101,6 +103,17 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		}
 	}
 
+	public void setTooltip(String tooltip) {
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.setTooltip(tooltip);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+				this.menu.SendMessage(this.builder().setString("NewTooltip",tooltip));
+		}
+	}
+
 	public void setTicketStubHandling(boolean storeTicketStubs)
 	{
 		PaygateTradeData trade = this.getTrade();
@@ -110,6 +123,18 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 				this.menu.SendMessage(this.builder().setBoolean("StoreTicketStubs", storeTicketStubs));
+		}
+	}
+
+	public void setOutputSide(Direction side, DirectionalSettingsState state)
+	{
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.getOutputSides().setState(side,state);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+				this.menu.SendMessage(this.builder().setInt("SetOutputSide",side.get3DDataValue()).setString("State",state.toString()));
 		}
 	}
 
@@ -144,9 +169,19 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		{
 			this.setDescription(message.getString("NewDescription"));
 		}
+		else if(message.contains("NewTooltip"))
+		{
+			this.setTooltip(message.getString("NewTooltip"));
+		}
 		else if(message.contains("StoreTicketStubs"))
 		{
 			this.setTicketStubHandling(message.getBoolean("StoreTicketStubs"));
+		}
+		else if(message.contains("SetOutputSide"))
+		{
+			Direction side = Direction.from3DDataValue(message.getInt("SetOutputSide"));
+			DirectionalSettingsState state = DirectionalSettingsState.parse(message.getString("State"));
+			this.setOutputSide(side,state);
 		}
 	}
 

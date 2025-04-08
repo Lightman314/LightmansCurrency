@@ -35,7 +35,6 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 	IconButton buttonToggleAutoExchange;
 	EasyButton buttonExchange;
-	boolean autoExchange = false;
 
 	EasyButton buttonOpenBank;
 
@@ -57,39 +56,28 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		this.addChild(this.positioner);
 		this.positioner.clear();
 
-		if(this.menu.canExchange())
-		{
-			//Create the buttons
-			this.buttonExchange = this.addChild(IconButton.builder()
-					.pressAction(this::PressExchangeButton)
-					.icon(IconData.of(GUI_TEXTURE,176,0))
-					.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE))
-					.build());
+		//Create the buttons
+		this.buttonExchange = this.addChild(IconButton.builder()
+				.pressAction(this::PressExchangeButton)
+				.icon(IconData.of(GUI_TEXTURE,176,0))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE))
+				.addon(EasyAddonHelper.visibleCheck(this.menu::canExchange))
+				.build());
 
-			this.positioner.addWidget(this.buttonExchange);
+		this.buttonToggleAutoExchange = this.addChild(IconButton.builder()
+				.pressAction(this::PressAutoExchangeToggleButton)
+				.icon(this::getAutoExchangeIcon)
+				.addon(EasyAddonHelper.tooltip(this::getAutoExchangeTooltip))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.canExchange() && this.menu.canPickup()))
+				.build());
 
-			if(this.menu.canPickup())
-			{
-				this.buttonToggleAutoExchange = this.addChild(IconButton.builder()
-						.pressAction(this::PressAutoExchangeToggleButton)
-						.icon(IconData.of(GUI_TEXTURE, 176, 16))
-						.addon(EasyAddonHelper.tooltip(this::getAutoExchangeTooltip))
-						.build());
-				this.updateToggleButton();
-				this.positioner.addWidget(this.buttonToggleAutoExchange);
-			}
-		}
-
-		if(this.menu.hasBankAccess())
-		{
-			this.buttonOpenBank = this.addChild(IconButton.builder()
-					.pressAction(this::PressOpenBankButton)
-					.icon(IconData.of(ModBlocks.ATM))
-					.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK))
-					.addon(EasyAddonHelper.visibleCheck(() -> !QuarantineAPI.IsDimensionQuarantined(this.menu.player)))
-					.build());
-			this.positioner.addWidget(this.buttonOpenBank);
-		}
+		this.buttonOpenBank = this.addChild(IconButton.builder()
+				.pressAction(this::PressOpenBankButton)
+				.icon(IconData.of(ModBlocks.ATM))
+				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasBankAccess() && !QuarantineAPI.IsDimensionQuarantined(this.menu.player)))
+				.build());
+		this.positioner.addWidgets(this.buttonExchange,this.buttonToggleAutoExchange,this.buttonOpenBank);
 
 		this.buttonQuickCollect = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(159 + this.menu.halfBonusWidth,screenArea.height - 95))
@@ -120,27 +108,11 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		return wallet.isEmpty() ? EasyText.empty() : wallet.getHoverName();
 	}
 
-	@Override
-	public void screenTick()
-	{
-
-		if(this.buttonToggleAutoExchange != null)
-		{
-			//CurrencyMod.LOGGER.info("Local AC: " + this.autoConvert + " Stack AC: " + this.container.getAutoExchange());
-			if(this.menu.getAutoExchange() != this.autoExchange)
-				this.updateToggleButton();
-		}
-
+	private IconData getAutoExchangeIcon() {
+		return IconData.of(GUI_TEXTURE,176,this.menu.getAutoExchange() ? 16 : 32);
 	}
 
-	private void updateToggleButton()
-	{
-		//CurrencyMod.LOGGER.info("Updating AutoConvert Button");
-		this.autoExchange = this.menu.getAutoExchange();
-		this.buttonToggleAutoExchange.setIcon(IconData.of(GUI_TEXTURE, 176, this.autoExchange ? 16 : 32));
-	}
-
-	private Component getAutoExchangeTooltip() { return this.autoExchange ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }
+	private Component getAutoExchangeTooltip() { return this.menu.getAutoExchange() ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }
 
 	private void PressExchangeButton(EasyButton button)
 	{

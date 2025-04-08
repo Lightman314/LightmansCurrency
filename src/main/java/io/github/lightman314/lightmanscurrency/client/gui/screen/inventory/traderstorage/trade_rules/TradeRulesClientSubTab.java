@@ -36,7 +36,7 @@ public abstract class TradeRulesClientSubTab extends EasyTab {
     /**
      * Hides trade rules that cannot be activated in the trader/trades current state.
      */
-    protected final  List<TradeRule> filterRules(@Nonnull List<TradeRule> rules) { return rules.stream().filter(TradeRule::canActivate).collect(Collectors.toList()); }
+    protected final List<TradeRule> filterRules(@Nonnull List<TradeRule> rules) { return rules.stream().filter(r -> r.canPlayerActivate(this.menu.getPlayer())).collect(Collectors.toList()); }
 
     protected TradeRulesClientSubTab(@Nonnull TradeRulesClientTab<?> parent)
     {

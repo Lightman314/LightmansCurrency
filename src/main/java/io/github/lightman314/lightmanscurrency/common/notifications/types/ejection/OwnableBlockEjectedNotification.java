@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.eject
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
@@ -10,17 +9,17 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class OwnableBlockEjectedNotification extends SingleLineNotification {
 
-    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(new ResourceLocation(LightmansCurrency.MODID,"block_ejected"),OwnableBlockEjectedNotification::new);
+    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("block_ejected"),OwnableBlockEjectedNotification::new);
 
     private Component name = EasyText.empty();
     private boolean ejected = false;

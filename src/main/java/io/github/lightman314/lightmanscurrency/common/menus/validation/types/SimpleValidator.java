@@ -1,16 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public final class SimpleValidator extends MenuValidator {
 
@@ -18,13 +17,13 @@ public final class SimpleValidator extends MenuValidator {
 
     public static final MenuValidator NULL = new SimpleValidator(p -> true);
 
-    private final NonNullFunction<Player,Boolean> test;
+    private final Function<Player,Boolean> test;
 
-    private SimpleValidator(@Nonnull NonNullSupplier<Boolean> test) { this(p -> test.get()); }
-    private SimpleValidator(@Nonnull NonNullFunction<Player,Boolean> test) { super(TYPE); this.test = test; }
+    private SimpleValidator(@Nonnull Supplier<Boolean> test) { this(p -> test.get()); }
+    private SimpleValidator(@Nonnull Function<Player,Boolean> test) { super(TYPE); this.test = test; }
 
-    public static MenuValidator of(@Nonnull NonNullSupplier<Boolean> test) { return new SimpleValidator(test); }
-    public static MenuValidator of(@Nonnull NonNullFunction<Player,Boolean> test) { return new SimpleValidator(test); }
+    public static MenuValidator of(@Nonnull Supplier<Boolean> test) { return new SimpleValidator(test); }
+    public static MenuValidator of(@Nonnull Function<Player,Boolean> test) { return new SimpleValidator(test); }
 
     @Override
     protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) { }
@@ -37,7 +36,7 @@ public final class SimpleValidator extends MenuValidator {
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(new ResourceLocation(LightmansCurrency.MODID, "null")); }
+        protected Type() { super(VersionUtil.lcResource("null")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return NULL; }

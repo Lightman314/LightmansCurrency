@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.integration.claiming.cadmus;
 import earth.terrarium.cadmus.Cadmus;
 import earth.terrarium.cadmus.api.claims.maxclaims.MaxClaimProvider;
 import earth.terrarium.cadmus.api.claims.maxclaims.MaxClaimProviderApi;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.integration.claiming.bonus_data.LCBonusClaimData;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 public class LCMaxClaimProvider implements MaxClaimProvider {
 
     public static final LCMaxClaimProvider INSTANCE = new LCMaxClaimProvider();
-    public static final ResourceLocation CLAIM_PRIVIDER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "claim_provider");
+    public static final ResourceLocation CLAIM_PRIVIDER_TYPE = VersionUtil.lcResource("claim_provider");
 
     private static ResourceLocation lastSelected = Cadmus.DEFAULT_ID;
 

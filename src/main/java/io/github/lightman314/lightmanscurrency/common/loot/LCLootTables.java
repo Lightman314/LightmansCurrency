@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.loot;
 
 import com.google.common.collect.Sets;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 

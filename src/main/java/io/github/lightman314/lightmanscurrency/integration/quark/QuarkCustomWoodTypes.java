@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -58,7 +59,7 @@ public class QuarkCustomWoodTypes {
     private static Supplier<ItemLike> slab(@Nonnull WoodType type) {
         return () -> {
             //Manually get slab block cause quark screwed this part up
-            ResourceLocation itemID = new ResourceLocation(MODID, type.id + "_planks_slab");
+            ResourceLocation itemID = VersionUtil.modResource(MODID, type.id + "_planks_slab");
             Item result = ForgeRegistries.ITEMS.getValue(itemID);
             if(result == Items.AIR)
                 return null;
@@ -69,7 +70,7 @@ public class QuarkCustomWoodTypes {
 
     private static Supplier<ItemLike> item(@Nonnull String itemID) {
         return () -> {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MODID, itemID));
+            Item item = ForgeRegistries.ITEMS.getValue(VersionUtil.modResource(MODID, itemID));
             if(item == Items.AIR)
                 return null;
             return item;

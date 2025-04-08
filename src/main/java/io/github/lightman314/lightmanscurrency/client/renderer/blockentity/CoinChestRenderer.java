@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinChestBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,21 +14,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.BrightnessCombiner;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ChestType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEntity> {
 
-    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, new ResourceLocation(LightmansCurrency.MODID, "entity/chest/coin_chest"));
+    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, VersionUtil.lcResource("entity/chest/coin_chest"));
 
     private final ModelPart lid;
     private final ModelPart bottom;

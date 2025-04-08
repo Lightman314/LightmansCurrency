@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -46,11 +47,13 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CommandTrader extends TraderData {
 
     public static final TraderType<CommandTrader> TYPE = new TraderType<>(VersionUtil.lcResource("commands"),CommandTrader::new);
@@ -114,7 +117,7 @@ public class CommandTrader extends TraderData {
     }
 
     @Override
-    protected void saveAdditionalToJson(@Nonnull JsonObject json) {
+    protected void saveAdditionalToJson(JsonObject json) {
 
         json.addProperty("PermissionLevel",this.permissionLevel);
 
@@ -186,7 +189,7 @@ public class CommandTrader extends TraderData {
     }
 
     @Override
-    protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound) {
+    protected void saveAdditionalPersistentData(CompoundTag compound) {
         ListTag tradePersistentData = new ListTag();
         boolean tradesAreRelevant = false;
         for (CommandTrade trade : this.trades) {
@@ -200,7 +203,7 @@ public class CommandTrader extends TraderData {
     }
 
     @Override
-    protected void loadAdditionalPersistentData(@Nonnull CompoundTag compound) {
+    protected void loadAdditionalPersistentData(CompoundTag compound) {
         if(compound.contains("PersistentTradeData"))
         {
             ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
@@ -216,7 +219,6 @@ public class CommandTrader extends TraderData {
     @Override
     protected void getAdditionalContents(List<ItemStack> results) { }
 
-    @Nonnull
     @Override
     public List<? extends TradeData> getTradeData() { return new ArrayList<>(this.trades); }
 
@@ -291,7 +293,7 @@ public class CommandTrader extends TraderData {
             return TradeResult.FAIL_NOT_SUPPORTED;
     }
 
-    private CommandSourceStack sourceForPlayer(@Nonnull ServerPlayer player) {
+    private CommandSourceStack sourceForPlayer(ServerPlayer player) {
         return new CommandSourceStack(player,player.position(),player.getRotationVector(),player.serverLevel(),this.getPermissionLevel(),player.getName().getString(),player.getName(),player.server,player);
     }
 
@@ -299,7 +301,7 @@ public class CommandTrader extends TraderData {
     public boolean canMakePersistent() { return true; }
 
     @Override
-    public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+    public void initStorageTabs(ITraderStorageMenu menu) {
         menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE,new UpgradesTab(menu,1));
         menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED,new CommandTradeEditTab(menu));
     }
@@ -310,19 +312,19 @@ public class CommandTrader extends TraderData {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addSettingsTabs(@Nonnull TraderSettingsClientTab tab, @Nonnull List<SettingsSubTab> tabs) {
+    public void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) {
         tabs.add(new CommandSettingsTab(tab));
     }
 
     @Override
-    public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
+    public void handleSettingsChange(Player player, LazyPacketData message) {
         super.handleSettingsChange(player, message);
         if(message.contains("ChangePermissionLevel"))
             this.setPermissionLevel(player,message.getInt("ChangePermissionLevel"));
     }
 
     @Override
-    protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+    protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
         list.add(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT.get(this.validTradeCount()));
     }
 

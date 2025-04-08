@@ -8,7 +8,6 @@
 			"name": "Base",
 			"from": [0, 2, 0],
 			"to": [16, 8, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 11, 8]},
 			"faces": {
 				"north": {"uv": [12, 14, 16, 15.5], "texture": "#exterior", "cullface": "north"},
 				"south": {"uv": [0, 14, 4, 15.5], "texture": "#exterior", "cullface": "south"},
@@ -21,7 +20,6 @@
 			"name": "Leg-1",
 			"from": [0, 0, 15],
 			"to": [1, 2, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 23]},
 			"faces": {
 				"north": {"uv": [15.75, 15.5, 16, 16], "texture": "#exterior"},
 				"east": {"uv": [0, 7.5, 0.25, 8], "texture": "#exterior"},
@@ -46,7 +44,6 @@
 			"name": "Wall-Left",
 			"from": [0, 8, 0],
 			"to": [1, 16, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 16, 8]},
 			"faces": {
 				"north": {"uv": [15.75, 12, 16, 14], "texture": "#exterior", "cullface": "north"},
 				"east": {"uv": [8, 3.5, 12, 5.5], "texture": "#interior"},
@@ -58,7 +55,6 @@
 			"name": "Wall-Back",
 			"from": [1, 8, 0],
 			"to": [16, 16, 1],
-			"rotation": {"angle": 0, "axis": "y", "origin": [16, 13, 8]},
 			"faces": {
 				"north": {"uv": [12, 12, 15.75, 14], "texture": "#exterior", "cullface": "north"},
 				"south": {"uv": [0, 11.5, 3.75, 13.5], "texture": "#interior"}
@@ -68,7 +64,6 @@
 			"name": "Glass",
 			"from": [1, 8, 16],
 			"to": [16, 16, 16],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 13, 23]},
 			"faces": {
 				"north": {"uv": [3.25, 12, 7, 14], "texture": "#exterior"},
 				"south": {"uv": [0.25, 12, 4, 14], "texture": "#exterior", "cullface": "south"}
@@ -78,7 +73,6 @@
 			"name": "Shelf-1",
 			"from": [1, 10, 1],
 			"to": [16, 11, 11],
-			"rotation": {"angle": 0, "axis": "y", "origin": [10, 21, 9]},
 			"faces": {
 				"south": {"uv": [8, 12.5, 11.75, 12.75], "texture": "#interior"},
 				"up": {"uv": [8, 8, 11.75, 10.25], "texture": "#interior"},
@@ -89,7 +83,6 @@
 			"name": "Mount-1",
 			"from": [3, 12, 1],
 			"to": [4, 13, 11],
-			"rotation": {"angle": 0, "axis": "y", "origin": [11, 23, 9]},
 			"faces": {
 				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
 				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},
@@ -102,7 +95,6 @@
 			"name": "Mount-2",
 			"from": [10, 12, 1],
 			"to": [11, 13, 11],
-			"rotation": {"angle": 0, "axis": "y", "origin": [11, 23, 9]},
 			"faces": {
 				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
 				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},

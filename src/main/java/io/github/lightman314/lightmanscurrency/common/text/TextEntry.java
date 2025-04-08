@@ -42,6 +42,7 @@ public final class TextEntry {
     //Vanilla Objects
     public static TextEntry item(@Nonnull RegistryObject<? extends ItemLike> item) { return new TextEntry(() -> item.get().asItem().getDescriptionId()); }
     public static TextEntry block(@Nonnull RegistryObject<? extends Block> block) { return new TextEntry(() -> block.get().getDescriptionId()); }
+    public static TextEntry block(@Nonnull Supplier<? extends Block> block) { return new TextEntry(() -> block.get().getDescriptionId()); }
     public static TextEntry enchantment(@Nonnull RegistryObject<? extends Enchantment> enchantment) { return new TextEntry(() -> enchantment.get().getDescriptionId()); }
     public static TextEntry gamerule(@Nonnull String ruleKey) { return new TextEntry("gamerule." + ruleKey); }
     public static TextEntry profession(@Nonnull RegistryObject<? extends VillagerProfession> profession) { return new TextEntry(() -> {
@@ -70,6 +71,9 @@ public final class TextEntry {
     public static TextEntry notification(@Nonnull ResourceLocation type) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
     public static TextEntry notification(@Nonnull NotificationType<?> type, @Nonnull String extra) { return notification(type.type,extra); }
     public static TextEntry notification(@Nonnull ResourceLocation type, @Nonnull String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
+
+    public static TextEntry dataName(@Nonnull String modid, @Nonnull String key) { return new TextEntry("data." + modid + ".name." + key); }
+    public static TextEntry dataCategory(@Nonnull String modid, @Nonnull String key) { return new TextEntry("data." + modid + ".category." + key); }
 
     public static TextEntry chain(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain); }
     public static TextEntry chainDisplay(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
