@@ -18,20 +18,18 @@ import java.util.function.Consumer;
 public abstract class EasyData<T> {
 
     private final List<Consumer<T>> changeListeners = new ArrayList<>();
-    public final EasyDataKey key;
-    private final IEasyDataHost host;
-    public EasyData(EasyDataKey key, IEasyDataHost host) {
-        this.key = key;
-        this.host = host;
-        this.host.registerData(this);
+    public final EasyDataSettings<T> settings;
+    public EasyData(EasyDataSettings<T> builder) {
+        this.settings = builder;
+        this.settings.host.registerData(this);
     }
 
-    public final void write(CompoundTag tag, HolderLookup.Provider lookup) { this.write(ReadWriteContext.of(tag,lookup),this.key.tagKey); }
+    public final void write(CompoundTag tag, HolderLookup.Provider lookup) { this.write(ReadWriteContext.of(tag,lookup),this.settings.tagKey); }
     protected abstract void write(ReadWriteContext context,String tagKey);
 
     public final void read(CompoundTag tag, HolderLookup.Provider lookup) {
-        if(tag.contains(this.key.tagKey))
-            this.read(ReadWriteContext.of(tag,lookup),this.key.tagKey);
+        if(tag.contains(this.settings.tagKey))
+            this.read(ReadWriteContext.of(tag,lookup),this.settings.tagKey);
     }
     protected abstract void read(ReadWriteContext context,String tagKey);
 
@@ -53,14 +51,18 @@ public abstract class EasyData<T> {
     protected abstract Notification change(PlayerReference player, T newValue);
     public final void trySet(Player player, T newValue)
     {
-        if(this.key.category.canEdit(player,this.host) && !this.get().equals(newValue))
+        if(this.settings.category.canEdit(player,this.settings.host) && !this.get().equals(newValue))
         {
-            Notification notification = this.change(PlayerReference.of(player),newValue);
+            T oldValue = this.get();
+            PlayerReference pr = PlayerReference.of(player);
+            Notification notification = this.change(pr,newValue);
+            //Apply third-party notification changes
+            notification = this.settings.filterNotification(oldValue,this.get(),pr,notification);
             this.setChanged();
             //Push notification
             if(notification != null)
             {
-                Consumer<Notification> consumer = this.host.dataChangeNotifier();
+                Consumer<Notification> consumer = this.settings.host.dataChangeNotifier();
                 if(consumer != null)
                     consumer.accept(notification);
             }
@@ -71,7 +73,7 @@ public abstract class EasyData<T> {
         T val = this.get();
         for(Consumer<T> listener : new ArrayList<>(this.changeListeners))
             listener.accept(val);
-        this.host.onDataChanged(this);
+        this.settings.host.onDataChanged(this);
     }
 
     public final void addListener(Consumer<T> listener)

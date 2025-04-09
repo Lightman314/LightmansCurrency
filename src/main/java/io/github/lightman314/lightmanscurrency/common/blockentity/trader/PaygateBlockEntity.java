@@ -78,8 +78,9 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 	
 	public void activate(int duration, int level, DirectionalSettings outputSides) {
 		this.timer = duration;
-		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, Math.clamp(level,0,15)));
 		this.outputSides.copy(outputSides);
+		//Update block state last as we need all data saved to the BE before notifying the neighbors about the change
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, Math.clamp(level,0,15)));
 		this.markTimerDirty();
 	}
 	

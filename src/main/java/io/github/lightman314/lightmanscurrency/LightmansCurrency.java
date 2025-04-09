@@ -213,6 +213,7 @@ public class LightmansCurrency {
 		NotificationAPI.API.RegisterNotification(ChangeOwnerNotification.TYPE);
 		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
 		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.DUMB_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);

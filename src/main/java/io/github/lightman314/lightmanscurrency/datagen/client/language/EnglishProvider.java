@@ -1023,6 +1023,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TRANSFERRED,"%1$s transferred ownership from %2$s to %3$s");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE,"%1$s changed %2$s to %3$s");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED,"%1$s changed %2$s from %3$s to %4$s");
+        this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_DUMB,"%1$s changed %2$s");
         //Tax Notifications
         this.translate(LCText.NOTIFICATION_TAXES_COLLECTED,"Collected %1$s in taxes from %2$s");
         this.translate(LCText.NOTIFICATION_TAXES_PAID,"%s was paid in taxes");
@@ -1044,6 +1045,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");
         this.translate(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY,"Store Money in Creative");
         this.translate(LCText.DATA_ENTRY_TRADER_NAME,"Trader Name");
+        this.translate(LCText.DATA_ENTRY_TRADER_ICON,"Trader Terminal Icon");
+        this.translate(LCText.DATA_ENTRY_TRADER_BANK_LINK,"Bank Account Link");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
 
         //Easy Data Categories

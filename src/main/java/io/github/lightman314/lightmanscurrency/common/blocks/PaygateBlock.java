@@ -78,7 +78,8 @@ public class PaygateBlock extends TraderBlockRotatable {
 	public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
 		if(level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
 		{
-			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir);
+			//Use opposite side as the direction input is relative to the requestor
+			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir.getOpposite());
 			if(be.allowOutputSide(relativeSide))
 				return state.getValue(POWER_LEVEL);
 		}

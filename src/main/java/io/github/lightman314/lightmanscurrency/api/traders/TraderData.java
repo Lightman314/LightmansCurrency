@@ -10,12 +10,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataKey;
 import io.github.lightman314.lightmanscurrency.api.easy_data.IEasyDataHost;
 import io.github.lightman314.lightmanscurrency.api.easy_data.categories.DataCategories;
 import io.github.lightman314.lightmanscurrency.api.easy_data.types.BoolData;
 import io.github.lightman314.lightmanscurrency.api.easy_data.types.StringData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.types.complex.IconDataData;
+import io.github.lightman314.lightmanscurrency.api.easy_data.complex.types.IconDataData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.misc.IPermissions;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
@@ -34,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.easy_data.TraderNotificationReplacers;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
@@ -241,10 +241,19 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.markDirty(this::saveLevelData);
 	}
 
-	public final BoolData creative = BoolData.of(EasyDataKey.builder("creative").tagKey("Creative").name(LCText.DATA_ENTRY_CREATIVE.get()).category(DataCategories.Traders.CREATIVE).build(),this,false);
+	public final BoolData creative = BoolData.builder(false).host(this)
+			.key("creative").tagKey("Creative")
+			.name(LCText.DATA_ENTRY_CREATIVE.get())
+			.category(DataCategories.Traders.CREATIVE)
+			.notificationReplacer(TraderNotificationReplacers.CREATIVE_NOTIFICATION)
+			.build();
 	public boolean isCreative() { return this.creative.get(); }
 
-	public final BoolData storeCreativeMoney = BoolData.of(EasyDataKey.builder("store_money_in_creative").tagKey("StoreCreativeMoney").name(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY.get()).category(DataCategories.Traders.CREATIVE).build(),this,false);
+	public final BoolData storeCreativeMoney = BoolData.builder(false).host(this)
+			.key("store_money_in_creative").tagKey("StoreCreativeMoney")
+			.name(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY.get())
+			.category(DataCategories.Traders.CREATIVE)
+			.build();
 
 	public boolean canStoreMoney() { return !this.creative.get() || this.storeCreativeMoney.get(); }
 
@@ -376,7 +385,11 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		}
 	}
 
-	public final StringData customName = StringData.of(EasyDataKey.builder("name").tagKey("Name").category(DataCategories.Traders.DISPLAY).name(LCText.DATA_ENTRY_TRADER_NAME.get()).build(),this);
+	public final StringData customName = StringData.builder().host(this)
+			.key("name").tagKey("Name")
+			.category(DataCategories.Traders.DISPLAY)
+			.name(LCText.DATA_ENTRY_TRADER_NAME.get())
+			.build();
 	public boolean hasCustomName() { return !this.customName.get().isBlank(); }
 	
 	public IconData getDisplayIcon() { return this.customIcon.get().isNull() ? this.getIcon() : this.customIcon.get(); }
@@ -397,7 +410,11 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return LCText.GUI_TRADER_TITLE.get(this.getName(), this.owner.getName());
 	}
 
-	public final IconDataData customIcon = IconDataData.of(EasyDataKey.builder("trader_icon").tagKey("CustomIcon").name(LCText.DATA_ENTRY_TRADER_ICON.get()).category(DataCategories.Traders.DISPLAY).build(),this);
+	public final IconDataData customIcon = IconDataData.builder().host(this)
+			.key("trader_icon").tagKey("CustomIcon")
+			.name(LCText.DATA_ENTRY_TRADER_ICON.get())
+			.category(DataCategories.Traders.DISPLAY)
+			.build();
 
 	/**
 	 * Can be overridden by child traders to make special icons from certain items<br>
@@ -515,7 +532,11 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		ResourceKey<Level> level = this.worldPosition.getDimension();
 		return level != null && QuarantineAPI.IsDimensionQuarantined(level);
 	}
-	public final BoolData linkedToBank = BoolData.of(EasyDataKey.builder("linked_to_bank").tagKey("LinkedToBank").category(DataCategories.Traders.BANK).build(),this,false);
+	public final BoolData linkedToBank = BoolData.builder(false).host(this)
+			.key("linked_to_bank").tagKey("LinkedToBank")
+			.name(LCText.DATA_ENTRY_TRADER_BANK_LINK.get())
+			.category(DataCategories.Traders.BANK)
+			.build();
 	public boolean canLinkBankAccount()
 	{
 		BankReference reference = this.owner.getValidOwner().asBankReference();

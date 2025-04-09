@@ -1,7 +1,11 @@
-package io.github.lightman314.lightmanscurrency.api.easy_data;
+package io.github.lightman314.lightmanscurrency.api.easy_data.complex;
 
+import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
+import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataSettings;
+import io.github.lightman314.lightmanscurrency.api.easy_data.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,8 +20,8 @@ public abstract class ComplexData<T> extends EasyData<T> {
 
     private final BiFunction<T,HolderLookup.Provider,CompoundTag> writer;
     private final BiFunction<CompoundTag,HolderLookup.Provider,T> reader;
-    public ComplexData(EasyDataKey key, IEasyDataHost host, BiFunction<T,HolderLookup.Provider,CompoundTag> writer, BiFunction<CompoundTag,HolderLookup.Provider,T> reader) {
-        super(key, host);
+    public ComplexData(EasyDataSettings<T> settings, BiFunction<T,HolderLookup.Provider,CompoundTag> writer, BiFunction<CompoundTag,HolderLookup.Provider,T> reader) {
+        super(settings);
         this.writer = writer;
         this.reader = reader;
     }
@@ -29,14 +33,14 @@ public abstract class ComplexData<T> extends EasyData<T> {
     protected final void read(ReadWriteContext context, String tagKey) { this.set(this.reader.apply(context.tag.getCompound(tagKey),context.lookup)); }
 
     @Nullable
-    protected Notification getChangeNotification(T oldValue,T newValue) { return null; }
+    protected Notification getChangeNotification(PlayerReference player,T oldValue,T newValue) { return ChangeSettingNotification.dump(player,this.settings.dataName); }
 
     @Nullable
     @Override
     protected Notification change(PlayerReference player, T newValue) {
         T oldValue = this.get();
         this.setInternal(newValue);
-        return this.getChangeNotification(oldValue,newValue);
+        return this.getChangeNotification(player, oldValue,newValue);
     }
 
 }

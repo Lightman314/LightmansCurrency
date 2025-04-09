@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.easy_data.types;
 
 import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataKey;
-import io.github.lightman314.lightmanscurrency.api.easy_data.IEasyDataHost;
+import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataSettings;
 import io.github.lightman314.lightmanscurrency.api.easy_data.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -19,15 +18,15 @@ public class StringData extends EasyData<String> {
     private String value;
     private final int maxLength;
 
-    public StringData(EasyDataKey key, IEasyDataHost host, String defaultValue, int maxLength) {
-        super(key, host);
+    private StringData(EasyDataSettings<String> settings, String defaultValue, int maxLength) {
+        super(settings);
         this.value = defaultValue;
         this.maxLength = maxLength;
     }
 
-    public static StringData of(EasyDataKey key, IEasyDataHost host) { return of(key,host,""); }
-    public static StringData of(EasyDataKey key, IEasyDataHost host, String defaultValue) { return of(key,host,defaultValue,-1); }
-    public static StringData of(EasyDataKey key, IEasyDataHost host, String defaultValue, int maxLength) { return new StringData(key,host,defaultValue,maxLength); }
+    public static EasyDataSettings.Builder<String,StringData> builder() { return builder(""); }
+    public static EasyDataSettings.Builder<String,StringData> builder(String defaultValue) { return builder("",-1); }
+    public static EasyDataSettings.Builder<String,StringData> builder(String defaultValue, int maxLength) { return EasyDataSettings.builder(b -> new StringData(b,defaultValue,maxLength)); }
 
     @Override
     protected void write(ReadWriteContext context, String tagKey) { context.tag.putString(tagKey,this.value); }
@@ -50,7 +49,7 @@ public class StringData extends EasyData<String> {
     @Override
     protected Notification change(PlayerReference player, String newValue) {
         this.set(newValue);
-        return ChangeSettingNotification.simple(player,this.key.dataName,this.value);
+        return ChangeSettingNotification.simple(player,this.settings.dataName,this.value);
     }
 
 }

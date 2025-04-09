@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.easy_data.types;
 
 import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataKey;
-import io.github.lightman314.lightmanscurrency.api.easy_data.IEasyDataHost;
+import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataSettings;
 import io.github.lightman314.lightmanscurrency.api.easy_data.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -17,13 +16,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class BoolData extends EasyData<Boolean> {
 
     private boolean value;
-    public BoolData(EasyDataKey key, IEasyDataHost host, boolean defaultValue) {
-        super(key, host);
+    private BoolData(EasyDataSettings<Boolean> builder, boolean defaultValue) {
+        super(builder);
         this.value = defaultValue;
     }
 
-    public static BoolData of(EasyDataKey key, IEasyDataHost host) { return of(key,host,false); }
-    public static BoolData of(EasyDataKey key, IEasyDataHost host, boolean defaultValue) { return new BoolData(key,host,defaultValue); }
+    public static EasyDataSettings.Builder<Boolean,BoolData> builder() { return builder(false); }
+    public static EasyDataSettings.Builder<Boolean,BoolData> builder(boolean defaultValue) { return EasyDataSettings.builder(b -> new BoolData(b,defaultValue)); }
 
     @Override
     protected void write(ReadWriteContext context, String tagKey) { context.tag.putBoolean(tagKey,this.value); }
@@ -45,7 +44,7 @@ public class BoolData extends EasyData<Boolean> {
         this.value = newValue;
         if(player == null)
             return null;
-        return ChangeSettingNotification.simple(player,this.key.dataName,newValue);
+        return ChangeSettingNotification.simple(player,this.settings.dataName,newValue);
     }
 
 }

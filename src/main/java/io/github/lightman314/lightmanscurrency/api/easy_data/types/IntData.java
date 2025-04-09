@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.api.easy_data.types;
 
 import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataKey;
-import io.github.lightman314.lightmanscurrency.api.easy_data.IEasyDataHost;
+import io.github.lightman314.lightmanscurrency.api.easy_data.EasyDataSettings;
 import io.github.lightman314.lightmanscurrency.api.easy_data.ReadWriteContext;
+import io.github.lightman314.lightmanscurrency.api.easy_data.util.NotificationReplacer;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -20,20 +21,17 @@ public class IntData extends EasyData<Integer> {
     private int value;
     private final int minValue;
     private final int maxValue;
-    private final boolean simpleNotification;
-    public IntData(EasyDataKey key, IEasyDataHost host, int defaultValue, int minValue, int maxValue, boolean simpleNotification)
+    private IntData(EasyDataSettings<Integer> builder, int defaultValue, int minValue, int maxValue)
     {
-        super(key, host);
+        super(builder);
         this.value = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.simpleNotification = simpleNotification;
     }
 
-    public static IntData of(EasyDataKey key, IEasyDataHost host) { return of(key,host,0); }
-    public static IntData of(EasyDataKey key, IEasyDataHost host, int defaultValue) { return of(key,host,defaultValue,Integer.MIN_VALUE,Integer.MAX_VALUE); }
-    public static IntData of(EasyDataKey key, IEasyDataHost host, int defaultValue, int minValue, int maxValue) { return of(key,host,defaultValue,minValue,maxValue,false); }
-    public static IntData of(EasyDataKey key, IEasyDataHost host, int defaultValue, int minValue, int maxValue, boolean simpleNotification) { return new IntData(key,host,defaultValue,minValue,maxValue,simpleNotification); }
+    public static EasyDataSettings.Builder<Integer,IntData> builder() { return builder(0); }
+    public static EasyDataSettings.Builder<Integer,IntData> builder(int defaultValue) { return builder(0, Integer.MIN_VALUE, Integer.MAX_VALUE); }
+    public static EasyDataSettings.Builder<Integer,IntData> builder(int defaultValue, int minValue, int maxValue) { return EasyDataSettings.builder(b -> new IntData(b,defaultValue,minValue,maxValue)); }
 
     @Override
     protected void write(ReadWriteContext context, String tagKey) {
@@ -59,10 +57,14 @@ public class IntData extends EasyData<Integer> {
             return null;
         int oldValue = this.value;
         this.value = newValue;
-        if(this.simpleNotification)
-            return ChangeSettingNotification.simple(player,this.key.dataName,this.value);
-        else
-            return ChangeSettingNotification.advanced(player,this.key.dataName,this.value,oldValue);
+        return ChangeSettingNotification.advanced(player,this.settings.dataName,this.value,oldValue);
     }
+
+    public static final NotificationReplacer<Integer> SIMPLE_NOTIFICATION = new NotificationReplacer<>() {
+        @Override
+        public Notification replaceNotification(@Nonnull Integer oldValue, @Nonnull Integer newValue, @Nonnull PlayerReference player, @Nonnull EasyDataSettings<Integer> settings, @Nullable Notification originalNotification) {
+            return ChangeSettingNotification.simple(player,settings.dataName,newValue);
+        }
+    };
 
 }
