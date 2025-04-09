@@ -1,12 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.terminal.FilterUtils;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.IBasicTraderFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;

@@ -33,7 +33,7 @@ public abstract class ComplexData<T> extends EasyData<T> {
     protected final void read(ReadWriteContext context, String tagKey) { this.set(this.reader.apply(context.tag.getCompound(tagKey),context.lookup)); }
 
     @Nullable
-    protected Notification getChangeNotification(PlayerReference player,T oldValue,T newValue) { return ChangeSettingNotification.dump(player,this.settings.dataName); }
+    protected Notification getChangeNotification(PlayerReference player,T oldValue,T newValue) { return ChangeSettingNotification.dumb(player,this.settings.dataName); }
 
     @Nullable
     @Override

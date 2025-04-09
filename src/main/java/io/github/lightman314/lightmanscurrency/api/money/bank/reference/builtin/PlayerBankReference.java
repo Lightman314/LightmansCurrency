@@ -42,6 +42,7 @@ public class PlayerBankReference extends BankReference {
     public IBankAccount get() {
         BankDataCache data = BankDataCache.TYPE.get(this);
         return data == null ? null : data.getAccount(this.player.id);
+
     }
 
     @Override

@@ -33,7 +33,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 	protected ChangeSettingNotification() {}
 
 	@Nullable
-	public static ChangeSettingNotification dump(@Nullable PlayerReference player, Component setting) { return player == null ? null : new Dumb(player,setting); }
+	public static ChangeSettingNotification dumb(@Nullable PlayerReference player, Component setting) { return player == null ? null : new Dumb(player,setting); }
 	@Nullable
 	public static ChangeSettingNotification simple(@Nullable PlayerReference player, Component setting, int newValue) { return simple(player,setting,String.valueOf(newValue)); }
 	@Nullable
@@ -81,7 +81,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 		
 		@Override
-		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(true), this.setting, this.oldValue, this.newValue); }
+		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(this.isClient()), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
