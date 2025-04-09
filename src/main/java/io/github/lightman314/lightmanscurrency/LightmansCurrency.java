@@ -98,7 +98,7 @@ import java.util.function.Consumer;
 public class LightmansCurrency {
 
 	public static final String MODID = "lightmanscurrency";
-	
+
 	private static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	@Nonnull
 	public static CommonProxy getProxy() { return PROXY; }
@@ -224,6 +224,7 @@ public class LightmansCurrency {
 		NotificationAPI.API.RegisterNotification(ChangeOwnerNotification.TYPE);
 		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
 		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
+		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.DUMB_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
 		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);

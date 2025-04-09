@@ -23,13 +23,16 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 	public static final NotificationType<Advanced> ADVANCED_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_advanced"),ChangeSettingNotification::createAdvanced);
 	public static final NotificationType<Simple> SIMPLE_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_simple"),ChangeSettingNotification::createSimple);
-	
+	public static final NotificationType<Dumb> DUMB_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_dumb"),ChangeSettingNotification::createDumb);
+
 	protected PlayerReference player;
 	protected Component setting;
 	
 	protected ChangeSettingNotification(PlayerReference player, Component setting) { this.player = player; this.setting = setting; }
 	protected ChangeSettingNotification() {}
 
+	@Nullable
+	public static ChangeSettingNotification dumb(@Nullable PlayerReference player, Component setting) { return player == null ? null : new Dumb(player,setting); }
 	@Nullable
 	public static ChangeSettingNotification simple(@Nullable PlayerReference player, Component setting, int newValue) { return simple(player,setting,String.valueOf(newValue)); }
 	@Nullable
@@ -61,6 +64,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 	private static Advanced createAdvanced() { return new Advanced(); }
 	private static Simple createSimple() { return new Simple(); }
+	private static Dumb createDumb() { return new Dumb(); }
 
 	public static class Advanced extends ChangeSettingNotification
 	{
@@ -77,7 +81,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 		
 		@Override
-		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(true), this.setting, this.oldValue, this.newValue); }
+		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(this.isClient()), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(CompoundTag compound) {
@@ -118,7 +122,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 		
 		@Override
 		public MutableComponent getMessage() {
-			return LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE.get(this.player.getName(true), this.setting, this.newValue);
+			return LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE.get(this.player.getName(this.isClient()), this.setting, this.newValue);
 		}
 		
 		@Override
@@ -143,6 +147,24 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 		}
 		
 	}
-	
+
+	public static class Dumb extends ChangeSettingNotification
+	{
+		private Dumb() {}
+		private Dumb(PlayerReference player, Component setting) { super(player,setting); }
+
+		@Override
+		protected MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_DUMB.get(this.player.getName(this.isClient()),this.setting); }
+
+		@Override
+		protected NotificationType<?> getType() { return DUMB_TYPE; }
+
+		@Override
+		protected boolean canMerge(Notification other) {
+			if(other instanceof Dumb d)
+				return d.player.equals(this.player) && d.setting.equals(this.setting);
+			return false;
+		}
+	}
 	
 }

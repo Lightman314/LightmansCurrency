@@ -960,6 +960,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_OWNER_TRANSFERRED = TextEntry.notification(ChangeOwnerNotification.TYPE,"transferred");
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_SIMPLE = TextEntry.notification(ChangeSettingNotification.SIMPLE_TYPE);
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_ADVANCED = TextEntry.notification(ChangeSettingNotification.ADVANCED_TYPE);
+    public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_DUMB = TextEntry.notification(ChangeSettingNotification.DUMB_TYPE);
     //Tax Notifications
     public static final TextEntry NOTIFICATION_TAXES_COLLECTED = TextEntry.notification(TaxesCollectedNotification.TYPE);
     public static final TextEntry NOTIFICATION_TAXES_PAID = TextEntry.notification(TaxesPaidNotification.TYPE);
@@ -982,6 +983,7 @@ public class LCText {
     public static final TextEntry DATA_ENTRY_STORE_CREATIVE_MONEY = TextEntry.dataName(MODID,"store_money_in_creative");
     public static final TextEntry DATA_ENTRY_TRADER_NAME = TextEntry.dataName(MODID,"trader_name");
     public static final TextEntry DATA_ENTRY_TRADER_ICON = TextEntry.dataName(MODID,"trader_icon");
+    public static final TextEntry DATA_ENTRY_TRADER_BANK_LINK = TextEntry.dataName(MODID,"trader.bank_link");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
 
     //Easy Data Categories
