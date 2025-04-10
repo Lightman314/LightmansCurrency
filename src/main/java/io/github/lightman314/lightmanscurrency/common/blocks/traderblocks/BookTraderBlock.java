@@ -30,6 +30,9 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
     protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new BookTraderBlockEntity(pos, state, BOOK_COUNT); }
 
     @Override
+    protected boolean isBlockOpaque() { return false; }
+
+    @Override
     protected BlockEntityType<?> traderType() { return ModBlockEntities.BOOK_TRADER.get(); }
 
     @Override

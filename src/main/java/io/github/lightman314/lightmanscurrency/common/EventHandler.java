@@ -73,7 +73,7 @@ public class EventHandler {
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getPlayer();
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() == null || ie.getTarget().equals(player.getUUID())))
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() != null && !ie.getTarget().equals(player.getUUID())))
 			return;
 
 		WalletMenuBase activeContainer = null;

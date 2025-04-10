@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -49,7 +48,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
 
         this.teamSelection = this.addChild(TeamSelectWidget.builder()
                 .position(screenArea.pos.offset(10,20))
-                .width(60)
+                .width(screenArea.width - 20)
                 .rows(5)
                 .teams(() -> this.teamList)
                 .selected(this.menu::selectedTeam)
