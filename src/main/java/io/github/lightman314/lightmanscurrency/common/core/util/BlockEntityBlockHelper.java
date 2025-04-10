@@ -38,7 +38,7 @@ public class BlockEntityBlockHelper {
 					result.add(b);
 			} catch(Throwable ignored) {}
 		}
-		return result.toArray(new Block[0]);
+		return result.toArray(Block[]::new);
 	}
 
 	public static <T extends Block> void addBlockToBlockEntity(ResourceLocation beType, Supplier<T> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }

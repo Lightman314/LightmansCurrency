@@ -82,7 +82,7 @@ public class EventHandler {
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getEntity();
 
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || matchesTarget(ie,player))
+		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || !matchesTarget(ie,player))
 			return;
 
 		ItemStack coinStack = event.getItem().getItem();
