@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,18 +19,18 @@ public class SPacketViewConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketViewConfig> HANDLER = new H();
 
-    private final String fileName;
+    private final ResourceLocation fileID;
     private final String option;
 
-    public SPacketViewConfig(@Nonnull String fileName, @Nonnull String option)
+    public SPacketViewConfig(@Nonnull ResourceLocation fileID, @Nonnull String option)
     {
-        this.fileName = fileName;
+        this.fileID = fileID;
         this.option = option;
     }
 
     @Override
     public void encode(@Nonnull FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.fileName);
+        buffer.writeResourceLocation(this.fileID);
         buffer.writeUtf(this.option);
     }
 
@@ -39,27 +40,23 @@ public class SPacketViewConfig extends ServerToClientPacket {
         @Nonnull
         @Override
         public SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) {
-            String fileName = buffer.readUtf();
-            String option = buffer.readUtf();
-            return new SPacketViewConfig(fileName, option);
+            return new SPacketViewConfig(buffer.readResourceLocation(), buffer.readUtf());
         }
 
         @Override
         protected void handle(@Nonnull SPacketViewConfig message, @Nullable ServerPlayer sender) {
-            for(ConfigFile file : ConfigFile.getAvailableFiles())
+            ConfigFile file = ConfigFile.lookupFile(message.fileID);
+            if(file != null && file.isClientOnly())
             {
-                if(file.isClientOnly() && file.getFileName().equals(message.fileName))
+                Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
+                if(optionMap.containsKey(message.option))
                 {
-                    Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
-                    if(optionMap.containsKey(message.option))
-                    {
-                        ConfigOption<?> option = optionMap.get(message.option);
-                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_VIEW.get(option.getName()));
-                        LightmansCurrency.getProxy().sendClientMessage(EasyText.literal(option.write()));
-                    }
-                    else
-                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get().withStyle(ChatFormatting.RED));
+                    ConfigOption<?> option = optionMap.get(message.option);
+                    LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_VIEW.get(option.getName()));
+                    LightmansCurrency.getProxy().sendClientMessage(EasyText.literal(option.write()));
                 }
+                else
+                    LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get().withStyle(ChatFormatting.RED));
             }
         }
 

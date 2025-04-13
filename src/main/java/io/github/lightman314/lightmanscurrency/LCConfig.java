@@ -46,7 +46,7 @@ public final class LCConfig {
 
     public static final class Client extends ClientConfigFile
     {
-        private Client() { super("lightmanscurrency-client"); }
+        private Client() { super(VersionUtil.lcResource("client"),"lightmanscurrency-client"); }
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
 
@@ -199,7 +199,7 @@ public final class LCConfig {
 
     public static final class Common extends ConfigFile
     {
-        private Common() { super("lightmanscurrency-common", LoadPhase.SETUP); }
+        private Common() { super(VersionUtil.lcResource("common"),"lightmanscurrency-common", LoadPhase.SETUP); }
 
         //Debug Level (in root)
         public final IntOption debugLevel = IntOption.create(0,0,3);

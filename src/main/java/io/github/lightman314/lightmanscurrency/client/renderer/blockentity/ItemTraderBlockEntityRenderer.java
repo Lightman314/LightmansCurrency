@@ -7,7 +7,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -18,6 +19,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -107,7 +110,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(0.25, 0.25, 0d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+							renderItem(blockEntity,itemRenderer,renderItems.get(0),lightLevel,pose,buffer,id);
 
 							pose.popPose();
 
@@ -118,18 +121,30 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(-0.25, -0.25, 0.001d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							itemRenderer.renderStatic(renderItems.get(1), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+							renderItem(blockEntity,itemRenderer,renderItems.get(1),lightLevel,pose,buffer,id);
 
 							pose.popPose();
 						}
 						else
-							itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+							renderItem(blockEntity,itemRenderer,renderItems.get(0),lightLevel,pose,buffer,id);
 
 						pose.popPose();
 					}
 				}
 			}
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering an Item Trader!", t); }
+	}
+
+	private static void renderItem(ItemTraderBlockEntity be, ItemRenderer renderer, ItemStack item, int lightLevel, PoseStack pose, MultiBufferSource buffer, int id)
+	{
+		ModelResourceLocation customModel = CustomModelDataManager.getCustomModel(be,item);
+		if(customModel == null)
+			renderer.renderStatic(item,ItemDisplayContext.FIXED,lightLevel,OverlayTexture.NO_OVERLAY,pose,buffer,be.getLevel(),id);
+		else
+		{
+			BakedModel model = Minecraft.getInstance().getModelManager().getModel(customModel);
+			renderer.render(item, ItemDisplayContext.FIXED, false, pose, buffer, lightLevel, OverlayTexture.NO_OVERLAY, model);
+		}
 	}
 
 	private static long rotationTime = 0;

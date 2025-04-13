@@ -20,16 +20,16 @@ public class ConfigCraftingCondition implements ICondition {
     public static final ResourceLocation ID = VersionUtil.lcResource("configured");
     public static final IConditionSerializer<ConfigCraftingCondition> SERIALIZER = new Serializer();
 
-    private final String fileName;
+    private final ResourceLocation fileID;
     private final String optionPath;
 
-    private ConfigCraftingCondition(String fileName, String optionPath)
+    private ConfigCraftingCondition(ResourceLocation fileID, String optionPath)
     {
-        this.fileName = fileName;
+        this.fileID = fileID;
         this.optionPath = optionPath;
     }
 
-    public static ConfigCraftingCondition of(String fileName,String optionPath) { return new ConfigCraftingCondition(fileName,optionPath); }
+    public static ConfigCraftingCondition of(ResourceLocation fileID,String optionPath) { return new ConfigCraftingCondition(fileID,optionPath); }
     public static ConfigCraftingCondition of(BooleanOption option) {
         String path = null;
         ConfigFile file = option.getFile();
@@ -38,14 +38,14 @@ public class ConfigCraftingCondition implements ICondition {
         for(var entry : file.getAllOptions().entrySet())
         {
             if(entry.getValue() == option)
-                return of(file.getFileName(),entry.getKey());
+                return of(file.getFileID(),entry.getKey());
         }
         throw new IllegalArgumentException("Config Option was not a member of the config file!");
     }
 
     @Override
     public boolean test(IContext context) {
-        ConfigFile file = ConfigFile.lookupFile(this.fileName);
+        ConfigFile file = ConfigFile.lookupFile(this.fileID);
         if(file != null)
         {
             ConfigOption<?> option = file.getAllOptions().get(this.optionPath);
@@ -64,15 +64,24 @@ public class ConfigCraftingCondition implements ICondition {
         public ResourceLocation getID() { return ID; }
         @Override
         public void write(JsonObject json, ConfigCraftingCondition condition) {
-            json.addProperty("fileName",condition.fileName);
+            json.addProperty("fileID",condition.fileID.toString());
             json.addProperty("option",condition.optionPath);
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public ConfigCraftingCondition read(JsonObject json) {
-            String fileName = GsonHelper.getAsString(json,"fileName");
             String optionPath = GsonHelper.getAsString(json,"option");
-            return of(fileName,optionPath);
+            if(json.has("fileName"))
+            {
+                String fileName = GsonHelper.getAsString(json,"fileName");
+                ConfigFile file = ConfigFile.lookupFile(fileName);
+                if(file != null)
+                    return of(file.getFileID(),optionPath);
+                return of(ConfigFile.forceGenerateID(fileName),optionPath);
+            }
+            ResourceLocation fileID = VersionUtil.parseResource(GsonHelper.getAsString(json,"fileID"));
+            return of(fileID,optionPath);
         }
 
     }

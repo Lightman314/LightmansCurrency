@@ -52,6 +52,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
                         .consumer())
                 .maxLength(this.maxLength())
                 .handler(this::onValueChanges)
+                .startingValue(this.getTextFromDisplay(this.currentValue()))
                 .build());
 
     }

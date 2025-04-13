@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

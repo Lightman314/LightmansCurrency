@@ -44,7 +44,7 @@ public class NotificationTab extends ATMTab {
 
 		this.notificationSelection = this.addChild(MoneyValueWidget.builder()
 				.position(screenArea.pos)
-				.old(this.notificationSelection)
+				.oldIfNotFirst(firstOpen,this.notificationSelection)
 				.valueHandler(this::onValueChanged)
 				.typeChangeListener(this::onValueTypeChanged)
 				.blockFreeInputs()

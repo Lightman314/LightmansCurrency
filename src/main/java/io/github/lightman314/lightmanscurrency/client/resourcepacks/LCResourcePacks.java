@@ -2,8 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionBlockManager;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionBlockManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
 import io.github.lightman314.lightmanscurrency.common.text.DualTextEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
@@ -60,6 +61,7 @@ public class LCResourcePacks {
     public static void registerResourceListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(ItemPositionManager.INSTANCE);
         event.registerReloadListener(ItemPositionBlockManager.INSTANCE);
+        event.registerReloadListener(CustomModelDataManager.INSTANCE);
     }
 
     public static class CustomResourcePack

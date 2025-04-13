@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.ItemPositionData;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;

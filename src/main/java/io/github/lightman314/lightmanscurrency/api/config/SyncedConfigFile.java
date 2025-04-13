@@ -37,14 +37,11 @@ public abstract class SyncedConfigFile extends ConfigFile {
 
     public static void onClientLeavesServer() { fileMap.values().forEach(SyncedConfigFile::clearSyncedData); }
 
-    protected final ResourceLocation id;
-
     protected SyncedConfigFile(@Nonnull String fileName, @Nonnull ResourceLocation id) {
-        super(fileName, LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
-        this.id = id;
-        if(fileMap.containsKey(this.id))
-            throw new IllegalArgumentException("Synced Config " + this.id + " already exists!");
-        fileMap.put(this.id, this);
+        super(id,fileName,LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
+        if(fileMap.containsKey(this.getFileID()))
+            throw new IllegalArgumentException("Synced Config " + this.getFileID() + " already exists!");
+        fileMap.put(this.getFileID(), this);
     }
 
 
@@ -69,14 +66,14 @@ public abstract class SyncedConfigFile extends ConfigFile {
 
     private void sendSyncPacket(@Nonnull PacketDistributor.PacketTarget target) {
         if(ServerLifecycleHooks.getCurrentServer() != null)
-            new SPacketSyncConfig(this.id, this.getSyncData()).sendToTarget(target);
+            new SPacketSyncConfig(this.getFileID(), this.getSyncData()).sendToTarget(target);
     }
 
     private void loadSyncData(@Nonnull Map<String,String> syncData)
     {
         //Pre sync event
         VersionUtil.postEvent(new SyncedConfigEvent.ConfigReceivedSyncDataEvent.Pre(this));
-        LightmansCurrency.LogInfo("Received config data for '" + this.id + "' from the server!");
+        LightmansCurrency.LogInfo("Received config data for '" + this.getFileID() + "' from the server!");
         this.getAllOptions().forEach((id, option) -> {
             if(syncData.containsKey(id))
                 option.load(syncData.get(id), ConfigOption.LoadSource.SYNC);

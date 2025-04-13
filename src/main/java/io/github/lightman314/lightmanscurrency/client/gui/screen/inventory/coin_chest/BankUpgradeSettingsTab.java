@@ -45,7 +45,7 @@ public class BankUpgradeSettingsTab extends CoinChestTab.Upgrade {
 
         this.oldWidget = this.addChild(MoneyValueWidget.builder()
                 .position(screenArea.pos.offset((screenArea.width / 2) - (MoneyValueWidget.WIDTH / 2),50))
-                .old(this.oldWidget)
+                .oldIfNotFirst(firstOpen,this.oldWidget)
                 .startingValue(moneyLimit)
                 .valueHandler(this::onMoneyLimitChange)
                 .blockFreeInputs()

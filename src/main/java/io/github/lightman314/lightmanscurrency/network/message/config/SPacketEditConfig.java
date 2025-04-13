@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,20 +20,20 @@ public class SPacketEditConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketEditConfig> HANDLER = new H();
 
-    private final String fileName;
+    private final ResourceLocation fileID;
     private final String option;
     private final String input;
 
-    public SPacketEditConfig(@Nonnull String fileName, @Nonnull String option, @Nonnull String input)
+    public SPacketEditConfig(@Nonnull ResourceLocation fileID, @Nonnull String option, @Nonnull String input)
     {
-        this.fileName = fileName;
+        this.fileID = fileID;
         this.option = option;
         this.input = input;
     }
 
     @Override
     public void encode(@Nonnull FriendlyByteBuf buffer) {
-        buffer.writeUtf(this.fileName);
+        buffer.writeResourceLocation(this.fileID);
         buffer.writeUtf(this.option);
         buffer.writeInt(this.input.length());
         buffer.writeUtf(this.input, this.input.length());
@@ -44,34 +45,31 @@ public class SPacketEditConfig extends ServerToClientPacket {
         @Nonnull
         @Override
         public SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) {
-            String fileName = buffer.readUtf();
+            ResourceLocation fileID = buffer.readResourceLocation();
             String option = buffer.readUtf();
             int inputLength = buffer.readInt();
-            return new SPacketEditConfig(fileName, option, buffer.readUtf(inputLength));
+            return new SPacketEditConfig(fileID, option, buffer.readUtf(inputLength));
         }
 
         @Override
         protected void handle(@Nonnull SPacketEditConfig message, @Nullable ServerPlayer sender) {
-            for(ConfigFile file : ConfigFile.getAvailableFiles())
+            ConfigFile file = ConfigFile.lookupFile(message.fileID);
+            if(file != null && file.isClientOnly())
             {
-                if(file.isClientOnly() && file.getFileName().equals(message.fileName))
+                Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
+                if(optionMap.containsKey(message.option))
                 {
-                    Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
-                    if(optionMap.containsKey(message.option))
+                    ConfigOption<?> option = optionMap.get(message.option);
+                    Pair<Boolean,ConfigParsingException> result = option.load(message.input, ConfigOption.LoadSource.COMMAND);
+                    if(!result.getFirst())
                     {
-                        ConfigOption<?> option = optionMap.get(message.option);
-                        Pair<Boolean,ConfigParsingException> result = option.load(message.input, ConfigOption.LoadSource.COMMAND);
-                        if(!result.getFirst())
-                        {
-                            LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE.get(result.getSecond().getMessage()).withStyle(ChatFormatting.RED));
-                            return;
-                        }
-                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(message.option, message.input));
+                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE.get(result.getSecond().getMessage()).withStyle(ChatFormatting.RED));
                         return;
                     }
-                    else
-                        LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get(message.option).withStyle(ChatFormatting.RED));
+                    LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_EDIT_SUCCESS.get(message.option, message.input));
                 }
+                else
+                    LightmansCurrency.getProxy().sendClientMessage(LCText.COMMAND_CONFIG_FAIL_MISSING.get(message.option).withStyle(ChatFormatting.RED));
             }
         }
 
