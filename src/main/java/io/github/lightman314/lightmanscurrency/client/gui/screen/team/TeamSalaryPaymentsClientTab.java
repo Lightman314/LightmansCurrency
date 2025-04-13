@@ -54,7 +54,7 @@ public class TeamSalaryPaymentsClientTab extends TeamManagementClientTab<TeamSal
 
         this.memberSalaryInput = this.addChild(MoneyValueWidget.builder()
                 .position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 20))
-                .old(this.memberSalaryInput)
+                .oldIfNotFirst(firstOpen,this.memberSalaryInput)
                 .startingValue(team == null ? MoneyValue.empty() : team.getMemberSalary())
                 .valueHandler(this.commonTab::SetMemberSalary)
                 .blockFreeInputs()
@@ -68,7 +68,7 @@ public class TeamSalaryPaymentsClientTab extends TeamManagementClientTab<TeamSal
 
         this.adminSalaryInput = this.addChild(MoneyValueWidget.builder()
                 .position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 125))
-                .old(this.adminSalaryInput)
+                .oldIfNotFirst(firstOpen,this.adminSalaryInput)
                 .startingValue(team == null ? MoneyValue.empty() : team.getAdminSalary())
                 .valueHandler(this.commonTab::SetAdminSalary)
                 .blockFreeInputs()

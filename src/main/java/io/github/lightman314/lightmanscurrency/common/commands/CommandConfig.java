@@ -73,7 +73,7 @@ public class CommandConfig {
         LiteralArgumentBuilder<CommandSourceStack> edit = Commands.literal("edit");
         for(ConfigFile file : ConfigFile.getAvailableFiles())
         {
-            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileName())
+            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileID().toString())
                     .requires((stack) -> file.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2));
             file.getAllOptions().forEach((key,option) -> {
                 if (option instanceof ListLikeOption<?>)
@@ -122,7 +122,7 @@ public class CommandConfig {
         if(file.isClientOnly())
         {
             //Send packet to client to edit value
-            new SPacketEditConfig(file.getFileName(), configOption, input).sendTo(commandContext.getSource().getPlayerOrException());
+            new SPacketEditConfig(file.getFileID(), configOption, input).sendTo(commandContext.getSource().getPlayerOrException());
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
@@ -151,7 +151,7 @@ public class CommandConfig {
         if(file.isClientOnly())
         {
             //Send packet to client to edit value
-            new SPacketEditListConfig(file.getFileName(), configOption, input, listIndex, isEdit).sendTo(commandContext.getSource().getPlayerOrException());
+            new SPacketEditListConfig(file.getFileID(), configOption, input, listIndex, isEdit).sendTo(commandContext.getSource().getPlayerOrException());
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
@@ -184,7 +184,7 @@ public class CommandConfig {
         if(file.isClientOnly())
         {
             //Send packet to client to edit value
-            new SPacketEditMapConfig(file.getFileName(), configOption, input, key, isSet).sendTo(commandContext.getSource().getPlayerOrException());
+            new SPacketEditMapConfig(file.getFileID(), configOption, input, key, isSet).sendTo(commandContext.getSource().getPlayerOrException());
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
@@ -210,7 +210,7 @@ public class CommandConfig {
         LiteralArgumentBuilder<CommandSourceStack> view = Commands.literal("reset");
         for(ConfigFile file : ConfigFile.getAvailableFiles())
         {
-            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileName())
+            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileID().toString())
                     .requires((stack) -> file.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2));
             file.getAllOptions().forEach((key,option) ->
                     fileSection.then(Commands.literal(key)
@@ -225,7 +225,7 @@ public class CommandConfig {
         if(file.isClientOnly())
         {
             //Send packet to client to edit value
-            new SPacketResetConfig(file.getFileName(), configOption).sendTo(commandContext.getSource().getPlayerOrException());
+            new SPacketResetConfig(file.getFileID(), configOption).sendTo(commandContext.getSource().getPlayerOrException());
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();
@@ -245,7 +245,7 @@ public class CommandConfig {
         LiteralArgumentBuilder<CommandSourceStack> view = Commands.literal("view");
         for(ConfigFile file : ConfigFile.getAvailableFiles())
         {
-            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileName())
+            LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileID().toString())
                     .requires(stack -> stack.isPlayer() || !file.isClientOnly());
             file.getAllOptions().forEach((key,option) ->
                     fileSection.then(Commands.literal(key)
@@ -260,7 +260,7 @@ public class CommandConfig {
         if(file.isClientOnly())
         {
             //Send packet to client to edit value
-            new SPacketViewConfig(file.getFileName(), configOption).sendTo(commandContext.getSource().getPlayerOrException());
+            new SPacketViewConfig(file.getFileID(), configOption).sendTo(commandContext.getSource().getPlayerOrException());
             return 1;
         }
         Map<String, ConfigOption<?>> optionMap = file.getAllOptions();

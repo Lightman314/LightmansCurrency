@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions;
 
 import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 
 public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
 
-    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final ItemPositionBlockManager INSTANCE = new ItemPositionBlockManager();
 
     private ItemPositionBlockManager() { super(GSON, "lightmanscurrency/item_position_blocks"); }

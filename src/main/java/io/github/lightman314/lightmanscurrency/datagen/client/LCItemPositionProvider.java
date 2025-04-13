@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.RotationHandler;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ItemPositionProvider;

@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -162,20 +163,27 @@ public class Team implements ITeam, ISidedObject {
 	@Override
 	public boolean isAdminSalarySeperate() { return this.seperateAdminSalary; }
 	public void setAdminSalarySeperate(Player player, boolean seperateAdminSalary) { if(!this.isOwner(player)) return; this.seperateAdminSalary = seperateAdminSalary; this.markDirty(); }
-	MoneyValue memberSalary = MoneyValue.empty();
+	private MoneyValue memberSalary = MoneyValue.empty();
 	
 	@Override
 	public MoneyValue getMemberSalary() { return this.memberSalary; }
-	public void setMemberSalary(Player player, MoneyValue memberSalary) { if(!this.isAdmin(player)) return; this.memberSalary = memberSalary; this.markDirty(); }
-	MoneyValue adminSalary = MoneyValue.empty();
+	public void setMemberSalary(Player player, MoneyValue memberSalary) {
+		if(!this.isAdmin(player)) return;
+		this.memberSalary = memberSalary;
+		this.markDirty();
+	}
+	private MoneyValue adminSalary = MoneyValue.empty();
 	
 	@Override
 	public MoneyValue getAdminSalary() { return this.adminSalary; }
-	public void setAdminSalary(Player player, MoneyValue adminSalary) { if(!this.isOwner(player)) return; this.adminSalary = adminSalary; this.markDirty(); }
+	public void setAdminSalary(Player player, MoneyValue adminSalary) {
+		if(!this.isOwner(player)) return;
+		this.adminSalary = adminSalary;
+		this.markDirty();
+	}
 	boolean failedLastSalary = false;
 	@Override
 	public boolean failedLastSalaryAttempt() { return this.failedLastSalary; }
-
 	
 	@Override
 	public List<MoneyValue> getTotalSalaryCost(boolean validateOnlinePlayers) {

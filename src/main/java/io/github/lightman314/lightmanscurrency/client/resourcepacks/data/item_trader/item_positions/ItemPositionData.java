@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
