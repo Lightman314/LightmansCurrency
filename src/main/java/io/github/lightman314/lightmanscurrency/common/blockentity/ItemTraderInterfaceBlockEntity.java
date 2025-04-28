@@ -174,7 +174,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public void loadAdditional(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		super.loadAdditional(compound,lookup);
 		if(compound.contains("Storage"))
 			this.itemBuffer.load(compound, "Storage",lookup);

@@ -1,0 +1,91 @@
+package io.github.lightman314.lightmanscurrency.common.blocks.variant;
+
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.common.menus.VariantSelectMenu;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+
+import java.util.List;
+
+@MethodsReturnNonnullByDefault
+public interface IVariantBlock {
+
+    BooleanProperty VARIANT = BooleanProperty.create("variant");
+
+    default int getModelIndex(BlockState state)
+    {
+        int index = 0;
+        boolean wide = this instanceof IWideBlock;
+        boolean tall = this instanceof ITallBlock;
+        boolean deep = this instanceof IDeepBlock;
+        if(wide && !state.getValue(IWideBlock.ISLEFT))
+            index += 1;
+        if(deep && !state.getValue(IDeepBlock.IS_FRONT))
+            index += wide ? 2 : 1;
+        if(tall && !state.getValue(ITallBlock.ISBOTTOM))
+            index += wide && deep ? 4 : (wide || deep ? 2 : 1);
+        return index;
+    }
+
+    default ResourceLocation getBlockID()
+    {
+        if(this instanceof Block block)
+            return BuiltInRegistries.BLOCK.getKey(block);
+        throw new IllegalStateException("IVariantBlock must be applied to a Block class!");
+    }
+
+    default ResourceLocation getItemID()
+    {
+        if(this instanceof ItemLike item)
+            return BuiltInRegistries.ITEM.getKey(item.asItem());
+        else
+            return getBlockID();
+    }
+
+    default List<ResourceLocation> getValidVariants() { return ModelVariantDataManager.getPotentialVariants(this.getBlockID()); }
+
+    default int requiredModels() { return this.modelsRequiringRotation(); }
+
+    default int modelsRequiringRotation()
+    {
+        int count = 1;
+        if(this instanceof IWideBlock)
+            count *= 2;
+        if(this instanceof ITallBlock)
+            count *= 2;
+        if(this instanceof IDeepBlock)
+            count *= 2;
+        return count;
+    }
+
+    static boolean tryUseWand(Player player, BlockPos pos)
+    {
+        Level level = player.level();
+        BlockState state = level.getBlockState(pos);
+        if(state.getBlock() instanceof IVariantBlock variantBlock)
+        {
+            //Deny changing the variant if you don't have break-level permissions
+            if(state.getBlock() instanceof IOwnableBlock ownable && !ownable.canBreak(player,level,pos,state))
+                return false;
+            if(level.isClientSide)
+                return true;
+            player.openMenu(VariantSelectMenu.providerFor(pos),pos);
+            return true;
+        }
+        //Don't do anything if it's not a variant supporting block
+        return false;
+    }
+
+}

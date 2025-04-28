@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.api.events.WalletDropEvent;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +54,7 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockGrowFeatureEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -341,7 +345,8 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void serverTick(ServerTickEvent.Post event)
 	{
-		if(event.hasTime())
+		//Check the Date Trigger once every minute
+		if(event.getServer().getTickCount() % 1200 == 0)
 		{
 			ProfilerFiller filler = event.getServer().getProfiler();
 			filler.push("Date Trigger Tick");
@@ -380,6 +385,18 @@ public class EventHandler {
 				}
 			}
 		}catch (Throwable ignored) {}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
+	{
+		Player player = event.getEntity();
+		ItemStack heldItem = player.getItemInHand(event.getHand());
+		if(InventoryUtil.ItemHasTag(heldItem, LCTags.Items.VARIANT_WANDS))
+		{
+			if(IVariantBlock.tryUseWand(player,event.getPos()))
+				event.setCanceled(true);
+		}
 	}
 	
 }

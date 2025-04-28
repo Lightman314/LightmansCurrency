@@ -42,7 +42,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -245,11 +244,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {}
 	
 	public boolean canEntityDestroy(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Entity entity) { return false; }
-	
-	@Nullable
-	@Override
-	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level.getBlockEntity(pos); }
-	
+
 	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 
 	@Override

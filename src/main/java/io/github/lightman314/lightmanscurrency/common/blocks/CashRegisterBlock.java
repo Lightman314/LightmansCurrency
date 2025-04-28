@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -17,12 +18,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
-public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
+public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IVariantBlock {
 
-	public CashRegisterBlock(Properties properties)
-	{
-		super(properties);
-	}
+	public CashRegisterBlock(Properties properties) { super(properties); }
 	
 	public CashRegisterBlock(Properties properties, VoxelShape shape)
 	{

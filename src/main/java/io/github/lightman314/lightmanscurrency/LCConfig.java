@@ -1,10 +1,14 @@
 package io.github.lightman314.lightmanscurrency;
 
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
+import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
@@ -43,6 +47,7 @@ public final class LCConfig {
         private Client() { super(VersionUtil.lcResource("client"),"lightmanscurrency-client"); }
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
+        public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
 
@@ -82,6 +87,9 @@ public final class LCConfig {
             builder.comment("Maximum number of items each Item Trader can renderBG (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
                             "Setting to 0 will disable item rendering entirely, so use with caution.")
                     .add("itemTraderRenderLimit", this.itemRenderLimit);
+
+            builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
+                    .add("itemScaleOverrides",this.itemScaleOverrides);
 
             builder.pop();
 

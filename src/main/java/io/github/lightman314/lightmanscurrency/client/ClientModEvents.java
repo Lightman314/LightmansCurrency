@@ -6,24 +6,32 @@ import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayO
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.*;
+import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,6 +39,9 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
@@ -75,6 +86,49 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
+		//Model Variant Models
+		List<ResourceLocation> addedModels = new ArrayList<>();
+		ModelVariantDataManager.forEach(variant -> {
+			event.register(variant.getItem());
+			addedModels.add(variant.getItem().id());
+			if(variant.getTargets().isEmpty())
+				return;
+			ResourceLocation target = variant.getTargets().getFirst();
+			if(BuiltInRegistries.BLOCK.get(target) instanceof IVariantBlock block && block.requiredModels() > block.modelsRequiringRotation())
+			{
+				for(int i = block.requiredModels(); i < variant.getModels().size(); ++i)
+				{
+					ResourceLocation modelID = variant.getModels().get(i);
+					event.register(ModelResourceLocation.standalone(modelID));
+					addedModels.add(modelID);
+				}
+			}
+		});
+		LightmansCurrency.LogDebug("Registered " + addedModels.size() + " Model Variant models\n" + DebugUtil.debugList(addedModels));
+	}
+
+	@SubscribeEvent
+	public static void onModelsBaked(ModelEvent.ModifyBakingResult event)
+	{
+		Map<ModelResourceLocation,BakedModel> modelRegistry = event.getModels();
+		List<ModelResourceLocation> wrappedModels = new ArrayList<>();
+		for(Block b : BuiltInRegistries.BLOCK)
+		{
+			if(b instanceof IVariantBlock block)
+			{
+				for(BlockState state : b.getStateDefinition().getPossibleStates())
+				{
+					ModelResourceLocation modelID = BlockModelShaper.stateToModelLocation(state);
+					BakedModel existingModel = modelRegistry.get(modelID);
+					if(existingModel != null)
+					{
+						modelRegistry.put(modelID,new VariantBlockModel(block,existingModel,modelID));
+						wrappedModels.add(modelID);
+					}
+				}
+			}
+		}
+		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel"/*\n" + DebugUtil.debugList(wrappedModels)*/);
 	}
 
 	@SubscribeEvent
@@ -144,6 +198,8 @@ public class ClientModEvents {
 		event.register(ModMenus.NOTIFICATIONS.get(), NotificationScreen::new);
 
 		event.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
+
+		event.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
 	}
 
 	@SubscribeEvent

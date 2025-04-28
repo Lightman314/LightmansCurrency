@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -124,17 +122,6 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
 		setAir(level, this.getOtherHeight(pos, state), null);
-	}
-	
-	@Nullable
-	@Override
-	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)
-	{
-		if(level == null)
-			return null;
-		if(this.getIsTop(state))
-			return level.getBlockEntity(pos.below());
-		return level.getBlockEntity(pos);
 	}
 	
 }

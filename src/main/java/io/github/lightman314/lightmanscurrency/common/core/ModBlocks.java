@@ -612,7 +612,8 @@ public class ModBlocks {
 					.mapColor(MapColor.SNOW)
 					.strength(0.1f, 2.0f)
 					.sound(SoundType.STONE),
-					Block.box(4, 0d, 4d, 12d, 8d, 12d)
+					Block.box(4, 0d, 4d, 12d, 8d, 12d),
+					true
 				)
 		);
 

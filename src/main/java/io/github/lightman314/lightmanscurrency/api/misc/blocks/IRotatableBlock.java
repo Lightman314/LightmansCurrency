@@ -146,7 +146,7 @@ public interface IRotatableBlock {
 	 * Gets the rotational direction of the given rotatable block state.
 	 */
 	default Direction getFacing(BlockState state) { return state.getValue(FACING); }
-	
+
 	static Direction getRelativeSide(Direction facing, Direction side)
 	{
 		if(side == null)
@@ -170,6 +170,25 @@ public interface IRotatableBlock {
 			facing = facing.getOpposite();
 		Direction result = Direction.from2DDataValue(facing.get2DDataValue() - relativeSide.get2DDataValue() + 4);
 		return result.getAxis() == Axis.X ? result.getOpposite() : result;
+	}
+
+	default int getRotationY(BlockState state) { return this.getRotationY(this.getFacing(state)); }
+	default int getRotationY(Direction facing) {
+		return switch (facing) {
+			case EAST -> 90;
+			case SOUTH -> 180;
+			case WEST -> 270;
+			default -> 0;
+		};
+	}
+
+	default int getRotationYInv(Direction facing) {
+		return switch (facing) {
+			case WEST -> 90;
+			case NORTH -> 180;
+			case EAST -> 270;
+			default -> 0;
+		};
 	}
 
 	/**

@@ -17,7 +17,9 @@ import java.util.List;
 
 public class BookTraderBlockEntityRenderer implements BlockEntityRenderer<BookTraderBlockEntity> {
 
-    public BookTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+    private BookTraderBlockEntityRenderer() { }
+
+    public static BookTraderBlockEntityRenderer create(BlockEntityRendererProvider.Context ignored) { return new BookTraderBlockEntityRenderer(); }
 
     @Override
     public void render(@Nonnull BookTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)

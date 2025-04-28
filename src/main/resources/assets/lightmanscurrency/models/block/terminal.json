@@ -3,8 +3,8 @@
 	"parent": "lightmanscurrency:block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"main": "lightmanscurrency:block/terminal",
-		"particle": "#main"
+		"particle": "#main",
+		"main": "lightmanscurrency:block/terminal"
 	},
 	"elements": [
 		{
@@ -58,5 +58,12 @@
 				"down": {"uv": [0, 0, 0, 0], "texture": "#main", "cullface": "down"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 0, -0.25],
+			"scale": [1.25, 1.25, 1.25]
+		}
+	}
 }

@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -36,14 +37,13 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	
 	long duration = TimeUtil.DURATION_DAY;
 	public long getDuration() { return this.duration; }
-	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, 1000, Long.MAX_VALUE); }
+	public void setDuration(long duration) { this.duration = MathUtil.clamp(duration, TimeUtil.DURATION_MINUTE, Long.MAX_VALUE); }
 	int fluctuation = 10;
 	public int getFluctuation() { return this.fluctuation; }
 	public void setFluctuation(int fluctuation) { this.fluctuation = MathUtil.clamp(fluctuation, 1, 100); }
 	
 	public PriceFluctuation() { super(TYPE); }
 
-	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
 
@@ -119,9 +119,9 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	@Override
 	public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) {
 		if(json.has("Duration"))
-			this.duration = json.get("Duration").getAsLong();
+			this.duration = GsonHelper.getAsLong(json,"Duration");
 		if(json.has("Fluctuation"))
-			this.fluctuation = json.get("Fluctuation").getAsInt();
+			this.fluctuation = GsonHelper.getAsInt(json,"Fluctuation");
 	}
 	
 	@Override

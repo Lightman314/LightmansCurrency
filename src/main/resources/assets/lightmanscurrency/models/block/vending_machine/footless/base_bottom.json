@@ -1,0 +1,146 @@
+{
+	"credit": "Made with Blockbench",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": { "particle": "#exterior" },
+	"elements": [
+		{
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [8, 8, 12, 12], "texture": "#exterior"},
+				"east": {"uv": [4, 8, 8, 12], "texture": "#exterior"},
+				"south": {"uv": [0, 8, 4, 12], "texture": "#exterior"},
+				"west": {"uv": [12, 8, 16, 12], "texture": "#exterior"},
+				"down": {"uv": [4, 0, 8, 4], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Base-Inside",
+			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [12, 6, 1],
+			"to": [1, 16, 16],
+			"faces": {
+				"north": {"uv": [3.75, 7.25, 6.5, 9.75], "texture": "#interior"},
+				"east": {"uv": [0, 7.25, 3.75, 9.75], "texture": "#interior"},
+				"west": {"uv": [6.5, 7.25, 10.25, 9.75], "texture": "#interior"},
+				"down": {"uv": [2.75, 0, 5.5, 3.75], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Glass-Depth",
+			"neoforge_data": {"block_light": 5},
+			"from": [1.99, 6.99, 16],
+			"to": [11.01, 16, 15],
+			"faces": {
+				"east": {"uv": [2.75, 8, 3, 10.25], "texture": "#exterior"},
+				"west": {"uv": [0.25, 8, 0.5, 10.25], "texture": "#exterior"},
+				"down": {"uv": [0.5, 10.25, 2.75, 10.5], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Output",
+			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [10.01, 2.99, 12.99],
+			"to": [2.99, 6, 16],
+			"faces": {
+				"north": {"uv": [5.5, 1.5, 7.25, 2.25], "texture": "#interior"},
+				"east": {"uv": [5.5, 0, 6.25, 0.75], "texture": "#interior"},
+				"west": {"uv": [6.25, 0, 7, 0.75], "texture": "#interior"},
+				"up": {"uv": [5.5, 3, 7.25, 2.25], "texture": "#interior"},
+				"down": {"uv": [5.5, 0.75, 7.25, 1.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf",
+			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [1, 10, 1],
+			"to": [12, 11, 11],
+			"faces": {
+				"south": {"uv": [0, 12.25, 2.75, 12.5], "texture": "#interior"},
+				"up": {"uv": [0, 9.75, 2.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [2.75, 9.75, 5.5, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-1",
+			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [3, 15, 1],
+			"to": [4, 16, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-2",
+			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [9, 15, 1],
+			"to": [10, 16, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Slot-Left",
+			"from": [12, 12, 16],
+			"to": [13, 14, 17],
+			"faces": {
+				"east": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"south": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"west": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"up": {"uv": [3, 8.5, 3.25, 8.75], "texture": "#exterior"},
+				"down": {"uv": [3, 8.75, 3.25, 9], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Right",
+			"from": [14, 12, 16],
+			"to": [15, 14, 17],
+			"faces": {
+				"east": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"south": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"west": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"up": {"uv": [3.5, 8.5, 3.75, 8.75], "texture": "#exterior"},
+				"down": {"uv": [3.5, 8.75, 3.75, 9], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Down",
+			"from": [13, 12, 16],
+			"to": [14, 13, 17],
+			"faces": {
+				"south": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"},
+				"up": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"},
+				"down": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		2,
+		3,
+		4,
+		{
+			"name": "Mount",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [5, 6]
+		},
+		{
+			"name": "Slot",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [7, 8, 9]
+		}
+	]
+}

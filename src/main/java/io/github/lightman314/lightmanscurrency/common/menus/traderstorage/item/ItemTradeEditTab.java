@@ -119,6 +119,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		if(trade != null)
 		{
 			trade.onSlotInteraction(slotIndex, heldStack, mouseButton);
+			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
 				this.menu.SendMessage(this.builder()

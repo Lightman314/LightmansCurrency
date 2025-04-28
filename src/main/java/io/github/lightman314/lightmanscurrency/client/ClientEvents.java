@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
@@ -16,10 +17,12 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
@@ -236,13 +239,13 @@ public class ClientEvents {
 		{
 			Block b = bi.getBlock();
 			if(b instanceof IOwnableBlock)
-				event.getToolTip().add(LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
+				TooltipItem.insertTooltip(event.getToolTip(),LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
 		}
 
 		//Add Trader Item Data to the tooltip
-		stack.addToTooltip(ModDataComponents.TRADER_ITEM_DATA,event.getContext(),event.getToolTip()::add,event.getFlags());
+		TooltipItem.insertTooltip(stack,ModDataComponents.TRADER_ITEM_DATA,event.getContext(),event.getFlags(),event.getToolTip());
 
-		//Wallet Key-bind Tooltip
+		//Key-bind Tooltips
 		//Added here because it requires client-side data, so I don't really want to put it in a common class
 		if(stack.getItem() instanceof WalletItem) //Put in 2nd line so that it appears just below the name
 			appendKeyBindTooltip(event,LCText.TOOLTIP_WALLET_KEY_BIND,ClientEvents.KEY_WALLET);
@@ -253,6 +256,10 @@ public class ClientEvents {
 			if(stack.getItem() instanceof PortableATMItem)
 				appendKeyBindTooltip(event, LCText.TOOLTIP_ATM_KEY_BIND,ClientEvents.KEY_PORTABLE_ATM);
 		}
+
+		//Variant Wand tooltip
+		if(InventoryUtil.ItemHasTag(stack,LCTags.Items.VARIANT_WANDS))
+			TooltipItem.insertTooltip(event.getToolTip(), LCText.TOOLTIP_VARIANT_WAND);
 
 	}
 

@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
@@ -563,8 +564,10 @@ public class ChainData {
         ChainData chain = CoinAPI.API.ChainDataOfCoin(stack);
         if(chain != null)
         {
+            List<Component> lines = new ArrayList<>();
             if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))
-                chain.formatCoinTooltip(stack, tooltip, flag);
+                chain.formatCoinTooltip(stack, lines, flag);
+            TooltipItem.insertTooltip(tooltip,lines);
         }
     }
 

@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.misc.client.rendering;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -10,22 +12,27 @@ import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.joml.Vector4f;
@@ -37,6 +44,12 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
 public final class EasyGuiGraphics {
+
+    private static final List<ModelResourceLocation> debuggedModels = new ArrayList<>();
+
+    public static final SlotType SLOT_NORMAL = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,128);
+    public static final SlotType SLOT_YELLOW = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,146);
+    public static final SlotType SLOT_GREEN = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,164);
 
     public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(
             VersionUtil.vanillaResource("widget/button"),
@@ -104,11 +117,14 @@ public final class EasyGuiGraphics {
         this.popOffset();
     }
     public void renderSlot(IEasyScreen screen, Slot slot) { if(slot.isActive()) this.renderSlot(screen, ScreenPosition.of(slot.x, slot.y));}
-    public void renderSlot(IEasyScreen screen, ScreenPosition position)
+    public void renderSlot(IEasyScreen screen, int posX, int posY) { this.renderSlot(screen,ScreenPosition.of(posX,posY)); }
+    public void renderSlot(IEasyScreen screen, int posX, int posY, SlotType type) { this.renderSlot(screen,ScreenPosition.of(posX,posY),type); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position) { this.renderSlot(screen,position,SLOT_NORMAL); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position, SlotType type)
     {
         this.resetColor();
         this.pushOffset(screen.getCorner());
-        this.blit(IconAndButtonUtil.WIDGET_TEXTURE,position.offset(-1,-1), 0, 128, 18,18);
+        this.blit(type.texture(),position.offset(-1,-1), type.u(), type.v(), 18,18);
         this.popOffset();
     }
     public void blit(ResourceLocation image, int x, int y, int u, int v, int width, int height) { this.gui.blit(image, this.offset.x + x, this.offset.y + y, u, v, width, height); }
@@ -262,6 +278,48 @@ public final class EasyGuiGraphics {
         this.resetColor();
         this.gui.renderItem(item, this.offset.x + x, this.offset.y + y);
         this.gui.renderItemDecorations(this.font, item, this.offset.x + x, this.offset.y + y, countTextOverride);
+    }
+
+    public void renderItemModel(ModelResourceLocation model, int x, int y) { this.renderItemModel(model,x,y,new ItemStack(Items.BARRIER)); }
+    public void renderItemModel(ModelResourceLocation model, int x, int y, ItemStack fallback) {
+        this.resetColor();
+        //Copied from GuiGraphics#renderItem
+        Minecraft minecraft = Minecraft.getInstance();
+        BakedModel bakedmodel = minecraft.getModelManager().getModel(model);
+        if(bakedmodel == minecraft.getModelManager().getMissingModel())
+        {
+            if(!debuggedModels.contains(model))
+            {
+                LightmansCurrency.LogWarning("Missing model for " + model + ". Rendering fallback item.");
+                debuggedModels.add(model);
+            }
+            this.renderItem(fallback,x,y);
+            return;
+        }
+        PoseStack pose = this.getPose();
+        pose.pushPose();
+        pose.translate((float)(this.offset.x + x + 8), (float)(this.offset.y + y + 8), 150f);
+
+        try {
+            pose.scale(16.0F, -16.0F, 16.0F);
+            boolean flag = !bakedmodel.usesBlockLight();
+            if (flag) {
+                Lighting.setupForFlatItems();
+            }
+
+            minecraft.getItemRenderer()
+                    .render(new ItemStack(ModItems.COIN_COPPER.get()), ItemDisplayContext.GUI, false, pose, this.gui.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+            this.gui.flush();
+            if (flag) {
+                Lighting.setupFor3DItems();
+            }
+        } catch (Throwable throwable) {
+            CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Item Model");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Model being rendered");
+            crashreportcategory.setDetail("Model ID", () -> String.valueOf(model));
+            throw new ReportedException(crashreport);
+        }
+        pose.popPose();
     }
 
     public void renderSlotBackground(Pair<ResourceLocation,ResourceLocation> background, ScreenPosition pos) { this.renderSlotBackground(background, pos.x, pos.y); }

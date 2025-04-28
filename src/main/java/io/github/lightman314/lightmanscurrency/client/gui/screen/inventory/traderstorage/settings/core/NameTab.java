@@ -166,6 +166,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         {
             ItemStack heldItem = this.menu.getHeldItem();
             TraderData trader = this.menu.getTrader();
+            IconData icon = trader.getIconForItem(heldItem);
             if(trader != null)
                 this.sendMessage(this.builder().setCompound("ChangeIcon",trader.getIconForItem(heldItem).save(this.menu.registryAccess())));
             return true;

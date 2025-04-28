@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
@@ -48,6 +49,8 @@ public class GachaBallRenderer {
         //Rotate
         pose.mulPose(ItemTraderBlockEntityRenderer.getRotation(0f));
 
+        float scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(contents);
+        pose.scale(scale,scale,scale);
         itemRenderer.renderStatic(contents,ItemDisplayContext.FIXED,lightLevel,OverlayTexture.NO_OVERLAY,pose,buffer,null,id);
 
         pose.popPose();

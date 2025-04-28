@@ -207,7 +207,7 @@ public class LCRecipeProvider extends RecipeProvider {
         //Trader Recipes
         //Display Case
         //Updated in v2.2.5.1
-        ModBlocks.DISPLAY_CASE.forEach((color,display) -> {
+        ModBlocks.DISPLAY_CASE.forEach((color,display) ->
             ShapedRecipeBuilder.shaped(RecipeCategory.MISC,display.get())
                     .unlockedBy("money",MoneyKnowledge())
                     .unlockedBy("trader",TraderKnowledge())
@@ -217,8 +217,8 @@ public class LCRecipeProvider extends RecipeProvider {
                     .define('x',ModItems.TRADING_CORE.get())
                     .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
                     .define('w',ColorHelper.GetWoolOfColor(color))
-                    .save(consumer,ID("traders/display_case/" + color.getResourceSafeName()));
-        });
+                    .save(consumer,ID("traders/display_case/" + color.getResourceSafeName()))
+        );
 
         //Vending Machine
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.VENDING_MACHINE.get(Color.WHITE))
@@ -576,14 +576,28 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('n', Tags.Items.NUGGETS_IRON)
                 .save(consumer, ID("upgrades/create_template"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.UPGRADE_SMITHING_TEMPLATE.get(), 2)
+                .group("lightmans_template_copy")
                 .unlockedBy("money", MoneyKnowledge())
                 .unlockedBy("trader", TraderKnowledge())
+                .unlockedBy("template",LazyTrigger(ModItems.UPGRADE_SMITHING_TEMPLATE.get()))
                 .pattern("nnn")
                 .pattern("ntn")
                 .pattern("nnn")
                 .define('t', ModItems.UPGRADE_SMITHING_TEMPLATE.get())
                 .define('n', Tags.Items.NUGGETS_IRON)
                 .save(consumer, ID("upgrades/copy_template"));
+        //Added in v2.2.5.2
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UPGRADE_SMITHING_TEMPLATE.get(),10)
+                .group("lightmans_template_copy")
+                .unlockedBy("money",MoneyKnowledge())
+                .unlockedBy("trader",TraderKnowledge())
+                .unlockedBy("template",LazyTrigger(ModItems.UPGRADE_SMITHING_TEMPLATE.get()))
+                .pattern("iii")
+                .pattern("iti")
+                .pattern("iii")
+                .define('t',ModItems.UPGRADE_SMITHING_TEMPLATE.get())
+                .define('i',Tags.Items.INGOTS_IRON)
+                .save(consumer,ID("upgrades/copy_template_bulk"));
 
         final Ingredient TEMPLATE = Ingredient.of(ModItems.UPGRADE_SMITHING_TEMPLATE.get());
         //Item Capacity Upgrades
@@ -987,6 +1001,19 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('s',Tags.Items.STRINGS)
                 .define('l',Tags.Items.LEATHERS)
                 .define('g',Tags.Items.NUGGETS_GOLD)
+                .save(consumer);
+
+        //2.2.5.2
+        //Variant Wand
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.VARIANT_WAND.get())
+                .unlockedBy("trader",TraderKnowledge())
+                .pattern("i i")
+                .pattern("ntn")
+                .pattern(" s ")
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('n',Tags.Items.NUGGETS_IRON)
+                .define('t',ModItems.UPGRADE_SMITHING_TEMPLATE.get())
+                .define('s',Items.STICK)
                 .save(consumer);
 
     }

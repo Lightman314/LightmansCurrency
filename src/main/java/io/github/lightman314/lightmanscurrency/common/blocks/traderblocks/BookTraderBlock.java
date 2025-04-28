@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.BookTra
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IBookTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class BookTraderBlock extends TraderBlockRotatable implements IBookTraderBlock {
+public class BookTraderBlock extends TraderBlockRotatable implements IBookTraderBlock, IVariantBlock {
 
     public static final int BOOK_COUNT = 10;
 

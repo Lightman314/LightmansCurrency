@@ -1,14 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.util;
 
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
-import org.lwjgl.system.NonnullDefault;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@NonnullDefault
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TagUtil {
 
     public static CompoundTag saveBlockPos(BlockPos pos)
@@ -52,6 +56,27 @@ public class TagUtil {
         for(Tag tag : list)
             result.add(NbtUtils.loadUUID(tag));
         return result;
+    }
+
+    public static String writeModelResource(ModelResourceLocation modelID)
+    {
+        //Only save the id if it's a standalone
+        if(modelID.getVariant().equals(ModelResourceLocation.STANDALONE_VARIANT))
+            return modelID.id().toString();
+            //If it's not a standalone, save the entire model id including variant
+        else
+            return modelID.toString();
+    }
+
+    public static ModelResourceLocation readModelResource(String modelID)
+    {
+        if(modelID.contains("#"))
+        {
+            String[] split = modelID.split("#",2);
+            return new ModelResourceLocation(VersionUtil.parseResource(split[0]),split[1]);
+        }
+        else
+            return ModelResourceLocation.standalone(VersionUtil.parseResource(modelID));
     }
 
 }

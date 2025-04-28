@@ -3,17 +3,20 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IEasyVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -26,12 +29,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class ATMBlock extends TallRotatableBlock{
-	
-	public ATMBlock(Properties properties)
-	{
-		super(properties);
-	}
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class ATMBlock extends TallRotatableBlock implements IEasyVariantBlock {
+
+	public ATMBlock(Properties properties) { super(properties); }
 
 	@Override
 	protected boolean isBlockOpaque() { return false; }
@@ -59,6 +61,5 @@ public class ATMBlock extends TallRotatableBlock{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ATM);
 		super.appendHoverText(stack, context, tooltip, flagIn);
 	}
-	
-	
+
 }

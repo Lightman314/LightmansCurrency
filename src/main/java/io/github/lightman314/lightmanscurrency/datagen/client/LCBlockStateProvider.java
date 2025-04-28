@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -25,16 +26,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LCBlockStateProvider extends BlockStateProvider {
@@ -42,6 +41,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
     public LCBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
         super(output, LightmansCurrency.MODID, exFileHelper);
     }
+
+    protected final ModelFile EMPTY_MODEL = this.lazyBlockModel("empty",true);
 
     private static final ResourceLocation UPGRADE_TIER_COPPER = VersionUtil.lcResource("item/upgrade_tier/copper");
     private static final ResourceLocation UPGRADE_TIER_IRON = VersionUtil.lcResource("item/upgrade_tier/iron");
@@ -148,8 +149,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
             //Generate the models
             this.models().getBuilder(modelID).parent(this.lazyBlockModel("display_case/base",true))
                     .texture("wool",woolTexture);
-            //Generate the block state
-            this.simpleBlockWithItem(block.get(),new ModelFile.UncheckedModelFile(VersionUtil.lcResource(modelID)));
+            //Generate the block state & item model
+            this.registerSimpleState(block,modelID);
         });
 
         //Vending Machines
@@ -277,7 +278,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Armor Display
-        this.registerTallRotatable(ModBlocks.ARMOR_DISPLAY, "armor_display_top", "armor_display_bottom", "armor_display", true);
+        this.registerTallRotatable(ModBlocks.ARMOR_DISPLAY, "armor_display/top", "armor_display/bottom", "armor_display/item", true);
 
         //Ticket Kiosk
         this.registerTallRotatable(ModBlocks.TICKET_KIOSK, "ticket_kiosk_top", "ticket_kiosk_bottom", "ticket_kiosk", true);
@@ -298,7 +299,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Slot Machine
-        this.registerTallRotatableInv(ModBlocks.SLOT_MACHINE, "slot_machine/top", "slot_machine/bottom", "slot_machine/item", true);
+        this.registerTallRotatable(ModBlocks.SLOT_MACHINE, "slot_machine/top", "slot_machine/bottom", "slot_machine/item", true);
 
         //Gatcha Machine
         ModBlocks.GACHA_MACHINE.forEach((color,block) -> {
@@ -412,18 +413,82 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerRotatable(ModBlocks.TAX_COLLECTOR);
 
         //2.1.2.3
-        this.registerRotatableInv(ModBlocks.SUS_JAR, "jars/sus_jar", true);
+        this.registerRotatable(ModBlocks.SUS_JAR, "jars/sus_jar", true);
 
         //2.2.4.1
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_1,UPGRADE_NETWORK,UPGRADE_TIER_EMERALD);
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_2,UPGRADE_NETWORK,UPGRADE_TIER_DIAMOND);
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_3,UPGRADE_NETWORK,UPGRADE_TIER_NETHERITE);
 
+        //2.2.5.2
+        //Variant Wand
+        this.registerHandheldItem(ModItems.VARIANT_WAND);
+
+        //Display Case Variants
+        for(Color color : Color.values())
+        {
+            ResourceLocation woolTexture = ColorHelper.GetWoolTextureOfColor(color);
+            String modelID = this.lazyColoredID("block/display_case/glassless/",color);
+            //Generate the models
+            this.models().getBuilder(modelID).parent(this.lazyBlockModel("display_case/glassless/base",true))
+                    .texture("wool",woolTexture);
+        }
+
+        //Vending Machine Variants
+        for(Color color : Color.values())
+        {
+            //Collect IDs and Textures
+            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/footless/", color, "_interior"));
+            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/footless/", color, "_exterior"));
+            String topID = this.lazyColoredID("block/vending_machine/footless/", color, "_top");
+            String bottomID = this.lazyColoredID("block/vending_machine/footless/", color, "_bottom");
+            String itemID = this.lazyColoredID("block/vending_machine/footless/", color, "_item");
+            //Generate the models
+            this.models().getBuilder(topID).parent(this.lazyBlockModel("vending_machine/footless/base_top", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(bottomID).parent(this.lazyBlockModel("vending_machine/footless/base_bottom", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(itemID).parent(this.lazyBlockModel("vending_machine/footless/base_item", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+        }
+
+        //Large Vending Machine Variants
+        for(Color color : Color.values())
+        {
+            //Collect IDs and Textures
+            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/footless/", color, "_interior"));
+            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/footless/", color, "_exterior"));
+            String topLeftID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_top_left");
+            String topRightID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_top_right");
+            String bottomLeftID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_bottom_left");
+            String bottomRightID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_bottom_right");
+            String itemID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_item");
+            //Generate the models
+            this.models().getBuilder(topLeftID).parent(this.lazyBlockModel("large_vending_machine/footless/base_top_left", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(topRightID).parent(this.lazyBlockModel("large_vending_machine/footless/base_top_right", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(bottomLeftID).parent(this.lazyBlockModel("large_vending_machine/footless/base_bottom_left", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(bottomRightID).parent(this.lazyBlockModel("large_vending_machine/footless/base_bottom_right", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+            this.models().getBuilder(itemID).parent(this.lazyBlockModel("large_vending_machine/footless/base_item", true))
+                    .texture("exterior", exteriorTexture)
+                    .texture("interior", interiorTexture);
+        }
 
     }
 
     //ITEM MODEL REGISTRATION
     private void registerBasicItem(Supplier<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
+    private void registerHandheldItem(Supplier<? extends ItemLike> item) { this.itemModels().handheldItem(item.get().asItem()); }
     private void registerLayeredItem(Supplier<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.get().asItem()));
         this.itemModels().basicItem(itemID).texture("layer1", VersionUtil.modResource(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
@@ -457,8 +522,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
     //BLOCK STATE REGISTRATION
     private void registerSimpleState(Supplier<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
     private void registerSimpleState(Supplier<? extends Block> block, String modelID) {
-        ModelFile model = this.lazyBlockModel(modelID, true);
-        this.getVariantBuilder(block.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(model).build());
+        ModelFile model = this.lazyBlockModel(modelID, false);
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(model).build());
         this.registerBlockItemModel(block, model);
     }
 
@@ -468,8 +533,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         ResourceLocation texture = BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_pile", true)).texture("main", texture);
         ModelFile model = this.lazyBlockModel(modelID, false);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state ->
+                ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBasicItem(block);
     }
     private void registerCoinBlock(Supplier<? extends Block> block)
@@ -499,8 +564,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
     {
         ModelFile powered = this.lazyBlockModel(poweredModelID, true);
         ModelFile unpowered = this.lazyBlockModel(unpoweredModelID, true);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWER_LEVEL) > 0 ? powered : unpowered).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state ->
+                ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWER_LEVEL) > 0 ? powered : unpowered).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, powered);
     }
     private void registerMoneyBag(Supplier<? extends Block> block, String folder)
@@ -510,7 +575,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         for(int i = 0; i <= 3; ++i)
             models.add(this.lazyBlockModel(folder + "/" + i,true));
         this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(models.get(state.getValue(MoneyBagBlock.SIZE))).rotationY(this.getRotationYInv(state)).build());
+                .forAllStates(state -> ConfiguredModel.builder().modelFile(models.get(state.getValue(MoneyBagBlock.SIZE))).rotationY(this.getRotationY(state)).build());
         //Item Models
         ResourceLocation itemModel = this.lazyItemModelID(lazyItemID(block));
         ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
@@ -525,30 +590,16 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private void registerRotatable(Supplier<? extends Block> block, String modelID, boolean check)
     {
         ModelFile model = this.lazyBlockModel(modelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
-        this.registerBlockItemModel(block, model);
-    }
-    private void registerRotatableInv(Supplier<? extends Block> block, String modelID, boolean check)
-    {
-        ModelFile model = this.lazyBlockModel(modelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationYInv(state)).build());
+        this.buildState(block,state ->
+                ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, model);
     }
 
-    private void registerTallRotatableInv(Supplier<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
-        ModelFile top = this.lazyBlockModel(topModelID, check);
-        ModelFile bottom = this.lazyBlockModel(bottomModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationYInv(state)).build());
-        this.registerBlockItemModel(block, itemModelID, check);
-    }
     private void registerTallRotatable(Supplier<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
         ModelFile top = this.lazyBlockModel(topModelID, check);
         ModelFile bottom = this.lazyBlockModel(bottomModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state ->
+                ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
@@ -557,8 +608,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         ModelFile topRight = this.lazyBlockModel(topRightModelID, check);
         ModelFile bottomLeft = this.lazyBlockModel(bottomLeftModelID, check);
         ModelFile bottomRight = this.lazyBlockModel(bottomRightModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomLeftRightModel(state, topLeft, topRight, bottomLeft, bottomRight)).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state ->
+                ConfiguredModel.builder().modelFile(this.getTopBottomLeftRightModel(state, topLeft, topRight, bottomLeft, bottomRight)).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
@@ -575,22 +626,11 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     private ModelFile lazyBlockModel(String modelID, boolean check) { return check ? new ModelFile.ExistingModelFile(this.lazyBlockModelID(modelID), this.models().existingFileHelper) : new ModelFile.UncheckedModelFile(this.lazyBlockModelID(modelID)); }
 
-    private int getRotationYInv(BlockState state) {
-        return switch (state.getValue(IRotatableBlock.FACING)) {
-            case WEST -> 90;
-            case NORTH -> 180;
-            case EAST -> 270;
-            default -> 0;
-        };
-    }
-
-    private int getRotationY(BlockState state) {
-        return switch (state.getValue(IRotatableBlock.FACING)) {
-            case EAST -> 90;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            default -> 0;
-        };
+    private int getRotationY(BlockState state)
+    {
+        if(state.getBlock() instanceof IRotatableBlock rb)
+            return rb.getRotationY(state);
+        return 0;
     }
 
     private ModelFile getTopBottomModel(BlockState state, ModelFile top, ModelFile bottom) {
@@ -601,6 +641,16 @@ public class LCBlockStateProvider extends BlockStateProvider {
         if(state.getValue(ITallBlock.ISBOTTOM))
             return state.getValue(IWideBlock.ISLEFT) ? bottomLeft : bottomRight;
         return state.getValue(IWideBlock.ISLEFT) ? topLeft : topRight;
+    }
+
+    protected final void buildState(Supplier<? extends Block> block, Function<BlockState,ConfiguredModel[]> mapper) { this.buildState(block.get(),mapper); }
+    protected final void buildState(Block block, Function<BlockState,ConfiguredModel[]> mapper)
+    {
+        VariantBlockStateBuilder builder = this.getVariantBuilder(block);
+        if(block instanceof IVariantBlock) //Ignore the variant property when building the block states. It's only purpose is to forcibly make the block transparent
+            builder.forAllStatesExcept(mapper,IVariantBlock.VARIANT);
+        else
+            builder.forAllStates(mapper);
     }
 
 }

@@ -107,12 +107,13 @@ public class CustomSaveData extends SavedData {
     @SubscribeEvent
     private static void onServerTick(ServerTickEvent.Pre event)
     {
-        forEach(data -> {
+        for(CustomData data : serverDataCache.values())
+        {
             if(data instanceof IEasyTickable ticker)
                 ticker.tick();
             if(data instanceof IServerTicker ticker)
                 ticker.serverTick();
-        });
+        }
     }
 
     @SubscribeEvent

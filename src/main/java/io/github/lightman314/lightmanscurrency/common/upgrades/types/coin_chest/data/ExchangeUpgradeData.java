@@ -39,7 +39,7 @@ public record ExchangeUpgradeData(boolean exchangeWhileOpen, List<String> exchan
                 List<String> list = new ArrayList<>();
                 for(int i = 0; i < count; ++i)
                     list.add(b.readUtf());
-                return new ExchangeUpgradeData(b.readBoolean(),ImmutableList.copyOf(list));
+                return new ExchangeUpgradeData(exchangeWhileOpen,ImmutableList.copyOf(list));
     });
 
     private static ExchangeUpgradeData load(boolean exchangeWhileOpen,Optional<String> oldCommand,Optional<List<String>> commandList)

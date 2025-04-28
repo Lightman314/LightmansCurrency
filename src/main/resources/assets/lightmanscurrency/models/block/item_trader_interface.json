@@ -1,10 +1,10 @@
 {
 	"credit": "Made with Blockbench",
-    "parent": "lightmanscurrency:block/block",
+	"parent": "lightmanscurrency:block/block",
 	"textures": {
+		"particle": "lightmanscurrency:block/item_trader_interface",
 		"main": "lightmanscurrency:block/item_trader_interface",
-		"front": "lightmanscurrency:block/item_trader_interface_front",
-		"particle": "#main"
+		"front": "lightmanscurrency:block/item_trader_interface_front"
 	},
 	"elements": [
 		{
@@ -103,5 +103,10 @@
 				"up": {"uv": [0.5, 8.5, 7.5, 14], "texture": "#main"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0]
+		}
+	}
 }

@@ -417,11 +417,16 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			.build();
 
 	/**
+	 * Method used to get the new {@link #customIcon} {@link IconData} when an item is used on the icon portion of the Display Settings tab.<br>
+	 * For safety, you should override {@link #getIconForItem(ItemStack, IconData)} so that unexpected issues don't appear if I change how the data is saved, etc.
+	 */
+	public IconData getIconForItem(ItemStack stack) { return this.getIconForItem(stack,this.customIcon.get()); }
+	/**
 	 * Can be overridden by child traders to make special icons from certain items<br>
 	 * (i.e. an icon that renders lava if the item stack is a lava bucket, etc.)<br><br>
 	 * By default, returns a simple item icon for the given item
 	 */
-	public IconData getIconForItem(ItemStack stack) { return IconData.of(stack.copyWithCount(1)); }
+	protected IconData getIconForItem(ItemStack stack,IconData originalIcon) { return IconData.of(stack.copyWithCount(1)); }
 
 	private Item traderBlock;
 	@Nullable

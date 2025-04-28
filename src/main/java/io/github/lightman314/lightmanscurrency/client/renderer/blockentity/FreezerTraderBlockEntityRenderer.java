@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -24,22 +26,24 @@ import javax.annotation.Nonnull;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 	
-	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+	private FreezerTraderBlockEntityRenderer() { }
+
+	public static FreezerTraderBlockEntityRenderer create(BlockEntityRendererProvider.Context ignored) { return new FreezerTraderBlockEntityRenderer(); }
 	
 	@Override
-	public void render(@Nonnull FreezerTraderBlockEntity tileEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(@Nonnull FreezerTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
 		//Render the items using the default method
-		ItemTraderBlockEntityRenderer.renderItems(tileEntity, partialTicks, poseStack, bufferSource, lightLevel, id);
+		ItemTraderBlockEntityRenderer.renderItems(blockEntity, partialTicks, poseStack, bufferSource, lightLevel, id);
 		
 		//Render the door
 
-		if(tileEntity.getBlockState().getBlock() instanceof FreezerBlock freezerBlock)
+		if(blockEntity.getBlockState().getBlock() instanceof FreezerBlock freezerBlock)
 		{
 			poseStack.pushPose();
 
-			Direction facing = freezerBlock.getFacing(tileEntity.getBlockState());
+			Direction facing = freezerBlock.getFacing(blockEntity.getBlockState());
 			Vector3f corner = IRotatableBlock.getOffsetVect(facing);
 			Vector3f right = IRotatableBlock.getRightVect(facing);
 			Vector3f forward = IRotatableBlock.getForwardVect(facing);
@@ -47,13 +51,26 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			//Calculate the hinge position
 			Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
 
-			Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
+			Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * blockEntity.getDoorAngle(partialTicks)));
 
 			poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 			poseStack.mulPose(rotation);
 
 			Minecraft mc = Minecraft.getInstance();
-			BakedModel model = mc.getModelManager().getModel(ModelResourceLocation.standalone(freezerBlock.getDoorModel()));
+			ModelResourceLocation doorModel = ModelResourceLocation.standalone(freezerBlock.getDoorModel());
+
+
+			//Get custom freezer door model
+			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
+			if(variant != null && variant.getTargets().contains(freezerBlock.getBlockID()) && variant.getModels().size() == freezerBlock.requiredModels())
+			{
+				ModelResourceLocation newModel = variant.getStandaloneModel(freezerBlock.requiredModels() - 1);
+				if(newModel != null)
+					doorModel = newModel;
+			}
+
+			BakedModel model = mc.getModelManager().getModel(doorModel);
+
 			ItemRenderer itemRenderer = mc.getItemRenderer();
 			itemRenderer.render(new ItemStack(freezerBlock), ItemDisplayContext.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
 

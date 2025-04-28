@@ -147,6 +147,9 @@ public class ModItems {
 		ATM_CARD = ModRegistries.ITEMS.register("atm_card", () -> new ATMCardItem(new Item.Properties().stacksTo(1)));
 		PREPAID_CARD = ModRegistries.ITEMS.register("prepaid_card", () -> new PrepaidCardItem(new Item.Properties().stacksTo(1)));
 
+		//Variant Wand
+		VARIANT_WAND = ModRegistries.ITEMS.register("variant_wand", () -> new Item(new Item.Properties().stacksTo(1)));
+
 	}
 	
 	//Hold the items for public access
@@ -232,5 +235,7 @@ public class ModItems {
 
 	public static final Supplier<Item> ATM_CARD;
 	public static final Supplier<Item> PREPAID_CARD;
+
+	public static final Supplier<Item> VARIANT_WAND;
 
 }

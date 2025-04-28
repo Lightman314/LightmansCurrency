@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlo
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.BlockPos;
@@ -17,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,7 +25,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
@@ -127,14 +124,14 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		if(this.getIsBottom(state))
 		{
 			setAir(level, pos.above(), player);
-			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+			BlockPos otherPos = this.getOtherSide(pos, state);
 			setAir(level, otherPos, player);
 			setAir(level, otherPos.above(), player);
 		}
 		else
 		{
 			setAir(level, pos.below(), player);
-			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+			BlockPos otherPos = this.getOtherSide(pos, state);
 			setAir(level, otherPos, player);
 			setAir(level, otherPos.below(), player);
 		}
@@ -144,24 +141,10 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 
 	@Override
 	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
-		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+		BlockPos otherPos = this.getOtherSide(pos, state);
 		setAir(level, this.getOtherHeight(pos,state),null);
 		setAir(level, otherPos, null);
 		setAir(level, this.getOtherHeight(otherPos, state), null);
 	}
-	
-	@Nullable
-	@Override
-	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)
-	{
-		if(level == null)
-			return null;
-		BlockPos getPos = pos;
-		if(this.getIsRight(state))
-			getPos = IRotatableBlock.getLeftPos(getPos, this.getFacing(state));
-		if(this.getIsTop(state))
-			return level.getBlockEntity(getPos.below());
-		return level.getBlockEntity(getPos);
-	}
-	
+
 }

@@ -148,6 +148,8 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
+        this.translate(LCText.ITEM_VARIANT_WAND,"Variant Wand");
+
         //Blocks
         this.translate(LCText.BLOCK_COINPILE_COPPER,"Copper Coinpile");
         this.translate(LCText.BLOCK_COINPILE_COPPER_PLURAL,"Copper Coinpiles");
@@ -305,6 +307,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_MONEY_BAG,"Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
+        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
@@ -1040,6 +1043,24 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_GACHA,"%1$s paid %2$s and won %3$s");
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
+
+        //Block Variants
+        this.translate(LCText.GUI_VARIANT_MENU,"Variant Selection");
+        this.translate(LCText.BUTTON_VARIANT_SELECT,"Select Variant");
+        this.translate(LCText.BLOCK_VARIANT_DEFAULT,"Default Model");
+        this.translate(LCText.BLOCK_VARIANT_UNNAMED,"Unnammed");
+        this.translate(LCText.BLOCK_VARIANT_GLASSLESS,"Glassless");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_1,"Skin: Steve");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_1_GLASSLESS,"Skin: Steve (Glassless)");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_2,"Skin: Zuri");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_2_GLASSLESS,"Skin: Zuri (Glassless)");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_3,"Skin: Ari");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_3_GLASSLESS,"Skin: Ari (Glassless)");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_4,"Skin: Kai");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_4_GLASSLESS,"Skin: Kai (Glassless)");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_5,"Skin: Garrett");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_5_GLASSLESS,"Skin: Garrett (Glassless)");
+        this.translate(LCText.BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS,"Footless");
 
         //Easy Data Names/Keys
         this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");

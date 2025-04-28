@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
+import com.simibubi.create.AllItems;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -235,6 +236,11 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK)
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.BOOK);
+
+        //Variant Supporting Items
+        this.cTag(LCTags.Items.VARIANT_WANDS)
+                .add(ModItems.VARIANT_WAND)
+                .addOptional(AllItems.WRENCH);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items

@@ -72,7 +72,7 @@ public abstract class DisplayEntry {
         private final ItemStack item;
         private final Consumer<List<Component>> tooltipEditor;
 
-        private ItemEntry(ItemStack item, int count, @Nullable List<Component> forcedTooltip, @Nullable Consumer<List<Component>> tooltipEditor) { super(forcedTooltip); this.item = item.copy(); this.item.setCount(count); this.tooltipEditor = tooltipEditor; }
+        private ItemEntry(ItemStack item, int count, @Nullable List<Component> forcedTooltip, @Nullable Consumer<List<Component>> tooltipEditor) { super(forcedTooltip); this.item = item.copyWithCount(count); this.tooltipEditor = tooltipEditor; }
 
         private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 

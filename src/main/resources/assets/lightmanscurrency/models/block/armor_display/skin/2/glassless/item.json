@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/armor_display/skin/base/glassless/item",
+  "textures": {
+	"2": "lightmanscurrency:block/armor_display/skin2"
+  }
+}

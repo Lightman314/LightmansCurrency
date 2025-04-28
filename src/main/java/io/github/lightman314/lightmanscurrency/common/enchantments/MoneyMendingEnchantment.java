@@ -11,11 +11,10 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -113,7 +112,7 @@ public class MoneyMendingEnchantment {
 					{
 						RepairWithMoneyData data = entry.getKey().value().effects().get(ModEnchantments.REPAIR_WITH_MONEY.get());
 						if(data != null)
-							tooltip.add(infoTooltip(stack, data, context.registries()));
+							TooltipItem.insertTooltip(tooltip,infoTooltip(stack,data,context.registries()));
 					}
 				}catch (Throwable t) { LightmansCurrency.LogDebug("Error checking item enchantments.",t);}
 			}
@@ -123,7 +122,7 @@ public class MoneyMendingEnchantment {
 			//Add tooltip to item with enchantments
 			Pair<RepairWithMoneyData,Integer> data = EnchantmentHelper.getHighestLevel(stack,ModEnchantments.REPAIR_WITH_MONEY.get());
 			if(data != null)
-				tooltip.add(infoTooltip(stack, data.getFirst(), context.registries()));
+				TooltipItem.insertTooltip(tooltip,infoTooltip(stack,data.getFirst(),context.registries()));
 		}
 	}
 

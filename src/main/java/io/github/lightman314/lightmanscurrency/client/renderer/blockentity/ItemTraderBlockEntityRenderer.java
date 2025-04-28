@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -10,11 +11,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -22,8 +27,11 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
@@ -36,9 +44,11 @@ import org.joml.Vector3f;
 import javax.annotation.Nonnull;
 
 @EventBusSubscriber(Dist.CLIENT)
-public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
+public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity> {
 
-	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+	private ItemTraderBlockEntityRenderer() { }
+
+	public static ItemTraderBlockEntityRenderer create(BlockEntityRendererProvider.Context context) { return new ItemTraderBlockEntityRenderer(); }
 	
 	@Override
 	public void render(@Nonnull ItemTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)
@@ -57,19 +67,26 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		return result;
 	}
 
-	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
+	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int overlay)
 	{
 		try{
 			TraderData rawTrader = blockEntity.getRawTraderData();
 			if(!(rawTrader instanceof ItemTraderData trader))
 				return;
 			ItemPositionData positionData = blockEntity.GetRenderData();
+			//Get custom position data from the Model Variant
+			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
+			if(variant != null && variant.has(VariantProperties.ITEM_POSITION_DATA))
+				positionData = Objects.requireNonNullElse(variant.get(VariantProperties.ITEM_POSITION_DATA).get(),positionData);
 			if(positionData.isEmpty())
 				return;
 			final int maxIndex = positionData.getEntryCount();
 			final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
 			BlockState state = blockEntity.getBlockState();
 			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+			Level level = blockEntity.getLevel();
+			BlockPos blockPos = blockEntity.getBlockPos();
+			int skyLight = level.getBrightness(LightLayer.SKY,blockPos);
 			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < maxIndex; tradeSlot++)
 			{
 
@@ -83,6 +100,11 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 					//Get rotation
 					List<Quaternionf> rotation = positionData.getRotation(state, tradeSlot, partialTicks);
+
+					int minLight = positionData.getMinLight(tradeSlot);
+					int itemLight = lightLevel;
+					if(level.getBrightness(LightLayer.BLOCK,blockPos) < minLight)
+						itemLight = LightTexture.pack(Math.min(minLight,level.getMaxLightLevel()),skyLight);
 
 					//Get scale
 					float scale = positionData.getScale(tradeSlot);
@@ -112,7 +134,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(0.25, 0.25, 0d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),lightLevel,pose,buffer,id);
+							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
 
 							pose.popPose();
 
@@ -123,12 +145,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(-0.25, -0.25, 0.001d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							renderItem(blockEntity,itemRenderer,renderItems.get(1),lightLevel,pose,buffer,id);
+							renderItem(blockEntity,itemRenderer,renderItems.get(1),itemLight,pose,buffer,overlay);
 
 							pose.popPose();
 						}
 						else
-							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),lightLevel,pose,buffer,id);
+							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
 
 						pose.popPose();
 					}
@@ -139,6 +161,10 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 	private static void renderItem(ItemTraderBlockEntity be, ItemRenderer renderer, ItemStack item, int lightLevel, PoseStack pose, MultiBufferSource buffer, int id)
 	{
+		//Get custom scale for the item
+		float scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(item);
+		pose.scale(scale,scale,scale);
+		//Check for custom model for the item
 		ModelResourceLocation customModel = CustomModelDataManager.getCustomModel(be,item);
 		if(customModel == null)
 			renderer.renderStatic(item, ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, be.getLevel(), id);

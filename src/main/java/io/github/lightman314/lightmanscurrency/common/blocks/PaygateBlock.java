@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -32,7 +33,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class PaygateBlock extends TraderBlockRotatable {
+public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock {
 
 	public static final IntegerProperty POWER_LEVEL = BlockStateProperties.LEVEL;
 	
@@ -43,6 +44,16 @@ public class PaygateBlock extends TraderBlockRotatable {
 			this.defaultBlockState()
 				.setValue(POWER_LEVEL, 0)
 		);
+	}
+
+	@Override
+	public int requiredModels() { return 2; }
+
+	@Override
+	public int getModelIndex(BlockState state) {
+		if(state.getValue(POWER_LEVEL) > 0)
+			return 1;
+		return 0;
 	}
 
 	@Nonnull

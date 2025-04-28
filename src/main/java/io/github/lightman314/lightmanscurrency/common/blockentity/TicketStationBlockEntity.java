@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -8,12 +9,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
-public class TicketStationBlockEntity extends BlockEntity{
+public class TicketStationBlockEntity extends EasyBlockEntity {
 
 	SimpleContainer storage = new SimpleContainer(2);
 	public Container getStorage() { return this.storage; }

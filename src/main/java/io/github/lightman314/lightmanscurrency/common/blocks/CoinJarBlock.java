@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
@@ -8,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -32,12 +34,25 @@ import java.util.Collection;
 
 public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 
-	public CoinJarBlock(Properties properties) { super(properties); }
-	
-	public CoinJarBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
+	private final boolean invertRotation;
+	public CoinJarBlock(Properties properties) { this(properties, LazyShapes.BOX); }
+	public CoinJarBlock(Properties properties, VoxelShape shape) { this(properties, shape, false); }
+	public CoinJarBlock(Properties properties, VoxelShape shape, boolean invertRotation)
+	{
+		super(properties, shape);
+		this.invertRotation = invertRotation;
+	}
 
 	@Override
 	protected boolean isBlockOpaque() { return false; }
+
+	@Override
+	public int getRotationY(Direction facing) {
+		if(this.invertRotation)
+			return this.getRotationYInv(facing);
+		else
+			return super.getRotationY(facing);
+	}
 
 	@Nonnull
 	@Override

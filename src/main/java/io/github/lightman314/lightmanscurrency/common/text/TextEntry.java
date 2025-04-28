@@ -78,6 +78,7 @@ public final class TextEntry {
     public static TextEntry chainDisplay(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
     public static TextEntry chainDisplayWordy(@Nonnull String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display.wordy"); }
     public static TextEntry lcStat(@Nonnull StatKey<?,?> statKey) { return new TextEntry(StatType.getTranslationKey(statKey.key)); }
+    public static TextEntry blockVariant(@Nonnull String type) { return new TextEntry("lightmanscurrency.block_variant." + type); }
 
     public static TextEntry reiGroup(@Nonnull String modid, @Nonnull String type) { return new TextEntry("rei." + modid + ".group." + type); }
     public static TextEntry jeiInfo(@Nonnull String modid, @Nonnull String type) { return new TextEntry("jei." + modid + ".info." + type); }

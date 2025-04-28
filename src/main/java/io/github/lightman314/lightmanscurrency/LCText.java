@@ -132,8 +132,9 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_BANK = TextEntry.item(ModItems.COIN_CHEST_BANK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_SECURITY = TextEntry.item(ModItems.COIN_CHEST_SECURITY_UPGRADE);
 
-    //1.20 exclusive
     public static final TextEntry ITEM_UPGRADE_TEMPLATE = TextEntry.item(ModItems.UPGRADE_SMITHING_TEMPLATE);
+
+    public static final TextEntry ITEM_VARIANT_WAND = TextEntry.item(ModItems.VARIANT_WAND);
 
     //Blocks
     public static final TextEntry BLOCK_COINPILE_COPPER = TextEntry.block(ModBlocks.COINPILE_COPPER);
@@ -294,6 +295,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_COIN_JAR_COLORED = TextEntry.tooltip(MODID,"coin_jar.colored");
     public static final MultiLineTextEntry TOOLTIP_MONEY_BAG = MultiLineTextEntry.tooltip(MODID,"money_bag");
     public static final TextEntry TOOLTIP_COLORED_ITEM = TextEntry.tooltip(MODID,"colored_item");
+    public static final MultiLineTextEntry TOOLTIP_VARIANT_WAND = MultiLineTextEntry.tooltip(MODID,"variant_wand");
 
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
@@ -977,6 +979,24 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+
+    //Variants
+    public static final TextEntry GUI_VARIANT_MENU = TextEntry.gui(MODID,"block_variants.title");
+    public static final TextEntry BUTTON_VARIANT_SELECT = TextEntry.button(MODID,"block_variants.select");
+    public static final TextEntry BLOCK_VARIANT_DEFAULT = TextEntry.blockVariant("default");
+    public static final TextEntry BLOCK_VARIANT_UNNAMED = TextEntry.blockVariant("unnamed");
+    public static final TextEntry BLOCK_VARIANT_GLASSLESS = TextEntry.blockVariant("glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_1 = TextEntry.blockVariant("armor_display.skin.1");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_1_GLASSLESS = TextEntry.blockVariant("armor_display.skin.1.glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_2 = TextEntry.blockVariant("armor_display.skin.2");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_2_GLASSLESS = TextEntry.blockVariant("armor_display.skin.2.glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_3 = TextEntry.blockVariant("armor_display.skin.3");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_3_GLASSLESS = TextEntry.blockVariant("armor_display.skin.3.glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_4 = TextEntry.blockVariant("armor_display.skin.4");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_4_GLASSLESS = TextEntry.blockVariant("armor_display.skin.4.glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_5 = TextEntry.blockVariant("armor_display.skin.5");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_5_GLASSLESS = TextEntry.blockVariant("armor_display.skin.5.glassless");
+    public static final TextEntry BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS = TextEntry.blockVariant("vending_machine.footless");
 
     //Easy Data Names/Keys
     public static final TextEntry DATA_ENTRY_CREATIVE = TextEntry.dataName(MODID,"creative");

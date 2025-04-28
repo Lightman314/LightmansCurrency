@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
@@ -21,31 +23,38 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 
-public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotMachineTraderBlockEntity>{
+public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotMachineTraderBlockEntity> {
 
-	public SlotMachineBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+	private SlotMachineBlockEntityRenderer() { }
 
-
-	@Override
-	public int getViewDistance() { return 256; }
+	public static SlotMachineBlockEntityRenderer create(BlockEntityRendererProvider.Context ignored) { return new SlotMachineBlockEntityRenderer(); }
 
 	@Override
-	public void render(@Nonnull SlotMachineTraderBlockEntity tileEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int overlay)
+	public void render(@Nonnull SlotMachineTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int overlay)
 	{
 		
 		//Render the door
-		if(tileEntity.getBlockState().getBlock() instanceof SlotMachineBlock block)
+		if(blockEntity.getBlockState().getBlock() instanceof SlotMachineBlock block)
 		{
 
 			//LightmansCurrency.LogDebug("Light level is " + lightLevel);
 
-			ModelResourceLocation lightModel = new ModelResourceLocation(block.getLightModel(),ModelResourceLocation.STANDALONE_VARIANT);
+			ModelResourceLocation lightModel = ModelResourceLocation.standalone(block.getLightModel());
+
+			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
+			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels().size() == block.requiredModels())
+			{
+				ModelResourceLocation newModel = variant.getStandaloneModel(block.requiredModels() - 1);
+				if(newModel != null)
+					lightModel = newModel;
+			}
+
 			if(lightModel == null)
 				return;
 
 			poseStack.pushPose();
 
-			Direction facing = block.getFacing(tileEntity.getBlockState());
+			Direction facing = block.getFacing(blockEntity.getBlockState());
 			Vector3f corner = IRotatableBlock.getOffsetVect(facing);
 			Vector3f right = IRotatableBlock.getRightVect(facing);
 			Vector3f forward = IRotatableBlock.getForwardVect(facing);

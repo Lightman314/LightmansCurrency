@@ -4,9 +4,11 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SlotMachineBlock extends TraderBlockTallRotatable {
+public class SlotMachineBlock extends TraderBlockTallRotatable implements IVariantBlock {
 
     public static final ResourceLocation LIGHT_MODEL_LOCATION = VersionUtil.lcResource( "block/slot_machine/lights");
 
@@ -30,6 +32,12 @@ public class SlotMachineBlock extends TraderBlockTallRotatable {
 
 
     public SlotMachineBlock(Properties properties) { super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST)); }
+
+    @Override
+    public int getRotationY(Direction facing) { return this.getRotationYInv(facing); }
+
+    @Override
+    public int requiredModels() { return IVariantBlock.super.requiredModels() + 1; }
 
     @Override
     protected boolean isBlockOpaque() { return false; }

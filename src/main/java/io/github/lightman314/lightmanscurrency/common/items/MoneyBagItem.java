@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -42,9 +41,6 @@ public class MoneyBagItem extends BlockItem {
     public static final ResourceLocation PROPERTY = VersionUtil.lcResource("money_bag_size");
 
     public MoneyBagItem(Block block, Properties properties) { super(block,properties.stacksTo(1)); }
-
-    @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) { setupAttributes(stack); }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
@@ -94,7 +90,6 @@ public class MoneyBagItem extends BlockItem {
             {
                 //Update the money bags contents
                 setContents(stack,contents);
-                setupAttributes(stack);
                 //Spawn the dropped coin
                 Level level = attacker.level();
                 Vec3 position = attacker.getEyePosition();
@@ -135,23 +130,16 @@ public class MoneyBagItem extends BlockItem {
     {
         ItemStack stack = new ItemStack(item);
         if(data.contents().isEmpty())
-        {
-            setupAttributes(stack,0);
             return stack;
-        }
-        //Safely copy the items so that they can't be edited elsewhere just to be safe
         stack.set(ModDataComponents.MONEY_BAG_CONTENTS,data);
-
-        setupAttributes(stack,data.size());
-
         return stack;
     }
 
-    private static void setupAttributes(ItemStack stack) { setupAttributes(stack,getSize(stack)); }
-    private static void setupAttributes(ItemStack stack,int size)
-    {
-
+    @Override
+    public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
         ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder();
+
+        int size = getSize(stack);
 
         //Add Attack Damage
         float damage = LCConfig.SERVER.moneyBagBaseAttack.get() + (LCConfig.SERVER.moneyBagAttackPerSize.get() * size);
@@ -169,9 +157,7 @@ public class MoneyBagItem extends BlockItem {
                     new AttributeModifier(BASE_ATTACK_SPEED_ID,speed, AttributeModifier.Operation.ADD_VALUE),
                     EquipmentSlotGroup.MAINHAND);
         }
-
-        stack.set(DataComponents.ATTRIBUTE_MODIFIERS,attributes.build());
-
+        return attributes.build();
     }
 
 }

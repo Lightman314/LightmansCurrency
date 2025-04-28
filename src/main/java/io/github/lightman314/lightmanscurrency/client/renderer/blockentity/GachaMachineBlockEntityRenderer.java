@@ -27,7 +27,9 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
     public static final int MAX_DISPLAY_COUNT = WIDTH * WIDTH * HEIGHT;
 
     private final ItemRenderer itemRenderer;
-    public GachaMachineBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.itemRenderer = context.getItemRenderer(); }
+    private GachaMachineBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.itemRenderer = context.getItemRenderer(); }
+
+    public static GachaMachineBlockEntityRenderer create(BlockEntityRendererProvider.Context context) { return new GachaMachineBlockEntityRenderer(context); }
 
     @Override
     public void render(GachaMachineBlockEntity be, float partialTick, PoseStack pose, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {

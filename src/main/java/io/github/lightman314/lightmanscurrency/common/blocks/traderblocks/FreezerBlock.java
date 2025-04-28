@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.Freezer
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -24,7 +25,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
+public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public static final int TRADECOUNT = 8;
 	
@@ -40,6 +41,9 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST));
 		this.doorModel = doorModel;
 	}
+
+	@Override
+	public int requiredModels() { return IVariantBlock.super.requiredModels() + 1; }
 
 	@OnlyIn(Dist.CLIENT)
 	@Nonnull

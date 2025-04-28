@@ -80,6 +80,8 @@ public class ModMenus {
 
 		ATM_CARD = ModRegistries.MENUS.register("atm_card", () -> CreateType((IContainerFactory<ATMCardMenu>)(id, inventory, data) -> new ATMCardMenu(id,inventory,data.readInt())));
 
+		VARIANT_SELECT = ModRegistries.MENUS.register("variant_select", () -> CreateType((IContainerFactory<VariantSelectMenu>)(id,inventory,data) -> new VariantSelectMenu(id,inventory,data.readBlockPos())));
+
 	}
 	
 	public static final Supplier<MenuType<ATMMenu>> ATM;
@@ -123,6 +125,8 @@ public class ModMenus {
 	public static final Supplier<MenuType<NotificationMenu>> NOTIFICATIONS;
 
 	public static final Supplier<MenuType<ATMCardMenu>> ATM_CARD;
+
+	public static final Supplier<MenuType<VariantSelectMenu>> VARIANT_SELECT;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 
