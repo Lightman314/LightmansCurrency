@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlo
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -28,13 +29,10 @@ import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.common.util.TriState;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -43,16 +41,21 @@ public class VariantBlockModel implements IDynamicBakedModel {
     private static final ModelProperty<ResourceLocation> VARIANT = new ModelProperty<>();
     private static final ModelProperty<BlockState> STATE = new ModelProperty<>();
 
+    //Data Cache so that complex calculations only need to be done once
+    //No need to make this static as each model should only cover a singular block state
+    private final Map<QuadCacheKey,List<BakedQuad>> quadCache = new HashMap<>();
+    private final Map<RenderCacheKey,RenderData> renderCache = new HashMap<>();
+
     private final IVariantBlock block;
     //private final IRotatableBlock rotatable;
     private final BakedModel defaultModel;
-    private final TargetResults defaultResults;
+    private final ModelResourceLocation defaultModelID;
     public VariantBlockModel(IVariantBlock block,BakedModel defaultModel,ModelResourceLocation defaultModelID)
     {
         this.block = block;
         //this.rotatable = block instanceof IRotatableBlock rb ? rb : null;
         this.defaultModel = defaultModel;
-        this.defaultResults = new TargetResults(this.defaultModel,defaultModelID.id());
+        this.defaultModelID = defaultModelID;
     }
 
     @Override
@@ -60,21 +63,15 @@ public class VariantBlockModel implements IDynamicBakedModel {
         ResourceLocation variantID = null;
         if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
             variantID = be.getCurrentVariant();
-        //Have target model also add their own properties
-        ModelData other = this.getTargetData(variantID,state).model.getModelData(level,pos,state,modelData);
         //Add my own properties to the existing model data
-        return other.derive()
+        return modelData.derive()
                 .with(VARIANT,variantID)
                 .with(STATE,state).build();
     }
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
-        TargetResults target = this.getTargetData(extraData);
-        List<BakedQuad> results = target.model.getQuads(state,side,rand,extraData,renderType);
-        //Apply texture overrides if present
-        results = applyTextureOverrides(target.variant,results,target.modelID);
-        return results;
+        return this.getQuadData(extraData,state,side,renderType);
     }
 
     private static List<BakedQuad> applyTextureOverrides(@Nullable ModelVariant variant,List<BakedQuad> quads,ResourceLocation modelID)
@@ -135,67 +132,120 @@ public class VariantBlockModel implements IDynamicBakedModel {
     public TextureAtlasSprite getParticleIcon() { return this.defaultModel.getParticleIcon(); }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(ModelData data) {
-        TargetResults target = this.getTargetData(data);
-        if(target.variant != null && target.variant.getTextureOverrides().containsKey("particle"))
-        {
-            //Replace particle
-            return getSprite(target.variant.getTextureOverrides().get("particle"));
-        }
-        return this.getTargetModel(data).getParticleIcon(data);
-    }
+    public TextureAtlasSprite getParticleIcon(ModelData data) { return this.getRenderData(data).particleTextures(); }
 
     @Override
     public ItemOverrides getOverrides() { return this.defaultModel.getOverrides(); }
 
     @Override
-    public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) { return this.getTargetModel(data).getRenderTypes(state,rand,data); }
+    public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) { return this.getRenderData(data).model().getRenderTypes(state,rand,data); }
 
     @Override
-    public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) { return this.getTargetModel(data).useAmbientOcclusion(state,data,renderType); }
+    public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType) { return this.getRenderData(data).model().useAmbientOcclusion(state,data,renderType); }
 
-    private BakedModel getTargetModel(ModelData data) { return this.getTargetData(data).model; }
-    private TargetResults getTargetData(ModelData data) {
-        if(data.has(VARIANT))
-            return this.getTargetData(data.get(VARIANT),data.get(STATE));
-        LightmansCurrency.LogWarning("Attempted to get the target model without the required ModelData properties!",new Throwable());
-        return this.defaultResults;
-    }
-    private TargetResults getTargetData(ResourceLocation variantID, @Nullable BlockState state) {
-        ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
-        if(variant == null)
-            return this.defaultResults;
+    private List<BakedQuad> getQuadData(ModelData data,@Nullable BlockState state, @Nullable Direction side, @Nullable RenderType renderType)
+    {
+        QuadCacheKey key = new QuadCacheKey(data.get(VARIANT),state,side,renderType);
+        if(quadCache.containsKey(key))
+            return quadCache.get(key);
+        //Build quads for key
+        ResourceLocation variantID = data.get(VARIANT);
+        RandomSource rand = RandomSource.create();
+        if(variantID == null)
+        {
+            List<BakedQuad> quads = this.defaultModel.getQuads(state,side,RandomSource.create(),data,renderType);
+            quadCache.put(key,quads);
+            return quads;
+        }
         else
         {
-            if(!variant.getTargets().contains(this.block.getBlockID()))
+            ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+            if(variant == null)
             {
-                LightmansCurrency.LogWarning("Variant " + variantID + " is not supposed to target " + this.block.getBlockID());
-                return this.defaultResults;
+                //Use the default quads
+                List<BakedQuad> quads = this.defaultModel.getQuads(state,side,rand,data,renderType);
+                quadCache.put(key,quads);
+                return quads;
             }
-            //Don't return a custom model
-            if(variant.getModels().isEmpty())
-                return this.defaultResults.ofVariant(variant);
-
-            int entryIndex = state == null ? 0 : this.block.getModelIndex(state);
-            ModelResourceLocation modelID = VariantModelHelper.getModelID(variant,this.block,state);
-            BakedModel bm = Minecraft.getInstance().getModelManager().getModel(modelID);
-            return new TargetResults(bm,variant,modelID.id());
+            else
+            {
+                List<BakedQuad> quads;
+                ModelResourceLocation modelID = this.defaultModelID;
+                if(variant.getModels().isEmpty())
+                    quads = this.defaultModel.getQuads(state,side,rand,data,renderType);
+                else
+                {
+                    modelID = VariantModelHelper.getModelID(variant,this.block,state);
+                    BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelID);
+                    quads = model.getQuads(state,side,rand,data,renderType);
+                }
+                quads = applyTextureOverrides(variant,quads,modelID.id());
+                quadCache.put(key,quads);
+                return quads;
+            }
         }
     }
 
-    private static class TargetResults {
-        private final BakedModel model;
-        @Nullable
-        private final ModelVariant variant;
-        private final ResourceLocation modelID;
-        private TargetResults(BakedModel model, ResourceLocation modelID) { this(model,null,modelID); }
-        private TargetResults(BakedModel model, @Nullable ModelVariant variant, ResourceLocation modelID)
+    private RenderData getRenderData(ModelData data)
+    {
+        RenderCacheKey key = new RenderCacheKey(data.get(VARIANT),data.get(STATE));
+        if(renderCache.containsKey(key))
+            return renderCache.get(key);
+        //Build render data for key
+        ResourceLocation variantID = data.get(VARIANT);
+        if(variantID == null)
         {
-            this.model = model;
-            this.variant = variant;
-            this.modelID = modelID;
+            RenderData result = new RenderData(this.defaultModel.getParticleIcon(data),this.defaultModel);
+            renderCache.put(key,result);
+            return result;
         }
-        private TargetResults ofVariant(@Nullable ModelVariant variant) { return new TargetResults(this.model,variant,this.modelID); }
+        else
+        {
+            ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+            if(variant == null)
+            {
+                RenderData result = new RenderData(this.defaultModel.getParticleIcon(data),this.defaultModel);
+                renderCache.put(key,result);
+                return result;
+            }
+            else
+            {
+                BakedModel model;
+                if(variant.getModels().isEmpty())
+                    model = this.defaultModel;
+                else
+                {
+                    ModelResourceLocation modelID = VariantModelHelper.getModelID(variant,this.block,data.get(STATE));
+                    model = Minecraft.getInstance().getModelManager().getModel(modelID);
+                }
+                TextureAtlasSprite sprite = model.getParticleIcon(data);
+                if(variant.getTextureOverrides().containsKey("particle"))
+                {
+                    ResourceLocation spriteID = variant.getTextureOverrides().get("particle");
+                    TextureAtlasSprite newSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(spriteID);
+                    if(newSprite != null)
+                        sprite = newSprite;
+                }
+                RenderData result = new RenderData(sprite,model);
+                renderCache.put(key,result);
+                return result;
+            }
+        }
     }
+
+    private record QuadCacheKey(@Nullable ResourceLocation variantID, @Nullable BlockState state, @Nullable Direction side, @Nullable RenderType renderType) {
+        //Overriding the record hashCode method as the BlockState class doesn't have a hashcode implementation, so I don't trust it.
+        @Override
+        public int hashCode() {
+            int stateHash = 0;
+            if(this.state != null)
+                stateHash = BlockModelShaper.stateToModelLocation(this.state).hashCode();
+            return Objects.hash(this.variantID,stateHash,this.side,this.renderType == null ? 0 : this.renderType.name.hashCode());
+        }
+    }
+
+    private record RenderCacheKey(@Nullable ResourceLocation variantID, @Nullable BlockState state) {}
+
+    private record RenderData(TextureAtlasSprite particleTextures,BakedModel model) { }
 
 }

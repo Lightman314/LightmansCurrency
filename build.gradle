@@ -199,6 +199,9 @@ dependencies {
     //Jade cause it's kinda nice to have during runtime
     runtimeOnly "maven.modrinth:jade:15.10.0+neoforge"
 
+    //Distant Horizons compatibility testing
+    //runtimeOnly "maven.modrinth:distanthorizons:2.3.2-b-1.21.1"
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

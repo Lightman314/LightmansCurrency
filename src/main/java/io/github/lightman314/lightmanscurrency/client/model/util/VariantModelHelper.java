@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlo
 import io.github.lightman314.lightmanscurrency.mixin.client.ModelBakeryAccessor;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.resources.model.*;
@@ -72,6 +72,9 @@ public class VariantModelHelper {
     public static void onModelsBaked(ModelEvent.BakingCompleted event)
     {
         textureData.clear();
+        //Abort if models are disabled in the config
+        if(!LCConfig.CLIENT.variantBlockModels.get())
+            return;
         //variantModels.clear();
         if(event.getModelBakery() instanceof ModelBakeryAccessor mba)
         {

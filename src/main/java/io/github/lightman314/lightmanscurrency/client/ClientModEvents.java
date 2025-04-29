@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
@@ -87,11 +88,12 @@ public class ClientModEvents {
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
 		//Model Variant Models
+		boolean loadAll = LCConfig.CLIENT.variantBlockModels.get();
 		List<ResourceLocation> addedModels = new ArrayList<>();
 		ModelVariantDataManager.forEach(variant -> {
 			event.register(variant.getItem());
 			addedModels.add(variant.getItem().id());
-			if(variant.getTargets().isEmpty())
+			if(!loadAll)
 				return;
 			ResourceLocation target = variant.getTargets().getFirst();
 			if(BuiltInRegistries.BLOCK.get(target) instanceof IVariantBlock block && block.requiredModels() > block.modelsRequiringRotation())

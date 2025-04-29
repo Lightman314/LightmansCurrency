@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.model.util.VariantModelHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
@@ -42,6 +43,9 @@ public abstract class BlockStateModelLoaderMixin {
                       BlockColors blockColors,
                       BiConsumer<ModelResourceLocation, UnbakedModel> discoveredModelOutput,CallbackInfo ci)
     {
+        //Abort if disabled in the config
+        if(!LCConfig.CLIENT.variantBlockModels.get())
+            return;
         //Create custom block state json files for our custom models
         Map<ResourceLocation,List<BlockStateModelLoader.LoadedJson>> editableMap = new HashMap<>(blockStateResources);
         List<Pair<ResourceLocation,Boolean>> generatedStates = new ArrayList<>();
