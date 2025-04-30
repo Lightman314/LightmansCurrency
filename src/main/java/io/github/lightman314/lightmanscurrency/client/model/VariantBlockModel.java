@@ -74,7 +74,7 @@ public class VariantBlockModel implements IDynamicBakedModel {
         return this.getQuadData(extraData,state,side,renderType);
     }
 
-    private static List<BakedQuad> applyTextureOverrides(@Nullable ModelVariant variant,List<BakedQuad> quads,ResourceLocation modelID)
+    public static List<BakedQuad> applyTextureOverrides(@Nullable ModelVariant variant,List<BakedQuad> quads,ResourceLocation modelID)
     {
         Map<String,ResourceLocation> textureOverrides = variant == null ? ImmutableMap.of() : variant.getTextureOverrides();
         if(variant == null || textureOverrides.isEmpty())
@@ -87,32 +87,22 @@ public class VariantBlockModel implements IDynamicBakedModel {
             if(key == null)
             {
                 result.add(quad);
-                LightmansCurrency.LogDebug("Could not find texture key for a sprite on " + modelID);
+                LightmansCurrency.LogDebug("Could not find texture key for a sprite on " + modelID + " (" + quad.getSprite().contents().name() + ")");
             }
             else
             {
                 ResourceLocation tex = textureOverrides.get(key);
-                TextureAtlasSprite sprite = getSprite(tex);
-                if(sprite == null)
-                {
+                if(tex == null)
                     result.add(quad);
-                }
                 else //Replace texture with the new sprite
                 {
+                    TextureAtlasSprite sprite = originalTextures.createSprite(tex);
                     result.add(new BakedQuad(quad.getVertices(),quad.getTintIndex(),quad.getDirection(),sprite,quad.isShade(),quad.hasAmbientOcclusion()));
                     LightmansCurrency.LogDebug("Replaced quad texture with " + tex);
                 }
             }
         }
         return result;
-    }
-
-    @Nullable
-    private static TextureAtlasSprite getSprite(@Nullable ResourceLocation texture)
-    {
-        if(texture == null)
-            return null;
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(texture);
     }
 
     @Override

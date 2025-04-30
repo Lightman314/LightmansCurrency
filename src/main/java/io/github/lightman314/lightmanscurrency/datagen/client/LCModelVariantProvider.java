@@ -88,6 +88,20 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                             .build())
         );
 
+        //Debug Texture override variant
+        /*
+        this.add("debug/red_vending_machine",ModelVariant.builder()
+                .withTarget(ModBlocks.VENDING_MACHINE.get(Color.WHITE))
+                .withName(EasyText.literal("Red Vending Machine (Debug)"))
+                .withItem(VersionUtil.lcResource("block/vending_machine/white_item"))
+                //.withModel(VersionUtil.lcResource("block/vending_machine/white_bottom"),
+                //        VersionUtil.lcResource("block/vending_machine/white_top"))
+                .withTexture("particle",VersionUtil.lcResource("block/vending_machine/red_exterior"))
+                .withTexture("exterior",VersionUtil.lcResource("block/vending_machine/red_exterior"))
+                .withTexture("interior",VersionUtil.lcResource("block/vending_machine/red_interior"))
+                .build()
+        );//*/
+
     }
 
 }

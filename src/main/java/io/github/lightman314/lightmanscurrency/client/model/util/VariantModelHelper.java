@@ -16,6 +16,8 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.MultiVariant;
+import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -35,7 +38,7 @@ import java.util.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class VariantModelHelper {
 
     private VariantModelHelper() {}
@@ -49,7 +52,6 @@ public class VariantModelHelper {
 
     private static final ResourceLocation NULL_MODEL_ID = VersionUtil.vanillaResource("null");
 
-    //private static final Map<CustomModelKey,BakedModel> variantModels = new HashMap<>();
     private static final Map<ResourceLocation,TextureMap> textureData = new HashMap<>();
 
     public static TextureMap getTexturesFor(ResourceLocation model) { return textureData.getOrDefault(model,TextureMap.EMPTY); }
@@ -78,12 +80,11 @@ public class VariantModelHelper {
         //variantModels.clear();
         if(event.getModelBakery() instanceof ModelBakeryAccessor mba)
         {
-            List<ModelResourceLocation> completedTextureCache = new ArrayList<>();
             List<ResourceLocation> completedTargets = new ArrayList<>();
             ModelVariantDataManager.forEachWithID((id,variant) -> {
                 if(!variant.getTextureOverrides().isEmpty())
                 {
-                    LightmansCurrency.LogDebug("Attempting to collect ");
+                    LightmansCurrency.LogDebug("Attempting to collect Texture Maps for " + id);
                     if(variant.getModels().isEmpty())
                     {
                         for(ResourceLocation target : variant.getTargets())
@@ -98,31 +99,57 @@ public class VariantModelHelper {
                     }
                     else
                     {
-                        for(ResourceLocation target : variant.getTargets())
-                        {
-                            Block b = BuiltInRegistries.BLOCK.get(target);
-                            if(b instanceof IVariantBlock block)
-                                getTextureMap(mba,getModelID(variant,block,b.defaultBlockState()));
-                        }
+                        for(ResourceLocation model : variant.getModels())
+                            getTextureMap(mba,model);
                     }
                 }
             });
         }
     }
 
-    private static void getTextureMap(ModelBakeryAccessor mba, ModelResourceLocation model)
+    private static void getTextureMap(ModelBakeryAccessor mba, ModelResourceLocation modelID)
     {
-        if(textureData.containsKey(model.id()))
+        if(textureData.containsKey(modelID.id()))
             return;
-        if(mba.getTopLevelModels().get(model) instanceof BlockModel bm)
+        UnbakedModel unbakedModel = mba.getTopLevelModels().get(modelID);
+        if(unbakedModel instanceof BlockModel blockModel)
+            getTextureMap(modelID.id(),blockModel);
+        else if(unbakedModel instanceof MultiVariant mv)
         {
-            Map<String,ResourceLocation> textureMap = new HashMap<>();
-            for(String key : bm.textureMap.keySet())
-                textureMap.put(key,bm.getMaterial(key).texture());
-            textureData.put(model.id(),TextureMap.create(textureMap));
+            int success = 0;
+            for(Variant v : mv.getVariants())
+            {
+                UnbakedModel model2 = mba.getUnbakedCache().get(v.getModelLocation());
+                if(model2 instanceof BlockModel blockModel)
+                {
+                    getTextureMap(modelID.id(),blockModel);
+                    success++;
+                }
+            }
+            if(success == 0)
+                LightmansCurrency.LogWarning("Model " + modelID + " has no valid BlockModel variants!");
         }
         else
-            LightmansCurrency.LogWarning(model + " was not a BlockModel, so I'm unable to get the texture key/set pair!");
+            LightmansCurrency.LogWarning("Model " + modelID + " is not a valid BlockModel or MultiVariant so I cannot get it's texture data. Model is actually a " + unbakedModel.getClass().getName());
+    }
+    private static void getTextureMap(ModelBakeryAccessor mba, ResourceLocation modelID)
+    {
+        if(textureData.containsKey(modelID))
+            return;
+        UnbakedModel unbakedModel = mba.getUnbakedCache().get(modelID);
+        if(unbakedModel instanceof BlockModel blockModel)
+            getTextureMap(modelID,blockModel);
+        else
+            LightmansCurrency.LogWarning("Model " + modelID + " is not a valid BlockModel so I cannot get it's texture data. Model is actually a " + unbakedModel.getClass().getName());
+
+    }
+    private static void getTextureMap(ResourceLocation modelID, BlockModel blockModel)
+    {
+        Map<String,ResourceLocation> textureMap = new HashMap<>();
+        for(String key : blockModel.textureMap.keySet())
+            textureMap.put(key,blockModel.getMaterial(key).texture());
+        textureData.put(modelID,TextureMap.create(textureMap));
+        LightmansCurrency.LogDebug("Collected texture data from " + modelID + ": " + textureMap);
     }
 
     private static final List<Pair<ResourceLocation,Boolean>> generatedStates = new ArrayList<>();

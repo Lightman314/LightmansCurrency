@@ -56,11 +56,15 @@ public class ModelVariant {
     public Component getName() { return this.name == null ? LCText.BLOCK_VARIANT_UNNAMED.get() : this.name; }
 
     @Nullable
-    private final ResourceLocation item;
+    private ModelResourceLocation item;
     public ModelResourceLocation getItem() {
         if(this.item == null && this.parentVariant != null)
             return this.parentVariant.getItem();
-        return this.buildModel(this.item);
+        return this.item;
+    }
+    public void overrideItemModel(ModelResourceLocation modelID)
+    {
+        this.item = modelID;
     }
     
     @Nullable
@@ -102,7 +106,7 @@ public class ModelVariant {
     private final Map<VariantProperty<?>,Object> properties;
 
     protected ModelVariant() { this(null,new ArrayList<>(), null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>()); }
-    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties)
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ModelResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties)
     {
         this.parent = parent;
         this.targets = ImmutableList.copyOf(targets);
@@ -152,7 +156,7 @@ public class ModelVariant {
         //Name is never null
         json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,this.name).getOrThrow());
         if(this.item != null)
-            json.addProperty("item",this.item.toString());
+            json.addProperty("item",this.item.id().toString());
         if(!this.models.isEmpty())
         {
             JsonArray models = new JsonArray();
@@ -238,7 +242,7 @@ public class ModelVariant {
             else
                 throw new JsonSyntaxException("Model Variant must have something other than the parent defined!");
         }
-        return new ModelVariant(parent,targets,name,item,models,textureOverrides,properties);
+        return new ModelVariant(parent,targets,name,ModelResourceLocation.standalone(item),models,textureOverrides,properties);
     }
 
     
@@ -348,7 +352,7 @@ public class ModelVariant {
         private final ResourceLocation parent;
         private final List<ResourceLocation> targets = new ArrayList<>();
         private Component name;
-        private ResourceLocation item = null;
+        private ModelResourceLocation item = null;
         private final List<ResourceLocation> models = new ArrayList<>();
         private final Map<String,ResourceLocation> textureOverrides = new HashMap<>();
         private final Map<VariantProperty<?>,Object> properties = new HashMap<>();
@@ -361,7 +365,7 @@ public class ModelVariant {
 
         public Builder withName(Component name) { this.name = name; return this; }
 
-        public Builder withItem(ResourceLocation item) { this.item = item; return this; }
+        public Builder withItem(ResourceLocation item) { this.item = ModelResourceLocation.standalone(item); return this; }
 
         public Builder withModel(ResourceLocation... model) { this.models.addAll(Lists.newArrayList(model)); return this; }
 

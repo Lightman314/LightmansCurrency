@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.*;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
+import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
@@ -130,7 +131,19 @@ public class ClientModEvents {
 				}
 			}
 		}
-		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel"/*\n" + DebugUtil.debugList(wrappedModels)*/);
+		ModelVariantDataManager.forEachWithID((id,variant) -> {
+			ModelResourceLocation modelID = variant.getItem();
+			BakedModel existingModel = modelRegistry.get(modelID);
+			if(existingModel != null)
+			{
+				//Create custom model id for the variant item models
+				modelID = new ModelResourceLocation(modelID.id(),id.toString());
+				variant.overrideItemModel(modelID);
+				//Variant item models get a custom
+				modelRegistry.put(modelID,new VariantItemModel(existingModel,modelID,variant));
+			}
+		});
+		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel");
 	}
 
 	@SubscribeEvent
