@@ -60,7 +60,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                         .asDummy()
                         .build());
 
-        this.add(SKIN_DEFAULT,
+        this.add(SKIN_GLASSLESS,
                 ModelVariant.builder()
                         .withTarget(ModBlocks.ARMOR_DISPLAY)
                         .withItem(VersionUtil.lcResource("block/armor_display/skin/glassless/item"))

@@ -229,6 +229,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.setState(adminState ? TraderState.ADMIN_HELD_AS_ITEM : TraderState.HELD_AS_ITEM);
 					//Give the item this traders ID for future loading
 					result.set(ModDataComponents.TRADER_ITEM_DATA,new TraderItemData(this.id));
+					//Add the model variant to the item
+					if(this.blockVariant != null)
+						result.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
 					//Give the item to the player
 					ItemHandlerHelper.giveItemToPlayer(player,result);
 				}

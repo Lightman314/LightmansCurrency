@@ -47,6 +47,7 @@
 		},
 		{
 			"name": "Keyboard",
+			"shade": false,
 			"from": [28.99, 20.99, 16],
 			"to": [31.01, 24.01, 15.5],
 			"faces": {

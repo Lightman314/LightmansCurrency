@@ -45,6 +45,7 @@
 		{
 			"name": "Keyboard",
 			"neoforge_data": {"block_light": 10, "ambient_occlusion": false},
+			"shade": false,
 			"from": [12.99, 4.99, 16],
 			"to": [15.01, 8.01, 15.5],
 			"faces": {
