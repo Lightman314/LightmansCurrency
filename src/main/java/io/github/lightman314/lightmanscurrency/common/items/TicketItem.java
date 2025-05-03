@@ -23,13 +23,14 @@ public class TicketItem extends Item{
 	public TicketItem(Properties properties) { super(properties); }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag)
 	{
 		if(isPass(stack))
 			tooltip.add(LCText.TOOLTIP_PASS.get());
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -2)
 			tooltip.add(LCText.TOOLTIP_TICKET_ID.get(ticketID));
+		super.appendHoverText(stack,context,tooltip,flag);
 	}
 
 	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slot, boolean selected) {

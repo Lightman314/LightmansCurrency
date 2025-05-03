@@ -92,5 +92,6 @@ public class GachaBallItem extends Item {
                 return;
             tooltip.add(LCText.TOOLTIP_TRADER_GACHA_CONTENTS.get(contents.getCount(),contents.getHoverName()).withStyle(ChatFormatting.GRAY));
         }
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 }

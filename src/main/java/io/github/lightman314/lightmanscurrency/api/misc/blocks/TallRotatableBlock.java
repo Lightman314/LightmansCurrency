@@ -76,7 +76,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 				((Player)player).getInventory().add(giveStack);
 			}
 		}
-		
+		this.tryCopyVariant(level,pos,stack);
 	}
 	
 	@Nonnull

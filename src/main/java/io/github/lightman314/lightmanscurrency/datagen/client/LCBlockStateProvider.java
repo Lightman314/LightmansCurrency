@@ -424,66 +424,6 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Variant Wand
         this.registerHandheldItem(ModItems.VARIANT_WAND);
 
-        //Display Case Variants
-        for(Color color : Color.values())
-        {
-            ResourceLocation woolTexture = ColorHelper.GetWoolTextureOfColor(color);
-            String modelID = this.lazyColoredID("block/display_case/glassless/",color);
-            //Generate the models
-            this.models().getBuilder(modelID).parent(this.lazyBlockModel("display_case/glassless/base",true))
-                    .texture("wool",woolTexture);
-        }
-
-        //Vending Machine Variants
-        for(Color color : Color.values())
-        {
-            //Collect IDs and Textures
-            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/footless/", color, "_interior"));
-            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/vending_machine/footless/", color, "_exterior"));
-            String topID = this.lazyColoredID("block/vending_machine/footless/", color, "_top");
-            String bottomID = this.lazyColoredID("block/vending_machine/footless/", color, "_bottom");
-            String itemID = this.lazyColoredID("block/vending_machine/footless/", color, "_item");
-            //Generate the models
-            this.models().getBuilder(topID).parent(this.lazyBlockModel("vending_machine/footless/base_top", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(bottomID).parent(this.lazyBlockModel("vending_machine/footless/base_bottom", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(itemID).parent(this.lazyBlockModel("vending_machine/footless/base_item", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-        }
-
-        //Large Vending Machine Variants
-        for(Color color : Color.values())
-        {
-            //Collect IDs and Textures
-            ResourceLocation interiorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/footless/", color, "_interior"));
-            ResourceLocation exteriorTexture = VersionUtil.lcResource(this.lazyColoredID("block/large_vending_machine/footless/", color, "_exterior"));
-            String topLeftID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_top_left");
-            String topRightID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_top_right");
-            String bottomLeftID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_bottom_left");
-            String bottomRightID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_bottom_right");
-            String itemID = this.lazyColoredID("block/large_vending_machine/footless/", color, "_item");
-            //Generate the models
-            this.models().getBuilder(topLeftID).parent(this.lazyBlockModel("large_vending_machine/footless/base_top_left", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(topRightID).parent(this.lazyBlockModel("large_vending_machine/footless/base_top_right", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(bottomLeftID).parent(this.lazyBlockModel("large_vending_machine/footless/base_bottom_left", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(bottomRightID).parent(this.lazyBlockModel("large_vending_machine/footless/base_bottom_right", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-            this.models().getBuilder(itemID).parent(this.lazyBlockModel("large_vending_machine/footless/base_item", true))
-                    .texture("exterior", exteriorTexture)
-                    .texture("interior", interiorTexture);
-        }
-
     }
 
     //ITEM MODEL REGISTRATION

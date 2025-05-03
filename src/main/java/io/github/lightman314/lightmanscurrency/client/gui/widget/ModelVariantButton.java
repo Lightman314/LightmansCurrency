@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -27,12 +28,14 @@ import java.util.function.Supplier;
 public class ModelVariantButton extends EasyButton implements ITooltipWidget {
 
     private final IEasyScreen screen;
+    private final Supplier<IVariantBlock> targetSource;
     private final Supplier<Pair<ResourceLocation,ModelVariant>> variantSource;
     private final Supplier<ResourceLocation> selectedVariant;
     private final Supplier<ResourceLocation> viewingVariant;
     protected ModelVariantButton(Builder builder) {
         super(builder);
         this.screen = builder.screen;
+        this.targetSource = builder.target;
         this.variantSource = builder.source;
         this.selectedVariant = builder.selectedVariant;
         this.viewingVariant = builder.viewingVariant;
@@ -63,7 +66,7 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         if(entry.getSecond().getItemIcon() != null)
             gui.renderItem(entry.getSecond().getItemIcon(),1,1); //Render the actual item for the "default" model variant
         else
-            gui.renderItemModel(entry.getSecond().getItem(),1,1);
+            gui.renderItemModel(entry.getSecond().getItem(this.targetSource.get()),1,1);
         if(this.isMouseOver(gui.mousePos))
             gui.renderSlotHighlight(1,1);
     }
@@ -90,11 +93,13 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         protected Builder getSelf() { return this; }
 
         private IEasyScreen screen;
-        private Supplier<Pair<ResourceLocation,ModelVariant>> source = null;
-        private Supplier<ResourceLocation> selectedVariant = null;
-        private Supplier<ResourceLocation> viewingVariant = null;
+        private Supplier<Pair<ResourceLocation,ModelVariant>> source = () -> null;
+        private Supplier<IVariantBlock> target = () -> null;
+        private Supplier<ResourceLocation> selectedVariant = () -> null;
+        private Supplier<ResourceLocation> viewingVariant = () -> null;
 
         public Builder screen(IEasyScreen screen) { this.screen = screen; return this; }
+        public Builder target(Supplier<IVariantBlock> target) { this.target = target; return this; }
         public Builder source(Supplier<Pair<ResourceLocation,ModelVariant>> source) { this.source = source; return this; }
         public Builder selected(Supplier<ResourceLocation> selectedVariant) { this.selectedVariant = selectedVariant; return this; }
         public Builder viewing(Supplier<ResourceLocation> viewingVariant) { this.viewingVariant = viewingVariant; return this; }

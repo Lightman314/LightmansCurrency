@@ -69,6 +69,8 @@ public class MoneyBagItem extends BlockItem {
             LootTableEntry entry = stack.get(ModDataComponents.LOOT_TABLE_ENTRY);
             tooltip.add(LCText.TOOLTIP_CONTAINER_ITEM_LOOT_TABLE.get(entry.lootTable().location()).withStyle(ChatFormatting.DARK_GRAY));
         }
+
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 
     @Override

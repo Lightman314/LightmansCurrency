@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client;
 
-import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
@@ -89,21 +88,36 @@ public class ClientModEvents {
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
 		//Model Variant Models
-		boolean loadAll = LCConfig.CLIENT.variantBlockModels.get();
 		List<ResourceLocation> addedModels = new ArrayList<>();
-		ModelVariantDataManager.forEach(variant -> {
-			event.register(variant.getItem());
-			addedModels.add(variant.getItem().id());
-			if(!loadAll)
-				return;
-			ResourceLocation target = variant.getTargets().getFirst();
-			if(BuiltInRegistries.BLOCK.get(target) instanceof IVariantBlock block && block.requiredModels() > block.modelsRequiringRotation())
+		List<ModelResourceLocation> addedItemModels = new ArrayList<>();
+		ModelVariantDataManager.forEachWithID((id,variant) -> {
+			for(ResourceLocation target : variant.getTargets())
 			{
-				for(int i = block.requiredModels(); i < variant.getModels().size(); ++i)
+				Block b = BuiltInRegistries.BLOCK.get(target);
+				if(b instanceof IVariantBlock block)
 				{
-					ResourceLocation modelID = variant.getModels().get(i);
-					event.register(ModelResourceLocation.standalone(modelID));
-					addedModels.add(modelID);
+					ModelResourceLocation itemID = variant.getItem(block);
+					if(itemID != null && !addedItemModels.contains(itemID))
+					{
+						event.register(itemID);
+						addedModels.add(itemID.id());
+						addedItemModels.add(itemID);
+					}
+					else
+						LightmansCurrency.LogWarning("Variant " + id + " does not have an item model defined!");
+					if(block.requiredModels() > block.modelsRequiringRotation())
+					{
+						List<ResourceLocation> models = variant.getModels(block);
+						for(int i = block.requiredModels(); i < models.size(); ++i)
+						{
+							ResourceLocation modelID = models.get(i);
+							if(!addedModels.contains(modelID))
+							{
+								event.register(ModelResourceLocation.standalone(modelID));
+								addedModels.add(modelID);
+							}
+						}
+					}
 				}
 			}
 		});
@@ -115,6 +129,7 @@ public class ClientModEvents {
 	{
 		Map<ModelResourceLocation,BakedModel> modelRegistry = event.getModels();
 		List<ModelResourceLocation> wrappedModels = new ArrayList<>();
+		//Wrap each Variant Block item
 		for(Block b : BuiltInRegistries.BLOCK)
 		{
 			if(b instanceof IVariantBlock block)
@@ -125,24 +140,24 @@ public class ClientModEvents {
 					BakedModel existingModel = modelRegistry.get(modelID);
 					if(existingModel != null)
 					{
-						modelRegistry.put(modelID,new VariantBlockModel(block,existingModel,modelID));
+						modelRegistry.put(modelID,new VariantBlockModel(block,existingModel));
 						wrappedModels.add(modelID);
 					}
+					else
+						LightmansCurrency.LogDebug("Missing block model:  " + modelID);
 				}
+				//Also wrap the item model
+				ModelResourceLocation itemModel = ModelResourceLocation.inventory(BuiltInRegistries.ITEM.getKey(b.asItem()));
+				BakedModel existingModel = modelRegistry.get(itemModel);
+				if(existingModel != null)
+				{
+					modelRegistry.put(itemModel,new VariantItemModel(block,existingModel));
+					wrappedModels.add(itemModel);
+				}
+				else
+					LightmansCurrency.LogWarning("Missing item model: " + itemModel);
 			}
 		}
-		ModelVariantDataManager.forEachWithID((id,variant) -> {
-			ModelResourceLocation modelID = variant.getItem();
-			BakedModel existingModel = modelRegistry.get(modelID);
-			if(existingModel != null)
-			{
-				//Create custom model id for the variant item models
-				modelID = new ModelResourceLocation(modelID.id(),id.toString());
-				variant.overrideItemModel(modelID);
-				//Variant item models get a custom
-				modelRegistry.put(modelID,new VariantItemModel(existingModel,modelID,variant));
-			}
-		});
 		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel");
 	}
 

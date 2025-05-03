@@ -5,9 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -45,10 +43,6 @@ public class ModelVariantDataManager implements PreparableReloadListener {
 
     @Nullable
     public static ModelVariant getVariant(@Nullable ResourceLocation variant) {
-        //Don't allow normal variant access if variant render is disabled
-        //Do still allow `getPotentialVariants` and `forEach` access as we do still want it otherwise functional
-        if(!LCConfig.CLIENT.variantBlockModels.get())
-            return null;
         return variant == null ? null : INSTANCE.variants.get(variant);
     }
     @Nonnull

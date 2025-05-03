@@ -83,6 +83,7 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
                 int xPos = 7 + (18 * x);
                 final int i = relativeIndex++;
                 this.addChild(ModelVariantButton.builder()
+                        .target(this.menu::getVariantBlock)
                         .position(screenArea.pos.offset(xPos,yPos))
                         .selected(this::selectedVariant)
                         .viewing(this::viewingVariant)
@@ -147,7 +148,7 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
             if(variant.getItemIcon() != null)
                 gui.renderItem(variant.getItemIcon(),0,0);
             else
-                gui.renderItemModel(this.viewingVariant.getSecond().getItem(),0,0,ItemStack.EMPTY);
+                gui.renderItemModel(this.viewingVariant.getSecond().getItem(this.menu.getVariantBlock()),0,0,ItemStack.EMPTY);
 
             gui.popOffset().popPose();
         }

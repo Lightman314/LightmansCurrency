@@ -296,6 +296,8 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_MONEY_BAG = MultiLineTextEntry.tooltip(MODID,"money_bag");
     public static final TextEntry TOOLTIP_COLORED_ITEM = TextEntry.tooltip(MODID,"colored_item");
     public static final MultiLineTextEntry TOOLTIP_VARIANT_WAND = MultiLineTextEntry.tooltip(MODID,"variant_wand");
+    public static final TextEntry TOOLTIP_MODEL_VARIANT_NAME = TextEntry.tooltip(MODID,"model_variant.name");
+    public static final TextEntry TOOLTIP_MODEL_VARIANT_ID = TextEntry.tooltip(MODID,"model_variant.id");
 
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");

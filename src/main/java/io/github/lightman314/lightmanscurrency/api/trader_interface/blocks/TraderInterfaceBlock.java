@@ -66,7 +66,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{

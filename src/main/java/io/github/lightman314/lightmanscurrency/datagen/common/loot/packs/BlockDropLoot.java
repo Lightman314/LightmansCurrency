@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.loot.packs;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.loot.functions.ModelVariantLootFunction;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.SimpleSubProvider;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
@@ -60,14 +61,20 @@ public class BlockDropLoot extends SimpleSubProvider {
         return blockID.withPrefix("blocks/");
     }
 
-    protected void simpleBlock(@Nonnull Block block) { this.register(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }
     protected void simpleBlock(@Nonnull Supplier<? extends Block> block) { this.simpleBlock(block.get()); }
+    protected void simpleBlock(@Nonnull Block block) {
+        this.register(this.getBlockTable(block), LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .add(LootItem.lootTableItem(block)
+                                .apply(ModelVariantLootFunction.builder()))));
+    }
     protected void tallBlock(@Nonnull Supplier<? extends Block> block) { this.tallBlock(block.get()); }
     protected void tallBlock(@Nonnull Block block)
     {
         this.register(this.getBlockTable(block),LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(block)
+                                .apply(ModelVariantLootFunction.builder())
                                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(ITallBlock.ISBOTTOM,true))))
                         .when(ExplosionCondition.survivesExplosion())));
     }

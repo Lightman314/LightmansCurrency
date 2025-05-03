@@ -145,6 +145,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				LightmansCurrency.LogError("Trader Block returned block entity of type '" + (blockEntity == null ? "null" : blockEntity.getClass().getName()) + "' when placing the block.");
 			}
 		}
+		this.tryCopyVariant(level,pos,stack);
 	}
 	
 	@Nonnull

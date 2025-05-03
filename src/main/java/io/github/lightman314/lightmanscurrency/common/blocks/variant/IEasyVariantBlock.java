@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.variant;
 
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.ICapabilityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
@@ -17,7 +18,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * Utility interface that allows blocks without block entities to easily support variant rendering
  */
 @ParametersAreNonnullByDefault
-public interface IEasyVariantBlock extends EntityBlock, IVariantBlock {
+public interface IEasyVariantBlock extends EntityBlock, IVariantBlock, ICapabilityBlock {
 
     @Nullable
     @Override

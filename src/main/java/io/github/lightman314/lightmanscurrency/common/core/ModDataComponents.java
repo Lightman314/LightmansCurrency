@@ -43,6 +43,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<ItemStackData>> GACHA_ITEM;
     public static final Supplier<DataComponentType<MoneyBagData>> MONEY_BAG_CONTENTS;
     public static final Supplier<DataComponentType<LootTableEntry>> LOOT_TABLE_ENTRY;
+    public static final Supplier<DataComponentType<ResourceLocation>> MODEL_VARIANT;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -75,6 +76,7 @@ public class ModDataComponents {
         GACHA_ITEM = register("gacha_item", builder -> builder.persistent(ItemStackData.CODEC).networkSynchronized(ItemStackData.STREAM_CODEC));
         MONEY_BAG_CONTENTS = register("money_bag_data", builder -> builder.persistent(MoneyBagData.CODEC).networkSynchronized(MoneyBagData.STREAM_CODEC));
         LOOT_TABLE_ENTRY = register("loot_table", builder -> builder.persistent(LootTableEntry.CODEC).networkSynchronized(LootTableEntry.STREAM_CODEC));
+        MODEL_VARIANT = registerResource("model_variant");
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");

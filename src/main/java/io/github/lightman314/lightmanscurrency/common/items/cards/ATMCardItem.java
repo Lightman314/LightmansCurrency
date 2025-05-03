@@ -56,6 +56,8 @@ public class ATMCardItem extends Item {
         }
         if(data.locked())
             tooltip.add(LCText.TOOLTIP_ATM_CARD_ACCOUNT_LOCKED.getWithStyle(ChatFormatting.GRAY));
+
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 
     @Override

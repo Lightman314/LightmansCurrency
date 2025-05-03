@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault
@@ -69,6 +70,9 @@ public interface IVariantBlock {
             count *= 2;
         return count;
     }
+
+    @Nullable
+    default ResourceLocation getCustomDefaultModel(int index) { return null; }
 
     static boolean tryUseWand(Player player, BlockPos pos)
     {

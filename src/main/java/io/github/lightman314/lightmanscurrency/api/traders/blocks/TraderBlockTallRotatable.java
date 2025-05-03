@@ -90,9 +90,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 				InventoryUtil.safeGiveToPlayer(p.getInventory(),giveStack);
 			}
 		}
-		
-		this.setPlacedByBase(level, pos, state, player, stack);
-		
+		this.setPlacedByBase(level,pos,state,player,stack);
 	}
 
 	@Deprecated

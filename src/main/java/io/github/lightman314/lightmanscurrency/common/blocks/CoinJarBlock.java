@@ -62,7 +62,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinJarBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof CoinJarBlockEntity jar)

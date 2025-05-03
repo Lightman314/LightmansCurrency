@@ -46,6 +46,8 @@ public class CoinJarItem extends BlockItem {
 		if(InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
 			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.getWithStyle(ChatFormatting.GRAY));
 
+		super.appendHoverText(stack,level,tooltip,flag);
+
 	}
 
 	public boolean canDye(@Nonnull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE); }

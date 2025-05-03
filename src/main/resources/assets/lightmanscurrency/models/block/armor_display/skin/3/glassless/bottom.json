@@ -1,6 +1,0 @@
-{
-  "parent": "lightmanscurrency:block/armor_display/skin/base/glassless/bottom",
-  "textures": {
-	"1": "lightmanscurrency:block/armor_display/skin3"
-  }
-}

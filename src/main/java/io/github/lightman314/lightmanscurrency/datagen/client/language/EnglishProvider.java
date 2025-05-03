@@ -308,6 +308,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_MONEY_BAG,"Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
         this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
+        this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
+        this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");

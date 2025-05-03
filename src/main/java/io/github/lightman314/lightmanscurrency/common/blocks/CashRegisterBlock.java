@@ -31,7 +31,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IV
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CashRegisterBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -39,6 +39,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IV
 			if(blockEntity instanceof CashRegisterBlockEntity register)
                 register.loadDataFromItems(stack);
 		}
+		this.tryCopyVariant(level,pos,stack);
 	}
 
 	@Nonnull

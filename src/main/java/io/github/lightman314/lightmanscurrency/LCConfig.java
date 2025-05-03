@@ -48,7 +48,6 @@ public final class LCConfig {
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
         public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
-        public final BooleanOption variantBlockModels = BooleanOption.createTrue();
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
 
@@ -91,12 +90,6 @@ public final class LCConfig {
 
             builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
                     .add("itemScaleOverrides",this.itemScaleOverrides);
-
-            builder.comment("Whether custom Model Variants will be rendered in the world",
-                            "Does not prevent the harmless data from being loaded,",
-                            "nor does it prevent you from using the Variant Wand",
-                            "Requires a Resource Pack reload for changes to be applied!")
-                    .add("variantBlockModels", this.variantBlockModels);
 
             builder.pop();
 

@@ -45,6 +45,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock && entity instanceof Player player)
             taxBlock.initialize(player);
+        this.tryCopyVariant(level,pos,stack);
     }
 
     @Nonnull

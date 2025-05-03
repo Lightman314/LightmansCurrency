@@ -30,6 +30,7 @@ public class PrepaidCardItem extends Item {
         //Deletion Warning
         tooltip.add(LCText.TOOLTIP_PREPAID_CARD_DELETE_WARNING.getWithStyle(ChatFormatting.GRAY));
 
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 
     @Override

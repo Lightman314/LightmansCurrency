@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import io.github.lightman314.lightmanscurrency.client.model.util.VariantModelHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.mixinsupport.client.ModelManagerData;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -42,7 +44,10 @@ public abstract class ModelManagerMixin {
         return cf.thenApplyAsync(map -> {
             //Force the ModelVariantData to be loaded at the same time that the original
             ModelVariantDataManager.INSTANCE.reload(data.preparationBarrier(),data.resourceManager(),data.preparationsProfiler(),data.reloadProfiler(),data.backgroundExecutor(),data.gameExecutor());
-            return map;
+            //Store the map in an editable format locally so that it can be edited in the loadBlockStates data
+            Map<ResourceLocation,BlockModel> editableMap = new HashMap<>(map);
+            VariantModelHelper.setModelDataCache(editableMap);
+            return editableMap;
         });
     }
 

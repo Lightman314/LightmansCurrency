@@ -29,6 +29,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -92,6 +93,9 @@ public class ModRegistries {
 		LOOT_POOL_ENTRY_TYPES.register(bus);
 		ModLootPoolEntryTypes.init();
 
+		LOOT_ITEM_FUNCTION_TYPES.register(bus);
+		ModLootFunctionTypes.init();
+
 		//Attachment Types
 		ATTACHMENT_TYPES.register(bus);
 		ModAttachmentTypes.init();
@@ -141,6 +145,8 @@ public class ModRegistries {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(BuiltInRegistries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
+
+	public static final DeferredRegister<LootItemFunctionType<?>> LOOT_ITEM_FUNCTION_TYPES = DeferredRegister.create(BuiltInRegistries.LOOT_FUNCTION_TYPE, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, LightmansCurrency.MODID);
 

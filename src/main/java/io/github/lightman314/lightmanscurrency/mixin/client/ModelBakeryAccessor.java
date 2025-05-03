@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.mixin.client;
 
-import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;

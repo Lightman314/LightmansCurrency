@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ICapabilityBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.core.BlockPos;
@@ -62,5 +63,16 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 			if(be instanceof IVariantSupportingBlockEntity vsbe)
 				vsbe.setVariant(variant);
 		}
+	}
+
+	@Override
+	public void onLoad() {
+		if(this.getCurrentVariant() != null)
+		{
+			BlockState state = this.getBlockState();
+			if(state.getBlock() instanceof IVariantBlock vb && !state.getValue(IVariantBlock.VARIANT))
+				this.level.setBlockAndUpdate(this.worldPosition,state.setValue(IVariantBlock.VARIANT,true));
+		}
+		super.onLoad();
 	}
 }

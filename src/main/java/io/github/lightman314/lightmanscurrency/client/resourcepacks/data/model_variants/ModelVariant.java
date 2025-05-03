@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -37,7 +37,9 @@ public class ModelVariant {
     public boolean shouldRemove() { return this.completelyInvalid || (this.parentVariant != null && this.parentVariant.shouldRemove()); }
     private boolean invalid = false;
     public boolean isValid() { return !this.isInvalid(); }
-    public boolean isInvalid() { return this.shouldRemove() || this.invalid; }
+    public boolean isInvalid() { return this.shouldRemove() || this.invalid || this.dummy; }
+
+    private final boolean dummy;
 
     @Nullable
     private final ResourceLocation parent;
@@ -53,32 +55,52 @@ public class ModelVariant {
 
     @Nullable
     private final Component name;
-    public Component getName() { return this.name == null ? LCText.BLOCK_VARIANT_UNNAMED.get() : this.name; }
+    public Component getName() {
+        if(this.name == null && this.parentVariant != null)
+            return this.parentVariant.getName();
+        return this.name == null ? LCText.BLOCK_VARIANT_UNNAMED.get() : this.name;
+    }
 
     @Nullable
     private ModelResourceLocation item;
+    private Map<ResourceLocation,ModelResourceLocation> targetedItems = ImmutableMap.of();
+    @ApiStatus.Internal
     public ModelResourceLocation getItem() {
         if(this.item == null && this.parentVariant != null)
             return this.parentVariant.getItem();
         return this.item;
     }
-    public void overrideItemModel(ModelResourceLocation modelID)
-    {
-        this.item = modelID;
+    public ModelResourceLocation getItem(@Nullable IVariantBlock target) {
+        if(target == null)
+            return this.getItem();
+        ModelResourceLocation itemModel = this.targetedItems.get(target.getBlockID());
+        return itemModel == null ? this.getItem() : itemModel;
     }
-    
+    @ApiStatus.Internal
+    public void overrideItemModel(ModelResourceLocation modelID) { this.item = modelID; }
+    public void defineTargetBasedItemModel(Map<ResourceLocation,ModelResourceLocation> targetedItems) { this.targetedItems = ImmutableMap.copyOf(targetedItems); }
     @Nullable
     public ItemStack getItemIcon() { return null; }
 
-    private final List<ResourceLocation> models;
-    @Nullable
+    private List<ResourceLocation> models;
+    private Map<ResourceLocation,List<ResourceLocation>> targetedModels = ImmutableMap.of();
+    public boolean hasModels() { return !this.getModels().isEmpty(); }
     public List<ResourceLocation> getModels() {
         if(this.models.isEmpty() && this.parent != null)
             return parentVariant == null ? ImmutableList.of() : parentVariant.getModels();
         return this.models;
     }
+    public List<ResourceLocation> getModels(@Nullable IVariantBlock target)
+    {
+        if(target == null)
+            return this.getModels();
+        return Objects.requireNonNullElseGet(this.targetedModels.get(target.getBlockID()),this::getModels);
+    }
+    @ApiStatus.Internal
+    public void overrideModels(List<ResourceLocation> models) { this.models = ImmutableList.copyOf(models); }
+    public void defineTargetBasedModels(Map<ResourceLocation,List<ResourceLocation>> models) { this.targetedModels = ImmutableMap.copyOf(models); }
     @Nullable
-    public ResourceLocation getModel(int index)
+    private ResourceLocation getModel(int index)
     {
         List<ResourceLocation> models = this.getModels();
         if(index < 0 || index >= models.size())
@@ -86,13 +108,26 @@ public class ModelVariant {
         return models.get(index);
     }
     @Nullable
-    public ModelResourceLocation getStandaloneModel(int index)
+    public ResourceLocation getModel(@Nullable IVariantBlock target, int index)
     {
-        ResourceLocation model = this.getModel(index);
+        if(target == null)
+            return this.getModel(index);
+        List<ResourceLocation> models = this.targetedModels.get(target.getBlockID());
+        if(models == null)
+            models = this.getModels();
+        if(index < 0 || index >= models.size())
+            return null;
+        return models.get(index);
+    }
+    @Nullable
+    public ModelResourceLocation getStandaloneModel(@Nullable IVariantBlock target, int index)
+    {
+        ResourceLocation model = this.getModel(target,index);
         return model == null ? null : ModelResourceLocation.standalone(model);
     }
 
     private final Map<String,ResourceLocation> textureOverrides;
+    public boolean hasTextureOverrides() { return !this.getTextureOverrides().isEmpty(); }
     public Map<String, ResourceLocation> getTextureOverrides() {
         if(this.parentVariant != null)
         {
@@ -105,8 +140,8 @@ public class ModelVariant {
 
     private final Map<VariantProperty<?>,Object> properties;
 
-    protected ModelVariant() { this(null,new ArrayList<>(), null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>()); }
-    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ModelResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties)
+    protected ModelVariant() { this(null,new ArrayList<>(), null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>(),true); }
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ModelResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
     {
         this.parent = parent;
         this.targets = ImmutableList.copyOf(targets);
@@ -115,13 +150,7 @@ public class ModelVariant {
         this.models = ImmutableList.copyOf(models);
         this.textureOverrides = ImmutableMap.copyOf(textureOverrides);
         this.properties = ImmutableMap.copyOf(properties);
-    }
-
-    protected final ModelResourceLocation buildModel(@Nullable ResourceLocation model) { return ModelResourceLocation.standalone(Objects.requireNonNullElseGet(model, () -> VersionUtil.vanillaResource("null"))); }
-    protected final List<ModelResourceLocation> buildModels(List<ResourceLocation> models) {
-        ImmutableList.Builder<ModelResourceLocation> builder = ImmutableList.builderWithExpectedSize(models.size());
-        models.forEach(m -> builder.add(this.buildModel(m)));
-        return builder.build();
+        this.dummy = dummy;
     }
 
     public boolean has(VariantProperty<?> property) {
@@ -153,8 +182,8 @@ public class ModelVariant {
                 array.add(t.toString());
             json.add("target",array);
         }
-        //Name is never null
-        json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,this.name).getOrThrow());
+        if(this.name != null)
+            json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,this.name).getOrThrow());
         if(this.item != null)
             json.addProperty("item",this.item.id().toString());
         if(!this.models.isEmpty())
@@ -176,6 +205,8 @@ public class ModelVariant {
                 json.add(property.getID().toString(),element);
             }catch (Exception e) { LightmansCurrency.LogError("Error writing Variant Property",e); }
         });
+        if(this.dummy)
+            json.addProperty("dummy",true);
         return json;
     }
 
@@ -242,7 +273,8 @@ public class ModelVariant {
             else
                 throw new JsonSyntaxException("Model Variant must have something other than the parent defined!");
         }
-        return new ModelVariant(parent,targets,name,ModelResourceLocation.standalone(item),models,textureOverrides,properties);
+        boolean dummy = GsonHelper.getAsBoolean(json,"dummy",false);
+        return new ModelVariant(parent,targets,name,item == null ? null : ModelResourceLocation.standalone(item),models,textureOverrides,properties,dummy);
     }
 
     
@@ -257,11 +289,12 @@ public class ModelVariant {
                 this.parentVariant = otherVariants.get(this.parent);
                 if(this.parentVariant.checkForLoop(otherVariants,this.parent,loop))
                 {
+                    LightmansCurrency.LogWarning("Detected infinite loop in " + id);
                     this.completelyInvalid = true;
                     return;
                 }
                 //Check if valid when combined
-                this.invalid = invalidWhenCombined(loop);
+                this.invalid = invalidWhenCombined(loop,id);
             }
             else
             {
@@ -270,58 +303,98 @@ public class ModelVariant {
         }
         else if(otherVariants != null)
         {
-            this.invalid = invalidWhenCombined(new LoopData(id,this));
+            this.invalid = invalidWhenCombined(new LoopData(id,this),id);
         }
     }
 
-    private static boolean invalidWhenCombined(LoopData loop)
+    private static boolean invalidWhenCombined(LoopData loop) { return invalidWhenCombined(loop,null); }
+    private static boolean invalidWhenCombined(LoopData loop,@Nullable ResourceLocation id)
     {
-        boolean notFound = true;
+
         //Check if we have valid targets
+        boolean hasTarget = false;
         List<ResourceLocation> targets = new ArrayList<>();
         for(ModelVariant v : loop.variants)
         {
             if (!v.targets.isEmpty()) {
-                notFound = false;
+                hasTarget = true;
                 targets = v.targets;
                 break;
             }
         }
         //Missing targets
-        if(notFound)
+        if(!hasTarget)
+        {
+            if(id != null)
+                LightmansCurrency.LogDebug(id + " has no valid targets!");
             return true;
-        notFound = true;
-        //Check if the top-most variant has a valid name
-        if(loop.variants.getFirst().name == null)
-            return true;
-        //Check if we have a valid icon/item form
+        }
+
+        boolean hasTextures = false;
         for(ModelVariant v : loop.variants)
         {
-            if(v.item != null) {
-                notFound = false;
+            if(!v.textureOverrides.isEmpty())
+            {
+                hasTextures = true;
                 break;
             }
         }
-        if(notFound)
-            return true;
+
+        //Check if we have a valid item model
+        boolean hasItem = false;
+        for(ModelVariant v : loop.variants)
+        {
+            if(v.item != null) {
+                hasItem = true;
+                break;
+            }
+        }
+
         //Check for valid models
+        boolean hasModels = false;
         for(ModelVariant v : loop.variants)
         {
             if(!v.models.isEmpty()) {
+                hasModels = true;
                 for(ResourceLocation t : targets)
                 {
                     Block block = BuiltInRegistries.BLOCK.get(t);
-                    if(block == Blocks.AIR)
-                        return true;
                     if(block instanceof IVariantBlock vb)
                     {
                         if(vb.requiredModels() != v.models.size())
+                        {
+                            if(id != null)
+                                LightmansCurrency.LogDebug(id + " does not have the same model count as " + t);
                             return true;
+                        }
                     }
                     else
+                    {
+                        if(id != null)
+                            LightmansCurrency.LogDebug(id + " targets an invalid variant block (" + t + ")");
                         return true;
+                    }
                 }
             }
+        }
+        //If models are present, a custom item must also be present
+        //If no textures are present, a model/item must be present
+        if(hasModels != hasItem)
+        {
+            if(id != null)
+            {
+                if(hasModels)
+                    LightmansCurrency.LogDebug(id + " has custom block models defined, but no custom item model");
+                else
+                    LightmansCurrency.LogDebug(id + " has a custom item model defined, but no custom block models");
+            }
+            return true;
+        }
+        if(!hasTextures && !hasModels)
+        {
+            if(id != null)
+                LightmansCurrency.LogDebug(id + " does not have any custom models or custom textures defined");
+            return true;
         }
         return false;
     }
@@ -343,21 +416,24 @@ public class ModelVariant {
         return false;
     }
 
-    public static Builder builder() { return new Builder(null); }
-    public static Builder childBuilder(ResourceLocation parent) { return new Builder(parent); }
+    public static Builder builder() { return new Builder(); }
 
     public static class Builder
     {
         @Nullable
-        private final ResourceLocation parent;
+        private ResourceLocation parent;
         private final List<ResourceLocation> targets = new ArrayList<>();
+        @Nullable
         private Component name;
         private ModelResourceLocation item = null;
         private final List<ResourceLocation> models = new ArrayList<>();
         private final Map<String,ResourceLocation> textureOverrides = new HashMap<>();
         private final Map<VariantProperty<?>,Object> properties = new HashMap<>();
+        private boolean dummy = false;
 
-        private Builder(@Nullable ResourceLocation parent) { this.parent = parent; this.name = LCText.BLOCK_VARIANT_UNNAMED.get(); }
+        private Builder() {}
+
+        public Builder withParent(ResourceLocation parent) { this.parent = parent; return this; }
 
         public Builder withTarget(Supplier<? extends Block> block) { return this.withTarget(block.get()); }
         public Builder withTarget(Block block) { return this.withTarget(BuiltInRegistries.BLOCK.getKey(block)); }
@@ -373,7 +449,9 @@ public class ModelVariant {
 
         public <T> Builder withProperty(VariantProperty<T> property, T value) { this.properties.put(property,value); return this; }
 
-        public ModelVariant build() { return new ModelVariant(this.parent,this.targets,this.name,this.item,this.models,this.textureOverrides,this.properties); }
+        public Builder asDummy() { this.dummy = true; return this; }
+
+        public ModelVariant build() { return new ModelVariant(this.parent,this.targets,this.name,this.item,this.models,this.textureOverrides,this.properties,this.dummy); }
 
     }
 

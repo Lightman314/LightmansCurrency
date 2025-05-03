@@ -39,6 +39,10 @@ public class SlotMachineBlock extends TraderBlockTallRotatable implements IVaria
     @Override
     public int requiredModels() { return IVariantBlock.super.requiredModels() + 1; }
 
+    @Nullable
+    @Override
+    public ResourceLocation getCustomDefaultModel(int index) { return LIGHT_MODEL_LOCATION; }
+
     @Override
     protected boolean isBlockOpaque() { return false; }
 

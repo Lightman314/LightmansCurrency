@@ -112,6 +112,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -435,6 +436,13 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(this.traderBlock != null)
 			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
 		return LCText.GUI_TRADER_DEFAULT_NAME.get();
+	}
+	private ResourceLocation blockVariant;
+	@Nullable
+	public ResourceLocation getTraderBlockVariant() { return this.blockVariant; }
+	public void setTraderBlockVariant(@Nullable ResourceLocation blockVariant) {
+		this.blockVariant = blockVariant;
+		this.markDirty(this::saveTraderItem);
 	}
 
 	@Override
@@ -816,7 +824,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		compound.put("Location", this.worldPosition.save());
 	}
 
-	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", BuiltInRegistries.ITEM.getKey(this.traderBlock).toString()); }
+	private void saveTraderItem(CompoundTag compound) {
+		if(this.traderBlock != null)
+			compound.putString("TraderBlock", BuiltInRegistries.ITEM.getKey(this.traderBlock).toString());
+		if(this.blockVariant != null)
+			compound.putString("TraderVariant",this.blockVariant.toString());
+		else
+			compound.putBoolean("NoTraderVariant",true);
+	}
 	
 	protected final void saveOwner(CompoundTag compound,HolderLookup.Provider lookup) { compound.put("OwnerData", this.owner.save(lookup)); }
 	
@@ -927,6 +942,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				this.traderBlock = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("TraderBlock")));
 			}catch (Throwable ignored) {}
 		}
+
+		if(compound.contains("TraderVariant"))
+		{
+			try { this.blockVariant = VersionUtil.parseResource(compound.getString("TraderVariant"));
+			} catch (Throwable ignored) {}
+		}
+		else if(compound.contains("NoTraderVariant"))
+			this.blockVariant = null;
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
 			this.owner.load(compound.getCompound("OwnerData"),lookup);
@@ -1155,9 +1178,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	//Content drops
-	
 	public final List<ItemStack> getContents(Level level, BlockPos pos, @Nullable BlockState state, boolean dropBlock) {
-
 		ItemStack blockStack = ItemStack.EMPTY;
 		if(dropBlock)
 		{
@@ -1168,10 +1189,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				blockStack = b.getDropBlockItem(level, pos, state);
 			if(blockStack.isEmpty())
 				LightmansCurrency.LogWarning("Block drop for trader is empty!");
+			else if(this.blockVariant != null)
+				blockStack.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
 		}
-
 		return this.getContents(blockStack);
-
 	}
 
 	public final List<ItemStack> getContents(ItemStack item)
@@ -1214,7 +1235,11 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		else
 			item = new ItemStack(state.getBlock());
 		if(!item.isEmpty())
+		{
 			item.set(ModDataComponents.TRADER_ITEM_DATA,new TraderItemData(this.getID()));
+			if(this.blockVariant != null)
+				item.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
+		}
 		//Set State to Ejected
 		this.setState(TraderState.EJECTED);
 		return new TraderEjectionData(this.getID(),item);

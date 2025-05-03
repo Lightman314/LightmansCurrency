@@ -42,9 +42,9 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 			ModelResourceLocation lightModel = ModelResourceLocation.standalone(block.getLightModel());
 
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
-			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels().size() == block.requiredModels())
+			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels(block).size() == block.requiredModels())
 			{
-				ModelResourceLocation newModel = variant.getStandaloneModel(block.requiredModels() - 1);
+				ModelResourceLocation newModel = variant.getStandaloneModel(block,block.requiredModels() - 1);
 				if(newModel != null)
 					lightModel = newModel;
 			}

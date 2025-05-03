@@ -3,31 +3,27 @@ package io.github.lightman314.lightmanscurrency.client.model.util;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.properties.YRotationProperty;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.mixin.client.ModelBakeryAccessor;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.BlockModelShaper;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.MultiVariant;
-import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.resources.model.*;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
@@ -35,6 +31,9 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -52,104 +51,31 @@ public class VariantModelHelper {
 
     private static final ResourceLocation NULL_MODEL_ID = VersionUtil.vanillaResource("null");
 
-    private static final Map<ResourceLocation,TextureMap> textureData = new HashMap<>();
+    private static Map<ResourceLocation,BlockModel> modelDataCache = null;
+    public static void setModelDataCache(Map<ResourceLocation, BlockModel> map) { modelDataCache = map; }
+    public static Map<ResourceLocation,BlockModel> getModelDataCache() { return modelDataCache; }
 
-    public static TextureMap getTexturesFor(ResourceLocation model) { return textureData.getOrDefault(model,TextureMap.EMPTY); }
-
-    public static ModelResourceLocation getModelID(ModelVariant variant, IVariantBlock block, @Nullable BlockState state)
+    /**
+     * State should not be null. Only to be used for getting the block model for the given variant/state
+     */
+    @Nullable
+    public static ModelResourceLocation getModelID(ModelVariant variant, IVariantBlock block, BlockState state)
     {
         if(state == null)
-            return variant.getItem();
+            return null;
         int index = block.getModelIndex(state);
-        ResourceLocation model = variant.getModel(index);
+        ResourceLocation model = variant.getModel(block,index);
+        if(model == null)
+        {
+            LightmansCurrency.LogWarning("Missing targeted model for " + block.getBlockID() + " at index " + index);
+            return null;
+        }
         if(index >= block.modelsRequiringRotation())
             return ModelResourceLocation.standalone(model);
         Map<Property<?>,Comparable<?>> map = new HashMap<>();
         if(block instanceof IRotatableBlock rb)
             map.put(ROTATION_PROPERTY,rb.getRotationY(state));
         return new ModelResourceLocation(model,BlockModelShaper.statePropertiesToString(map));
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onModelsBaked(ModelEvent.BakingCompleted event)
-    {
-        textureData.clear();
-        //Abort if models are disabled in the config
-        if(!LCConfig.CLIENT.variantBlockModels.get())
-            return;
-        //variantModels.clear();
-        if(event.getModelBakery() instanceof ModelBakeryAccessor mba)
-        {
-            List<ResourceLocation> completedTargets = new ArrayList<>();
-            ModelVariantDataManager.forEachWithID((id,variant) -> {
-                if(!variant.getTextureOverrides().isEmpty())
-                {
-                    LightmansCurrency.LogDebug("Attempting to collect Texture Maps for " + id);
-                    if(variant.getModels().isEmpty())
-                    {
-                        for(ResourceLocation target : variant.getTargets())
-                        {
-                            if(completedTargets.contains(target))
-                                continue;
-                            completedTargets.add(target);
-                            Block b = BuiltInRegistries.BLOCK.get(target);
-                            for(BlockState state : b.getStateDefinition().getPossibleStates())
-                                getTextureMap(mba,BlockModelShaper.stateToModelLocation(state));
-                        }
-                    }
-                    else
-                    {
-                        for(ResourceLocation model : variant.getModels())
-                            getTextureMap(mba,model);
-                    }
-                }
-            });
-        }
-    }
-
-    private static void getTextureMap(ModelBakeryAccessor mba, ModelResourceLocation modelID)
-    {
-        if(textureData.containsKey(modelID.id()))
-            return;
-        UnbakedModel unbakedModel = mba.getTopLevelModels().get(modelID);
-        if(unbakedModel instanceof BlockModel blockModel)
-            getTextureMap(modelID.id(),blockModel);
-        else if(unbakedModel instanceof MultiVariant mv)
-        {
-            int success = 0;
-            for(Variant v : mv.getVariants())
-            {
-                UnbakedModel model2 = mba.getUnbakedCache().get(v.getModelLocation());
-                if(model2 instanceof BlockModel blockModel)
-                {
-                    getTextureMap(modelID.id(),blockModel);
-                    success++;
-                }
-            }
-            if(success == 0)
-                LightmansCurrency.LogWarning("Model " + modelID + " has no valid BlockModel variants!");
-        }
-        else
-            LightmansCurrency.LogWarning("Model " + modelID + " is not a valid BlockModel or MultiVariant so I cannot get it's texture data. Model is actually a " + unbakedModel.getClass().getName());
-    }
-    private static void getTextureMap(ModelBakeryAccessor mba, ResourceLocation modelID)
-    {
-        if(textureData.containsKey(modelID))
-            return;
-        UnbakedModel unbakedModel = mba.getUnbakedCache().get(modelID);
-        if(unbakedModel instanceof BlockModel blockModel)
-            getTextureMap(modelID,blockModel);
-        else
-            LightmansCurrency.LogWarning("Model " + modelID + " is not a valid BlockModel so I cannot get it's texture data. Model is actually a " + unbakedModel.getClass().getName());
-
-    }
-    private static void getTextureMap(ResourceLocation modelID, BlockModel blockModel)
-    {
-        Map<String,ResourceLocation> textureMap = new HashMap<>();
-        for(String key : blockModel.textureMap.keySet())
-            textureMap.put(key,blockModel.getMaterial(key).texture());
-        textureData.put(modelID,TextureMap.create(textureMap));
-        LightmansCurrency.LogDebug("Collected texture data from " + modelID + ": " + textureMap);
     }
 
     private static final List<Pair<ResourceLocation,Boolean>> generatedStates = new ArrayList<>();
@@ -177,6 +103,81 @@ public class VariantModelHelper {
         }
         json.add("variants",variants);
         return json;
+    }
+
+    @SubscribeEvent
+    public static void onModelsLoaded(ModelEvent.BakingCompleted event) { modelDataCache = null; }
+
+    public static List<ResourceLocation> createCustomBlockModel(List<ResourceLocation> originalModels, Map<ResourceLocation,BlockModel> modelData, Map<String,ResourceLocation> textureOverrides, Function<String,ResourceLocation> idGenerator)
+    {
+        List<ResourceLocation> newModels = new ArrayList<>();
+        for(int i = 0; i < originalModels.size(); ++i)
+        {
+            ResourceLocation model = originalModels.get(i);
+            ResourceLocation newModelID = idGenerator.apply(String.valueOf(i));
+            createCustomBlockModel(model,modelData,textureOverrides,newModelID);
+            newModels.add(newModelID);
+        }
+        return newModels;
+    }
+    public static void createCustomBlockModel(ResourceLocation model, Map<ResourceLocation,BlockModel> modelData, Map<String,ResourceLocation> textureOverrides, ResourceLocation newModelID)
+    {
+        Map<String, Either<Material,String>> textureMap = new HashMap<>();
+        textureOverrides.forEach((key,texture) ->
+                textureMap.put(key,Either.left(new Material(InventoryMenu.BLOCK_ATLAS,texture)))
+        );
+        BlockModel newModel = new BlockModel(model,new ArrayList<>(),textureMap,null,null, ItemTransforms.NO_TRANSFORMS,new ArrayList<>());
+        ResourceLocation fileID = ModelBakery.MODEL_LISTER.idToFile(newModelID);
+        modelData.put(fileID,newModel);
+    }
+
+    public static List<ResourceLocation> getDefaultModels(Block b, IVariantBlock block, Map<ResourceLocation,List<BlockStateModelLoader.LoadedJson>> blockStateData, BiFunction<StateDefinition<Block, BlockState>,String,Predicate<BlockState>> tester)
+    {
+        //Get LoadedJson list from the map
+        ResourceLocation fileID = BlockStateModelLoader.BLOCKSTATE_LISTER.idToFile(block.getBlockID());
+        List<BlockStateModelLoader.LoadedJson> blockStates = blockStateData.getOrDefault(fileID,new ArrayList<>());
+        //Intiailize list that should be built
+        List<ResourceLocation> models = NonNullList.withSize(block.modelsRequiringRotation(),VersionUtil.vanillaResource("null"));
+        List<Integer> completedIndexes = new ArrayList<>();
+        //Set up loading context
+        BlockModelDefinition.Context context = new BlockModelDefinition.Context();
+        context.setDefinition(b.getStateDefinition());
+        if(blockStates.isEmpty())
+            LightmansCurrency.LogWarning("No Block States json file found for " + block.getBlockID());
+        for(BlockStateModelLoader.LoadedJson json : blockStates)
+        {
+            try {
+                BlockModelDefinition definition = BlockModelDefinition.fromJsonElement(context,json.data());
+                List<BlockState> allStates = new ArrayList<>(b.getStateDefinition().getPossibleStates());
+                definition.getVariants().forEach((key,mv) -> {
+                    List<BlockState> applicableStates = allStates.stream().filter(tester.apply(context.getDefinition(),key)).toList();
+                    for(BlockState state : applicableStates)
+                    {
+                        int index = block.getModelIndex(state);
+                        if(completedIndexes.contains(index))
+                            continue;
+                        for(Variant v : mv.getVariants())
+                        {
+                            if(v.getModelLocation() != null)
+                            {
+                                models.set(index,v.getModelLocation());
+                                completedIndexes.add(index);
+                                break;
+                            }
+                        }
+                    }
+                });
+            }catch (Exception e) { LightmansCurrency.LogWarning("Error parsing Block Model Definition for " + block.getBlockID(),e); }
+        }
+        return models;
+    }
+
+    public static Function<String,ResourceLocation> createIDGenerator(ResourceLocation variantID, @Nullable ResourceLocation target)
+    {
+        if(target == null)
+            return s -> VersionUtil.modResource(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + s);
+        else
+            return s -> VersionUtil.modResource(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + target.getNamespace() + "/" + target.getPath() + "/" + s);
     }
 
 }

@@ -1082,6 +1082,8 @@
   "tooltip.lightmanscurrency.interface.trade": "Trade Select",
   "tooltip.lightmanscurrency.interface.trader": "Trader Select",
   "tooltip.lightmanscurrency.item.count": "Count: %1$s/%2$s",
+  "tooltip.lightmanscurrency.model_variant.id": "Variant ID: %s",
+  "tooltip.lightmanscurrency.model_variant.name": "Variant: %s",
   "tooltip.lightmanscurrency.money_bag.1": "Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin",
   "tooltip.lightmanscurrency.money_bag.2": "Interacting with the bag with an empty hand will extract a random coin from the bag",
   "tooltip.lightmanscurrency.money_bag.3": "When mined the bag will drop with the coins still inside",

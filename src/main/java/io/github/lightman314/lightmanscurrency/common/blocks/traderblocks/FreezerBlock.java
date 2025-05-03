@@ -24,6 +24,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
 	
@@ -44,6 +45,10 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	@Override
 	public int requiredModels() { return IVariantBlock.super.requiredModels() + 1; }
+
+	@Override
+	@Nullable
+	public ResourceLocation getCustomDefaultModel(int index) { return this.getDoorModel(); }
 
 	@OnlyIn(Dist.CLIENT)
 	@Nonnull
