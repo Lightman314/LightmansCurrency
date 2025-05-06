@@ -36,8 +36,8 @@ import java.util.*;
 @ParametersAreNonnullByDefault
 public class VariantBlockModel implements IDynamicBakedModel {
 
-    private static final ModelProperty<ResourceLocation> VARIANT = new ModelProperty<>();
-    private static final ModelProperty<BlockState> STATE = new ModelProperty<>();
+    public static final ModelProperty<ResourceLocation> VARIANT = new ModelProperty<>();
+    public static final ModelProperty<BlockState> STATE = new ModelProperty<>();
 
     //Data Cache so that complex calculations only need to be done once
     //No need to make this static as each model should only cover a singular block state

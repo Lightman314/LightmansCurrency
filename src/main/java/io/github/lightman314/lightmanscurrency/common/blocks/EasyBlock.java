@@ -86,7 +86,7 @@ public class EasyBlock extends Block {
             ResourceLocation variantID = stack.get(ModDataComponents.MODEL_VARIANT);
             ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
             if(variant != null)
-                tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName()).withStyle(ChatFormatting.YELLOW));
+                tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
             if(tooltipFlag.isAdvanced())
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
         }

@@ -280,6 +280,46 @@ public final class EasyGuiGraphics {
         this.gui.renderItemDecorations(this.font, item, this.offset.x + x, this.offset.y + y, countTextOverride);
     }
 
+    public void renderScaledItem(ItemStack item, ScreenPosition pos, float scale) { this.renderScaledItem(item,pos.x,pos.y,scale); }
+    public void renderScaledItem(ItemStack item, int x, int y, float scale) {
+        this.resetColor();
+        //Copied from GuiGraphics#renderItem
+        Minecraft minecraft = Minecraft.getInstance();
+        BakedModel bakedmodel = minecraft.getItemRenderer().getModel(item,null,null,0);
+        PoseStack pose = this.getPose();
+        pose.pushPose();
+        //Translate to the top-left corner without the additional offset to center the model
+        pose.translate((float)(this.offset.x + x), (float)(this.offset.y + y), 150f);
+        try {
+            //Apply custom scale
+            pose.scale(scale,scale,scale);
+            //Translate the additional 8 pixels to center the model after the custom scale has been applied
+            pose.translate(8,8,0);
+            //Then apply the vanilla item scaling
+            pose.scale(16.0F, -16.0F, 16.0F);
+
+            boolean flag = !bakedmodel.usesBlockLight();
+            if (flag) {
+                Lighting.setupForFlatItems();
+            }
+
+            minecraft.getItemRenderer()
+                    .render(new ItemStack(ModItems.COIN_COPPER.get()), ItemDisplayContext.GUI, false, pose, this.gui.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+            this.gui.flush();
+            if (flag) {
+                Lighting.setupFor3DItems();
+            }
+        } catch (Throwable throwable) {
+            CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering Item Model");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
+            crashreportcategory.setDetail("Item Type", () -> String.valueOf(item.getItem()));
+            crashreportcategory.setDetail("Item Components", () -> String.valueOf(item.getComponents()));
+            crashreportcategory.setDetail("Item Foil", () -> String.valueOf(item.hasFoil()));
+            throw new ReportedException(crashreport);
+        }
+        pose.popPose();
+    }
+
     public void renderItemModel(ModelResourceLocation model, int x, int y) { this.renderItemModel(model,x,y,new ItemStack(Items.BARRIER)); }
     public void renderItemModel(ModelResourceLocation model, int x, int y, ItemStack fallback) {
         this.resetColor();

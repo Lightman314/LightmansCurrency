@@ -30,28 +30,28 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock {
 
-	public static final IntegerProperty POWER_LEVEL = BlockStateProperties.LEVEL;
+	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
 	public PaygateBlock(Properties properties)
 	{
 		super(properties);
 		this.registerDefaultState(
 			this.defaultBlockState()
-				.setValue(POWER_LEVEL, 0)
+				.setValue(POWERED, false)
 		);
 	}
 
 	@Override
-	public int requiredModels() { return 2; }
+	public int modelsRequiringRotation() { return 2; }
 
 	@Override
 	public int getModelIndex(BlockState state) {
-		if(state.getValue(POWER_LEVEL) > 0)
+		if(state.getValue(POWERED))
 			return 1;
 		return 0;
 	}
@@ -79,7 +79,7 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
     protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        builder.add(POWER_LEVEL);
+        builder.add(POWERED);
     }
 	
 	@Override
@@ -87,12 +87,12 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 	
 	@Override
 	public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
-		if(level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
+		if(state.getValue(POWERED) && level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
 		{
 			//Use opposite side as the direction input is relative to the requestor
 			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir.getOpposite());
 			if(be.allowOutputSide(relativeSide))
-				return state.getValue(POWER_LEVEL);
+				return be.getPowerLevel();
 		}
 		return 0;
 	}

@@ -38,21 +38,23 @@ public class VariantSelectMenu extends LazyMessageMenu {
 
     private final BlockPos pos;
     private final Level level;
-    private final IVariantBlock block;
-    public IVariantBlock getVariantBlock() { return this.block; }
+    private final IVariantBlock variantBlock;
+    private final Block block;
+    public Block getBlock() { return this.block; }
+    public IVariantBlock getVariantBlock() { return this.variantBlock; }
     public VariantSelectMenu(int id, Inventory inventory, BlockPos pos) {
         super(ModMenus.VARIANT_SELECT.get(), id, inventory);
         this.pos = pos;
         this.level = inventory.player.level();
-        Block block = this.level.getBlockState(this.pos).getBlock();
-        if(block instanceof IVariantBlock b)
+        this.block = this.level.getBlockState(this.pos).getBlock();
+        if(this.block instanceof IVariantBlock b)
         {
-            this.block = b;
-            this.addValidator(BlockValidator.of(this.pos,block));
+            this.variantBlock = b;
+            this.addValidator(BlockValidator.of(this.pos,this.block));
         }
         else
         {
-            this.block = null;
+            this.variantBlock = null;
             this.addValidator(() -> false);
         }
         NeoForge.EVENT_BUS.register(this);

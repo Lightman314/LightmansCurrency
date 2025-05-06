@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -17,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.DefaultModelVariant;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.VariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
@@ -131,26 +131,21 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
         //Render viewed variant in the preview area
         if(this.viewingVariant != null) //Null check for safety
         {
-            //Render the Variants name
-            gui.drawString(this.viewingVariant.getSecond().getName(),8, 7,0x404040);
-
-            //Render the large variant preview
-            PoseStack pose = gui.getPose();
-            pose.pushPose();
-            gui.pushOffset(ScreenPosition.ZERO);
-
-            //Center at the top-left of the GUI
-            pose.translate(this.getGuiLeft() + 8,this.getGuiTop() + 18,0);
-            float scale = 70f/16f;
-            pose.scale(scale,scale,scale);
 
             ModelVariant variant = this.viewingVariant.getSecond();
-            if(variant.getItemIcon() != null)
-                gui.renderItem(variant.getItemIcon(),0,0);
-            else
-                gui.renderItemModel(this.viewingVariant.getSecond().getItem(this.menu.getVariantBlock()),0,0,ItemStack.EMPTY);
+            //Render the Variants name
+            gui.drawString(variant.getName(),8, 7,0x404040);
 
-            gui.popOffset().popPose();
+            //Render the large variant preview
+            ItemStack item = variant.getItemIcon();
+            if(item == null)
+            {
+                item = new ItemStack(this.menu.getBlock());
+                if(this.viewingVariant.getFirst() != null)
+                    item.set(ModDataComponents.MODEL_VARIANT,this.viewingVariant.getFirst());
+            }
+            gui.renderScaledItem(item, ScreenPosition.of(8,18), 70f/16f);
+
         }
 
     }

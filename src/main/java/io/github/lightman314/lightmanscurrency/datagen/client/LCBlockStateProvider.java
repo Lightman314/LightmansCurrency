@@ -505,8 +505,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
         ModelFile powered = this.lazyBlockModel(poweredModelID, true);
         ModelFile unpowered = this.lazyBlockModel(unpoweredModelID, true);
         this.buildState(block,state ->
-                ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWER_LEVEL) > 0 ? powered : unpowered).rotationY(this.getRotationY(state)).build());
-        this.registerBlockItemModel(block, powered);
+                ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWERED) ? powered : unpowered).rotationY(this.getRotationY(state)).build());
+        this.registerBlockItemModel(block, unpowered);
     }
     private void registerMoneyBag(Supplier<? extends Block> block, String folder)
     {

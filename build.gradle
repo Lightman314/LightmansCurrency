@@ -102,10 +102,10 @@ repositories {
         url = "https://modmaven.dev"
     }
     maven {
-        url "https://cursemaven.com"
+        url = "https://cursemaven.com"
     }
-    maven { url "https://maven.shedaniel.me/" }
-    maven { url "https://maven.architectury.dev/" }
+    maven { url = "https://maven.shedaniel.me/" }
+    maven { url = "https://maven.architectury.dev/" }
     maven {
         name = "Illusive Soulworks maven"
         url = "https://maven.theillusivec4.top/"
@@ -133,14 +133,14 @@ dependencies {
     //JEI
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    //localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     //REI
     compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rei_version"
     compileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-neoforge:$rei_version"
     api "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
     api "dev.architectury:architectury-neoforge:$architectury_version"
-    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
+    //runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
@@ -197,7 +197,7 @@ dependencies {
     compileOnly(fileTree("libs") { include "*.jar"})
 
     //Jade cause it's kinda nice to have during runtime
-    runtimeOnly "maven.modrinth:jade:15.10.0+neoforge"
+    implementation "maven.modrinth:jade:15.10.0+neoforge"
 
     //Distant Horizons compatibility testing
     //runtimeOnly "maven.modrinth:distanthorizons:2.3.2-b-1.21.1"

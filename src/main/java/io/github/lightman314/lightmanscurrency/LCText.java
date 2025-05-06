@@ -27,6 +27,8 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPr
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 
+import java.util.List;
+
 public class LCText {
 
     private static final String MODID = LightmansCurrency.MODID;
@@ -676,6 +678,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.give");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE = TextEntry.tooltip(MODID,"trader.paygate.active");
+    public static final TextEntry TOOLTIP_TRADER_PAYGATE_TIME_REMAINING = TextEntry.tooltip(MODID,"trader.paygate.time_remaining");
 
     //Auction House Specific
     public static final TextEntry GUI_TRADER_AUCTION_HOUSE = TextEntry.gui(MODID,"trader.auction_house");
@@ -988,16 +991,9 @@ public class LCText {
     public static final TextEntry BLOCK_VARIANT_DEFAULT = TextEntry.blockVariant("default");
     public static final TextEntry BLOCK_VARIANT_UNNAMED = TextEntry.blockVariant("unnamed");
     public static final TextEntry BLOCK_VARIANT_GLASSLESS = TextEntry.blockVariant("glassless");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_1 = TextEntry.blockVariant("armor_display.skin.1");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_1_GLASSLESS = TextEntry.blockVariant("armor_display.skin.1.glassless");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_2 = TextEntry.blockVariant("armor_display.skin.2");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_2_GLASSLESS = TextEntry.blockVariant("armor_display.skin.2.glassless");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_3 = TextEntry.blockVariant("armor_display.skin.3");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_3_GLASSLESS = TextEntry.blockVariant("armor_display.skin.3.glassless");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_4 = TextEntry.blockVariant("armor_display.skin.4");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_4_GLASSLESS = TextEntry.blockVariant("armor_display.skin.4.glassless");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_5 = TextEntry.blockVariant("armor_display.skin.5");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_5_GLASSLESS = TextEntry.blockVariant("armor_display.skin.5.glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN = TextEntry.blockVariant("armor_display.skin");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN = TextEntry.blockVariant("armor_display.glassless_skin");
+    public static final List<TextEntry> BLOCK_VARIANT_ARMOR_SKINS = TextEntry.blockVariantList("armor_display.skin",5);
     public static final TextEntry BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS = TextEntry.blockVariant("vending_machine.footless");
 
     //Easy Data Names/Keys

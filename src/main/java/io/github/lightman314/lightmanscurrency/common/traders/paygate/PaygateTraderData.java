@@ -170,9 +170,9 @@ public class PaygateTraderData extends TraderData {
 		this.trades = PaygateTradeData.listOfSize(tradeCount);
 		//Write the old trade data into the array
 		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); ++i)
-		{
 			this.trades.set(i, oldTrades.get(i));
-		}
+
+		PaygateTradeData.setupParents(this.trades,this);
 		
 		//Mark trades dirty
 		this.markTradesDirty();
@@ -355,7 +355,11 @@ public class PaygateTraderData extends TraderData {
 	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		//Load Trades
 		if(compound.contains(PaygateTradeData.DEFAULT_KEY))
+		{
 			this.trades = PaygateTradeData.loadAllData(compound,lookup);
+			PaygateTradeData.setupParents(this.trades,this);
+		}
+
 		//Load Ticket Stubs
 		if(compound.contains("TicketStubs"))
 		{

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -29,7 +29,7 @@ public class DefaultModelVariant extends ModelVariant {
     public List<ResourceLocation> getTargets() { return List.of(this.block.getBlockID()); }
 
     @Override
-    public Component getName() { return LCText.BLOCK_VARIANT_DEFAULT.get(); }
+    public MutableComponent getName() { return LCText.BLOCK_VARIANT_DEFAULT.get(); }
 
     @Override
     public ModelResourceLocation getItem() { return ModelResourceLocation.inventory(this.block.getItemID()); }

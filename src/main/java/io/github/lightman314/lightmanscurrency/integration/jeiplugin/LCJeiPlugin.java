@@ -7,11 +7,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScr
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.JEIScreenArea;
@@ -20,19 +22,21 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.IRecipeTransferRegistration;
+import mezz.jei.api.registration.*;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @JeiPlugin
 public class LCJeiPlugin implements IModPlugin{
 
@@ -41,7 +45,6 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final RecipeType<TicketStationRecipe> TICKET_TYPE = RecipeType.create(LightmansCurrency.MODID, "ticket_station", TicketStationRecipe.class);
 
 	@Override
-	@Nonnull
 	public ResourceLocation getPluginUid() { return VersionUtil.lcResource(LightmansCurrency.MODID); }
 
 	@Override
@@ -65,9 +68,14 @@ public class LCJeiPlugin implements IModPlugin{
 		registration.addIngredientInfo(new ItemStack(ModItems.GOLDEN_TICKET_STUB.get()), VanillaTypes.ITEM_STACK, LCText.JEI_INFO_TICKET_STUB.get());
 
 	}
-	
+
 	@Override
-	public void registerGuiHandlers(@Nonnull IGuiHandlerRegistration zones)
+	public void registerItemSubtypes(ISubtypeRegistration registration) {
+		registration.registerSubtypeInterpreter(ModItems.COIN_ANCIENT.get(),new AncientCoinSubtype());
+	}
+
+	@Override
+	public void registerGuiHandlers(IGuiHandlerRegistration zones)
 	{
 		this.registerExclusionZones(zones,TraderScreen.class);
 		this.registerExclusionZones(zones,SlotMachineScreen.class);
@@ -99,9 +107,18 @@ public class LCJeiPlugin implements IModPlugin{
 		registration.addRecipeTransferHandler(TicketStationMenu.class, ModMenus.TICKET_MACHINE.get(), TICKET_TYPE, 0, 2, 3, 36);
 	}
 
-	private <T extends EasyMenuScreen<?>> void registerExclusionZones(@Nonnull IGuiHandlerRegistration registration, @Nonnull Class<T> clazz)
+	private <T extends EasyMenuScreen<?>> void registerExclusionZones(IGuiHandlerRegistration registration, Class<T> clazz)
 	{
 		registration.addGuiContainerHandler(clazz,JEIScreenArea.create(clazz,registration.getJeiHelpers().getIngredientManager()));
+	}
+
+	private static class AncientCoinSubtype implements ISubtypeInterpreter<ItemStack>
+	{
+		@Override
+		@Nullable
+		public Object getSubtypeData(ItemStack ingredient, UidContext context) { return ingredient.getOrDefault(ModDataComponents.ANCIENT_COIN_TYPE,AncientCoinType.COPPER); }
+		@Override
+		public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) { return String.valueOf(this.getSubtypeData(ingredient,context)); }
 	}
 	
 }

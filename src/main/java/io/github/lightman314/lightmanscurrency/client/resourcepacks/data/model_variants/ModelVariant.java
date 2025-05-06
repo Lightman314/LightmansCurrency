@@ -18,6 +18,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
@@ -55,10 +56,10 @@ public class ModelVariant {
 
     @Nullable
     private final Component name;
-    public Component getName() {
+    public MutableComponent getName() {
         if(this.name == null && this.parentVariant != null)
             return this.parentVariant.getName();
-        return this.name == null ? LCText.BLOCK_VARIANT_UNNAMED.get() : this.name;
+        return this.name == null ? LCText.BLOCK_VARIANT_UNNAMED.get() : this.name.copy();
     }
 
     @Nullable

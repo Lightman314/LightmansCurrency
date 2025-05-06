@@ -1,14 +1,17 @@
 package io.github.lightman314.lightmanscurrency.datagen.client;
 
+import com.google.errorprone.annotations.Var;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVariantProvider;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class LCModelVariantProvider extends ModelVariantProvider {
@@ -71,17 +74,18 @@ public class LCModelVariantProvider extends ModelVariantProvider {
 
         for(int i = 1; i <= 5; ++i)
         {
+            Component name = LCText.BLOCK_VARIANT_ARMOR_SKINS.get(i - 1).get();
             this.add("armor_display/skin/" + i + "/default",
                     ModelVariant.builder()
                             .withParent(SKIN_DEFAULT)
-                            .withName(EasyText.translatable("lightmanscurrency.block_variant.armor_display.skin." + i))
+                            .withName(LCText.BLOCK_VARIANT_ARMOR_SKIN.get(name))
                             .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin" + i))
                             .build()
             );
             this.add("armor_display/skin/" + i + "/glassless",
                     ModelVariant.builder()
                             .withParent(SKIN_GLASSLESS)
-                            .withName(EasyText.translatable("lightmanscurrency.block_variant.armor_display.skin." + i + ".glassless"))
+                            .withName(LCText.BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN.get(name))
                             .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin" + i))
                             .build()
             );
