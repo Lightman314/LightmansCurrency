@@ -6,6 +6,7 @@
   "plugin": "io.github.lightman314.lightmanscurrency.mixin.LCMixinPlugin",
   "mixins": [
     "AbstractContainerMenuAccessor",
+    "EntityMixin",
     "InventoryMenuMixin",
     "MerchantMenuMixin",
     "ShapedAndShapelessRecipeMixin",
@@ -19,6 +20,9 @@
   ],
   "client": [
     "client.CommandSuggestionsAccessor",
+    "client.ModelBakeryMixin",
+    "client.ModelManagerMixin",
+    "client.RenderStateShardAccessor",
     "client.SlotWrapperMixin",
     "client.SuggestionsListAccessor"
   ],

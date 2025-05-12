@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBl
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -33,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock {
+public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IVariantBlock {
 
     public AuctionStandBlock(Properties properties) { super(properties); }
 

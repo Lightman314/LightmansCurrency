@@ -27,6 +27,8 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPr
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 
+import java.util.List;
+
 public class LCText {
 
     private static final String MODID = LightmansCurrency.MODID;
@@ -132,8 +134,9 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_BANK = TextEntry.item(ModItems.COIN_CHEST_BANK_UPGRADE);
     public static final TextEntry ITEM_UPGRADE_SECURITY = TextEntry.item(ModItems.COIN_CHEST_SECURITY_UPGRADE);
 
-    //1.20 exclusive
     public static final TextEntry ITEM_UPGRADE_TEMPLATE = TextEntry.item(ModItems.UPGRADE_SMITHING_TEMPLATE);
+
+    public static final TextEntry ITEM_VARIANT_WAND = TextEntry.item(ModItems.VARIANT_WAND);
 
     //Blocks
     public static final TextEntry BLOCK_COINPILE_COPPER = TextEntry.block(ModBlocks.COINPILE_COPPER);
@@ -294,6 +297,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_COIN_JAR_COLORED = TextEntry.tooltip(MODID,"coin_jar.colored");
     public static final MultiLineTextEntry TOOLTIP_MONEY_BAG = MultiLineTextEntry.tooltip(MODID,"money_bag");
     public static final TextEntry TOOLTIP_COLORED_ITEM = TextEntry.tooltip(MODID,"colored_item");
+    public static final MultiLineTextEntry TOOLTIP_VARIANT_WAND = MultiLineTextEntry.tooltip(MODID,"variant_wand");
+    public static final TextEntry TOOLTIP_MODEL_VARIANT_NAME = TextEntry.tooltip(MODID,"model_variant.name");
+    public static final TextEntry TOOLTIP_MODEL_VARIANT_ID = TextEntry.tooltip(MODID,"model_variant.id");
 
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
@@ -672,6 +678,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.give");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE = TextEntry.tooltip(MODID,"trader.paygate.active");
+    public static final TextEntry TOOLTIP_TRADER_PAYGATE_TIME_REMAINING = TextEntry.tooltip(MODID,"trader.paygate.time_remaining");
 
     //Auction House Specific
     public static final TextEntry GUI_TRADER_AUCTION_HOUSE = TextEntry.gui(MODID,"trader.auction_house");
@@ -977,6 +984,17 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+
+    //Variants
+    public static final TextEntry GUI_VARIANT_MENU = TextEntry.gui(MODID,"block_variants.title");
+    public static final TextEntry BUTTON_VARIANT_SELECT = TextEntry.button(MODID,"block_variants.select");
+    public static final TextEntry BLOCK_VARIANT_DEFAULT = TextEntry.blockVariant("default");
+    public static final TextEntry BLOCK_VARIANT_UNNAMED = TextEntry.blockVariant("unnamed");
+    public static final TextEntry BLOCK_VARIANT_GLASSLESS = TextEntry.blockVariant("glassless");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN = TextEntry.blockVariant("armor_display.skin");
+    public static final TextEntry BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN = TextEntry.blockVariant("armor_display.glassless_skin");
+    public static final List<TextEntry> BLOCK_VARIANT_ARMOR_SKINS = TextEntry.blockVariantList("armor_display.skin",5);
+    public static final TextEntry BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS = TextEntry.blockVariant("vending_machine.footless");
 
     //Easy Data Names/Keys
     public static final TextEntry DATA_ENTRY_CREATIVE = TextEntry.dataName(MODID,"creative");

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
@@ -20,7 +21,7 @@ public class RegistryObjectBundle<T,L> {
 	public RegistryObjectBundle(@Nonnull Comparator<L> sorter) { this.sorter = sorter; }
 
 	private final Map<L,RegistryObject<T>> values = new HashMap<>();
-	
+
 	public void put(L key, RegistryObject<T> value) {
 		if(this.locked)
 		{
@@ -34,25 +35,25 @@ public class RegistryObjectBundle<T,L> {
 		}
 		this.values.put(key,value);
 	}
-	
-	
-	public RegistryObject<T> getRegistryObject(L key) {
+
+
+	public Supplier<T> getRegistryObject(L key) {
 		if(this.values.containsKey(key))
 			return this.values.get(key);
 		return null;
 	}
-	
+
 	public T get(L key) {
-		RegistryObject<T> obj = this.getRegistryObject(key);
+		Supplier<T> obj = this.getRegistryObject(key);
 		if(obj != null)
 			return obj.get();
 		return null;
 	}
-	
-	public Collection<RegistryObject<T>> getAllRegistryObjects() { return this.values.values(); }
+
+	public Collection<Supplier<T>> getAllRegistryObjects() { return Lists.newArrayList(this.values.values()); }
 	public List<T> getAll() {
 		List<T> values = new ArrayList<>();
-		for(RegistryObject<T> value : this.getAllRegistryObjects())
+		for(Supplier<T> value : this.getAllRegistryObjects())
 			values.add(value.get());
 		return values;
 	}

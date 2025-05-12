@@ -33,10 +33,10 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class LCCurrencyAdvancements implements ForgeAdvancementProvider.AdvancementGenerator {
     @Override
@@ -169,17 +169,17 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
                 ,"currency/events/valentines");
     }
 
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull String translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull DualTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, false); }
 
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull String translation){ return ezDisplay(icon, translation, FrameType.TASK, true, true, false); }
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull DualTextEntry translation){ return ezDisplay(icon, translation, FrameType.TASK, true, true, false); }
 
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean hidden){ return ezDisplay(icon, translation, FrameType.TASK, true, true, hidden); }
 
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
-    private static DisplayInfo ezDisplay(@Nonnull RegistryObject<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
+    private static DisplayInfo ezDisplay(@Nonnull Supplier<? extends ItemLike> icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(icon.get(),translation,frame,toast,chat,hidden); }
 
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull String translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(new ItemStack(icon),translation,frame,toast,chat,hidden); }
     private static DisplayInfo ezDisplay(@Nonnull ItemLike icon, @Nonnull DualTextEntry translation, @Nonnull FrameType frame, boolean toast, boolean chat, boolean hidden){ return ezDisplay(new ItemStack(icon),translation,frame,toast,chat,hidden); }
@@ -205,7 +205,7 @@ public class LCCurrencyAdvancements implements ForgeAdvancementProvider.Advancem
         return InventoryChangeTrigger.TriggerInstance.hasItems(builder.build());
     }
 
-    private static AbstractCriterionTriggerInstance ezVillagerTrigger(@Nonnull RegistryObject<VillagerProfession> profession) { return ezVillagerTrigger(profession.get()); }
+    private static AbstractCriterionTriggerInstance ezVillagerTrigger(@Nonnull Supplier<VillagerProfession> profession) { return ezVillagerTrigger(profession.get()); }
     private static AbstractCriterionTriggerInstance ezVillagerTrigger(@Nonnull VillagerProfession profession) {
         EntityPredicate.Builder builder = EntityPredicate.Builder.entity();
         CompoundTag requiredTag = new CompoundTag();

@@ -18,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
@@ -34,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -109,15 +112,17 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.NOTIFICATIONS.get(), NotificationScreen::new);
 
 		MenuScreens.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
+
+		MenuScreens.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
-    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.SLOT_MACHINE_TRADER.get(), SlotMachineBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::create);
+    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::create);
+		BlockEntityRenderers.register(ModBlockEntities.SLOT_MACHINE_TRADER.get(), SlotMachineBlockEntityRenderer::create);
+		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::create);
+		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::create);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.GACHA_MACHINE.get(), GachaMachineBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.GACHA_MACHINE.get(), GachaMachineBlockEntityRenderer::create);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
@@ -140,6 +145,9 @@ public class ClientProxy extends CommonProxy{
 				});
 		ItemProperties.register(ModBlocks.MONEY_BAG.get().asItem(), MoneyBagItem.PROPERTY,
 				(stack,level,player,seed) -> (float)MoneyBagItem.getSize(stack));
+
+		//Register Variant Properties
+		VariantProperty.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
 
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.loot.packs;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.loot.functions.ModelVariantLootFunction;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LootTableProviderTemplate;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -23,9 +24,9 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class BlockDropLoot extends LootTableProviderTemplate {
 
@@ -63,19 +64,25 @@ public class BlockDropLoot extends LootTableProviderTemplate {
         return blockID.withPrefix("blocks/");
     }
 
-    protected void simpleBlock(@Nonnull Block block) { this.define(this.getBlockTable(block), LootTable.lootTable().withPool(LootPool.lootPool().add(LootItem.lootTableItem(block)))); }
-    protected void simpleBlock(@Nonnull RegistryObject<? extends Block> block) { this.simpleBlock(block.get()); }
-    protected void tallBlock(@Nonnull RegistryObject<? extends Block> block) { this.tallBlock(block.get()); }
+    protected void simpleBlock(@Nonnull Supplier<? extends Block> block) { this.simpleBlock(block.get()); }
+    protected void simpleBlock(@Nonnull Block block) {
+        this.define(this.getBlockTable(block), LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .add(LootItem.lootTableItem(block)
+                                .apply(ModelVariantLootFunction.builder()))));
+    }
+    protected void tallBlock(@Nonnull Supplier<? extends Block> block) { this.tallBlock(block.get()); }
     protected void tallBlock(@Nonnull Block block)
     {
         this.define(this.getBlockTable(block),LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(block)
+                                .apply(ModelVariantLootFunction.builder())
                                 .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(ITallBlock.ISBOTTOM,true))))
                         .when(ExplosionCondition.survivesExplosion())));
     }
 
-    protected void coinPilesAndBlocks(@Nonnull RegistryObject<? extends ItemLike> coin, @Nonnull RegistryObject<? extends Block> pile, @Nonnull RegistryObject<? extends Block> block) { this.coinPilesAndBlocks(coin.get().asItem(), pile.get(), block.get());}
+    protected void coinPilesAndBlocks(@Nonnull Supplier<? extends ItemLike> coin, @Nonnull Supplier<? extends Block> pile, @Nonnull Supplier<? extends Block> block) { this.coinPilesAndBlocks(coin.get().asItem(), pile.get(), block.get());}
     protected void coinPilesAndBlocks(@Nonnull Item coin, @Nonnull Block pile, @Nonnull Block block)
     {
         //Coin Pile loot table

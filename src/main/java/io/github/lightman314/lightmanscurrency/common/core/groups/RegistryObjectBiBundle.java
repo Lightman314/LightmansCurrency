@@ -54,21 +54,21 @@ public class RegistryObjectBiBundle<T,L,M> {
         return null;
     }
 
-    public Collection<RegistryObject<T>> getAllRegistryObjects() {
-        List<RegistryObject<T>> result = new ArrayList<>();
+    public Collection<Supplier<T>> getAllRegistryObjects() {
+        List<Supplier<T>> result = new ArrayList<>();
         this.values.values().forEach(childMap -> result.addAll(childMap.values()));
         return result;
     }
 
-    public Collection<RegistryObject<T>> getAllRegistryObjects(@Nonnull L section) {
-        List<RegistryObject<T>> result = new ArrayList<>();
+    public Collection<Supplier<T>> getAllRegistryObjects(@Nonnull L section) {
+        List<Supplier<T>> result = new ArrayList<>();
         this.values.getOrDefault(section,new HashMap<>()).forEach((m,v) -> result.add(v));
         return result;
     }
 
     public List<T> getAll() {
         List<T> values = new ArrayList<>();
-        for(RegistryObject<T> value : this.getAllRegistryObjects())
+        for(Supplier<T> value : this.getAllRegistryObjects())
             values.add(value.get());
         return values;
     }
@@ -76,7 +76,7 @@ public class RegistryObjectBiBundle<T,L,M> {
     public List<T> getAll(@Nonnull L section)
     {
         List<T> values = new ArrayList<>();
-        for(RegistryObject<T> value : this.getAllRegistryObjects(section))
+        for(Supplier<T> value : this.getAllRegistryObjects(section))
             values.add(value.get());
         return values;
     }

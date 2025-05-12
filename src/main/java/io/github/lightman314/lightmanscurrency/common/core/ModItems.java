@@ -15,9 +15,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class ModItems {
 	
@@ -152,91 +152,96 @@ public class ModItems {
 		ATM_CARD = ModRegistries.ITEMS.register("atm_card", () -> new ATMCardItem(new Item.Properties().stacksTo(1)));
 		PREPAID_CARD = ModRegistries.ITEMS.register("prepaid_card", () -> new PrepaidCardItem(new Item.Properties().stacksTo(1)));
 
+		//Variant Wand
+		VARIANT_WAND = ModRegistries.ITEMS.register("variant_wand",() -> new Item(new Item.Properties().stacksTo(1)));
+
 	}
 	
 	//Hold the items for public access
-	public static final RegistryObject<Item> COIN_COPPER;
-	public static final RegistryObject<Item> COIN_IRON;
-	public static final RegistryObject<Item> COIN_GOLD;
-	public static final RegistryObject<Item> COIN_EMERALD;
-	public static final RegistryObject<Item> COIN_DIAMOND;
-	public static final RegistryObject<Item> COIN_NETHERITE;
+	public static final Supplier<Item> COIN_COPPER;
+	public static final Supplier<Item> COIN_IRON;
+	public static final Supplier<Item> COIN_GOLD;
+	public static final Supplier<Item> COIN_EMERALD;
+	public static final Supplier<Item> COIN_DIAMOND;
+	public static final Supplier<Item> COIN_NETHERITE;
 
-	public static final RegistryObject<Item> COIN_CHOCOLATE_COPPER;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_IRON;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_GOLD;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_EMERALD;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_DIAMOND;
-	public static final RegistryObject<Item> COIN_CHOCOLATE_NETHERITE;
+	public static final Supplier<Item> COIN_CHOCOLATE_COPPER;
+	public static final Supplier<Item> COIN_CHOCOLATE_IRON;
+	public static final Supplier<Item> COIN_CHOCOLATE_GOLD;
+	public static final Supplier<Item> COIN_CHOCOLATE_EMERALD;
+	public static final Supplier<Item> COIN_CHOCOLATE_DIAMOND;
+	public static final Supplier<Item> COIN_CHOCOLATE_NETHERITE;
 
-	public static final RegistryObject<Item> COIN_ANCIENT;
+	public static final Supplier<Item> COIN_ANCIENT;
 
-	public static final RegistryObject<Item> GACHA_BALL;
-	public static final RegistryObject<Item> TRADING_CORE;
+	public static final Supplier<Item> GACHA_BALL;
+	public static final Supplier<Item> TRADING_CORE;
 
-	public static final RegistryObject<Item> TICKET;
-	public static final RegistryObject<Item> TICKET_PASS;
-	public static final RegistryObject<Item> TICKET_MASTER;
-	public static final RegistryObject<Item> TICKET_STUB;
+	public static final Supplier<Item> TICKET;
+	public static final Supplier<Item> TICKET_PASS;
+	public static final Supplier<Item> TICKET_MASTER;
+	public static final Supplier<Item> TICKET_STUB;
 
-	public static final RegistryObject<Item> GOLDEN_TICKET;
-	public static final RegistryObject<Item> GOLDEN_TICKET_PASS;
-	public static final RegistryObject<Item> GOLDEN_TICKET_MASTER;
-	public static final RegistryObject<Item> GOLDEN_TICKET_STUB;
+	public static final Supplier<Item> GOLDEN_TICKET;
+	public static final Supplier<Item> GOLDEN_TICKET_PASS;
+	public static final Supplier<Item> GOLDEN_TICKET_MASTER;
+	public static final Supplier<Item> GOLDEN_TICKET_STUB;
 	
-	public static final RegistryObject<WalletItem> WALLET_LEATHER;
-	public static final RegistryObject<WalletItem> WALLET_COPPER;
-	public static final RegistryObject<WalletItem> WALLET_IRON;
-	public static final RegistryObject<WalletItem> WALLET_GOLD;
-	public static final RegistryObject<WalletItem> WALLET_EMERALD;
-	public static final RegistryObject<WalletItem> WALLET_DIAMOND;
-	public static final RegistryObject<WalletItem> WALLET_NETHERITE;
-	public static final RegistryObject<WalletItem> WALLET_NETHER_STAR;
-	public static final RegistryObject<WalletItem> WALLET_ENDER_DRAGON;
+	public static final Supplier<WalletItem> WALLET_LEATHER;
+	public static final Supplier<WalletItem> WALLET_COPPER;
+	public static final Supplier<WalletItem> WALLET_IRON;
+	public static final Supplier<WalletItem> WALLET_GOLD;
+	public static final Supplier<WalletItem> WALLET_EMERALD;
+	public static final Supplier<WalletItem> WALLET_DIAMOND;
+	public static final Supplier<WalletItem> WALLET_NETHERITE;
+	public static final Supplier<WalletItem> WALLET_NETHER_STAR;
+	public static final Supplier<WalletItem> WALLET_ENDER_DRAGON;
 
-	public static final RegistryObject<Item> PORTABLE_TERMINAL;
-	public static final RegistryObject<Item> PORTABLE_GEM_TERMINAL;
-	public static final RegistryObject<Item> PORTABLE_ATM;
+	public static final Supplier<Item> PORTABLE_TERMINAL;
+	public static final Supplier<Item> PORTABLE_GEM_TERMINAL;
+	public static final Supplier<Item> PORTABLE_ATM;
 	
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_1;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_2;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_3;
-	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_4;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_1;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_2;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_3;
+	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_4;
 
-	public static final RegistryObject<Item> SPEED_UPGRADE_1;
-	public static final RegistryObject<Item> SPEED_UPGRADE_2;
-	public static final RegistryObject<Item> SPEED_UPGRADE_3;
-	public static final RegistryObject<Item> SPEED_UPGRADE_4;
-	public static final RegistryObject<Item> SPEED_UPGRADE_5;
+	public static final Supplier<Item> SPEED_UPGRADE_1;
+	public static final Supplier<Item> SPEED_UPGRADE_2;
+	public static final Supplier<Item> SPEED_UPGRADE_3;
+	public static final Supplier<Item> SPEED_UPGRADE_4;
+	public static final Supplier<Item> SPEED_UPGRADE_5;
 
-	public static final RegistryObject<Item> OFFER_UPGRADE_1;
-	public static final RegistryObject<Item> OFFER_UPGRADE_2;
-	public static final RegistryObject<Item> OFFER_UPGRADE_3;
-	public static final RegistryObject<Item> OFFER_UPGRADE_4;
-	public static final RegistryObject<Item> OFFER_UPGRADE_5;
-	public static final RegistryObject<Item> OFFER_UPGRADE_6;
+	public static final Supplier<Item> OFFER_UPGRADE_1;
+	public static final Supplier<Item> OFFER_UPGRADE_2;
+	public static final Supplier<Item> OFFER_UPGRADE_3;
+	public static final Supplier<Item> OFFER_UPGRADE_4;
+	public static final Supplier<Item> OFFER_UPGRADE_5;
+	public static final Supplier<Item> OFFER_UPGRADE_6;
 	
-	public static final RegistryObject<Item> NETWORK_UPGRADE;
+	public static final Supplier<Item> NETWORK_UPGRADE;
 
-	public static final RegistryObject<Item> VOID_UPGRADE;
+	public static final Supplier<Item> VOID_UPGRADE;
 
-	public static final RegistryObject<Item> HOPPER_UPGRADE;
+	public static final Supplier<Item> HOPPER_UPGRADE;
 
-	public static final RegistryObject<Item> INTERACTION_UPGRADE_1;
-	public static final RegistryObject<Item> INTERACTION_UPGRADE_2;
-	public static final RegistryObject<Item> INTERACTION_UPGRADE_3;
+	public static final Supplier<Item> INTERACTION_UPGRADE_1;
+	public static final Supplier<Item> INTERACTION_UPGRADE_2;
+	public static final Supplier<Item> INTERACTION_UPGRADE_3;
 
-	public static final RegistryObject<Item> COIN_CHEST_EXCHANGE_UPGRADE;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_1;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_2;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_3;
-	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_4;
-	public static final RegistryObject<Item> COIN_CHEST_BANK_UPGRADE;
-	public static final RegistryObject<Item> COIN_CHEST_SECURITY_UPGRADE;
+	public static final Supplier<Item> COIN_CHEST_EXCHANGE_UPGRADE;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_1;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_2;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_3;
+	public static final Supplier<Item> COIN_CHEST_MAGNET_UPGRADE_4;
+	public static final Supplier<Item> COIN_CHEST_BANK_UPGRADE;
+	public static final Supplier<Item> COIN_CHEST_SECURITY_UPGRADE;
 
-	public static final RegistryObject<Item> UPGRADE_SMITHING_TEMPLATE;
+	public static final Supplier<Item> UPGRADE_SMITHING_TEMPLATE;
 
-	public static final RegistryObject<Item> ATM_CARD;
-	public static final RegistryObject<Item> PREPAID_CARD;
+	public static final Supplier<Item> ATM_CARD;
+	public static final Supplier<Item> PREPAID_CARD;
+
+	public static final Supplier<Item> VARIANT_WAND;
 
 }

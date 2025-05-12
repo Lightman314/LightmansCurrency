@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -73,6 +74,9 @@ public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEas
     @Override
     @SuppressWarnings("deprecation")
     public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
+
+    @Override
+    public int getRotationY(Direction facing) { return this.getRotationYInv(facing); }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

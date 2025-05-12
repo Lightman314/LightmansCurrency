@@ -17,7 +17,10 @@ import javax.annotation.Nullable;
 public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 
 	@Nullable
-	BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos);
+	default BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)
+	{
+		return level.getBlockEntity(this.getCapabilityBlockPos(state,level,pos));
+	}
 	
 	default boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state)
 	{

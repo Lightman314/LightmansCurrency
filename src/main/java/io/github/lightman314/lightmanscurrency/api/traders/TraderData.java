@@ -44,6 +44,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
@@ -109,6 +110,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -227,6 +229,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					//Give the item this traders ID for future loading
 					CompoundTag itemTag = result.getOrCreateTag();
 					itemTag.putLong("StoredTrader",this.id);
+					//Add the model variant to the item
+					if(this.blockVariant != null)
+						IVariantBlock.setItemVariant(result,this.blockVariant);
 					//Give the item to the player
 					ItemHandlerHelper.giveItemToPlayer(player,result);
 				}
@@ -402,13 +407,18 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			.category(DataCategories.Traders.DISPLAY)
 			.build();
 
+
+	/**
+	 * Method used to get the new {@link #customIcon} {@link IconData} when an item is used on the icon portion of the Display Settings tab<br>
+	 * For safety, you should override {@link #getIconForItem(ItemStack,IconData)} so that unexpected issues don't appear if I change how the data is saved, etc.
+	 */
+	public IconData getIconForItem(ItemStack stack) { return this.getIconForItem(stack,this.customIcon.get()); }
 	/**
 	 * Can be overridden by child traders to make special icons from certain items<br>
 	 * (i.e. an icon that renders lava if the item stack is a lava bucket, etc.)<br><br>
 	 * By default, returns a simple item icon for the given item
 	 */
-	
-	public IconData getIconForItem(ItemStack stack) { return IconData.of(stack.copyWithCount(1)); }
+	protected IconData getIconForItem(ItemStack stack, IconData original) { return IconData.of(stack.copyWithCount(1)); }
 
 	private Item traderBlock;
 	@Nullable
@@ -417,6 +427,15 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(this.traderBlock != null)
 			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
 		return LCText.GUI_TRADER_DEFAULT_NAME.get();
+	}
+
+	private ResourceLocation blockVariant;
+	@Nullable
+	public ResourceLocation getTraderBlockVariant() { return this.blockVariant; }
+	public void setTraderBlockVariant(@Nullable ResourceLocation blockVariant)
+	{
+		this.blockVariant = blockVariant;
+		this.markDirty(this::saveTraderItem);
 	}
 
 	@Override
@@ -780,7 +799,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		compound.put("Location", this.worldPosition.save());
 	}
 
-	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
+	private void saveTraderItem(CompoundTag compound) {
+		if(this.traderBlock != null)
+			compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString());
+		if(this.blockVariant != null)
+			compound.putString("TraderVariant",this.blockVariant.toString());
+		else
+			compound.putBoolean("NoTraderVariant",true);
+	}
 
 	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
 
@@ -891,6 +917,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				this.traderBlock = ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(compound.getString("TraderBlock")));
 			}catch (Throwable ignored) {}
 		}
+
+		if(compound.contains("TraderVariant"))
+		{
+			try { this.blockVariant = VersionUtil.parseResource(compound.getString("TraderVariant"));
+			} catch (Throwable ignored) {}
+		}
+		else if(compound.contains("NoTraderVariant"))
+			this.blockVariant = null;
 
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
 			this.owner.load(compound.getCompound("OwnerData"));
@@ -1134,6 +1168,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				blockStack = b.getDropBlockItem(level, pos, state);
 			if(blockStack.isEmpty())
 				LightmansCurrency.LogWarning("Block drop for trader is empty!");
+			else if(this.blockVariant != null)
+				IVariantBlock.setItemVariant(blockStack,this.blockVariant);
 		}
 
 		return this.getContents(blockStack);
@@ -1184,6 +1220,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			//Give the item this traders ID for future loading
 			CompoundTag itemTag = item.getOrCreateTag();
 			itemTag.putLong("StoredTrader",this.id);
+			if(this.blockVariant != null)
+				IVariantBlock.setItemVariant(item,this.blockVariant);
 		}
 		//Set State to Ejected
 		this.setState(TraderState.EJECTED);

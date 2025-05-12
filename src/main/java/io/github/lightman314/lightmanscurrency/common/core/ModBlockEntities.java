@@ -2,9 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.*;
+import io.github.lightman314.lightmanscurrency.common.blockentity.variant.GenericVariantBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModBlockEntities {
 	
@@ -55,55 +60,63 @@ public class ModBlockEntities {
 
 		MONEY_BAG = ModRegistries.BLOCK_ENTITIES.register("money_bag", () -> BlockEntityType.Builder.of(MoneyBagBlockEntity::new,ModBlocks.MONEY_BAG.get()).build(null));
 
+		GENERIC_VARIANT = register("generic_variant", GenericVariantBlockEntity::new,BlockEntityBlockHelper::getVariantBlocks);
+
+	}
+
+	private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> builder, ResourceLocation blockHelperID) { return register(id,builder,() -> BlockEntityBlockHelper.getBlocksForBlockEntity(blockHelperID)); }
+	private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> builder, Supplier<Block[]> blocks)
+	{
+		return ModRegistries.BLOCK_ENTITIES.register(id,() -> BlockEntityType.Builder.of(builder,blocks.get()).build(null));
 	}
 
 	//Item Trader
-	public static final RegistryObject<BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER;
+	public static final Supplier<BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER;
 	//Armor variant of the trader
-	public static final RegistryObject<BlockEntityType<ArmorDisplayTraderBlockEntity>> ARMOR_TRADER;
+	public static final Supplier<BlockEntityType<ArmorDisplayTraderBlockEntity>> ARMOR_TRADER;
 	//Freezer variant of the trader
-	public static final RegistryObject<BlockEntityType<FreezerTraderBlockEntity>> FREEZER_TRADER;
+	public static final Supplier<BlockEntityType<FreezerTraderBlockEntity>> FREEZER_TRADER;
 	//Ticket variant of the trader
-	public static final RegistryObject<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
+	public static final Supplier<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
 	//Book variant of the trader
-	public static final RegistryObject<BlockEntityType<BookTraderBlockEntity>> BOOK_TRADER;
+	public static final Supplier<BlockEntityType<BookTraderBlockEntity>> BOOK_TRADER;
 	//Slot Machine variant of the trader
-	public static final RegistryObject<BlockEntityType<SlotMachineTraderBlockEntity>> SLOT_MACHINE_TRADER;
-	public static final RegistryObject<BlockEntityType<GachaMachineBlockEntity>> GACHA_MACHINE;
+	public static final Supplier<BlockEntityType<SlotMachineTraderBlockEntity>> SLOT_MACHINE_TRADER;
+	public static final Supplier<BlockEntityType<GachaMachineBlockEntity>> GACHA_MACHINE;
 
 	//Item Interface for multi-block traders
-	public static final RegistryObject<BlockEntityType<CapabilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
+	public static final Supplier<BlockEntityType<CapabilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
 	
 	//Trader Interface Terminal
-	public static final RegistryObject<BlockEntityType<ItemTraderInterfaceBlockEntity>> TRADER_INTERFACE_ITEM;
+	public static final Supplier<BlockEntityType<ItemTraderInterfaceBlockEntity>> TRADER_INTERFACE_ITEM;
 	
 	//Cash Register
-	public static final RegistryObject<BlockEntityType<CashRegisterBlockEntity>> CASH_REGISTER;
+	public static final Supplier<BlockEntityType<CashRegisterBlockEntity>> CASH_REGISTER;
 	
 	//Coin Mint
-	public static final RegistryObject<BlockEntityType<CoinMintBlockEntity>> COIN_MINT;
+	public static final Supplier<BlockEntityType<CoinMintBlockEntity>> COIN_MINT;
 	//Ticket Machine
-	public static final RegistryObject<BlockEntityType<TicketStationBlockEntity>> TICKET_MACHINE;
+	public static final Supplier<BlockEntityType<TicketStationBlockEntity>> TICKET_MACHINE;
 	
 	//Paygate
-	public static final RegistryObject<BlockEntityType<PaygateBlockEntity>> PAYGATE;
+	public static final Supplier<BlockEntityType<PaygateBlockEntity>> PAYGATE;
 
 	//Command Trader
-	public static final RegistryObject<BlockEntityType<CommandTraderBlockEntity>> COMMAND_TRADER;
+	public static final Supplier<BlockEntityType<CommandTraderBlockEntity>> COMMAND_TRADER;
 
 	//Tax Block
-	public static final RegistryObject<BlockEntityType<TaxBlockEntity>> TAX_BLOCK;
+	public static final Supplier<BlockEntityType<TaxBlockEntity>> TAX_BLOCK;
 	
 	//Coin Jars
-	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
-	public static final RegistryObject<BlockEntityType<MoneyBagBlockEntity>> MONEY_BAG;
+	public static final Supplier<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
+	public static final Supplier<BlockEntityType<MoneyBagBlockEntity>> MONEY_BAG;
 
 	//Auction Stand
-	public static final RegistryObject<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
+	public static final Supplier<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
 
-	public static final RegistryObject<BlockEntityType<CoinChestBlockEntity>> COIN_CHEST;
+	public static final Supplier<BlockEntityType<CoinChestBlockEntity>> COIN_CHEST;
 
-
+	public static final Supplier<BlockEntityType<GenericVariantBlockEntity>> GENERIC_VARIANT;
 	
 	
 }

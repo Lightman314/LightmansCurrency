@@ -58,6 +58,9 @@ public class LCDataEventListener {
         generator.addProvider(event.includeClient(), new LCItemPositionProvider(output));
         generator.addProvider(event.includeClient(), new LCCloserItemPositionProvider(output));
 
+        //Model Variants
+        generator.addProvider(event.includeClient(), new LCModelVariantProvider(output));
+
         //Language
         generator.addProvider(event.includeClient(), new EnglishProvider(output));
 

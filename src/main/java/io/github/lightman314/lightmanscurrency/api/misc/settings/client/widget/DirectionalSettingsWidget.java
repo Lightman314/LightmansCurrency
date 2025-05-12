@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -372,14 +373,23 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
                     pose.pushPose();
 
                     //Translate to position
-                    pose.translate(position.x,position.y,150);
+                    pose.translate(position.x,position.y,32);
                     pose.translate(stateToDraw.getFirst().x,stateToDraw.getFirst().y,0);
                     //Rotate
                     pose.mulPose(rotation);
                     pose.scale(16,-16,16);
 
+                    ModelData modelData = ModelData.EMPTY;
+                    if(attributes.variant != null)
+                    {
+                        modelData = ModelData.builder()
+                                .with(VariantBlockModel.VARIANT,attributes.variant)
+                                .with(VariantBlockModel.STATE,stateToDraw.getSecond())
+                                .build();
+                    }
+
                     //Render
-                    blockRenderer.renderSingleBlock(stateToDraw.getSecond(),pose,gui.getGui().bufferSource(), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, RenderType.cutout());
+                    blockRenderer.renderSingleBlock(stateToDraw.getSecond(),pose,gui.getGui().bufferSource(), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, modelData, RenderType.cutout());
 
                     pose.popPose();
                 }
@@ -473,7 +483,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     private static class DisplayBlockAttributes
     {
 
-        public static final DisplayBlockAttributes NULL = new DisplayBlockAttributes(null);
+        public static final DisplayBlockAttributes NULL = new DisplayBlockAttributes(null,null);
 
         final boolean tall;
         final int blockHeight;
@@ -482,10 +492,12 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
         final boolean deep;
         final int blockDepth;
         final Block displayBlock;
+        final ResourceLocation variant;
         public final boolean isNull() { return this.displayBlock == null; }
-        private DisplayBlockAttributes(@Nullable Block displayBlock)
+        private DisplayBlockAttributes(@Nullable Block displayBlock,@Nullable ResourceLocation variant)
         {
             this.displayBlock = displayBlock;
+            this.variant = variant;
             this.tall = this.displayBlock instanceof ITallBlock;
             this.blockHeight = this.tall ? 2 : 1;
             this.wide = this.displayBlock instanceof IWideBlock;
@@ -498,7 +510,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
             IDirectionalSettingsObject parent = objectSource.get();
             Block displayBlock = parent == null ? null : parent.getDisplayBlock();
             if(displayBlock != null)
-                return new DisplayBlockAttributes(displayBlock);
+                return new DisplayBlockAttributes(displayBlock,parent.getVariant());
             return NULL;
         }
 

@@ -1,0 +1,138 @@
+{
+	"credit": "Made with Blockbench",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": { "particle": "#exterior" },
+	"elements": [
+		{
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 4, 4, 8], "texture": "#exterior"},
+				"east": {"uv": [8, 12, 12, 16], "texture": "#exterior"},
+				"south": {"uv": [4, 12, 8, 16], "texture": "#exterior"},
+				"down": {"uv": [12, 4, 16, 8], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Base-Inside",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [12, 6, 1],
+			"to": [0, 16, 16],
+			"faces": {
+				"north": {"uv": [3.75, 3.5, 6.75, 6], "texture": "#interior"},
+				"west": {"uv": [6.75, 3.5, 10.5, 6], "texture": "#interior"},
+				"down": {"uv": [0, 9.75, 3, 13.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Glass-Depth",
+			"forge_data": {"block_light": 5},
+			"from": [0, 6.99, 16],
+			"to": [11.01, 16, 15],
+			"faces": {
+				"east": {"uv": [6.75, 12, 7, 14.25], "texture": "#exterior"},
+				"down": {"uv": [4, 14.25, 6.75, 14.5], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Output",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [8.01, 2.99, 12.99],
+			"to": [0, 6, 16],
+			"faces": {
+				"north": {"uv": [9.5, 11.25, 11.5, 12], "texture": "#interior"},
+				"west": {"uv": [11.5, 12, 12.25, 12.75], "texture": "#interior"},
+				"up": {"uv": [11.5, 13.5, 9.5, 12.75], "texture": "#interior"},
+				"down": {"uv": [11.5, 12, 9.5, 12.75], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf-1",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [0, 10, 1],
+			"to": [12, 11, 11],
+			"faces": {
+				"south": {"uv": [10.5, 11, 13.5, 11.25], "texture": "#interior"},
+				"up": {"uv": [10.5, 8.5, 13.5, 11], "texture": "#interior"},
+				"down": {"uv": [10.5, 6, 13.5, 8.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-3",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [2, 15, 1],
+			"to": [3, 16, 11],
+			"faces": {
+				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
+				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},
+				"west": {"uv": [0.5, 13.75, 3, 14], "texture": "#interior"},
+				"up": {"uv": [0, 13.5, 0.25, 16], "texture": "#interior"},
+				"down": {"uv": [0.25, 13.5, 0.5, 16], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-4",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [9, 15, 1],
+			"to": [10, 16, 11],
+			"faces": {
+				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
+				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},
+				"west": {"uv": [0.5, 13.75, 3, 14], "texture": "#interior"},
+				"up": {"uv": [0, 13.5, 0.25, 16], "texture": "#interior"},
+				"down": {"uv": [0.25, 13.5, 0.5, 16], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Slot-Left",
+			"from": [12, 12, 16],
+			"to": [13, 14, 17],
+			"faces": {
+				"east": {"uv": [7, 12.5, 7.25, 13], "texture": "#exterior"},
+				"south": {"uv": [7, 12.5, 7.25, 13], "texture": "#exterior"},
+				"west": {"uv": [7, 12.5, 7.25, 13], "texture": "#exterior"},
+				"up": {"uv": [7, 12.5, 7.25, 12.75], "texture": "#exterior"},
+				"down": {"uv": [7, 12.75, 7.25, 13], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Right",
+			"from": [14, 12, 16],
+			"to": [15, 14, 17],
+			"faces": {
+				"east": {"uv": [7.5, 12.5, 7.75, 13], "texture": "#exterior"},
+				"south": {"uv": [7.5, 12.5, 7.75, 13], "texture": "#exterior"},
+				"west": {"uv": [7.5, 12.5, 7.75, 13], "texture": "#exterior"},
+				"up": {"uv": [7.5, 12.5, 7.75, 12.75], "texture": "#exterior"},
+				"down": {"uv": [7.5, 12.75, 7.75, 13], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Down",
+			"from": [13, 12, 16],
+			"to": [14, 13, 17],
+			"faces": {
+				"south": {"uv": [7.25, 12.75, 7.5, 13], "texture": "#exterior"},
+				"up": {"uv": [7.25, 12.75, 7.5, 13], "texture": "#exterior"},
+				"down": {"uv": [7.25, 12.75, 7.5, 13], "texture": "#exterior"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		{
+			"name": "Slot",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [7, 8, 9]
+		}
+	]
+}

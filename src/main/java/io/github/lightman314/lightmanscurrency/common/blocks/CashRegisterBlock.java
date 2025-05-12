@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -18,12 +19,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
-public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
+public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IVariantBlock {
 
-	public CashRegisterBlock(Properties properties)
-	{
-		super(properties);
-	}
+	public CashRegisterBlock(Properties properties) { super(properties); }
 	
 	public CashRegisterBlock(Properties properties, VoxelShape shape)
 	{
@@ -34,7 +32,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CashRegisterBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -42,6 +40,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 			if(blockEntity instanceof CashRegisterBlockEntity register)
                 register.loadDataFromItems(stack);
 		}
+		this.tryCopyVariant(level,pos,stack);
 	}
 	
 	@Nonnull

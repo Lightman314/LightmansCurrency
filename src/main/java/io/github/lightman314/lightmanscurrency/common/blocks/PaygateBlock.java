@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -29,25 +30,35 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
 
-public class PaygateBlock extends TraderBlockRotatable {
+public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock {
 	
-	public static final IntegerProperty POWER_LEVEL = BlockStateProperties.LEVEL;
+	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
 	public PaygateBlock(Properties properties)
 	{
 		super(properties);
 		this.registerDefaultState(
 			this.defaultBlockState()
-				.setValue(POWER_LEVEL, 0)
+				.setValue(POWERED, false)
 		);
 	}
-	
+
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public int modelsRequiringRotation() { return 2; }
+
+	@Override
+	public int getModelIndex(BlockState state) {
+		if(state.getValue(POWERED))
+			return 1;
+		return 0;
+	}
+	
+	@Nonnull
+	@Override
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -71,10 +82,10 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
-        builder.add(POWER_LEVEL);
+        builder.add(POWERED);
     }
 	
 	@Override
@@ -84,18 +95,18 @@ public class PaygateBlock extends TraderBlockRotatable {
 	@Override
 	@SuppressWarnings("deprecation")
 	public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
-		if(level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
+		if(state.getValue(POWERED) && level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
 		{
 			//Use opposite side as the direction input is relative to the requestor
 			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir.getOpposite());
 			if(be.allowOutputSide(relativeSide))
-				return state.getValue(POWER_LEVEL);
+				return be.getPowerLevel();
 		}
 		return 0;
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_PAYGATE.asTooltip());
 		super.appendHoverText(stack, level, tooltip, flagIn);

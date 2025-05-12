@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
-public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
+public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public static final int TRADECOUNT = 6;
 	public static final ResourceLocation TYPE = VersionUtil.lcResource("vending_machine");

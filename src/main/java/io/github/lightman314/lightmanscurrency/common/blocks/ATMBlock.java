@@ -2,19 +2,21 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IEasyVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,20 +32,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
-public class ATMBlock extends TallRotatableBlock{
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class ATMBlock extends TallRotatableBlock implements IEasyVariantBlock {
 	
-	public ATMBlock(Properties properties)
-	{
-		super(properties);
-	}
+	public ATMBlock(Properties properties) { super(properties); }
 
 	@Override
 	protected boolean isBlockOpaque() { return false; }
 
-	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
-	public InteractionResult use(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
 		if(player instanceof ServerPlayer sp)
 		{
@@ -59,7 +59,7 @@ public class ATMBlock extends TallRotatableBlock{
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ATM);
 		super.appendHoverText(stack, level, tooltip, flagIn);

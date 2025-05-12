@@ -31,6 +31,7 @@ public class TicketItem extends Item{
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -2)
 			tooltip.add(LCText.TOOLTIP_TICKET_ID.get(ticketID));
+		super.appendHoverText(stack,level,tooltip,flagIn);
 	}
 
 	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slot, boolean selected) {

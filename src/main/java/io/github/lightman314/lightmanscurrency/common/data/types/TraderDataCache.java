@@ -560,7 +560,8 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             filler.pop();
         }
         filler.push("Trader Ticks");
-        this.tickers.forEach(IEasyTickable::tick);
+        for(IEasyTickable tickable : this.tickers)
+            tickable.tick();
         filler.pop();
     }
 

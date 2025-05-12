@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallWideRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,14 +17,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
-public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable implements IItemTraderBlock {
+public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public static final int TRADECOUNT = 12;
 	
-	public VendingMachineLargeBlock(Properties properties)
-	{
-		super(properties);
-	}
+	public VendingMachineLargeBlock(Properties properties) { super(properties); }
 
 	@Override
 	protected boolean isBlockOpaque(@Nonnull BlockState state) { return false; }

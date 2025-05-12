@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import net.minecraft.core.BlockPos;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class GachaMachineBlock extends TraderBlockRotatable {
+public class GachaMachineBlock extends TraderBlockRotatable implements IVariantBlock {
 
     protected final int color;
     public int getColor() { return this.color; }

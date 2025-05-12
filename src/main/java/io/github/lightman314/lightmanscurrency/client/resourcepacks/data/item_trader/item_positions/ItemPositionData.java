@@ -44,6 +44,7 @@ public class ItemPositionData {
                 throw new IllegalArgumentException("'" + globalRotation + "' is not a valid RotationType!");
         }
 
+        int globalMinLight = GsonHelper.getAsInt(json,"MinLight",0);
 
         JsonArray entryList = GsonHelper.getAsJsonArray(json, "Entries");
 
@@ -84,13 +85,14 @@ public class ItemPositionData {
             RotationHandler rotationHandler = RotationHandler.getRotationHandler(rotationType);
             if(rotationHandler == null)
                 throw new IllegalArgumentException("'" + rotationType + "' is not a valid RotationType!");
-            entries.add(new PositionEntry(startPosition, extraCount, extraOffset, scale, rotationHandler));
+            int minLight = GsonHelper.getAsInt(json,"MinLight",globalMinLight);
+            entries.add(new PositionEntry(startPosition, extraCount, extraOffset, scale, rotationHandler,minLight));
         }
         return new ItemPositionData(entries);
     }
 
     @Nullable
-    private PositionEntry safeGetEntry(int index) { if(index < 0 || index >= this.entries.size()) return null; return this.entries.get(index); }
+    public PositionEntry safeGetEntry(int index) { if(index < 0 || index >= this.entries.size()) return null; return this.entries.get(index); }
 
     @Nonnull
     public List<Vector3f> getPositions(BlockState state, int index)
@@ -134,10 +136,18 @@ public class ItemPositionData {
         return entry.scale;
     }
 
+    public int getMinLight(int index)
+    {
+        PositionEntry entry = this.safeGetEntry(index);
+        if(entry == null)
+            return 0;
+        return entry.minLight;
+    }
+
     public int getEntryCount() { return this.entries.size(); }
     public boolean isEmpty() { return this.entries.isEmpty(); }
 
-    public record PositionEntry(Vector3f position, int extraCount, Vector3f extraOffset, float scale, RotationHandler rotationHandler) {}
+    public record PositionEntry(Vector3f position, int extraCount, Vector3f extraOffset, float scale, RotationHandler rotationHandler, int minLight) {}
 
     private static final class FacingData
     {

@@ -37,6 +37,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -55,6 +56,9 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 		for(Direction side : Direction.values())
 			this.outputSettings.setState(side, DirectionalSettingsState.OUTPUT);
 	}
+
+	private PaygateTraderData parent = null;
+	public void setParent(PaygateTraderData parent) { this.parent = parent; }
 
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
@@ -90,6 +94,11 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	@Nullable
 	@Override
 	public Block getDisplayBlock() { return ModBlocks.PAYGATE.get(); }
+
+	@Nullable
+	@Override
+	public ResourceLocation getVariant() { return this.parent == null ? null : this.parent.getTraderBlockVariant(); }
+
 	@Nonnull
 	@Override
 	public DirectionalSettingsState getSidedState(@Nonnull Direction side) { return this.outputSettings.getState(side); }
@@ -199,6 +208,12 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 		while(data.size() < tradeCount)
 			data.add(new PaygateTradeData());
 		return data;
+	}
+
+	public static void setupParents(List<PaygateTradeData> trades, PaygateTraderData parent)
+	{
+		for(PaygateTradeData trade : trades)
+			trade.setParent(parent);
 	}
 
 	@Override

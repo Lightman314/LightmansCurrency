@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
-public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
+public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public ArmorDisplayBlock(Properties properties) { super(properties); }
 
@@ -36,9 +37,13 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	
 	@Override
 	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
-			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
+		if(state.is(newState.getBlock()))
+		{
+			super.onRemove(state,level,pos,newState,isMoving);
+			return;
+		}
+		if(level.getBlockEntity(pos) instanceof ArmorDisplayTraderBlockEntity be)
+			be.destroyArmorStand();
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 	

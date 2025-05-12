@@ -1,0 +1,89 @@
+{
+	"credit": "Made with Blockbench",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": { "particle": "#exterior" },
+	"elements": [
+		{
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [4, 4, 8, 8], "texture": "#exterior"},
+				"south": {"uv": [0, 12, 4, 16], "texture": "#exterior"},
+				"west": {"uv": [12, 12, 16, 16], "texture": "#exterior"},
+				"down": {"uv": [8, 4, 12, 8], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Base-Inside",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [16, 6, 1],
+			"to": [1, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 3.5, 3.75, 6], "texture": "#interior"},
+				"east": {"uv": [10.5, 3.5, 14.25, 6], "texture": "#interior"},
+				"down": {"uv": [3, 9.75, 6.75, 13.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Glass-Depth",
+			"forge_data": {"block_light": 5, "ambient_occlusion": false},
+			"from": [1.99, 6.99, 16],
+			"to": [16, 16, 15],
+			"faces": {
+				"west": {"uv": [0.25, 12, 0.5, 14.25], "texture": "#exterior"},
+				"down": {"uv": [0.5, 14.25, 4, 14.5], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Output",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [16, 2.99, 12.99],
+			"to": [4.99, 6, 16],
+			"faces": {
+				"north": {"uv": [6.75, 11.25, 9.5, 12], "texture": "#interior"},
+				"east": {"uv": [11.5, 11.25, 12.25, 12], "texture": "#interior"},
+				"up": {"uv": [9.5, 13.5, 6.75, 12.75], "texture": "#interior"},
+				"down": {"uv": [9.5, 12, 6.75, 12.75], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [1, 10, 1],
+			"to": [16, 11, 11],
+			"faces": {
+				"south": {"uv": [6.75, 11, 10.5, 11.25], "texture": "#interior"},
+				"up": {"uv": [6.75, 8.5, 10.5, 11], "texture": "#interior"},
+				"down": {"uv": [6.75, 6, 10.5, 8.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-1",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [3, 15, 1],
+			"to": [4, 16, 11],
+			"faces": {
+				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
+				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},
+				"west": {"uv": [0.5, 13.75, 3, 14], "texture": "#interior"},
+				"up": {"uv": [0, 13.5, 0.25, 16], "texture": "#interior"},
+				"down": {"uv": [0.25, 13.5, 0.5, 16], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-2",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [10, 15, 1],
+			"to": [11, 16, 11],
+			"faces": {
+				"east": {"uv": [0.5, 13.5, 3, 13.75], "texture": "#interior"},
+				"south": {"uv": [0.5, 14, 0.75, 14.25], "texture": "#interior"},
+				"west": {"uv": [0.5, 13.75, 3, 14], "texture": "#interior"},
+				"up": {"uv": [0, 13.5, 0.25, 16], "texture": "#interior"},
+				"down": {"uv": [0.25, 13.5, 0.5, 16], "texture": "#interior"}
+			}
+		}
+	]
+}

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -37,7 +38,7 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 
-public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, IEasyEntityBlock {
+public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, IEasyEntityBlock, IVariantBlock {
 
     public TaxCollectorBlock(Properties properties) { super(properties.pushReaction(PushReaction.BLOCK)); }
 
@@ -45,6 +46,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock && entity instanceof Player player)
             taxBlock.initialize(player);
+        this.tryCopyVariant(level,pos,stack);
     }
 
     @Override

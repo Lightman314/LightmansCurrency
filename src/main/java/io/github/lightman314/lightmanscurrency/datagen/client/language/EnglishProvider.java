@@ -148,6 +148,8 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
+        this.translate(LCText.ITEM_VARIANT_WAND,"Variant Wand");
+
         //Blocks
         this.translate(LCText.BLOCK_COINPILE_COPPER,"Copper Coinpile");
         this.translate(LCText.BLOCK_COINPILE_COPPER_PLURAL,"Copper Coinpiles");
@@ -299,12 +301,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN_ONLY, "Can only be activated by an admin!");
         this.translate(LCText.TOOLTIP_ATM,"Can exchange coins for other coins of higher or lower values","Can deposit or withdraw coins from any bank account you have access to", "Can transfer money from your account to another player or teams account");
         this.translate(LCText.TOOLTIP_ATM_KEY_BIND,"Press [%s] while equipped to access the ATM");
-        this.translate(LCText.TOOLTIP_TICKET_STATION, "Can be used to print unique Master and Slave tickets","Tickets can be used with the Paygate, or used was coupons for barter trades");
+        this.translate(LCText.TOOLTIP_TICKET_STATION, "Can be used to print unique Master and Slave tickets","Tickets can be used with the Paygate, or used as coupons for barter trades");
         this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
         this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_MONEY_BAG,"Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
+        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
+        this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
+        this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
@@ -700,6 +705,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP,"Store Ticket Stubs");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE,"Give Ticket Stubs to the Customer");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE,"Already Active");
+        this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TIME_REMAINING,"Time Remaining: %s");
 
         //Auction House Specific
         this.translate(LCText.GUI_TRADER_AUCTION_HOUSE,"Auction House");
@@ -1041,6 +1047,21 @@ public class EnglishProvider extends TranslationProvider {
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
 
+        //Block Variants
+        this.translate(LCText.GUI_VARIANT_MENU,"Variant Selection");
+        this.translate(LCText.BUTTON_VARIANT_SELECT,"Select Variant");
+        this.translate(LCText.BLOCK_VARIANT_DEFAULT,"Default Model");
+        this.translate(LCText.BLOCK_VARIANT_UNNAMED,"Unnammed");
+        this.translate(LCText.BLOCK_VARIANT_GLASSLESS,"#Glassless");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN,"Skin (%s)");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN,"Skin (%s) #Glassless");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(0),"Steve");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(1),"Zuri");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(2),"Ari");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(3),"Kai");
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(4),"Garrett");
+        this.translate(LCText.BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS,"#Footless");
+
         //Easy Data Names/Keys
         this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");
         this.translate(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY,"Store Money in Creative");
@@ -1251,6 +1272,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.REI_GROUP_ATM_CARD,"ATM Cards");
         this.translate(LCText.REI_GROUP_ANCIENT_COINS,"Ancient Coins");
         this.translate(LCText.REI_GROUP_GACHA_MACHINE,"Gacha Machines");
+
+        //Jade Plugin names
+        this.add("config.jade.plugin_lightmanscurrency.model_variant","Model Variant");
+        this.add("config.jade.plugin_lightmanscurrency.paygate","Paygate Info");
 
     }
 

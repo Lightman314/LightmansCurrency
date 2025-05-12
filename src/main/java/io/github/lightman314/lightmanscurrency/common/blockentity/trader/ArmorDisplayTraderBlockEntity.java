@@ -166,13 +166,13 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 			armorStand.setNoGravity(true);
 		if(!armorStand.isSilent())
 			armorStand.setSilent(true);
-		if(!armorStand.isMarker() || !armorStand.isNoBasePlate())
+		if(!armorStand.isNoBasePlate() || armorStand.isMarker())
 		{
 			CompoundTag compound = armorStand.saveWithoutId(new CompoundTag());
-			if(!armorStand.isMarker())
-				compound.putBoolean("Marker", true);
 			if(!armorStand.isNoBasePlate())
 				compound.putBoolean("NoBasePlate", true);
+			if(armorStand.isMarker())
+				compound.remove("Marker");
 			armorStand.load(compound);
 		}
 	}

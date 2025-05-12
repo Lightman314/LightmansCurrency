@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.misc.settings.directional;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
@@ -14,6 +15,8 @@ public interface IDirectionalSettingsObject extends IDirectionalSettingsHolder {
     @Nullable
     Block getDisplayBlock();
     DirectionalSettingsState getSidedState(Direction side);
+    @Nullable
+    default ResourceLocation getVariant() { return null; }
 
     default boolean allowInputSide(Direction side) { return this.getSidedState(side).allowsInputs(); }
     default boolean hasInputSide() {

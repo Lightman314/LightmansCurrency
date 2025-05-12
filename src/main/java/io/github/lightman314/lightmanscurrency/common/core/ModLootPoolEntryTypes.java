@@ -2,7 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.loot.entries.*;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModLootPoolEntryTypes {
 
@@ -11,9 +12,9 @@ public class ModLootPoolEntryTypes {
      */
     public static void init() {}
 
-    public static final RegistryObject<LootPoolEntryType> LOOT_TIER_TYPE;
-    public static final RegistryObject<LootPoolEntryType> ANCIENT_COIN_TYPE;
-    public static final RegistryObject<LootPoolEntryType> VANILLA_LOOT_TABLE;
+    public static final Supplier<LootPoolEntryType> LOOT_TIER_TYPE;
+    public static final Supplier<LootPoolEntryType> ANCIENT_COIN_TYPE;
+    public static final Supplier<LootPoolEntryType> VANILLA_LOOT_TABLE;
 
     static {
         LOOT_TIER_TYPE = ModRegistries.LOOT_POOL_ENTRY_TYPES.register("configured_item", () -> new LootPoolEntryType(new ConfigLoot.Serializer()));

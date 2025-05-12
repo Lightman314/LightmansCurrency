@@ -23,7 +23,7 @@ public class EntityMixin {
         {
             stack = moneyBag.getDropItem(stack,fallingBlock.blockData);
         }
-        return original.call(stack);
+        return original.call(stack,offsetY);
     }
 
 }

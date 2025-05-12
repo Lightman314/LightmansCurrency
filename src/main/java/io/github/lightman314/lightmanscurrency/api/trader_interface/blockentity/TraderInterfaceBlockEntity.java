@@ -368,7 +368,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
+	public void load(@Nonnull CompoundTag compound) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Mode"))

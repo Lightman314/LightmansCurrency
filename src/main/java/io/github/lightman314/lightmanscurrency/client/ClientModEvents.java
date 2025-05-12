@@ -3,24 +3,39 @@ package io.github.lightman314.lightmanscurrency.client;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
+import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
@@ -64,6 +79,45 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
+		//Model Variant Models
+		//Done in mixin in 1.20.1 as the only place I could inject the model generation & block state creation is after this event is called
+	}
+
+	@SubscribeEvent
+	public static void onModelsBaked(ModelEvent.ModifyBakingResult event)
+	{
+		Map<ResourceLocation,BakedModel> modelRegistry = event.getModels();
+		List<ModelResourceLocation> wrappedModels = new ArrayList<>();
+		//Wrap each Variant Block item
+		for(Block b : ForgeRegistries.BLOCKS)
+		{
+			if(b instanceof IVariantBlock block)
+			{
+				for(BlockState state : b.getStateDefinition().getPossibleStates())
+				{
+					ModelResourceLocation modelID = BlockModelShaper.stateToModelLocation(state);
+					BakedModel existingModel = modelRegistry.get(modelID);
+					if(existingModel != null)
+					{
+						modelRegistry.put(modelID,new VariantBlockModel(block,existingModel));
+						wrappedModels.add(modelID);
+					}
+					else
+						LightmansCurrency.LogDebug("Missing block model:  " + modelID);
+				}
+				//Also wrap the item model
+				ModelResourceLocation itemModel = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(b.asItem()),"inventory");
+				BakedModel existingModel = modelRegistry.get(itemModel);
+				if(existingModel != null)
+				{
+					modelRegistry.put(itemModel,new VariantItemModel(block,existingModel));
+					wrappedModels.add(itemModel);
+				}
+				else
+					LightmansCurrency.LogWarning("Missing item model: " + itemModel);
+			}
+		}
+		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel");
 	}
 	
 	@SubscribeEvent

@@ -42,7 +42,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -148,6 +147,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				LightmansCurrency.LogError("Trader Block returned block entity of type '" + (blockEntity == null ? "null" : blockEntity.getClass().getName()) + "' when placing the block.");
 			}
 		}
+		this.tryCopyVariant(level,pos,stack);
 	}
 	
 	@Override
@@ -245,10 +245,6 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {}
 	
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
-	
-	@Nullable
-	@Override
-	public BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos) { return level.getBlockEntity(pos); }
 	
 	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	

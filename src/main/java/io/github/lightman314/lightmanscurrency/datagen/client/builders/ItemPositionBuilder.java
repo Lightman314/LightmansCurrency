@@ -2,41 +2,43 @@ package io.github.lightman314.lightmanscurrency.datagen.client.builders;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class ItemPositionBuilder {
-
 
     private boolean hasGlobalScale = false;
     private float globalScale = 0f;
     private String globalRotationType = null;
     private int globalExtraCount = 0;
     private Vector3f globalExtraOffset = null;
+    private int globalMinLight = 0;
     private final List<PositionEntryBuilder> entries = new ArrayList<>();
 
     private ItemPositionBuilder() {}
 
     public static ItemPositionBuilder builder() { return new ItemPositionBuilder(); }
 
-    public ItemPositionBuilder withGlobalRotationType(@Nonnull String rotationType) { this.globalRotationType = rotationType; return this; }
+    public ItemPositionBuilder withGlobalRotationType(String rotationType) { this.globalRotationType = rotationType; return this; }
     public ItemPositionBuilder withGlobalScale(float globalScale) { this.hasGlobalScale = true; this.globalScale = globalScale; return this; }
     public ItemPositionBuilder withGlobalExtraCount(int extraCount) { this.globalExtraCount = extraCount; return this; }
-    public ItemPositionBuilder withGlobalExtraOffset(@Nonnull Vector3f extraOffset) { this.globalExtraOffset = extraOffset; return this; }
+    public ItemPositionBuilder withGlobalExtraOffset(Vector3f extraOffset) { this.globalExtraOffset = extraOffset; return this; }
+    public ItemPositionBuilder withGlobalMinLight(int minLight) { this.globalMinLight = minLight; return this; }
 
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position) { this.entries.add(new PositionEntryBuilder(position, 0, null, false, 0f, null)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, float scale) { this.entries.add(new PositionEntryBuilder(position, 0, null, true, scale, null)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, @Nonnull String rotationType) { this.entries.add(new PositionEntryBuilder(position, 0, null, false, 0f, rotationType)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, float scale, @Nonnull String rotationType) { this.entries.add(new PositionEntryBuilder(position, 0, null, true, scale, rotationType)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, int extraCount, @Nonnull Vector3f extraOffset) { this.entries.add(new PositionEntryBuilder(position, extraCount, extraOffset, false, 0f, null)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, int extraCount, @Nonnull Vector3f extraOffset, float scale) { this.entries.add(new PositionEntryBuilder(position, extraCount, extraOffset, true, scale, null)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, int extraCount, @Nonnull Vector3f extraOffset, @Nonnull String rotationType) { this.entries.add(new PositionEntryBuilder(position, extraCount, extraOffset, false, 0f, rotationType)); return this; }
-    public ItemPositionBuilder withEntry(@Nonnull Vector3f position, int extraCount, @Nonnull Vector3f extraOffset, float scale, @Nonnull String rotationType) { this.entries.add(new PositionEntryBuilder(position, extraCount, extraOffset, true, scale, rotationType)); return this; }
+    public PositionEntryBuilder withEntry(Vector3f position) {
+        PositionEntryBuilder b = new PositionEntryBuilder(this,position);
+        this.entries.add(b);
+        return b;
+    }
 
-    @Nonnull
+    public ItemPositionBuilder withSimpleEntry(Vector3f position) { return this.withEntry(position).back(); }
+
     public JsonObject write()
     {
         JsonObject json = new JsonObject();
@@ -52,6 +54,8 @@ public final class ItemPositionBuilder {
             json.addProperty("offsetY", this.globalExtraOffset.y);
             json.addProperty("offsetZ", this.globalExtraOffset.z);
         }
+        if(this.globalMinLight > 0)
+            json.addProperty("MinLight",this.globalMinLight);
         JsonArray entryList = new JsonArray();
         for(PositionEntryBuilder entry : this.entries)
         {
@@ -68,8 +72,10 @@ public final class ItemPositionBuilder {
                 positionData.addProperty("offsetZ", entry.extraOffset.z);
             }
             entryData.add("Position", positionData);
-            if(entry.hasCustomScale)
+            if(entry.scale > 0f)
                 entryData.addProperty("Scale", entry.scale);
+            if(entry.minLight >= 0)
+                entryData.addProperty("MinLight",entry.minLight);
             if(entry.rotationType != null)
                 entryData.addProperty("RotationType", entry.rotationType);
             entryList.add(entryData);
@@ -78,6 +84,30 @@ public final class ItemPositionBuilder {
         return json;
     }
 
-    private record PositionEntryBuilder(Vector3f position, int extraCount, Vector3f extraOffset, boolean hasCustomScale, float scale, String rotationType) {}
+    //private record PositionEntryBuilder(Vector3f position, int extraCount, Vector3f extraOffset, boolean hasCustomScale, float scale, String rotationType) {}
+
+    public static class PositionEntryBuilder
+    {
+
+        private final ItemPositionBuilder parent;
+
+        private final Vector3f position;
+        private int extraCount = -1;
+        private Vector3f extraOffset = null;
+        private float scale = -1f;
+        private int minLight = -1;
+        String rotationType = null;
+
+        private PositionEntryBuilder(ItemPositionBuilder parent,Vector3f position) { this.parent = parent; this.position = position; }
+
+        public PositionEntryBuilder withExtraCount(int extraCount) { this.extraCount = extraCount; return this; }
+        public PositionEntryBuilder withExtraOffset(Vector3f extraOffset) { this.extraOffset = extraOffset; return this; }
+        public PositionEntryBuilder withScale(float scale) { this.scale = scale; return this; }
+        public PositionEntryBuilder withMinLight(int minLight) { this.minLight = minLight; return this; }
+        public PositionEntryBuilder withRotationType(String rotationType) { this.rotationType = rotationType; return this; }
+
+        public ItemPositionBuilder back() { return this.parent; }
+
+    }
 
 }

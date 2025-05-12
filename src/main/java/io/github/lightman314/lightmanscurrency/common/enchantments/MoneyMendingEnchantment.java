@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.BonusForEnchantment;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.ItemOverride;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.SPacketPlayCoinSound;
 import net.minecraft.ChatFormatting;
@@ -130,7 +131,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 	{
 		Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
 		if(enchantments.getOrDefault(ModEnchantments.MONEY_MENDING.get(),0) > 0)
-			tooltip.add(LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)));
+			TooltipItem.insertTooltip(tooltip,LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack).getText().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD)));
 	}
 	
 }

@@ -44,6 +44,8 @@ public class CoinJarItem extends BlockItem {
 				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL.getWithStyle(ChatFormatting.YELLOW));
 		}
 
+		super.appendHoverText(stack,level,tooltip,flagIn);
+
 	}
 	
 	private static List<ItemStack> readJarData(ItemStack stack)

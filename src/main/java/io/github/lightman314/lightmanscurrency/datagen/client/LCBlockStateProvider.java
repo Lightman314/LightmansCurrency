@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
@@ -23,18 +24,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ConfiguredModel;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class LCBlockStateProvider extends BlockStateProvider {
 
@@ -147,8 +146,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
             //Generate the models
             this.models().getBuilder(modelID).parent(this.lazyBlockModel("display_case/base",true))
                     .texture("wool",woolTexture);
-            //Generate the block state
-            this.simpleBlockWithItem(block.get(),new ModelFile.UncheckedModelFile(VersionUtil.lcResource(modelID)));
+            //Generate the block state & item model
+            this.registerSimpleState(block,modelID);
         });
 
         //Vending Machines
@@ -276,7 +275,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Armor Display
-        this.registerTallRotatable(ModBlocks.ARMOR_DISPLAY, "armor_display_top", "armor_display_bottom", "armor_display", true);
+        this.registerTallRotatable(ModBlocks.ARMOR_DISPLAY, "armor_display/top", "armor_display/bottom", "armor_display/item", true);
 
         //Ticket Kiosk
         this.registerTallRotatable(ModBlocks.TICKET_KIOSK, "ticket_kiosk_top", "ticket_kiosk_bottom", "ticket_kiosk", true);
@@ -297,7 +296,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Slot Machine
-        this.registerTallRotatableInv(ModBlocks.SLOT_MACHINE, "slot_machine/top", "slot_machine/bottom", "slot_machine/item", true);
+        this.registerTallRotatable(ModBlocks.SLOT_MACHINE, "slot_machine/top", "slot_machine/bottom", "slot_machine/item", true);
 
         //Gacha Machine
         ModBlocks.GACHA_MACHINE.forEach((color,block) -> {
@@ -417,24 +416,35 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerRotatable(ModBlocks.TAX_COLLECTOR);
 
         //2.1.2.3
-        this.registerRotatableInv(ModBlocks.SUS_JAR, "jars/sus_jar", true);
+        this.registerRotatable(ModBlocks.SUS_JAR, "jars/sus_jar", true);
 
         //2.2.4.1
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_1,UPGRADE_NETWORK,UPGRADE_TIER_EMERALD);
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_2,UPGRADE_NETWORK,UPGRADE_TIER_DIAMOND);
         this.registerUpgradeItem(ModItems.INTERACTION_UPGRADE_3,UPGRADE_NETWORK,UPGRADE_TIER_NETHERITE);
 
+        //2.2.5.2
+        //Variant Wand
+        this.registerHandheldItem(ModItems.VARIANT_WAND);
+
 
     }
 
     //ITEM MODEL REGISTRATION
-    private void registerBasicItem(RegistryObject<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
-    private void registerLayeredItem(RegistryObject<? extends ItemLike> item) {
+    private void registerBasicItem(Supplier<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
+    private void registerHandheldItem(Supplier<? extends ItemLike> item) {
+        ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(item.get().asItem());
+        this.itemModels()
+            .getBuilder(itemID.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/handheld"))
+                .texture("layer0",VersionUtil.modResource(itemID.getNamespace(),"item/" + itemID.getPath()));
+    }
+    private void registerLayeredItem(Supplier<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.get().asItem()));
         this.itemModels().basicItem(itemID).texture("layer1", VersionUtil.modResource(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
     }
 
-    private void registerUpgradeItem(@Nonnull RegistryObject<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
+    private void registerUpgradeItem(@Nonnull Supplier<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
     {
         ResourceLocation itemID = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.get().asItem()));
         this.itemModels().getBuilder(itemID.toString())
@@ -443,7 +453,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 .texture("layer1",tier);
     }
 
-    private void registerWalletItem(@Nonnull RegistryObject<? extends WalletItem> item)
+    private void registerWalletItem(@Nonnull Supplier<? extends WalletItem> item)
     {
         this.registerBasicItem(item);
         ResourceLocation hipModel = item.get().model;
@@ -456,36 +466,35 @@ public class LCBlockStateProvider extends BlockStateProvider {
         }
     }
 
-    private void registerBlockItemModel(RegistryObject<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }
-    private void registerBlockItemModel(RegistryObject<? extends Block> block, ModelFile itemModel) { this.itemModels().getBuilder(ForgeRegistries.ITEMS.getKey(block.get().asItem()).toString()).parent(itemModel); }
+    private void registerBlockItemModel(Supplier<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }
+    private void registerBlockItemModel(Supplier<? extends Block> block, ModelFile itemModel) { this.itemModels().getBuilder(ForgeRegistries.ITEMS.getKey(block.get().asItem()).toString()).parent(itemModel); }
 
     //BLOCK STATE REGISTRATION
-    private void registerSimpleState(RegistryObject<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
-    private void registerSimpleState(RegistryObject<? extends Block> block, String modelID) { this.registerSimpleState(block,modelID,true); }
-    private void registerSimpleState(RegistryObject<? extends Block> block, String modelID, boolean check) {
+    private void registerSimpleState(Supplier<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
+    private void registerSimpleState(Supplier<? extends Block> block, String modelID) { this.registerSimpleState(block,modelID,true); }
+    private void registerSimpleState(Supplier<? extends Block> block, String modelID, boolean check) {
         ModelFile model = this.lazyBlockModel(modelID, check);
-        this.getVariantBuilder(block.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(model).build());
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(model).build());
         this.registerBlockItemModel(block, model);
     }
 
-    private void registerCoinPile(RegistryObject<? extends Block> block)
+    private void registerCoinPile(Supplier<? extends Block> block)
     {
         String modelID = this.lazyBlockID(block);
         ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_pile", true)).texture("main", texture);
         ModelFile model = this.lazyBlockModel(modelID, false);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBasicItem(block);
     }
-    private void registerCoinBlock(RegistryObject<? extends Block> block)
+    private void registerCoinBlock(Supplier<? extends Block> block)
     {
         String modelID = this.lazyBlockID(block);
         ResourceLocation texture = ForgeRegistries.BLOCKS.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_block", true)).texture("main", texture);
         this.registerSimpleState(block, modelID);
     }
-    private void registerAncientCoin(RegistryObject<? extends Item> item)
+    private void registerAncientCoin(Supplier<? extends Item> item)
     {
         ResourceLocation itemModel = lazyItemModelID(lazyItemID(item));
         ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
@@ -500,22 +509,21 @@ public class LCBlockStateProvider extends BlockStateProvider {
                     .model(new ModelFile.UncheckedModelFile(location));
         }
     }
-    private void registerPaygate(RegistryObject<? extends Block> block, String poweredModelID, String unpoweredModelID)
+    private void registerPaygate(Supplier<? extends Block> block, String poweredModelID, String unpoweredModelID)
     {
         ModelFile powered = this.lazyBlockModel(poweredModelID, true);
         ModelFile unpowered = this.lazyBlockModel(unpoweredModelID, true);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWER_LEVEL) > 0 ? powered : unpowered).rotationY(this.getRotationY(state)).build());
-        this.registerBlockItemModel(block, powered);
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWERED) ? powered : unpowered).rotationY(this.getRotationY(state)).build());
+        this.registerBlockItemModel(block, unpowered);
     }
-    private void registerMoneyBag(RegistryObject<? extends Block> block, String folder)
+    private void registerMoneyBag(Supplier<? extends Block> block, String folder)
     {
         //Block Models
         List<ModelFile> models = new ArrayList<>();
         for(int i = 0; i <= 3; ++i)
             models.add(this.lazyBlockModel(folder + "/" + i,true));
         this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(models.get(state.getValue(MoneyBagBlock.SIZE))).rotationY(this.getRotationYInv(state)).build());
+                .forAllStates(state -> ConfiguredModel.builder().modelFile(models.get(state.getValue(MoneyBagBlock.SIZE))).rotationY(this.getRotationY(state)).build());
         //Item Models
         ResourceLocation itemModel = this.lazyItemModelID(lazyItemID(block));
         ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
@@ -526,44 +534,27 @@ public class LCBlockStateProvider extends BlockStateProvider {
                     .model(models.get(i));
         }
     }
-    private void registerRotatable(RegistryObject<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
-    private void registerRotatable(RegistryObject<? extends Block> block, String modelID, boolean check)
+    private void registerRotatable(Supplier<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
+    private void registerRotatable(Supplier<? extends Block> block, String modelID, boolean check)
     {
         ModelFile model = this.lazyBlockModel(modelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
-        this.registerBlockItemModel(block, model);
-    }
-    private void registerRotatableInv(RegistryObject<? extends Block> block, String modelID, boolean check)
-    {
-        ModelFile model = this.lazyBlockModel(modelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationYInv(state)).build());
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, model);
     }
 
-    private void registerTallRotatableInv(RegistryObject<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
+    private void registerTallRotatable(Supplier<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
         ModelFile top = this.lazyBlockModel(topModelID, check);
         ModelFile bottom = this.lazyBlockModel(bottomModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationYInv(state)).build());
-        this.registerBlockItemModel(block, itemModelID, check);
-    }
-    private void registerTallRotatable(RegistryObject<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
-        ModelFile top = this.lazyBlockModel(topModelID, check);
-        ModelFile bottom = this.lazyBlockModel(bottomModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(this.getTopBottomModel(state, top, bottom)).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
-    private void registerTallWideRotatable(RegistryObject<? extends Block> block, String topLeftModelID, String topRightModelID, String bottomLeftModelID, String bottomRightModelID, String itemModelID, boolean check) {
+    private void registerTallWideRotatable(Supplier<? extends Block> block, String topLeftModelID, String topRightModelID, String bottomLeftModelID, String bottomRightModelID, String itemModelID, boolean check) {
         ModelFile topLeft = this.lazyBlockModel(topLeftModelID, check);
         ModelFile topRight = this.lazyBlockModel(topRightModelID, check);
         ModelFile bottomLeft = this.lazyBlockModel(bottomLeftModelID, check);
         ModelFile bottomRight = this.lazyBlockModel(bottomRightModelID, check);
-        this.getVariantBuilder(block.get())
-                .forAllStates(state -> ConfiguredModel.builder().modelFile(this.getTopBottomLeftRightModel(state, topLeft, topRight, bottomLeft, bottomRight)).rotationY(this.getRotationY(state)).build());
+        this.buildState(block,state -> ConfiguredModel.builder().modelFile(this.getTopBottomLeftRightModel(state, topLeft, topRight, bottomLeft, bottomRight)).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
@@ -572,30 +563,18 @@ public class LCBlockStateProvider extends BlockStateProvider {
     private String lazyWoodenID(String prefix, WoodType type) { return type.generateResourceLocation(prefix); }
     private String lazyWoodenID(String prefix, WoodType type, String postFix) { return type.generateResourceLocation(prefix, postFix); }
 
-    private String lazyItemID(RegistryObject<? extends ItemLike> item) { return ForgeRegistries.ITEMS.getKey(item.get().asItem()).getPath(); }
-    private String lazyBlockID(RegistryObject<? extends Block> block) { return ForgeRegistries.BLOCKS.getKey(block.get()).getPath(); }
+    private String lazyItemID(Supplier<? extends ItemLike> item) { return ForgeRegistries.ITEMS.getKey(item.get().asItem()).getPath(); }
+    private String lazyBlockID(Supplier<? extends Block> block) { return ForgeRegistries.BLOCKS.getKey(block.get()).getPath(); }
 
     private ResourceLocation lazyItemModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("item/") ? modelID : "item/" + modelID); }
     private ResourceLocation lazyBlockModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("block/") ? modelID : "block/" + modelID); }
 
     private ModelFile lazyBlockModel(String modelID, boolean check) { return check ? new ModelFile.ExistingModelFile(this.lazyBlockModelID(modelID), this.models().existingFileHelper) : new ModelFile.UncheckedModelFile(this.lazyBlockModelID(modelID)); }
 
-    private int getRotationYInv(BlockState state) {
-        return switch (state.getValue(IRotatableBlock.FACING)) {
-            case WEST -> 90;
-            case NORTH -> 180;
-            case EAST -> 270;
-            default -> 0;
-        };
-    }
-
     private int getRotationY(BlockState state) {
-        return switch (state.getValue(IRotatableBlock.FACING)) {
-            case EAST -> 90;
-            case SOUTH -> 180;
-            case WEST -> 270;
-            default -> 0;
-        };
+        if(state.getBlock() instanceof IRotatableBlock rb)
+            return rb.getRotationY(state);
+        return 0;
     }
 
     private ModelFile getTopBottomModel(BlockState state, ModelFile top, ModelFile bottom) {
@@ -606,6 +585,16 @@ public class LCBlockStateProvider extends BlockStateProvider {
         if(state.getValue(ITallBlock.ISBOTTOM))
             return state.getValue(IWideBlock.ISLEFT) ? bottomLeft : bottomRight;
         return state.getValue(IWideBlock.ISLEFT) ? topLeft : topRight;
+    }
+
+    protected final void buildState(Supplier<? extends Block> block, Function<BlockState,ConfiguredModel[]> mapper) { this.buildState(block.get(),mapper); }
+    protected final void buildState(Block block, Function<BlockState,ConfiguredModel[]> mapper)
+    {
+        VariantBlockStateBuilder builder = this.getVariantBuilder(block);
+        if(block instanceof IVariantBlock) //Ignore the variant property when building the block states. It's only purpose is to forcibly make the block transparent
+            builder.forAllStatesExcept(mapper,IVariantBlock.VARIANT);
+        else
+            builder.forAllStates(mapper);
     }
 
 }

@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -170,6 +171,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		}
 
 		D newTrader = this.buildTrader(owner, placementStack);
+		//Update with the latest block variant data
+		if(this.getCurrentVariant() != null)
+			newTrader.setTraderBlockVariant(this.getCurrentVariant());
 		//Register to the trading office
 		this.traderID = TraderAPI.API.CreateTrader(newTrader, owner);
 		this.checkTaxes(owner,newTrader);
@@ -267,6 +271,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			//Update the traders block position to this position just in case we got moved by another block
 			this.moveCustomTrader(this.getTraderData());
 		}
+		super.onLoad();
 	}
 
 	@Override
@@ -308,5 +313,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	@Nullable
 	@Override
 	public IUpgradeable getUpgradeable() { return this.getTraderData(); }
+
+	@Override
+	public void setVariant(@Nullable ResourceLocation variant)
+	{
+		super.setVariant(variant);
+		TraderData t = this.getTraderData();
+		if(t != null)
+			t.setTraderBlockVariant(variant);
+	}
 
 }

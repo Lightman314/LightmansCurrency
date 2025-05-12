@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMData;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
@@ -38,12 +39,12 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ChainData {
 
@@ -488,7 +489,7 @@ public class ChainData {
 
         public Builder asEvent() { this.isEvent = true; return this; }
 
-        public ChainBuilder withCoreChain(@Nonnull RegistryObject<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
+        public ChainBuilder withCoreChain(@Nonnull Supplier<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
         public ChainBuilder withCoreChain(@Nonnull ItemLike baseCoin)
         {
             if(this.coreChain != null)
@@ -499,7 +500,7 @@ public class ChainData {
 
         public ChainBuilder getCoreChain() { if(this.coreChain == null) throw new IllegalArgumentException("Core Chain has not yet been built!"); return this.coreChain; }
 
-        public ChainBuilder withSideChain(@Nonnull RegistryObject<? extends ItemLike> baseCoin, int exchangeRate, @Nonnull RegistryObject<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
+        public ChainBuilder withSideChain(@Nonnull Supplier<? extends ItemLike> baseCoin, int exchangeRate, @Nonnull Supplier<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
         public ChainBuilder withSideChain(@Nonnull ItemLike baseCoin, int exchangeRate, @Nonnull ItemLike parentCoin) {
             if(this.coreChain == null)
                 throw new IllegalArgumentException("Cannot build a side chain until the core chain has been built!");
@@ -541,7 +542,7 @@ public class ChainData {
                 this.parent.validateNoDuplicateEntries(baseCoin);
                 this.entries.add(baseCoin);
             }
-            public ChainBuilder withCoin(@Nonnull RegistryObject<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
+            public ChainBuilder withCoin(@Nonnull Supplier<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
             public ChainBuilder withCoin(@Nonnull ItemLike coin, int exchangeRate) {
                 CoinEntry newEntry = new MainCoinEntry(coin.asItem(), exchangeRate);
                 this.parent.validateNoDuplicateEntries(newEntry);
@@ -560,8 +561,10 @@ public class ChainData {
         ChainData chain = CoinAPI.API.ChainDataOfCoin(stack);
         if(chain != null)
         {
+            List<Component> lines = new ArrayList<>();
             if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))
-                chain.formatCoinTooltip(stack, tooltip, flag);
+                chain.formatCoinTooltip(stack, lines, flag);
+            TooltipItem.insertTooltip(tooltip,lines);
         }
     }
 

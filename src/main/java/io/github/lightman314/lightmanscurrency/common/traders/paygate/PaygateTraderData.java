@@ -171,6 +171,8 @@ public class PaygateTraderData extends TraderData {
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
+
+		PaygateTradeData.setupParents(this.trades,this);
 		
 		//Mark trades dirty
 		this.markTradesDirty();
@@ -356,7 +358,11 @@ public class PaygateTraderData extends TraderData {
 	protected void loadAdditional(CompoundTag compound) {
 		//Load Trades
 		if(compound.contains(PaygateTradeData.DEFAULT_KEY))
+		{
 			this.trades = PaygateTradeData.loadAllData(compound);
+			PaygateTradeData.setupParents(this.trades,this);
+		}
+
 		//Load Ticket Stubs
 		if(compound.contains("TicketStubs"))
 		{

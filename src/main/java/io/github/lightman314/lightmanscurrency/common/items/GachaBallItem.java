@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -76,6 +77,13 @@ public class GachaBallItem extends Item {
         return stack;
     }
 
+    public static ItemStack makeEmptyCopy(ItemStack gachaBall)
+    {
+        CompoundTag tag = gachaBall.getTagElement("display");
+        int color = tag != null && tag.contains("color", Tag.TAG_ANY_NUMERIC) ? tag.getInt("color") : 0xFFFFFF;
+        return createWithItemAndColor(ItemStack.EMPTY,color);
+    }
+
     public static int inceptionLevel(ItemStack stack)
     {
         int count = 0;
@@ -110,6 +118,7 @@ public class GachaBallItem extends Item {
                 return;
             tooltip.add(LCText.TOOLTIP_TRADER_GACHA_CONTENTS.get(contents.getCount(),contents.getHoverName()).withStyle(ChatFormatting.GRAY));
         }
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 
 }

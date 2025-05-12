@@ -4,7 +4,8 @@ import io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnc
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment.Rarity;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModEnchantments {
 	
@@ -21,7 +22,7 @@ public class ModEnchantments {
 		
 	}
 	
-	public static final RegistryObject<MoneyMendingEnchantment> MONEY_MENDING;
-	public static final RegistryObject<CoinMagnetEnchantment> COIN_MAGNET;
+	public static final Supplier<MoneyMendingEnchantment> MONEY_MENDING;
+	public static final Supplier<CoinMagnetEnchantment> COIN_MAGNET;
 	
 }

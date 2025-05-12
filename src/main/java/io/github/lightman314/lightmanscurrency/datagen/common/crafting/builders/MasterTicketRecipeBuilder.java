@@ -16,9 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -39,7 +37,7 @@ public class MasterTicketRecipeBuilder implements RecipeBuilder {
     public static MasterTicketRecipeBuilder of(@Nonnull Ingredient ingredient) { return new MasterTicketRecipeBuilder(ingredient); }
 
     @Nonnull
-    public MasterTicketRecipeBuilder withResult(@Nonnull RegistryObject<? extends ItemLike> result) { return this.withResult(result.get()); }
+    public MasterTicketRecipeBuilder withResult(@Nonnull Supplier<? extends ItemLike> result) { return this.withResult(result.get()); }
     public MasterTicketRecipeBuilder withResult(@Nonnull ItemLike result) { this.result = result.asItem(); return this; }
 
     @Nonnull

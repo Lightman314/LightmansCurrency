@@ -96,10 +96,16 @@ public class LCTags {
 
         public static final TagKey<Item> GACHA_BLACKLIST = tag("gacha_ball_blacklist");
 
+        //Display Tag
+        public static final TagKey<Item> DRAW_HALF_SIZE = tag("display_half_size");
+
         //Settings tags
         public static final TagKey<Item> SETTINGS_WRITABLE = tag("settings/writable");
         public static final TagKey<Item> SETTINGS_READABLE = tag("settings/readable");
         public static final TagKey<Item> SETTINGS_REPLACE_WITH_WRITTEN_BOOK = tag("settings/replace_with_written_book");
+
+        //Valid Variant Wands
+        public static final TagKey<Item> VARIANT_WANDS = tag("variant_wands");
 
         private static TagKey<Item> tag(String id) { return ItemTags.create(VersionUtil.lcResource(id)); }
 

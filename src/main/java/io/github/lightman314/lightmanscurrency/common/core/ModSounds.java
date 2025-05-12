@@ -2,7 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModSounds {
 
@@ -14,6 +15,6 @@ public class ModSounds {
 		
 	}
 	
-	public static final RegistryObject<SoundEvent> COINS_CLINKING;
+	public static final Supplier<SoundEvent> COINS_CLINKING;
 	
 }

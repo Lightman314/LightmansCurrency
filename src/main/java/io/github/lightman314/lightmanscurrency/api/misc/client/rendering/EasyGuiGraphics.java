@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.misc.client.rendering;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
@@ -11,22 +13,32 @@ import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
@@ -37,6 +49,12 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public final class EasyGuiGraphics {
+
+    private static final List<ResourceLocation> debuggedModels = new ArrayList<>();
+
+    public static final SlotType SLOT_NORMAL = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,128);
+    public static final SlotType SLOT_YELLOW = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,146);
+    public static final SlotType SLOT_GREEN = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,164);
 
     public static final ResourceLocation GENERIC_BACKGROUND = VersionUtil.lcResource("textures/gui/generic_background.png");
 
@@ -96,11 +114,14 @@ public final class EasyGuiGraphics {
         this.popOffset();
     }
     public void renderSlot(IEasyScreen screen, Slot slot) { if(slot.isActive()) this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
-    public void renderSlot(IEasyScreen screen, ScreenPosition position)
+    public void renderSlot(IEasyScreen screen, int posX, int posY) { this.renderSlot(screen,ScreenPosition.of(posX,posY)); }
+    public void renderSlot(IEasyScreen screen, int posX, int posY, SlotType type) { this.renderSlot(screen,ScreenPosition.of(posX,posY),type); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position) { this.renderSlot(screen,position,SLOT_NORMAL); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position, SlotType type)
     {
         this.resetColor();
         this.pushOffset(screen.getCorner());
-        this.blit(IconAndButtonUtil.WIDGET_TEXTURE,position.offset(-1,-1),0, 128,18,18);
+        this.blit(type.texture(),position.offset(-1,-1),type.u(), type.v(),18,18);
         this.popOffset();
     }
     public void blit(ResourceLocation image, int x, int y, int u, int v, int width, int height) { this.gui.blit(image, this.offset.x + x, this.offset.y + y, u, v, width, height); }
@@ -253,6 +274,95 @@ public final class EasyGuiGraphics {
         this.resetColor();
         this.gui.renderItem(item, this.offset.x + x, this.offset.y + y);
         this.gui.renderItemDecorations(this.font, item, this.offset.x + x, this.offset.y + y, countTextOverride);
+    }
+
+    public void renderScaledItem(ItemStack item, ScreenPosition pos, float scale) { this.renderScaledItem(item,pos.x,pos.y,scale); }
+    public void renderScaledItem(ItemStack item, int x, int y, float scale) {
+        this.resetColor();
+        //Copied from GuiGraphics#renderItem
+        Minecraft minecraft = Minecraft.getInstance();
+        BakedModel bakedmodel = minecraft.getItemRenderer().getModel(item,null,null,0);
+        PoseStack pose = this.getPose();
+        pose.pushPose();
+        //Translate to the top-left corner without the additional offset to center the model
+        pose.translate((float)(this.offset.x + x), (float)(this.offset.y + y), 150f);
+
+        try {
+            //Apply custom scale
+            pose.scale(scale,scale,scale);
+
+            //Translate the additional 8 pixels to center the model after the custom scale has been applied
+            pose.translate(8,8,0);
+
+            //Then apply the vanilla item scaling
+            pose.mulPoseMatrix((new Matrix4f()).scaling(1.0F, -1.0F, 1.0F));
+            pose.scale(16.0F, 16.0F, 16.0F);
+            boolean flag = !bakedmodel.usesBlockLight();
+            if (flag) {
+                Lighting.setupForFlatItems();
+            }
+
+            minecraft.getItemRenderer().render(item, ItemDisplayContext.GUI, false, pose, this.gui.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+            this.gui.flush();
+            if (flag) {
+                Lighting.setupFor3DItems();
+            }
+        } catch (Throwable throwable) {
+            CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
+            crashreportcategory.setDetail("Item Type", () -> String.valueOf(item.getItem()));
+            crashreportcategory.setDetail("Registry Name", () -> String.valueOf(ForgeRegistries.ITEMS.getKey(item.getItem())));
+            crashreportcategory.setDetail("Item Damage", () -> String.valueOf(item.getDamageValue()));
+            crashreportcategory.setDetail("Item NBT", () -> String.valueOf(item.getTag()));
+            crashreportcategory.setDetail("Item Foil", () -> String.valueOf(item.hasFoil()));
+            throw new ReportedException(crashreport);
+        }
+
+        pose.popPose();
+    }
+
+    public void renderItemModel(ResourceLocation model, int x, int y) { this.renderItemModel(model,x,y,new ItemStack(Items.BARRIER)); }
+    public void renderItemModel(ResourceLocation model, int x, int y, ItemStack fallback)
+    {
+        this.resetColor();
+        //Copied from GuiGraphics#renderItem
+        Minecraft minecraft = Minecraft.getInstance();
+        BakedModel bakedmodel = minecraft.getModelManager().getModel(model);
+        if(bakedmodel == minecraft.getModelManager().getMissingModel())
+        {
+            if(!debuggedModels.contains(model))
+            {
+                LightmansCurrency.LogWarning("Missing model for " + model + ". Rendering fallback item.");
+                debuggedModels.add(model);
+            }
+            this.renderItem(fallback,x,y);
+            return;
+        }
+        PoseStack pose = this.getPose();
+        pose.pushPose();
+        pose.translate((float)(this.offset.x + x + 8), (float)(this.offset.y + y + 8), 150f);
+
+        try {
+            pose.mulPoseMatrix((new Matrix4f()).scaling(1.0F, -1.0F, 1.0F));
+            pose.scale(16.0F, 16.0F, 16.0F);
+            boolean flag = !bakedmodel.usesBlockLight();
+            if (flag) {
+                Lighting.setupForFlatItems();
+            }
+
+            minecraft.getItemRenderer().render(new ItemStack(ModItems.COIN_COPPER.get()), ItemDisplayContext.GUI, false, pose, this.gui.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+            this.gui.flush();
+            if (flag) {
+                Lighting.setupFor3DItems();
+            }
+        } catch (Throwable throwable) {
+            CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Model being rendered");
+            crashreportcategory.setDetail("Model ID", () -> String.valueOf(model));
+            throw new ReportedException(crashreport);
+        }
+
+        pose.popPose();
     }
 
     public void renderSlotBackground(Pair<ResourceLocation,ResourceLocation> background, ScreenPosition pos) { this.renderSlotBackground(background, pos.x, pos.y); }

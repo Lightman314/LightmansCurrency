@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -44,12 +44,7 @@ public final class CustomModelData {
         {
             JsonObject entry = new JsonObject();
             entry.add("test",pair.getFirst().write());
-            ModelResourceLocation modelID = pair.getSecond();
-            //Only save the id if it's a standalone
-            if(modelID.getVariant().equals("standalone"))
-                entry.addProperty("model",VersionUtil.modResource(modelID.getNamespace(),modelID.getPath()).toString());
-            else //If it's not a standalone, save the entire model id including variant
-                entry.addProperty("model",modelID.toString());
+            entry.addProperty("model", TagUtil.writeModelResource(pair.getSecond()));
         }
         json.add("custom_model_providers",list);
         return json;
@@ -66,15 +61,7 @@ public final class CustomModelData {
             JsonObject entry = GsonHelper.convertToJsonObject(list.get(i),"custom_model_providers[" + i + "]");
             JsonObject testEntry = GsonHelper.getAsJsonObject(entry,"test");
             CustomModelTest test = CustomModelTest.parse(testEntry);
-            String modelID = GsonHelper.getAsString(json,"model");
-            final ModelResourceLocation model;
-            if(modelID.contains("#"))
-            {
-                String[] split = modelID.split("#",2);
-                model = new ModelResourceLocation(VersionUtil.parseResource(split[0]),split[1]);
-            }
-            else
-                model = new ModelResourceLocation(VersionUtil.parseResource(modelID),"standalone");
+            ModelResourceLocation model = TagUtil.readModelResource(GsonHelper.getAsString(json,"model"));
             data.add(Pair.of(test,model));
         }
         return new CustomModelData(data);

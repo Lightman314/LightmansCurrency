@@ -108,7 +108,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@Nonnull CompoundTag compound)
 	{
 		
 		if(compound.contains("Coins"))

@@ -84,6 +84,8 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.ATM_CARD);
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
+                    //Variant Wand
+                    ezPop(p, ModItems.VARIANT_WAND);
                     //Event Coins
                     ezPop(p, ModItems.COIN_CHOCOLATE_COPPER);
                     ezPop(p, ModBlocks.COINPILE_CHOCOLATE_COPPER);
@@ -281,7 +283,7 @@ public class ModCreativeGroups {
         }
     }
 
-    private static Supplier<ItemStack> ezIcon(RegistryObject<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
+    private static Supplier<ItemStack> ezIcon(Supplier<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
     private static Supplier<ItemStack> ezIcon(ItemLike item) { return Suppliers.memoize(() -> new ItemStack(item)); }
     private static Supplier<ItemStack> ezRandomIcon(@Nonnull Supplier<CreativeModeTab> tabSource) {
         return () -> {
@@ -292,7 +294,7 @@ public class ModCreativeGroups {
         };
     }
 
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
+    public static void ezPop(CreativeModeTab.Output populator, Supplier<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }

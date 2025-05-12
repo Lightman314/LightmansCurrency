@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
@@ -28,7 +27,9 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
     public static final int MAX_DISPLAY_COUNT = WIDTH * WIDTH * HEIGHT;
 
     private final ItemRenderer itemRenderer;
-    public GachaMachineBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.itemRenderer = context.getItemRenderer(); }
+    private GachaMachineBlockEntityRenderer(BlockEntityRendererProvider.Context context) { this.itemRenderer = context.getItemRenderer(); }
+
+    public static GachaMachineBlockEntityRenderer create(BlockEntityRendererProvider.Context context) { return new GachaMachineBlockEntityRenderer(context); }
 
     @Override
     public void render(GachaMachineBlockEntity be, float partialTick, PoseStack pose, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
@@ -45,7 +46,7 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
         if(itemsToDraw <= 0)
             return;
 
-        List<ItemStack> randomItems = storage.peekRandomItems(random,itemsToDraw);
+        List<ItemStack> contents = storage.getRandomizedContents();
         int i = 0;
         for(int y = 0; y < HEIGHT; ++y)
         {
@@ -53,10 +54,12 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
             {
                 for(int z = 0; z < WIDTH; ++z)
                 {
-                    if(i >= randomItems.size())
+                    if(i >= contents.size())
                         return;
-                    ItemStack item = randomItems.get(i++);
-                    ItemStack ball = GachaBallItem.createWithItem(item,random);
+                    //ItemStack item = ;
+                    ItemStack ball = contents.get(i++);
+                    if(!LCConfig.CLIENT.drawGachaMachineItems.get())
+                        ball = GachaBallItem.makeEmptyCopy(ball);
                     pose.pushPose();
 
                     pose.translate((3.5d + (x * 2.3d)) / 16d,(8.33d + (2.66d * y)) / 16d, (3.5d + (z * 2.3d)) / 16d);

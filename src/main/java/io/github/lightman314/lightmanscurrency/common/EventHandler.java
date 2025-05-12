@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
@@ -12,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DateTrigger;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -58,6 +61,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -466,6 +470,18 @@ public class EventHandler {
 				}
 			}
 		} catch (Throwable ignored) {}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
+	{
+		Player player = event.getEntity();
+		ItemStack heldItem = player.getItemInHand(event.getHand());
+		if(InventoryUtil.ItemHasTag(heldItem, LCTags.Items.VARIANT_WANDS))
+		{
+			if(IVariantBlock.tryUseWand(player,event.getPos()))
+				event.setCanceled(true);
+		}
 	}
 	
 }

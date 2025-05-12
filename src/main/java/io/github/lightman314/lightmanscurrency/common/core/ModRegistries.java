@@ -26,6 +26,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -86,6 +87,9 @@ public class ModRegistries {
 		LOOT_POOL_ENTRY_TYPES.register(bus);
 		ModLootPoolEntryTypes.init();
 
+		LOOT_ITEM_FUNCTION_TYPES.register(bus);
+		ModLootFunctionTypes.init();
+
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
@@ -119,6 +123,8 @@ public class ModRegistries {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
+
+	public static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPES = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE,LightmansCurrency.MODID);
 
 	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);

@@ -28,6 +28,9 @@ import javax.annotation.Nullable;
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> implements IDirectionalSettingsHolder {
 	
 	private int timer = 0;
+	public int getTimer() { return this.timer; }
+	private int powerLevel = 0;
+	public int getPowerLevel() { return this.powerLevel; }
 	private final DirectionalSettings outputSides = new DirectionalSettings(this);
 	public boolean allowOutputSide(Direction side) { return this.outputSides.getState(side).allowsOutputs(); }
 
@@ -49,7 +52,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 		super.saveAdditional(compound);
 		
 		this.saveTimer(compound);
-		this.saveOutputSides(compound);
+		this.saveRedstoneData(compound);
 		
 	}
 	
@@ -58,9 +61,9 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 		return compound;
 	}
 
-	public final CompoundTag saveOutputSides(CompoundTag compound) {
+	public final void saveRedstoneData(CompoundTag compound) {
+		compound.putInt("Power",this.powerLevel);
 		this.outputSides.save(compound,"OutputSides");
-		return compound;
 	}
 	
 	@Override
@@ -70,6 +73,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 		if(compound.contains("Timer", Tag.TAG_INT))
 			this.timer = Math.max(compound.getInt("Timer"), 0);
 		this.outputSides.load(compound,"OutputSides");
+		this.powerLevel = MathUtil.clamp(compound.getInt("Power"),0,15);
 		
 		super.load(compound);
 		
@@ -79,9 +83,10 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 	
 	public void activate(int duration, int level, DirectionalSettings outputSides) {
 		this.timer = duration;
+		this.powerLevel = MathUtil.clamp(level,0,15);
 		this.outputSides.copy(outputSides);
 		//Update block state last as we need all data saved to the BE before notifying the neighbors about the change
-		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, MathUtil.clamp(level,0,15)));
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED,true));
 		this.markTimerDirty();
 	}
 	
@@ -95,8 +100,9 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 			this.markTimerDirty();
 			if(this.timer <= 0)
 			{
-				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWER_LEVEL, 0));
+				this.powerLevel = 0;
 				this.outputSides.clear();
+				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, false));
 			}
 		}
 	}

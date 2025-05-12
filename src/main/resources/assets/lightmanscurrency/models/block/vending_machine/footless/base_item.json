@@ -1,0 +1,252 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block1_2",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "#exterior",
+		"keyboard": "lightmanscurrency:block/vending_machine/machine_keyboard"
+	},
+	"elements": [
+		{
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 32, 16],
+			"faces": {
+				"north": {"uv": [8, 4, 12, 12], "texture": "#exterior"},
+				"east": {"uv": [4, 4, 8, 12], "texture": "#exterior"},
+				"south": {"uv": [0, 4, 4, 12], "texture": "#exterior"},
+				"west": {"uv": [12, 4, 16, 12], "texture": "#exterior"},
+				"up": {"uv": [0, 0, 4, 4], "texture": "#exterior"},
+				"down": {"uv": [4, 0, 8, 4], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Base-Inside",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [12, 6, 1],
+			"to": [1, 30, 16],
+			"faces": {
+				"north": {"uv": [3.75, 3.75, 6.5, 9.75], "texture": "#interior"},
+				"east": {"uv": [0, 3.75, 3.75, 9.75], "texture": "#interior"},
+				"west": {"uv": [6.5, 3.75, 10.25, 9.75], "texture": "#interior"},
+				"up": {"uv": [0, 0, 2.75, 3.75], "texture": "#interior"},
+				"down": {"uv": [2.75, 0, 5.5, 3.75], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Glass-Depth",
+			"forge_data": {"block_light": 5},
+			"from": [1.99, 6.99, 16],
+			"to": [11.01, 29.01, 15],
+			"faces": {
+				"east": {"uv": [2.75, 4.75, 3, 10.255], "texture": "#exterior"},
+				"west": {"uv": [0.25, 4.75, 0.5, 10.255], "texture": "#exterior"},
+				"up": {"uv": [0.5, 4.5, 2.75, 4.75], "texture": "#exterior"},
+				"down": {"uv": [0.5, 10.25, 2.75, 10.5], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Keyboard",
+			"shade": false,
+			"from": [12.99, 20.99, 16],
+			"to": [15.01, 24.01, 15.5],
+			"faces": {
+				"east": {"uv": [3.75, 6, 4, 6.75], "texture": "#exterior"},
+				"south": {"uv": [0, 0, 8, 12], "texture": "#keyboard", "forge_data": {"block_light": 15, "ambient_occlusion": false}},
+				"west": {"uv": [3, 6, 3.25, 6.75], "texture": "#exterior"},
+				"up": {"uv": [3.25, 5.75, 3.75, 6], "texture": "#exterior"},
+				"down": {"uv": [3.25, 6.75, 3.75, 7], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Output",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [10.01, 2.99, 12.99],
+			"to": [2.99, 6, 16],
+			"faces": {
+				"north": {"uv": [5.5, 1.5, 7.25, 2.25], "texture": "#interior"},
+				"east": {"uv": [5.5, 0, 6.25, 0.75], "texture": "#interior"},
+				"west": {"uv": [6.25, 0, 7, 0.75], "texture": "#interior"},
+				"up": {"uv": [5.5, 3, 7.25, 2.25], "texture": "#interior"},
+				"down": {"uv": [5.5, 0.75, 7.25, 1.5], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf-1",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [1, 10, 1],
+			"to": [12, 11, 11],
+			"faces": {
+				"south": {"uv": [0, 12.25, 2.75, 12.5], "texture": "#interior"},
+				"up": {"uv": [0, 9.75, 2.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [2.75, 9.75, 5.5, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf-2",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [1, 17, 1],
+			"to": [12, 18, 11],
+			"faces": {
+				"south": {"uv": [0, 12.25, 2.75, 12.5], "texture": "#interior"},
+				"up": {"uv": [0, 9.75, 2.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [2.75, 9.75, 5.5, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Shelf-3",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [1, 24, 1],
+			"to": [12, 25, 11],
+			"faces": {
+				"south": {"uv": [0, 12.25, 2.75, 12.5], "texture": "#interior"},
+				"up": {"uv": [0, 9.75, 2.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [2.75, 9.75, 5.5, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-1",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [3, 15, 1],
+			"to": [4, 16, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-2",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [9, 15, 1],
+			"to": [10, 16, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-3",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [3, 22, 1],
+			"to": [4, 23, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-4",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [9, 22, 1],
+			"to": [10, 23, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-5",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [3, 29, 1],
+			"to": [4, 30, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Mount-6",
+			"forge_data": {"block_light": 10, "ambient_occlusion": false},
+			"from": [9, 29, 1],
+			"to": [10, 30, 11],
+			"faces": {
+				"east": {"uv": [6, 10, 8.5, 10.25], "texture": "#interior"},
+				"south": {"uv": [6, 10.25, 6.25, 10.5], "texture": "#interior"},
+				"west": {"uv": [6, 9.75, 8.5, 10], "texture": "#interior"},
+				"up": {"uv": [5.5, 9.75, 5.75, 12.25], "texture": "#interior"},
+				"down": {"uv": [5.75, 9.75, 6, 12.25], "texture": "#interior"}
+			}
+		},
+		{
+			"name": "Slot-Left",
+			"from": [12, 12, 16],
+			"to": [13, 14, 17],
+			"faces": {
+				"east": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"south": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"west": {"uv": [3, 8.5, 3.25, 9], "texture": "#exterior"},
+				"up": {"uv": [3, 8.5, 3.25, 8.75], "texture": "#exterior"},
+				"down": {"uv": [3, 8.75, 3.25, 9], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Down",
+			"from": [13, 12, 16],
+			"to": [14, 13, 17],
+			"faces": {
+				"south": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"},
+				"up": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"},
+				"down": {"uv": [3.25, 8.75, 3.5, 9], "texture": "#exterior"}
+			}
+		},
+		{
+			"name": "Slot-Right",
+			"from": [14, 12, 16],
+			"to": [15, 14, 17],
+			"faces": {
+				"east": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"south": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"west": {"uv": [3.5, 8.5, 3.75, 9], "texture": "#exterior"},
+				"up": {"uv": [3.5, 8.5, 3.75, 8.75], "texture": "#exterior"},
+				"down": {"uv": [3.5, 8.75, 3.75, 9], "texture": "#exterior"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 12, 0]
+		}
+	},
+	"groups": [
+		0,
+		1,
+		2,
+		3,
+		4,
+		{
+			"name": "Shelf",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [5, 6, 7]
+		},
+		{
+			"name": "Mount",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [8, 9, 10, 11, 12, 13]
+		},
+		{
+			"name": "Slot",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [14, 15, 16]
+		}
+	]
+}

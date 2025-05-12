@@ -3,9 +3,9 @@
 	"parent": "lightmanscurrency:block/block",
 	"texture_size": [48, 48],
 	"textures": {
+		"particle": "lightmanscurrency:block/tax_block",
 		"main": "lightmanscurrency:block/tax_block",
-		"front": "lightmanscurrency:block/tax_block_front",
-		"particle": "#main"
+		"front": "lightmanscurrency:block/tax_block_front"
 	},
 	"elements": [
 		{
@@ -21,5 +21,10 @@
 				"down": {"uv": [10.66667, 5.33333, 16, 10.66667], "texture": "#main"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0]
+		}
+	}
 }

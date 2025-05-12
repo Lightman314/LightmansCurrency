@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class RotationHandler
 {
@@ -21,9 +22,17 @@ public abstract class RotationHandler
     public static final String FACING = "FACING";
     public static final String FACING_UP = "FACING_UP";
 
-    private static final Map<String, RotationHandler> ROTATION_HANDLERS;
+    private static final Map<String,RotationHandler> ROTATION_HANDLERS;
     @Nullable
     public static RotationHandler getRotationHandler(@Nonnull String type) { return ROTATION_HANDLERS.get(type); }
+    public static String getRotationType(@Nonnull RotationHandler handler) {
+        AtomicReference<String> result = new AtomicReference<>("SPINNING");
+        ROTATION_HANDLERS.forEach((key,entry) -> {
+            if(entry == handler)
+                result.set(key);
+        });
+        return result.get();
+    }
 
     @Nonnull
     protected abstract List<Quaternionf> rotate(@Nonnull BlockState state, float partialTicks);

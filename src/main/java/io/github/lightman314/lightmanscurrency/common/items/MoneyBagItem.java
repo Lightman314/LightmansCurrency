@@ -72,6 +72,8 @@ public class MoneyBagItem extends BlockItem {
         {
             tooltip.add(LCText.TOOLTIP_CONTAINER_ITEM_LOOT_TABLE.get(tag.getString("LootTable")).withStyle(ChatFormatting.DARK_GRAY));
         }
+
+        super.appendHoverText(stack,context,tooltip,flag);
     }
 
     @Override

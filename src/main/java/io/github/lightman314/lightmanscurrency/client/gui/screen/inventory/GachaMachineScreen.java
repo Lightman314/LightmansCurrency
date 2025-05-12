@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -169,7 +168,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
             //But will be different for different machines
             RandomSource random = RandomSource.create(Objects.hash(trader.getWorldPosition(),trader.getID()));
 
-            List<ItemStack> contents = trader.getStorage().peekRandomItems(random,BALL_RENDER_COUNT_X * BALL_RENDER_COUNT_Y);
+            List<ItemStack> contents = trader.getStorage().getRandomizedContents();
 
             gui.enableScissor(50,9,76,63);
 
@@ -181,7 +180,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
                 for(int x = 0; x < BALL_RENDER_COUNT_X && !contents.isEmpty(); ++x)
                 {
                     //Render the item
-                    gui.renderItem(GachaBallItem.createWithItem(contents.remove(0),random),BALL_RENDER_LEFT + xOffset + (x * BALL_SIZE),BALL_RENDER_BOTTOM - (y * BALL_SIZE),"");
+                    gui.renderItem(contents.remove(0),BALL_RENDER_LEFT + xOffset + (x * BALL_SIZE),BALL_RENDER_BOTTOM - (y * BALL_SIZE),"");
                 }
             }
 

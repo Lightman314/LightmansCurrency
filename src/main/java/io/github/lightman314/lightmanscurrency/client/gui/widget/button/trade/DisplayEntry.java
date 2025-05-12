@@ -46,7 +46,7 @@ public abstract class DisplayEntry {
 
     public abstract boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY);
 
-    public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null, null); }
+    public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null, t -> {}); }
     public static DisplayEntry of(ItemStack item, int count, Consumer<List<Component>> tooltipEditor) { return new ItemEntry(item, count, null, tooltipEditor); }
     public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip) { return new ItemEntry(item, count, tooltip, null); }
     public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background) { return new ItemAndBackgroundEntry(item, count, tooltip, null, background, ScreenPosition.ZERO); }
@@ -72,7 +72,7 @@ public abstract class DisplayEntry {
         private final ItemStack item;
         private final Consumer<List<Component>> tooltipEditor;
 
-        private ItemEntry(ItemStack item, int count, @Nullable List<Component> forcedTooltip, @Nullable Consumer<List<Component>> tooltipEditor) { super(forcedTooltip); this.item = item.copy(); this.item.setCount(count); this.tooltipEditor = tooltipEditor; }
+        private ItemEntry(ItemStack item, int count, @Nullable List<Component> forcedTooltip, @Nullable Consumer<List<Component>> tooltipEditor) { super(forcedTooltip); this.item = item.copyWithCount(count); this.tooltipEditor = tooltipEditor; }
 
         private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 

@@ -102,12 +102,13 @@ public class CustomSaveData extends SavedData {
     {
         if(event.phase != TickEvent.Phase.START)
             return;
-        forEach(data -> {
+        for(CustomData data : serverDataCache.values())
+        {
             if(data instanceof IEasyTickable ticker)
                 ticker.tick();
             if(data instanceof IServerTicker ticker)
                 ticker.serverTick();
-        });
+        }
     }
 
     @SubscribeEvent

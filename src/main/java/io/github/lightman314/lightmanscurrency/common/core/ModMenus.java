@@ -14,7 +14,8 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModMenus {
 	
@@ -79,50 +80,54 @@ public class ModMenus {
 
 		ATM_CARD = ModRegistries.MENUS.register("atm_card", () -> CreateType((IContainerFactory<ATMCardMenu>)(id,inventory,data) -> new ATMCardMenu(id,inventory,data.readInt())));
 
+		VARIANT_SELECT = ModRegistries.MENUS.register("variant_select", () -> CreateType((IContainerFactory<VariantSelectMenu>)(id,inventory,data) -> new VariantSelectMenu(id,inventory,data.readBlockPos())));
+
 	}
 	
-	public static final RegistryObject<MenuType<ATMMenu>> ATM;
+	public static final Supplier<MenuType<ATMMenu>> ATM;
 	
-	public static final RegistryObject<MenuType<MintMenu>> MINT;
+	public static final Supplier<MenuType<MintMenu>> MINT;
 
-	public static final RegistryObject<MenuType<TerminalMenu>> NETWORK_TERMINAL;
+	public static final Supplier<MenuType<TerminalMenu>> NETWORK_TERMINAL;
 	
 	//Any Trader
-	public static final RegistryObject<MenuType<TraderMenu>> TRADER;
-	public static final RegistryObject<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
-	public static final RegistryObject<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
+	public static final Supplier<MenuType<TraderMenu>> TRADER;
+	public static final Supplier<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
+	public static final Supplier<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
 
 	//Slot Machine
-	public static final RegistryObject<MenuType<SlotMachineMenu>> SLOT_MACHINE;
+	public static final Supplier<MenuType<SlotMachineMenu>> SLOT_MACHINE;
 
 	//Gacha Machine
-	public static final RegistryObject<MenuType<GachaMachineMenu>> GACHA_MACHINE;
+	public static final Supplier<MenuType<GachaMachineMenu>> GACHA_MACHINE;
 
 	//Any Trader Storage
-	public static final RegistryObject<MenuType<TraderStorageMenu>> TRADER_STORAGE;
+	public static final Supplier<MenuType<TraderStorageMenu>> TRADER_STORAGE;
 	
-	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
-	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;
+	public static final Supplier<MenuType<WalletMenu>> WALLET;
+	public static final Supplier<MenuType<WalletBankMenu>> WALLET_BANK;
 	
-	public static final RegistryObject<MenuType<TicketStationMenu>> TICKET_MACHINE;
+	public static final Supplier<MenuType<TicketStationMenu>> TICKET_MACHINE;
 	
-	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
+	public static final Supplier<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	
-	public static final RegistryObject<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
+	public static final Supplier<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
 
-	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
+	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
 
-	public static final RegistryObject<MenuType<CoinChestMenu>> COIN_CHEST;
+	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST;
 
-	public static final RegistryObject<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
+	public static final Supplier<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
 
-	public static final RegistryObject<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
+	public static final Supplier<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
 
-	public static final RegistryObject<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT;
+	public static final Supplier<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT;
 
-	public static final RegistryObject<MenuType<NotificationMenu>> NOTIFICATIONS;
+	public static final Supplier<MenuType<NotificationMenu>> NOTIFICATIONS;
 
-	public static final RegistryObject<MenuType<ATMCardMenu>> ATM_CARD;
+	public static final Supplier<MenuType<ATMCardMenu>> ATM_CARD;
+
+	public static final Supplier<MenuType<VariantSelectMenu>> VARIANT_SELECT;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 

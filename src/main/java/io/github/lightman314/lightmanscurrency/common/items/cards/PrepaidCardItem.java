@@ -41,6 +41,7 @@ public class PrepaidCardItem extends Item implements ColoredItem {
         //Deletion Warning
         tooltip.add(LCText.TOOLTIP_PREPAID_CARD_DELETE_WARNING.getWithStyle(ChatFormatting.GRAY));
 
+        super.appendHoverText(stack,level,tooltip,flag);
     }
 
     @Override

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.text;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public final class CombinedTextEntry {
     public CombinedTextEntry(@Nonnull List<Supplier<String>> keys) { this.keys = ImmutableList.copyOf(keys); }
 
     @SafeVarargs
-    public static CombinedTextEntry items(@Nonnull RegistryObject<? extends ItemLike>... items) {
+    public static CombinedTextEntry items(@Nonnull Supplier<? extends ItemLike>... items) {
         List<Supplier<String>> list = new ArrayList<>();
         for(var item : items)
             list.add(() -> item.get().asItem().getDescriptionId());

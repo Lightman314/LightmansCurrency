@@ -24,6 +24,12 @@ mixin {
     config "lightmanscurrency.mixins.json"
 }
 
+jarJar.enable()
+
+tasks.named("jarJar") {
+    archiveClassifier = "build"
+}
+
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -115,7 +121,7 @@ repositories {
     //Geckolib
     maven {
         name = 'GeckoLib'
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
         content {
             includeGroupByRegex("software\\.bernie.*")
             includeGroup("com.eliotlash.mclib")
@@ -125,8 +131,8 @@ repositories {
         name = "JT Releases"
         url 'https://maven.jt-dev.tech/releases'
     }
-    maven { url "https://maven.shedaniel.me/" }
-    maven { url "https://maven.architectury.dev/" }
+    maven { url = "https://maven.shedaniel.me/" }
+    maven { url = "https://maven.architectury.dev/" }
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     maven { url = "https://maven.tterrag.com" } // Registrate
 
@@ -208,7 +214,9 @@ dependencies {
     runtimeOnly(fg.deobf("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}"))
     implementation(fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}"))
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it,"[0.4.1,)")
+    }
 
     //Impactor Economy Compat
     //Have to get the jar from modrinth as the example maven from their page & github fails to find the net.kyori.* jar-in-jar requirements
@@ -217,7 +225,7 @@ dependencies {
     compileOnly(fg.deobf(fileTree("libs"){ include "*.jar"}))
 
     //Jade cause it's kinda nice to have during runtime
-    runtimeOnly(fg.deobf("maven.modrinth:jade:11.13.1+forge"))
+    implementation fg.deobf("maven.modrinth:jade:11.13.1+forge")
 
 }
 

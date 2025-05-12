@@ -1,0 +1,159 @@
+{
+	"credit": "Made with Blockbench",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "lightmanscurrency:block/armor_display",
+		"main": "lightmanscurrency:block/armor_display/skin_base"
+	},
+	"elements": [
+		{
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 1, 16],
+			"faces": {
+				"north": {"uv": [0, 7.75, 4, 8], "texture": "#main"},
+				"east": {"uv": [0, 7.75, 4, 8], "texture": "#main"},
+				"south": {"uv": [0, 7.75, 4, 8], "texture": "#main"},
+				"west": {"uv": [0, 7.75, 4, 8], "texture": "#main"},
+				"up": {"uv": [0, 4, 4, 8], "texture": "#main"},
+				"down": {"uv": [0, 4, 4, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Glass",
+			"from": [0, 1, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 12, 4, 15.75], "texture": "#main"},
+				"east": {"uv": [4, 4, 8, 7.75], "texture": "#main"},
+				"south": {"uv": [8, 4, 12, 7.75], "texture": "#main"},
+				"west": {"uv": [12, 4, 16, 7.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Glass-Inside",
+			"from": [0.01, 1, 15.99],
+			"to": [15.99, 16, 0.01],
+			"faces": {
+				"north": {"uv": [8, 4, 12, 7.75], "texture": "#main"},
+				"east": {"uv": [4, 4, 8, 7.75], "texture": "#main"},
+				"south": {"uv": [4, 12, 8, 15.75], "texture": "#main"},
+				"west": {"uv": [12, 4, 16, 7.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Arm1",
+			"from": [0, 12, 6],
+			"to": [4, 16, 10],
+			"faces": {
+				"north": {"uv": [13, 7, 14, 8], "texture": "#skin"},
+				"south": {"uv": [11, 7, 12, 8], "texture": "#skin"},
+				"west": {"uv": [10, 7, 11, 8], "texture": "#skin"},
+				"down": {"uv": [12, 4, 13, 5], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Arm1-Layer",
+			"from": [0, 12, 6],
+			"to": [4, 16, 10],
+			"faces": {
+				"north": {"uv": [13, 11, 14, 12], "texture": "#skin"},
+				"south": {"uv": [11, 11, 12, 12], "texture": "#skin"},
+				"west": {"uv": [10, 11, 11, 12], "texture": "#skin"},
+				"down": {"uv": [12, 8, 13, 9], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Arm2",
+			"from": [12, 12, 6],
+			"to": [16, 16, 10],
+			"faces": {
+				"north": {"uv": [11, 15, 12, 16], "texture": "#skin"},
+				"east": {"uv": [10, 15, 11, 16], "texture": "#skin"},
+				"south": {"uv": [9, 15, 10, 16], "texture": "#skin"},
+				"down": {"uv": [10, 12, 11, 13], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Arm2-Layer",
+			"from": [12, 12, 6],
+			"to": [16, 16, 10],
+			"faces": {
+				"north": {"uv": [15, 15, 16, 16], "texture": "#skin"},
+				"east": {"uv": [14, 15, 15, 16], "texture": "#skin"},
+				"south": {"uv": [13, 15, 14, 16], "texture": "#skin"},
+				"down": {"uv": [14, 12, 15, 13], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Leg1",
+			"from": [4, 0, 6],
+			"to": [8, 12, 10],
+			"faces": {
+				"north": {"uv": [3, 5, 4, 8], "texture": "#skin"},
+				"south": {"uv": [1, 5, 2, 8], "texture": "#skin"},
+				"west": {"uv": [0, 5, 1, 8], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Leg1-Layer",
+			"from": [4, 0, 6],
+			"to": [8, 12, 10],
+			"faces": {
+				"north": {"uv": [3, 9, 4, 12], "texture": "#skin"},
+				"south": {"uv": [1, 9, 2, 12], "texture": "#skin"},
+				"west": {"uv": [0, 9, 1, 12], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Leg2",
+			"from": [8, 0, 6],
+			"to": [12, 12, 10],
+			"faces": {
+				"north": {"uv": [7, 13, 8, 16], "texture": "#skin"},
+				"east": {"uv": [6, 13, 7, 16], "texture": "#skin"},
+				"south": {"uv": [5, 13, 6, 16], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Leg2-Layer",
+			"from": [8, 0, 6],
+			"to": [12, 12, 10],
+			"faces": {
+				"north": {"uv": [3, 13, 4, 16], "texture": "#skin"},
+				"east": {"uv": [2, 13, 3, 16], "texture": "#skin"},
+				"south": {"uv": [1, 13, 2, 16], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Body",
+			"from": [4, 12, 6],
+			"to": [12, 16, 10],
+			"faces": {
+				"north": {"uv": [8, 7, 10, 8], "texture": "#skin"},
+				"south": {"uv": [5, 7, 7, 8], "texture": "#skin"}
+			}
+		},
+		{
+			"name": "Body-Layer",
+			"from": [4, 12, 6],
+			"to": [12, 16, 10],
+			"faces": {
+				"north": {"uv": [8, 11, 10, 12], "texture": "#skin"},
+				"south": {"uv": [5, 11, 7, 12], "texture": "#skin"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		2,
+		{
+			"name": "Skin",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+		}
+	]
+}

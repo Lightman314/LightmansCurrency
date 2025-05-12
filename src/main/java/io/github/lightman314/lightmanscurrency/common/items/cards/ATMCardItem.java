@@ -67,6 +67,8 @@ public class ATMCardItem extends Item implements ColoredItem {
             if(tag.getBoolean("CardLocked"))
                 tooltip.add(LCText.TOOLTIP_ATM_CARD_ACCOUNT_LOCKED.getWithStyle(ChatFormatting.GRAY));
         }
+
+        super.appendHoverText(stack,level,tooltip,flag);
     }
 
     @Nonnull

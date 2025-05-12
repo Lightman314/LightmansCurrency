@@ -2,10 +2,10 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
+		"particle": "#front",
 		"front": "lightmanscurrency:block/command_trader/front",
 		"side": "lightmanscurrency:block/command_trader/side",
-		"back": "lightmanscurrency:block/command_trader/back",
-		"particle": "#front"
+		"back": "lightmanscurrency:block/command_trader/back"
 	},
 	"elements": [
 		{
@@ -13,13 +13,18 @@
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "cullface": "north", "texture": "#back"},
-				"east": {"uv": [0, 0, 16, 16], "cullface": "east", "rotation": 270, "texture": "#side"},
-				"south": {"uv": [0, 0, 16, 16], "cullface": "south", "texture": "#front"},
-				"west": {"uv": [0, 0, 16, 16], "cullface": "west", "rotation": 90, "texture": "#side"},
-				"up": {"uv": [0, 0, 16, 16], "cullface": "up", "rotation": 180, "texture": "#side"},
-				"down": {"uv": [0, 0, 16, 16], "cullface": "down", "texture": "#side"}
+				"north": {"uv": [0, 0, 16, 16], "texture": "#back", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 270, "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#front", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 90, "texture": "#side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#side", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "down"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0]
+		}
+	}
 }

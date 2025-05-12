@@ -75,7 +75,7 @@ public interface IRotatableBlock {
 	}
 
 	/**
-	 * Gets the local right direction based on the blocks rotation.
+	 * Gets the local right direction based on the block's rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
 	static Vector3f getRightVect(Direction facing) {
@@ -89,7 +89,7 @@ public interface IRotatableBlock {
 	}
 	
 	/**
-	 * Gets the local left direction based on the blocks rotation.
+	 * Gets the local left direction based on the block's rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
 	static Vector3f getLeftVect(Direction facing) {
@@ -97,7 +97,7 @@ public interface IRotatableBlock {
 	}
 
 	/**
-	 * Gets the local forward (toward the back) direction based on the blocks rotation.
+	 * Gets the local forward (toward the back) direction based on the block's rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
 	static Vector3f getForwardVect(Direction facing) {
@@ -111,7 +111,7 @@ public interface IRotatableBlock {
 	}
 	
 	/**
-	 * Gets the local backward (toward the front) direction based on the blocks rotation.
+	 * Gets the local backward (toward the front) direction based on the block's rotation.
 	 * @param facing The rotatable blocks facing.
 	 */
 	static Vector3f getBackwardVect(Direction facing) {
@@ -160,6 +160,25 @@ public interface IRotatableBlock {
 			facing = facing.getOpposite();
 		Direction result = Direction.from2DDataValue(facing.get2DDataValue() - relativeSide.get2DDataValue() + 4);
 		return result.getAxis() == Axis.X ? result.getOpposite() : result;
+	}
+
+	default int getRotationY(BlockState state) { return this.getRotationY(this.getFacing(state)); }
+	default int getRotationY(Direction facing) {
+		return switch (facing) {
+			case EAST -> 90;
+			case SOUTH -> 180;
+			case WEST -> 270;
+			default -> 0;
+		};
+	}
+
+	default int getRotationYInv(Direction facing) {
+		return switch (facing) {
+			case WEST -> 90;
+			case NORTH -> 180;
+			case EAST -> 270;
+			default -> 0;
+		};
 	}
 	
 }
