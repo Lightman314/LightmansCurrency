@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,7 +37,6 @@ public class TooltipItem extends Item {
 	public static void insertTooltip(List<Component> tooltip, Component line) { insertTooltip(tooltip, Lists.newArrayList(line)); }
 	public static void insertTooltip(List<Component> tooltip, List<Component> lines)
 	{
-		List<Component> temp = new ArrayList<>();
 		for(int i = tooltip.size() - 1; i >= 0; --i)
 		{
 			Component line = tooltip.get(i);

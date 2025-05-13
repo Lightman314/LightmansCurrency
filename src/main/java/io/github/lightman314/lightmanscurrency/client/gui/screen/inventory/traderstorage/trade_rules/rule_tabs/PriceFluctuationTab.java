@@ -40,7 +40,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
         this.durationInput = this.addChild(TimeInputWidget.builder()
                 .position(screenArea.pos.offset(63,75))
                 .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
-                .minDuration(TimeUtil.DURATION_DAY)
+                .minDuration(TimeUtil.DURATION_MINUTE)
                 .handler(this::onTimeSet)
                 .startTime(rule == null ? TimeUtil.DURATION_DAY : rule.getDuration())
                 .build());

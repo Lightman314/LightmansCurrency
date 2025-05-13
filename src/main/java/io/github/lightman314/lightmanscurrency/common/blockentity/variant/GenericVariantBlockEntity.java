@@ -10,8 +10,6 @@ import javax.annotation.Nullable;
 
 public final class GenericVariantBlockEntity extends EasyBlockEntity {
 
-    @Nullable
-    private ResourceLocation variant;
     public GenericVariantBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.GENERIC_VARIANT.get(), pos, state); }
 
 }

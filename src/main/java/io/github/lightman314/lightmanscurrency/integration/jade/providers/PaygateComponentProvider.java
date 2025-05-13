@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.jade.providers;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
@@ -21,8 +21,8 @@ public class PaygateComponentProvider implements IBlockComponentProvider {
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if(accessor.getBlockEntity() instanceof PaygateBlockEntity be && be.getTimer() > 0)
         {
-            TextEntry unit = be.getTimer() > 1 ? LCText.TIME_UNIT_TICK.pluralText : LCText.TIME_UNIT_TICK.fullText;
-            tooltip.add(LCText.TOOLTIP_TRADER_PAYGATE_TIME_REMAINING.get(EasyText.empty().append(String.valueOf(be.getTimer())).append(unit.get())).withStyle(ChatFormatting.GRAY));
+            int seconds = MathUtil.DivideByAndRoundUp(be.getTimer(),20);
+            tooltip.add(LCText.TOOLTIP_TRADER_PAYGATE_TIME_REMAINING.get(EasyText.empty().append(String.valueOf(seconds)).append(LCText.TIME_UNIT_SECOND.shortText.get())).withStyle(ChatFormatting.GRAY));
         }
     }
 

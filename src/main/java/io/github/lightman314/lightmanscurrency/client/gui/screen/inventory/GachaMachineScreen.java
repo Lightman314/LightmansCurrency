@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -31,14 +30,12 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
@@ -166,9 +163,8 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
             //Create random source from the blocks position and the traders id
             //This way the randomization will be consistent whenever the player opens/closes the same traders menu
             //But will be different for different machines
-            RandomSource random = RandomSource.create(Objects.hash(trader.getWorldPosition(),trader.getID()));
 
-            List<ItemStack> contents = trader.getStorage().peekRandomItems(random,BALL_RENDER_COUNT_X * BALL_RENDER_COUNT_Y);
+            List<ItemStack> contents = trader.getStorage().getRandomizedContents();
 
             gui.enableScissor(50,9,76,63);
 
@@ -180,7 +176,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
                 for(int x = 0; x < BALL_RENDER_COUNT_X && !contents.isEmpty(); ++x)
                 {
                     //Render the item
-                    gui.renderItem(GachaBallItem.createWithItem(contents.removeFirst(),random),BALL_RENDER_LEFT + xOffset + (x * BALL_SIZE),BALL_RENDER_BOTTOM - (y * BALL_SIZE),"");
+                    gui.renderItem(contents.removeFirst(),BALL_RENDER_LEFT + xOffset + (x * BALL_SIZE),BALL_RENDER_BOTTOM - (y * BALL_SIZE),"");
                 }
             }
 

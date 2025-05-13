@@ -64,6 +64,11 @@ public class GachaBallItem extends Item {
         return stack;
     }
 
+    public static ItemStack makeEmptyCopy(ItemStack gachaBall)
+    {
+        return createWithItemAndColor(ItemStack.EMPTY,gachaBall.getOrDefault(DataComponents.DYED_COLOR,new DyedItemColor(0xFFFFFF,true)).rgb());
+    }
+
     public static int inceptionLevel(ItemStack stack)
     {
         int count = 0;

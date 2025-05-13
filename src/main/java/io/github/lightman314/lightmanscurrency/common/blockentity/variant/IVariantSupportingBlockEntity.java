@@ -4,12 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.extensions.IBlockEntityExtension;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface IVariantSupportingBlockEntity extends IBlockEntityExtension {
+public interface IVariantSupportingBlockEntity {
 
     @Nonnull
     BlockState getBlockState();

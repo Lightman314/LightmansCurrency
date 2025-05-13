@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -23,6 +25,9 @@ public class GachaStorage {
 
     private final Supplier<Integer> maxStorage;
     public GachaStorage(Supplier<Integer> maxStorage) { this.maxStorage = maxStorage; }
+
+    private List<ItemStack> randomizedContents = null;
+    private void clearRandomizedContents() { this.randomizedContents = null; }
 
     private final List<ItemStack> contents = new ArrayList<>();
     public List<ItemStack> getContents() { return this.contents; }
@@ -60,6 +65,7 @@ public class GachaStorage {
         this.contents.clear();
         for(int i = 0; i < list.size(); ++i)
             this.contents.add(InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup));
+        this.clearRandomizedContents();
     }
 
     public JsonArray write(HolderLookup.Provider lookup) {
@@ -73,6 +79,7 @@ public class GachaStorage {
         this.contents.clear();
         for(int i = 0; i < list.size(); ++i)
             this.forceInsertItem(FileUtil.parseItemStack(GsonHelper.convertToJsonObject(list.get(i),"Storage[" + i + "]"),lookup));
+        this.clearRandomizedContents();
     }
 
     public boolean isEmpty() { return this.contents.isEmpty() || this.getItemCount() <= 0; }
@@ -98,11 +105,13 @@ public class GachaStorage {
                 int fittableAmount = Math.min(space,item.getCount());
                 entry.grow(fittableAmount);
                 item.shrink(fittableAmount);
+                this.clearRandomizedContents();
                 return true;
             }
         }
         //Not found in existing stack, so we'll add a new entry to the list
         this.contents.add(item.split(space));
+        this.clearRandomizedContents();
         return true;
     }
 
@@ -113,11 +122,13 @@ public class GachaStorage {
             if(InventoryUtil.ItemMatches(entry,item))
             {
                 entry.grow(item.getCount());
+                this.clearRandomizedContents();
                 return;
             }
         }
         //Not found in existing stack, so we'll add a new entry to the list
         this.contents.add(item.copy());
+        this.clearRandomizedContents();
     }
 
     public ItemStack removeItem(int slot, int count) {
@@ -127,6 +138,7 @@ public class GachaStorage {
         ItemStack result = item.split(count);
         if(item.isEmpty())
             this.contents.remove(slot);
+        this.clearRandomizedContents();
         return result;
     }
 
@@ -148,6 +160,7 @@ public class GachaStorage {
                     item.shrink(1);
                     if(item.isEmpty())
                         this.contents.remove(i);
+                    this.clearRandomizedContents();
                 }
                 return result;
             }
@@ -156,15 +169,20 @@ public class GachaStorage {
         return ItemStack.EMPTY;
     }
 
-    public List<ItemStack> peekRandomItems(RandomSource random, int count)
+    public List<ItemStack> getRandomizedContents()
     {
-        if(this.contents.isEmpty())
-            return new ArrayList<>();
-        List<ItemStack> result = new ArrayList<>();
-        //Copy local inventory to ensure that we don't display duplicate items
+        if(this.randomizedContents == null)
+            this.randomizeContents();
+        return this.randomizedContents == null ? new ArrayList<>() : new ArrayList<>(this.randomizedContents);
+    }
+
+    private void randomizeContents()
+    {
+        List<ItemStack> results = new ArrayList<>();
+        RandomSource random = RandomSource.create();
         List<ItemStack> contentCopy = InventoryUtil.copyList(this.contents);
         int totalCount = this.getItemCount();
-        for(int i = 0; i < count; ++i)
+        while(!contentCopy.isEmpty() && totalCount > 0)
         {
             int rand = random.nextInt(totalCount);
             for(int x = 0; x < contentCopy.size(); ++x)
@@ -173,20 +191,17 @@ public class GachaStorage {
                 rand -= item.getCount();
                 if(rand < 0)
                 {
-                    result.add(item.copyWithCount(1));
+                    ItemStack ball = GachaBallItem.createWithItem(item.copyWithCount(1),random);
+                    results.add(ball);
                     item.shrink(1);
                     if(item.isEmpty())
-                    {
                         contentCopy.remove(x);
-                        if(contentCopy.isEmpty())
-                            return result;
-                    }
-                    totalCount--;
                     break;
                 }
             }
+            totalCount--;
         }
-        return result;
+        this.randomizedContents = ImmutableList.copyOf(results);
     }
 
 }

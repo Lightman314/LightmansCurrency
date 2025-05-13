@@ -2,12 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.ItemStackData;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,6 +32,9 @@ public class GachaBallRenderer {
         itemRenderer.render(ball,ItemDisplayContext.FIXED,false,pose,buffer,lightLevel,OverlayTexture.NO_OVERLAY,model);
 
         pose.popPose();
+
+        if(!LCConfig.CLIENT.drawGachaBallItem.get())
+            return;
 
         //Render the balls contents
         ItemStack contents = ball.getOrDefault(ModDataComponents.GACHA_ITEM, ItemStackData.EMPTY).stack();

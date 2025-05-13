@@ -67,6 +67,8 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
         if(displayItems.size() < 2)
         {
             //Only renderBG 1 item
+            scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(displayItems.getFirst());
+            pose.scale(scale,scale,scale);
             this.itemRenderer.renderStatic(displayItems.getFirst(), ItemDisplayContext.FIXED, itemLight, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
         }
         else

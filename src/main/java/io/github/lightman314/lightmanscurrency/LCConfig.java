@@ -48,6 +48,8 @@ public final class LCConfig {
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
         public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
+        public final BooleanOption drawGachaMachineItems = BooleanOption.createFalse();
+        public final BooleanOption drawGachaBallItem = BooleanOption.createTrue();
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
 
@@ -90,6 +92,14 @@ public final class LCConfig {
 
             builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
                     .add("itemScaleOverrides",this.itemScaleOverrides);
+
+            builder.comment("Whether the Gacha Machine should display the items within the gacha balls",
+                            "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines")
+                    .add("gachaMachineFullRender",this.drawGachaMachineItems);
+
+            builder.comment("Whether the Gacha Ball should render the item inside",
+                            "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines")
+                    .add("gachaBallFullRender",this.drawGachaBallItem);
 
             builder.pop();
 

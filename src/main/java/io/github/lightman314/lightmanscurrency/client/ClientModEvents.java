@@ -108,7 +108,7 @@ public class ClientModEvents {
 					if(block.requiredModels() > block.modelsRequiringRotation())
 					{
 						List<ResourceLocation> models = variant.getModels(block);
-						for(int i = block.requiredModels(); i < models.size(); ++i)
+						for(int i = block.modelsRequiringRotation(); i < models.size(); ++i)
 						{
 							ResourceLocation modelID = models.get(i);
 							if(!addedModels.contains(modelID))
