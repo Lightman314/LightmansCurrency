@@ -42,12 +42,12 @@ import java.util.Map;
 public class StockTickerInteractionHandlerMixin {
 
     @Unique
-    private static WalletInventoryWrapper wrapper;
+    private static WalletInventoryWrapper lightmanscurrency$wrapper;
 
     @Inject(at=@At(value="FIELD", target="net/createmod/catnip/data/Iterate.trueAndFalse:[Z"),method="interactWithShop", cancellable=true)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
-        clearWrapper();
+        lightmanscurrency$clearWrapper();
         //If no wallet equipped nothing to check
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -101,7 +101,7 @@ public class StockTickerInteractionHandlerMixin {
     {
         if(player.level().isClientSide)
             return next.call(player);
-        clearWrapper();
+        lightmanscurrency$clearWrapper();
         //If no wallet equipped, don't wrap the inventory
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -110,8 +110,8 @@ public class StockTickerInteractionHandlerMixin {
         for(BigItemStack stack : paymentEntries.getStacks()) {
             if (CoinAPI.API.IsCoin(stack.stack, false))
             {
-                wrapper = new WalletInventoryWrapper(next.call(player),walletHandler,paymentEntries.copy());
-                return wrapper;
+                lightmanscurrency$wrapper = new WalletInventoryWrapper(next.call(player),walletHandler,paymentEntries.copy());
+                return lightmanscurrency$wrapper;
             }
         }
         return next.call(player);
@@ -120,16 +120,16 @@ public class StockTickerInteractionHandlerMixin {
     @Inject(at = @At("RETURN"),method = "interactWithShop")
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci)
     {
-        clearWrapper();
+        lightmanscurrency$clearWrapper();
     }
 
     @Unique
-    private static void clearWrapper()
+    private static void lightmanscurrency$clearWrapper()
     {
-        if(wrapper != null)
+        if(lightmanscurrency$wrapper != null)
         {
-            wrapper.clearContents();
-            wrapper = null;
+            lightmanscurrency$wrapper.clearContents();
+            lightmanscurrency$wrapper = null;
         }
     }
 

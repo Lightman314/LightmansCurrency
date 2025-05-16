@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.Unique;
 public class EntityMixin {
 
     @Unique
-    Entity self() { return (Entity)(Object)this; }
+    protected Entity lightmanscurrency$self() { return (Entity)(Object)this; }
 
     @WrapMethod(method = "spawnAtLocation(Lnet/minecraft/world/item/ItemStack;F)Lnet/minecraft/world/entity/item/ItemEntity;")
     private ItemEntity spawnAtLocation(ItemStack stack, float offsetY, Operation<ItemEntity> original)
     {
-        if(this.self() instanceof FallingBlockEntity fallingBlock && fallingBlock.blockData != null && fallingBlock.getBlockState().getBlock() instanceof MoneyBagBlock moneyBag && stack.getItem() == moneyBag.asItem() && !stack.isEmpty())
+        if(this.lightmanscurrency$self() instanceof FallingBlockEntity fallingBlock && fallingBlock.blockData != null && fallingBlock.getBlockState().getBlock() instanceof MoneyBagBlock moneyBag && stack.getItem() == moneyBag.asItem() && !stack.isEmpty())
         {
             stack = moneyBag.getDropItem(stack,fallingBlock.blockData);
         }

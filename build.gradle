@@ -227,6 +227,9 @@ dependencies {
     //Jade cause it's kinda nice to have during runtime
     implementation fg.deobf("maven.modrinth:jade:11.13.1+forge")
 
+    //Modern Fix as I attempt to fix the dynamic resources compatibility
+    implementation fg.deobf("maven.modrinth:modernfix:5m06ltZw")
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

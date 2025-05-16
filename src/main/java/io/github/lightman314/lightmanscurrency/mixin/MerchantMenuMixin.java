@@ -35,23 +35,23 @@ import javax.annotation.Nullable;
 public abstract class MerchantMenuMixin {
 
     @Unique
-    protected MerchantMenu self() { return (MerchantMenu)(Object)this; }
+    protected MerchantMenu lightmanscurrency$self() { return (MerchantMenu)(Object)this; }
 
     @Accessor("trader")
     public abstract Merchant getTrader();
     @Accessor("tradeContainer")
     public abstract MerchantContainer getTradeContainer();
     @Unique
-    public Player getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
+    public Player lightmanscurrency$getPlayer() { Merchant m = this.getTrader(); if(m != null) return m.getTradingPlayer(); return null; }
 
     @Inject(at = @At("HEAD"), method = "tryMoveItems")
     private void tryMoveItemsEarly(int trade, CallbackInfo info)
     {
         //Clear coin items into the wallet instead of their inventory
         try {
-            MerchantMenu self = this.self();
+            MerchantMenu self = this.lightmanscurrency$self();
             if(trade >= 0 && trade < self.getOffers().size())
-                this.EjectMoneyIntoWallet(this.getPlayer(), false);
+                this.lightmanscurrency$EjectMoneyIntoWallet(this.lightmanscurrency$getPlayer(), false);
         } catch (Throwable ignored) {}
     }
 
@@ -59,7 +59,7 @@ public abstract class MerchantMenuMixin {
     private void tryMoveItems(int trade, CallbackInfo info)
     {
         try {
-            MerchantMenu self = this.self();
+            MerchantMenu self = this.lightmanscurrency$self();
             if(trade >= 0 && trade < self.getOffers().size())
             {
                 MerchantContainer tradeContainer = this.getTradeContainer();
@@ -87,7 +87,7 @@ public abstract class MerchantMenuMixin {
                         else valueB = 0;
 
                         //LightmansCurrency.LogDebug("Coin Value of the selected trade is " + tradeValue.getString());
-                        Player player = this.getPlayer();
+                        Player player = this.lightmanscurrency$getPlayer();
 
                         MoneyView availableFunds = WalletCapability.getWalletMoney(player);
 
@@ -108,7 +108,7 @@ public abstract class MerchantMenuMixin {
                             coinA.setCount(tempC2AA);
                             coinB.setCount(tempC2AB);
 
-                            if(!containsValueFor(availableFunds, chainA, valueA, tempC2AA, chainB, valueB, tempC2AB))
+                            if(!lightmanscurrency$containsValueFor(availableFunds, chainA, valueA, tempC2AA, chainB, valueB, tempC2AB))
                                 keepLooping = false;
                             else
                             {
@@ -153,7 +153,7 @@ public abstract class MerchantMenuMixin {
     }
 
     @Unique
-    private static boolean containsValueFor(@Nonnull MoneyView query, @Nonnull ChainData chainA, long valueA, int countA, @Nullable ChainData chainB, long valueB, int countB)
+    private static boolean lightmanscurrency$containsValueFor(@Nonnull MoneyView query, @Nonnull ChainData chainA, long valueA, int countA, @Nullable ChainData chainB, long valueB, int countB)
     {
         MoneyValue cvA = CoinValue.fromNumber(chainA.chain, valueA * countA);
         MoneyValue cvB = chainB == null ? MoneyValue.empty() : CoinValue.fromNumber(chainB.chain, valueB * countB);
@@ -167,12 +167,12 @@ public abstract class MerchantMenuMixin {
 
     @Inject(at = @At("HEAD"), method = "removed")
     private void removed(Player player, CallbackInfo info) {
-        if(this.isPlayerAliveAndValid(player))
-            this.EjectMoneyIntoWallet(player, true);
+        if(this.lightmanscurrency$isPlayerAliveAndValid(player))
+            this.lightmanscurrency$EjectMoneyIntoWallet(player, true);
     }
 
     @Unique
-    protected boolean isPlayerAliveAndValid(Player player)
+    protected boolean lightmanscurrency$isPlayerAliveAndValid(Player player)
     {
         if(player.isAlive())
         {
@@ -184,7 +184,7 @@ public abstract class MerchantMenuMixin {
     }
 
     @Unique
-    private void EjectMoneyIntoWallet(Player player, boolean noUpdate)
+    private void lightmanscurrency$EjectMoneyIntoWallet(Player player, boolean noUpdate)
     {
         MerchantContainer tradeContainer = this.getTradeContainer();
         ItemStack item = tradeContainer.getItem(0);

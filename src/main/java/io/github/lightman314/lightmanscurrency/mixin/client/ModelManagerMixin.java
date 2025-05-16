@@ -24,22 +24,22 @@ import java.util.concurrent.Executor;
 public class ModelManagerMixin {
 
     @Unique
-    private static ModelManagerData data = null;
+    private static ModelManagerData lightmanscurrency$data = null;
 
     @Inject(at = @At("HEAD"),method = "reload")
     private void reload(PreparableReloadListener.PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller preparationProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor, CallbackInfoReturnable<CompletableFuture<Void>> cir)
     {
-        data = new ModelManagerData(preparationBarrier,resourceManager,preparationProfiler,reloadProfiler,backgroundExecutor,gameExecutor);
+        lightmanscurrency$data = new ModelManagerData(preparationBarrier,resourceManager,preparationProfiler,reloadProfiler,backgroundExecutor,gameExecutor);
     }
 
     @WrapMethod(method = "loadBlockModels")
     private static CompletableFuture<Map<ResourceLocation, BlockModel>> loadBlockModels(ResourceManager resourceManager, Executor executor, Operation<CompletableFuture<Map<ResourceLocation, BlockModel>>> original)
     {
         CompletableFuture<Map<ResourceLocation,BlockModel>> cf = original.call(resourceManager,executor);
-        if(data == null)
+        if(lightmanscurrency$data == null)
             return cf;
         return cf.thenApplyAsync(map -> {
-            ModelVariantDataManager.INSTANCE.reload(data.preparationBarrier(),data.resourceManager(),data.preparationsProfiler(),data.reloadProfiler(),data.backgroundExecutor(),data.gameExecutor());
+            ModelVariantDataManager.INSTANCE.reload(lightmanscurrency$data.preparationBarrier(), lightmanscurrency$data.resourceManager(), lightmanscurrency$data.preparationsProfiler(), lightmanscurrency$data.reloadProfiler(), lightmanscurrency$data.backgroundExecutor(), lightmanscurrency$data.gameExecutor());
             return map;
         });
     }
