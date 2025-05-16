@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 public class BlockEntityBlockHelper {
 
@@ -58,9 +57,9 @@ public class BlockEntityBlockHelper {
 	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<T,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBiBundle<T,?,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	@SafeVarargs
-	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObject<T>... blocks) {
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, Supplier<T>... blocks) {
 		List<Supplier<Block>> blockSources = new ArrayList<>();
-		for(RegistryObject<T> block : blocks)
+		for(Supplier<T> block : blocks)
 		{
 			if(block != null)
 				blockSources.add(block::get);
