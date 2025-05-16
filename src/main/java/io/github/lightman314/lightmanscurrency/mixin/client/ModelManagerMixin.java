@@ -26,24 +26,24 @@ import java.util.concurrent.Executor;
 public abstract class ModelManagerMixin {
 
     @Unique
-    private static ModelManagerData data = null;
+    private static ModelManagerData lightmanscurrency$data = null;
 
     @Inject(at = @At("HEAD"),method = "reload")
     private void reload(PreparableReloadListener.PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor, CallbackInfoReturnable<CompletableFuture<Void>> cir)
     {
         //Force the ModelVariant data to reload before the vanilla model manager
-        data = new ModelManagerData(preparationBarrier,resourceManager,preparationsProfiler,reloadProfiler,backgroundExecutor,gameExecutor);
+        lightmanscurrency$data = new ModelManagerData(preparationBarrier,resourceManager,preparationsProfiler,reloadProfiler,backgroundExecutor,gameExecutor);
     }
 
     @WrapMethod(method = "loadBlockModels")
     private static CompletableFuture<Map<ResourceLocation,BlockModel>> loadBlockModels(ResourceManager resourceManager, Executor executor, Operation<CompletableFuture<Map<ResourceLocation, BlockModel>>> original)
     {
         CompletableFuture<Map<ResourceLocation,BlockModel>> cf = original.call(resourceManager,executor);
-        if(data == null)
+        if(lightmanscurrency$data == null)
             return cf;
         return cf.thenApplyAsync(map -> {
             //Force the ModelVariantData to be loaded at the same time that the original
-            ModelVariantDataManager.INSTANCE.reload(data.preparationBarrier(),data.resourceManager(),data.preparationsProfiler(),data.reloadProfiler(),data.backgroundExecutor(),data.gameExecutor());
+            ModelVariantDataManager.INSTANCE.reload(lightmanscurrency$data.preparationBarrier(), lightmanscurrency$data.resourceManager(), lightmanscurrency$data.preparationsProfiler(), lightmanscurrency$data.reloadProfiler(), lightmanscurrency$data.backgroundExecutor(), lightmanscurrency$data.gameExecutor());
             //Store the map in an editable format locally so that it can be edited in the loadBlockStates data
             Map<ResourceLocation,BlockModel> editableMap = new HashMap<>(map);
             VariantModelHelper.setModelDataCache(editableMap);

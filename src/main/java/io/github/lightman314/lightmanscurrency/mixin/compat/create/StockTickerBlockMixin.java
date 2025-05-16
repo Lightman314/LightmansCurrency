@@ -25,14 +25,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class StockTickerBlockMixin {
 
     @Unique
-    private StockTickerBlock self() { return (StockTickerBlock)(Object)this;}
+    private StockTickerBlock lightmanscurrency$self() { return (StockTickerBlock)(Object)this;}
 
     @Inject(at = @At("HEAD"),method = "useItemOn",cancellable = true)
     private void useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<ItemInteractionResult> cir)
     {
         if (stack.getItem() instanceof LogisticallyLinkedBlockItem)
             return;
-        StockTickerBlock self = this.self();
+        StockTickerBlock self = this.lightmanscurrency$self();
         if(level.getBlockEntity(pos) instanceof StockTickerBlockEntity be)
         {
             if(!be.behaviour.mayInteract(player))

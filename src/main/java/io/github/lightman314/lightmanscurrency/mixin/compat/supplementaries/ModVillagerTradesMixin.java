@@ -17,14 +17,14 @@ import java.util.List;
 public class ModVillagerTradesMixin {
 
     @Unique
-    private static final String RED_MERCHANT_ID = "supplementaries:red_merchant";
+    private static final String lightmanscurrency$RED_MERCHANT_ID = "supplementaries:red_merchant";
 
     @Inject(at = @At("RETURN"), method = "getRedMerchantTrades", cancellable = true, remap = false)
     private static void getRedMerchantTrades(CallbackInfoReturnable<VillagerTrades.ItemListing[]> callbackInfo) {
         if(LCConfig.COMMON.changeModdedTrades.get())
         {
             List<VillagerTrades.ItemListing> list = new ArrayList<>(List.of(callbackInfo.getReturnValue()));
-            VillagerTradeManager.replaceExistingTrades(RED_MERCHANT_ID, list);
+            VillagerTradeManager.replaceExistingTrades(lightmanscurrency$RED_MERCHANT_ID, list);
             callbackInfo.setReturnValue(list.toArray(VillagerTrades.ItemListing[]::new));
         }
     }

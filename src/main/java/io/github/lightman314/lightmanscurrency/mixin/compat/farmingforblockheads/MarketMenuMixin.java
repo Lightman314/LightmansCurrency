@@ -37,30 +37,30 @@ public abstract class MarketMenuMixin {
     protected abstract DefaultContainer getInputContainer();
 
     @Unique
-    private boolean selectingEntry = false;
+    private boolean lightmanscurrency$selectingEntry = false;
 
     @Unique
-    private boolean hasCoinInInputSlot() { return CoinAPI.API.IsCoin(this.getInputContainer().getItem(0),false); }
+    private boolean lightmanscurrency$hasCoinInInputSlot() { return CoinAPI.API.IsCoin(this.getInputContainer().getItem(0),false); }
 
     @Inject(at = @At("HEAD"),method = "removed")
     private void removed(Player player, CallbackInfo callback)
     {
-        if(this.hasCoinInInputSlot())
-            this.storeCoins(true);
+        if(this.lightmanscurrency$hasCoinInInputSlot())
+            this.lightmanscurrency$storeCoins(true);
     }
 
     @Inject(at = @At("HEAD"),method = "selectMarketEntry",remap = false)
-    private void selectMarketEntryEarly(ResourceLocation recipeID, boolean stack, CallbackInfo callback) { this.selectingEntry = true; }
+    private void selectMarketEntryEarly(ResourceLocation recipeID, boolean stack, CallbackInfo callback) { this.lightmanscurrency$selectingEntry = true; }
 
     @Inject(at = @At("TAIL"),method = "selectMarketEntry",remap = false)
-    private void selectMarketEntryLate(ResourceLocation recipeID, boolean stack, CallbackInfo callback) { this.selectingEntry = false; }
+    private void selectMarketEntryLate(ResourceLocation recipeID, boolean stack, CallbackInfo callback) { this.lightmanscurrency$selectingEntry = false; }
 
     @Inject(at = @At("HEAD"), method = "quickMoveStack",cancellable = true)
     private void quickMoveStack(Player player, int slot, CallbackInfoReturnable<ItemStack> callback)
     {
-        if(this.selectingEntry && slot == 0 && this.hasCoinInInputSlot())
+        if(this.lightmanscurrency$selectingEntry && slot == 0 && this.lightmanscurrency$hasCoinInInputSlot())
         {
-            this.storeCoins(false);
+            this.lightmanscurrency$storeCoins(false);
             callback.setReturnValue(ItemStack.EMPTY);
             callback.cancel();
         }
@@ -128,7 +128,7 @@ public abstract class MarketMenuMixin {
     }
 
     @Unique
-    private void storeCoins(boolean noUpdate)
+    private void lightmanscurrency$storeCoins(boolean noUpdate)
     {
         DefaultContainer container = this.getInputContainer();
         ItemStack stack = noUpdate ? container.removeItemNoUpdate(0) : container.removeItem(0,Integer.MAX_VALUE);

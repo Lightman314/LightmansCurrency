@@ -22,10 +22,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class InventoryMenuMixin {
 
     @Unique
-    private Slot walletSlot = null;
+    private Slot lightmanscurrency$walletSlot = null;
 
     @Unique
-    private InventoryMenu self() { return (InventoryMenu)(Object)this; }
+    private InventoryMenu lightmanscurrency$self() { return (InventoryMenu)(Object)this; }
 
     @Accessor("owner")
     protected abstract Player getPlayer();
@@ -36,8 +36,8 @@ public abstract class InventoryMenuMixin {
         //Don't add wallet slot if curios is installed
         if(LCCurios.isLoaded())
             return;
-        if(this.self() instanceof AbstractContainerMenuAccessor accessor)
-            this.walletSlot = accessor.addCustomSlot(new WalletSlot(player, WalletHelpers.getWalletContainer(player), 0, LCConfig.CLIENT.walletSlot.get().x + 1, LCConfig.CLIENT.walletSlot.get().y + 1));
+        if(this.lightmanscurrency$self() instanceof AbstractContainerMenuAccessor accessor)
+            this.lightmanscurrency$walletSlot = accessor.addCustomSlot(new WalletSlot(player, WalletHelpers.getWalletContainer(player), 0, LCConfig.CLIENT.walletSlot.get().x + 1, LCConfig.CLIENT.walletSlot.get().y + 1));
     }
 
     @Inject(at = @At("HEAD"), method = "quickMoveStack", cancellable = true)
@@ -47,12 +47,12 @@ public abstract class InventoryMenuMixin {
         if(LCCurios.isLoaded())
             return;
         //Only quick move from the inventory slots
-        if(slotIndex >= 9 && slotIndex < 45 && this.walletSlot != null)
+        if(slotIndex >= 9 && slotIndex < 45 && this.lightmanscurrency$walletSlot != null)
         {
-            Slot slot = this.self().slots.get(slotIndex);
-            if(slot.hasItem() && WalletItem.isWallet(slot.getItem()) && !this.walletSlot.hasItem())
+            Slot slot = this.lightmanscurrency$self().slots.get(slotIndex);
+            if(slot.hasItem() && WalletItem.isWallet(slot.getItem()) && !this.lightmanscurrency$walletSlot.hasItem())
             {
-                this.walletSlot.set(slot.getItem().copy());
+                this.lightmanscurrency$walletSlot.set(slot.getItem().copy());
                 slot.set(ItemStack.EMPTY);
                 callbackInfo.setReturnValue(ItemStack.EMPTY);
             }

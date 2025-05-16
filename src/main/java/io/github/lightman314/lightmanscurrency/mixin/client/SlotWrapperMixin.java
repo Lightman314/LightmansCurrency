@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SlotWrapperMixin {
 
     @Unique
-    private SlotWrapper self() { return (SlotWrapper)(Object)this; }
+    private SlotWrapper lightmanscurrency$self() { return (SlotWrapper)(Object)this; }
 
     @Inject(at = @At("TAIL"), method = "<init>")
     public void init(Slot target, int index, int x, int y, CallbackInfo callbackInfo)
@@ -23,8 +23,8 @@ public class SlotWrapperMixin {
         if(target instanceof WalletSlot)
         {
             ScreenPosition pos = LCConfig.CLIENT.walletSlotCreative.get();
-            self().x = pos.x + 1;
-            self().y = pos.y + 1;
+            lightmanscurrency$self().x = pos.x + 1;
+            lightmanscurrency$self().y = pos.y + 1;
         }
     }
 
